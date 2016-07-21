@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.impl;
 
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
@@ -56,31 +57,81 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 	
 	public DateTimeDt TS2DateTime(TS ts){
-		DateTimeDt dateTimeDt = new DateTimeDt();
-		String date=ts.getValue();
-		return dateParser(date);
+			DateTimeDt dateTimeDt =new DateTimeDt();
+			boolean isNull=ts.isSetNullFlavor();
+			if(!isNull)
+			{
+				String date=ts.getValue();
+				return dateParser(date);
+			}
+			else
+			{
+				//NullFlavor should be set.
+				return null;
+			}
 	}
     
 	public DateTimeDt dateParser(String date)
 	{
 		DateTimeDt dateTimeDt = new DateTimeDt();
-		if(date.length()==8)
-		{
-			String year=date.substring(0,4);
-			String month=date.substring(4,6);
-			String day=date.substring(6,8);
-			int yearInt=Integer.parseInt(year);
-			int monthInt=Integer.parseInt(month);
-			int dayInt=Integer.parseInt(day);
-			dateTimeDt.setYear(yearInt);
-			dateTimeDt.setMonth(monthInt);
-			dateTimeDt.setDay(dayInt);
-			return dateTimeDt;
-		}
-		else
-		{
-			return null;
-		}
+		boolean isPrecisionSet=false;
+		switch(date.length())
+		{	
+			default:
+				if(date.length()>14)
+				{
+					int x=date.length();
+					String ms=date.substring(14,x);
+					int msInt=Integer.parseInt(ms);
+					dateTimeDt.setMinute(msInt);
+					if(!isPrecisionSet)
+					{
+						dateTimeDt.setPrecision(TemporalPrecisionEnum.MILLI);
+						isPrecisionSet=true;
+					}
+				}//end if
+				else
+				{
+					//do nothing
+					break;
+				}
+			case 14:
+				String second=date.substring(12,14);
+				int secondInt=Integer.parseInt(second);
+				dateTimeDt.setMinute(secondInt);
+				if(!isPrecisionSet)
+				{
+					dateTimeDt.setPrecision(TemporalPrecisionEnum.SECOND);
+					isPrecisionSet=true;
+				}
+			case 12:
+				String minute=date.substring(10,12);
+				int minuteInt=Integer.parseInt(minute);
+				dateTimeDt.setMinute(minuteInt);
+				if(!isPrecisionSet)
+				{
+					dateTimeDt.setPrecision(TemporalPrecisionEnum.MINUTE);
+					isPrecisionSet=true;
+				}
+			case 10:
+				String hour=date.substring(8,10);
+				int hourInt=Integer.parseInt(hour);
+				dateTimeDt.setHour(hourInt);
+			case 8:
+				String day=date.substring(6,8);
+				int dayInt=Integer.parseInt(day);
+				dateTimeDt.setDay(dayInt);
+			case 6:
+				String month=date.substring(4,6);
+				int monthInt=Integer.parseInt(month);
+				dateTimeDt.setMonth(monthInt);
+				
+			case 4:
+				String year=date.substring(0,4);
+				int yearInt=Integer.parseInt(year);
+				dateTimeDt.setYear(yearInt);
+		}//end switch
+		return dateTimeDt;
 	}
     
 }
