@@ -1,6 +1,8 @@
 package tr.com.srdc.cda2fhir.impl;
 
+import ca.uhn.fhir.model.api.IDatatype;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
@@ -8,6 +10,7 @@ import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
+import ca.uhn.fhir.model.dstu2.valueset.ParticipantTypeEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -16,6 +19,8 @@ import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -30,6 +35,9 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xml.type.SimpleAnyType;
+import org.openhealthtools.mdht.uml.cda.Act;
+import org.openhealthtools.mdht.uml.cda.Participant2;
+import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
@@ -44,6 +52,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.SetOperator;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
@@ -63,7 +72,16 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     }
 
     public CodeableConceptDt CD2CodeableConcept(CD cd) {
-        return null;
+        if( cd.isSetNullFlavor() ) return null;
+        else{
+        	List<CodingDt> myCodingDtList = new ArrayList<CodingDt>();
+        	CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
+        	for(CD myCd : cd.getTranslations() ){
+        		CodingDt toAdd = new CodingDt(myCd.getCodeSystem(),myCd.getCode());
+        		myCodingDtList.add(toAdd);
+        	}
+        	return myCodeableConceptDt;
+        }
     }
     
 //    public Base64BinaryDt BIN2Base64Binary(BIN bin){
@@ -206,6 +224,32 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		return quantityDt;
 		
 	}
+	
+	public AnnotationDt Act2Annotation(Act act){
+		if(act.isNullFlavorDefined()) return null;
+		else{
+			AnnotationDt myAnnotationDt = new AnnotationDt();
+			for(Participant2 theParticipant : act.getParticipants()){
+				if(theParticipant.getTypeCode() == ParticipationType.AUT){
+					//TODO: Annotation.author[x]
+					// Type	Reference(Practitioner | Patient | RelatedPerson)|string
+					// For now, we are getting the name of the participant as a string
+					if (theParticipant.getRole().getPlayer() instanceof Person) {
+						Person person = (Person)theParticipant.getRole().getPlayer();
+						myAnnotationDt.setAuthor( new StringDt(person.getNames().get(0).getText()) );
+					} 
+					myAnnotationDt.setTime( IVL_TS2Period(act.getEffectiveTime()).getStartElement() );
+					//TODO: While setTime is waiting a parameter as DateTime, act.effectiveTime gives output as IVL_TS (Interval)
+					//In sample XML, it gets the effective time as the low time
+					//Check if it is ok
+					
+					myAnnotationDt.setText(act.getText().toString());
+				}
+			}
+			return myAnnotationDt;
+		}
+	}
+	
 	public RangeDt IVL_PQ2Range(IVL_PQ ivlpq){
 		RangeDt rangeDt = new RangeDt();
 		if(ivlpq.getLow()==null && ivlpq.getHigh()==null)

@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir;
 
+import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
@@ -13,6 +14,7 @@ import ca.uhn.fhir.model.primitive.DecimalDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
+import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
@@ -39,7 +41,7 @@ public interface DataTypesTransformer {
 	
     CodingDt CV2Coding(CV cv);
 
-    CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 0 */
+    CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 1 */
     
     BooleanDt BL2Boolean(BL bl); /* Maturity Level: 1 */
     
@@ -60,5 +62,6 @@ public interface DataTypesTransformer {
     QuantityDt PQ2Quantity(PQ pq);
    
     RangeDt IVL_PQ2Range(IVL_PQ ivlpq);
-
+    
+    AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
 }
