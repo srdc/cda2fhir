@@ -4,6 +4,10 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
+import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
+import ca.uhn.fhir.model.dstu2.composite.RangeDt;
+import ca.uhn.fhir.model.dstu2.composite.RatioDt;
+import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,11 +24,15 @@ import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.xml.type.SimpleAnyType;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PQR;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.SetOperator;
@@ -37,38 +45,99 @@ import tr.com.srdc.cda2fhir.DataTypesTransformer;
 public class DataTypesTransformerImpl implements DataTypesTransformer {
 
     public CodingDt CV2Coding(CV cv) {
-        return null;
+    	CodingDt codingDt= new CodingDt();
+    	codingDt.setSystem(cv.getCodeSystem());
+    	codingDt.setVersion(cv.getCodeSystemVersion());
+    	codingDt.setCode(cv.getCode());
+    	codingDt.setDisplay(cv.getDisplayName());
+        return codingDt;
     }
 
     public CodeableConceptDt CD2CodeableConcept(CD cd) {
-        return null;
+    	CodeableConceptDt codeableConceptDt = new CodeableConceptDt();
+    	
+    	return null;
     }
 
 	public PeriodDt IVL_TS2Period(IVL_TS ivlts) {
 		
 		PeriodDt periodDt =new PeriodDt();
-		String date=ivlts.getLow().getValue();
-		periodDt.setStart(dateParser(date));
-		
-		date=ivlts.getHigh().getValue();
-		periodDt.setEnd(dateParser(date)); 
+		boolean isNullFlavorLow=ivlts.getLow().isSetNullFlavor();
+		if(!isNullFlavorLow)
+		{
+			String date=ivlts.getLow().getValue();
+			periodDt.setStart(dateParser(date));
+		}
+		boolean isNullFlavorHigh=ivlts.getHigh().isSetNullFlavor();
+		if(!isNullFlavorHigh)
+		{
+			String date=ivlts.getHigh().getValue();
+			periodDt.setEnd(dateParser(date));
+		}
 		return periodDt;
 		
 	}
 	
 	public DateTimeDt TS2DateTime(TS ts){
 			DateTimeDt dateTimeDt =new DateTimeDt();
-			boolean isNull=ts.isSetNullFlavor();
-			if(!isNull)
+			boolean isNullFlavor=ts.isSetNullFlavor();
+			if(!isNullFlavor)
 			{
 				String date=ts.getValue();
 				return dateParser(date);
 			}
 			else
 			{
-				//NullFlavor should be set.
 				return null;
 			}
+	}
+	public QuantityDt PQ2Quantity(PQ pq)
+	{
+		QuantityDt quantityDt = new QuantityDt();
+		if(pq.isNullFlavorUndefined())
+		{
+			quantityDt.setValue(pq.getValue());
+			quantityDt.setUnit(pq.getUnit());
+			for(PQR pqr : pq.getTranslations())
+			{
+				if(pqr!=null)
+				{
+					quantityDt.setSystem(pqr.getCodeSystem());
+					quantityDt.setCode(pqr.getCode());
+				}
+				else
+				{
+					break;
+				}
+			}
+		}//end if
+		return quantityDt;
+		
+	}
+	public RangeDt IVL_PQ2Range(IVL_PQ ivlpq){
+		RangeDt rangeDt = new RangeDt();
+		if(ivlpq.getLow()==null && ivlpq.getHigh()==null)
+		{
+			return null;
+		}
+		else
+		{
+			if(ivlpq.getLow()!=null)
+			{
+				QuantityDt quantityDt = new QuantityDt();
+				quantityDt.setValue(ivlpq.getLow().getValue());
+				quantityDt.setUnit(ivlpq.getLow().getUnit());
+				rangeDt.setLow((SimpleQuantityDt)quantityDt);
+			}
+			if(ivlpq.getHigh()!=null)
+			{
+				QuantityDt quantityDt = new QuantityDt();
+				quantityDt.setValue(ivlpq.getHigh().getValue());
+				quantityDt.setUnit(ivlpq.getHigh().getUnit());
+				rangeDt.setHigh((SimpleQuantityDt)quantityDt);
+			}
+			return rangeDt;
+		}
 	}
     
 	public DateTimeDt dateParser(String date)
