@@ -1,6 +1,5 @@
 package tr.com.srdc.cda2fhir.impl;
 
-import ca.uhn.fhir.model.api.IDatatype;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
@@ -10,7 +9,6 @@ import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
-import ca.uhn.fhir.model.dstu2.valueset.ParticipantTypeEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -18,23 +16,8 @@ import ca.uhn.fhir.model.primitive.DecimalDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.util.DiagnosticChain;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.TreeIterator;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EOperation;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.xml.type.SimpleAnyType;
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.Person;
@@ -43,7 +26,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQR;
 import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
@@ -51,10 +33,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
-import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
-import org.openhealthtools.mdht.uml.hl7.vocab.SetOperator;
-
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 
 /**
@@ -157,17 +136,17 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     public UriDt URL2Uri(URL url){
     	return url.isSetNullFlavor() ? null : new UriDt(url.getValue());
     }
-    /* QuantityDt is required. 
-     * When ready, please fill in the gaps: <<QuantityDt>> */
-//    public RatioDt RTO2Ratio(RTO rto){
-//    	if( rto.isNullFlavorDefined() ) return null;
-//    	else{
-//    		RatioDt myRatioDt = new RatioDt();
-//    		myRatioDt.setNumerator( <<QuantityDt>> );
-//    		myRatioDt.setDenominator( <<QuantityDt>> );
-//    		return myRatioDt;
-//    	}
-//    }
+
+    public RatioDt RTO2Ratio(RTO rto){
+    	if( rto.isNullFlavorDefined() ) return null;
+    	else{
+    		RatioDt myRatioDt = new RatioDt();
+    		myRatioDt.setNumerator( PQ2Quantity( (PQ) rto.getNumerator()) );
+    		myRatioDt.setDenominator( PQ2Quantity( (PQ) rto.getDenominator()) );
+    		// TODO: Test requirement: Check whether casting QTY to PQ is OK
+    		return myRatioDt;
+    	}
+    }
 
 	public PeriodDt IVL_TS2Period(IVL_TS ivlts) {
 		
@@ -189,7 +168,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 	
 	public DateTimeDt TS2DateTime(TS ts){
-			DateTimeDt dateTimeDt =new DateTimeDt();
 			boolean isNullFlavor=ts.isSetNullFlavor();
 			if(!isNullFlavor)
 			{
@@ -249,6 +227,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return myAnnotationDt;
 		}
 	}
+	
 	
 	public RangeDt IVL_PQ2Range(IVL_PQ ivlpq){
 		RangeDt rangeDt = new RangeDt();

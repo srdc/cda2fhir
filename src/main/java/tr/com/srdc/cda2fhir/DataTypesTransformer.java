@@ -39,7 +39,7 @@ public interface DataTypesTransformer {
 	 * 3: finalized
 	 */
 	
-    CodingDt CV2Coding(CV cv);
+    CodingDt CV2Coding(CV cv); /* Maturity Level: 1 */
 
     CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 1 */
     
@@ -53,15 +53,16 @@ public interface DataTypesTransformer {
     
     UriDt URL2Uri(URL url); /* Maturity Level: 1 */
     
-//    RatioDt RTO2Ratio(RTO rto); /* QuantityDt is required to implement this method */
+    RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 1 */
     
-    PeriodDt IVL_TS2Period(IVL_TS ivlts);
+    PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 1 */
     
-    DateTimeDt TS2DateTime(TS ts);
+    DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 1 */
     
-    QuantityDt PQ2Quantity(PQ pq);
+    QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 1 */
    
-    RangeDt IVL_PQ2Range(IVL_PQ ivlpq);
+    RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 1 */
     
     AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
+    
 }
