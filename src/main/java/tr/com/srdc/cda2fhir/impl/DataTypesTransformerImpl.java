@@ -354,15 +354,18 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				String day=date.substring(6,8);
 				int dayInt=Integer.parseInt(day);
 				dateTimeDt.setDay(dayInt);
+				dateTimeDt.setPrecision(TemporalPrecisionEnum.DAY);
 			case 6:
 				String month=date.substring(4,6);
 				int monthInt=Integer.parseInt(month);
 				dateTimeDt.setMonth(monthInt);
+				dateTimeDt.setPrecision(TemporalPrecisionEnum.MONTH);
 				
 			case 4:
 				String year=date.substring(0,4);
 				int yearInt=Integer.parseInt(year);
 				dateTimeDt.setYear(yearInt);
+				dateTimeDt.setPrecision(TemporalPrecisionEnum.YEAR);
 		}//end switch
 		return dateTimeDt;
 	}
@@ -490,47 +493,42 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		return null;
 	}
 	public AttachmentDt ED2Attachment(ED ed) {
-		if(ed==null)
+		if(ed==null || ed.isSetNullFlavor())
 		{
 			return null;
 		}
 		else
 		{
-			if(ed.isSetNullFlavor())
+			AttachmentDt attachmentDt = new AttachmentDt();
+			if(ed.isSetMediaType() && ed.getMediaType()!=null)
 			{
-				AttachmentDt attachmentDt = new AttachmentDt();
-				if(ed.isSetMediaType() && ed.getMediaType()!=null)
-				{
-					attachmentDt.setContentType(ed.getMediaType());
-				}
-				if(ed.getLanguage()!=null)
-				{
-					attachmentDt.setLanguage(ed.getLanguage());
-				}
-				if(ed.isSetRepresentation() && ed.getRepresentation().getLiteral()!=null)
-				{
-					Base64BinaryDt base64BinaryDt = new Base64BinaryDt();
-					base64BinaryDt.setValue(ed.getRepresentation().getLiteral().getBytes());
-					attachmentDt.setData(base64BinaryDt);
-				}
-				if(ed.getReference().getValue()!=null)
-				{
-					attachmentDt.setUrl(ed.getReference().getValue());
-				}
-				if(ed.getIntegrityCheck()!=null)
-				{
-					attachmentDt.setHash(ed.getIntegrityCheck());
-				}
-				if(ed.isSetRepresentation() && ed.getRepresentation().getName()!=null)//If this contains a title.
-				{
-					attachmentDt.setTitle(ed.getRepresentation().getName());
-				}
-				return attachmentDt;
-			}//end if
-			else
-			{
-				return null;
+				attachmentDt.setContentType(ed.getMediaType());
 			}
+			if(ed.getLanguage()!=null)
+			{
+				attachmentDt.setLanguage(ed.getLanguage());
+			}
+			if(ed.isSetRepresentation() && ed.getRepresentation().getLiteral()!=null)
+			{
+				attachmentDt.setData( ed.getText().getBytes() );
+//				Base64BinaryDt base64BinaryDt = new Base64BinaryDt();
+//				base64BinaryDt.setValue(ed.getRepresentation().getLiteral().getBytes());
+//				attachmentDt.setData(base64BinaryDt);
+			}
+			if(ed.getReference().getValue()!=null)
+			{
+				attachmentDt.setUrl(ed.getReference().getValue());
+			}
+			if(ed.getIntegrityCheck()!=null)
+			{
+				attachmentDt.setHash(ed.getIntegrityCheck());
+			}
+			if(ed.isSetRepresentation() && ed.getRepresentation().getName()!=null)//If this contains a title.
+			{
+				// TODO: Not sure if ed.title.data is compensated by ed.getRepresentation().getName(). Please check.
+				attachmentDt.setTitle(ed.getRepresentation().getName());
+			}
+			return attachmentDt;
 		}
 	}//end attachmentDt
     
