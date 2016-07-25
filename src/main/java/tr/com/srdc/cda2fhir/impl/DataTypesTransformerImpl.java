@@ -152,6 +152,20 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     public UriDt URL2Uri(URL url){
     	return ( url == null || url.isSetNullFlavor() ) ? null : new UriDt(url.getValue());
     }
+public Base64BinaryDt BIN2Base64Binary(BIN bin){
+    	
+    	if(bin.getRepresentation().getLiteral()!=null)
+    	{
+    		Base64BinaryDt base64BinaryDt = new Base64BinaryDt();
+        	base64BinaryDt.setValue(bin.getRepresentation().getLiteral().getBytes());
+        	return base64BinaryDt;
+    	}
+    	else
+    	{
+    		return null;
+    	}
+    	
+    }
 
     public RatioDt RTO2Ratio(RTO rto){
     	if( rto == null || rto.isSetNullFlavor() ) return null;
@@ -464,6 +478,50 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		return null;
 	}
+	public AttachmentDt ED2Attachment(ED ed) {
+		if(ed==null)
+		{
+			return null;
+		}
+		else
+		{
+			if(ed.isSetNullFlavor())
+			{
+				AttachmentDt attachmentDt = new AttachmentDt();
+				if(ed.isSetMediaType() && ed.getMediaType()!=null)
+				{
+					attachmentDt.setContentType(ed.getMediaType());
+				}
+				if(ed.getLanguage()!=null)
+				{
+					attachmentDt.setLanguage(ed.getLanguage());
+				}
+				if(ed.isSetRepresentation() && ed.getRepresentation().getLiteral()!=null)
+				{
+					Base64BinaryDt base64BinaryDt = new Base64BinaryDt();
+					base64BinaryDt.setValue(ed.getRepresentation().getLiteral().getBytes());
+					attachmentDt.setData(base64BinaryDt);
+				}
+				if(ed.getReference().getValue()!=null)
+				{
+					attachmentDt.setUrl(ed.getReference().getValue());
+				}
+				if(ed.getIntegrityCheck()!=null)
+				{
+					attachmentDt.setHash(ed.getIntegrityCheck());
+				}
+				if(ed.isSetRepresentation() && ed.getRepresentation().getName()!=null)//If this contains a title.
+				{
+					attachmentDt.setTitle(ed.getRepresentation().getName());
+				}
+				return attachmentDt;
+			}//end if
+			else
+			{
+				return null;
+			}
+		}
+	}//end attachmentDt
     
 }
 
