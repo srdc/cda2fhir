@@ -1,41 +1,49 @@
 package tr.com.srdc.cda2fhir;
 
-import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+
 import org.junit.Assert;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 
 /**
- * Created by mustafa on 7/25/2016.
+ * Created by necip on 7/25/2016
  */
 public class DataTypesTransformerTestNecip {
 
     DataTypesTransformer dtt = new DataTypesTransformerImpl();
-
+    
+    
     @Test
-    public void testPQ2Quantity() {
-        // simple instance test
-        PQ pq = DatatypesFactory.eINSTANCE.createPQ();
-        pq.setValue(120.0);
-        pq.setUnit("mg");
-        QuantityDt quantity = dtt.PQ2Quantity(pq);
-
-        Assert.assertEquals("PQ.value was not transformed", 120.0, quantity.getValue().doubleValue(), 0.001);
-        Assert.assertEquals("PQ.unit was not transformed", "mg", quantity.getUnit());
-
-        // null instance test
-        PQ pq2 = null;
-        QuantityDt quantity2 = dtt.PQ2Quantity(pq2);
-        Assert.assertNull("PQ null instance transform failed", quantity2);
-
-        // nullFlavor instance test
-        PQ pq3 = DatatypesFactory.eINSTANCE.createPQ();
-        pq3.setNullFlavor(NullFlavor.NI);
-        QuantityDt quantity3 = dtt.PQ2Quantity(pq3);
-        Assert.assertNull("PQ.nullFlavor set instance transform failed", quantity3);
+    public void testCV2Coding(){
+    	// simple instance test
+    	CV cv = DatatypesFactory.eINSTANCE.createCV();
+    	cv.setCodeSystem("theCodeSystem");
+    	cv.setCodeSystemVersion("theCodeSystemVersion");
+    	cv.setCode("theCode");
+    	cv.setDisplayName("theDisplayName");
+    	// TODO: The mapping btw CodingDt.userSelected and CD.codingRationale doesn't exist
+    	
+    	CodingDt coding = dtt.CV2Coding(cv);
+    	
+    	Assert.assertEquals("CV.codeSystem was not transformed",coding.getSystem(),"theCodeSystem");
+    	Assert.assertEquals("CV.codeSystemVersion was not transformed",coding.getVersion(),"theCodeSystemVersion");
+    	Assert.assertEquals("CV.code was not transformed",coding.getCode(),"theCode");
+    	Assert.assertEquals("CV.displayName was not transformed",coding.getDisplay(),"theDisplayName");
+    	
+    	
+    	// null instance test
+    	CV cv2 = null;
+    	CodingDt coding2 = dtt.CV2Coding(cv2);
+    	Assert.assertNull("CV null instance transform failed", coding2);
+    	
+    	// nullFlavor instance test
+    	CV cv3 = DatatypesFactory.eINSTANCE.createCV();
+    	cv3.setNullFlavor(NullFlavor.NI);
+    	CodingDt coding3 = dtt.CV2Coding(cv3);
+    	Assert.assertNull("CV.nullFlavor set instance transform failed",coding3);
     }
-
 }
