@@ -66,6 +66,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	    	codingDt.setVersion(cv.getCodeSystemVersion());
 	    	codingDt.setCode(cv.getCode());
 	    	codingDt.setDisplay(cv.getDisplayName());
+	    	// Mapping from Coding.userSelected to CD.codingRationale doesn't exist
 	        return codingDt;
     	}
     }
@@ -76,6 +77,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	List<CodingDt> myCodingDtList = new ArrayList<CodingDt>();
         	CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
         	for(CD myCd : cd.getTranslations() ){
+        		if(myCd.getCodeSystem().isEmpty() || myCd.getCode().isEmpty()) continue;
         		CodingDt toAdd = new CodingDt(myCd.getCodeSystem(),myCd.getCode());
         		myCodingDtList.add(toAdd);
         	}
@@ -140,6 +142,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     			 * Therefore, we just set the year in one line for the cases yyyymm and yyyymmdd 
     			 * */
     			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) );
+    		case 0: /* lenght of the date string is zero. we need to return null */
+    			return null;
     		}
     	return resultDateDt;
     	}
@@ -175,15 +179,11 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	if( rto == null || rto.isSetNullFlavor() ) return null;
     	else{
     		RatioDt myRatioDt = new RatioDt();
-    		if( rto.getNumerator().isSetNullFlavor() ) {
-    			myRatioDt.setNumerator( null );
-    		} else {
+    		if( ! rto.getNumerator().isSetNullFlavor() ) {
     			// TODO: Test requirement: Check whether casting QTY to PQ is OK
     			myRatioDt.setNumerator( PQ2Quantity( (PQ) rto.getNumerator()) );
     		}
-    		if( rto.getDenominator().isSetNullFlavor() ){
-    			myRatioDt.setDenominator( null );
-    		} else{
+    		if( !rto.getDenominator().isSetNullFlavor() ){
     			myRatioDt.setDenominator( PQ2Quantity( (PQ) rto.getDenominator()) );
     		}
     		return myRatioDt;
@@ -223,10 +223,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if(pq == null || pq.isSetNullFlavor() ) return null;
 		else{
 			QuantityDt quantityDt = new QuantityDt();
-			if(pq.isNullFlavorUndefined())
+			if(pq.isSetNullFlavor())
 			{
-				quantityDt.setValue(pq.getValue());
-				quantityDt.setUnit(pq.getUnit());
+				if( pq.getValue() != null)
+					quantityDt.setValue(pq.getValue());
+				if( pq.getUnit() != null && !pq.getUnit().isEmpty())
+					quantityDt.setUnit(pq.getUnit());
 				for(PQR pqr : pq.getTranslations())
 				{
 					if(pqr!=null)
@@ -256,14 +258,16 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					// For now, we are getting the name of the participant as a string
 					if (theParticipant.getRole().getPlayer() instanceof Person) {
 						Person person = (Person)theParticipant.getRole().getPlayer();
-						myAnnotationDt.setAuthor( new StringDt(person.getNames().get(0).getText()) );
-					} 
+						if( !person.getNames().get(0).getText().isEmpty() ){
+							myAnnotationDt.setAuthor( new StringDt(person.getNames().get(0).getText()) );
+						}
+					}
 					myAnnotationDt.setTime( IVL_TS2Period(act.getEffectiveTime()).getStartElement() );
 					//TODO: While setTime is waiting a parameter as DateTime, act.effectiveTime gives output as IVL_TS (Interval)
 					//In sample XML, it gets the effective time as the low time
 					//Check if it is ok
-					
-					myAnnotationDt.setText(act.getText().toString());
+					if( !act.getText().isSetNullFlavor() && !act.getText().toString().isEmpty() )
+						myAnnotationDt.setText(act.getText().toString());
 				}
 			}
 			return myAnnotationDt;
@@ -418,16 +422,19 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			IdentifierDt identifierDt = new IdentifierDt();
 			
 			if(ii.getRoot() != null){
-				identifierDt.setSystem( ii.getRoot() );
+				if( !ii.getRoot().isEmpty() )
+					identifierDt.setSystem( ii.getRoot() );
 			}
 			
 			if(ii.getExtension() != null){
-				identifierDt.setValue( ii.getExtension() );
+				if( !ii.getExtension().isEmpty() )
+					identifierDt.setValue( ii.getExtension() );
 			}
 			
 			if( ii.getAssigningAuthorityName() != null){
 				ResourceReferenceDt resourceReference = new ResourceReferenceDt( ii.getAssigningAuthorityName() );
-				identifierDt.setAssigner( resourceReference );
+				if( !resourceReference.isEmpty() )
+					identifierDt.setAssigner( resourceReference );
 			}
 			
 			// TODO : Use, Type and Period attributes will be handled after the data types are finished.
