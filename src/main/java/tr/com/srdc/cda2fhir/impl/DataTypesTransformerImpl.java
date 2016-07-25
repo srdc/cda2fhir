@@ -144,9 +144,17 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	if( rto == null || rto.isSetNullFlavor() ) return null;
     	else{
     		RatioDt myRatioDt = new RatioDt();
-    		myRatioDt.setNumerator( PQ2Quantity( (PQ) rto.getNumerator()) );
-    		myRatioDt.setDenominator( PQ2Quantity( (PQ) rto.getDenominator()) );
-    		// TODO: Test requirement: Check whether casting QTY to PQ is OK
+    		if( rto.getNumerator().isSetNullFlavor() ) {
+    			myRatioDt.setNumerator( null );
+    		} else {
+    			// TODO: Test requirement: Check whether casting QTY to PQ is OK
+    			myRatioDt.setNumerator( PQ2Quantity( (PQ) rto.getNumerator()) );
+    		}
+    		if( rto.getDenominator().isSetNullFlavor() ){
+    			myRatioDt.setDenominator( null );
+    		} else{
+    			myRatioDt.setDenominator( PQ2Quantity( (PQ) rto.getDenominator()) );
+    		}
     		return myRatioDt;
     	}
     }
@@ -242,14 +250,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 			else
 			{
-				if(ivlpq.getLow()!=null)
+				if(ivlpq.getLow()!=null || !ivlpq.isSetNullFlavor())
 				{
 					QuantityDt quantityDt = new QuantityDt();
 					quantityDt.setValue(ivlpq.getLow().getValue());
 					quantityDt.setUnit(ivlpq.getLow().getUnit());
 					rangeDt.setLow((SimpleQuantityDt)quantityDt);
 				}
-				if(ivlpq.getHigh()!=null)
+				if(ivlpq.getHigh()!=null || !ivlpq.isSetNullFlavor())
 				{
 					QuantityDt quantityDt = new QuantityDt();
 					quantityDt.setValue(ivlpq.getHigh().getValue());
