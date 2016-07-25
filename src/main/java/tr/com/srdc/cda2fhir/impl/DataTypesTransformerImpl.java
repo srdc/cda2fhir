@@ -42,16 +42,19 @@ import tr.com.srdc.cda2fhir.DataTypesTransformer;
 public class DataTypesTransformerImpl implements DataTypesTransformer {
 
     public CodingDt CV2Coding(CV cv) {
-    	CodingDt codingDt= new CodingDt();
-    	codingDt.setSystem(cv.getCodeSystem());
-    	codingDt.setVersion(cv.getCodeSystemVersion());
-    	codingDt.setCode(cv.getCode());
-    	codingDt.setDisplay(cv.getDisplayName());
-        return codingDt;
+    	if(cv == null || cv.isSetNullFlavor()) return null;
+    	else{
+	    	CodingDt codingDt= new CodingDt();
+	    	codingDt.setSystem(cv.getCodeSystem());
+	    	codingDt.setVersion(cv.getCodeSystemVersion());
+	    	codingDt.setCode(cv.getCode());
+	    	codingDt.setDisplay(cv.getDisplayName());
+	        return codingDt;
+    	}
     }
 
     public CodeableConceptDt CD2CodeableConcept(CD cd) {
-        if( cd.isSetNullFlavor() ) return null;
+        if( cd == null || cd.isSetNullFlavor() ) return null;
         else{
         	List<CodingDt> myCodingDtList = new ArrayList<CodingDt>();
         	CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
@@ -68,10 +71,10 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 //    }
     
     public BooleanDt BL2Boolean(BL bl){
-     	return bl.isSetNullFlavor() ? null : new BooleanDt(bl.getValue());
+     	return (  bl == null || bl.isSetNullFlavor() ) ? null : new BooleanDt(bl.getValue());
     }
     public DateDt TS2Date(TS ts){
-    	if( ts.isSetNullFlavor() ) return null;
+    	if( ts == null || ts.isSetNullFlavor() ) return null;
     	else {
     		DateDt resultDateDt = new DateDt();
     		int lengthOfTheDateString = ts.getValue().length();
@@ -126,19 +129,19 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     }
     
     public DecimalDt REAL2Decimal(REAL real){
-    	return real.isSetNullFlavor() ? null : new DecimalDt(real.getValue());
+    	return (real == null || real.isSetNullFlavor() ) ? null : new DecimalDt(real.getValue());
     }
     
     public StringDt ST2String(ST st){
-    	return st.isSetNullFlavor() ? null : new StringDt(st.getText());
+    	return ( st == null || st.isSetNullFlavor() ) ? null : new StringDt(st.getText());
     }
     
     public UriDt URL2Uri(URL url){
-    	return url.isSetNullFlavor() ? null : new UriDt(url.getValue());
+    	return ( url == null || url.isSetNullFlavor() ) ? null : new UriDt(url.getValue());
     }
 
     public RatioDt RTO2Ratio(RTO rto){
-    	if( rto.isNullFlavorDefined() ) return null;
+    	if( rto == null || rto.isSetNullFlavor() ) return null;
     	else{
     		RatioDt myRatioDt = new RatioDt();
     		myRatioDt.setNumerator( PQ2Quantity( (PQ) rto.getNumerator()) );
@@ -149,62 +152,62 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     }
 
 	public PeriodDt IVL_TS2Period(IVL_TS ivlts) {
-		
-		PeriodDt periodDt =new PeriodDt();
-		boolean isNullFlavorLow=ivlts.getLow().isSetNullFlavor();
-		if(!isNullFlavorLow)
-		{
-			String date=ivlts.getLow().getValue();
-			periodDt.setStart(dateParser(date));
+		if( ivlts == null || ivlts.isSetNullFlavor() ) return null;
+		else{
+			PeriodDt periodDt =new PeriodDt();
+			boolean isNullFlavorLow=ivlts.getLow().isSetNullFlavor();
+			if(!isNullFlavorLow)
+			{
+				String date=ivlts.getLow().getValue();
+				periodDt.setStart(dateParser(date));
+			}
+			boolean isNullFlavorHigh=ivlts.getHigh().isSetNullFlavor();
+			if(!isNullFlavorHigh)
+			{
+				String date=ivlts.getHigh().getValue();
+				periodDt.setEnd(dateParser(date));
+			}
+			return periodDt;
 		}
-		boolean isNullFlavorHigh=ivlts.getHigh().isSetNullFlavor();
-		if(!isNullFlavorHigh)
-		{
-			String date=ivlts.getHigh().getValue();
-			periodDt.setEnd(dateParser(date));
-		}
-		return periodDt;
 		
 	}
 	
 	public DateTimeDt TS2DateTime(TS ts){
-			boolean isNullFlavor=ts.isSetNullFlavor();
-			if(!isNullFlavor)
-			{
-				String date=ts.getValue();
-				return dateParser(date);
-			}
-			else
-			{
-				return null;
-			}
+		if(ts == null || ts.isSetNullFlavor() ) return null;
+		else{
+			String date=ts.getValue();
+			return dateParser(date);
+		}
 	}
 	public QuantityDt PQ2Quantity(PQ pq)
 	{
-		QuantityDt quantityDt = new QuantityDt();
-		if(pq.isNullFlavorUndefined())
-		{
-			quantityDt.setValue(pq.getValue());
-			quantityDt.setUnit(pq.getUnit());
-			for(PQR pqr : pq.getTranslations())
+		if(pq == null || pq.isSetNullFlavor() ) return null;
+		else{
+			QuantityDt quantityDt = new QuantityDt();
+			if(pq.isNullFlavorUndefined())
 			{
-				if(pqr!=null)
+				quantityDt.setValue(pq.getValue());
+				quantityDt.setUnit(pq.getUnit());
+				for(PQR pqr : pq.getTranslations())
 				{
-					quantityDt.setSystem(pqr.getCodeSystem());
-					quantityDt.setCode(pqr.getCode());
+					if(pqr!=null)
+					{
+						quantityDt.setSystem(pqr.getCodeSystem());
+						quantityDt.setCode(pqr.getCode());
+					}
+					else
+					{
+						break;
+					}
 				}
-				else
-				{
-					break;
-				}
-			}
-		}//end if
-		return quantityDt;
+			}//end if
+			return quantityDt;
+		}
 		
 	}
 	
 	public AnnotationDt Act2Annotation(Act act){
-		if(act.isNullFlavorDefined()) return null;
+		if( act == null || act.isSetNullFlavor() ) return null;
 		else{
 			AnnotationDt myAnnotationDt = new AnnotationDt();
 			for(Participant2 theParticipant : act.getParticipants()){
@@ -230,32 +233,35 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	
 	
 	public RangeDt IVL_PQ2Range(IVL_PQ ivlpq){
-		RangeDt rangeDt = new RangeDt();
-		if(ivlpq.getLow()==null && ivlpq.getHigh()==null)
-		{
-			return null;
-		}
-		else
-		{
-			if(ivlpq.getLow()!=null)
+		if( ivlpq == null || ivlpq.isSetNullFlavor() ) return null;
+		else{
+			RangeDt rangeDt = new RangeDt();
+			if(ivlpq.getLow()==null && ivlpq.getHigh()==null)
 			{
-				QuantityDt quantityDt = new QuantityDt();
-				quantityDt.setValue(ivlpq.getLow().getValue());
-				quantityDt.setUnit(ivlpq.getLow().getUnit());
-				rangeDt.setLow((SimpleQuantityDt)quantityDt);
+				return null;
 			}
-			if(ivlpq.getHigh()!=null)
+			else
 			{
-				QuantityDt quantityDt = new QuantityDt();
-				quantityDt.setValue(ivlpq.getHigh().getValue());
-				quantityDt.setUnit(ivlpq.getHigh().getUnit());
-				rangeDt.setHigh((SimpleQuantityDt)quantityDt);
+				if(ivlpq.getLow()!=null)
+				{
+					QuantityDt quantityDt = new QuantityDt();
+					quantityDt.setValue(ivlpq.getLow().getValue());
+					quantityDt.setUnit(ivlpq.getLow().getUnit());
+					rangeDt.setLow((SimpleQuantityDt)quantityDt);
+				}
+				if(ivlpq.getHigh()!=null)
+				{
+					QuantityDt quantityDt = new QuantityDt();
+					quantityDt.setValue(ivlpq.getHigh().getValue());
+					quantityDt.setUnit(ivlpq.getHigh().getUnit());
+					rangeDt.setHigh((SimpleQuantityDt)quantityDt);
+				}
+				return rangeDt;
 			}
-			return rangeDt;
 		}
 	}
     
-	public DateTimeDt dateParser(String date)
+	private DateTimeDt dateParser(String date)
 	{
 		DateTimeDt dateTimeDt = new DateTimeDt();
 		boolean isPrecisionSet=false;
