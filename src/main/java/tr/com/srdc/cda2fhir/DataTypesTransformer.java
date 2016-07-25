@@ -3,6 +3,9 @@ package tr.com.srdc.cda2fhir;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
+import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
@@ -18,8 +21,11 @@ import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
+import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
@@ -64,5 +70,11 @@ public interface DataTypesTransformer {
     RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 1 */
     
     AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
+    
+    ContactPointDt TEL2ContactPoint(TEL tel);  /* Maturity Level: 1 */
+    
+    IdentifierDt II2Identifier(II ii);  /* Maturity Level: 1 */
+    
+    HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 1 */
     
 }

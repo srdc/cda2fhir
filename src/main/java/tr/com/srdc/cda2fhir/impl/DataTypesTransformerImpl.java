@@ -4,11 +4,18 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
+import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -18,12 +25,16 @@ import ca.uhn.fhir.model.primitive.UriDt;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
+import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
@@ -31,9 +42,11 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PQR;
 import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
+
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 
 /**
@@ -332,4 +345,125 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		return dateTimeDt;
 	}
     
+	public HumanNameDt EN2HumanName(EN en) {
+		
+		if( en != null && !en.isSetNullFlavor()){
+			
+			HumanNameDt myHumanName = new HumanNameDt();
+			
+			if( en.getText() != null){
+				myHumanName.setText( en.getText() );
+			}
+			
+			if(en.getUses() != null ){
+				myHumanName.setUse(NameUseEnum.valueOf( en.getUses().get(0).toString() ));
+			}
+			
+			if(en.getFamilies() != null){
+				for(ENXP element: en.getFamilies()){
+					myHumanName.addFamily( element.getPartType().toString() );
+				}
+			}
+			if(en.getGivens() != null){
+				for(ENXP element: en.getGivens()){
+					myHumanName.addGiven( element.getPartType().toString() );
+				}
+			}
+			if(en.getPrefixes() != null){
+				for(ENXP element: en.getPrefixes( )){
+					myHumanName.addPrefix( element.getPartType().toString() );
+				}
+			}
+			if(en.getSuffixes() != null){
+					for(ENXP element: en.getSuffixes()){
+					myHumanName.addSuffix( element.getPartType().toString() );
+				}
+			}
+			
+			if( en.getValidTime() != null ){
+				PeriodDt periodDt = IVL_TS2Period( en.getValidTime() );
+				myHumanName.setPeriod(periodDt);
+			}
+			
+			return myHumanName;
+						
+		}
+						
+	return null;
+	
+	}
+
+	public IdentifierDt II2Identifier(II ii) {
+		
+		if( ii != null  && !ii.isSetNullFlavor()){
+			
+			IdentifierDt identifierDt = new IdentifierDt();
+			
+			if(ii.getRoot() != null){
+				identifierDt.setSystem( ii.getRoot() );
+			}
+			
+			if(ii.getExtension() != null){
+				identifierDt.setValue( ii.getExtension() );
+			}
+			
+			if( ii.getAssigningAuthorityName() != null){
+				ResourceReferenceDt resourceReference = new ResourceReferenceDt( ii.getAssigningAuthorityName() );
+				identifierDt.setAssigner( resourceReference );
+			}
+			
+			// TODO : Use, Type and Period attributes will be handled after the data types are finished.
+			
+			return identifierDt;
+
+		}
+		return null;
+
+	}
+
+	public ContactPointDt TEL2ContactPoint(TEL tel) {
+		
+		if( tel!=null && !tel.isSetNullFlavor()){
+			
+			ContactPointDt contactPointDt = new ContactPointDt();
+			
+			if(tel.getValue() != null ){
+				contactPointDt.setValue( tel.getValue() );
+			}
+			
+			PeriodDt period = new PeriodDt();
+			tel.getUseablePeriods().get(0).getValue();
+			DateTimeDt dateTime = new DateTimeDt();
+			dateTime.setValueAsString(tel.getUseablePeriods().get(0).getValue());
+
+			//dateTime.setValue(new Date());
+			period.setStart(dateTime);
+			contactPointDt.setPeriod(period);
+			
+			contactPointDt.setRank(1);
+			contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
+			
+			if(tel.getUses() != null){
+				
+				if(tel.getUses().get(0).toString().equals("HP")){
+					contactPointDt.setUse(ContactPointUseEnum.HOME);
+				}
+				else if(tel.getUses().get(0).toString().equals("WP")){
+					contactPointDt.setUse(ContactPointUseEnum.WORK);
+					
+				}else if(tel.getUses().get(0).toString().equals("HV")){
+					contactPointDt.setUse(ContactPointUseEnum.TEMP);
+					
+				}else{
+					contactPointDt.setUse(ContactPointUseEnum.MOBILE);
+				}	
+			}
+			
+			return contactPointDt;
+		}
+		
+		return null;
+	}
+    
 }
+
