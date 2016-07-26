@@ -587,7 +587,7 @@ public HumanNameDt EN2HumanName(EN en) {
 			{
 				attachmentDt.setLanguage(ed.getLanguage());
 			}
-			if( ed.getText().isEmpty() && ed.getText() != null )
+			if( !ed.getText().isEmpty() && ed.getText() != null )
 			{
 				attachmentDt.setData( ed.getText().getBytes() );				
 			}

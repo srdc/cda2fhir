@@ -131,7 +131,6 @@ public class DataTypesTransformerTestNecip {
     	
     	
     	AttachmentDt attachment = dtt.ED2Attachment(ed);
-    	
     	Assert.assertEquals("ED.mediaType was not transformed","theMediaType",attachment.getContentType());
     	Assert.assertEquals("ED.language was not transformed","theLanguage",attachment.getLanguage());
     	Assert.assertArrayEquals("ED.data was not transformed","theData".getBytes(),attachment.getData());
