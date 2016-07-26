@@ -1,8 +1,12 @@
 package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
+import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
+import ca.uhn.fhir.model.dstu2.composite.RatioDt;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -10,6 +14,7 @@ import ca.uhn.fhir.model.primitive.DecimalDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.resource.impl.ResourceFactoryImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceFactoryRegistryImpl;
 import org.junit.Assert;
@@ -23,16 +28,22 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.INT;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.QTY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO_QTY_QTY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
+import org.openhealthtools.mdht.uml.hl7.rim.RIMFactory;
+import org.openhealthtools.mdht.uml.hl7.rim.Role;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 
@@ -41,7 +52,8 @@ import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
  */
 public class DataTypesTransformerTestTahsin {
 
-    DataTypesTransformer dtt = new DataTypesTransformerImpl();
+    private static final EDataType QTY = null;
+	DataTypesTransformer dtt = new DataTypesTransformerImpl();
 
     @Test
     public void testINT2Integer() {
@@ -214,5 +226,64 @@ public class DataTypesTransformerTestTahsin {
         Assert.assertEquals("PQ.value was not transformed", 25.0,quantity4.getValue().doubleValue(),0.001);
         Assert.assertNull("PQ.unit null was not transformed",quantity4.getUnit());
     }//end Quantity test
+    
+    @Test
+    public void testII2Identifier(){
+    	//simple instance test
+    	II ii=DatatypesFactory.eINSTANCE.createII();
+    	ii.setRoot("myIdentifierRoot");
+    	ii.setExtension("myIdentifierExtension");
+    	ii.setAssigningAuthorityName("Tahsin");
+    	
+    	IdentifierDt identifier=dtt.II2Identifier(ii);
+    	Assert.assertEquals("II.root was not transformed","myIdentifierRoot",identifier.getSystem());
+    	Assert.assertEquals("II.extension was not transformed","myIdentifierExtension",identifier.getValue());
+    	Assert.assertEquals("II.AssigningAuthorityName was not transformed","Tahsin",identifier.getAssigner().getReference().getValue());
+    	
+    	//null instance test
+    	
+    	II ii2=null;
+    	IdentifierDt identifier2=dtt.II2Identifier(ii2);
+    	Assert.assertNull("II null instance was not transformed",identifier2);
+    	
+    	//nullFlavor instance test
+    	II ii3=DatatypesFactory.eINSTANCE.createII();
+    	ii3.setNullFlavor(NullFlavor.MSK);
+    	IdentifierDt identifier3=dtt.II2Identifier(ii3);
+    	Assert.assertNull("II nullFlavor set instance transform failed",identifier3);
+    }//end IdentifierDt (from II) Test
+    @Ignore
+    public void testRole2Identifier(){
+    	Role role=CDAFactory.eINSTANCE.createPatientRole();
+    	/*Lack of setter methods*/
+    }
+    
+    
+    @Test
+    public void testTEL2ContactPoint(){
+    	TEL tel=DatatypesFactory.eINSTANCE.createTEL();
+    	tel.setValue("myNumber");
+    	/*Lack of setter methods */
+    	ContactPointDt contactPoint=dtt.TEL2ContactPoint(tel);
+    	/*TODO:Find convenient set methods to fill the attributes*/
+    	
+    	Assert.assertEquals("TEL.value was not transformed","myNumber",contactPoint.getValue());
+    	/*Only one attribute could be tested because of the lack of setter methods */
+    }//end ContactPoint test
+    
+    @Test
+    public void testRTO2Ratio(){
+    	RTO rto=DatatypesFactory.eINSTANCE.createRTO();
+    	REAL real=DatatypesFactory.eINSTANCE.createREAL();
+    	real.setValue(65.0);
+    	REAL real2=DatatypesFactory.eINSTANCE.createREAL();
+    	real2.setValue(137.6);
+    	rto.setNumerator(real);
+    	rto.setDenominator(real2);
+    	RatioDt ratio=dtt.RTO2Ratio(rto);
+    	Assert.assertEquals("RTO.denominator was not transformed",137.6,ratio.getDenominator().getValue().doubleValue(),0.001);
+
+    	
+    }
 }
 

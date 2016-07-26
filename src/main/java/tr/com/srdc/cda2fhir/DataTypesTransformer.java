@@ -34,6 +34,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
+import org.openhealthtools.mdht.uml.hl7.rim.Role;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
@@ -51,7 +52,7 @@ public interface DataTypesTransformer {
 	 * 3: finalized
 	 */
 	
-    CodingDt CV2Coding(CV cv); /* Maturity Level: 1 */
+    CodingDt CV2Coding(CV cv); /* Maturity Level: 2 */
 
     CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 1 */
     
@@ -81,11 +82,13 @@ public interface DataTypesTransformer {
     
     ContactPointDt TEL2ContactPoint(TEL tel);  /* Maturity Level: 1 */
     
-    IdentifierDt II2Identifier(II ii);  /* Maturity Level: 1 */
+    IdentifierDt II2Identifier(II ii);  /* Maturity Level: 2 */
+    
+    IdentifierDt Role2Identifier(Role role);/* Maturity Level: 1*/
     
     HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 1 */
     
-    AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 1 */
+    AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 2 */
     
     Base64BinaryDt BIN2Base64Binary(BIN bin);/*Maturity Level: 1*/
     

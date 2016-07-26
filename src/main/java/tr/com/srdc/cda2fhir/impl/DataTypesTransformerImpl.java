@@ -16,6 +16,8 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.IdentifierTypeCodesEnum;
+import ca.uhn.fhir.model.dstu2.valueset.IdentifierUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
 import ca.uhn.fhir.model.primitive.Base64BinaryDt;
 import ca.uhn.fhir.model.primitive.BooleanDt;
@@ -35,6 +37,7 @@ import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BIN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
@@ -51,6 +54,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
+import org.openhealthtools.mdht.uml.hl7.rim.Participation;
+import org.openhealthtools.mdht.uml.hl7.rim.Role;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
@@ -186,10 +191,16 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     		RatioDt myRatioDt = new RatioDt();
     		if( ! rto.getNumerator().isSetNullFlavor() ) {
     			// TODO: Test requirement: Check whether casting QTY to PQ is OK
-    			myRatioDt.setNumerator( PQ2Quantity( (PQ) rto.getNumerator()) );
+    			QuantityDt quantity=new QuantityDt();
+    			REAL numerator= (REAL) rto.getNumerator();
+    			quantity.setValue(numerator.getValue().doubleValue());
+    			myRatioDt.setNumerator( quantity);
     		}
     		if( !rto.getDenominator().isSetNullFlavor() ){
-    			myRatioDt.setDenominator( PQ2Quantity( (PQ) rto.getDenominator()) );
+    			QuantityDt quantity=new QuantityDt();
+    			REAL denominator= (REAL) rto.getDenominator();
+    			quantity.setValue(denominator.getValue().doubleValue());
+    			myRatioDt.setDenominator(quantity);
     		}
     		return myRatioDt;
     	}
@@ -454,7 +465,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	public IdentifierDt II2Identifier(II ii) {
 		
 		if( ii != null  && !ii.isSetNullFlavor()){
-			
 			IdentifierDt identifierDt = new IdentifierDt();
 			
 			if(ii.getRoot() != null){
@@ -480,6 +490,42 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		}
 		return null;
 
+	}//end II2Identifier
+	public IdentifierDt Role2Identifier(Role role){
+	
+		if(role!=null)
+		{
+			IdentifierDt identifierDt=new IdentifierDt();
+			if(role.getRealmCodes()!=null)
+			{
+				for(CS code :role.getRealmCodes())
+				{
+					if(code.getCode()!=null)
+					{
+						identifierDt.setUse(IdentifierUseEnum.valueOf(code.getCode()));
+					}//end if
+				}//end for
+			}//end inner if
+			if(role.getTypeId()!=null)
+			{
+				if(role.getTypeId().getRoot()!=null)
+				{
+					identifierDt.setSystem(role.getTypeId().getRoot());
+				}//end if
+				if(role.getTypeId().getExtension()!=null)
+				{
+					identifierDt.setValue(role.getTypeId().getExtension());
+				}//end if
+			}
+			if(role.getScoper().getTypeId().getRoot()!=null)
+			{
+				ResourceReferenceDt resourceReference = new ResourceReferenceDt(role.getScoper().getTypeId().getRoot());
+				if( !resourceReference.isEmpty() )
+					identifierDt.setAssigner( resourceReference );
+			}
+			
+		}//end outer if
+		return null;
 	}
 
 	public ContactPointDt TEL2ContactPoint(TEL tel) {
@@ -493,18 +539,20 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 			
 			PeriodDt period = new PeriodDt();
-			tel.getUseablePeriods().get(0).getValue();
-			DateTimeDt dateTime = new DateTimeDt();
-			dateTime.setValueAsString(tel.getUseablePeriods().get(0).getValue());
-
-			//dateTime.setValue(new Date());
-			period.setStart(dateTime);
-			contactPointDt.setPeriod(period);
+			if(!tel.getUseablePeriods().isEmpty())
+			{
+				System.out.println("I'm here");
+				DateTimeDt dateTime = new DateTimeDt();
+				dateTime.setValueAsString(tel.getUseablePeriods().get(0).getValue());
+				period.setStart(dateTime);
+				contactPointDt.setPeriod(period);
+			}
+			
 			
 			contactPointDt.setRank(1);
 			contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
 			
-			if(tel.getUses() != null){
+			if(!tel.getUses().isEmpty()){
 				
 				if(tel.getUses().get(0).toString().equals("HP")){
 					contactPointDt.setUse(ContactPointUseEnum.HOME);
