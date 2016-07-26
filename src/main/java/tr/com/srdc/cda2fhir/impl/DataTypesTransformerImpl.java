@@ -268,7 +268,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	public AnnotationDt Act2Annotation(Act act){
 		if( act == null || act.isSetNullFlavor() ) return null;
 		else{
-			
 			AnnotationDt myAnnotationDt = new AnnotationDt();
 			for(Participant2 theParticipant : act.getParticipants()){
 				if(theParticipant.getTypeCode() == ParticipationType.AUT){
@@ -281,7 +280,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 							myAnnotationDt.setAuthor( new StringDt(person.getNames().get(0).getText()) );
 						}
 					}
-					
 					myAnnotationDt.setTime( IVL_TS2Period(act.getEffectiveTime()).getStartElement() );
 					//TODO: While setTime is waiting a parameter as DateTime, act.effectiveTime gives output as IVL_TS (Interval)
 					//In sample XML, it gets the effective time as the low time
@@ -305,14 +303,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 			else
 			{
-				if(ivlpq.getLow().getValue()!=null || !ivlpq.getLow().isSetNullFlavor())
+				if(ivlpq.getLow().getValue()!=null && !ivlpq.getLow().isSetNullFlavor())
 				{
 					
 					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
 					simpleQuantity.setValue(ivlpq.getLow().getValue().doubleValue());
 					rangeDt.setLow(simpleQuantity);
 				}
-				if(ivlpq.getHigh().getValue()!=null || !ivlpq.getHigh().isSetNullFlavor())
+				if(ivlpq.getHigh().getValue()!=null && !ivlpq.getHigh().isSetNullFlavor())
 				{
 					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
 					simpleQuantity.setValue(ivlpq.getHigh().getValue().doubleValue());
@@ -393,9 +391,9 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				}
 				String month=date.substring(4,6);
 				int monthInt=Integer.parseInt(month);
-				if(!minuteExist)
-					dateTimeDt.setMonth(monthInt);
-				else
+//				if(!minuteExist)
+//					dateTimeDt.setMonth(monthInt);
+//				else TODO: After testing, remove this
 					dateTimeDt.setMonth(monthInt-1);
 				
 			case 4:
@@ -407,14 +405,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				String year=date.substring(0,4);
 				int yearInt=Integer.parseInt(year);
 				if(!monthExist)
-					dateTimeDt.setYear(yearInt+1);
+					dateTimeDt.setYear(yearInt+1); // TODO: FOR NECIP: Control your tests
 				else
 					dateTimeDt.setYear(yearInt);
 		}//end switch
 		return dateTimeDt;
 	}
     
-	public HumanNameDt EN2HumanName(EN en) {
+public HumanNameDt EN2HumanName(EN en) {
 		
 		if( en != null && !en.isSetNullFlavor()){
 			
@@ -424,28 +422,29 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				myHumanName.setText( en.getText() );
 			}
 			
-			if(en.getUses() != null ){
-				myHumanName.setUse(NameUseEnum.valueOf( en.getUses().get(0).toString() ));
+			if(en.getUses() != null && !en.getUses().isEmpty()){
+				ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
+				myHumanName.setUse( VSTI.EntityNameUse2NameUseEnum(en.getUses().get(0)) );
 			}
 			
 			if(en.getFamilies() != null){
 				for(ENXP element: en.getFamilies()){
-					myHumanName.addFamily( element.getPartType().toString() );
+					myHumanName.addFamily( element.getText() );
 				}
 			}
 			if(en.getGivens() != null){
 				for(ENXP element: en.getGivens()){
-					myHumanName.addGiven( element.getPartType().toString() );
+					myHumanName.addGiven( element.getText() );
 				}
 			}
 			if(en.getPrefixes() != null){
 				for(ENXP element: en.getPrefixes( )){
-					myHumanName.addPrefix( element.getPartType().toString() );
+					myHumanName.addPrefix( element.getText() );
 				}
 			}
 			if(en.getSuffixes() != null){
-					for(ENXP element: en.getSuffixes()){
-					myHumanName.addSuffix( element.getPartType().toString() );
+				for(ENXP element: en.getSuffixes()){
+					myHumanName.addSuffix( element.getText() );
 				}
 			}
 			
@@ -541,7 +540,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			PeriodDt period = new PeriodDt();
 			if(!tel.getUseablePeriods().isEmpty())
 			{
-				System.out.println("I'm here");
 				DateTimeDt dateTime = new DateTimeDt();
 				dateTime.setValueAsString(tel.getUseablePeriods().get(0).getValue());
 				period.setStart(dateTime);
@@ -589,7 +587,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			{
 				attachmentDt.setLanguage(ed.getLanguage());
 			}
-			if(ed.getText()!=null)
+			if( ed.getText().isEmpty() && ed.getText() != null )
 			{
 				attachmentDt.setData( ed.getText().getBytes() );				
 			}
