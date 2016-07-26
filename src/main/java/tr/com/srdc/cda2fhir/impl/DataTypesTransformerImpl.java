@@ -635,8 +635,10 @@ public AddressDt AD2Address(AD ad) {
             	
             	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
             	address.setUse( VSTI.PostalAdressUse2AddressUseEnum( ad.getUses().get(0) ) );
+            
+            	}
                
-            }
+            address.setType(AddressTypeEnum.POSTAL___PHYSICAL);
             
             address.setText( ad.getText() );
             
@@ -644,15 +646,15 @@ public AddressDt AD2Address(AD ad) {
                 address.addLine(adxp.getText());
             }
             
-            if(!ad.getUnitTypes().isEmpty())
-            {
-                if(ad.getUnitTypes().get(0).getText().equals("PHYS"))
-                    address.setType(AddressTypeEnum.PHYSICAL);
-                else if(ad.getUnitTypes().get(0).getText().equals("PST"))
-                    address.setType(AddressTypeEnum.POSTAL);
-                else
-                    address.setType(AddressTypeEnum.POSTAL___PHYSICAL);
-            }
+//            if(!ad.getUnitTypes().isEmpty())
+//            {
+//                if(ad.getUnitTypes().get(0).getText().equals("PHYS"))
+//                    address.setType(AddressTypeEnum.PHYSICAL);
+//                else if(ad.getUnitTypes().get(0).getText().equals("PST"))
+//                    address.setType(AddressTypeEnum.POSTAL);
+//                else
+//                    address.setType(AddressTypeEnum.POSTAL___PHYSICAL);
+//            }
             
             if(!ad.getCities().isEmpty()){
                 address.setCity(ad.getCities().get(0).getText());
