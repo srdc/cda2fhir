@@ -167,7 +167,7 @@ public class DataTypesTransformerTestIsmail {
         
     }
     
-    @Test
+    @Ignore
     public void testRTO2Ratio(){
         
         RTO rto = DatatypesFactory.eINSTANCE.createRTO();
@@ -187,6 +187,7 @@ public class DataTypesTransformerTestIsmail {
         
     }
     
+
     
 }
 

@@ -54,7 +54,7 @@ public interface DataTypesTransformer {
 	
     CodingDt CV2Coding(CV cv); /* Maturity Level: 2 */
 
-    CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 1 */
+    CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 2 */
     
     BooleanDt BL2Boolean(BL bl); /* Maturity Level: 2 */
     
