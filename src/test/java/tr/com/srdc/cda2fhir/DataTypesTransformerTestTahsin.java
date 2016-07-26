@@ -6,6 +6,7 @@ import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
@@ -22,10 +23,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
+import org.openhealthtools.mdht.uml.cda.Participant2;
+import org.openhealthtools.mdht.uml.cda.ParticipantRole;
+import org.openhealthtools.mdht.uml.cda.Person;
+import org.openhealthtools.mdht.uml.cda.PlayingEntity;
 import org.openhealthtools.mdht.uml.cda.util.CDAAdapterFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BIN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -34,6 +40,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.QTY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
@@ -45,6 +52,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.rim.RIMFactory;
 import org.openhealthtools.mdht.uml.hl7.rim.Role;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
+
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 
 /**
@@ -173,7 +182,20 @@ public class DataTypesTransformerTestTahsin {
     	ed.setReference(tel);
     	ed.setIntegrityCheck("hello".getBytes());
     	act.setText(ed);
+    	Participant2 myParticipant = CDAFactory.eINSTANCE.createParticipant2();
+    	myParticipant.setTypeCode(ParticipationType.AUT);
     	
+    	/*PN pn=DatatypesFactory.eINSTANCE.createPN();
+    	pn.addGiven("Tahsin");
+    	pn.addFamily("Kose");
+    	pn.addPrefix("Colonel");
+    	pn.addSuffix("Kurt");
+    	pn.addText("Tahsincan Kose");
+    	person.getNames().add(pn);
+    	*/
+    	
+        act.getParticipants().add(myParticipant);
+        
     	AnnotationDt annotation=dtt.Act2Annotation(act);
         Assert.assertEquals("Act.EffectiveTime was not transformed","2017-06-25",annotation.getTime());
 
@@ -254,8 +276,22 @@ public class DataTypesTransformerTestTahsin {
     }//end IdentifierDt (from II) Test
     @Ignore
     public void testRole2Identifier(){
+    	//simple instance test
     	Role role=CDAFactory.eINSTANCE.createPatientRole();
-    	/*Lack of setter methods*/
+    	CS cs=DatatypesFactory.eINSTANCE.createCS();
+    	cs.setCode("test code");
+    	cs.setCodeSystem("251251");
+    	cs.setCodeSystemName("mySystemName");
+    	cs.setCodeSystemVersion("newer");
+    	role.getRealmCodes().add(cs);
+    	/*role.getTypeId().setRoot("myRoot");
+    	role.getTypeId().setExtension("myValue");*/
+		
+		IdentifierDt identifier=dtt.Role2Identifier(role);
+		Assert.assertEquals("Role.code was not transformed","test code",identifier.getUse());
+		Assert.assertEquals("Role.system was not transformed","251251",identifier.getSystem());
+		Assert.assertEquals("Role.value was not transformed","myValue",identifier.getValue());
+		
     }
     
     
@@ -273,6 +309,7 @@ public class DataTypesTransformerTestTahsin {
     
     @Test
     public void testRTO2Ratio(){
+    	//simple instance test
     	RTO rto=DatatypesFactory.eINSTANCE.createRTO();
     	REAL real=DatatypesFactory.eINSTANCE.createREAL();
     	real.setValue(65.0);
@@ -281,9 +318,41 @@ public class DataTypesTransformerTestTahsin {
     	rto.setNumerator(real);
     	rto.setDenominator(real2);
     	RatioDt ratio=dtt.RTO2Ratio(rto);
+    	Assert.assertEquals("RTO.numerator was not transformed",65.0,ratio.getNumerator().getValue().doubleValue(),0.001);
     	Assert.assertEquals("RTO.denominator was not transformed",137.6,ratio.getDenominator().getValue().doubleValue(),0.001);
-
+    	// null instance test
     	
+    	RTO rto2=null;
+    	RatioDt ratio2=dtt.RTO2Ratio(rto2);
+    	Assert.assertNull("RTO null instance set was failed",ratio2);
+    	 
+    	// nullFlavor instance test
+    	RTO rto3=DatatypesFactory.eINSTANCE.createRTO();
+    	rto3.setNullFlavor(NullFlavor.NINF);
+    	RatioDt ratio3=dtt.RTO2Ratio(rto3);
+    	Assert.assertNull("RTO nullFlavor instance set was failed",ratio3);
+    }//end Ratio test
+    
+    
+    @Test
+    public void testTS2Date(){
+    	//simple instance test
+    	TS ts=DatatypesFactory.eINSTANCE.createTS();
+    	ts.setValue("2016-09-23");
+    	DateDt date=dtt.TS2Date(ts);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2016-09-23",date.getValueAsString());
+    	
+    	//null instance test
+    	TS ts2=null;
+    	DateDt date2=dtt.TS2Date(ts2);
+    	Assert.assertNull("TS null was not transformed",date2);
+    	
+    	//nullFlavor instance test
+    	TS ts3=DatatypesFactory.eINSTANCE.createTS();
+    	ts3.setNullFlavor(NullFlavor.UNK);
+    	DateDt date3=dtt.TS2Date(ts3);
+    	Assert.assertNull("TS.nullFlavor was not transformed",date3);
     }
 }
 

@@ -68,7 +68,7 @@ public interface DataTypesTransformer {
     
     IntegerDt INT2Integer(INT myInt);/*Maturity Level: 2 */
     
-    RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 1 */
+    RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 2 */
     
     PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 1 */
     
