@@ -9,11 +9,6 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 
-
-
-
-
-
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,7 +19,9 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 //import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 //import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
@@ -37,7 +34,7 @@ public class DataTypesTransformerTestIsmail {
     
     DataTypesTransformer dtt = new DataTypesTransformerImpl();
 
-    @Test
+    @Ignore
     public void testTS2DateTime() {
        
         TS ts = DatatypesFactory.eINSTANCE.createTS();
@@ -83,7 +80,7 @@ public class DataTypesTransformerTestIsmail {
 //    }
     
     @Ignore
-    public void testIVL_PQ2Range(){
+    public void testIVL_PQ2RangeIsmail(){
         
         IVL_PQ ivlpq = DatatypesFactory.eINSTANCE.createIVL_PQ();
         IVXB_PQ ivxbpqH = DatatypesFactory.eINSTANCE.createIVXB_PQ();
@@ -116,7 +113,7 @@ public class DataTypesTransformerTestIsmail {
         
     }
 
-    @Ignore
+    @Test
     public void testCV2CodingIsmail(){
     	
     	CV cv = DatatypesFactory.eINSTANCE.createCV();
@@ -136,17 +133,20 @@ public class DataTypesTransformerTestIsmail {
     	
     
     
- // null instance test
-    CV cv2 = null;
-    CodingDt coding2 = dtt.CV2Coding( cv2 );
-    Assert.assertNull("CV null instance transform failed", coding2);
+	 // null instance test
+	    CV cv2 = null;
+	    CodingDt coding2 = dtt.CV2Coding( cv2 );
+	    Assert.assertNull("CV null instance transform failed", coding2);
+	    
+	  // nullFlavor instance test
+	    CV cv3 = DatatypesFactory.eINSTANCE.createCV();
+	    cv3.setNullFlavor(NullFlavor.NI);
+	    CodingDt coding3 = dtt.CV2Coding( cv3 );
+	    Assert.assertNull("Coding.nullFlavor set instance transform failed", coding3);
+		}
     
-  // nullFlavor instance test
-    CV cv3 = DatatypesFactory.eINSTANCE.createCV();
-    cv3.setNullFlavor(NullFlavor.NI);
-    CodingDt coding3 = dtt.CV2Coding( cv3 );
-    Assert.assertNull("Coding.nullFlavor set instance transform failed", coding3);
-	}
+    
+    
     
     
 }
