@@ -16,6 +16,7 @@ import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.DecimalDt;
+import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
@@ -27,6 +28,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.INT;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
@@ -53,15 +55,17 @@ public interface DataTypesTransformer {
 
     CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 1 */
     
-    BooleanDt BL2Boolean(BL bl); /* Maturity Level: 1 */
+    BooleanDt BL2Boolean(BL bl); /* Maturity Level: 2 */
     
     DateDt TS2Date(TS ts); /* Maturity Level: 1 */
     
-    DecimalDt REAL2Decimal(REAL real); /* Maturity Level: 1 */
+    DecimalDt REAL2Decimal(REAL real); /* Maturity Level: 2 */
     
-    StringDt ST2String(ST st); /* Maturity Level: 1 */
+    StringDt ST2String(ST st); /* Maturity Level: 2 */
     
     UriDt URL2Uri(URL url); /* Maturity Level: 1 */
+    
+    IntegerDt INT2Integer(INT myInt);/*Maturity Level: 2 */
     
     RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 1 */
     
