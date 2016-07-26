@@ -155,6 +155,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     			 * Therefore, we just set the year in one line for the cases yyyymm and yyyymmdd 
     			 * */
     			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) );
+    			break;
     		case 0: /* lenght of the date string is zero. we need to return null */
     			return null;
     		}
