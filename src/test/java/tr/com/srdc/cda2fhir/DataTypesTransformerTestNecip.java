@@ -24,6 +24,8 @@ public class DataTypesTransformerTestNecip {
 
     DataTypesTransformer dtt = new DataTypesTransformerImpl();
     
+    
+    
     @Test
     public void testIVL_TS2Period(){
     	// simple instance test 1
@@ -71,8 +73,7 @@ public class DataTypesTransformerTestNecip {
     	// simple instance test 1
     	
     	EN en = DatatypesFactory.eINSTANCE.createEN();
-    	// TODO: How to set EN.use? There is a getter for uses, but no setter exists.
-    	
+
     	// Notice that EntityNameUse.P maps to NameUseEnum.NICKNAME.
     	// For further info, visit https://www.hl7.org/fhir/valueset-name-use.html
     	en.getUses().add(EntityNameUse.P);
@@ -118,7 +119,6 @@ public class DataTypesTransformerTestNecip {
     	// simple instance test
     	
     	// TODO: After the implementation of ed.title.data is completed, Attachment.title will be tested
-    	// Also, check the note about the test of ED.integrityCheck
     	
     	ED ed = DatatypesFactory.eINSTANCE.createED();
     	ed.setMediaType("theMediaType");
@@ -127,7 +127,7 @@ public class DataTypesTransformerTestNecip {
     		TEL theTel = DatatypesFactory.eINSTANCE.createTEL();
     		theTel.setValue("theUrl");
     	ed.setReference(theTel);
-    	ed.setIntegrityCheck("theIntegrityCheck".getBytes());
+    	ed.setIntegrityCheck("theIntegrityCheck".getBytes());	
     	
     	
     	AttachmentDt attachment = dtt.ED2Attachment(ed);
