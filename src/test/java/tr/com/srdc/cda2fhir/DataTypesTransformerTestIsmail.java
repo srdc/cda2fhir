@@ -117,7 +117,7 @@ public class DataTypesTransformerTestIsmail {
     }
 
     @Ignore
-    public void testCD2CodeableConcept(){
+    public void testCV2CodingIsmail(){
     	
     	CV cv = DatatypesFactory.eINSTANCE.createCV();
     	
