@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.impl;
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
@@ -14,6 +15,8 @@ import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
+import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.IdentifierTypeCodesEnum;
@@ -34,6 +37,8 @@ import java.util.List;
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.Person;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ADXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BIN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
@@ -59,6 +64,7 @@ import org.openhealthtools.mdht.uml.hl7.rim.Role;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
+import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 
 /**
  * Created by mustafa on 7/21/2016.
@@ -551,19 +557,9 @@ public HumanNameDt EN2HumanName(EN en) {
 			contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
 			
 			if(!tel.getUses().isEmpty()){
+				ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
+				contactPointDt.setUse( VSTI.TelecommunicationAddressUse2ContacPointUseEnum( tel.getUses().get(0) ) );
 				
-				if(tel.getUses().get(0).toString().equals("HP")){
-					contactPointDt.setUse(ContactPointUseEnum.HOME);
-				}
-				else if(tel.getUses().get(0).toString().equals("WP")){
-					contactPointDt.setUse(ContactPointUseEnum.WORK);
-					
-				}else if(tel.getUses().get(0).toString().equals("HV")){
-					contactPointDt.setUse(ContactPointUseEnum.TEMP);
-					
-				}else{
-					contactPointDt.setUse(ContactPointUseEnum.MOBILE);
-				}	
 			}
 			
 			return contactPointDt;
@@ -607,6 +603,83 @@ public HumanNameDt EN2HumanName(EN en) {
 			return attachmentDt;
 		}
 	}//end attachmentDt
+	
+public AddressDt AD2Address(AD ad) {
+        
+        if(ad != null && !ad.isSetNullFlavor()){
+            
+            AddressDt address = new AddressDt();
+            
+            if( !ad.getUses().isEmpty() ){
+            	
+            	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
+            	address.setUse( VSTI.PostalAdressUse2AddressUseEnum( ad.getUses().get(0) ) );
+               
+            }
+            
+            address.setText( ad.getText() );
+            
+            for(ADXP adxp : ad.getStreetAddressLines()){
+                address.addLine(adxp.getText());
+            }
+            
+            if(!ad.getUnitTypes().isEmpty())
+            {
+                if(ad.getUnitTypes().get(0).getText().equals("PHYS"))
+                    address.setType(AddressTypeEnum.PHYSICAL);
+                else if(ad.getUnitTypes().get(0).getText().equals("PST"))
+                    address.setType(AddressTypeEnum.POSTAL);
+                else
+                    address.setType(AddressTypeEnum.POSTAL___PHYSICAL);
+            }
+            
+            if(!ad.getCities().isEmpty()){
+                address.setCity(ad.getCities().get(0).getText());
+            }
+            
+            if(!ad.getCounties().isEmpty()){
+                address.setDistrict(ad.getCounties().get(0).getText());
+            }
+            
+            if(!ad.getCities().isEmpty()){
+                address.setCity(ad.getCities().get(0).getText());
+            }
+            
+            if(!ad.getStates().isEmpty()){
+                address.setState(ad.getStates().get(0).getText());
+            }
+            
+            if( !ad.getPostalCodes().isEmpty()){
+                address.setPostalCode(ad.getPostalCodes().get(0).getText());
+            }
+            
+            if(!ad.getCountries().isEmpty()){
+                address.setCountry(ad.getCountries().get(0).getText());
+            }
+            
+            if(!ad.getUseablePeriods().isEmpty()){
+                PeriodDt period = new PeriodDt();
+                
+                DateTimeDt dateTimeStart = new DateTimeDt();
+                dateTimeStart.setValueAsString( ad.getUseablePeriods().get(0).getValue() );
+                period.setStart( dateTimeStart);
+                
+                if(ad.getUseablePeriods().get(1) != null){
+                    DateTimeDt dateTimeEnd = new DateTimeDt();
+                    dateTimeEnd.setValueAsString( ad.getUseablePeriods().get(1).getValue() );
+                    period.setStart( dateTimeEnd);
+                }
+                
+                address.setPeriod(period);
+
+            }
+            
+            return address;
+        }
+        
+        return null;
+    }//end AddressDt
+
     
 }
 

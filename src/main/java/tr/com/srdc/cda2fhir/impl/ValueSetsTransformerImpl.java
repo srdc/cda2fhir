@@ -1,7 +1,11 @@
 package tr.com.srdc.cda2fhir.impl;
 
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
+import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
+import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
@@ -19,5 +23,34 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		default: return NameUseEnum.TEMP;
 		}
 	}
+	
+	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse){
+		
+		switch(postalAddressUse){
+			case H: return AddressUseEnum.HOME;
+			case WP: return AddressUseEnum.WORK;
+			case TMP: return AddressUseEnum.TEMPORARY;
+			case BAD: return AddressUseEnum.OLD___INCORRECT;
+		default:
+			return AddressUseEnum.TEMPORARY;
+		}
+		
+	}
+	
+	public ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum( TelecommunicationAddressUse telecommunicationAddressUse )
+	{
+		switch(telecommunicationAddressUse){
+		case H: return ContactPointUseEnum.HOME;
+		case WP: return ContactPointUseEnum.WORK;
+		case TMP: return ContactPointUseEnum.TEMP;
+		case BAD: return ContactPointUseEnum.OLD;
+		case MC: return ContactPointUseEnum.MOBILE;
+		default:
+			return ContactPointUseEnum.TEMP;
+		}
+			
+	}
+	
+	
 
 }
