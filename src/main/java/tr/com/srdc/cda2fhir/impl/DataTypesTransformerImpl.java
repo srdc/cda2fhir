@@ -228,12 +228,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if(pq == null || pq.isSetNullFlavor() ) return null;
 		else{
 			QuantityDt quantityDt = new QuantityDt();
-			if(pq.isSetNullFlavor())
+			if(!pq.isSetNullFlavor())
 			{
 				if( pq.getValue() != null)
 					quantityDt.setValue(pq.getValue());
 				if( pq.getUnit() != null && !pq.getUnit().isEmpty())
+				{
 					quantityDt.setUnit(pq.getUnit());
+				}
 				for(PQR pqr : pq.getTranslations())
 				{
 					if(pqr!=null)
@@ -255,6 +257,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	public AnnotationDt Act2Annotation(Act act){
 		if( act == null || act.isSetNullFlavor() ) return null;
 		else{
+			
 			AnnotationDt myAnnotationDt = new AnnotationDt();
 			for(Participant2 theParticipant : act.getParticipants()){
 				if(theParticipant.getTypeCode() == ParticipationType.AUT){
@@ -267,6 +270,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 							myAnnotationDt.setAuthor( new StringDt(person.getNames().get(0).getText()) );
 						}
 					}
+					
 					myAnnotationDt.setTime( IVL_TS2Period(act.getEffectiveTime()).getStartElement() );
 					//TODO: While setTime is waiting a parameter as DateTime, act.effectiveTime gives output as IVL_TS (Interval)
 					//In sample XML, it gets the effective time as the low time
@@ -290,13 +294,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 			else
 			{
-				if(ivlpq.getLow()!=null || !ivlpq.isSetNullFlavor())
+				if(ivlpq.getLow().getValue()!=null || !ivlpq.getLow().isSetNullFlavor())
 				{
+					
 					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
 					simpleQuantity.setValue(ivlpq.getLow().getValue().doubleValue());
 					rangeDt.setLow(simpleQuantity);
 				}
-				if(ivlpq.getHigh()!=null || !ivlpq.isSetNullFlavor())
+				if(ivlpq.getHigh().getValue()!=null || !ivlpq.getHigh().isSetNullFlavor())
 				{
 					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
 					simpleQuantity.setValue(ivlpq.getHigh().getValue().doubleValue());
@@ -311,20 +316,23 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	{
 		DateTimeDt dateTimeDt = new DateTimeDt();
 		boolean isPrecisionSet=false;
+		boolean minuteExist=false;
+		boolean monthExist=false;
 		switch(date.length())
 		{	
 			default:
 				if(date.length()>14)
 				{
-					int x=date.length();
-					String ms=date.substring(14,x);
-					int msInt=Integer.parseInt(ms);
-					dateTimeDt.setMinute(msInt);
 					if(!isPrecisionSet)
 					{
 						dateTimeDt.setPrecision(TemporalPrecisionEnum.MILLI);
 						isPrecisionSet=true;
 					}
+					int x=date.length();
+					String ms=date.substring(14,x);
+					int msInt=Integer.parseInt(ms);
+					dateTimeDt.setMillis(msInt);
+					
 				}//end if
 				else
 				{
@@ -332,43 +340,65 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					break;
 				}
 			case 14:
-				String second=date.substring(12,14);
-				int secondInt=Integer.parseInt(second);
-				dateTimeDt.setMinute(secondInt);
 				if(!isPrecisionSet)
 				{
 					dateTimeDt.setPrecision(TemporalPrecisionEnum.SECOND);
 					isPrecisionSet=true;
 				}
+				String second=date.substring(12,14);
+				int secondInt=Integer.parseInt(second);
+				dateTimeDt.setSecond(secondInt);
+				
 			case 12:
-				String minute=date.substring(10,12);
-				int minuteInt=Integer.parseInt(minute);
-				dateTimeDt.setMinute(minuteInt);
+				minuteExist=true;
 				if(!isPrecisionSet)
 				{
 					dateTimeDt.setPrecision(TemporalPrecisionEnum.MINUTE);
 					isPrecisionSet=true;
 				}
+				String minute=date.substring(10,12);
+				int minuteInt=Integer.parseInt(minute);
+				dateTimeDt.setMinute(minuteInt);
+				
 			case 10:
 				String hour=date.substring(8,10);
 				int hourInt=Integer.parseInt(hour);
 				dateTimeDt.setHour(hourInt);
 			case 8:
+				if(!isPrecisionSet)
+				{
+					dateTimeDt.setPrecision(TemporalPrecisionEnum.DAY);
+					isPrecisionSet=true;
+				}
 				String day=date.substring(6,8);
 				int dayInt=Integer.parseInt(day);
 				dateTimeDt.setDay(dayInt);
-				dateTimeDt.setPrecision(TemporalPrecisionEnum.DAY);
 			case 6:
+				monthExist=true;
+				if(!isPrecisionSet)
+				{
+					dateTimeDt.setPrecision(TemporalPrecisionEnum.MONTH);
+					isPrecisionSet=true;
+				}
 				String month=date.substring(4,6);
 				int monthInt=Integer.parseInt(month);
-				dateTimeDt.setMonth(monthInt);
-				dateTimeDt.setPrecision(TemporalPrecisionEnum.MONTH);
+				if(!minuteExist)
+					dateTimeDt.setMonth(monthInt);
+				else
+					dateTimeDt.setMonth(monthInt-1);
 				
 			case 4:
+				if(!isPrecisionSet)
+				{
+					dateTimeDt.setPrecision(TemporalPrecisionEnum.YEAR);
+					isPrecisionSet=true;
+				}
 				String year=date.substring(0,4);
 				int yearInt=Integer.parseInt(year);
-				dateTimeDt.setYear(yearInt);
-				dateTimeDt.setPrecision(TemporalPrecisionEnum.YEAR);
+				if(!monthExist)
+					dateTimeDt.setYear(yearInt+1);
+				else
+					dateTimeDt.setYear(yearInt);
 		}//end switch
 		return dateTimeDt;
 	}
@@ -511,12 +541,9 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			{
 				attachmentDt.setLanguage(ed.getLanguage());
 			}
-			if(ed.isSetRepresentation() && ed.getRepresentation().getLiteral()!=null)
+			if(ed.getText()!=null)
 			{
-				attachmentDt.setData( ed.getText().getBytes() );
-//				Base64BinaryDt base64BinaryDt = new Base64BinaryDt();
-//				base64BinaryDt.setValue(ed.getRepresentation().getLiteral().getBytes());
-//				attachmentDt.setData(base64BinaryDt);
+				attachmentDt.setData( ed.getText().getBytes() );				
 			}
 			if(ed.getReference().getValue()!=null)
 			{

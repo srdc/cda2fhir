@@ -73,9 +73,9 @@ public interface DataTypesTransformer {
     
     DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 1 */
     
-    QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 1 */
+    QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 2 */
    
-    RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 1 */
+    RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 2 */
     
     AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
     
@@ -84,7 +84,6 @@ public interface DataTypesTransformer {
     IdentifierDt II2Identifier(II ii);  /* Maturity Level: 1 */
     
     HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 1 */
-    
     
     AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 1 */
     
