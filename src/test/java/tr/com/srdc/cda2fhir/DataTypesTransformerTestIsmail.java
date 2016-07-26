@@ -3,8 +3,10 @@ package tr.com.srdc.cda2fhir;
 //import org.apache.commons.codec.binary.Base64;
 
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
+import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -22,6 +24,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 //import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
@@ -64,20 +68,7 @@ public class DataTypesTransformerTestIsmail {
     }
     
     
-    
-//    @Test
-//    public void testED2Attachment(){
-//      
-//      ED ed = DatatypesFactory.eINSTANCE.createED();
-//      TEL tel = DatatypesFactory.eINSTANCE.createTEL();
-//      tel.setValue("telValue");
-//      
-//      ed.setLanguage("eng");
-//      ed.setMediaType("mediaType");
-//      ed.setReference(tel);
-//      ed.getReference().setValue("url");
-//      
-//    }
+
     
     @Ignore
     public void testIVL_PQ2RangeIsmail(){
@@ -146,7 +137,55 @@ public class DataTypesTransformerTestIsmail {
 		}
     
     
+    @Ignore
+    public void testCD2CodeableConcept(){
+        
+        CD cd = DatatypesFactory.eINSTANCE.createCD();
+        
+        cd.setCode("code");
+        cd.setCodeSystem("codeSystem");
+        cd.setCodeSystemVersion("codeSystemVersion");
+        cd.setDisplayName("displayName");
+  
+        CodeableConceptDt codeableConcept = dtt.CD2CodeableConcept(cd);
+        
+        Assert.assertEquals("CD.code transformation failed", "code", codeableConcept.getCoding().get(0).getCode());
+        Assert.assertEquals("CD.codeSystem transformation failed", "codeSystem", codeableConcept.getCoding().get(0).getSystem());
+        Assert.assertEquals("CD.codeSystemVersion transformation failed", "codeSystemVersion", codeableConcept.getCoding().get(0).getVersion());
+        Assert.assertEquals("CD.displayName transformation failed", "displayName", codeableConcept.getCoding().get(0).getDisplay());
+        
+        // null instance test
+        CD cd2 = null;
+        CodeableConceptDt codeableConcept2 = dtt.CD2CodeableConcept( cd2 );
+        Assert.assertNull("CD null instance transform failed", codeableConcept2);
+        
+      // nullFlavor instance test
+        CD cd3 = DatatypesFactory.eINSTANCE.createCD();
+        cd3.setNullFlavor(NullFlavor.NI);
+        CodeableConceptDt codeableConcept3 = dtt.CD2CodeableConcept( cd3 );
+        Assert.assertNull("CodeableConcept.nullFlavor set instance transform failed", codeableConcept3);
+        
+    }
     
+    @Test
+    public void testRTO2Ratio(){
+        
+        RTO rto = DatatypesFactory.eINSTANCE.createRTO();
+        REAL qtyEnum = DatatypesFactory.eINSTANCE.createREAL();
+        REAL qtyDenom = DatatypesFactory.eINSTANCE.createREAL();
+        
+        qtyEnum.setValue(1.0);
+        qtyDenom.setValue(2.0);
+        
+        rto.setNumerator(qtyEnum);
+        rto.setDenominator(qtyDenom);
+        
+        RatioDt ratio = dtt.RTO2Ratio(rto);
+        
+        Assert.assertEquals("RTO.numerator transformation failed" , 1.0 , ratio.getNumerator().getValue().doubleValue(), 0.001 );
+        Assert.assertEquals("RTO.denominator transformation failed" , 2.0 , ratio.getDenominator().getValue().doubleValue(), 0.001 );
+        
+    }
     
     
 }
