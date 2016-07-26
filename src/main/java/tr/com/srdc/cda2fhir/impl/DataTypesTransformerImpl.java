@@ -22,6 +22,7 @@ import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.DecimalDt;
+import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
@@ -39,6 +40,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.INT;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
@@ -160,6 +162,9 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     public UriDt URL2Uri(URL url){
     	return ( url == null || url.isSetNullFlavor() ) ? null : new UriDt(url.getValue());
     }	
+    public IntegerDt INT2Integer(INT myInt){
+    	return (myInt == null || myInt.isSetNullFlavor() ) ? null : new IntegerDt(myInt.getValue().toString());
+    }
     public Base64BinaryDt BIN2Base64Binary(BIN bin){
     	
     	if(bin.getRepresentation().getLiteral()!=null)
@@ -287,17 +292,15 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			{
 				if(ivlpq.getLow()!=null || !ivlpq.isSetNullFlavor())
 				{
-					QuantityDt quantityDt = new QuantityDt();
-					quantityDt.setValue(ivlpq.getLow().getValue());
-					quantityDt.setUnit(ivlpq.getLow().getUnit());
-					rangeDt.setLow((SimpleQuantityDt)quantityDt);
+					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
+					simpleQuantity.setValue(ivlpq.getLow().getValue().doubleValue());
+					rangeDt.setLow(simpleQuantity);
 				}
 				if(ivlpq.getHigh()!=null || !ivlpq.isSetNullFlavor())
 				{
-					QuantityDt quantityDt = new QuantityDt();
-					quantityDt.setValue(ivlpq.getHigh().getValue());
-					quantityDt.setUnit(ivlpq.getHigh().getUnit());
-					rangeDt.setHigh((SimpleQuantityDt)quantityDt);
+					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
+					simpleQuantity.setValue(ivlpq.getHigh().getValue().doubleValue());
+					rangeDt.setHigh(simpleQuantity);
 				}
 				return rangeDt;
 			}
