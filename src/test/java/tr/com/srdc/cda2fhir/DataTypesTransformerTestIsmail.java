@@ -121,6 +121,16 @@ public class DataTypesTransformerTestIsmail {
         RangeDt range3 = dtt.IVL_PQ2Range( ivlpq3 );
         Assert.assertNull("IVL_PQ.nullFlavor set instance transform failed", range3);
         
+        
+        IVL_PQ ivlpq5 = DatatypesFactory.eINSTANCE.createIVL_PQ();
+        IVXB_PQ ivxbpqH_2 = DatatypesFactory.eINSTANCE.createIVXB_PQ();
+        ivxbpqH_2.setNullFlavor(NullFlavor.NI);
+        ivlpq5.setHigh(ivxbpqH_2);
+        
+        RangeDt range5 = dtt.IVL_PQ2Range( ivlpq5 );
+        Assert.assertNull("IVL_PQ.nullFlavor set instance transform failed", range5.getHigh());
+        
+        
        //non-null empty instance test
         IVL_PQ ivlpq4 = DatatypesFactory.eINSTANCE.createIVL_PQ();
         RangeDt range4 = dtt.IVL_PQ2Range( ivlpq4 );
