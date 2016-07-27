@@ -259,13 +259,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return dateParser(date);
 		}
 	}
-	public InstantDt TS2Instant(TS ts){
-		if(ts == null || ts.isSetNullFlavor() ) return null;
-		else{
-			String date=ts.getValue();
-			return dateParser(date);
-		}
-	}
+	
 	public QuantityDt PQ2Quantity(PQ pq)
 	{
 		if(pq == null || pq.isSetNullFlavor() ) return null;
