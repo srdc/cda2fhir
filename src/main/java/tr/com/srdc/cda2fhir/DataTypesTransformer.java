@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir;
 
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
@@ -22,6 +23,7 @@ import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
 import org.openhealthtools.mdht.uml.cda.Act;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BIN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
@@ -91,6 +93,8 @@ public interface DataTypesTransformer {
     AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 2 */
     
     Base64BinaryDt BIN2Base64Binary(BIN bin);/*Maturity Level: 1*/
+    
+    AddressDt AD2Address(AD ad); /*Maturity Level: 1*/
     
     /*---The datatype SLIST and GLIST does not exist in MDHT----*/
     //SampledDataDt SLITS2SampledData(SLIST slist);

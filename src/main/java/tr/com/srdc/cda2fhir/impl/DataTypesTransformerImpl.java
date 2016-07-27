@@ -586,11 +586,15 @@ public HumanNameDt EN2HumanName(EN en) {
 				DateTimeDt dateTime = new DateTimeDt();
 				dateTime.setValueAsString(tel.getUseablePeriods().get(0).getValue());
 				period.setStart(dateTime);
+				if(tel.getUseablePeriods().get(1) != null ){
+					DateTimeDt dateTime2 = new DateTimeDt();
+					dateTime2.setValueAsString(tel.getUseablePeriods().get(1).getValue());
+					period.setEnd(dateTime2);
+				}
 				contactPointDt.setPeriod(period);
 			}
 			
 			
-			contactPointDt.setRank(1);
 			contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
 			
 			if(!tel.getUses().isEmpty()){
