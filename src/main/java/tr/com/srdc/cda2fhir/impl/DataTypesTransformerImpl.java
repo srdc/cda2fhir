@@ -90,13 +90,35 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     public CodeableConceptDt CD2CodeableConcept(CD cd) {
         if( cd == null || cd.isSetNullFlavor() ) return null;
         else{
-        	List<CodingDt> myCodingDtList = new ArrayList<CodingDt>();
+        	//List<CodingDt> myCodingDtList = new ArrayList<CodingDt>();
         	CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
-        	for(CD myCd : cd.getTranslations() ){
-        		if(myCd.getCodeSystem().isEmpty() || myCd.getCode().isEmpty()) continue;
-        		CodingDt toAdd = new CodingDt(myCd.getCodeSystem(),myCd.getCode());
-        		myCodingDtList.add(toAdd);
+//        	for(CD myCd : cd.getTranslations() ){
+//        		if(myCd.getCodeSystem().isEmpty() || myCd.getCode().isEmpty()) continue;
+//        		CodingDt toAdd = new CodingDt(myCd.getCodeSystem(),myCd.getCode());
+//        		myCodingDtList.add(toAdd);
+//        	}
+        	boolean isEmpty = true;
+        	
+        	CodingDt codingDt = new CodingDt();
+        	if( cd.getCodeSystem() != null ){
+        		codingDt.setSystem( cd.getCodeSystem() );
+        		isEmpty = false;
         	}
+        	if( cd.getCode() !=null ){
+        		codingDt.setCode( cd.getCode() );
+        		isEmpty = false;
+        	}
+        	if( cd.getCodeSystemVersion() !=null ){
+        		codingDt.setVersion( cd.getCodeSystemVersion() );
+        		isEmpty = false;
+        	}
+        	if( cd.getDisplayName() != null ){
+        		codingDt.setDisplay( cd.getDisplayName() );
+        		isEmpty = false;
+        	}
+        	if (isEmpty == false)
+        		myCodeableConceptDt.addCoding( codingDt );
+        	
         	return myCodeableConceptDt;
         }
     }
@@ -253,6 +275,10 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	public DateTimeDt TS2DateTime(TS ts){
 		if(ts == null || ts.isSetNullFlavor() ) return null;
 		else{
+			
+			if( ts.getValue() == null )
+				return new DateTimeDt();
+			
 			String date=ts.getValue();
 			return dateParser(date);
 		}
@@ -323,7 +349,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			RangeDt rangeDt = new RangeDt();
 			if(ivlpq.getLow()==null && ivlpq.getHigh()==null)
 			{
-				return null;
+				return rangeDt;
 			}
 			else
 			{
@@ -332,12 +358,15 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					
 					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
 					simpleQuantity.setValue(ivlpq.getLow().getValue().doubleValue());
+					simpleQuantity.setUnit( ivlpq.getLow().getUnit() );
 					rangeDt.setLow(simpleQuantity);
+					
 				}
 				if(ivlpq.getHigh().getValue()!=null && !ivlpq.getHigh().isSetNullFlavor())
 				{
 					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
 					simpleQuantity.setValue(ivlpq.getHigh().getValue().doubleValue());
+					simpleQuantity.setUnit( ivlpq.getHigh().getUnit() );
 					rangeDt.setHigh(simpleQuantity);
 				}
 				return rangeDt;
