@@ -5,10 +5,12 @@ package tr.com.srdc.cda2fhir;
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 
 import org.junit.Assert;
@@ -26,12 +28,14 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
+import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 //import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 //import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 //import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 
 public class DataTypesTransformerTestIsmail {
@@ -104,7 +108,7 @@ public class DataTypesTransformerTestIsmail {
         
     }
 
-    @Test
+    @Ignore
     public void testCV2CodingIsmail(){
     	
     	CV cv = DatatypesFactory.eINSTANCE.createCV();
@@ -168,7 +172,7 @@ public class DataTypesTransformerTestIsmail {
     }
     
     @Ignore
-    public void testRTO2Ratio(){
+    public void testRTO2RatioIsmail(){
         
         RTO rto = DatatypesFactory.eINSTANCE.createRTO();
         REAL qtyEnum = DatatypesFactory.eINSTANCE.createREAL();
@@ -184,7 +188,52 @@ public class DataTypesTransformerTestIsmail {
         
         Assert.assertEquals("RTO.numerator transformation failed" , 1.0 , ratio.getNumerator().getValue().doubleValue(), 0.001 );
         Assert.assertEquals("RTO.denominator transformation failed" , 2.0 , ratio.getDenominator().getValue().doubleValue(), 0.001 );
+       
+    }
+    @SuppressWarnings("deprecation")
+	@Test
+    public void testTEL2ContactPoint(){
+    	
+    	TEL tel = DatatypesFactory.eINSTANCE.createTEL();
+    	
+    	tel.setValue("value");
+    	
+    	SXCM_TS sxcmts = DatatypesFactory.eINSTANCE.createSXCM_TS();
+    	sxcmts.setValue("1995-04-24");
+    	SXCM_TS sxcmts2 = DatatypesFactory.eINSTANCE.createSXCM_TS();
+    	sxcmts2.setValue("1995-04-27");
+    	
+    	tel.getUseablePeriods().add(sxcmts);
+    	tel.getUseablePeriods().add(sxcmts2);
+    	
+    	tel.getUses().add(TelecommunicationAddressUse.H);
+    	
+    	ContactPointDt contactPoint = dtt.TEL2ContactPoint(tel);
+    	
+    	contactPoint.setRank(1);
+    	contactPoint.setSystem(ContactPointSystemEnum.PHONE);
+    	
+    	Assert.assertEquals("Tel.value failed" , "value" , contactPoint.getValue()  );
+    	Assert.assertEquals("Tel.periodStart getYear failed" , 95 , contactPoint.getPeriod().getStart().getYear() );
+    	Assert.assertEquals("Tel.periodStart getMonth failed" , 3 , contactPoint.getPeriod().getStart().getMonth() );
+    	Assert.assertEquals("Tel.periodStart getMonth failed" , 24 , contactPoint.getPeriod().getStart().getDate() );
+    	Assert.assertEquals("Tel.periodEnd getYear failed" , 95 , contactPoint.getPeriod().getEnd().getYear() );
+    	Assert.assertEquals("Tel.periodEnd getMonth failed" , 3 , contactPoint.getPeriod().getEnd().getMonth() );
+    	Assert.assertEquals("Tel.periodEnd getMonth failed" , 27 , contactPoint.getPeriod().getEnd().getDate() );
+    	Assert.assertEquals("Tel.use failed" , "home" , contactPoint.getUse() );
+    	
+    	 // null instance test
+        TEL tel2 = null;
+        ContactPointDt contactPoint2 = dtt.TEL2ContactPoint( tel2 );
+        Assert.assertNull("TEL null instance transform failed", contactPoint2);
         
+      // nullFlavor instance test
+        TEL tel3 = DatatypesFactory.eINSTANCE.createTEL();
+        tel3.setNullFlavor(NullFlavor.NI);
+        ContactPointDt contactPoint3 = dtt.TEL2ContactPoint( tel3 );
+        Assert.assertNull("ContactPointDt.nullFlavor set instance transform failed", contactPoint3);
+    	
+    	
     }
     
 
