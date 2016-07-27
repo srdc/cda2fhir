@@ -27,12 +27,14 @@ import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.DecimalDt;
+import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.Participant2;
@@ -257,6 +259,13 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return dateParser(date);
 		}
 	}
+	public InstantDt TS2Instant(TS ts){
+		if(ts == null || ts.isSetNullFlavor() ) return null;
+		else{
+			String date=ts.getValue();
+			return dateParser(date);
+		}
+	}
 	public QuantityDt PQ2Quantity(PQ pq)
 	{
 		if(pq == null || pq.isSetNullFlavor() ) return null;
@@ -353,34 +362,41 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		switch(date.length())
 		{	
 			default:
-				if(date.length()>14)
+				if(date.length()>12)
 				{
 					if(!isPrecisionSet)
 					{
-						dateTimeDt.setPrecision(TemporalPrecisionEnum.MILLI);
+						dateTimeDt.setPrecision(TemporalPrecisionEnum.MINUTE);
 						isPrecisionSet=true;
 					}
-					int x=date.length();
-					String ms=date.substring(14,x);
-					int msInt=Integer.parseInt(ms);
-					dateTimeDt.setMillis(msInt);
+					/*12th element is a hyphen.*/
+					if(date.length()>14)
+					{
+						int x=date.length();
+						String timezone="GMT+";
+						timezone=timezone.concat(date.substring(13,15));
 					
+						timezone=timezone.concat(":");
+						timezone=timezone.concat(date.substring(15,17));
+						dateTimeDt.setTimeZone(TimeZone.getTimeZone(timezone));
+					}
+					else if(date.length()==14)
+					{
+						if(!isPrecisionSet)
+						{
+							dateTimeDt.setPrecision(TemporalPrecisionEnum.SECOND);
+							isPrecisionSet=true;
+						}
+						String second=date.substring(12,14);
+						int secondInt=Integer.parseInt(second);
+						dateTimeDt.setSecond(secondInt);
+					}
 				}//end if
 				else
 				{
 					//do nothing
 					break;
 				}
-			case 14:
-				if(!isPrecisionSet)
-				{
-					dateTimeDt.setPrecision(TemporalPrecisionEnum.SECOND);
-					isPrecisionSet=true;
-				}
-				String second=date.substring(12,14);
-				int secondInt=Integer.parseInt(second);
-				dateTimeDt.setSecond(secondInt);
-				
 			case 12:
 				
 				if(!isPrecisionSet)

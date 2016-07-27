@@ -16,6 +16,7 @@ import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.DecimalDt;
+import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
@@ -72,7 +73,8 @@ public interface DataTypesTransformer {
     
     PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 2 */
     
-    DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 1 */
+    DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 2 */
+ 
     
     QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 2 */
    
@@ -80,7 +82,7 @@ public interface DataTypesTransformer {
     
     AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
     
-    ContactPointDt TEL2ContactPoint(TEL tel);  /* Maturity Level: 1 */
+    ContactPointDt TEL2ContactPoint(TEL tel);  /* Maturity Level: 2 */
     
     IdentifierDt II2Identifier(II ii);  /* Maturity Level: 2 */
     

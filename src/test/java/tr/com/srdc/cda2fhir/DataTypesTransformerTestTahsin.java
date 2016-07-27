@@ -205,16 +205,43 @@ public class DataTypesTransformerTestTahsin {
     	
     }//end Annotation test
 
-    @Ignore
+    @Test
     public void testTS2DateTime(){
-    	//simple instance test
+    	//simple instance test,yyyy
     	TS ts=DatatypesFactory.eINSTANCE.createTS();
-    	ts.setValue("201605271540");
+    	ts.setValue("2016");
     	DateTimeDt datetime=dtt.TS2DateTime(ts);
-        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",datetime.getValueAsString());
-        /*TODO:Timezone and ms parts are not tested.
-         Need a way to parse timezone and add it to FHIR object.
-         */
+        Assert.assertEquals("TS.value was not transformed","2016",datetime.getValueAsString());
+        
+        //simple instance test,yyyymm
+        TS ts2=DatatypesFactory.eINSTANCE.createTS();
+    	ts2.setValue("201605");
+    	DateTimeDt datetime2=dtt.TS2DateTime(ts2);
+        Assert.assertEquals("TS.value was not transformed","2016-05",datetime2.getValueAsString());
+        
+        //simple instance test,yyyymmdd
+        TS ts3=DatatypesFactory.eINSTANCE.createTS();
+    	ts3.setValue("20160527");
+    	DateTimeDt datetime3=dtt.TS2DateTime(ts3);
+        Assert.assertEquals("TS.value was not transformed","2016-05-27",datetime3.getValueAsString());
+        
+        //simple instance test,yyyymmddhhmm
+        TS ts4=DatatypesFactory.eINSTANCE.createTS();
+    	ts4.setValue("201605271540");
+    	DateTimeDt datetime4=dtt.TS2DateTime(ts4);
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",datetime4.getValueAsString());
+        
+    	//complex instance test,with timezone
+    	TS ts5=DatatypesFactory.eINSTANCE.createTS();
+    	ts5.setValue("201605271540-0800");
+    	DateTimeDt datetime5=dtt.TS2DateTime(ts5);
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",datetime5.getValueAsString());
+        
+        //null instance test
+        
+        TS ts6=null;
+        DateTimeDt datetime6=dtt.TS2DateTime(ts6);
+        Assert.assertNull("TS null instance set was failed",datetime6);
     }//end Datetime test
 
     
