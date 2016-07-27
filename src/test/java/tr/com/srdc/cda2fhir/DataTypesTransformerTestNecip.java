@@ -39,7 +39,6 @@ public class DataTypesTransformerTestNecip {
     	ad.getUses().add(PostalAddressUse.H); // PostalAddressUse.H maps to home
     	ad.getUses().add(PostalAddressUse.PST); // PST maps to physical
     	ad.addText("theText");
-    	// TODO: Is it OK to get line as StreetAddressLine?
     	String[] lineArray = new String[2];
     	lineArray[0] = "streetLine";
     	lineArray[1] = "deliveryLine";
@@ -236,7 +235,6 @@ public class DataTypesTransformerTestNecip {
     	cv.setCodeSystemVersion("theCodeSystemVersion");
     	cv.setCode("theCode");
     	cv.setDisplayName("theDisplayName");
-    	// TODO: The mapping btw CodingDt.userSelected and CD.codingRationale doesn't exist write to impl
     	
     	CodingDt coding = dtt.CV2Coding(cv);
     	

@@ -92,7 +92,7 @@ public interface DataTypesTransformer {
     
     Base64BinaryDt BIN2Base64Binary(BIN bin);/*Maturity Level: 1*/
     
-    AddressDt AD2Address(AD ad); /*Maturity Level: 1*/
+    AddressDt AD2Address(AD ad); /*Maturity Level: 2 */
     
     /*---The datatype SLIST and GLIST does not exist in MDHT----*/
     //SampledDataDt SLITS2SampledData(SLIST slist);

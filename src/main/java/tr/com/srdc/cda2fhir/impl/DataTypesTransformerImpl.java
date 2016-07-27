@@ -216,7 +216,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	else{
     		RatioDt myRatioDt = new RatioDt();
     		if( ! rto.getNumerator().isSetNullFlavor() ) {
-    			// TODO: Test requirement: Check whether casting QTY to PQ is OK
     			QuantityDt quantity=new QuantityDt();
     			REAL numerator= (REAL) rto.getNumerator();
     			quantity.setValue(numerator.getValue().doubleValue());
