@@ -1,20 +1,26 @@
 package tr.com.srdc.cda2fhir;
 
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
+import ca.uhn.fhir.model.primitive.StringDt;
+
 import org.junit.Assert;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 
 /**
@@ -24,7 +30,78 @@ public class DataTypesTransformerTestNecip {
 
     DataTypesTransformer dtt = new DataTypesTransformerImpl();
     
-    
+    @Test
+    public void testAD2Address(){
+    	// simple instance test
+    	
+    	AD ad = DatatypesFactory.eINSTANCE.createAD();
+    	// Visit https://www.hl7.org/fhir/valueset-address-use.html to see valuset of address use
+    	ad.getUses().add(PostalAddressUse.H); // PostalAddressUse.H maps to home
+    	ad.getUses().add(PostalAddressUse.PST); // PST maps to physical
+    	ad.addText("theText");
+    	// TODO: Is it OK to get line as StreetAddressLine?
+    	String[] lineArray = new String[2];
+    	lineArray[0] = "streetLine";
+    	lineArray[1] = "deliveryLine";
+    	ad.addStreetAddressLine(lineArray[0]);
+    	ad.addDeliveryAddressLine(lineArray[1]);
+    	ad.addCity("theCity");
+    	ad.addCounty("theDistrict"); // Notice that it is county, not country
+    	ad.addState("theState");
+    	ad.addPostalCode("thePostalCode");
+    	ad.addCountry("theCountry");
+
+    	SXCM_TS start = DatatypesFactory.eINSTANCE.createSXCM_TS();
+    	SXCM_TS end  = DatatypesFactory.eINSTANCE.createSXCM_TS();
+    	start.setValue("1963-05-16");
+    	end.setValue("2013-07-21");
+    	ad.getUseablePeriods().add(start);
+    	ad.getUseablePeriods().add(end);
+    	
+    	AddressDt address = dtt.AD2Address(ad);
+    	
+    	Assert.assertEquals("AD.use was not transformed","home",address.getUse());
+    	Assert.assertEquals("AD.type was not transformed","physical",address.getType());
+    	Assert.assertEquals("AD.text was not transformed","theText",address.getText());
+    	
+    	/* line array controls */
+    	int matchingElements = 0;
+    	for( StringDt line : address.getLine() ){
+    		for( String line2 : lineArray ){
+    			if(line.getValue().equals(line2)){
+    				matchingElements++;
+    			}
+    		}
+    	}
+    	Assert.assertTrue("AD.line was not transformed",matchingElements == lineArray.length);
+    	
+    	Assert.assertEquals("AD.city was not transformed","theCity",address.getCity());
+    	Assert.assertEquals("AD.district was not transformed","theDistrict",address.getDistrict());
+    	Assert.assertEquals("AD.state was not transformed","theState",address.getState());
+    	Assert.assertEquals("AD.postalCode was not transformed","thePostalCode",address.getPostalCode());
+    	Assert.assertEquals("AD.country was not transformed","theCountry",address.getCountry());
+    	
+    	// Notice that Date.getYear() returns THE_YEAR - 1900. It returns 116 for 2016 since 2016-1900 = 116.
+    	Assert.assertEquals("AD.period.start.year was not transformed",1963-1900,address.getPeriod().getStart().getYear());
+    	// Notice that Date.getMonth() returns THE_MONTH - 1 (since the months are indexed btw the range 0-11)
+    	Assert.assertEquals("AD.period.start.month was not transformed",5-1,address.getPeriod().getStart().getMonth());
+    	Assert.assertEquals("AD.period.start.date was not transformed",16,address.getPeriod().getStart().getDate());
+    	
+    	Assert.assertEquals("AD.period.end.year was not transformed",2013-1900,address.getPeriod().getEnd().getYear());
+    	Assert.assertEquals("AD.period.end.month was not transformed",7-1,address.getPeriod().getEnd().getMonth());
+    	Assert.assertEquals("AD.period.end.date was not transformed",21,address.getPeriod().getEnd().getDate());
+    	
+    	// null instance test
+    	AD ad2 = null;
+    	AddressDt address2 = dtt.AD2Address(ad2);
+    	Assert.assertNull("AD null instance transform failed", address2);
+    	
+    	// nullFlavor instance test
+    	AD ad3 = DatatypesFactory.eINSTANCE.createAD();
+    	ad3.setNullFlavor(NullFlavor.NI);
+    	AddressDt address3 = dtt.AD2Address(ad3);
+    	Assert.assertNull("AD.nullFlavor set instance transform failed",address3);
+    }
     
     @Test
     public void testIVL_TS2Period(){

@@ -4,6 +4,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
@@ -49,6 +50,15 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			return ContactPointUseEnum.TEMP;
 		}
 			
+	}
+	public AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse ){
+		switch(postalAddressUse){
+		case PHYS: return AddressTypeEnum.POSTAL;
+		// TODO: It maps PHYS to postal, PST to physical. Maybe wrong?
+		case PST: return AddressTypeEnum.PHYSICAL;
+		// TODO: Check if it is OK to set default as it is
+		default: return AddressTypeEnum.POSTAL___PHYSICAL;
+		}
 	}
 	
 	

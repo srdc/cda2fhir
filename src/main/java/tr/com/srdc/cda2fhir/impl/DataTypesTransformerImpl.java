@@ -64,6 +64,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
 import org.openhealthtools.mdht.uml.hl7.rim.Participation;
 import org.openhealthtools.mdht.uml.hl7.rim.Role;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
+import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
@@ -641,62 +642,70 @@ public HumanNameDt EN2HumanName(EN en) {
 	
 public AddressDt AD2Address(AD ad) {
         
-        if(ad != null && !ad.isSetNullFlavor()){
+        if(ad == null || ad.isSetNullFlavor()) return null;
+        else{
             
             AddressDt address = new AddressDt();
             
-            if( !ad.getUses().isEmpty() ){
+            if( !ad.getUses().isEmpty() && ad.getUses() != null ){
             	
             	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
-            	address.setUse( VSTI.PostalAdressUse2AddressUseEnum( ad.getUses().get(0) ) );
-            
+            	
+            	// We get the address.type and address.use from the list ad.uses
+            	for(PostalAddressUse postalAddressUse : ad.getUses()){
+            		// If we catch a valid value for type or use, we assign it
+            		if( postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST ){
+            			address.setType( VSTI.PostalAddressUse2AddressTypeEnum( postalAddressUse ) );
+            		} else if( postalAddressUse == PostalAddressUse.H ||
+            				postalAddressUse == PostalAddressUse.WP ||
+            				postalAddressUse == PostalAddressUse.TMP ||
+            				postalAddressUse == PostalAddressUse.BAD ){
+            			address.setUse( VSTI.PostalAdressUse2AddressUseEnum( postalAddressUse ) );
+            		}
             	}
-               
-            address.setType(AddressTypeEnum.POSTAL___PHYSICAL);
+            }       
             
-            address.setText( ad.getText() );
-            
-            for(ADXP adxp : ad.getStreetAddressLines()){
-                address.addLine(adxp.getText());
+            if( ad.getText() != null && !ad.getText().isEmpty() ){
+            	address.setText( ad.getText() );
             }
             
-//            if(!ad.getUnitTypes().isEmpty())
-//            {
-//                if(ad.getUnitTypes().get(0).getText().equals("PHYS"))
-//                    address.setType(AddressTypeEnum.PHYSICAL);
-//                else if(ad.getUnitTypes().get(0).getText().equals("PST"))
-//                    address.setType(AddressTypeEnum.POSTAL);
-//                else
-//                    address.setType(AddressTypeEnum.POSTAL___PHYSICAL);
-//            }
+            if( !ad.getStreetAddressLines().isEmpty() && ad.getStreetAddressLines() != null){
+            	for(ADXP adxp : ad.getStreetAddressLines()){
+                    address.addLine(adxp.getText());
+                }
+            }
+            if(!ad.getDeliveryAddressLines().isEmpty() && ad.getDeliveryAddressLines() != null){
+            	for(ADXP adxp : ad.getDeliveryAddressLines()){
+                    address.addLine(adxp.getText());
+                }
+            }
             
-            if(!ad.getCities().isEmpty()){
+            if(!ad.getCities().isEmpty() && ad.getCities() != null){
                 address.setCity(ad.getCities().get(0).getText());
             }
             
-            if(!ad.getCounties().isEmpty()){
+            if(!ad.getCounties().isEmpty() && ad.getCounties() != null ){
                 address.setDistrict(ad.getCounties().get(0).getText());
             }
             
-            if(!ad.getCities().isEmpty()){
+            if(!ad.getCities().isEmpty() && ad.getCities() != null){
                 address.setCity(ad.getCities().get(0).getText());
             }
             
-            if(!ad.getStates().isEmpty()){
+            if(!ad.getStates().isEmpty() && ad.getStates() != null){
                 address.setState(ad.getStates().get(0).getText());
             }
             
-            if( !ad.getPostalCodes().isEmpty()){
+            if( !ad.getPostalCodes().isEmpty() && ad.getPostalCodes() != null){
                 address.setPostalCode(ad.getPostalCodes().get(0).getText());
             }
             
-            if(!ad.getCountries().isEmpty()){
+            if(!ad.getCountries().isEmpty() && ad.getCounties() != null){
                 address.setCountry(ad.getCountries().get(0).getText());
             }
             
-            if(!ad.getUseablePeriods().isEmpty()){
+            if(!ad.getUseablePeriods().isEmpty() && ad.getUseablePeriods() != null){
                 PeriodDt period = new PeriodDt();
-                
                 DateTimeDt dateTimeStart = new DateTimeDt();
                 dateTimeStart.setValueAsString( ad.getUseablePeriods().get(0).getValue() );
                 period.setStart( dateTimeStart);
@@ -704,7 +713,7 @@ public AddressDt AD2Address(AD ad) {
                 if(ad.getUseablePeriods().get(1) != null){
                     DateTimeDt dateTimeEnd = new DateTimeDt();
                     dateTimeEnd.setValueAsString( ad.getUseablePeriods().get(1).getValue() );
-                    period.setStart( dateTimeEnd);
+                    period.setEnd(dateTimeEnd);
                 }
                 
                 address.setPeriod(period);
@@ -713,8 +722,6 @@ public AddressDt AD2Address(AD ad) {
             
             return address;
         }
-        
-        return null;
     }//end AddressDt
 
     
