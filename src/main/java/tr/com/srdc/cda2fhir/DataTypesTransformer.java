@@ -60,7 +60,7 @@ public interface DataTypesTransformer {
     
     BooleanDt BL2Boolean(BL bl); /* Maturity Level: 2 */
     
-    DateDt TS2Date(TS ts); /* Maturity Level: 1 */
+    DateDt TS2Date(TS ts); /* Maturity Level: 2 */
     
     DecimalDt REAL2Decimal(REAL real); /* Maturity Level: 2 */
     
@@ -72,7 +72,7 @@ public interface DataTypesTransformer {
     
     RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 2 */
     
-    PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 1 */
+    PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 2 */
     
     DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 1 */
     
@@ -86,9 +86,7 @@ public interface DataTypesTransformer {
     
     IdentifierDt II2Identifier(II ii);  /* Maturity Level: 2 */
     
-    IdentifierDt Role2Identifier(Role role);/* Maturity Level: 1*/
-    
-    HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 1 */
+    HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 2 */
     
     AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 2 */
     

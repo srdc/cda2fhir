@@ -348,7 +348,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	{
 		DateTimeDt dateTimeDt = new DateTimeDt();
 		boolean isPrecisionSet=false;
-		boolean minuteExist=false;
+		boolean dayExist=false;
 		boolean monthExist=false;
 		switch(date.length())
 		{	
@@ -382,7 +382,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				dateTimeDt.setSecond(secondInt);
 				
 			case 12:
-				minuteExist=true;
+				
 				if(!isPrecisionSet)
 				{
 					dateTimeDt.setPrecision(TemporalPrecisionEnum.MINUTE);
@@ -397,6 +397,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				int hourInt=Integer.parseInt(hour);
 				dateTimeDt.setHour(hourInt);
 			case 8:
+				dayExist=true;
 				if(!isPrecisionSet)
 				{
 					dateTimeDt.setPrecision(TemporalPrecisionEnum.DAY);
@@ -414,9 +415,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				}
 				String month=date.substring(4,6);
 				int monthInt=Integer.parseInt(month);
-//				if(!minuteExist)
-//					dateTimeDt.setMonth(monthInt);
-//				else TODO: After testing, remove this
+				if(!dayExist)
+				{
+					//System.out.println(monthInt);
+					dateTimeDt.setMonth(monthInt);
+				}
+				else 
 					dateTimeDt.setMonth(monthInt-1);
 				
 			case 4:

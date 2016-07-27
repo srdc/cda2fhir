@@ -274,25 +274,7 @@ public class DataTypesTransformerTestTahsin {
     	IdentifierDt identifier3=dtt.II2Identifier(ii3);
     	Assert.assertNull("II nullFlavor set instance transform failed",identifier3);
     }//end IdentifierDt (from II) Test
-    @Ignore
-    public void testRole2Identifier(){
-    	//simple instance test
-    	Role role=CDAFactory.eINSTANCE.createPatientRole();
-    	CS cs=DatatypesFactory.eINSTANCE.createCS();
-    	cs.setCode("test code");
-    	cs.setCodeSystem("251251");
-    	cs.setCodeSystemName("mySystemName");
-    	cs.setCodeSystemVersion("newer");
-    	role.getRealmCodes().add(cs);
-    	/*role.getTypeId().setRoot("myRoot");
-    	role.getTypeId().setExtension("myValue");*/
-		
-		IdentifierDt identifier=dtt.Role2Identifier(role);
-		Assert.assertEquals("Role.code was not transformed","test code",identifier.getUse());
-		Assert.assertEquals("Role.system was not transformed","251251",identifier.getSystem());
-		Assert.assertEquals("Role.value was not transformed","myValue",identifier.getValue());
-		
-    }
+   
     
     
     @Test
