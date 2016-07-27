@@ -16,12 +16,12 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		
 		switch(entityNameUse){
 		case C: return NameUseEnum.USUAL;
-		// TODO: Visit https://www.hl7.org/fhir/valueset-name-use.html
+		// Visit https://www.hl7.org/fhir/valueset-name-use.html
 		// Trying: case OR: return NameUseEnum.OFFICIAL;
 		// .. T, ANON, OLD, M.
 		// However, these cases don't exist
 		case P: return NameUseEnum.NICKNAME;
-		default: return NameUseEnum.TEMP;
+		default: return NameUseEnum.USUAL;
 		}
 	}
 	
@@ -54,10 +54,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	public AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse ){
 		switch(postalAddressUse){
 		case PHYS: return AddressTypeEnum.POSTAL;
-		// TODO: It maps PHYS to postal, PST to physical. Maybe wrong?
 		case PST: return AddressTypeEnum.PHYSICAL;
-		// TODO: Check if it is OK to set default as it is
-		default: return AddressTypeEnum.POSTAL___PHYSICAL;
+		default: return null;
 		}
 	}
 	

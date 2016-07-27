@@ -235,14 +235,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if( ivlts == null || ivlts.isSetNullFlavor() ) return null;
 		else{
 			PeriodDt periodDt =new PeriodDt();
-			boolean isNullFlavorLow=ivlts.getLow().isSetNullFlavor();
-			if(!isNullFlavorLow)
+			if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor())
 			{
 				String date=ivlts.getLow().getValue();
 				periodDt.setStart(dateParser(date));
 			}
-			boolean isNullFlavorHigh=ivlts.getHigh().isSetNullFlavor();
-			if(!isNullFlavorHigh)
+			if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor())
 			{
 				String date=ivlts.getHigh().getValue();
 				periodDt.setEnd(dateParser(date));
@@ -442,7 +440,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				String year=date.substring(0,4);
 				int yearInt=Integer.parseInt(year);
 				if(!monthExist)
-					dateTimeDt.setYear(yearInt+1); // TODO: FOR NECIP: Control your tests
+					dateTimeDt.setYear(yearInt+1);
 				else
 					dateTimeDt.setYear(yearInt);
 		}//end switch
@@ -455,7 +453,7 @@ public HumanNameDt EN2HumanName(EN en) {
 			
 			HumanNameDt myHumanName = new HumanNameDt();
 			
-			if( en.getText() != null){
+			if( en.getText() != null && !en.getText().isEmpty()){
 				myHumanName.setText( en.getText() );
 			}
 			
@@ -464,28 +462,28 @@ public HumanNameDt EN2HumanName(EN en) {
 				myHumanName.setUse( VSTI.EntityNameUse2NameUseEnum(en.getUses().get(0)) );
 			}
 			
-			if(en.getFamilies() != null){
+			if(en.getFamilies() != null && !en.getFamilies().isEmpty()){
 				for(ENXP element: en.getFamilies()){
 					myHumanName.addFamily( element.getText() );
 				}
 			}
-			if(en.getGivens() != null){
+			if(en.getGivens() != null && !en.getGivens().isEmpty()){
 				for(ENXP element: en.getGivens()){
 					myHumanName.addGiven( element.getText() );
 				}
 			}
-			if(en.getPrefixes() != null){
+			if(en.getPrefixes() != null && !en.getPrefixes().isEmpty()){
 				for(ENXP element: en.getPrefixes( )){
 					myHumanName.addPrefix( element.getText() );
 				}
 			}
-			if(en.getSuffixes() != null){
+			if(en.getSuffixes() != null && !en.getSuffixes().isEmpty()){
 				for(ENXP element: en.getSuffixes()){
 					myHumanName.addSuffix( element.getText() );
 				}
 			}
 			
-			if( en.getValidTime() != null ){
+			if( en.getValidTime() != null && !en.getValidTime().isSetNullFlavor() ){
 				PeriodDt periodDt = IVL_TS2Period( en.getValidTime() );
 				myHumanName.setPeriod(periodDt);
 			}
@@ -610,11 +608,11 @@ public HumanNameDt EN2HumanName(EN en) {
 		else
 		{
 			AttachmentDt attachmentDt = new AttachmentDt();
-			if(ed.isSetMediaType() && ed.getMediaType()!=null)
+			if(ed.isSetMediaType() && ed.getMediaType()!=null && !ed.getMediaType().isEmpty())
 			{
 				attachmentDt.setContentType(ed.getMediaType());
 			}
-			if(ed.getLanguage()!=null)
+			if(ed.getLanguage()!=null && !ed.getLanguage().isEmpty())
 			{
 				attachmentDt.setLanguage(ed.getLanguage());
 			}
@@ -622,7 +620,7 @@ public HumanNameDt EN2HumanName(EN en) {
 			{
 				attachmentDt.setData( ed.getText().getBytes() );				
 			}
-			if(ed.getReference().getValue()!=null)
+			if( ed.getReference()!=null )
 			{
 				attachmentDt.setUrl(ed.getReference().getValue());
 			}
@@ -630,11 +628,8 @@ public HumanNameDt EN2HumanName(EN en) {
 			{
 				attachmentDt.setHash(ed.getIntegrityCheck());
 			}
-			if(ed.isSetRepresentation() && ed.getRepresentation().getName()!=null)//If this contains a title.
-			{
-				// TODO: Not sure if ed.title.data is compensated by ed.getRepresentation().getName(). Please check.
-				attachmentDt.setTitle(ed.getRepresentation().getName());
-			}
+			// ED.title.data doesn't exist
+			// Therefore, couldn't map ED.title.data <=> Attachment.title
 			return attachmentDt;
 		}
 	}//end attachmentDt

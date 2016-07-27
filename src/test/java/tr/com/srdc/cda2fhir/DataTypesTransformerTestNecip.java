@@ -90,6 +90,29 @@ public class DataTypesTransformerTestNecip {
     	Assert.assertEquals("AD.period.end.month was not transformed",7-1,address.getPeriod().getEnd().getMonth());
     	Assert.assertEquals("AD.period.end.date was not transformed",21,address.getPeriod().getEnd().getDate());
     	
+    	
+    	// instance test: there exists an instance of ED but no setter is called
+    	AD ad4 = DatatypesFactory.eINSTANCE.createAD();
+    	AddressDt address4 = dtt.AD2Address(ad4);
+    	Assert.assertNull("AD.use was not transformed",address4.getUse());
+    	Assert.assertNull("AD.type was not transformed",address4.getType());
+    	Assert.assertNull("AD.text was not transformed",address4.getText());
+    	
+    	Assert.assertTrue("AD.line was not transformed",address4.getLine().size() == 0);
+    	Assert.assertNull("AD.city was not transformed",address4.getCity());
+    	Assert.assertNull("AD.district was not transformed",address4.getDistrict());
+    	Assert.assertNull("AD.state was not transformed",address4.getState());
+    	Assert.assertNull("AD.postalCode was not transformed",address4.getPostalCode());
+    	Assert.assertNull("AD.country was not transformed",address4.getCountry());
+    	
+    	// Notice that Date.getYear() returns THE_YEAR - 1900. It returns 116 for 2016 since 2016-1900 = 116.
+    	Assert.assertNull("AD.period.start was not transformed",address4.getPeriod().getStart());
+    	
+    	Assert.assertNull("AD.period.end was not transformed",address4.getPeriod().getEnd());
+    	
+    	
+    	
+    	
     	// null instance test
     	AD ad2 = null;
     	AddressDt address2 = dtt.AD2Address(ad2);
@@ -128,6 +151,15 @@ public class DataTypesTransformerTestNecip {
     	Assert.assertEquals("IVL_TS.high(year) was not transformed",2015-1900,period.getEnd().getYear());
     	Assert.assertEquals("IVL_TS.high(month) was not transformed",11-1,period.getEnd().getMonth());
     	Assert.assertEquals("IVL_TS.high(date[1-31]) was not transformed",22,period.getEnd().getDate());
+    	
+    	
+    	// instance test: there exists an instance of ED but no setter is called
+    	IVL_TS ivl_ts4 = DatatypesFactory.eINSTANCE.createIVL_TS();
+    	PeriodDt period4 = dtt.IVL_TS2Period(ivl_ts4);
+    	
+    	Assert.assertNull("IVL_TS.low was not transformed",period4.getStart());
+    	
+    	Assert.assertNull("IVL_TS.high(year) was not transformed",period4.getEnd());
     	
     	
     	// null instance test
@@ -171,11 +203,22 @@ public class DataTypesTransformerTestNecip {
     	Assert.assertEquals("EN.given was not transformed","theGiven",humanName.getGiven().get(0).getValue());
     	Assert.assertEquals("EN.prefix was not transformed","thePrefix",humanName.getPrefix().get(0).getValue());
     	Assert.assertEquals("EN.suffix was not transformed","theSuffix",humanName.getSuffix().get(0).getValue());
+    	
     	// EN.period tests for the simple instance test 1
     	
     	PeriodDt en_period = dtt.IVL_TS2Period(ivl_ts);
     	Assert.assertEquals("EN.period(low) was not transformed",en_period.getStart(),humanName.getPeriod().getStart());
     	Assert.assertEquals("EN.period(high) was not transformed",en_period.getEnd(),humanName.getPeriod().getEnd());
+    	
+    	// instance test: there exists an instance of ED but no setter is called
+    	EN en4 = DatatypesFactory.eINSTANCE.createEN();
+    	HumanNameDt humanName4 = dtt.EN2HumanName(en4);
+    	Assert.assertNull("EN.use was not transformed",humanName4.getUse());
+    	Assert.assertNull("EN.text was not transformed",humanName4.getText());
+    	Assert.assertTrue("EN.family was not transformed",humanName4.getFamily().size() == 0);
+    	Assert.assertTrue("EN.given was not transformed",humanName4.getGiven().size() == 0);
+    	Assert.assertTrue("EN.prefix was not transformed",humanName4.getPrefix().size() == 0);
+    	Assert.assertTrue("EN.suffix was not transformed",humanName4.getSuffix().size() == 0);
     	
     	// null instance test
     	EN en2 = null;
@@ -194,8 +237,6 @@ public class DataTypesTransformerTestNecip {
     public void testED2Attachment(){
     	// simple instance test
     	
-    	// TODO: After the implementation of ed.title.data is completed, Attachment.title will be tested
-    	
     	ED ed = DatatypesFactory.eINSTANCE.createED();
     	ed.setMediaType("theMediaType");
     	ed.setLanguage("theLanguage");
@@ -212,6 +253,16 @@ public class DataTypesTransformerTestNecip {
     	Assert.assertArrayEquals("ED.data was not transformed","theData".getBytes(),attachment.getData());
     	Assert.assertEquals("ED.reference.literal was not transformed","theUrl",attachment.getUrl());
     	Assert.assertArrayEquals("ED.integrityCheck was not transformed","theIntegrityCheck".getBytes(),attachment.getHash());
+    	
+    	// instance test: there exists an instance of ED but no setter is called
+    	ED ed4 = DatatypesFactory.eINSTANCE.createED();	
+    	
+    	AttachmentDt attachment4 = dtt.ED2Attachment(ed4);
+    	Assert.assertNull("ED.mediaType was not transformed",attachment4.getContentType());
+    	Assert.assertNull("ED.language was not transformed",attachment4.getLanguage());
+    	Assert.assertNull("ED.data was not transformed",attachment4.getData());
+    	Assert.assertNull("ED.reference.literal was not transformed",attachment4.getUrl());
+    	Assert.assertNull("ED.integrityCheck was not transformed",attachment4.getHash());
     	
     	
     	// null instance test
@@ -243,6 +294,15 @@ public class DataTypesTransformerTestNecip {
     	Assert.assertEquals("CV.code was not transformed","theCode",coding.getCode());
     	Assert.assertEquals("CV.displayName was not transformed","theDisplayName",coding.getDisplay());
     	
+    	// instance test: there exists an instance of CV but no setter is called
+    	CV cv4 = DatatypesFactory.eINSTANCE.createCV();
+    	
+    	CodingDt coding4 = dtt.CV2Coding(cv4);
+    	
+    	Assert.assertNull("CV.codeSystem null value was not transformed properly",coding4.getSystem());
+    	Assert.assertNull("CV.codeSystemVersion null value was not transformed properly",coding4.getVersion());
+    	Assert.assertNull("CV.code null value was not transformed properly",coding4.getCode());
+    	Assert.assertNull("CV.displayName null value was not transformed properly",coding4.getDisplay());
     	
     	// null instance test
     	CV cv2 = null;
