@@ -489,7 +489,7 @@ public class DataTypesTransformerTest{
     	
     }
     
-    @Ignore
+    @Test
     public void testIVL_PQ2Range(){
         
         IVL_PQ ivlpq = DatatypesFactory.eINSTANCE.createIVL_PQ();
@@ -528,7 +528,7 @@ public class DataTypesTransformerTest{
         ivlpq5.setHigh(ivxbpqH_2);
         
         RangeDt range5 = dtt.IVL_PQ2Range( ivlpq5 );
-        Assert.assertNull("IVL_PQ.nullFlavor set instance transform failed", range5.getHigh());
+        Assert.assertNull("IVL_PQ.nullFlavor set instance transform failed", range5.getHigh().getValue());
         
         
        //non-null empty instance test

@@ -387,7 +387,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				return rangeDt;
 			}
 			else
-			{
+			{	
+				if(ivlpq.getLow() != null){
 				if(ivlpq.getLow().getValue()!=null && !ivlpq.getLow().isSetNullFlavor())
 				{
 					
@@ -397,12 +398,15 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					rangeDt.setLow(simpleQuantity);
 					
 				}
+				}
+				if(ivlpq.getHigh() != null){
 				if(ivlpq.getHigh().getValue()!=null && !ivlpq.getHigh().isSetNullFlavor())
 				{
 					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
 					simpleQuantity.setValue(ivlpq.getHigh().getValue().doubleValue());
 					simpleQuantity.setUnit( ivlpq.getHigh().getUnit() );
 					rangeDt.setHigh(simpleQuantity);
+				}
 				}
 				return rangeDt;
 			}
