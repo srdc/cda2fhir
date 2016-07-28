@@ -53,48 +53,46 @@ public interface DataTypesTransformer {
 	 * 3: finalized
 	 */
 	
-    CodingDt CV2Coding(CV cv); /* Maturity Level: 2 */
-
-    CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 2 */
+	AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
+	
+	AddressDt AD2Address(AD ad); /*Maturity Level: 2 */
+	
+	Base64BinaryDt BIN2Base64Binary(BIN bin);/*Maturity Level: 1*/
+	
+	BooleanDt BL2Boolean(BL bl); /* Maturity Level: 2 */
+	
+	CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 2 */
+	
+	CodingDt CV2Coding(CV cv); /* Maturity Level: 2 */
+	
+	AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 2 */
+	
+	HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 2 */
+	
+	IdentifierDt II2Identifier(II ii);  /* Maturity Level: 2 */
     
-    BooleanDt BL2Boolean(BL bl); /* Maturity Level: 2 */
+	IntegerDt INT2Integer(INT myInt);/*Maturity Level: 2 */
     
-    DateDt TS2Date(TS ts); /* Maturity Level: 2 */
+	PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 2 */
     
-    DecimalDt REAL2Decimal(REAL real); /* Maturity Level: 2 */
+	RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 2 */
+	
+	QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 2 */
     
-    StringDt ST2String(ST st); /* Maturity Level: 2 */
+	DecimalDt REAL2Decimal(REAL real); /* Maturity Level: 2 */
     
-    UriDt URL2Uri(URL url); /* Maturity Level: 1 */
-    
-    IntegerDt INT2Integer(INT myInt);/*Maturity Level: 2 */
-    
-    RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 2 */
-    
-    PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 2 */
-    
-    DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 2 */
- 
-    
-    QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 2 */
-   
-    RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 2 */
-    
-    AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
-    
-    ContactPointDt TEL2ContactPoint(TEL tel);  /* Maturity Level: 2 */
-    
-    IdentifierDt II2Identifier(II ii);  /* Maturity Level: 2 */
-    
-    HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 2 */
-    
-    AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 2 */
-    
-    Base64BinaryDt BIN2Base64Binary(BIN bin);/*Maturity Level: 1*/
-    
-    AddressDt AD2Address(AD ad); /*Maturity Level: 2 */
+	RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 2 */
+	
+	StringDt ST2String(ST st); /* Maturity Level: 2 */
+	
+	ContactPointDt TEL2ContactPoint(TEL tel);  /* Maturity Level: 2 */
+	
+	DateDt TS2Date(TS ts); /* Maturity Level: 2 */
+	
+	DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 2 */
+	
+	UriDt URL2Uri(URL url); /* Maturity Level: 1 */
     
     /*---The datatype SLIST and GLIST does not exist in MDHT----*/
     //SampledDataDt SLITS2SampledData(SLIST slist);
-    
 }
