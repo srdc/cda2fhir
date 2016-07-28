@@ -159,7 +159,7 @@ public class DataTypesTransformerTestTahsin {
     
     }//end test RangeDt
     
-    @Ignore
+    @Test
     public void testAct2Annotation(){
     	//simple instance test
     	Act act=CDAFactory.eINSTANCE.createAct();
