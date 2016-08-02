@@ -24,7 +24,7 @@ import ca.uhn.fhir.model.primitive.DecimalDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
-
+import ca.uhn.fhir.model.primitive.InstantDt;
 import java.util.TimeZone;
 
 import org.openhealthtools.mdht.uml.cda.Act;
@@ -62,6 +62,90 @@ import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
  */
 public class DataTypesTransformerImpl implements DataTypesTransformer {
 
+	public AddressDt AD2Address(AD ad) {
+	    
+	    if(ad == null || ad.isSetNullFlavor()) return null;
+	    else{
+	        
+	        AddressDt address = new AddressDt();
+	        
+	        if( !ad.getUses().isEmpty() && ad.getUses() != null ){
+	        	
+	        	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
+	        	
+	        	// We get the address.type and address.use from the list ad.uses
+	        	for(PostalAddressUse postalAddressUse : ad.getUses()){
+	        		// If we catch a valid value for type or use, we assign it
+	        		if( postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST ){
+	        			address.setType( VSTI.PostalAddressUse2AddressTypeEnum( postalAddressUse ) );
+	        		} else if( postalAddressUse == PostalAddressUse.H ||
+	        				postalAddressUse == PostalAddressUse.WP ||
+	        				postalAddressUse == PostalAddressUse.TMP ||
+	        				postalAddressUse == PostalAddressUse.BAD ){
+	        			address.setUse( VSTI.PostalAdressUse2AddressUseEnum( postalAddressUse ) );
+	        		}
+	        	}
+	        }       
+	        
+	        if( ad.getText() != null && !ad.getText().isEmpty() ){
+	        	address.setText( ad.getText() );
+	        }
+	        
+	        if( !ad.getStreetAddressLines().isEmpty() && ad.getStreetAddressLines() != null){
+	        	for(ADXP adxp : ad.getStreetAddressLines()){
+	                address.addLine(adxp.getText());
+	            }
+	        }
+	        if(!ad.getDeliveryAddressLines().isEmpty() && ad.getDeliveryAddressLines() != null){
+	        	for(ADXP adxp : ad.getDeliveryAddressLines()){
+	                address.addLine(adxp.getText());
+	            }
+	        }
+	        
+	        if(!ad.getCities().isEmpty() && ad.getCities() != null){
+	            address.setCity(ad.getCities().get(0).getText());
+	        }
+	        
+	        if(!ad.getCounties().isEmpty() && ad.getCounties() != null ){
+	            address.setDistrict(ad.getCounties().get(0).getText());
+	        }
+	        
+	        if(!ad.getCities().isEmpty() && ad.getCities() != null){
+	            address.setCity(ad.getCities().get(0).getText());
+	        }
+	        
+	        if(!ad.getStates().isEmpty() && ad.getStates() != null){
+	            address.setState(ad.getStates().get(0).getText());
+	        }
+	        
+	        if( !ad.getPostalCodes().isEmpty() && ad.getPostalCodes() != null){
+	            address.setPostalCode(ad.getPostalCodes().get(0).getText());
+	        }
+	        
+	        if(!ad.getCountries().isEmpty() && ad.getCounties() != null){
+	            address.setCountry(ad.getCountries().get(0).getText());
+	        }
+	        
+	        if(!ad.getUseablePeriods().isEmpty() && ad.getUseablePeriods() != null){
+	            PeriodDt period = new PeriodDt();
+	            DateTimeDt dateTimeStart = new DateTimeDt();
+	            dateTimeStart.setValueAsString( ad.getUseablePeriods().get(0).getValue() );
+	            period.setStart( dateTimeStart);
+	            
+	            if(ad.getUseablePeriods().get(1) != null){
+	                DateTimeDt dateTimeEnd = new DateTimeDt();
+	                dateTimeEnd.setValueAsString( ad.getUseablePeriods().get(1).getValue() );
+	                period.setEnd(dateTimeEnd);
+	            }
+	            
+	            address.setPeriod(period);
+	
+	        }
+	        
+	        return address;
+	    }
+	}//end AddressDt
+
 	public AnnotationDt Act2Annotation(Act act){
 		if( act == null || act.isSetNullFlavor() ) return null;
 		else{
@@ -88,90 +172,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return myAnnotationDt;
 		}
 	}
-	
-	public AddressDt AD2Address(AD ad) {
-        
-        if(ad == null || ad.isSetNullFlavor()) return null;
-        else{
-            
-            AddressDt address = new AddressDt();
-            
-            if( !ad.getUses().isEmpty() && ad.getUses() != null ){
-            	
-            	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
-            	
-            	// We get the address.type and address.use from the list ad.uses
-            	for(PostalAddressUse postalAddressUse : ad.getUses()){
-            		// If we catch a valid value for type or use, we assign it
-            		if( postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST ){
-            			address.setType( VSTI.PostalAddressUse2AddressTypeEnum( postalAddressUse ) );
-            		} else if( postalAddressUse == PostalAddressUse.H ||
-            				postalAddressUse == PostalAddressUse.WP ||
-            				postalAddressUse == PostalAddressUse.TMP ||
-            				postalAddressUse == PostalAddressUse.BAD ){
-            			address.setUse( VSTI.PostalAdressUse2AddressUseEnum( postalAddressUse ) );
-            		}
-            	}
-            }       
-            
-            if( ad.getText() != null && !ad.getText().isEmpty() ){
-            	address.setText( ad.getText() );
-            }
-            
-            if( !ad.getStreetAddressLines().isEmpty() && ad.getStreetAddressLines() != null){
-            	for(ADXP adxp : ad.getStreetAddressLines()){
-                    address.addLine(adxp.getText());
-                }
-            }
-            if(!ad.getDeliveryAddressLines().isEmpty() && ad.getDeliveryAddressLines() != null){
-            	for(ADXP adxp : ad.getDeliveryAddressLines()){
-                    address.addLine(adxp.getText());
-                }
-            }
-            
-            if(!ad.getCities().isEmpty() && ad.getCities() != null){
-                address.setCity(ad.getCities().get(0).getText());
-            }
-            
-            if(!ad.getCounties().isEmpty() && ad.getCounties() != null ){
-                address.setDistrict(ad.getCounties().get(0).getText());
-            }
-            
-            if(!ad.getCities().isEmpty() && ad.getCities() != null){
-                address.setCity(ad.getCities().get(0).getText());
-            }
-            
-            if(!ad.getStates().isEmpty() && ad.getStates() != null){
-                address.setState(ad.getStates().get(0).getText());
-            }
-            
-            if( !ad.getPostalCodes().isEmpty() && ad.getPostalCodes() != null){
-                address.setPostalCode(ad.getPostalCodes().get(0).getText());
-            }
-            
-            if(!ad.getCountries().isEmpty() && ad.getCounties() != null){
-                address.setCountry(ad.getCountries().get(0).getText());
-            }
-            
-            if(!ad.getUseablePeriods().isEmpty() && ad.getUseablePeriods() != null){
-                PeriodDt period = new PeriodDt();
-                DateTimeDt dateTimeStart = new DateTimeDt();
-                dateTimeStart.setValueAsString( ad.getUseablePeriods().get(0).getValue() );
-                period.setStart( dateTimeStart);
-                
-                if(ad.getUseablePeriods().get(1) != null){
-                    DateTimeDt dateTimeEnd = new DateTimeDt();
-                    dateTimeEnd.setValueAsString( ad.getUseablePeriods().get(1).getValue() );
-                    period.setEnd(dateTimeEnd);
-                }
-                
-                address.setPeriod(period);
-
-            }
-            
-            return address;
-        }
-    }//end AddressDt
 	
 	public Base64BinaryDt BIN2Base64Binary(BIN bin){
     	
@@ -331,9 +331,13 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			IdentifierDt identifierDt = new IdentifierDt();
 			
 			if(ii.getRoot() != null){
+//				System.out.println("Datatype Implementation Side/CDA: "+ii.getRoot());
 				if( !ii.getRoot().isEmpty() )
+				{
 					identifierDt.setSystem( ii.getRoot() );
-			}
+//					System.out.println("Datatype Implementation Side/FHIR: "+identifierDt.getSystem());
+				}
+			}//end if
 			
 			if(ii.getExtension() != null){
 				if( !ii.getExtension().isEmpty() )
@@ -363,6 +367,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if( ivlts == null || ivlts.isSetNullFlavor() ) return null;
 		else{
 			PeriodDt periodDt =new PeriodDt();
+			
 			if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor())
 			{
 				String date=ivlts.getLow().getValue();
@@ -595,6 +600,16 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			String date=ts.getValue();
 			return dateParser(date);
 		}
+	}//end DateTimeDt
+	public InstantDt TS2Instant(TS ts)
+	{
+		if(ts==null || ts.isSetNullFlavor()) return null;
+		else{
+			if(ts.getValue()==null)
+				return new InstantDt();
+			String date=ts.getValue();
+			return dateParserInstant(date);
+		}//end else
 	}
 
 	public UriDt URL2Uri(URL url){
@@ -701,6 +716,107 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					dateTimeDt.setYear(yearInt);
 		}//end switch
 		return dateTimeDt;
+	}//end dateParser
+	private InstantDt dateParserInstant(String date)
+	{
+		InstantDt instantDt = new InstantDt();
+		boolean isPrecisionSet=false;
+		boolean dayExist=false;
+		boolean monthExist=false;
+		switch(date.length())
+		{	
+			default:
+				if(date.length()>12)
+				{
+					if(!isPrecisionSet)
+					{
+						instantDt.setPrecision(TemporalPrecisionEnum.MINUTE);
+						isPrecisionSet=true;
+					}
+					/*12th element is a hyphen.*/
+					if(date.length()>14)
+					{
+						String timezone="GMT+";
+						timezone=timezone.concat(date.substring(13,15));
+					
+						timezone=timezone.concat(":");
+						timezone=timezone.concat(date.substring(15,17));
+						instantDt.setTimeZone(TimeZone.getTimeZone(timezone));
+					}
+					else if(date.length()==14)
+					{
+						if(!isPrecisionSet)
+						{
+							instantDt.setPrecision(TemporalPrecisionEnum.SECOND);
+							isPrecisionSet=true;
+						}
+						String second=date.substring(12,14);
+						int secondInt=Integer.parseInt(second);
+						instantDt.setSecond(secondInt);
+					}
+				}//end if
+				else
+				{
+					//do nothing
+					break;
+				}
+			case 12:
+				
+				if(!isPrecisionSet)
+				{
+					instantDt.setPrecision(TemporalPrecisionEnum.MINUTE);
+					isPrecisionSet=true;
+				}
+				String minute=date.substring(10,12);
+				int minuteInt=Integer.parseInt(minute);
+				instantDt.setMinute(minuteInt);
+				
+			case 10:
+				String hour=date.substring(8,10);
+				int hourInt=Integer.parseInt(hour);
+				instantDt.setHour(hourInt);
+			case 8:
+				dayExist=true;
+				if(!isPrecisionSet)
+				{
+					instantDt.setPrecision(TemporalPrecisionEnum.DAY);
+					isPrecisionSet=true;
+				}
+				String day=date.substring(6,8);
+				int dayInt=Integer.parseInt(day);
+				instantDt.setDay(dayInt);
+			case 6:
+				monthExist=true;
+				if(!isPrecisionSet)
+				{
+					instantDt.setPrecision(TemporalPrecisionEnum.MONTH);
+					isPrecisionSet=true;
+				}
+				String month=date.substring(4,6);
+				int monthInt=Integer.parseInt(month);
+				if(!dayExist)
+				{
+					//System.out.println(monthInt);
+					instantDt.setMonth(monthInt);
+				}
+				else 
+					instantDt.setMonth(monthInt-1);
+				
+			case 4:
+				if(!isPrecisionSet)
+				{
+					instantDt.setPrecision(TemporalPrecisionEnum.YEAR);
+					isPrecisionSet=true;
+				}
+				String year=date.substring(0,4);
+				int yearInt=Integer.parseInt(year);
+				if(!monthExist)
+					instantDt.setYear(yearInt+1);
+				else
+					instantDt.setYear(yearInt);
+		}//end switch
+		return instantDt;
+
 	}
 
 }

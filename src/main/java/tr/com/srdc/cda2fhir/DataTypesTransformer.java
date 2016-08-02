@@ -17,6 +17,7 @@ import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.DecimalDt;
+import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
@@ -90,6 +91,8 @@ public interface DataTypesTransformer {
 	DateDt TS2Date(TS ts); /* Maturity Level: 2 */
 	
 	DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 2 */
+	
+	InstantDt TS2Instant(TS ts);
 	
 	UriDt URL2Uri(URL url); /* Maturity Level: 1 */
     
