@@ -6,11 +6,64 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
+	///////////////////
+	// new codes starts
+	
+
+//	public EncounterClassEnum ActClass2EncounterClassEnum( ActClass actClass ){
+//		// Visit https://www.hl7.org/fhir/valueset-encounter-class.html
+//		// TODO
+//		return null;
+//	}
+	public MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode ){
+		// Visit https://www.hl7.org/fhir/valueset-marital-status.html
+		switch(maritalStatusCode){
+		case "A": return MaritalStatusCodesEnum.A;
+		case "D": return MaritalStatusCodesEnum.D;
+		case "I": return MaritalStatusCodesEnum.I;
+		case "L": return MaritalStatusCodesEnum.L;
+		case "M": return MaritalStatusCodesEnum.M;
+		case "P": return MaritalStatusCodesEnum.P;
+		case "S": return MaritalStatusCodesEnum.S;
+		case "T": return MaritalStatusCodesEnum.T;
+		case "W": return MaritalStatusCodesEnum.W;
+		case "UNK":
+		case "U": 
+		default:
+			return MaritalStatusCodesEnum.UNK;
+		}
+	}
+	
+	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String administrativeGenderCode ){
+		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
+		switch (administrativeGenderCode) {
+		   case "F": // Female
+		   case "f":
+		   	return AdministrativeGenderEnum.FEMALE;
+		   case "M": // Male
+		   case "m":
+		   	return AdministrativeGenderEnum.MALE;
+		   case "U": // Undifferentiated
+		   case "u":
+		   case "UN":
+		   case "UNK":
+		   case "un":
+		   case "unk":
+		   	return AdministrativeGenderEnum.UNKNOWN;
+		   default:
+		   	return AdministrativeGenderEnum.UNKNOWN;
+		} // end of switch block
+	}
+	
+	// new codes ends
+	/////////////////
 	
 	public NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse){
 		
@@ -42,6 +95,9 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	{
 		switch(telecommunicationAddressUse){
 		case H: return ContactPointUseEnum.HOME;
+		// new code start
+		case HP: return ContactPointUseEnum.HOME;
+		// new code end
 		case WP: return ContactPointUseEnum.WORK;
 		case TMP: return ContactPointUseEnum.TEMP;
 		case BAD: return ContactPointUseEnum.OLD;
@@ -53,8 +109,10 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	}
 	public AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse ){
 		switch(postalAddressUse){
-		case PHYS: return AddressTypeEnum.POSTAL;
-		case PST: return AddressTypeEnum.PHYSICAL;
+		// new code starts: notice that some lines are changed
+		case PHYS: return AddressTypeEnum.PHYSICAL;
+		case PST: return AddressTypeEnum.POSTAL;
+		// new code ends
 		default: return null;
 		}
 	}
