@@ -13,6 +13,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
@@ -71,24 +73,21 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImplTahsin;
  * Created by mustafa on 7/20/2016.
  */
 public class ResourceTransformerTestTahsin{
-	ResourceTransformer rt= new ResourceTransformerImplTahsin();
+	ResourceTransformer rt= new ResourceTransformerImplTahsin();	
 	@Test
-	public void testVitalSignObservation2Observation()
+	public void testModule() throws Exception
 	{
-		//FileInputStream fisCDA = null;
-        FileInputStream fisCCD = null;
-        try {
-//            fisCDA = new FileInputStream("src/test/resources/SampleCDADocument.xml");
-            fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
-        
-        CDAParser parser = new CDAParser();
-//        parser.traverseCDA(fisCDA);
-        parser.traverseCCD(fisCCD);
+		try {
+				FileInputStream fisCCD = null;
+				try {
+					fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+				} catch (FileNotFoundException ex) {
+					ex.printStackTrace();
+				}
+				CDAParser parser = new CDAParser();
+				parser.traverseCCD(fisCCD);
+			} catch (Exception e) {
+			e.printStackTrace();
+		}//end catch
 	}
-	 
-
-    
 }

@@ -20,8 +20,9 @@ public interface ResourceTransformer {
 
     Condition ProblemConcernAct2Condition(ProblemConcernAct probAct);*/
 
-    //Observation ResultObservation2Observation(ResultObservation resObs);
+    Observation ResultObservation2Observation(ResultObservation resObs);
 
     Observation VitalSignObservation2Observation(VitalSignObservation vsObs);
-    Practitioner Informant12Practitioner(Informant12 informant,String id);//Semi-Helper, always called from observation methods, not indepently.
+    
+    Practitioner Performer2Practitioner(Performer2 performer,int id);
 }
