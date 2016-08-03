@@ -14,6 +14,7 @@ import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
@@ -110,6 +111,22 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	            break;
         }
 		return system;
+	}
+	
+	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString ){
+		switch( statusCodeString.toLowerCase() ){
+		case "active":
+			return ProcedureStatusEnum.IN_PROGRESS;
+		case "completed":
+			return ProcedureStatusEnum.COMPLETED;
+		case "aborted":
+		case "aboted":
+			return ProcedureStatusEnum.ABOTED;
+		case "error":
+			return ProcedureStatusEnum.ENTERED_IN_ERROR;
+		default:
+			return null;
+		}
 	}
 	
 	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
