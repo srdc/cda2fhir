@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.impl;
 
+import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
@@ -8,6 +9,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
@@ -16,15 +18,21 @@ import ca.uhn.fhir.model.primitive.BoundCodeDt;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
+	
+	
 	///////////////////
 	// new codes starts
+	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
+		switch(entityClassRoot){
+		case PSN: return GroupTypeEnum.PERSON;
+		case ANM: return GroupTypeEnum.ANIMAL;
+		case DEV: return GroupTypeEnum.DEVICE;
+		case MMAT: return GroupTypeEnum.MEDICATION;
+		default:
+		return null;
+		}
+	}
 	
-
-//	public EncounterClassEnum ActClass2EncounterClassEnum( ActClass actClass ){
-//		// Visit https://www.hl7.org/fhir/valueset-encounter-class.html
-//		// TODO
-//		return null;
-//	}
 	public MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode ){
 		// Visit https://www.hl7.org/fhir/valueset-marital-status.html
 		switch(maritalStatusCode){
@@ -40,31 +48,33 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		case "UNK":
 		case "U": 
 		default:
-			return MaritalStatusCodesEnum.UNK;
+		return MaritalStatusCodesEnum.UNK;
 		}
 	}
 	
 	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String administrativeGenderCode ){
 		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
 		switch (administrativeGenderCode) {
-		   case "F": // Female
-		   case "f":
-		   	return AdministrativeGenderEnum.FEMALE;
-		   case "M": // Male
-		   case "m":
-		   	return AdministrativeGenderEnum.MALE;
-		   case "U": // Undifferentiated
-		   case "u":
-		   case "UN":
-		   case "UNK":
-		   case "un":
-		   case "unk":
-		   	return AdministrativeGenderEnum.UNKNOWN;
-		   default:
-		   	return AdministrativeGenderEnum.UNKNOWN;
+		case "F": // Female
+		case "f":
+			return AdministrativeGenderEnum.FEMALE;
+		case "M": // Male
+		case "m":
+			return AdministrativeGenderEnum.MALE;
+		case "U": // Undifferentiated
+		case "u":
+		case "UN":
+		case "UNK":
+		case "un":
+		case "unk":
+			return AdministrativeGenderEnum.UNKNOWN;
+		default:
+			return AdministrativeGenderEnum.UNKNOWN;
 		} // end of switch block
 	}
+	// necip end
 	
+	// ismail start
 	public MedicationAdministrationStatusEnum StatusCode2MedicationAdministrationStatusEnum( String status){
 		switch( status ){
 		case "active": return MedicationAdministrationStatusEnum.IN_PROGRESS;
@@ -86,6 +96,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		default: return null;
 		}
 	}
+	// ismail end
+	
 	
 	// new codes ends
 	/////////////////

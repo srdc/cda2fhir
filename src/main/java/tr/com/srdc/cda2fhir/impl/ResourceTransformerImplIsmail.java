@@ -50,12 +50,6 @@ public class ResourceTransformerImplIsmail implements ResourceTransformer {
 	
 	static int counter = 0;
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
-	
-	@Override
-	public Patient PatientRole2Patient(PatientRole patRole) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	@Override
@@ -440,7 +434,6 @@ public class ResourceTransformerImplIsmail implements ResourceTransformer {
 		return medication;
 	}
 
-	@Override
 	public MedicationAdministration SubstanceAdministration2MedicationAdministration(
 			SubstanceAdministration subAd) {
 		
@@ -460,7 +453,6 @@ public class ResourceTransformerImplIsmail implements ResourceTransformer {
 		return null;
 	}
 
-	@Override
 	public MedicationDispense Supply2MedicationDispense(Supply sup) {
 		
 		if( sup.getMoodCode().getLiteral() == "EVN" ){
@@ -471,7 +463,7 @@ public class ResourceTransformerImplIsmail implements ResourceTransformer {
 				meDis.setIdentifier( dtt.II2Identifier( sup.getIds().get(0) ) );
 			
 			ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
-			meDis.setStatus( vst.StatusCode2MedicationADispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
+			meDis.setStatus( vst.StatusCode2MedicationDispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
 			
 			ResourceReferenceDt performerRef = new ResourceReferenceDt();
 			performerRef.setReference( "practitioner/" + counter );
