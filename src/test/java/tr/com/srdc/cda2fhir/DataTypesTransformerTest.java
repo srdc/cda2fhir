@@ -12,7 +12,6 @@ import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
-import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -61,6 +60,7 @@ public class DataTypesTransformerTest{
 
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
 
+	//TODO: Mustafa: This will be revisited and updated for Act.author; not any participant
     @Ignore
     public void testAct2Annotation(){	
     	//simple instance test
