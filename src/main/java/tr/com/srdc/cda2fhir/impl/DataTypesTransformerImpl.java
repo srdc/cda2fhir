@@ -507,7 +507,7 @@ public ContactPointDt TEL2ContactPoint(TEL tel) {
 				String value = tel.getValue();
 				String[] systemType = value.split(":");
 				
-				if( systemType[0].equals("phone") )
+				if( systemType[0].equals("phone") || systemType[0].equals("tel") )
 					contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
 				else if( systemType[0].equals("email") )
 					contactPointDt.setSystem(ContactPointSystemEnum.EMAIL);
