@@ -80,7 +80,7 @@ public class ResourceTransformerTestTahsin{
 		try {
 				FileInputStream fisCCD = null;
 				try {
-					fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+					fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 				} catch (FileNotFoundException ex) {
 					ex.printStackTrace();
 				}

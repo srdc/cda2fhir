@@ -7,15 +7,22 @@ import java.util.List;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
 import org.openhealthtools.mdht.uml.cda.CDAPackage;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Participant2;
+import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolFactory;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
@@ -24,22 +31,30 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.VitalSignObservationImpl;
 import org.openhealthtools.mdht.uml.cda.consol.operations.VitalSignObservationOperations;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.util.ValidationResult;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.rim.ActRelationship;
 import org.openhealthtools.mdht.uml.hl7.rim.Participation;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.IResource;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
+import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImplTahsin;
@@ -153,15 +168,16 @@ import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
     		for(ResultObservation resObs : resOrg.getResultObservations())
     		{
 				ca.uhn.fhir.model.dstu2.resource.Observation obs = rt.ResultObservation2Observation(resObs);
+				
 				ArrayList <String> idS= new ArrayList <String> ();
         		for(II id: resObs.getIds())
         		{
         			idS.add(id.getRoot());
         		}
         		ArrayList <String> fhirIds= new ArrayList <String>();
-        		for(IdentifierDt identifiers: obs.getIdentifier())
+        		for(IdentifierDt identifier: obs.getIdentifier())
         		{
-        			fhirIds.add(identifiers.getSystem());
+        			fhirIds.add(identifier.getSystem());
         		}
         		Assert.assertEquals("ResultObservation.id was not transformed", idS,fhirIds);
         		ArrayList <String> codings = new ArrayList <String> ();
@@ -189,16 +205,21 @@ import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 				}//end else
 				for(ANY any : resObs.getValues())
 				{
+					
 					if(any instanceof PQ)
 					{
+						
 						PQ pq= (PQ) any;
-						QuantityDt quantity=(QuantityDt) obs.getValue();
-						Assert.assertEquals("unit was not transformed", quantity.getUnit(),pq.getUnit());
-						Assert.assertEquals("value was not transformed", quantity.getValue(),pq.getValue());
+						if(!pq.isSetNullFlavor())
+						{	QuantityDt quantity=(QuantityDt) obs.getValue();
+							Assert.assertEquals("unit was not transformed", quantity.getUnit(),pq.getUnit());
+							Assert.assertEquals("value was not transformed", quantity.getValue(),pq.getValue());
+						}//end if
 					}//end if, same test can be applied to all other examples with this manner
 				}//end for
-					
-				Assert.assertEquals("StatusCode was not transformed","final", obs.getStatus());
+				if(obs.getStatus()!=null)
+					Assert.assertEquals("StatusCode was not transformed","final", obs.getStatus());
+				
 				ArrayList <String> interpret= new ArrayList <String>();
 				for(CE ce : resObs.getInterpretationCodes())
 				{
@@ -210,10 +231,78 @@ import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 					testInterpret.add(coding.getCode());
 				}
 				Assert.assertEquals("InterpretationCode was not transformed",interpret,testInterpret);
+				if(resObs.getPerformers()!=null && !resObs.getPerformers().isEmpty())
+				{
+					for(Performer2 performer : resObs.getPerformers())
+					{
+						Practitioner practitioner = rt.Performer2Practitioner(performer, 0);
+						if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
+						{
+							ArrayList <String> CDAidS= new ArrayList <String>();
+							AssignedEntity assignedEntity= performer.getAssignedEntity();
+							if(assignedEntity.getIds()!=null && !performer.getAssignedEntity().isSetNullFlavor())
+							{
+								for(II ii : assignedEntity.getIds())
+								{
+									CDAidS.add(ii.getRoot());
+								}//end for
+							}//end if
+							ArrayList <String> FHIRidS = new ArrayList <String>();
+							if(practitioner.getIdentifier()!=null && !practitioner.getIdentifier().isEmpty())
+							{
+								for(IdentifierDt identifier : practitioner.getIdentifier())
+								{
+									FHIRidS.add(identifier.getSystem());
+								}//end for
+							}//end if
+							Assert.assertEquals("performer.id was not transformed",CDAidS, FHIRidS);
+							ArrayList <String> CDAAddress = new ArrayList <String>();
+//							printJSON(practitioner);
+						}//end if
+					}//end for
+				}//end if
 				
+//				printJSON(obs);
     		}//end resObs for
     	}
-    }
+    }//end ResultObservation test
+    
+    public void testAllergyObservation2AllergyIntolerance(ContinuityOfCareDocument ccd)
+    {
+    	 // get the allergies section from the document using domain-specific "getter" method
+        AllergiesSection allergiesSection = ccd.getAllergiesSection();
+
+        // for each enclosing problem act
+        for (AllergyProblemAct problemAct : allergiesSection.getConsolAllergyProblemActs()) {
+            
+        	AllergyIntolerance allergyIntolerance = rt.AllergyProblemAct2AllergyIntolerance(problemAct);
+            for (EntryRelationship entryRelationship : problemAct.getEntryRelationships()) {
+                // check for alert observation
+                if (entryRelationship.getObservation() instanceof AllergyObservation) 
+                {
+                    AllergyObservation allergyObservation = (AllergyObservation) entryRelationship.getObservation();
+                    ArrayList <String> CDAidS = new ArrayList <String> ();
+                    if(allergyObservation.getIds()!=null && allergyObservation.getIds().isEmpty())
+                    {
+                    	for(II ii : allergyObservation.getIds())
+                    	{
+                    		CDAidS.add(ii.getRoot());
+                    	}
+                    }//end if
+                    ArrayList <String> FHIRidS = new ArrayList <String>();
+                    if(allergyIntolerance.getIdentifier()!=null && allergyIntolerance.getIdentifier().isEmpty())
+                    {
+                    	for(IdentifierDt identifier : allergyIntolerance.getIdentifier())
+                    	{
+                    		FHIRidS.add(identifier.getSystem());
+                    	}//end for
+                    }//end if
+                    Assert.assertEquals("allergyObservation.id was not transformed",CDAidS, FHIRidS);
+                }//end if
+               
+            }//end for
+        }//end for
+    }//end  AllergyIntolerance test
 	private void printJSON(IResource res) {
 	    IParser jsonParser = myCtx.newJsonParser();
 	    jsonParser.setPrettyPrint(true);

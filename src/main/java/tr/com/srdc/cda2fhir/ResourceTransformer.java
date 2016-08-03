@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir;
 
 import java.util.List;
 
+import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
@@ -15,6 +16,7 @@ import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.Supply;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
@@ -47,12 +49,16 @@ public interface ResourceTransformer {
 	// new code ends
 	////////////////
 	
+	//tahsin start
+    Observation ResultObservation2Observation(ResultObservation resObs);
 
-//    Observation ResultObservation2Observation(ResultObservation resObs);
-//
-//    Observation VitalSignObservation2Observation(VitalSignObservation vsObs);
+    Observation VitalSignObservation2Observation(VitalSignObservation vsObs);
     
-//    Practitioner Performer2Practitioner(Performer2 performer,int id);
-
-	
+    
+    /*This is not a fully independent mapping method.*/
+    Practitioner Performer2Practitioner(Performer2 performer,int id);
+    /*It will be called by functions which contain Practitioner as a subresource*/
+    
+    AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allProb);
+    //tahsin end
 }
