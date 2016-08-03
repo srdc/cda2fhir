@@ -57,11 +57,11 @@ import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
-import tr.com.srdc.cda2fhir.impl.ResourceTransformerImplTahsin;
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
+import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 
 	public class CDAParser {
-		ResourceTransformer rt= new ResourceTransformerImplTahsin();
+		ResourceTransformer rt= new ResourceTransformerImpl();
 		DataTypesTransformer dtt = new DataTypesTransformerImpl();
 		
 		private static final FhirContext myCtx = FhirContext.forDstu2();

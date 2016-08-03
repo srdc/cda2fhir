@@ -4,11 +4,8 @@ package tr.com.srdc.cda2fhir;
 import org.junit.Test;
 import org.junit.Assert;
 import org.junit.Ignore;
-import org.eclipse.emf.common.util.Diagnostic;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
-import org.openhealthtools.mdht.uml.cda.ccd.MedicationSection;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.util.ValidationResult;
@@ -30,16 +27,15 @@ import ca.uhn.fhir.parser.IParser;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
-import tr.com.srdc.cda2fhir.impl.ResourceTransformerImplIsmail;
+import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 
 public class ResourceTransformerTestIsmail {
 	
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
-	ResourceTransformer rt = new ResourceTransformerImplIsmail();
+	ResourceTransformer rt = new ResourceTransformerImpl();
 	private static final FhirContext myCtx = FhirContext.forDstu2();
 
 	
