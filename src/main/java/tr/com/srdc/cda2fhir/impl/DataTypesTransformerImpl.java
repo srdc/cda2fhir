@@ -198,11 +198,31 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         else{
         	//List<CodingDt> myCodingDtList = new ArrayList<CodingDt>();
         	CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
-//        	for(CD myCd : cd.getTranslations() ){
-//        		if(myCd.getCodeSystem().isEmpty() || myCd.getCode().isEmpty()) continue;
-//        		CodingDt toAdd = new CodingDt(myCd.getCodeSystem(),myCd.getCode());
-//        		myCodingDtList.add(toAdd);
-//        	}
+        	for(CD myCd : cd.getTranslations() ){
+
+        		CodingDt codingDt = new CodingDt();
+        		boolean isEmpty = true;
+            	
+            	if( myCd.getCodeSystem() != null ){
+            		codingDt.setSystem( myCd.getCodeSystem() );
+            		isEmpty = false;
+            	}
+            	if( myCd.getCode() !=null ){
+            		codingDt.setCode( myCd.getCode() );
+            		isEmpty = false;
+            	}
+            	if( myCd.getCodeSystemVersion() !=null ){
+            		codingDt.setVersion( myCd.getCodeSystemVersion() );
+            		isEmpty = false;
+            	}
+            	if( myCd.getDisplayName() != null ){
+            		codingDt.setDisplay( myCd.getDisplayName() );
+            		isEmpty = false;
+            	}
+            	if (isEmpty == false)
+            		myCodeableConceptDt.addCoding( codingDt );
+        	}
+        	
         	boolean isEmpty = true;
         	
         	CodingDt codingDt = new CodingDt();
@@ -477,14 +497,27 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	return ( st == null || st.isSetNullFlavor() ) ? null : new StringDt(st.getText());
     }
 	
-	public ContactPointDt TEL2ContactPoint(TEL tel) {
+public ContactPointDt TEL2ContactPoint(TEL tel) {
 		
 		if( tel!=null && !tel.isSetNullFlavor()){
 			
 			ContactPointDt contactPointDt = new ContactPointDt();
 			
 			if(tel.getValue() != null ){
-				contactPointDt.setValue( tel.getValue() );
+				String value = tel.getValue();
+				String[] systemType = value.split(":");
+				
+				if( systemType[0].equals("phone") )
+					contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
+				else if( systemType[0].equals("email") )
+					contactPointDt.setSystem(ContactPointSystemEnum.EMAIL);
+				else if( systemType[0].equals("fax") )
+					contactPointDt.setSystem(ContactPointSystemEnum.FAX);
+				else if( systemType[0].equals("http") || systemType[0].equals("https") )
+					contactPointDt.setSystem(ContactPointSystemEnum.URL);
+				
+				contactPointDt.setValue( systemType[1] );
+				
 			}
 			
 			PeriodDt period = new PeriodDt();
@@ -502,7 +535,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 			
 			
-			contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
 			
 			if(!tel.getUses().isEmpty()){
 				ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();

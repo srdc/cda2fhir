@@ -9,6 +9,8 @@ import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
 
 public interface ValueSetsTransformer {
@@ -18,6 +20,8 @@ public interface ValueSetsTransformer {
 //	TODO: EncounterClassEnum ActClass2EncounterClassEnum( ActClass actClass );
 	MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode );
 	AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String AdministrativeGenderCode );
+	MedicationAdministrationStatusEnum StatusCode2MedicationAdministrationStatusEnum( String status);
+	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status);
 	// new codes ends
 	/////////////////
 	

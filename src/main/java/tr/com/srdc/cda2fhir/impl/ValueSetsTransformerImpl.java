@@ -9,7 +9,10 @@ import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
+import ca.uhn.fhir.model.primitive.BoundCodeDt;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
@@ -60,6 +63,28 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		   default:
 		   	return AdministrativeGenderEnum.UNKNOWN;
 		} // end of switch block
+	}
+	
+	public MedicationAdministrationStatusEnum StatusCode2MedicationAdministrationStatusEnum( String status){
+		switch( status ){
+		case "active": return MedicationAdministrationStatusEnum.IN_PROGRESS;
+		case "suspended": return MedicationAdministrationStatusEnum.ON_HOLD;
+		case "completed": return MedicationAdministrationStatusEnum.COMPLETED;
+		case "nullified": return MedicationAdministrationStatusEnum.ENTERED_IN_ERROR;
+		case "stopped": return MedicationAdministrationStatusEnum.STOPPED;
+		default: return null;
+		}
+	}
+	
+	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status){
+		switch( status ){
+		case "active": return MedicationDispenseStatusEnum.IN_PROGRESS;
+		case "suspended": return MedicationDispenseStatusEnum.ON_HOLD;
+		case "completed": return MedicationDispenseStatusEnum.COMPLETED;
+		case "nullified": return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
+		case "stopped": return MedicationDispenseStatusEnum.STOPPED;
+		default: return null;
+		}
 	}
 	
 	// new codes ends
@@ -116,6 +141,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		default: return null;
 		}
 	}
+
+	
 	
 	
 
