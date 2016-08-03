@@ -92,7 +92,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	private static int getUniqueId(){
 		return idHolder++;
 	}
-	
+	private DataTypesTransformer dtt = new DataTypesTransformerImpl();
+	private ValueSetsTransformer vst = new ValueSetsTransformerImpl();
 	
 	// incomplete
 	public ca.uhn.fhir.model.dstu2.resource.Encounter Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter){
@@ -101,7 +102,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else if( cdaEncounter.getMoodCode() != org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentEncounterMood.EVN ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter();
-			DataTypesTransformer dtt = new DataTypesTransformerImpl();
 			
 			// identifier <-> id
 			if( cdaEncounter.getIds() != null && !cdaEncounter.getIds().isEmpty() ){
@@ -226,8 +226,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else if( entity.getDeterminerCode() != org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer.KIND ) return null;
 		else{
 			Group group = new Group();
-			DataTypesTransformer dtt = new DataTypesTransformerImpl();
-			ValueSetsTransformer vst = new ValueSetsTransformerImpl();
+
 			
 			// identifier <-> id
 			if( entity.getIds() != null && !entity.getIds().isEmpty() ){
@@ -302,7 +301,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else if( cdaPr.getMoodCode() == null || cdaPr.getMoodCode() != x_DocumentProcedureMood.EVN ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
-			DataTypesTransformer dtt = new DataTypesTransformerImpl();
 			
 			// identifier <-> id
 			if( cdaPr.getIds() != null && !cdaPr.getIds().isEmpty() ){
@@ -431,10 +429,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if( guardian == null || guardian.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = new ca.uhn.fhir.model.dstu2.resource.Patient.Contact();
-			
-			DataTypesTransformer dtt = new DataTypesTransformerImpl();
-			ValueSetsTransformer vst = new ValueSetsTransformerImpl();
-			
+	
 			// addr
 			if( guardian.getAddrs() != null && !guardian.getAddrs().isEmpty() ){
 				contact.setAddress( dtt.AD2Address(guardian.getAddrs().get(0)) );
@@ -472,10 +467,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if( cdaOrganization == null || cdaOrganization.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = new ca.uhn.fhir.model.dstu2.resource.Organization();
-			
-			DataTypesTransformer dtt = new DataTypesTransformerImpl();
-			ValueSetsTransformer vst = new ValueSetsTransformerImpl();
-			
+
 			if( cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty() )
 			{
 				List<IdentifierDt> idList = new ArrayList<IdentifierDt>();
@@ -540,7 +532,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else{
 			Communication communication = new Communication();
 			
-			DataTypesTransformer dtt = new DataTypesTransformerImpl();
 			if( LC.getLanguageCode() != null && !LC.getLanguageCode().isSetNullFlavor() ){
 				communication.setLanguage(  dtt.CD2CodeableConcept( LC.getLanguageCode() )  );
 			}
@@ -557,8 +548,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		if( patRole == null || patRole.isSetNullFlavor() ) return null;
 		else{
-			DataTypesTransformer dtt = new DataTypesTransformerImpl();
-			ValueSetsTransformer vst = new ValueSetsTransformerImpl();
 			Patient patient = new Patient();
 			
 			// identifier <-> id
@@ -686,7 +675,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			{
 				ExtensionDt extRace = new ExtensionDt();
 				extRace.setModifier(false);
-				extRace.setUrl("http://hl7.org/fhir/extension-us-core-race.html");
+				extRace.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-race");
 				CD raceCode = patRole.getPatient().getRaceCode();
 				extRace.setValue( dtt.CD2CodeableConcept(raceCode) );
 				patient.addUndeclaredExtension( extRace );
@@ -697,7 +686,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			{
 				ExtensionDt extEthnicity = new ExtensionDt();
 				extEthnicity.setModifier(false);
-				extEthnicity.setUrl("http://hl7.org/fhir/extension-us-core-ethnicity.html");
+				extEthnicity.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-ethnicity");
 				CD ethnicGroupCode = patRole.getPatient().getEthnicGroupCode();
 				extEthnicity.setValue( dtt.CD2CodeableConcept(ethnicGroupCode) );
 				patient.addUndeclaredExtension(extEthnicity);
@@ -747,7 +736,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	// ismail start
 	
 	static int counter = 0;
-	DataTypesTransformer dtt = new DataTypesTransformerImpl();
 
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	public List<Condition> ProblemConcernAct2Condition(ProblemConcernAct probAct) {
@@ -797,11 +785,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				
 			codingForSetCode.setCode( cd.getTranslations().get(0).getCode() );
 			codingForSetCode.setDisplay( cd.getTranslations().get(0).getDisplayName() );
-			codingForSetCode.setSystem( codeSystem2System( cd.getTranslations().get(0).getCodeSystem() ) );
+			codingForSetCode.setSystem( vst.oid2Url( cd.getTranslations().get(0).getCodeSystem() ) );
 			
 			codingForCategory.setCode( probAct.getEntryRelationships().get(0).getObservation().getCode().getCode() );
 			codingForCategory.setDisplay( probAct.getEntryRelationships().get(0).getObservation().getCode().getDisplayName() );
-			codingForCategory.setSystem( codeSystem2System( probAct.getEntryRelationships().get(0).getObservation().getCode().getCodeSystem() ) );
+			codingForCategory.setSystem( vst.oid2Url( probAct.getEntryRelationships().get(0).getObservation().getCode().getCodeSystem() ) );
 			
 			codingForCategory2.setCode( "finding" );
 			codingForCategory2.setDisplay( "Finding" );
@@ -825,13 +813,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 				codingForSetCode.setCode( cd.getCode() );
 				codingForSetCode.setDisplay( cd.getDisplayName() );
-				codingForSetCode.setSystem( codeSystem2System( cd.getCodeSystem() ) );
+				codingForSetCode.setSystem( vst.oid2Url( cd.getCodeSystem() ) );
 				codeableConcept.addCoding( codingForSetCode );
 			}
 			
 			codingForCategory.setCode( entryRelationship.getObservation().getCode().getCode() );
 			codingForCategory.setDisplay(  entryRelationship.getObservation().getCode().getDisplayName() );
-			codingForCategory.setSystem( codeSystem2System( entryRelationship.getObservation().getCode().getCodeSystem() ) );
+			codingForCategory.setSystem( vst.oid2Url( entryRelationship.getObservation().getCode().getCodeSystem() ) );
 			boundCodeableConceptDt.addCoding( codingForCategory );
 			
 			condition.setCategory( boundCodeableConceptDt );
@@ -938,102 +926,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return conditionList;
 	}
 
-	
-	private String codeSystem2System(String codeSystem){
-		String system = null;
-		switch (codeSystem) {
-        case "2.16.840.1.113883.6.96":
-            system = "http://snomed.info/sct";
-            break;
-        case "2.16.840.1.113883.6.88":
-            system = "http://www.nlm.nih.gov/research/umls/rxnorm";
-            break;
-        case "2.16.840.1.113883.6.1":
-            system = "http://loinc.org";
-            break;
-        case "2.16.840.1.113883.6.8":
-            system = "http://unitsofmeasure.org";
-            break;
-        case "2.16.840.1.113883.3.26.1.2":
-            system = "http://ncimeta.nci.nih.gov";
-            break;
-        case "2.16.840.1.113883.6.12":
-            system = "http://www.ama-assn.org/go/cpt";
-            break;
-        case "2.16.840.1.113883.6.209":
-            system = "http://hl7.org/fhir/ndfrt";
-            break;
-        case "2.16.840.1.113883.4.9":
-            system = "http://fdasis.nlm.nih.gov";
-            break;
-        case "2.16.840.1.113883.12.292":
-            system = "http://www2a.cdc.gov/vaccines/iis/iisstandards/vaccines.asp?rpt=cvx";
-            break;
-        case "1.0.3166.1.2.2":
-            system = "urn:iso:std:iso:3166";
-            break;
-        case "2.16.840.1.113883.6.301.5":
-            system = "http://www.nubc.org/patient-discharge";
-            break;
-        case "2.16.840.1.113883.6.256":
-            system = "http://www.radlex.org";
-            break;
-        case "2.16.840.1.113883.6.3":
-            system = "http://hl7.org/fhir/sid/icd-10";
-            break;
-        case "2.16.840.1.113883.6.4":
-            system = "http://www.icd10data.com/icd10pcs";
-            break;
-        case "2.16.840.1.113883.6.42":
-            system = "http://hl7.org/fhir/sid/icd-9";
-            break;
-        case "2.16.840.1.113883.6.73":
-            system = "http://www.whocc.no/atc";
-            break;
-        case "2.16.840.1.113883.6.24":
-            system = "urn:std:iso:11073:10101";
-            break;
-        case "1.2.840.10008.2.16.4":
-            system = "http://nema.org/dicom/dicm";
-            break;
-        case "2.16.840.1.113883.6.281":
-            system = "http://www.genenames.org";
-            break;
-        case "2.16.840.1.113883.6.280":
-            system = "http://www.ncbi.nlm.nih.gov/nuccore";
-            break;
-        case "2.16.840.1.113883.6.282":
-            system = "http://www.hgvs.org/mutnomen";
-            break;
-        case "2.16.840.1.113883.6.284":
-            system = "http://www.ncbi.nlm.nih.gov/projects/SNP";
-            break;
-        case "2.16.840.1.113883.3.912":
-            system = "http://cancer.sanger.ac.uk/cancergenome/projects/cosmic";
-            break;
-        case "2.16.840.1.113883.6.283":
-            system = "http://www.hgvs.org/mutnomen";
-            break;
-        case "2.16.840.1.113883.6.174":
-            system = "http://www.omim.org";
-            break;
-        case "2.16.840.1.113883.13.191":
-            system = "http://www.ncbi.nlm.nih.gov/pubmed";
-            break;
-        case "2.16.840.1.113883.3.913":
-            system = "http://www.pharmgkb.org";
-            break;
-        case "2.16.840.1.113883.3.1077":
-            system = "http://clinicaltrials.gov";
-            break;
 
-        default:
-            system = "urn:oid:" + codeSystem;
-            break;
-        }
-		return system;
-		
-	}
 
 	@SuppressWarnings("deprecation")
 	public Medication ManufacturedProduct2Medication(ManufacturedProduct manPro) {
@@ -1054,7 +947,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( ce.getDisplayName() != null )
 			coding.setDisplay( ce.getDisplayName() );
 			if( ce.getCodeSystem() != null )
-				coding.setSystem( codeSystem2System( ce.getCodeSystem() ) );
+				coding.setSystem( vst.oid2Url( ce.getCodeSystem() ) );
 			if( ce.getCodeSystemVersion() != null )
 				coding.setVersion( ce.getCodeSystemVersion() );
 			
@@ -1068,7 +961,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( cd.getDisplayName() != null )
 				codingTrans.setDisplay( cd.getDisplayName() );
 			if( cd.getCodeSystem() != null )
-				codingTrans.setSystem( codeSystem2System( cd.getCodeSystem() ) );
+				codingTrans.setSystem( vst.oid2Url( cd.getCodeSystem() ) );
 			if( cd.getCodeSystemVersion() != null )
 				codingTrans.setVersion( cd.getCodeSystemVersion() );
 			codeableConcept.addCoding(codingTrans);
@@ -1129,7 +1022,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			medAd.addIdentifier( identifier ); 
 		}
 		//MedicationAdministrationStatusEnum
-		ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
 		medAd.setStatus( vst.StatusCode2MedicationAdministrationStatusEnum( subAd.getStatusCode().getDisplayName()) );
 		
 		// TODO : Complete.
@@ -1146,7 +1038,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( sup.getIds() != null &  !sup.getIds().isEmpty() )
 				meDis.setIdentifier( dtt.II2Identifier( sup.getIds().get(0) ) );
 			
-			ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
 			meDis.setStatus( vst.StatusCode2MedicationDispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
 			
 			ResourceReferenceDt performerRef = new ResourceReferenceDt();
@@ -1164,7 +1055,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				if(cd.getDisplayName() != null )
 					coding.setDisplay( cd.getDisplayName() );
 				if( cd.getCodeSystem() != null )
-					coding.setSystem( codeSystem2System( cd.getCodeSystem() ) );
+					coding.setSystem( vst.oid2Url( cd.getCodeSystem() ) );
 				if( cd.getCodeSystemVersion() != null )
 					coding.setVersion( cd.getCodeSystemVersion() );
 				
@@ -1177,7 +1068,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(trans.getDisplayName() != null )
 						codingTr.setDisplay( trans.getDisplayName() );
 					if( trans.getCodeSystem() != null )
-						codingTr.setSystem( codeSystem2System( trans.getCodeSystem() ) );
+						codingTr.setSystem( vst.oid2Url( trans.getCodeSystem() ) );
 					if( trans.getCodeSystemVersion() != null )
 						codingTr.setVersion( trans.getCodeSystemVersion() );
 					

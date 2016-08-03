@@ -17,8 +17,7 @@ import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
 
 public interface ValueSetsTransformer {
 	
-	////////////////////
-	// new codes starts
+	String oid2Url(String codeSystem);
 	
 	// necip start
 	GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot );
@@ -30,9 +29,6 @@ public interface ValueSetsTransformer {
 	MedicationAdministrationStatusEnum StatusCode2MedicationAdministrationStatusEnum( String status);
 	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status);
 	// ismail end
-	
-	// new codes ends
-	/////////////////
 	
 	NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse);
 	AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);

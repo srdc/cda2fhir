@@ -115,7 +115,7 @@ public class ResourceTransformerTestNecip {
 	
 	
 	
-	@Ignore
+	@Test
     public void testPatientRole2Patient(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		EList<PatientRole> patientRoles = test.ccd.getPatientRoles();
