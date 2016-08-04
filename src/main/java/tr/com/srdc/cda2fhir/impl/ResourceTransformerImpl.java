@@ -1619,10 +1619,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				{
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
-
+						
 						Practitioner practitioner=Performer2Practitioner(performer);
 						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-
+						
 						resourceReference.setReference(practitioner.getId());
 						resourceReferences.add(resourceReference);
 					}
@@ -1690,7 +1690,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					prRole.setManagingOrganization(resourceReference);
 					prRoles.add(prRole);
 					  ca.uhn.fhir.model.dstu2.resource.Organization FHIROrganization = Organization2Organization(organization);
-
+					 
 				}//end for
 				
 				practitioner.setPractitionerRole(prRoles);
@@ -1915,7 +1915,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				{
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
-
+						
 						Practitioner practitioner=Performer2Practitioner(performer);
 						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
 						resourceReference.setReference(practitioner.getId());
@@ -1961,7 +1961,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(encounter==null || encounter.isSetNullFlavor()) return null;
 		else
 		{
-			ca.uhn.fhir.model.dstu2.resource.Encounter FHIREncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter();
+			ca.uhn.fhir.model.dstu2.resource.Encounter FHIREncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter(); 
 			if(encounter.getIds()!=null && !encounter.getIds().isEmpty())
 			{
 				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt> ();
@@ -2009,8 +2009,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 			return null;
 		}
-
-
+		
+		
 	}//end encounter transform*/
 
 	public ca.uhn.fhir.model.dstu2.resource.Device Device2Device(Device device)
@@ -2028,10 +2028,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			{
 				FHIRdevice.setType(dtt.CD2CodeableConcept((CD) device.getCode()));
 			}
-
+			return null;
+			// TODO: For Tahsin
+			// He will complete the method and change return value
 		}
-		// TODO: [Mustafa] This was returning nothing
-		return null;
 	}
 
 }

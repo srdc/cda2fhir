@@ -359,10 +359,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 //				}
 //			}//end if
 			
-
-			if(ii.getRoot() != null){
-				if( !ii.getRoot().isEmpty() )
-
 			if(ii.getRoot() != null && !ii.getRoot().isEmpty()){
 
 					identifierDt.setValue( ii.getRoot() );
