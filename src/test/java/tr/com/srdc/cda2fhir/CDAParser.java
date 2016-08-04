@@ -58,8 +58,12 @@ import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
+<<<<<<< HEAD
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
+=======
+>>>>>>> 5abe2fe44d178396f0001ff64f6e5794ea77374e
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
+import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 
 	public class CDAParser {
 		ResourceTransformer rt= new ResourceTransformerImpl();

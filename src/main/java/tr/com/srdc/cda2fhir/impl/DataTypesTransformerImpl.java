@@ -146,6 +146,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	    }
 	}//end AddressDt
 
+	//TODO: Mustafa: This will be revisited and updated for Act.author; not any participant
 	public AnnotationDt Act2Annotation(Act act){
 		if( act == null || act.isSetNullFlavor() ) return null;
 		else{
@@ -507,7 +508,7 @@ public ContactPointDt TEL2ContactPoint(TEL tel) {
 				String value = tel.getValue();
 				String[] systemType = value.split(":");
 				
-				if( systemType[0].equals("phone") )
+				if( systemType[0].equals("phone") || systemType[0].equals("tel") )
 					contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
 				else if( systemType[0].equals("email") )
 					contactPointDt.setSystem(ContactPointSystemEnum.EMAIL);
