@@ -218,6 +218,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse){
 		
 		switch(postalAddressUse){
+			case HP:
 			case H: return AddressUseEnum.HOME;
 			case WP: return AddressUseEnum.WORK;
 			case TMP: return AddressUseEnum.TEMPORARY;
