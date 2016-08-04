@@ -67,13 +67,13 @@ import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
-import tr.com.srdc.cda2fhir.impl.ResourceTransformerImplTahsin;
+import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 
 /**
  * Created by mustafa on 7/20/2016.
  */
 public class ResourceTransformerTestTahsin{
-	ResourceTransformer rt= new ResourceTransformerImplTahsin();	
+	ResourceTransformer rt= new ResourceTransformerImpl();	
 	@Test
 	public void testModule() throws Exception
 	{

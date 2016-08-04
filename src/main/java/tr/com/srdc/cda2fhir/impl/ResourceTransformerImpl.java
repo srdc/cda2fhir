@@ -34,6 +34,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
@@ -1631,10 +1632,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for (EntryRelationship entryRelationship : allProb.getEntryRelationships())
 			{
                 // check for alert observation
+				
                 if (entryRelationship.getObservation() instanceof AllergyObservation) 
                 {
                     AllergyObservation allergyObservation = (AllergyObservation) entryRelationship.getObservation();
-                    
                     if(allergyObservation.getIds()!=null && !allergyObservation.getIds().isEmpty())
                     {
                     	for(II ii : allergyObservation.getIds())
@@ -1643,30 +1644,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
                     			allergyIntolerance.addIdentifier(dtt.II2Identifier(ii));
                     	}//end for
                     }//end if
-                    if(allergyObservation.getCode()!=null && !allergyObservation.getCode().isSetNullFlavor())
-                    {
-                    	Reaction reaction = new Reaction();
-                    	reaction.addManifestation(dtt.CD2CodeableConcept(allergyObservation.getCode()));
-                    	if(allergyObservation.getEffectiveTime()!=null && !allergyObservation.getEffectiveTime().isSetNullFlavor())
-                    	{
-                    		if(allergyObservation.getEffectiveTime().getLow()!=null && !allergyObservation.getEffectiveTime().getLow().isSetNullFlavor())
-                    			reaction.setOnset(dtt.TS2DateTime(allergyObservation.getEffectiveTime().getLow()));
-                    		else
-                    		{
-                    			if(allProb.getEffectiveTime()!=null && !allProb.getEffectiveTime().isSetNullFlavor())
-                    			{
-                    				if(allProb.getEffectiveTime().getLow()!=null && !allProb.getEffectiveTime().isSetNullFlavor())
-                    				{
-                    					reaction.setOnset(dtt.TS2DateTime(allProb.getEffectiveTime().getLow()));
-                    				}//end if
-                    			}//end if
-                    		}//end else
-                    	}
-                    	allergyIntolerance.addReaction(reaction);
-                    	if(allProb.getStatusCode()!=null && !allProb.getStatusCode().isSetNullFlavor())
-                    		if(allProb.getStatusCode().getCode().equals("active"))
-                    			allergyIntolerance.setStatus(AllergyIntoleranceStatusEnum.ACTIVE);
-                    		/*TODO:The other cases are not handled, since lack of example*/
+                    if(allProb.getStatusCode()!=null && !allProb.getStatusCode().isSetNullFlavor())
+                    	if(allProb.getStatusCode().getCode().equals("active"))
+                    		allergyIntolerance.setStatus(AllergyIntoleranceStatusEnum.ACTIVE);
+                    	/*TODO:The other cases are not handled, since lack of example*/
                     	if(allergyObservation.getValues()!=null && !allergyObservation.getValues().isEmpty())
                     	{
                     		for(ANY any : allergyObservation.getValues())
@@ -1710,42 +1691,86 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
                     							allergyIntolerance.setType(AllergyIntoleranceTypeEnum.INTOLERANCE);
                     							allergyIntolerance.setCategory(AllergyIntoleranceCategoryEnum.FOOD);
                     							break;
+                    						default:
+                    							allergyIntolerance.setType(AllergyIntoleranceTypeEnum.ALLERGY);
+                    							allergyIntolerance.setCategory(AllergyIntoleranceCategoryEnum.ENVIRONMENT);
                     					}//end switch
                     				}//end if
                     			}//end if
                     		}//end for
-                    	}//end if
-                    	
-                    	if(allergyObservation.getParticipants()!=null && !allergyObservation.getParticipants().isEmpty())
-                    	{
-                    		for(Participant2 participant : allergyObservation.getParticipants())
+                    		if(allergyObservation.getParticipants()!=null && !allergyObservation.getParticipants().isEmpty())
                     		{
-                    			if(participant.getParticipantRole()!=null && !participant.getParticipantRole().isSetNullFlavor())
+                    			for(Participant2 participant : allergyObservation.getParticipants())
                     			{
-                    				ParticipantRole participantRole = participant.getParticipantRole();
-                    				if(participantRole.getPlayingEntity()!=null && !participantRole.getPlayingEntity().isSetNullFlavor())
+                    				if(participant.getParticipantRole()!=null && !participant.getParticipantRole().isSetNullFlavor())
                     				{
-                    					if(participantRole.getPlayingEntity().getCode()!=null && !participantRole.getPlayingEntity().getCode().isSetNullFlavor())
+                    					ParticipantRole participantRole = participant.getParticipantRole();
+                    					if(participantRole.getPlayingEntity()!=null && !participantRole.getPlayingEntity().isSetNullFlavor())
                     					{
-                    						CD cd =(CD) participantRole.getPlayingEntity().getCode();
-                    						allergyIntolerance.setSubstance(dtt.CD2CodeableConcept(cd));
-                    					}
-                    					if(participantRole.getPlayingEntity().getNames()!=null && !participantRole.getPlayingEntity().getNames().isEmpty())
-                    					{
-                    						for(PN pn : participantRole.getPlayingEntity().getNames())
+                    						if(participantRole.getPlayingEntity().getCode()!=null && !participantRole.getPlayingEntity().getCode().isSetNullFlavor())
                     						{
-                    							/*TODO: Name attribute will be filled.*/
-                    						}
+                    							CD cd =(CD) participantRole.getPlayingEntity().getCode();
+                    							allergyIntolerance.setSubstance(dtt.CD2CodeableConcept(cd));
+                    						}//end if	
+                    						if(participantRole.getPlayingEntity().getNames()!=null && !participantRole.getPlayingEntity().getNames().isEmpty())
+                    						{
+                    							for(PN pn : participantRole.getPlayingEntity().getNames())
+                    							{
+                    								/*TODO: Name attribute will be filled.*/
+                    							}//end for
+                    						}//end if
                     					}//end if
                     				}//end if
-                    			}//end if
-                    		}//end for
+                    			}//end for
+                    		}//end if
                     	}//end if
-                    }//end if
-                }//end if
-			}//end for
-			return allergyIntolerance;
-		}//end outer else
+                    	if(allergyObservation.getEntryRelationships()!=null && !allergyObservation.getEntryRelationships().isEmpty())
+                    	{
+                    		for (EntryRelationship entryRelationship2 : allergyObservation.getEntryRelationships())
+                			{
+                    			if(entryRelationship2.getObservation()!=null)
+                    			{
+                    				if(entryRelationship2.getObservation().getTemplateIds()!=null && !entryRelationship2.getObservation().getTemplateIds().isEmpty())
+                    				{
+                    					for(II ii : entryRelationship2.getObservation().getTemplateIds() )
+                    					{
+                    						if(ii.getRoot().equals("2.16.840.1.113883.10.20.22.4.9"))
+                    						{
+                    							//We have a allergyReactionObservation now.
+                    		                    if(entryRelationship2.getObservation().getValues()!=null && !entryRelationship2.getObservation().getValues().isEmpty())
+                    		                    {	
+                    		                    	ArrayList <Reaction> reactions= new ArrayList <Reaction>();
+                    		                    	for(ANY any : entryRelationship2.getObservation().getValues())
+                    		                    	{
+                    		                    		if(any instanceof CD)
+                    		                    		{
+                    		                    			CD cd = (CD) any;
+                    		                    			Reaction reaction = new Reaction();
+                    		                    			reaction.addManifestation(dtt.CD2CodeableConcept(cd));
+                    		                    			if(allergyObservation.getEffectiveTime()!=null && !allergyObservation.getEffectiveTime().isSetNullFlavor())
+                    		                    			{
+                    		                    				IVL_TS ivl_ts=allergyObservation.getEffectiveTime();
+                    		                    				if(ivl_ts.getLow()!=null && !ivl_ts.getLow().isSetNullFlavor())
+                    		                    				{
+                    		                    					reaction.setOnset(dtt.TS2DateTime(ivl_ts.getLow()));
+                    		                    				}//end if
+                    		                    			}//en if
+                    		                    			reactions.add(reaction);
+                    		                    		}//end if
+                    		                    	}//end for
+                    		                    	allergyIntolerance.setReaction(reactions);
+                    		                    }//end if
+                    						}//end if
+                    					}//end for
+                    				}//end if
+                    			}//end if
+                			}//end for
+                    	}//end if
+                	}//end if
+                	
+				}//end for
+				return allergyIntolerance;
+			}//end outer else
 	}//end func
 
 	//tahsin end

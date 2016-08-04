@@ -34,12 +34,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
-import tr.com.srdc.cda2fhir.impl.ResourceTransformerImplIsmail;
+import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 
 public class ResourceTransformerTestIsmail {
 	
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
-	ResourceTransformer rt = new ResourceTransformerImplIsmail();
+	ResourceTransformer rt = new ResourceTransformerImpl();
 	private static final FhirContext myCtx = FhirContext.forDstu2();
 
 	
