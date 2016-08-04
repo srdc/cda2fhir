@@ -21,6 +21,8 @@ import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
@@ -53,6 +55,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentProcedureMood;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.composite.BoundCodeableConceptDt;
@@ -61,6 +64,7 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
+import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
@@ -71,6 +75,7 @@ import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
 import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
+import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Organization.Contact;
@@ -755,10 +760,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	///////////////
 	// ismail start
 	
-	static int counter = 0;
-
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	public List<Condition> ProblemConcernAct2Condition(ProblemConcernAct probAct) {
+		
+		if( probAct == null || probAct.isSetNullFlavor()) return null;
 		
 		List<Condition> conditionList = new ArrayList<Condition>();
 		
@@ -777,21 +782,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			ResourceReferenceDt resourceReferencePatient = new ResourceReferenceDt();
 			//IdentifierDt identifierPatient = dtt.II2Identifier( probAct.getSubject().getRole().getPlayer().getTypeId());
-			resourceReferencePatient.setReference( "patient/" + counter );
+			resourceReferencePatient.setReference( "patient:" + getUniqueId() );
 			condition.setPatient( resourceReferencePatient );
 			
 			ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
 			//IdentifierDt identifierEncounter = dtt.II2Identifier( 
 					//probAct.getEncounters().get(0).getInboundRelationships().get(0).getSource().getTypeId());
-			resourceReferenceEncounter.setReference( "encounter/" + counter );
+			resourceReferenceEncounter.setReference( "encounter:" + getUniqueId() );
 			condition.setEncounter( resourceReferenceEncounter );
 			
 			ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
 			//IdentifierDt identifierAsserter = dtt.II2Identifier( probAct.getAuthors().get(0).getRole().getPlayer().getTypeId());
-			resourceReferenceAsserter.setReference( "asserter/" + counter ); 
+			resourceReferenceAsserter.setReference( "asserter:" + getUniqueId() ); 
 			condition.setAsserter( resourceReferenceAsserter );
 			
-			counter++;
+			
 			
 			
 			//DATE-RECORDED
@@ -805,11 +810,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				
 			codingForSetCode.setCode( cd.getTranslations().get(0).getCode() );
 			codingForSetCode.setDisplay( cd.getTranslations().get(0).getDisplayName() );
-			codingForSetCode.setSystem( vst.oid2Url( cd.getTranslations().get(0).getCodeSystem() ) );
+			codingForSetCode.setSystem( oid2Url( cd.getTranslations().get(0).getCodeSystem() ) );
 			
 			codingForCategory.setCode( probAct.getEntryRelationships().get(0).getObservation().getCode().getCode() );
 			codingForCategory.setDisplay( probAct.getEntryRelationships().get(0).getObservation().getCode().getDisplayName() );
-			codingForCategory.setSystem( vst.oid2Url( probAct.getEntryRelationships().get(0).getObservation().getCode().getCodeSystem() ) );
+			codingForCategory.setSystem( oid2Url( probAct.getEntryRelationships().get(0).getObservation().getCode().getCodeSystem() ) );
 			
 			codingForCategory2.setCode( "finding" );
 			codingForCategory2.setDisplay( "Finding" );
@@ -877,9 +882,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	        
 	        // BODYSITE, SEVERITY and NOTES
 	        CodeableConceptDt codeableConceptBodySite = new CodeableConceptDt();
-	        CodeableConceptDt codeableConceptSeverity = new CodeableConceptDt();
+	        //CodeableConceptDt codeableConceptSeverity = new CodeableConceptDt();
 	        CodingDt codingBodysite = new CodingDt();
-	        CodingDt codingSeverity = new CodingDt();
+	        //CodingDt codingSeverity = new CodingDt();
 	        
 	        if( entryRelationship.getObservation().getValues() != null ){
 				CD cd = (CD) ( entryRelationship.getObservation().getValues().get(0) );
@@ -946,11 +951,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return conditionList;
 	}
 
-
+	
+	
 
 	@SuppressWarnings("deprecation")
-	public Medication ManufacturedProduct2Medication(ManufacturedProduct manPro) {
+	public Medication Medication2Medication(MedicationInformation manPro) {
 		
+		if( manPro == null || manPro.isSetNullFlavor() ) return null;
 		
 		Medication medication = new Medication();
 		
@@ -1023,33 +1030,101 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		
 		
-		
-		//TODO Product.
+		// IN CDA, STRENTGH, DOSE AND FORM ATTRIBUTES ARE Pre-COORDINATED INTO THE 'manufacturedMaterial.code' 
+		//TODO Product. 
 		//TODO Package.
 		
 		
 		return medication;
 	}
 
-	public MedicationAdministration SubstanceAdministration2MedicationAdministration(
-			SubstanceAdministration subAd) {
+	public MedicationActivity MedicationActivity2MedicationSatement(
+			MedicationActivity subAd) {
 		
-		MedicationAdministration medAd = new MedicationAdministration();
+		if( subAd == null || subAd.isSetNegationInd() ) return null;
+		
+		if (subAd.getMoodCode() != x_DocumentSubstanceMood.EVN ) return null;
+		
+		//IDENNTIFER
+		MedicationStatement medSt = new MedicationStatement();
 		List<IdentifierDt> idList = new ArrayList<IdentifierDt>();
-		medAd.setIdentifier( idList );
+		medSt.setIdentifier( idList );
 		if( subAd.getIds().isEmpty() == false){
 			IdentifierDt identifier = dtt.II2Identifier( subAd.getIds().get(0) );
-			medAd.addIdentifier( identifier ); 
+			medSt.addIdentifier( identifier ); 
 		}
-		//MedicationAdministrationStatusEnum
-		medAd.setStatus( vst.StatusCode2MedicationAdministrationStatusEnum( subAd.getStatusCode().getDisplayName()) );
+		//STATUS
+		ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
+		medSt.setStatus( vst.StatusCode2MedicationStatementStatusEnum( subAd.getStatusCode().getDisplayName()) );
 		
-		// TODO : Complete.
+		
+		//PATIENT
+		
+		//PRACTITIONER
+//		if( subAd.getPerformers() != null && !subAd.getPerformers().isEmpty() ){
+//			
+//			if( !subAd.getPerformers().get(0).isSetNullFlavor() ){
+//				
+//				ResourceReferenceDt refPerf = new ResourceReferenceDt();
+//				refPerf.setReference( "practitioner:" + getUniqueId() );
+//				medSt.setPractitioner( refPerf );
+//			}
+//			
+//		}
+		
+		
+		//DOSAGE
+		CodeableConceptDt route = new CodeableConceptDt();
+		CodingDt routeCoding = new CodingDt();
+		if( subAd.getRouteCode() != null && !subAd.getRouteCode().isSetNullFlavor() ){
+			
+			if( subAd.getRouteCode().getCode() != null )
+				routeCoding.setCode( subAd.getRouteCode().getCode() );
+			if( subAd.getRouteCode().getDisplayName() != null )
+				routeCoding.setDisplay( subAd.getRouteCode().getDisplayName() );
+			if( subAd.getRouteCode().getCodeSystem() != null )
+				routeCoding.setSystem( vst.oid2Url( subAd.getRouteCode().getCodeSystem() ) );
+			if( subAd.getRouteCode().getCodeSystemVersion() != null ){
+				routeCoding.setVersion( subAd.getRouteCode().getCodeSystemVersion() );
+			}
+			
+			route.addCoding( routeCoding );
+			medSt.getDosage().get(0).setRoute( route );
+			
+			
+		}
+		
+		SimpleQuantityDt quantityDose = new SimpleQuantityDt();
+		if( subAd.getDoseQuantity() != null && !subAd.getDoseQuantity().isSetNullFlavor() ){
+			
+			quantityDose.setValue( subAd.getDoseQuantity().getValue() );
+			if( subAd.getDoseQuantity().getUnit() != null )
+				quantityDose.setUnit( subAd.getDoseQuantity().getUnit() );
+			
+		}
+		medSt.getDosage().get(0).setQuantity( quantityDose );
+		
+		RangeDt rate = dtt.IVL_PQ2Range( subAd.getRateQuantity() );
+		medSt.getDosage().get(0).setRate( rate );
+		////DOSAGE END
+		
+		
+		PeriodDt period = new PeriodDt();
+		if( subAd.getEffectiveTimes().get(0) != null ){
+			
+			period = dtt.IVL_TS2Period( (IVL_TS) subAd.getEffectiveTimes().get(0) );
+			
+		}
+		medSt.setEffective( period );
+		
+		
 			
 		return null;
 	}
 
-	public MedicationDispense Supply2MedicationDispense(Supply sup) {
+	public MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup) {
+		
+		if( sup == null || sup.isSetNullFlavor() ) return null;
 		
 		if( sup.getMoodCode().getLiteral() == "EVN" ){
 			
@@ -1058,10 +1133,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( sup.getIds() != null &  !sup.getIds().isEmpty() )
 				meDis.setIdentifier( dtt.II2Identifier( sup.getIds().get(0) ) );
 			
+			ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
 			meDis.setStatus( vst.StatusCode2MedicationDispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
 			
 			ResourceReferenceDt performerRef = new ResourceReferenceDt();
-			performerRef.setReference( "practitioner/" + counter );
+			performerRef.setReference( "practitioner:" + getUniqueId() );
 			meDis.setDispenser( performerRef );
 			
 			
@@ -1107,7 +1183,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			meDis.setQuantity( quantity );
 			
 			ResourceReferenceDt medRef = new ResourceReferenceDt();
-			medRef.setReference( "medication/" + counter );
+			medRef.setReference( "medication:" + getUniqueId() );
 			medRef.setDisplay( sup.getProduct().getManufacturedProduct().getManufacturedMaterial().getName().getText() );
 			meDis.setMedication( medRef );
 			
@@ -1124,9 +1200,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 			meDis.setWhenPrepared( prepDate );
 			
-			// TODO : No dosage section exists in CCD example.
+			// TODO : No dosageInstruction and Patient section exists in CCD example.
 			meDis.setDosageInstruction(null);
-						
+			
+			
+			
+			return meDis;
 		}
 		
 		return null;
@@ -1721,4 +1800,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 	//tahsin end
+
+
+
+
 }
