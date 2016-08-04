@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
+import org.openhealthtools.mdht.uml.cda.Device;
 import org.openhealthtools.mdht.uml.cda.Entity;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Guardian;
@@ -156,15 +157,23 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						if( participation.getRole() != null && participation.getRole().getClassCode() == org.openhealthtools.mdht.uml.hl7.vocab.RoleClass.PAT ){
 							// PatientRole extends Role
 							Patient fhirPatient = PatientRole2Patient( (PatientRole) participation.getRole() );
+							
 							if( fhirPatient != null ){
 								ResourceReferenceDt patientReference = new ResourceReferenceDt();
-								String uniqueIdString = "Patient/"+getUniqueId();
-								// TODO: The information about the patient should be pushed to database using the uniqueIdString
-								patientReference.setReference( uniqueIdString );
-								// TODO: Do we need to set display? What to set, name?
-//								patientReference.setDisplay( THE VALUE TO SET AS DISPLAY );
-								fhirEncounter.setPatient( patientReference );
+								patientReference.setReference( fhirPatient.getId() );
+								fhirEncounter.setPatient(patientReference);
 							}
+							
+							
+//							if( fhirPatient != null ){
+//								ResourceReferenceDt patientReference = new ResourceReferenceDt();
+//								String uniqueIdString = "Patient/"+getUniqueId();
+//								// TODO: The information about the patient should be pushed to database using the uniqueIdString
+//								patientReference.setReference( uniqueIdString );
+//								// TODO: Do we need to set display? What to set, name?
+////								patientReference.setDisplay( THE VALUE TO SET AS DISPLAY );
+//								fhirEncounter.setPatient( patientReference );
+//							}
 						}
 					}
 				}
@@ -310,6 +319,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else{
 			Practitioner practitioner = new Practitioner();
 			
+			// id
+			IdDt resourceId = new IdDt("Practitioner",""+getUniqueId() );
+			practitioner.setId(resourceId);
+			
 			// identifier
 			if( assignedEntity.getIds() != null && !assignedEntity.getIds().isEmpty() ){
 				for( II id : assignedEntity.getIds() ){
@@ -355,15 +368,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						
 						ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = Organization2Organization( cdaOrganization );
 						
-						ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-						String uniqueIdString = "Organization/"+getUniqueId();
 						
-						organizationReference.setReference(uniqueIdString);
+						if( fhirOrganization != null ){
+							ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+							organizationReference.setReference( fhirOrganization.getId() );
+							if( fhirOrganization.getName() != null ){
+								organizationReference.setDisplay(fhirOrganization.getName());
+							}
+							practitioner.addPractitionerRole().setManagingOrganization( organizationReference );	
+						}	
 						
-						if( fhirOrganization.getName() != null ){
-							organizationReference.setDisplay(fhirOrganization.getName());
-						}
-						practitioner.addPractitionerRole().setManagingOrganization( organizationReference );		
+//						ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+//						String uniqueIdString = "Organization/"+getUniqueId();
+//						
+//						organizationReference.setReference(uniqueIdString);
+//						
+//						if( fhirOrganization.getName() != null ){
+//							organizationReference.setDisplay(fhirOrganization.getName());
+//						}
+//						practitioner.addPractitionerRole().setManagingOrganization( organizationReference );		
 					}
 				}	
 			}
@@ -377,30 +400,48 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() || cdaPerformer.getAssignedEntity() == null || cdaPerformer.getAssignedEntity().isSetNullFlavor() ) return null;
 		else{
 			Performer fhirPerformer = new Performer();
-			
-			ResourceReferenceDt actorReference = new ResourceReferenceDt();
-			String uniqueIdString = "Practitioner/"+getUniqueId();
-			
-			
+
 			Practitioner practitioner = AssignedEntity2Practitioner(cdaPerformer.getAssignedEntity());
-			actorReference.setReference( uniqueIdString );
-			if( practitioner.getName() != null && practitioner.getName().getText() != null ){
-				actorReference.setDisplay( practitioner.getName().getText() );
+			if( practitioner != null && !practitioner.isEmpty() ){
+				ResourceReferenceDt actorReference = new ResourceReferenceDt();
+				actorReference.setReference(practitioner.getId());
+				if( practitioner.getName() != null && practitioner.getName().getText() != null ){
+					actorReference.setDisplay( practitioner.getName().getText() );
+				}
+				fhirPerformer.setActor(actorReference);
 			}
-			fhirPerformer.setActor( actorReference );
+			
+//			ResourceReferenceDt actorReference = new ResourceReferenceDt();
+//			String uniqueIdString = "Practitioner/"+getUniqueId();
+//			
+//			
+//			Practitioner practitioner = AssignedEntity2Practitioner(cdaPerformer.getAssignedEntity());
+//			actorReference.setReference( uniqueIdString );
+//			if( practitioner.getName() != null && practitioner.getName().getText() != null ){
+//				actorReference.setDisplay( practitioner.getName().getText() );
+//			}
+//			fhirPerformer.setActor( actorReference );
+			
+			
+			
+			
 			return fhirPerformer;
 		}
 	}
 	
 	
-	// not tested
+	// tested
 	public ca.uhn.fhir.model.dstu2.resource.Procedure Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaPr){
-		// TODO: used <-> device
-		// TODO: subject <-> subject
+		// TODO: used <-> device,  subject <-> subject
 		if( cdaPr == null || cdaPr.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
+			
 			// id
+			IdDt resourceId = new IdDt("Procedure",""+getUniqueId() );
+			fhirPr.setId(resourceId);
+	
+			// identifier
 			if( cdaPr.getIds() != null && !cdaPr.getIds().isEmpty() ){
 				for( II id : cdaPr.getIds() ){
 					if( id != null && !id.isSetNullFlavor() ){
@@ -444,20 +485,34 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				fhirPr.setCode( dtt.CD2CodeableConcept( cdaPr.getCode() ) );
 			}
 			 
+			
+			
+			// used <-> device
+			// no example found in example cda.xml file
+			// however, it exists in transformed version
+			
+//			Subject subject = cdaPr.getSubject();
+//			if( subject != null && !subject.isSetNullFlavor() ){
+//				System.out.println("==========");
+//				System.out.println(subject);
+//				System.out.println("==========");
+//			}
+			
 			return fhirPr;
 		}
 	}
 	
 	
-	// not tested
+	// tested
 	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( Guardian guardian ){
 		
 		// There doesn't exist a well specified mapping between contact and guardian
 		// If found, control the mapping
+		// 04.08.16: Tests OK
 		if( guardian == null || guardian.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = new ca.uhn.fhir.model.dstu2.resource.Patient.Contact();
-	
+			
 			// addr
 			if( guardian.getAddrs() != null && !guardian.getAddrs().isEmpty() ){
 				contact.setAddress( dtt.AD2Address(guardian.getAddrs().get(0)) );
@@ -478,7 +533,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 
 			
-			
 //			if( guardian.getIds() != null && !guardian.getIds().isEmpty() ){
 //				if( guardian.getIds().get(0) != null && !guardian.getIds().get(0).isSetNullFlavor() ){
 //					guardian.getIds().get(0);
@@ -497,6 +551,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = new ca.uhn.fhir.model.dstu2.resource.Organization();
 
+			
+			// id
+			IdDt resourceId = new IdDt("Organization",""+getUniqueId() );
+			fhirOrganization.setId(resourceId);
+			
+			
+			
 			if( cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty() )
 			{
 				List<IdentifierDt> idList = new ArrayList<IdentifierDt>();
@@ -516,18 +577,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if( name != null && !name.isSetNullFlavor() && name.getText() != null && !name.getText().isEmpty() ){
 						fhirOrganization.setName( name.getText() );
 					}
-//					if( name != null && !name.isSetNullFlavor() && name.getText() != null && !name.getText().isEmpty() ){
-//						String nameToSet = "";
-//						if( name.getFamilies() != null && !name.getFamilies().isEmpty() ){
-//							nameToSet = nameToSet + name.getFamilies().get(0).getText();
-//						}
-//						if( name.getGivens() != null && !name.getGivens().isEmpty() ){
-//							nameToSet = nameToSet + name.getGivens().get(0).getText();
-//						}
-//						if( !nameToSet.equals("") ){
-//							fhirOrganization.setName( nameToSet );
-//						}
-//					}
 				}
 			}
 			if( cdaOrganization.getTelecoms() != null && !cdaOrganization.getTelecoms().isEmpty() ){
@@ -578,6 +627,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if( patRole == null || patRole.isSetNullFlavor() ) return null;
 		else{
 			Patient patient = new Patient();
+			
+			// id
+			IdDt resourceId = new IdDt("Patient",""+getUniqueId() );
+			patient.setId(resourceId);
+			
 			
 			// identifier <-> id
 			if( patRole.getIds() != null && !patRole.getIds().isEmpty() ){
@@ -675,15 +729,24 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = Organization2Organization( patRole.getProviderOrganization() );
 				
 				// See https://www.hl7.org/fhir/references.html#Reference
-				ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-				String uniqueIdString = "Organization/"+getUniqueId();
-				// TODO: The information about the organization should be pushed to database using the uniqueIdString
-				// Also, the id of the organization should be set
-				organizationReference.setReference( uniqueIdString );
-				if( fhirOrganization.getName() != null ){
-					organizationReference.setDisplay( fhirOrganization.getName() );
+				
+				if( fhirOrganization != null && !fhirOrganization.isEmpty() ){
+					ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+					organizationReference.setReference(fhirOrganization.getId());
+					if( fhirOrganization.getName() != null ){
+						organizationReference.setDisplay( fhirOrganization.getName() );
+					}
+					patient.setManagingOrganization(organizationReference);
 				}
-				patient.setManagingOrganization( organizationReference );
+//				ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+//				String uniqueIdString = "Organization/"+getUniqueId();
+//				// TODO: The information about the organization should be pushed to database using the uniqueIdString
+//				// Also, the id of the organization should be set
+//				organizationReference.setReference( uniqueIdString );
+//				if( fhirOrganization.getName() != null ){
+//					organizationReference.setDisplay( fhirOrganization.getName() );
+//				}
+//				patient.setManagingOrganization( organizationReference );
 			}
 			
 //			// guardian <-> patient.guardians
@@ -1943,6 +2006,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 	}//end encounter transform*/
 
-
+	public ca.uhn.fhir.model.dstu2.resource.Device Device2Device(Device device)
+	{
+		return null;
+	}
 
 }

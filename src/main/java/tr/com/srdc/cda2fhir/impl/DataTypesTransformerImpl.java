@@ -79,6 +79,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	        		if( postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST ){
 	        			address.setType( VSTI.PostalAddressUse2AddressTypeEnum( postalAddressUse ) );
 	        		} else if( postalAddressUse == PostalAddressUse.H ||
+	        				postalAddressUse == PostalAddressUse.HP ||
 	        				postalAddressUse == PostalAddressUse.WP ||
 	        				postalAddressUse == PostalAddressUse.TMP ||
 	        				postalAddressUse == PostalAddressUse.BAD ){
@@ -358,10 +359,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 //				}
 //			}//end if
 			
-			if(ii.getRoot() != null){
-				if( !ii.getRoot().isEmpty() )
-					identifierDt.setValue( ii.getRoot() );
-			}
+
 			
 			if( ii.getAssigningAuthorityName() != null){
 				ResourceReferenceDt resourceReference = new ResourceReferenceDt( ii.getAssigningAuthorityName() );
@@ -503,18 +501,23 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			if(tel.getValue() != null ){
 				String value = tel.getValue();
 				String[] systemType = value.split(":");
-				
-				if( systemType[0].equals("phone") || systemType[0].equals("tel") )
-					contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
-				else if( systemType[0].equals("email") )
-					contactPointDt.setSystem(ContactPointSystemEnum.EMAIL);
-				else if( systemType[0].equals("fax") )
-					contactPointDt.setSystem(ContactPointSystemEnum.FAX);
-				else if( systemType[0].equals("http") || systemType[0].equals("https") )
-					contactPointDt.setSystem(ContactPointSystemEnum.URL);
-				
-				contactPointDt.setValue( systemType[1] );
-				
+				if( systemType.length > 1  ){
+					// for the values in form tel:+1(555)555-1000
+					if( systemType[0].equals("phone") || systemType[0].equals("tel") )
+						contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
+					else if( systemType[0].equals("email") )
+						contactPointDt.setSystem(ContactPointSystemEnum.EMAIL);
+					else if( systemType[0].equals("fax") )
+						contactPointDt.setSystem(ContactPointSystemEnum.FAX);
+					else if( systemType[0].equals("http") || systemType[0].equals("https") )
+						contactPointDt.setSystem(ContactPointSystemEnum.URL);
+					
+					contactPointDt.setValue( systemType[1] );
+				}
+				else if( systemType.length == 1 ){
+					// for the values in form +1(555)555-5000
+					contactPointDt.setValue( systemType[0] );
+				}
 			}
 			
 			PeriodDt period = new PeriodDt();

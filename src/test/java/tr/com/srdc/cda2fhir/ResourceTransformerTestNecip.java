@@ -24,7 +24,6 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 
 public class ResourceTransformerTestNecip {
-	
 	// Test one method at a time. Use annotation @Ignore for the remaining methods.
 	
 	// context
@@ -48,8 +47,8 @@ public class ResourceTransformerTestNecip {
         CDAUtil.loadPackages();
         try {
 	        fisCDA = new FileInputStream("src/test/resources/SampleCDADocument.xml");
-//	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
+	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+//	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 		} catch (FileNotFoundException ex) {
 	        ex.printStackTrace();
 	    }
@@ -68,6 +67,38 @@ public class ResourceTransformerTestNecip {
 			e.printStackTrace();
 		}
     }
+	
+	
+	@Ignore
+	public void testGuardian2Contact(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		int patientRoleCount = 0;
+		if( test.ccd.getPatientRoles() != null && !test.ccd.getPatientRoles().isEmpty() ){
+			for( org.openhealthtools.mdht.uml.cda.PatientRole patientRole : test.ccd.getPatientRoles() ){
+				if( patientRole != null && !patientRole.isSetNullFlavor() && patientRole.getPatient() != null && !patientRole.getPatient().isSetNullFlavor() ){
+					int guardianCount = 0;
+					for( org.openhealthtools.mdht.uml.cda.Guardian guardian : patientRole.getPatient().getGuardians() ){
+						if( guardian != null && !guardian.isSetNullFlavor()){
+							System.out.println("PatientRole["+patientRoleCount+"], Guardian["+guardianCount+"]");
+							
+							System.out.println("Transformation starting..");
+							ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = rt.Guardian2Contact(guardian);
+							
+							System.out.println("End of transformation. Printing the resource as JSON object..");
+							
+							ca.uhn.fhir.model.dstu2.resource.Patient patient = new Patient().addContact(contact);
+							printJSON( patient );
+							System.out.println("End of print.");
+							System.out.print("\n***\n"); // to visualize
+						}
+						guardianCount++;
+					}
+				}
+				patientRoleCount++;
+			}
+		}
+	}
 	
 	
 	@Ignore
@@ -120,7 +151,7 @@ public class ResourceTransformerTestNecip {
 					int procedureCount2 = 0;
 					for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures() ){
 						// traversing procedures
-						System.out.println("Section["+sectionCount+++"]"+" -> Procedure["+ procedureCount2++ +"]");
+						System.out.println("Section["+sectionCount+"]"+" -> Procedure["+ procedureCount2++ +"]");
 
 						System.out.println("Transformation starting..");
 						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = rt.Procedure2Procedure(cdaProcedure);
@@ -132,6 +163,7 @@ public class ResourceTransformerTestNecip {
 					}
 					
 				}
+				sectionCount++;
 			}
 		}
 		
@@ -255,8 +287,6 @@ public class ResourceTransformerTestNecip {
 	}
 	
 	
-	
-	
 	@Ignore
     public void testPatientRole2Patient(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -283,8 +313,9 @@ public class ResourceTransformerTestNecip {
 //				System.out.println( id.getExtension() );
 //				System.out.println( id.getAssigningAuthorityName() );
 				
-				Assert.assertEquals("pr.id.root #"+ idCount +" was not transformed",id.getRoot(),  patient.getIdentifier().get(idCount).getSystem() );
-				Assert.assertEquals("pr.id.extension #"+ idCount +" was not transformed",id.getExtension(),  patient.getIdentifier().get(idCount).getValue() );
+				// cdoeSystem method is changed and tested
+//				Assert.assertEquals("pr.id.root #"+ idCount +" was not transformed",id.getRoot(),  patient.getIdentifier().get(idCount).getSystem() );
+				
 				Assert.assertEquals("pr.id.assigningAuthorityName #"+ idCount +" was not transformed",id.getAssigningAuthorityName(),  patient.getIdentifier().get(idCount).getAssigner().getReference().getValue() );
 				idCount++;
 			}

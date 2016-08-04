@@ -12,10 +12,13 @@ import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
+import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
+import org.openhealthtools.mdht.uml.cda.Device;
 import org.openhealthtools.mdht.uml.cda.Informant12;
+import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
@@ -24,7 +27,7 @@ import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.Encounter;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
-import org.openhealthtools.mdht.uml.cda.consol.PatientRole;
+import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
@@ -44,6 +47,13 @@ public interface ResourceTransformer {
 	Performer Performer22Performer( Performer2 cdaPerformer );
 	
 	Practitioner AssignedEntity2Practitioner( AssignedEntity assignedEntity );
+	
+	ca.uhn.fhir.model.dstu2.resource.Organization Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
+	
+	Communication LanguageCommunication2Communication( LanguageCommunication LC );
+	
+	Patient PatientRole2Patient(PatientRole patRole);
+	
 	// necip end
 	
 	// ismail start
@@ -74,5 +84,6 @@ public interface ResourceTransformer {
 
     Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd);
     
+    ca.uhn.fhir.model.dstu2.resource.Device Device2Device(Device device);
     //tahsin end
 }
