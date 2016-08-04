@@ -21,6 +21,7 @@ import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.Encounter;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
@@ -71,6 +72,7 @@ import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Condition;
+import ca.uhn.fhir.model.dstu2.resource.Encounter.Participant;
 import ca.uhn.fhir.model.dstu2.resource.Group;
 import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
@@ -1536,13 +1538,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			if(resObs.getPerformers()!=null && !resObs.getPerformers().isEmpty())
 			{
+				ArrayList <ResourceReferenceDt> resourceReferences= new ArrayList <ResourceReferenceDt> ();
 				for(Performer2 performer : resObs.getPerformers())
 				{
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
-						Practitioner practitioner=Performer2Practitioner(performer,getUniqueId());
+						
+						Practitioner practitioner=Performer2Practitioner(performer);
+						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
+						
+						resourceReference.setReference(practitioner.getId());
+						resourceReferences.add(resourceReference);
 					}
 				}
+				observation.setPerformer(resourceReferences);
 			}//end if
 			return observation;
 		}//end if
@@ -1550,10 +1559,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return null;
 	}//end function
 	@Override
-	public Practitioner Performer2Practitioner(Performer2 performer, int id) {
+	public Practitioner Performer2Practitioner(Performer2 performer) {
 		Practitioner practitioner = new Practitioner();
-		String uniqueId=Integer.toString(getUniqueId());
-		IdDt resourceId= new IdDt("Practitioner","Practitioner/"+uniqueId);
+		IdDt resourceId= new IdDt("Practitioner",""+getUniqueId());
 		practitioner.setId(resourceId);
 		if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 		{
@@ -1607,9 +1615,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					resourceReference.setReference("Organization/" + newId);
 					prRole.setManagingOrganization(resourceReference);
 					prRoles.add(prRole);
-					/*TODO:Will be automatically fetched when the project progresses.
-					 * ca.uhn.fhir.model.dstu2.resource.Organization FHIROrganization = Organization2Organization(organization,newId);
-					 */
+					  ca.uhn.fhir.model.dstu2.resource.Organization FHIROrganization = Organization2Organization(organization);
+					 
 				}//end for
 				
 				practitioner.setPractitionerRole(prRoles);
@@ -1805,14 +1812,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(manufacturedProduct.getManufacturedMaterial()!=null && !manufacturedProduct.getManufacturedMaterial().isSetNullFlavor())
 					{
 						Material manufacturedMaterial=manufacturedProduct.getManufacturedMaterial();
-						if(manufacturedMaterial.getRealmCodes()!=null && !manufacturedMaterial.getRealmCodes().isEmpty())
-						{
-							for(CS cs : manufacturedMaterial.getRealmCodes())
-							{
-								if(cs.getCode()!=null)
-									immunization.setVaccineCode(dtt.CD2CodeableConcept((CD)cs));
-							}//end for
-						}//end if
+						immunization.setVaccineCode(dtt.CD2CodeableConcept((CD)manufacturedMaterial.getCode()));
 						if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor())
 						{
 							immunization.setLotNumber(dtt.ST2String(manufacturedMaterial.getLotNumberText()));
@@ -1839,31 +1839,17 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}
 				}//end if
 			}//end if
-			if(subAd.getPerformers()!=null && subAd.getPerformers().isEmpty())
+			if(subAd.getPerformers()!=null && !subAd.getPerformers().isEmpty())
 			{
 				for(Performer2 performer : subAd.getPerformers())
 				{
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
-						if(performer.getAssignedEntity().getAssignedPerson()!=null && !performer.getAssignedEntity().getAssignedPerson().isSetNullFlavor())
-						{
-							if(performer.getAssignedEntity().getAssignedPerson().getNames()!=null && !performer.getAssignedEntity().getAssignedPerson().getNames().isEmpty())
-							{
-								for(PN pn : performer.getAssignedEntity().getAssignedPerson().getNames())
-								{
-									ResourceReferenceDt resourceReference= new ResourceReferenceDt();
-									if(pn.getGivens()!=null && !pn.getGivens().isEmpty())
-									{
-										for(ENXP enxp : pn.getGivens())
-										{
-											resourceReference.setReference(enxp.getReference().getValue());
-											
-										}//end for
-									}//end if
-									immunization.setPerformer(resourceReference);
-								}//end for
-							}//end if
-						}//end if
+						
+						Practitioner practitioner=Performer2Practitioner(performer);
+						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
+						resourceReference.setReference(practitioner.getId());
+						immunization.setPerformer(resourceReference);
 					}//end if
 				}//end for
 			}//end if
@@ -1895,12 +1881,67 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if(subAd.getStatusCode()!=null && !subAd.getStatusCode().isSetNullFlavor())
 			{
 				immunization.setStatus(subAd.getStatusCode().getCode());
-			}
+			}//end if
 			return immunization;
 		}
-	}
+	}//end immunization transform
 	//tahsin end
-
+	/*public ca.uhn.fhir.model.dstu2.resource.Encounter CDAEncounter2FHIREncounter(Encounter encounter)
+	{
+		if(encounter==null || encounter.isSetNullFlavor()) return null;
+		else
+		{
+			ca.uhn.fhir.model.dstu2.resource.Encounter FHIREncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter(); 
+			if(encounter.getIds()!=null && !encounter.getIds().isEmpty())
+			{
+				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt> ();
+				for(II ii : encounter.getIds())
+				{
+					idS.add(dtt.II2Identifier(ii));
+				}//end for
+				FHIREncounter.setIdentifier(idS);
+			}//end if
+			if(encounter.getStatusCode()!=null && !encounter.getStatusCode().isSetNullFlavor())
+			{
+				if(encounter.getStatusCode().equals("active"))
+				{
+					FHIREncounter.setStatus(EncounterStateEnum.IN_PROGRESS);
+				}//end if
+				else if(encounter.getStatusCode().equals("completed"))
+				{
+					FHIREncounter.setStatus(EncounterStateEnum.FINISHED);
+				}//end else if
+			}//end if
+			if(encounter.getCode()!=null && !encounter.getCode().isSetNullFlavor())
+			{
+				ArrayList <CodeableConceptDt> codes = new ArrayList <CodeableConceptDt>();
+				codes.add(dtt.CD2CodeableConcept(encounter.getCode()));
+				FHIREncounter.setType(codes);
+			}//end if
+			if(encounter.getPriorityCode()!=null && !encounter.getPriorityCode().isSetNullFlavor())
+			{
+				FHIREncounter.setPriority(dtt.CD2CodeableConcept((CD)encounter.getPriorityCode()));
+			}
+			if(encounter.getParticipants()!=null && !encounter.getParticipants().isEmpty())
+			{
+				ArrayList <Participant> participants = new ArrayList <Participant> ();
+				for(Participant2 CDAparticipant : encounter.getParticipants())
+				{
+					Participant FHIRparticipant = new Participant();
+					FHIRparticipant.setPeriod(dtt.IVL_TS2Period(CDAparticipant.getTime()));
+					FHIRparticipant.setId(CDAparticipant.getTypeId().getRoot());
+					ResourceReferenceDt resourceReference = new ResourceReferenceDt();
+					CDAparticipant.getRole().getPlayer().get
+					resourceReference.setReference(null);
+					FHIRparticipant.setIndividual(resourceReference);
+				}
+				FHIREncounter.setParticipant
+			}
+			return null;
+		}
+		
+		
+	}//end encounter transform*/
 
 
 

@@ -21,6 +21,7 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.Encounter;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.PatientRole;
@@ -66,11 +67,12 @@ public interface ResourceTransformer {
     
     
     /*This is not a fully independent mapping method.*/
-    Practitioner Performer2Practitioner(Performer2 performer,int id);
+    Practitioner Performer2Practitioner(Performer2 performer);
     /*It will be called by functions which contain Practitioner as a subresource*/
     
     AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
 
     Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd);
+    
     //tahsin end
 }

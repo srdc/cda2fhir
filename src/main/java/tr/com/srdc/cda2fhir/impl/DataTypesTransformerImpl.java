@@ -358,8 +358,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 //				}
 //			}//end if
 			
-			if(ii.getExtension() != null){
-				if( !ii.getExtension().isEmpty() )
+			if(ii.getRoot() != null){
+				if( !ii.getRoot().isEmpty() )
 					identifierDt.setValue( ii.getRoot() );
 			}
 			
@@ -627,6 +627,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				return new DateTimeDt();
 			
 			String date=ts.getValue();
+			if(date.length()>8)
+				date=date.substring(0,8);
 			return dateParser(date);
 		}
 	}//end DateTimeDt
