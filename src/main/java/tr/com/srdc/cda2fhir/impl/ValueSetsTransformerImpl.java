@@ -13,7 +13,9 @@ import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
@@ -112,6 +114,22 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return system;
 	}
 	
+	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString ){
+		switch( statusCodeString.toLowerCase() ){
+		case "active":
+			return ProcedureStatusEnum.IN_PROGRESS;
+		case "completed":
+			return ProcedureStatusEnum.COMPLETED;
+		case "aborted":
+		case "aboted":
+			return ProcedureStatusEnum.ABOTED;
+		case "error":
+			return ProcedureStatusEnum.ENTERED_IN_ERROR;
+		default:
+			return null;
+		}
+	}
+	
 	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
 		switch(entityClassRoot){
 			case PSN: return GroupTypeEnum.PERSON;
@@ -162,13 +180,13 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		} // end of switch block
 	}
 
-	public MedicationAdministrationStatusEnum StatusCode2MedicationAdministrationStatusEnum( String status){
+	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status){
 		switch( status ){
-			case "active": return MedicationAdministrationStatusEnum.IN_PROGRESS;
-			case "suspended": return MedicationAdministrationStatusEnum.ON_HOLD;
-			case "completed": return MedicationAdministrationStatusEnum.COMPLETED;
-			case "nullified": return MedicationAdministrationStatusEnum.ENTERED_IN_ERROR;
-			case "stopped": return MedicationAdministrationStatusEnum.STOPPED;
+			case "active": return MedicationStatementStatusEnum.ACTIVE;
+			
+			case "completed": return MedicationStatementStatusEnum.COMPLETED;
+			case "nullified": return MedicationStatementStatusEnum.ENTERED_IN_ERROR;
+			
 			default: return null;
 		}
 	}
@@ -200,6 +218,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse){
 		
 		switch(postalAddressUse){
+			case HP:
 			case H: return AddressUseEnum.HOME;
 			case WP: return AddressUseEnum.WORK;
 			case TMP: return AddressUseEnum.TEMPORARY;

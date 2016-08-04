@@ -54,16 +54,19 @@ import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
+import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
+
+import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
+
 import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 
 	public class CDAParser {
 		ResourceTransformer rt= new ResourceTransformerImpl();
 		DataTypesTransformer dtt = new DataTypesTransformerImpl();
-		
 		private static final FhirContext myCtx = FhirContext.forDstu2();
 	public CDAParser() {
         CDAUtil.loadPackages();
@@ -73,6 +76,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 		ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is);
 		testVitalSignObservation2Observation(ccd);
 		testResultObservation2Observation(ccd);
+		testAllergyObservation2AllergyIntolerance(ccd);
     }
     @Test
 	public void testVitalSignObservation2Observation(ContinuityOfCareDocument ccd)
@@ -271,7 +275,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     {
     	 // get the allergies section from the document using domain-specific "getter" method
         AllergiesSection allergiesSection = ccd.getAllergiesSection();
-
+        
         // for each enclosing problem act
         for (AllergyProblemAct problemAct : allergiesSection.getConsolAllergyProblemActs()) {
             
@@ -282,7 +286,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
                 {
                     AllergyObservation allergyObservation = (AllergyObservation) entryRelationship.getObservation();
                     ArrayList <String> CDAidS = new ArrayList <String> ();
-                    if(allergyObservation.getIds()!=null && allergyObservation.getIds().isEmpty())
+                    if(allergyObservation.getIds()!=null && !allergyObservation.getIds().isEmpty())
                     {
                     	for(II ii : allergyObservation.getIds())
                     	{
@@ -290,7 +294,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
                     	}
                     }//end if
                     ArrayList <String> FHIRidS = new ArrayList <String>();
-                    if(allergyIntolerance.getIdentifier()!=null && allergyIntolerance.getIdentifier().isEmpty())
+                    if(allergyIntolerance.getIdentifier()!=null && !allergyIntolerance.getIdentifier().isEmpty())
                     {
                     	for(IdentifierDt identifier : allergyIntolerance.getIdentifier())
                     	{
@@ -298,9 +302,27 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
                     	}//end for
                     }//end if
                     Assert.assertEquals("allergyObservation.id was not transformed",CDAidS, FHIRidS);
+                    ArrayList <CodingDt> manifestations=new ArrayList <CodingDt>();
+                   	if(allergyIntolerance.getReaction()!=null && !allergyIntolerance.getReaction().isEmpty())
+                   	{
+                        for(Reaction reaction : allergyIntolerance.getReaction())
+                        {
+                            if(reaction.getManifestation()!=null && !reaction.getManifestation().isEmpty())
+                            {
+                            	for(CodeableConceptDt codeableConcept : reaction.getManifestation())
+                            	{
+                            		for(CodingDt coding : codeableConcept.getCoding())
+                           			{
+                            			manifestations.add(coding);
+//                            			System.out.println("FHIR: code="+coding.getCode()+" display= "+coding.getDisplay()+" system= "+coding.getSystem());
+                           			}//end for
+                            	}//end for
+                         	}//end if
+                         }//end for
+                   	}//end if
                 }//end if
-               
             }//end for
+            printJSON(allergyIntolerance);
         }//end for
     }//end  AllergyIntolerance test
 	private void printJSON(IResource res) {

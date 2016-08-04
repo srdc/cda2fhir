@@ -61,7 +61,7 @@ import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
  * Created by mustafa on 7/21/2016.
  */
 public class DataTypesTransformerImpl implements DataTypesTransformer {
-
+	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
 	public AddressDt AD2Address(AD ad) {
 	    
 	    if(ad == null || ad.isSetNullFlavor()) return null;
@@ -71,7 +71,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	        
 	        if( !ad.getUses().isEmpty() && ad.getUses() != null ){
 	        	
-	        	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
+	        	
 	        	
 	        	// We get the address.type and address.use from the list ad.uses
 	        	for(PostalAddressUse postalAddressUse : ad.getUses()){
@@ -79,6 +79,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	        		if( postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST ){
 	        			address.setType( VSTI.PostalAddressUse2AddressTypeEnum( postalAddressUse ) );
 	        		} else if( postalAddressUse == PostalAddressUse.H ||
+	        				postalAddressUse == PostalAddressUse.HP ||
 	        				postalAddressUse == PostalAddressUse.WP ||
 	        				postalAddressUse == PostalAddressUse.TMP ||
 	        				postalAddressUse == PostalAddressUse.BAD ){
@@ -205,7 +206,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         		boolean isEmpty = true;
             	
             	if( myCd.getCodeSystem() != null ){
-            		codingDt.setSystem( myCd.getCodeSystem() );
+            		codingDt.setSystem( VSTI.oid2Url(myCd.getCodeSystem()) );
             		isEmpty = false;
             	}
             	if( myCd.getCode() !=null ){
@@ -228,7 +229,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	
         	CodingDt codingDt = new CodingDt();
         	if( cd.getCodeSystem() != null ){
-        		codingDt.setSystem( cd.getCodeSystem() );
+        		codingDt.setSystem(VSTI.oid2Url(cd.getCodeSystem())  );
         		isEmpty = false;
         	}
         	if( cd.getCode() !=null ){
@@ -351,18 +352,15 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if( ii != null  && !ii.isSetNullFlavor()){
 			IdentifierDt identifierDt = new IdentifierDt();
 			
-			if(ii.getRoot() != null){
-//				System.out.println("Datatype Implementation Side/CDA: "+ii.getRoot());
-				if( !ii.getRoot().isEmpty() )
-				{
-					identifierDt.setSystem( ii.getRoot() );
-//					System.out.println("Datatype Implementation Side/FHIR: "+identifierDt.getSystem());
-				}
-			}//end if
+//			if(ii.getRoot() != null){
+//				if( !ii.getRoot().isEmpty() )
+//				{
+//					identifierDt.setSystem( ii.getExtension() );
+//				}
+//			}//end if
 			
-			if(ii.getExtension() != null){
-				if( !ii.getExtension().isEmpty() )
-					identifierDt.setValue( ii.getExtension() );
+			if(ii.getRoot() != null && !ii.getRoot().isEmpty()){
+					identifierDt.setValue( ii.getRoot() );
 			}
 			
 			if( ii.getAssigningAuthorityName() != null){
@@ -370,8 +368,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				if( !resourceReference.isEmpty() )
 					identifierDt.setAssigner( resourceReference );
 			}
-			
-			// TODO : Use, Type and Period attributes will be handled after the data types are finished.
 			
 			return identifierDt;
 
@@ -498,7 +494,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	return ( st == null || st.isSetNullFlavor() ) ? null : new StringDt(st.getText());
     }
 	
-public ContactPointDt TEL2ContactPoint(TEL tel) {
+	public ContactPointDt TEL2ContactPoint(TEL tel) {
 		
 		if( tel!=null && !tel.isSetNullFlavor()){
 			
@@ -507,18 +503,23 @@ public ContactPointDt TEL2ContactPoint(TEL tel) {
 			if(tel.getValue() != null ){
 				String value = tel.getValue();
 				String[] systemType = value.split(":");
-				
-				if( systemType[0].equals("phone") || systemType[0].equals("tel") )
-					contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
-				else if( systemType[0].equals("email") )
-					contactPointDt.setSystem(ContactPointSystemEnum.EMAIL);
-				else if( systemType[0].equals("fax") )
-					contactPointDt.setSystem(ContactPointSystemEnum.FAX);
-				else if( systemType[0].equals("http") || systemType[0].equals("https") )
-					contactPointDt.setSystem(ContactPointSystemEnum.URL);
-				
-				contactPointDt.setValue( systemType[1] );
-				
+				if( systemType.length > 1  ){
+					// for the values in form tel:+1(555)555-1000
+					if( systemType[0].equals("phone") || systemType[0].equals("tel") )
+						contactPointDt.setSystem(ContactPointSystemEnum.PHONE);
+					else if( systemType[0].equals("email") )
+						contactPointDt.setSystem(ContactPointSystemEnum.EMAIL);
+					else if( systemType[0].equals("fax") )
+						contactPointDt.setSystem(ContactPointSystemEnum.FAX);
+					else if( systemType[0].equals("http") || systemType[0].equals("https") )
+						contactPointDt.setSystem(ContactPointSystemEnum.URL);
+					
+					contactPointDt.setValue( systemType[1] );
+				}
+				else if( systemType.length == 1 ){
+					// for the values in form +1(555)555-5000
+					contactPointDt.setValue( systemType[0] );
+				}
 			}
 			
 			PeriodDt period = new PeriodDt();
@@ -634,6 +635,7 @@ public ContactPointDt TEL2ContactPoint(TEL tel) {
 			return dateParser(date);
 		}
 	}//end DateTimeDt
+	
 	public InstantDt TS2Instant(TS ts)
 	{
 		if(ts==null || ts.isSetNullFlavor()) return null;
