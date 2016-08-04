@@ -855,7 +855,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		for(EntryRelationship entryRelationship : probAct.getEntryRelationships())
 		{	
+			
 			Condition condition = new Condition();
+			
+			IdDt id = new IdDt("Condition", "" + getUniqueId());
+			condition.setId( id );
+			
 			List<IdentifierDt> IdList = new ArrayList<IdentifierDt>();
 		
 			if( probAct.getIds() != null & !probAct.getIds().isEmpty() ){
@@ -867,21 +872,22 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			condition.setIdentifier( IdList );
 			
 			ResourceReferenceDt resourceReferencePatient = new ResourceReferenceDt();
-			//IdentifierDt identifierPatient = dtt.II2Identifier( probAct.getSubject().getRole().getPlayer().getTypeId());
-			resourceReferencePatient.setReference( "patient:" + getUniqueId() );
+			//PatientRole2Patient( probAct.getSubject().getRole() )
+			resourceReferencePatient.setReference( "Patient/1"  );
 			condition.setPatient( resourceReferencePatient );
 			
 			ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
-			//IdentifierDt identifierEncounter = dtt.II2Identifier( 
-					//probAct.getEncounters().get(0).getInboundRelationships().get(0).getSource().getTypeId());
-			resourceReferenceEncounter.setReference( "encounter:" + getUniqueId() );
+			ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter( probAct.getEncounters().get(0) );
+			resourceReferenceEncounter.setReference( enc.getId());
 			condition.setEncounter( resourceReferenceEncounter );
 			
-			ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
-			//IdentifierDt identifierAsserter = dtt.II2Identifier( probAct.getAuthors().get(0).getRole().getPlayer().getTypeId());
-			resourceReferenceAsserter.setReference( "asserter:" + getUniqueId() ); 
-			condition.setAsserter( resourceReferenceAsserter );
-			
+			//TODO Asserter Reference
+			if( probAct.getAuthors()!=null && probAct.getAuthors().size() != 0 ){
+				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
+				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
+				resourceReferenceAsserter.setReference( prac.getId() ); 
+				condition.setAsserter( resourceReferenceAsserter );
+			}
 			
 			
 			
@@ -1047,6 +1053,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		Medication medication = new Medication();
 		
+		//ID
+		IdDt id = new IdDt( "Medication" , "" + getUniqueId());
+		medication.setId( id );
+		
 		// TODO : VALIDATE: manufacturedMaterial.code IS USED INSTEAD OF medication.code ( which does not exist).
 		//CODE
 		CodeableConceptDt codeableConcept = new CodeableConceptDt();
@@ -1092,13 +1102,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				medication.setIsBrand(true);
 				
 				//MANUFACTURER
-				
-				if( manPro.getManufacturerOrganization().getIds() != null ){
-					if(manPro.getManufacturerOrganization().getIds().size() != 0){
-						IdentifierDt identifierManu = dtt.II2Identifier( manPro.getManufacturerOrganization().getIds().get(0) );
-						resourceReferenceManu.setReference( identifierManu.getId() );
-					}
-				}
+	
+				resourceReferenceManu.setReference( Organization2Organization( manPro.getManufacturerOrganization() ).getId() );
+
 				if( manPro.getManufacturerOrganization().getNames() != null){
 					if( manPro.getManufacturerOrganization().getNames().size() != 0 )
 						resourceReferenceManu.setDisplay( manPro.getManufacturerOrganization().getNames().get(0).getText() );
@@ -1131,8 +1137,14 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		if (subAd.getMoodCode() != x_DocumentSubstanceMood.EVN ) return null;
 		
-		//IDENNTIFER
 		MedicationStatement medSt = new MedicationStatement();
+	
+		//ID
+		IdDt id = new IdDt( "MedicationActivity", "" + getUniqueId()  );
+		medSt.setId( id );
+		
+		
+		//IDENNTIFER
 		List<IdentifierDt> idList = new ArrayList<IdentifierDt>();
 		medSt.setIdentifier( idList );
 		if( subAd.getIds().isEmpty() == false){
@@ -1146,7 +1158,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		//PATIENT
 		ResourceReferenceDt patRef = new ResourceReferenceDt();
-		patRef.setReference( "patient:" + getUniqueId() );
+		patRef.setReference( "Patient/1" );
 		medSt.setPatient(patRef);
 		
 		//PRACTITIONER
@@ -1257,15 +1269,23 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			MedicationDispense meDis = new MedicationDispense();
 			
+			//ID
+			IdDt id = new IdDt( "MedicationDispense", "" + getUniqueId() );
+			meDis.setId( id );
+			
+			
+			//IDENTIFIER
 			if( sup.getIds() != null &  !sup.getIds().isEmpty() )
 				meDis.setIdentifier( dtt.II2Identifier( sup.getIds().get(0) ) );
 			
 			ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
 			meDis.setStatus( vst.StatusCode2MedicationDispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
 			
+			
+			//DISPENSER
 			Performer performer =  Performer22Performer( sup.getPerformers().get(0) );
 			ResourceReferenceDt performerRef = new ResourceReferenceDt();
-			performerRef.setReference( "practitioner:" + getUniqueId() );
+			performerRef.setReference( performer.getId() );
 			meDis.setDispenser( performerRef );
 			
 			//TYPE

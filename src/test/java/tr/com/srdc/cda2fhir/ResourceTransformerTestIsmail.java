@@ -40,27 +40,31 @@ public class ResourceTransformerTestIsmail {
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
 	ResourceTransformer rt = new ResourceTransformerImpl();
 	private static final FhirContext myCtx = FhirContext.forDstu2();
-
 	
 	
-	@Ignore
-	public void testProblemConcernAct2Condition(){
+	FileInputStream fisCCD = null;
+	
+	
+	@Test
+	public void test() throws Exception{
 		
 		CDAUtil.loadPackages();
-		FileInputStream fisCCD = null;
         
         try {
             fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+          //traverseCCDProblemAct( fisCCD );
+            traverseCCDManuPro( fisCCD );
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
        
-        traverseCCDProblemAct( fisCCD );
+        
 		
    
 	}
 	
-	private void traverseCCDProblemAct(InputStream is) {
+	
+	public void traverseCCDProblemAct(InputStream is) {
         try {
             // validate on load
             // create validation result to hold diagnostics
@@ -123,27 +127,9 @@ public class ResourceTransformerTestIsmail {
 	
 	
 	
-	@Ignore
-	public void testManufacturedProduct2Medication(){
-		
-		CDAUtil.loadPackages();
-		FileInputStream fisCCD = null;
-        
-        try {
-            fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
-       
-        try {
-			traverseCCDManuPro( fisCCD );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
 	
-	private void traverseCCDManuPro( InputStream is) throws Exception{
+
+	public void traverseCCDManuPro( InputStream is) throws Exception{
 		
 		try{
 			// validate on load
@@ -200,27 +186,8 @@ public class ResourceTransformerTestIsmail {
 		
 	}
 	
-	@Test
-	public void testMedicationDispense2MedicationDispense(){
-		
-		CDAUtil.loadPackages();
-		FileInputStream fisCCD = null;
-        
-        try {
-            fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
-       
-        try {
-			traverseCCDMedicationDispense( fisCCD );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	private void traverseCCDMedicationDispense(InputStream is) throws Exception {
+
+	public void traverseCCDMedicationDispense(InputStream is) throws Exception {
 		
 		try{
 			// validate on load
