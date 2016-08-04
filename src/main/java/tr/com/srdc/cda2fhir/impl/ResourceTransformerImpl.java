@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
@@ -93,19 +94,34 @@ import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
+import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
+import tr.com.srdc.cda2fhir.ResourceTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTransformer{
-	
-	///////////////
-	// necip start
-	private static int idHolder = 0;
-	private static int getUniqueId(){
-		return idHolder++;
+
+	private DataTypesTransformer dtt;
+	private ValueSetsTransformer vst;
+	private CCDATransformer cct;
+
+	public ResourceTransformerImpl() {
+		dtt = new DataTypesTransformerImpl();
+		vst = new ValueSetsTransformerImpl();
+		cct = null;
 	}
-	private DataTypesTransformer dtt = new DataTypesTransformerImpl();
-	private ValueSetsTransformer vst = new ValueSetsTransformerImpl();
+
+	public ResourceTransformerImpl(CCDATransformer ccdaTransformer) {
+		super();
+		cct = ccdaTransformer;
+	}
+
+	protected String getUniqueId() {
+		if(cct != null)
+			return cct.getUniqueId();
+		else
+			return UUID.randomUUID().toString();
+	}
 	
 	// incomplete
 	public ca.uhn.fhir.model.dstu2.resource.Encounter Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter){
@@ -1598,7 +1614,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				{
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
-						Practitioner practitioner=Performer2Practitioner(performer,getUniqueId());
+						Practitioner practitioner=Performer2Practitioner(performer);
 					}
 				}
 			}//end if
@@ -1608,10 +1624,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return null;
 	}//end function
 	@Override
-	public Practitioner Performer2Practitioner(Performer2 performer, int id) {
+	public Practitioner Performer2Practitioner(Performer2 performer) {
 		Practitioner practitioner = new Practitioner();
-		String uniqueIdString="Practitioner:"+id;
-		practitioner.setId(uniqueIdString);
+		practitioner.setId("Practitioner/"+getUniqueId());
 		if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 		{
 			AssignedEntity assignedEntity= performer.getAssignedEntity();
@@ -1660,8 +1675,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				{
 					PractitionerRole prRole= new PractitionerRole();
 					ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-					int newId=getUniqueId();
-					resourceReference.setReference("Organization/" + newId);
+					resourceReference.setReference("Organization/" + getUniqueId());
 					prRole.setManagingOrganization(resourceReference);
 					prRoles.add(prRole);
 					/*TODO:Will be automatically fetched when the project progresses.

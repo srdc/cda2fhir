@@ -52,8 +52,6 @@ public interface ResourceTransformer {
 
 	Communication LanguageCommunication2Communication( LanguageCommunication LC );
 
-	Patient PatientRole2Patient(PatientRole patRole);
-
 	// necip end
 	
 	// ismail start
@@ -77,7 +75,7 @@ public interface ResourceTransformer {
     
     
     /*This is not a fully independent mapping method.*/
-    Practitioner Performer2Practitioner(Performer2 performer,int id);
+    Practitioner Performer2Practitioner(Performer2 performer);
     /*It will be called by functions which contain Practitioner as a subresource*/
     
     AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
