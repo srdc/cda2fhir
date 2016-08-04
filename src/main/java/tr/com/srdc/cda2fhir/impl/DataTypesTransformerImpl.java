@@ -1,21 +1,9 @@
 package tr.com.srdc.cda2fhir.impl;
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
-import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
-import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
-import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
-import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
-import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
-import ca.uhn.fhir.model.dstu2.composite.RangeDt;
-import ca.uhn.fhir.model.dstu2.composite.RatioDt;
-import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
+import ca.uhn.fhir.model.dstu2.composite.*;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
+import ca.uhn.fhir.model.dstu2.valueset.NarrativeStatusEnum;
 import ca.uhn.fhir.model.primitive.Base64BinaryDt;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
@@ -30,6 +18,7 @@ import java.util.TimeZone;
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.Person;
+import org.openhealthtools.mdht.uml.cda.StrucDocText;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ADXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BIN;
@@ -494,7 +483,17 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	public StringDt ST2String(ST st){
     	return ( st == null || st.isSetNullFlavor() ) ? null : new StringDt(st.getText());
     }
-	
+
+	public NarrativeDt StrucDocText2Narrative(StrucDocText sdt) {
+		if(sdt != null) {
+			NarrativeDt narrative = new NarrativeDt();
+//			narrative.setDiv(sdt.getMixed().toString());
+			narrative.setStatus(NarrativeStatusEnum.ADDITIONAL);
+			return narrative;
+		}
+		return null;
+	}
+
 	public ContactPointDt TEL2ContactPoint(TEL tel) {
 		
 		if( tel!=null && !tel.isSetNullFlavor()){

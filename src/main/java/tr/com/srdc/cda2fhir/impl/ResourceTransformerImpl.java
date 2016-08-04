@@ -4,26 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.openhealthtools.mdht.uml.cda.AssignedEntity;
-import org.openhealthtools.mdht.uml.cda.Author;
-import org.openhealthtools.mdht.uml.cda.Device;
-import org.openhealthtools.mdht.uml.cda.Entity;
-import org.openhealthtools.mdht.uml.cda.EntryRelationship;
-import org.openhealthtools.mdht.uml.cda.Guardian;
-import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
-import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
-import org.openhealthtools.mdht.uml.cda.Material;
-import org.openhealthtools.mdht.uml.cda.Organization;
-import org.openhealthtools.mdht.uml.cda.Participant2;
-import org.openhealthtools.mdht.uml.cda.ParticipantRole;
-import org.openhealthtools.mdht.uml.cda.PatientRole;
-import org.openhealthtools.mdht.uml.cda.Performer2;
+import ca.uhn.fhir.model.dstu2.resource.*;
+import ca.uhn.fhir.model.dstu2.resource.Device;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Observation;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Procedure;
+import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.Person;
-import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
-import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
-import org.openhealthtools.mdht.uml.cda.consol.Encounter;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
@@ -71,21 +62,10 @@ import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
-import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
-import ca.uhn.fhir.model.dstu2.resource.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Encounter.Participant;
-import ca.uhn.fhir.model.dstu2.resource.Group;
-import ca.uhn.fhir.model.dstu2.resource.Immunization;
-import ca.uhn.fhir.model.dstu2.resource.Medication;
-import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
-import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
-import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
-import ca.uhn.fhir.model.dstu2.resource.Observation;
-import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Organization.Contact;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
-import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner.PractitionerRole;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
@@ -116,7 +96,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 
 	public ResourceTransformerImpl(CCDATransformer ccdaTransformer) {
-		super();
+		this();
 		cct = ccdaTransformer;
 	}
 
@@ -1682,7 +1662,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if(assignedEntity.getRepresentedOrganizations()!=null && !assignedEntity.getRepresentedOrganizations().isEmpty())
 			{
 				ArrayList <PractitionerRole> prRoles= new ArrayList <PractitionerRole>();
-				for(Organization organization : assignedEntity.getRepresentedOrganizations())
+				for(org.openhealthtools.mdht.uml.cda.Organization organization : assignedEntity.getRepresentedOrganizations())
 				{
 					PractitionerRole prRole= new PractitionerRole();
 					ResourceReferenceDt resourceReference = new ResourceReferenceDt();
@@ -1890,7 +1870,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}//end if
 					if(manufacturedProduct.getManufacturerOrganization()!=null && !manufacturedProduct.getManufacturerOrganization().isSetNullFlavor())
 					{
-						Organization organization = manufacturedProduct.getManufacturerOrganization();
+						org.openhealthtools.mdht.uml.cda.Organization organization = manufacturedProduct.getManufacturerOrganization();
 						if(organization.getNames()!=null && !organization.getNames().isEmpty())
 						{
 							for(ON on : organization.getNames())
@@ -1955,6 +1935,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return immunization;
 		}
 	}//end immunization transform
+
+	@Override
+	public Composition.Section section2Section(Section cdaSec) {
+		if(cdaSec == null)
+			return null;
+
+		Composition.Section fhirSec = new Composition.Section();
+		fhirSec.setTitle(cdaSec.getTitle().getText());
+		fhirSec.setCode(dtt.CD2CodeableConcept(cdaSec.getCode()));
+		// TODO: narrative text transformation is not so straightforward
+		fhirSec.setText(dtt.StrucDocText2Narrative(cdaSec.getText()));
+
+		return fhirSec;
+	}
+
 	//tahsin end
 	/*public ca.uhn.fhir.model.dstu2.resource.Encounter CDAEncounter2FHIREncounter(Encounter encounter)
 	{
@@ -2013,7 +2008,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 	}//end encounter transform*/
 
-	public ca.uhn.fhir.model.dstu2.resource.Device Device2Device(Device device)
+	@Override
+	public ca.uhn.fhir.model.dstu2.resource.Device Device2Device(org.openhealthtools.mdht.uml.cda.Device device)
 	{
 		if(device==null || device.isSetNullFlavor()) return null;
 		else

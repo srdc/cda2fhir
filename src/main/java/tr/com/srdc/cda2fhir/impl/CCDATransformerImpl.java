@@ -4,6 +4,8 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Composition;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.primitive.IdDt;
+import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
@@ -24,11 +26,11 @@ public class CCDATransformerImpl implements CCDATransformer {
         this.counter = 0;
         // The default resource id pattern is UUID
         this.idGenerator = IdGeneratorEnum.UUID;
-        resTransformer = new ResourceTransformerImpl();
+        resTransformer = new ResourceTransformerImpl(this);
     }
 
     public CCDATransformerImpl(IdGeneratorEnum idGen) {
-        super();
+        this();
         this.idGenerator = idGen;
     }
 
@@ -53,13 +55,21 @@ public class CCDATransformerImpl implements CCDATransformer {
         if(ccd == null)
             return null;
 
+        // create and init the global bundle and the composition resources
         Bundle ccdBundle = new Bundle();
         Composition ccdComposition = new Composition();
+        ccdComposition.setId(new IdDt("Composition", getUniqueId()));
         ccdBundle.addEntry(new Bundle.Entry().setResource(ccdComposition));
 
+        // transform the patient data and assign it to Composition.subject
         Patient subject = resTransformer.PatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
         ccdComposition.setSubject(new ResourceReferenceDt(subject.getId()));
         ccdBundle.addEntry(new Bundle.Entry().setResource(subject));
+
+        for(Section cdaSec: ccd.getSections()) {
+            Composition.Section fhirSec = resTransformer.section2Section(cdaSec);
+            ccdComposition.addSection(fhirSec);
+        }
 
         return ccdBundle;
     }
