@@ -2030,6 +2030,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 
 		}
+		// TODO: [Mustafa] This was returning nothing
+		return null;
 	}
 
 }
