@@ -33,6 +33,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
@@ -87,6 +88,7 @@ import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
+import ca.uhn.fhir.model.primitive.IdDt;
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
@@ -1140,7 +1142,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	public Observation VitalSignObservation2Observation(VitalSignObservation vsObs) {
 		if(vsObs!=null && !vsObs.isSetNullFlavor()){
 			Observation observation= new Observation();
-			observation.setId("Observation/"+ getUniqueId());
+			String uniqueId = Integer.toString(getUniqueId());
+			IdDt resourceId = new IdDt("Observation","Observation/"+uniqueId);
+			observation.setId(resourceId);
 			
 			if(vsObs.getIds()!=null & !vsObs.getIds().isEmpty())
 			{
@@ -1283,7 +1287,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(resObs!=null &&  !resObs.isSetNullFlavor())
 		{
 			Observation observation= new Observation();
-			observation.setId("Observation:"+getUniqueId());
+			String uniqueId = Integer.toString(getUniqueId());
+			IdDt resourceId = new IdDt("Observation","Observation/"+uniqueId);
+			observation.setId(resourceId);
 			if(resObs.getIds()!=null && !resObs.getIds().isEmpty())
 			{
 				for(II myIds : resObs.getIds())
@@ -1467,8 +1473,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	@Override
 	public Practitioner Performer2Practitioner(Performer2 performer, int id) {
 		Practitioner practitioner = new Practitioner();
-		String uniqueIdString="Practitioner:"+id;
-		practitioner.setId(uniqueIdString);
+		String uniqueId=Integer.toString(getUniqueId());
+		IdDt resourceId= new IdDt("Practitioner","Practitioner/"+uniqueId);
+		practitioner.setId(resourceId);
 		if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 		{
 			AssignedEntity assignedEntity= performer.getAssignedEntity();
@@ -1537,8 +1544,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else
 		{
 			AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
-			String uniqueIdString ="Allergy: "+getUniqueId();
-			allergyIntolerance.setId(uniqueIdString);
+			String uniqueId=Integer.toString(getUniqueId());
+			IdDt resourceId= new IdDt("AllergyIntolerance","AllergyIntolerance/"+uniqueId);
+			allergyIntolerance.setId(resourceId);
 			for (EntryRelationship entryRelationship : allProb.getEntryRelationships())
 			{
                 // check for alert observation
@@ -1688,6 +1696,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else
 		{
 			Immunization immunization = new Immunization ();
+			String uniqueId=Integer.toString(getUniqueId());
+			IdDt resourceId = new IdDt("Immunization","Immunization/"+uniqueId);
+			immunization.setId(resourceId);
+			
 			if(subAd.getIds()!=null && !subAd.getIds().isEmpty())
 			{
 				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt>();
@@ -1714,10 +1726,98 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(manufacturedProduct.getManufacturedMaterial()!=null && !manufacturedProduct.getManufacturedMaterial().isSetNullFlavor())
 					{
 						Material manufacturedMaterial=manufacturedProduct.getManufacturedMaterial();
+						if(manufacturedMaterial.getRealmCodes()!=null && !manufacturedMaterial.getRealmCodes().isEmpty())
+						{
+							for(CS cs : manufacturedMaterial.getRealmCodes())
+							{
+								if(cs.getCode()!=null)
+									immunization.setVaccineCode(dtt.CD2CodeableConcept((CD)cs));
+							}//end for
+						}//end if
+						if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor())
+						{
+							immunization.setLotNumber(dtt.ST2String(manufacturedMaterial.getLotNumberText()));
+						}//end if
+					}//end if
+					if(manufacturedProduct.getManufacturerOrganization()!=null && !manufacturedProduct.getManufacturerOrganization().isSetNullFlavor())
+					{
+						Organization organization = manufacturedProduct.getManufacturerOrganization();
+						if(organization.getNames()!=null && !organization.getNames().isEmpty())
+						{
+							for(ON on : organization.getNames())
+							{
+								ResourceReferenceDt resourceReference = new ResourceReferenceDt();
+								if(on.getGivens()!=null && !on.getGivens().isEmpty())
+								{
+									for(ENXP enxp : on.getGivens())
+									{
+										resourceReference.setReference(enxp.getReference().getValue());
+									}//end for
+								}//end for
+								immunization.setManufacturer(resourceReference);
+							}//end for
+						}//end if
 					}
-				}
+				}//end if
+			}//end if
+			if(subAd.getPerformers()!=null && subAd.getPerformers().isEmpty())
+			{
+				for(Performer2 performer : subAd.getPerformers())
+				{
+					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
+					{
+						if(performer.getAssignedEntity().getAssignedPerson()!=null && !performer.getAssignedEntity().getAssignedPerson().isSetNullFlavor())
+						{
+							if(performer.getAssignedEntity().getAssignedPerson().getNames()!=null && !performer.getAssignedEntity().getAssignedPerson().getNames().isEmpty())
+							{
+								for(PN pn : performer.getAssignedEntity().getAssignedPerson().getNames())
+								{
+									ResourceReferenceDt resourceReference= new ResourceReferenceDt();
+									if(pn.getGivens()!=null && !pn.getGivens().isEmpty())
+									{
+										for(ENXP enxp : pn.getGivens())
+										{
+											resourceReference.setReference(enxp.getReference().getValue());
+											
+										}//end for
+									}//end if
+									immunization.setPerformer(resourceReference);
+								}//end for
+							}//end if
+						}//end if
+					}//end if
+				}//end for
+			}//end if
+			if(subAd.getApproachSiteCodes()!=null && !subAd.getApproachSiteCodes().isEmpty())
+			{
+				for(CD cd : subAd.getApproachSiteCodes())
+				{
+					immunization.setSite(dtt.CD2CodeableConcept(cd));
+				}//end for
+			}//end if
+			if(subAd.getRouteCode()!=null && !subAd.getRouteCode().isSetNullFlavor())
+			{
+				immunization.setRoute(dtt.CD2CodeableConcept((CD)subAd.getRouteCode()));
 			}
-			return null;
+			if(subAd.getDoseQuantity()!=null && !subAd.getDoseQuantity().isSetNullFlavor())
+			{
+				IVL_PQ ivl_pq = subAd.getDoseQuantity();
+				SimpleQuantityDt simpleQuantity= new SimpleQuantityDt();
+				if(ivl_pq.getValue()!=null)
+				{
+					simpleQuantity.setValue(ivl_pq.getValue());
+				}//end if
+				if(ivl_pq.getUnit()!=null)
+				{
+					simpleQuantity.setUnit(ivl_pq.getUnit());
+				}//end if
+				immunization.setDoseQuantity(simpleQuantity);
+			}//end if
+			if(subAd.getStatusCode()!=null && !subAd.getStatusCode().isSetNullFlavor())
+			{
+				immunization.setStatus(subAd.getStatusCode().getCode());
+			}
+			return immunization;
 		}
 	}
 	//tahsin end

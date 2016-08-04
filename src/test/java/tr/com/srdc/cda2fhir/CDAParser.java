@@ -17,11 +17,13 @@ import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolFactory;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
@@ -55,6 +57,7 @@ import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
+import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
@@ -77,6 +80,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 		testVitalSignObservation2Observation(ccd);
 		testResultObservation2Observation(ccd);
 		testAllergyObservation2AllergyIntolerance(ccd);
+		testSubstanceAdministration2Immunization(ccd);
     }
     @Test
 	public void testVitalSignObservation2Observation(ContinuityOfCareDocument ccd)
@@ -322,9 +326,18 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
                    	}//end if
                 }//end if
             }//end for
-            printJSON(allergyIntolerance);
+//            printJSON(allergyIntolerance);
         }//end for
     }//end  AllergyIntolerance test
+    @Test
+    public void testSubstanceAdministration2Immunization(ContinuityOfCareDocument ccd)
+    {
+    	for(SubstanceAdministration substanceAdministration : ccd.getImmunizationsSectionEntriesOptional().getSubstanceAdministrations())
+    	{
+    		Immunization immunization = rt.SubstanceAdministration2Immunization(substanceAdministration);
+    		printJSON(immunization);
+    	}
+    }
 	private void printJSON(IResource res) {
 	    IParser jsonParser = myCtx.newJsonParser();
 	    jsonParser.setPrettyPrint(true);
