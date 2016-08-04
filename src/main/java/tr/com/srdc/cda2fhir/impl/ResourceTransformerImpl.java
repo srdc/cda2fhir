@@ -2022,7 +2022,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			{
 				FHIRdevice.setType(dtt.CD2CodeableConcept((CD) device.getCode()));
 			}
-			
+			return null;
+			// TODO: For Tahsin
+			// He will complete the method and change return value
 		}
 	}
 

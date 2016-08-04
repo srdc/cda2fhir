@@ -54,8 +54,6 @@ public interface ResourceTransformer {
 
 	Communication LanguageCommunication2Communication( LanguageCommunication LC );
 
-	Patient PatientRole2Patient(PatientRole patRole);
-
 	// necip end
 	
 	// ismail start
