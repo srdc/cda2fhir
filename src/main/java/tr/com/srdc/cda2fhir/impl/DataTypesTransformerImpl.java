@@ -61,7 +61,7 @@ import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
  * Created by mustafa on 7/21/2016.
  */
 public class DataTypesTransformerImpl implements DataTypesTransformer {
-
+	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
 	public AddressDt AD2Address(AD ad) {
 	    
 	    if(ad == null || ad.isSetNullFlavor()) return null;
@@ -71,7 +71,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	        
 	        if( !ad.getUses().isEmpty() && ad.getUses() != null ){
 	        	
-	        	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
+	        	
 	        	
 	        	// We get the address.type and address.use from the list ad.uses
 	        	for(PostalAddressUse postalAddressUse : ad.getUses()){
@@ -205,7 +205,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         		boolean isEmpty = true;
             	
             	if( myCd.getCodeSystem() != null ){
-            		codingDt.setSystem( myCd.getCodeSystem() );
+            		codingDt.setSystem( VSTI.oid2Url(myCd.getCodeSystem()) );
             		isEmpty = false;
             	}
             	if( myCd.getCode() !=null ){
@@ -228,7 +228,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	
         	CodingDt codingDt = new CodingDt();
         	if( cd.getCodeSystem() != null ){
-        		codingDt.setSystem( cd.getCodeSystem() );
+        		codingDt.setSystem(VSTI.oid2Url(cd.getCodeSystem())  );
         		isEmpty = false;
         	}
         	if( cd.getCode() !=null ){

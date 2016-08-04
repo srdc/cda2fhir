@@ -10,6 +10,7 @@ import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Guardian;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.Material;
 import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
@@ -40,6 +41,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
+import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.rim.ActRelationship;
@@ -65,6 +67,7 @@ import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Group;
+import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
 import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
@@ -1534,7 +1537,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else
 		{
 			AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
-			String uniqueIdString ="Allergy"+getUniqueId();
+			String uniqueIdString ="Allergy: "+getUniqueId();
 			allergyIntolerance.setId(uniqueIdString);
 			for (EntryRelationship entryRelationship : allProb.getEntryRelationships())
 			{
@@ -1679,6 +1682,43 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				return allergyIntolerance;
 			}//end outer else
 	}//end func
-
+	public  Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd)
+	{
+		if(subAd==null || subAd.isSetNullFlavor()) return null;
+		else
+		{
+			Immunization immunization = new Immunization ();
+			if(subAd.getIds()!=null && !subAd.getIds().isEmpty())
+			{
+				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt>();
+				for(II ii : subAd.getIds())
+				{
+					if(ii.getRoot()!=null)
+						idS.add(dtt.II2Identifier(ii));
+				}
+				immunization.setIdentifier(idS);
+			}//end if
+			if(subAd.getEffectiveTimes()!=null && !subAd.getEffectiveTimes().isEmpty())
+			{
+				for(SXCM_TS effectiveTime : subAd.getEffectiveTimes())
+				{
+					if(effectiveTime.getValue()!=null)
+						immunization.setDate(dtt.TS2DateTime(effectiveTime));
+				}//end for
+			}//end if
+			if(subAd.getConsumable()!=null && !subAd.getConsumable().isSetNullFlavor())
+			{
+				if(subAd.getConsumable().getManufacturedProduct()!=null && !subAd.getConsumable().getManufacturedProduct().isSetNullFlavor())
+				{
+					ManufacturedProduct manufacturedProduct=subAd.getConsumable().getManufacturedProduct();
+					if(manufacturedProduct.getManufacturedMaterial()!=null && !manufacturedProduct.getManufacturedMaterial().isSetNullFlavor())
+					{
+						Material manufacturedMaterial=manufacturedProduct.getManufacturedMaterial();
+					}
+				}
+			}
+			return null;
+		}
+	}
 	//tahsin end
 }

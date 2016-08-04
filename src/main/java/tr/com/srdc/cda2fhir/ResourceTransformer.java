@@ -4,9 +4,11 @@ import java.util.List;
 
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.Condition;
+import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
 import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
+import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
@@ -65,6 +67,8 @@ public interface ResourceTransformer {
     Practitioner Performer2Practitioner(Performer2 performer,int id);
     /*It will be called by functions which contain Practitioner as a subresource*/
     
-    AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allProb);
+    AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
+
+    Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd);
     //tahsin end
 }
