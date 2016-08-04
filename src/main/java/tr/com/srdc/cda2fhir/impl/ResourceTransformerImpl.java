@@ -621,6 +621,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 	
 	// tested
+	@Override
 	public Patient PatientRole2Patient(PatientRole patRole){
 		// https://www.hl7.org/fhir/patient-mappings.html
 		

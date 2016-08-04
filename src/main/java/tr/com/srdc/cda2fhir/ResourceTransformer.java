@@ -40,20 +40,22 @@ public interface ResourceTransformer {
 	// new code starts
 	
 	// necip start
+	Patient PatientRole2Patient(PatientRole patRole);
+
 	ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( org.openhealthtools.mdht.uml.cda.Guardian guardian );
 	
 	ca.uhn.fhir.model.dstu2.resource.Procedure Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
-	
+
 	Performer Performer22Performer( Performer2 cdaPerformer );
-	
+
 	Practitioner AssignedEntity2Practitioner( AssignedEntity assignedEntity );
-	
+
 	ca.uhn.fhir.model.dstu2.resource.Organization Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
-	
+
 	Communication LanguageCommunication2Communication( LanguageCommunication LC );
-	
+
 	Patient PatientRole2Patient(PatientRole patRole);
-	
+
 	// necip end
 	
 	// ismail start
