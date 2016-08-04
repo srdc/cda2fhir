@@ -2009,7 +2009,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 	public ca.uhn.fhir.model.dstu2.resource.Device Device2Device(Device device)
 	{
-		return null;
+		if(device==null || device.isSetNullFlavor()) return null;
+		else
+		{
+			ca.uhn.fhir.model.dstu2.resource.Device FHIRdevice = new ca.uhn.fhir.model.dstu2.resource.Device();
+			if(device.getTypeId()!=null && !device.getTypeId().isSetNullFlavor())
+			{
+				if(device.getTypeId().getRoot()!=null)
+					FHIRdevice.setId(device.getTypeId().getRoot());
+			}
+			if(device.getCode()!=null && !device.getCode().isSetNullFlavor())
+			{
+				FHIRdevice.setType(dtt.CD2CodeableConcept((CD) device.getCode()));
+			}
+			
+		}
 	}
 
 }
