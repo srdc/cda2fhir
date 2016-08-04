@@ -9,6 +9,7 @@ import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
 import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
+import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
@@ -57,14 +58,14 @@ public interface ResourceTransformer {
 	// necip end
 	
 	// ismail start
-	Medication Medication2Medication(MedicationInformation manPro);
+	Medication Medication2Medication(ManufacturedProduct manPro);
 	
 	List<Condition> ProblemConcernAct2Condition(ProblemConcernAct probAct);
 
-	MedicationActivity MedicationActivity2MedicationSatement(
-			MedicationActivity subAd);
+	MedicationStatement MedicationActivity2MedicationSatement(
+			SubstanceAdministration subAd);
 	
-	MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
+	MedicationDispense MedicationDispense2MedicationDispense(Supply sup);
 	// ismail end
 	
 	// new code ends
