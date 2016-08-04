@@ -351,18 +351,16 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if( ii != null  && !ii.isSetNullFlavor()){
 			IdentifierDt identifierDt = new IdentifierDt();
 			
-			if(ii.getRoot() != null){
-//				System.out.println("Datatype Implementation Side/CDA: "+ii.getRoot());
-				if( !ii.getRoot().isEmpty() )
-				{
-					identifierDt.setSystem( ii.getRoot() );
-//					System.out.println("Datatype Implementation Side/FHIR: "+identifierDt.getSystem());
-				}
-			}//end if
+//			if(ii.getRoot() != null){
+//				if( !ii.getRoot().isEmpty() )
+//				{
+//					identifierDt.setSystem( ii.getExtension() );
+//				}
+//			}//end if
 			
 			if(ii.getExtension() != null){
 				if( !ii.getExtension().isEmpty() )
-					identifierDt.setValue( ii.getExtension() );
+					identifierDt.setValue( ii.getRoot() );
 			}
 			
 			if( ii.getAssigningAuthorityName() != null){
@@ -370,8 +368,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				if( !resourceReference.isEmpty() )
 					identifierDt.setAssigner( resourceReference );
 			}
-			
-			// TODO : Use, Type and Period attributes will be handled after the data types are finished.
 			
 			return identifierDt;
 
@@ -498,7 +494,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	return ( st == null || st.isSetNullFlavor() ) ? null : new StringDt(st.getText());
     }
 	
-public ContactPointDt TEL2ContactPoint(TEL tel) {
+	public ContactPointDt TEL2ContactPoint(TEL tel) {
 		
 		if( tel!=null && !tel.isSetNullFlavor()){
 			
@@ -634,6 +630,7 @@ public ContactPointDt TEL2ContactPoint(TEL tel) {
 			return dateParser(date);
 		}
 	}//end DateTimeDt
+	
 	public InstantDt TS2Instant(TS ts)
 	{
 		if(ts==null || ts.isSetNullFlavor()) return null;
