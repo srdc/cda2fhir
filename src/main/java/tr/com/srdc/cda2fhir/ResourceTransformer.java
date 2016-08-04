@@ -16,6 +16,7 @@ import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
+import org.openhealthtools.mdht.uml.cda.Device;
 import org.openhealthtools.mdht.uml.cda.Informant12;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
@@ -23,6 +24,7 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.Encounter;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
@@ -81,5 +83,7 @@ public interface ResourceTransformer {
     AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
 
     Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd);
+    
+    ca.uhn.fhir.model.dstu2.resource.Device Device2Device(Device device);
     //tahsin end
 }
