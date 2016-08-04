@@ -48,7 +48,7 @@ public class ResourceTransformerTestNecip {
         CDAUtil.loadPackages();
         try {
 	        fisCDA = new FileInputStream("src/test/resources/SampleCDADocument.xml");
-	        // fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+//	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 		} catch (FileNotFoundException ex) {
 	        ex.printStackTrace();
@@ -68,7 +68,149 @@ public class ResourceTransformerTestNecip {
 			e.printStackTrace();
 		}
     }
+	
+	
+	@Ignore
+	public void testProcedure2Procedure(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		int procedureCount = 0;
+		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
+			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getProceduresSection().getProcedures() ){
+					// traversing procedures
+					System.out.println( "Procedure["+ procedureCount++ +"]" );
+					
+					System.out.println("Transformation starting..");
+					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = rt.Procedure2Procedure(cdaProcedure);
+					
+					System.out.println("End of transformation. Printing the resource as JSON object..");
+					printJSON( fhirProcedure );
+					System.out.println("End of print.");
+					System.out.print("\n***\n"); // to visualize
+				}
+				
+			}
+		}
+		
+		int encounterProceduresCount = 0;
+		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
+			if( test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty() ){
+				System.out.println("**** ENCOUNTERS -> PROCEDURES *****");
+				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures() ){
+					// traversing procedures
+					System.out.println( "Procedure["+ encounterProceduresCount++ +"]" );
+					
+					System.out.println("Transformation starting..");
+					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = rt.Procedure2Procedure(cdaProcedure);
+					
+					System.out.println("End of transformation. Printing the resource as JSON object..");
+					printJSON( fhirProcedure );
+					System.out.println("End of print.");
+					System.out.print("\n***\n"); // to visualize
+				}
+				
+			}
+		}
+		
+		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
+			System.out.println( "*** SECTIONS ****" );
+			int sectionCount = 0;
+			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
+				if( section.getProcedures() != null && !section.getProcedures().isEmpty() ){
+					int procedureCount2 = 0;
+					for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures() ){
+						// traversing procedures
+						System.out.println("Section["+sectionCount+++"]"+" -> Procedure["+ procedureCount2++ +"]");
 
+						System.out.println("Transformation starting..");
+						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = rt.Procedure2Procedure(cdaProcedure);
+						
+						System.out.println("End of transformation. Printing the resource as JSON object..");
+						printJSON( fhirProcedure );
+						System.out.println("End of print.");
+						System.out.println("\n***\n"); // to visualize
+					}
+					
+				}
+			}
+		}
+		
+	}
+	
+	
+	@Ignore
+	public void testPerformer22Performer(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		int procedureCount = 0;
+		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
+			
+			
+			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Procedure procedure : test.ccd.getProceduresSection().getProcedures() ){
+					// traversing procedures
+					int performerCount = 0;
+					if( procedure.getPerformers() != null && !procedure.getPerformers().isEmpty() ){
+						for( org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : procedure.getPerformers()  ){
+							if( cdaPerformer != null && !cdaPerformer.isSetNullFlavor() ){
+								// traversing performers
+								System.out.println("Procedure["+ procedureCount++ +"]-> Performer["+ performerCount++ +"]" );
+								System.out.println("Transformation starting..");
+								ca.uhn.fhir.model.dstu2.resource.Procedure.Performer fhirPerformer = rt.Performer22Performer(cdaPerformer);
+								System.out.println("End of transformation. Printing the resource as JSON object..");
+								
+								// Since we cannot print fhirPerformer directly, we add it to a fhirProcedure resource, then we print it
+								ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = new ca.uhn.fhir.model.dstu2.resource.Procedure();
+								fhirProcedure.addPerformer( fhirPerformer );
+								
+								printJSON( fhirProcedure );
+								
+								System.out.println("\nEnd of print.");
+								System.out.print("\n***\n"); // to visualize
+							}
+						}
+					}
+					
+				}
+			}
+			
+			
+			
+			
+		}
+	}
+	
+	
+	@Ignore
+	public void testAssignedEntity2Practitioner(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		int procedureCount = 0;
+		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
+			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Procedure procedure : test.ccd.getProceduresSection().getProcedures() ){
+					// traversing procedures
+					System.out.print( "Procedure["+ procedureCount++ +"]" );
+					int performerCount = 0;
+					if( procedure.getPerformers() != null && !procedure.getPerformers().isEmpty() ){
+						for( org.openhealthtools.mdht.uml.cda.Performer2 performer : procedure.getPerformers()  ){
+							System.out.print( "-> Performer["+ performerCount++ +"]" );
+							if( performer.getAssignedEntity() != null && !performer.getAssignedEntity().isSetNullFlavor() ){
+									System.out.println("-> AssignedEntity");
+									System.out.println("Transformation starting..");
+									ca.uhn.fhir.model.dstu2.resource.Practitioner practitioner = rt.AssignedEntity2Practitioner(performer.getAssignedEntity() );
+									System.out.println("End of transformation. Printing the resource as JSON object..");
+									printJSON( practitioner );
+									System.out.println("End of print.");
+							}
+						}
+					}
+					System.out.print("\n***\n"); // to visualize
+				}
+			}
+		}
+	}
+	
+	
 	// Following method just prints the [FHIR]Organization in JSON form.
 	// One example transformed to fhir form and there was no error.
 	@Ignore
@@ -79,7 +221,7 @@ public class ResourceTransformerTestNecip {
 		for( org.openhealthtools.mdht.uml.cda.PatientRole patRole : test.ccd.getPatientRoles() ){
 			System.out.print("PatientRole["+patientCount++ +"].");
 			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
-			System.out.println( "Transformating starting..." );
+			System.out.println( "Transformation starting..." );
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = rt.Organization2Organization(cdaOrg);
 			System.out.println("End of transformation. Printing the resource as JSON object..");
 			printJSON( fhirOrg );
@@ -115,7 +257,7 @@ public class ResourceTransformerTestNecip {
 	
 	
 	
-	@Test
+	@Ignore
     public void testPatientRole2Patient(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		EList<PatientRole> patientRoles = test.ccd.getPatientRoles();

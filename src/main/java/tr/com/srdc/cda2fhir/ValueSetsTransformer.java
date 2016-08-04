@@ -13,6 +13,7 @@ import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 
@@ -28,7 +29,7 @@ public interface ValueSetsTransformer {
 	// necip end
 	
 	// ismail start
-	MedicationAdministrationStatusEnum StatusCode2MedicationAdministrationStatusEnum( String status);
+	MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status);
 	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status);
 	// ismail end
 	

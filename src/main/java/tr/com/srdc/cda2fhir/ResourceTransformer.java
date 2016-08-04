@@ -21,6 +21,8 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
@@ -44,14 +46,14 @@ public interface ResourceTransformer {
 	// necip end
 	
 	// ismail start
-	Medication ManufacturedProduct2Medication(ManufacturedProduct manPro);
+	Medication Medication2Medication(MedicationInformation manPro);
 	
 	List<Condition> ProblemConcernAct2Condition(ProblemConcernAct probAct);
 
-	MedicationAdministration SubstanceAdministration2MedicationAdministration(
-			SubstanceAdministration subAd);
+	MedicationActivity MedicationActivity2MedicationSatement(
+			MedicationActivity subAd);
 	
-	MedicationDispense Supply2MedicationDispense(Supply sup);
+	MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
 	// ismail end
 	
 	// new code ends
