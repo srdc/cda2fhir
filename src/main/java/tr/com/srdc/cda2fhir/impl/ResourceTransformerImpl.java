@@ -295,7 +295,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 	
 	
-	// not tested
+	// tested
 	public Practitioner AssignedEntity2Practitioner( AssignedEntity assignedEntity ){
 		if( assignedEntity == null || assignedEntity.isSetNullFlavor() ) return null;
 		else{
@@ -363,7 +363,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 
 	
-	// not tested
+	// tested
 	public Performer Performer22Performer( Performer2 cdaPerformer ){
 		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() || cdaPerformer.getAssignedEntity() == null || cdaPerformer.getAssignedEntity().isSetNullFlavor() ) return null;
 		else{
@@ -386,10 +386,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 	// not tested
 	public ca.uhn.fhir.model.dstu2.resource.Procedure Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaPr){
+		// TODO: used <-> device
+		// TODO: subject <-> subject
 		if( cdaPr == null || cdaPr.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
-			
 			// id
 			if( cdaPr.getIds() != null && !cdaPr.getIds().isEmpty() ){
 				for( II id : cdaPr.getIds() ){
@@ -398,7 +399,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}
 				}
 			}
-			
 			// performed
 			if( cdaPr.getEffectiveTime() != null && !cdaPr.getEffectiveTime().isSetNullFlavor() ){
 				fhirPr.setPerformed( dtt.IVL_TS2Period( cdaPr.getEffectiveTime() )  );
