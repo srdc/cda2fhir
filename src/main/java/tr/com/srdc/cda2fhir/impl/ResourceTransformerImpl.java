@@ -56,6 +56,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentProcedureMood;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 
 import ca.uhn.fhir.model.api.ExtensionDt;
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 import ca.uhn.fhir.model.dstu2.composite.BoundCodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
@@ -1367,6 +1368,47 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		if( patRole.getClassCode().getLiteral() == "SDLOC" ){
 			
+			Location loc = new Location();
+			
+			//ID
+			IdDt id = new IdDt( "Location", "" + getUniqueId() );
+			loc.setId(id);
+			
+			//IDENTIFIER
+			for( II ii : patRole.getIds() ){
+				loc.addIdentifier( dtt.II2Identifier(ii) );
+			}
+			
+			
+			//status
+			//TODO : No .Statuscode attr.
+			
+			//NAME and TYPE
+			if( patRole.getCode() != null  ){
+				if( !patRole.getCode().isSetNullFlavor()){
+					if(patRole.getCode().getDisplayName() != null)
+						loc.setName( patRole.getCode().getDisplayName() );
+
+				}
+			}
+			
+			//TELECOM
+			List<ContactPointDt> cList = new ArrayList<ContactPointDt>();
+			for( TEL tel : patRole.getTelecoms() ){
+			ContactPointDt ctp = dtt.TEL2ContactPoint( tel );
+			cList.add(ctp);
+			}
+			loc.setTelecom( cList );
+			
+			
+			//ADDRESS
+			for(AD ad : patRole.getAddrs()){
+				AddressDt add = dtt.AD2Address(ad);
+				loc.setAddress(add);
+				break;
+			}
+			
+			return loc;
 		}
 		
 		
