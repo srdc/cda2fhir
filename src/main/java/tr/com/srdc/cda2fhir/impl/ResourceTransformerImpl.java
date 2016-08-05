@@ -45,6 +45,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.rim.ActRelationship;
 import org.openhealthtools.mdht.uml.hl7.rim.Participation;
+import org.openhealthtools.mdht.uml.hl7.rim.Role;
 import org.openhealthtools.mdht.uml.hl7.vocab.ActClass;
 import org.openhealthtools.mdht.uml.hl7.vocab.ActMood;
 import org.openhealthtools.mdht.uml.hl7.vocab.ActRelationshipType;
@@ -2048,85 +2049,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirSec;
 	}
 
-	//tahsin end
-	/*public ca.uhn.fhir.model.dstu2.resource.Encounter CDAEncounter2FHIREncounter(Encounter encounter)
-	{
-		if(encounter==null || encounter.isSetNullFlavor()) return null;
-		else
-		{
-			ca.uhn.fhir.model.dstu2.resource.Encounter FHIREncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter(); 
-			if(encounter.getIds()!=null && !encounter.getIds().isEmpty())
-			{
-				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt> ();
-				for(II ii : encounter.getIds())
-				{
-					idS.add(dtt.II2Identifier(ii));
-				}//end for
-				FHIREncounter.setIdentifier(idS);
-			}//end if
-			if(encounter.getStatusCode()!=null && !encounter.getStatusCode().isSetNullFlavor())
-			{
-				if(encounter.getStatusCode().equals("active"))
-				{
-					FHIREncounter.setStatus(EncounterStateEnum.IN_PROGRESS);
-				}//end if
-				else if(encounter.getStatusCode().equals("completed"))
-				{
-					FHIREncounter.setStatus(EncounterStateEnum.FINISHED);
-				}//end else if
-			}//end if
-			if(encounter.getCode()!=null && !encounter.getCode().isSetNullFlavor())
-			{
-				ArrayList <CodeableConceptDt> codes = new ArrayList <CodeableConceptDt>();
-				codes.add(dtt.CD2CodeableConcept(encounter.getCode()));
-				FHIREncounter.setType(codes);
-			}//end if
-			if(encounter.getPriorityCode()!=null && !encounter.getPriorityCode().isSetNullFlavor())
-			{
-				FHIREncounter.setPriority(dtt.CD2CodeableConcept((CD)encounter.getPriorityCode()));
-			}
-			if(encounter.getParticipants()!=null && !encounter.getParticipants().isEmpty())
-			{
-				ArrayList <Participant> participants = new ArrayList <Participant> ();
-				for(Participant2 CDAparticipant : encounter.getParticipants())
-				{
-					Participant FHIRparticipant = new Participant();
-					FHIRparticipant.setPeriod(dtt.IVL_TS2Period(CDAparticipant.getTime()));
-					FHIRparticipant.setId(CDAparticipant.getTypeId().getRoot());
-					ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-					CDAparticipant.getRole().getPlayer().get
-					resourceReference.setReference(null);
-					FHIRparticipant.setIndividual(resourceReference);
-				}
-				FHIREncounter.setParticipant
-			}
-			return null;
-		}
-		
-		
-	}//end encounter transform*/
-
-	@Override
-	public ca.uhn.fhir.model.dstu2.resource.Device Device2Device(org.openhealthtools.mdht.uml.cda.Device device)
-	{
-		if(device==null || device.isSetNullFlavor()) return null;
-		else
-		{
-			ca.uhn.fhir.model.dstu2.resource.Device FHIRdevice = new ca.uhn.fhir.model.dstu2.resource.Device();
-			if(device.getTypeId()!=null && !device.getTypeId().isSetNullFlavor())
-			{
-				if(device.getTypeId().getRoot()!=null)
-					FHIRdevice.setId(device.getTypeId().getRoot());
-			}
-			if(device.getCode()!=null && !device.getCode().isSetNullFlavor())
-			{
-				FHIRdevice.setType(dtt.CD2CodeableConcept((CD) device.getCode()));
-			}
-			return null;
-			// TODO: For Tahsin
-			// He will complete the method and change return value
-		}
-	}
+	
+	
 
 	
 	
