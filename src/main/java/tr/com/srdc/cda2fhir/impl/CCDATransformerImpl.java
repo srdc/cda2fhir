@@ -3,14 +3,15 @@ package tr.com.srdc.cda2fhir.impl;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Composition;
+import ca.uhn.fhir.model.dstu2.resource.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.primitive.IdDt;
 import org.openhealthtools.mdht.uml.cda.Section;
-import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.*;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
-import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -69,6 +70,58 @@ public class CCDATransformerImpl implements CCDATransformer {
         for(Section cdaSec: ccd.getSections()) {
             Composition.Section fhirSec = resTransformer.section2Section(cdaSec);
             ccdComposition.addSection(fhirSec);
+            if(cdaSec instanceof AdvanceDirectivesSection) {
+
+            }
+            else if(cdaSec instanceof AllergiesSection) {
+
+            }
+            else if(cdaSec instanceof EncountersSection) {
+
+            }
+            else if(cdaSec instanceof FamilyHistorySection) {
+
+            }
+            else if(cdaSec instanceof FunctionalStatusSection) {
+
+            }
+            else if(cdaSec instanceof ImmunizationsSection) {
+
+            }
+            else if(cdaSec instanceof MedicalEquipmentSection) {
+
+            }
+            else if(cdaSec instanceof MedicationsSection) {
+
+            }
+            else if(cdaSec instanceof PayersSection) {
+
+            }
+            else if(cdaSec instanceof PlanOfCareSection) {
+
+            }
+            else if(cdaSec instanceof ProblemSection) {
+                ProblemSection probSec = (ProblemSection) cdaSec;
+                for(ProblemConcernAct pcAct: probSec.getConsolProblemConcerns()) {
+                    for(Condition condition: resTransformer.ProblemConcernAct2Condition(pcAct)) {
+                        ResourceReferenceDt ref = fhirSec.addEntry();
+                        ref.setReference(condition.getId());
+                        ccdBundle.addEntry(new Bundle.Entry().setResource(condition));
+                    }
+                }
+            }
+            else if(cdaSec instanceof ProceduresSection) {
+
+            }
+            else if(cdaSec instanceof ResultsSection) {
+
+            }
+            else if(cdaSec instanceof SocialHistorySection) {
+
+            }
+            else if(cdaSec instanceof VitalSignsSection) {
+
+            }
         }
 
         return ccdBundle;

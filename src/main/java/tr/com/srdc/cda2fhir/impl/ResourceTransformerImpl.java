@@ -90,16 +90,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	private DataTypesTransformer dtt;
 	private ValueSetsTransformer vst;
 	private CCDATransformer cct;
+	private IdDt patientId;
 
 	public ResourceTransformerImpl() {
 		dtt = new DataTypesTransformerImpl();
 		vst = new ValueSetsTransformerImpl();
 		cct = null;
+		// This is a default patient reference to be used when ResourceTransformer is not initiated with a CCDATransformer
+		patientId = new IdDt("Patient", "0");
 	}
 
 	public ResourceTransformerImpl(CCDATransformer ccdaTransformer) {
 		this();
 		cct = ccdaTransformer;
+		//TODO: will get the patientId reference from CCDATransformer
+		//patientId = cct.
 	}
 
 	protected String getUniqueId() {
@@ -318,7 +323,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			Practitioner practitioner = new Practitioner();
 			
 			// id
-			IdDt resourceId = new IdDt("Practitioner",""+getUniqueId() );
+			IdDt resourceId = new IdDt("Practitioner", getUniqueId());
 			practitioner.setId(resourceId);
 			
 			// identifier
@@ -855,19 +860,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			//PatientRole2Patient( probAct.getSubject().getRole() )
 			resourceReferencePatient.setReference( "Patient/1"  );
 			condition.setPatient( resourceReferencePatient );
-			
-			ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
-			ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter( probAct.getEncounters().get(0) );
-			resourceReferenceEncounter.setReference( enc.getId());
-			condition.setEncounter( resourceReferenceEncounter );
-			
-			//TODO Asserter Reference
-			if( probAct.getAuthors()!=null && probAct.getAuthors().size() != 0 ){
-				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
-				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
-				resourceReferenceAsserter.setReference( prac.getId() ); 
-				condition.setAsserter( resourceReferenceAsserter );
+
+			if(probAct.getEncounters().size() > 0) {
+				ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
+				ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter(probAct.getEncounters().get(0));
+				resourceReferenceEncounter.setReference(enc.getId());
+				condition.setEncounter(resourceReferenceEncounter);
 			}
+			
+			//TODO: Mustafa: AssignedEntity2Practitioner method does not work for AssignedAuthor; needs to be implemented separately
+//			if(probAct.getAuthors().size() > 0 ){
+//				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
+//				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
+//				resourceReferenceAsserter.setReference( prac.getId() );
+//				condition.setAsserter( resourceReferenceAsserter );
+//			}
 			
 			
 			
@@ -2010,7 +2017,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		fhirSec.setTitle(cdaSec.getTitle().getText());
 		fhirSec.setCode(dtt.CD2CodeableConcept(cdaSec.getCode()));
 		// TODO: narrative text transformation is not so straightforward
-		fhirSec.setText(dtt.StrucDocText2Narrative(cdaSec.getText()));
+		//fhirSec.setText(dtt.StrucDocText2Narrative(cdaSec.getText()));
 
 		return fhirSec;
 	}
