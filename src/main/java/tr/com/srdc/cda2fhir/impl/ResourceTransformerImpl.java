@@ -2115,6 +2115,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}//end immunization transform
 	
+	
 
 	@Override
 	public Composition.Section section2Section(Section cdaSec) {
