@@ -5,6 +5,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
@@ -246,6 +247,120 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 			
 	}
+	
+	public CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT){
+		CodingDt fhirPT = new CodingDt(); // fhirPT: fhirParticipationTypeCode
+		fhirPT.setSystem("http://hl7.org/fhir/v3/ParticipationType");
+		String code = null;
+		String display = null;
+		
+		switch( cdaPT ){
+			case PRF: code = "PRF"; display = "performer"; 
+					break;
+			case SBJ: code = "SBJ"; display ="subject"; 
+					break;
+			case ADM: code = "ADM"; display = "admitter";
+					break;
+			case ATND: code = "ATND"; display = "attender";
+					break;
+			case AUT: code = "AUT"; display = "author";
+					break;
+			case AUTHEN: code = "AUTHEN"; display = "authenticator";
+				break;
+			case BBY: code = "BBY"; display = "baby";
+				break;
+			case BEN: code = "BEN"; display = "beneficiary";
+				break;
+			case CALLBCK: code = "CALLBCK"; display = "callback contact";
+				break;
+			case CON: code = "CON"; display = "consultant";
+				break;
+			case COV: code = "COV"; display = "coverage target";
+				break;
+			case CSM: code = "CSM"; display = "consumable";
+				break;
+			case CST: code = "CST"; display = "custodian";
+				break;
+			case DEV: code = "DEV"; display = "device";
+				break;
+			case DIR: code = "DIR"; display = "direct target";
+				break;
+			case DIS: code = "DIS"; display = "discharger";
+				break;
+			case DIST: code = "DIST"; display = "distributor";
+				break;
+			case DON: code = "DON"; display = "donor";
+				break;
+			case DST: code = "DST"; display = "destination";
+				break;
+			case ELOC: code = "ELOC"; display = "entry location";
+				break;
+			case ENT: code = "ENT"; display = " data entry person";
+				break;
+			case ESC: code = "ESC"; display = "escort";
+				break;
+			case HLD: code = "HLD"; display = "holder";
+				break;
+			case IND: code = "IND"; display = "indirect target";
+				break;
+			case INF: code = "INF"; display = "informant";
+				break;
+			case IRCP: code = "IRCP"; display = "information recipient";
+				break;
+			case LA: code = "LA"; display = "legal authenticator";
+				break;
+			case LOC: code = "LOC"; display = "location";
+				break;
+			case NOT: code = "NOT"; display = "ugent notification contact";
+				break;
+			case NRD: code = "NRD"; display = "non-reuseable device";
+				break;
+			case ORG: code = "ORG"; display = "origin";
+				break;
+			case PPRF: code = "PPRF"; display = "primary performer";
+				break;
+			case PRCP: code = "PRCP"; display = "primary information recipient";
+				break;
+			case PRD: code = "PRD"; display = "product";
+				break;
+			case RCT: code = "RCT"; display = "record target";
+				break;
+			case RCV: code = "RCV"; display = "receiver";
+				break;
+			case RDV: code = "RDV"; display = "reusable device";
+				break;
+			case REF: code = "REF"; display = "referrer";
+				break;
+			case REFB: code = "REFB"; display = "Referred By";
+				break;
+			case REFT: code = "REFT"; display = "Referred to";
+				break;
+			case RESP: code = "RESP"; display = "responsible party";
+				break;
+			case RML: code = "RML"; display = "remote";
+				break;
+			case SPC: code = "SPC"; display = "specimen";
+				break;
+			case SPRF: code = "SPRF"; display = "secondary performer";
+				break;
+			case TRC: code = "TRC"; display = "tracker";
+				break;
+			case VIA: code = "VIA"; display = "via";
+				break;
+			case VRF: code = "VRF"; display = "verifier";
+				break;
+			case WIT: code = "WIT"; display = "witness";
+				break;
+			default:
+				break;
+		}
+		if( code != null && display != null){
+			fhirPT.setCode(code);
+			fhirPT.setDisplay(display);
+		}
+		return fhirPT;
+	}
+	
 	public AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse ){
 		switch(postalAddressUse){
 			case PHYS: return AddressTypeEnum.PHYSICAL;
