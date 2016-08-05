@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -14,15 +15,20 @@ import org.openhealthtools.mdht.uml.cda.util.ValidationResult;
 
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
+import ca.uhn.fhir.model.dstu2.composite.RangeDt;
+import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
+import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
@@ -53,7 +59,9 @@ public class ResourceTransformerTestIsmail {
         try {
             fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
           //traverseCCDProblemAct( fisCCD );
-            traverseCCDManuPro( fisCCD );
+            //traverseCCDManuPro( fisCCD );
+            //traverseCCDMedicationDispense( fisCCD );
+            traverseCCDMedicationActivity( fisCCD );
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
@@ -207,13 +215,75 @@ public class ResourceTransformerTestIsmail {
 	        
 	        for( MedicationActivity medicationActivity  : medicationSection.getMedicationActivities() )
 	        {
-	        	Supply meDisCda = medicationActivity.getSupplies().get(0);
-	        	if( meDisCda.getMoodCode() != x_DocumentSubstanceMood.EVN ) continue;
-	        	MedicationDispense meDis = rt.MedicationDispense2MedicationDispense( meDisCda );  
+	        	for(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense meDisCda : medicationActivity.getMedicationDispenses()){
+	
+		        	if( meDisCda.getMoodCode() != x_DocumentSubstanceMood.EVN ) continue;
+		        	
+		        	MedicationDispense meDis = rt.MedicationDispense2MedicationDispense( meDisCda ); 
+		        	Assert.assertEquals( "dispense.Identifier failed" , dtt.II2Identifier(meDisCda.getIds().get(0)).getValue(), meDis.getIdentifier().getValue());
+		        	//Assert.assertEquals( "dispense.code failed", dtt.CD2CodeableConcept(meDisCda.getCode()).getCoding().get(0).getCode() , meDis.getType().getCoding().get(0).getCode()   );
+		        	Assert.assertEquals( "dispense.statusCode failed" , meDisCda.getStatusCode().getDisplayName() , meDis.getStatus() );
+		        	Assert.assertEquals( "dispense.quantity failed" , meDisCda.getQuantity().getValue() , meDis.getQuantity().getValue() );
+		        	if( meDisCda.getEffectiveTimes() != null & meDisCda.getEffectiveTimes().size() != 0 ){
+		        		Assert.assertEquals( "dispense.whenPrepared failed" , dtt.TS2DateTime( meDisCda.getEffectiveTimes().get(0) ).getValue(), meDis.getWhenPrepared());
+		        		if(meDisCda.getEffectiveTimes().size() != 1 )
+		        			Assert.assertEquals( "dispense.whenHandedOver failed" , dtt.TS2DateTime( meDisCda.getEffectiveTimes().get(1) ).getValue(), meDis.getWhenHandedOver());
+		        	}
+		        	
+		        	printJSON(meDis);
+		        	break;
+	        	}
+	        	break;
 	        	
-	        	Assert.assertEquals( "dispense.Identifier failed" , dtt.II2Identifier(meDisCda.getIds().get(0)).getValue(), meDis.getIdentifier().getValue());
-	        	Assert.assertEquals( "dispense.code failed", dtt.CD2CodeableConcept(meDisCda.getCode()).getCoding().get(0).getCode() , meDis.getType().getCoding().get(0).getCode()   );
+	        }
+		}
+		finally{
+			
+		}
+		
+	}
+	
+public void traverseCCDMedicationActivity(InputStream is) throws Exception {
+		
+		try{
+			// validate on load
+	        // create validation result to hold diagnostics
+	        ValidationResult result = new ValidationResult();
+
+	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+
+	        // print validation results
+//	        for (Diagnostic diagnostic : result.getWarningDiagnostics()) {
+//	            System.out.println(diagnostic.getMessage());
+//	        }
+
+	        // get the medication section from the document using domain-specific "getter" method
+	        MedicationsSection medicationSection = ccd.getMedicationsSection();
+	       
+	        
+	        for( SubstanceAdministration medAc  : medicationSection.getMedicationActivities().get(0).getSubstanceAdministrations() )
+	        {
+	        	MedicationStatement medSt = rt.MedicationActivity2MedicationSatement( medAc );
+	        	Assert.assertEquals( "medStatement.identifier failed" , dtt.II2Identifier(medAc.getIds().get(0)), medSt.getIdentifier().get(0) );
+	        	Assert.assertEquals( "medStatement.status failed" , medAc.getStatusCode().getDisplayName() , medSt.getStatus()  );
+	        	Assert.assertEquals( dtt.IVL_PQ2Range(medAc.getRateQuantity()).getHigh() , ((RangeDt) medSt.getDosage().get(0).getRate()).getHigh() );
+	        	Assert.assertEquals( "medStatement.effective failed" ,  dtt.IVL_TS2Period( (IVL_TS) medAc.getEffectiveTimes().get(0) ).getStart() , ((PeriodDt) medSt.getEffective()).getStart() );
 	        	
+	        	for( EntryRelationship ers : medAc.getEntryRelationships() ){
+	    			
+	    			if( ers.getTypeCode() == x_ActRelationshipEntryRelationship.RSON ){
+	    				if( ers.getObservation() != null  && !ers.getObservation().isSetNullFlavor()){
+							if(ers.getObservation().getValues() != null && ers.getObservation().getValues()!=null){
+								Assert.assertEquals( "medStatement.reason failed" , false , medSt.getWasNotTaken() );
+							}
+	    				}
+	    				
+	    				
+	    			}
+	    			
+	        	}	
+	        	printJSON(medSt);
+	        	break;
 	        	
 	        }
 		}

@@ -860,21 +860,19 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			//PatientRole2Patient( probAct.getSubject().getRole() )
 			resourceReferencePatient.setReference( "Patient/1"  );
 			condition.setPatient( resourceReferencePatient );
-
-			if(probAct.getEncounters().size() > 0) {
-				ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
-				ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter(probAct.getEncounters().get(0));
-				resourceReferenceEncounter.setReference(enc.getId());
-				condition.setEncounter(resourceReferenceEncounter);
-			}
 			
-			//TODO: Mustafa: AssignedEntity2Practitioner method does not work for AssignedAuthor; needs to be implemented separately
-//			if(probAct.getAuthors().size() > 0 ){
-//				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
-//				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
-//				resourceReferenceAsserter.setReference( prac.getId() );
-//				condition.setAsserter( resourceReferenceAsserter );
-//			}
+			ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
+			ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter( probAct.getEncounters().get(0) );
+			resourceReferenceEncounter.setReference( enc.getId());
+			condition.setEncounter( resourceReferenceEncounter );
+			
+			//TODO Asserter Reference
+			if( probAct.getAuthors()!=null && probAct.getAuthors().size() != 0 ){
+				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
+				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
+				resourceReferenceAsserter.setReference( prac.getId() ); 
+				condition.setAsserter( resourceReferenceAsserter );
+			}
 			
 			
 			
@@ -1162,42 +1160,45 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		
 		//DOSAGE
-		
-		CodeableConceptDt route = new CodeableConceptDt();
-		CodingDt routeCoding = new CodingDt();
-		if( subAd.getRouteCode() != null && !subAd.getRouteCode().isSetNullFlavor() ){
-			
-			if( subAd.getRouteCode().getCode() != null )
-				routeCoding.setCode( subAd.getRouteCode().getCode() );
-			if( subAd.getRouteCode().getDisplayName() != null )
-				routeCoding.setDisplay( subAd.getRouteCode().getDisplayName() );
-			if( subAd.getRouteCode().getCodeSystem() != null )
-				routeCoding.setSystem( vst.oid2Url( subAd.getRouteCode().getCodeSystem() ) );
-			if( subAd.getRouteCode().getCodeSystemVersion() != null ){
-				routeCoding.setVersion( subAd.getRouteCode().getCodeSystemVersion() );
+		if(medSt.getDosage() != null){
+			if(medSt.getDosage().size() != 0){
+				CodeableConceptDt route = new CodeableConceptDt();
+				CodingDt routeCoding = new CodingDt();
+				if( subAd.getRouteCode() != null && !subAd.getRouteCode().isSetNullFlavor() ){
+					
+					if( subAd.getRouteCode().getCode() != null )
+						routeCoding.setCode( subAd.getRouteCode().getCode() );
+					if( subAd.getRouteCode().getDisplayName() != null )
+						routeCoding.setDisplay( subAd.getRouteCode().getDisplayName() );
+					if( subAd.getRouteCode().getCodeSystem() != null )
+						routeCoding.setSystem( vst.oid2Url( subAd.getRouteCode().getCodeSystem() ) );
+					if( subAd.getRouteCode().getCodeSystemVersion() != null ){
+						routeCoding.setVersion( subAd.getRouteCode().getCodeSystemVersion() );
+					}
+					
+					route.addCoding( routeCoding );
+					medSt.getDosage().get(0).setRoute( route );
+					
+					
+				}
+				
+				SimpleQuantityDt quantityDose = new SimpleQuantityDt();
+				if( subAd.getDoseQuantity() != null && !subAd.getDoseQuantity().isSetNullFlavor() ){
+					
+					quantityDose.setValue( subAd.getDoseQuantity().getValue() );
+					if( subAd.getDoseQuantity().getUnit() != null )
+						quantityDose.setUnit( subAd.getDoseQuantity().getUnit() );
+					
+				}
+				medSt.getDosage().get(0).setQuantity( quantityDose );
+				
+				RangeDt rate = dtt.IVL_PQ2Range( subAd.getRateQuantity() );
+				medSt.getDosage().get(0).setRate( rate );
+				
+				RatioDt ratio = dtt.RTO2Ratio( (RTO) subAd.getMaxDoseQuantity() );
+				medSt.getDosage().get(0).setMaxDosePerPeriod(ratio);
 			}
-			
-			route.addCoding( routeCoding );
-			medSt.getDosage().get(0).setRoute( route );
-			
-			
 		}
-		
-		SimpleQuantityDt quantityDose = new SimpleQuantityDt();
-		if( subAd.getDoseQuantity() != null && !subAd.getDoseQuantity().isSetNullFlavor() ){
-			
-			quantityDose.setValue( subAd.getDoseQuantity().getValue() );
-			if( subAd.getDoseQuantity().getUnit() != null )
-				quantityDose.setUnit( subAd.getDoseQuantity().getUnit() );
-			
-		}
-		medSt.getDosage().get(0).setQuantity( quantityDose );
-		
-		RangeDt rate = dtt.IVL_PQ2Range( subAd.getRateQuantity() );
-		medSt.getDosage().get(0).setRate( rate );
-		
-		RatioDt ratio = dtt.RTO2Ratio( (RTO) subAd.getMaxDoseQuantity() );
-		medSt.getDosage().get(0).setMaxDosePerPeriod(ratio);
 		////DOSAGE END
 		
 		
@@ -1244,8 +1245,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
+		return medSt;
 			
-		return null;
+		
 	}
 
 	public MedicationDispense MedicationDispense2MedicationDispense(Supply sup) {
@@ -1265,9 +1267,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( sup.getIds() != null &  !sup.getIds().isEmpty() )
 				meDis.setIdentifier( dtt.II2Identifier( sup.getIds().get(0) ) );
 			
-			ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
-			meDis.setStatus( vst.StatusCode2MedicationDispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
-			
+			//STATUS
+			if( !sup.getStatusCode().isSetNullFlavor() && sup.getStatusCode().getDisplayName() != null ){
+				ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
+				meDis.setStatus( vst.StatusCode2MedicationDispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
+			}
 			
 			//DISPENSER
 			Performer performer =  Performer22Performer( sup.getPerformers().get(0) );
@@ -1276,39 +1280,44 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			meDis.setDispenser( performerRef );
 			
 			//TYPE
-			CodeableConceptDt type = new CodeableConceptDt();
-			CodingDt coding = new CodingDt();
-			if(sup.getCode() != null & !sup.getCode().isSetNullFlavor()){
-				
-				CD cd = sup.getCode();
-				if(cd.getCode() != null )
-					coding.setCode( cd.getCode() );
-				if(cd.getDisplayName() != null )
-					coding.setDisplay( cd.getDisplayName() );
-				if( cd.getCodeSystem() != null )
-					coding.setSystem( cd.getCodeSystem() );
-				if( cd.getCodeSystemVersion() != null )
-					coding.setVersion( cd.getCodeSystemVersion() );
-				
-				 for( CD trans : cd.getTranslations() ){
-					
-					CodingDt codingTr  = new CodingDt();
-					
-					if(trans.getCode() != null )
-						codingTr.setCode( trans.getCode() );
-					if(trans.getDisplayName() != null )
-						codingTr.setDisplay( trans.getDisplayName() );
-					if( trans.getCodeSystem() != null )
-						codingTr.setSystem( trans.getCodeSystem() );
-					if( trans.getCodeSystemVersion() != null )
-						codingTr.setVersion( trans.getCodeSystemVersion() );
-					
-					type.addCoding( codingTr );
-				}
-			}
+			// TODO No .code attribute.
+//			CodeableConceptDt type = new CodeableConceptDt();
+//			CodingDt coding = new CodingDt();
+//			if(sup.getCode() != null  ){
+//					if( !sup.getCode().isSetNullFlavor() ){
+//						CD cd = sup.getCode();
+//						if(cd.getCode() != null )
+//							coding.setCode( cd.getCode() );
+//						if(cd.getDisplayName() != null )
+//							coding.setDisplay( cd.getDisplayName() );
+//						if( cd.getCodeSystem() != null )
+//							coding.setSystem( cd.getCodeSystem() );
+//						if( cd.getCodeSystemVersion() != null )
+//							coding.setVersion( cd.getCodeSystemVersion() );
+//						type.addCoding( coding );
+//						 for( CD trans : cd.getTranslations() ){
+//								
+//								CodingDt codingTr  = new CodingDt();
+//								
+//								if(trans.getCode() != null )
+//									codingTr.setCode( trans.getCode() );
+//								if(trans.getDisplayName() != null )
+//									codingTr.setDisplay( trans.getDisplayName() );
+//								if( trans.getCodeSystem() != null )
+//									codingTr.setSystem( trans.getCodeSystem() );
+//								if( trans.getCodeSystemVersion() != null )
+//									codingTr.setVersion( trans.getCodeSystemVersion() );
+//								
+//								type.addCoding( codingTr );
+//							}
+//					}
+//					
+//				
+//			}
 			
-			type.addCoding( coding );
-			meDis.setType( type );
+			
+			
+//			meDis.setType( type );
 			
 			//QUANTITY
 			SimpleQuantityDt quantity = new SimpleQuantityDt();
@@ -1319,22 +1328,23 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			meDis.setQuantity( quantity );
 			
 			ResourceReferenceDt medRef = new ResourceReferenceDt();
-			medRef.setReference( "medication:" + getUniqueId() );
-			medRef.setDisplay( sup.getProduct().getManufacturedProduct().getManufacturedMaterial().getName().getText() );
+			Medication med = Medication2Medication( sup.getProduct().getManufacturedProduct() );
+			medRef.setReference( med.getId() );
 			meDis.setMedication( medRef );
 			
-			DateTimeDt prepDate = new DateTimeDt();
+			
 			if( sup.getEffectiveTimes() != null & sup.getEffectiveTimes().size() != 0 ){
-				prepDate.setValueAsString( sup.getEffectiveTimes().get(0).getValue() );
 				
-				if(sup.getEffectiveTimes().get(1) != null ){
-					DateTimeDt handDate = new DateTimeDt();
-					handDate.setValueAsString( sup.getEffectiveTimes().get(1).getValue() );
+				DateTimeDt date = dtt.TS2DateTime( sup.getEffectiveTimes().get(0) );
+				meDis.setWhenPrepared( date );
+				
+				if(sup.getEffectiveTimes().size() != 1 ){
+					DateTimeDt handDate = dtt.TS2DateTime( sup.getEffectiveTimes().get(1) );
 					meDis.setWhenHandedOver(handDate);
 				}
 				
 			}
-			meDis.setWhenPrepared( prepDate );
+			
 			
 			// TODO : No dosageInstruction and Patient section exists in CCD example.
 			meDis.setDosageInstruction(null);
@@ -1346,7 +1356,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		return null;
 	}
-
 	
 	// ismail end
 	/////////////
