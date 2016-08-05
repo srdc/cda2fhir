@@ -1438,7 +1438,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(vsObs!=null && !vsObs.isSetNullFlavor()){
 			Observation observation= new Observation();
 			observation.setId("Observation/"+ getUniqueId());
-			
+		
 			if(vsObs.getIds()!=null & !vsObs.getIds().isEmpty())
 			{
 				for(II myIds : vsObs.getIds())
@@ -1566,7 +1566,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			{
 				observation.setCode(dtt.CD2CodeableConcept(vsObs.getCode()));
 			}//end if
-
+			ResourceReferenceDt resourceReference= new ResourceReferenceDt();
+			resourceReference.setReference(cct.getPatientId());
+			observation.setSubject(resourceReference);
 			return observation;
 		}//end if
 		else
@@ -1576,10 +1578,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}//end FHIR func
 
 	@Override
-	public Observation ResultObservation2Observation(ResultObservation resObs) {
+	public Bundle ResultObservation2Observation(ResultObservation resObs) {
 		if(resObs!=null &&  !resObs.isSetNullFlavor())
 		{
+			Bundle obsBundle = new Bundle();
 			Observation observation= new Observation();
+			obsBundle.addEntry(new Bundle.Entry().setResource(observation));
 			observation.setId("Observation/"+getUniqueId());
 			if(resObs.getIds()!=null && !resObs.getIds().isEmpty())
 			{
@@ -1754,24 +1758,36 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
 						
-						Practitioner practitioner=Performer2Practitioner(performer);
+						Bundle practitioner=Performer2Practitioner(performer);
 						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-						
-						resourceReference.setReference(practitioner.getId());
+						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practitioner.getEntry())
+						{
+							if(entry.getResource() instanceof Practitioner)
+							{
+								Practitioner pract = (Practitioner) entry.getResource();
+								resourceReference.setReference(pract.getId());
+							}
+						}
 						resourceReferences.add(resourceReference);
+						obsBundle.addEntry(new Bundle.Entry().setResource(practitioner));
 					}
 				}
 				observation.setPerformer(resourceReferences);
 			}//end if
-			return observation;
+			ResourceReferenceDt resourceReference= new ResourceReferenceDt();
+			resourceReference.setReference(cct.getPatientId());
+			observation.setSubject(resourceReference);
+			return obsBundle;
 		}//end if
 		else
 			return null;
 	}//end function
 	@Override
-	public Practitioner Performer2Practitioner(Performer2 performer) {
+	public Bundle Performer2Practitioner(Performer2 performer) {
+		Bundle practBundle = new Bundle();
 		Practitioner practitioner = new Practitioner();
 		practitioner.setId("Practitioner/"+getUniqueId());
+		practBundle.addEntry(new Bundle.Entry().setResource(practitioner));
 		if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 		{
 			AssignedEntity assignedEntity= performer.getAssignedEntity();
@@ -1824,13 +1840,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					prRole.setManagingOrganization(resourceReference);
 					prRoles.add(prRole);
 					  ca.uhn.fhir.model.dstu2.resource.Organization FHIROrganization = Organization2Organization(organization);
-					 
+					 practBundle.addEntry(new Bundle.Entry().setResource(FHIROrganization));
 				}//end for
 				
 				practitioner.setPractitionerRole(prRoles);
 			}//end if
 		}//end assignedEntity if
-		return practitioner;
+		return practBundle;
 	}//END FUNC
 	public AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allProb)
 	{
@@ -1839,6 +1855,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		{
 			AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
 			allergyIntolerance.setId("AllergyIntolerance/"+getUniqueId());
+			ResourceReferenceDt resourceReference = new ResourceReferenceDt();
+			resourceReference.setReference(cct.getPatientId());
+			allergyIntolerance.setPatient(resourceReference);
 			for (EntryRelationship entryRelationship : allProb.getEntryRelationships())
 			{
                 // check for alert observation
@@ -1979,17 +1998,19 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
                 	}//end if
                 	
 				}//end for
+				
 				return allergyIntolerance;
 			}//end outer else
 	}//end func
-	public  Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd)
+	public  Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd)
 	{
 		if(subAd==null || subAd.isSetNullFlavor()) return null;
 		else
 		{
+			Bundle immunizationBundle = new Bundle();
 			Immunization immunization = new Immunization ();
 			immunization.setId("Immunization/"+getUniqueId());
-
+			immunizationBundle.addEntry(new Bundle.Entry().setResource(immunization));
 			if(subAd.getIds()!=null && !subAd.getIds().isEmpty())
 			{
 				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt>();
@@ -2050,10 +2071,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
 						
-						Practitioner practitioner=Performer2Practitioner(performer);
+						Bundle practitioner=Performer2Practitioner(performer);
 						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
 						resourceReference.setReference(practitioner.getId());
 						immunization.setPerformer(resourceReference);
+						immunizationBundle.addEntry(new Bundle.Entry().setResource(practitioner));
 					}//end if
 				}//end for
 			}//end if
@@ -2086,7 +2108,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			{
 				immunization.setStatus(subAd.getStatusCode().getCode());
 			}//end if
-			return immunization;
+			ResourceReferenceDt resourceReference = new ResourceReferenceDt();
+			resourceReference.setReference(cct.getPatientId());
+			immunization.setPatient(resourceReference);
+			return immunizationBundle;
 		}
 	}//end immunization transform
 	

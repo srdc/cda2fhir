@@ -53,18 +53,18 @@ public interface ResourceTransformer {
 	// ismail end
 
 	//tahsin start
-    Observation ResultObservation2Observation(ResultObservation resObs);
+    Bundle ResultObservation2Observation(ResultObservation resObs);
 
     Observation VitalSignObservation2Observation(VitalSignObservation vsObs);
     
     
     /*This is not a fully independent mapping method.*/
-    Practitioner Performer2Practitioner(Performer2 performer);
+    Bundle Performer2Practitioner(Performer2 performer);
     /*It will be called by functions which contain Practitioner as a subresource*/
     
     AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
 
-    Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd);
+    Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd);
     
     //tahsin end
 

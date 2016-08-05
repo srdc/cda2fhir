@@ -12,6 +12,7 @@ import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
 import org.openhealthtools.mdht.uml.cda.CDAPackage;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Participant2;
@@ -57,6 +58,7 @@ import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
+import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -176,72 +178,81 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     	{
     		for(ResultObservation resObs : resOrg.getResultObservations())
     		{
-				ca.uhn.fhir.model.dstu2.resource.Observation obs = rt.ResultObservation2Observation(resObs);
-				
+				//ca.uhn.fhir.model.dstu2.resource.Observation obs = rt.ResultObservation2Observation(resObs);
+				Bundle obsBundle = rt.ResultObservation2Observation(resObs);
 				ArrayList <String> idS= new ArrayList <String> ();
         		for(II id: resObs.getIds())
         		{
         			idS.add(id.getRoot());
         		}
-        		ArrayList <String> fhirIds= new ArrayList <String>();
-        		for(IdentifierDt identifier: obs.getIdentifier())
+        		for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry: obsBundle.getEntry())
         		{
-        			fhirIds.add(identifier.getValue());
+        			if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Observation)
+        			{
+        				ca.uhn.fhir.model.dstu2.resource.Observation observation = (ca.uhn.fhir.model.dstu2.resource.Observation) entry.getResource();
+        				if(observation.getIdentifier()!=null && !observation.getIdentifier().isEmpty())
+        				{
+        					ArrayList <String> fhirIds= new ArrayList <String>();
+        	        		for(IdentifierDt identifier : observation.getIdentifier())
+        	        		{
+        	        			fhirIds.add(identifier.getValue());
+        	        		}
+        	        		Assert.assertEquals("ResultObservation.id was not transformed", idS,fhirIds);
+        				}//end if
+        				ArrayList <String> codings = new ArrayList <String> ();
+        				for(CodingDt coding :observation.getCode().getCoding())
+                		{
+        					codings.add(coding.getCode());
+                		}//end for
+        				ArrayList <String> testCodings= new ArrayList <String> ();
+        				for(CodingDt testCoding : dtt.CD2CodeableConcept(resObs.getCode()).getCoding())
+        				{
+        					testCodings.add(testCoding.getCode());
+        				}
+        				Assert.assertEquals("Codings were not transformed", codings,testCodings); //Successfully transformed
+        				if(observation.getEffective() instanceof DateTimeDt)
+        				{
+        					DateTimeDt datetime= (DateTimeDt) observation.getEffective();
+        					TS ts=DatatypesFactory.eINSTANCE.createTS();
+        					ts.setValue(resObs.getEffectiveTime().getValue());
+        					Assert.assertEquals("Effective time were not transformed",datetime.getValueAsString(),dtt.TS2DateTime(ts).getValueAsString());
+        				}
+        				else
+        				{
+        					PeriodDt period = (PeriodDt) observation.getEffective();
+        					Assert.assertEquals("VitalSignObservation.effectiveTime was not transformed",period,dtt.IVL_TS2Period(resObs.getEffectiveTime()));
+        				}//end else
+        				for(ANY any : resObs.getValues())
+        				{
+        					
+        					if(any instanceof PQ)
+        					{
+        						
+        						PQ pq= (PQ) any;
+        						if(!pq.isSetNullFlavor())
+        						{	QuantityDt quantity=(QuantityDt) observation.getValue();
+        							Assert.assertEquals("unit was not transformed", quantity.getUnit(),pq.getUnit());
+        							Assert.assertEquals("value was not transformed", quantity.getValue(),pq.getValue());
+        						}//end if
+        					}//end if, same test can be applied to all other examples with this manner
+        				}//end for
+        				if(observation.getStatus()!=null)
+        					Assert.assertEquals("StatusCode was not transformed","final", observation.getStatus());
+        				
+        				ArrayList <String> interpret= new ArrayList <String>();
+        				for(CE ce : resObs.getInterpretationCodes())
+        				{
+        					interpret.add(ce.getCode());
+        				}
+        				ArrayList <String> testInterpret = new ArrayList <String>();
+        				for(CodingDt coding : observation.getInterpretation().getCoding())
+        				{
+        					testInterpret.add(coding.getCode());
+        				}
+        				Assert.assertEquals("InterpretationCode was not transformed",interpret,testInterpret);
+        				printJSON(observation);
+        			}
         		}
-        		Assert.assertEquals("ResultObservation.id was not transformed", idS,fhirIds);
-        		ArrayList <String> codings = new ArrayList <String> ();
-				for(CodingDt coding :obs.getCode().getCoding())
-        		{
-					codings.add(coding.getCode());
-        		}
-				ArrayList <String> testCodings= new ArrayList <String> ();
-				for(CodingDt testCoding : dtt.CD2CodeableConcept(resObs.getCode()).getCoding())
-				{
-					testCodings.add(testCoding.getCode());
-				}
-				Assert.assertEquals("Codings were not transformed", codings,testCodings); //Successfully transformed
-				if(obs.getEffective() instanceof DateTimeDt)
-				{
-					DateTimeDt datetime= (DateTimeDt) obs.getEffective();
-					TS ts=DatatypesFactory.eINSTANCE.createTS();
-					ts.setValue(resObs.getEffectiveTime().getValue());
-					Assert.assertEquals("Effective time were not transformed",datetime.getValueAsString(),dtt.TS2DateTime(ts).getValueAsString());
-				}
-				else
-				{
-					PeriodDt period = (PeriodDt) obs.getEffective();
-					Assert.assertEquals("VitalSignObservation.effectiveTime was not transformed",period,dtt.IVL_TS2Period(resObs.getEffectiveTime()));
-				}//end else
-				for(ANY any : resObs.getValues())
-				{
-					
-					if(any instanceof PQ)
-					{
-						
-						PQ pq= (PQ) any;
-						if(!pq.isSetNullFlavor())
-						{	QuantityDt quantity=(QuantityDt) obs.getValue();
-							Assert.assertEquals("unit was not transformed", quantity.getUnit(),pq.getUnit());
-							Assert.assertEquals("value was not transformed", quantity.getValue(),pq.getValue());
-						}//end if
-					}//end if, same test can be applied to all other examples with this manner
-				}//end for
-				if(obs.getStatus()!=null)
-					Assert.assertEquals("StatusCode was not transformed","final", obs.getStatus());
-				
-				ArrayList <String> interpret= new ArrayList <String>();
-				for(CE ce : resObs.getInterpretationCodes())
-				{
-					interpret.add(ce.getCode());
-				}
-				ArrayList <String> testInterpret = new ArrayList <String>();
-				for(CodingDt coding : obs.getInterpretation().getCoding())
-				{
-					testInterpret.add(coding.getCode());
-				}
-				Assert.assertEquals("InterpretationCode was not transformed",interpret,testInterpret);
-				
-				printJSON(obs);
     		}//end resObs for
     	}
     }//end ResultObservation test
@@ -305,8 +316,15 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     {
     	for(SubstanceAdministration substanceAdministration : ccd.getImmunizationsSectionEntriesOptional().getSubstanceAdministrations())
     	{
-    		Immunization immunization = rt.SubstanceAdministration2Immunization(substanceAdministration);
-//    		printJSON(immunization);
+    		Bundle immunizationBundle = rt.SubstanceAdministration2Immunization(substanceAdministration);
+    		for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : immunizationBundle.getEntry())
+    		{
+    			if(entry.getResource() instanceof Immunization)
+    			{
+    				Immunization immunization = (Immunization) entry.getResource();
+    				printJSON(immunization);
+    			}
+    		}
     	}
     }
     @Test
@@ -318,8 +336,15 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 			{
 				for(Performer2 performer : subAd.getPerformers())
 				{
-					Practitioner practitioner=rt.Performer2Practitioner(performer);
-//					printJSON(practitioner);
+					Bundle practitionerBundle=rt.Performer2Practitioner(performer);
+					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practitionerBundle.getEntry())
+					{
+						if(entry.getResource() instanceof Practitioner)
+						{
+							Practitioner practitioner = (Practitioner) entry.getResource();
+							printJSON(practitioner);
+						}
+					}
 				}
 			}
 		}//end for
@@ -332,8 +357,15 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     			{
     				for(Performer2 performer : resObs.getPerformers())
     				{
-    					Practitioner practitioner = rt.Performer2Practitioner(performer);
-    					printJSON(practitioner);
+    					Bundle practitionerBundle = rt.Performer2Practitioner(performer);
+    					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practitionerBundle.getEntry())
+    					{
+    						if(entry.getResource() instanceof Practitioner)
+    						{
+    							Practitioner practitioner = (Practitioner) entry.getResource();
+    							printJSON(practitioner);
+    						}
+    					}
     				}//end for
     			}//end if
     		}//end for
