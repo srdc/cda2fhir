@@ -17,6 +17,7 @@ import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
@@ -81,6 +82,7 @@ import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
+import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
@@ -118,14 +120,225 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return UUID.randomUUID().toString();
 	}
 	
-	// incomplete
-	public ca.uhn.fhir.model.dstu2.resource.Encounter Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter){
+	
+	
+// necip start
+	
+	public Bundle AssignedEntity2Practitioner( AssignedEntity assignedEntity ){
+			if( assignedEntity == null || assignedEntity.isSetNullFlavor() ) return null;
+			else{
+				Practitioner practitioner = new Practitioner();
+				Bundle practitionerBundle = new Bundle();
+				practitionerBundle.addEntry( new Bundle.Entry().setResource(practitioner) );
+				
+				// id
+				IdDt resourceId = new IdDt("Practitioner", getUniqueId());
+				practitioner.setId(resourceId);
+				
+				// identifier
+				if( assignedEntity.getIds() != null && !assignedEntity.getIds().isEmpty() ){
+					for( II id : assignedEntity.getIds() ){
+						if( id != null && !id.isSetNullFlavor() ){
+							practitioner.addIdentifier( dtt.II2Identifier(id) );
+						}
+					}
+				}
+				
+				// name
+				if( assignedEntity.getAssignedPerson() != null && !assignedEntity.getAssignedPerson().isSetNullFlavor() ){
+					for( PN pn : assignedEntity.getAssignedPerson().getNames() ){
+						if( pn != null && !pn.isSetNullFlavor() ){
+							// asserting that at most one name exists
+							practitioner.setName( dtt.EN2HumanName( pn ) );
+						}
+					}
+				}
+				
+				// address
+				if( assignedEntity.getAddrs() != null && !assignedEntity.getAddrs().isEmpty() ){
+					for( AD ad : assignedEntity.getAddrs() ){
+						if( ad != null && !ad.isSetNullFlavor() ){
+							practitioner.addAddress( dtt.AD2Address(ad) );
+						}
+					}
+				}
+				
+				// telecom
+				if( assignedEntity.getTelecoms() != null && ! assignedEntity.getTelecoms().isEmpty() ){
+					for( TEL tel : assignedEntity.getTelecoms() ){
+						if( tel != null && !tel.isSetNullFlavor() ){
+							practitioner.addTelecom( dtt.TEL2ContactPoint( tel ) );
+						}
+					}
+				}
+				
+				// role
+				if( assignedEntity.getRepresentedOrganizations() != null && !assignedEntity.getRepresentedOrganizations().isEmpty() ){
+					for( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization : assignedEntity.getRepresentedOrganizations() ){
+						if( cdaOrganization != null && !cdaOrganization.isSetNullFlavor() ){
+							// Notice that for every organization we add, we create a new practitioner role
+							
+							ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = null;
+							Bundle fhirOrganizationBundle = Organization2Organization( cdaOrganization );
+							for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity :	fhirOrganizationBundle.getEntry() ){
+								if( entity.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization ){
+									fhirOrganization = (Organization) entity.getResource();
+								}
+							}
+							
+							
+							if( fhirOrganization != null ){
+								ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+								organizationReference.setReference( fhirOrganization.getId() );
+								if( fhirOrganization.getName() != null ){
+									organizationReference.setDisplay(fhirOrganization.getName());
+								}
+								practitioner.addPractitionerRole().setManagingOrganization( organizationReference );	
+								practitionerBundle.addEntry( new Bundle.Entry().setResource(fhirOrganization) );
+								
+							}		
+						}
+					}	
+				}
+				return practitionerBundle;
+			}
+		}
+
+	public Bundle FamilyMemberOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO){
+		if( cdaFHO == null || cdaFHO.isSetNullFlavor() ) return null;
+		else{
+			FamilyMemberHistory fhirFMH = new FamilyMemberHistory();
+			Bundle fhirFMHBundle = new Bundle();
+			fhirFMHBundle.addEntry( new Bundle.Entry().setResource(fhirFMH) );
+			// id
+			IdDt resourceId = new IdDt("FamilyMemberHistory",getUniqueId() );
+			fhirFMH.setId(resourceId);
+			
+			// identifier
+			if( cdaFHO.getIds() != null && !cdaFHO.getIds().isEmpty() ){
+				for( II id : cdaFHO.getIds() ){
+					if( id != null && !id.isSetNullFlavor() ){
+						fhirFMH.addIdentifier( dtt.II2Identifier(id) );
+					}
+				}
+			}
+			
+			// statusCode
+			if( cdaFHO.getStatusCode() != null && !cdaFHO.getStatusCode().isSetNullFlavor() ){
+				// TODO
+				fhirFMH.setStatus( vst.FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( cdaFHO.getStatusCode().getCode() ) );
+			}
+//			cdaFHO.getComponents().get(0).getObservation()
+			
+			// condition <-> observation
+			if( cdaFHO.getObservations() != null && !cdaFHO.getObservations().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Observation observation : cdaFHO.getObservations() ){
+					if( observation != null && !observation.isSetNullFlavor() ){
+						ca.uhn.fhir.model.dstu2.resource.FamilyMemberHistory.Condition condition = new ca.uhn.fhir.model.dstu2.resource.FamilyMemberHistory.Condition();
+						
+						// onset
+						if( observation.getEffectiveTime() != null && !observation.getEffectiveTime().isSetNullFlavor() ){
+							condition.setOnset( dtt.IVL_TS2Period( observation.getEffectiveTime() ) );
+						}
+						
+						// condition code
+						if( observation.getValues() != null && !observation.getValues().isEmpty() ){
+							for( ANY value : observation.getValues() ){
+								if( value instanceof CD ){
+									condition.setCode( dtt.CD2CodeableConcept( (CD) value ) );
+								}
+							}
+						}
+						
+						// traversing entryRelationShips
+						if( observation.getEntryRelationships() != null && !observation.getEntryRelationships().isEmpty() ){
+							for( org.openhealthtools.mdht.uml.cda.EntryRelationship ERS : observation.getEntryRelationships() ){
+								if( ERS != null && !ERS.isSetNullFlavor() ){
+									// two kinds of typeCode for ERS
+									// CAUS & SUBJ
+									if( ERS.getTypeCode() == x_ActRelationshipEntryRelationship.CAUS  ){
+										// CAUS
+										if( ERS.getObservation() != null && !ERS.getObservation().isSetNullFlavor() ){
+											if( ERS.getObservation().getCode() != null && !ERS.getObservation().getCode().isSetNullFlavor() ){
+												if( ERS.getObservation().getValues() != null && !ERS.getObservation().getValues().isEmpty() ){
+													for( ANY value : ERS.getObservation().getValues()){
+														if( value instanceof CD ){
+															if( ((CD) value).getCode().equals("419099009")){
+																// TODO
+																// Check if it is OK to use code value to understand if dead
+																fhirFMH.setDeceased(new BooleanDt(true));
+															}
+															
+														}
+													}
+												}
+//												condition.setOutcome( dtt.CD2CodeableConcept(ERS.getObservation().getCode()) );
+											}
+										}
+									} else if(ERS.getTypeCode() == x_ActRelationshipEntryRelationship.SUBJ ){
+										// SUB
+										if( ERS.getObservation() != null && !ERS.getObservation().isSetNullFlavor() ){
+											if( ERS.getObservation().getValues() != null && !ERS.getObservation().isSetNullFlavor() ){
+												if( ERS.getObservation().getCode() != null && !ERS.getObservation().getCode().isSetNullFlavor()){
+													condition.setOutcome( dtt.CD2CodeableConcept(ERS.getObservation().getCode()) );
+												}
+//												if( ERS.getObservation().getValues() != null && !ERS.getObservation().getValues().isEmpty() ){
+//													if( ERS.getObservation().getValues().get(0) != null && ERS.getObservation().getValues().get(0) instanceof CD){
+//														condition.setOutcome( dtt.CD2CodeableConcept( (CD) ERS.getObservation().getValues().get(0) ) );
+//													}
+//												}
+											}
+										}
+									} // end of ERS.typecode control
+								}
+							}
+						}
+						fhirFMH.addCondition(condition);
+					}
+				}
+			}
+			
+			
+			// getting information from cda->subject->relatedSubject
+			if( cdaFHO.getSubject() != null && !cdaFHO.isSetNullFlavor() && cdaFHO.getSubject().getRelatedSubject() != null && !cdaFHO.getSubject().getRelatedSubject().isSetNullFlavor() ){
+				org.openhealthtools.mdht.uml.cda.RelatedSubject cdaRelatedSubject = cdaFHO.getSubject().getRelatedSubject();
+				
+				// relationship: mother, father etc.
+				if( cdaRelatedSubject.getCode() != null && !cdaRelatedSubject.getCode().isSetNullFlavor() ){
+					fhirFMH.setRelationship( dtt.CD2CodeableConcept(cdaRelatedSubject.getCode()) );
+				}
+				
+				// subject person
+				if( cdaRelatedSubject.getSubject() != null && !cdaRelatedSubject.getSubject().isSetNullFlavor() ){
+					org.openhealthtools.mdht.uml.cda.SubjectPerson subjectPerson = cdaRelatedSubject.getSubject();
+					
+					//gender
+					if( subjectPerson.getAdministrativeGenderCode() != null && !subjectPerson.getAdministrativeGenderCode().isSetNullFlavor() &&
+							subjectPerson.getAdministrativeGenderCode().getCode() != null){
+						fhirFMH.setGender( vst.AdministrativeGenderCode2AdministrativeGenderEnum( subjectPerson.getAdministrativeGenderCode().getCode() ) );
+					}
+					
+					// birtTime
+					if( subjectPerson.getBirthTime() != null && !subjectPerson.getBirthTime().isSetNullFlavor() ){
+						fhirFMH.setBorn( dtt.TS2Date(subjectPerson.getBirthTime()));
+					}
+					
+				}
+			}
+			
+			return fhirFMHBundle;
+		}
+	}
+	
+	public Bundle Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter){
 		
 		if( cdaEncounter == null || cdaEncounter.isSetNullFlavor() ) return null;
 		else if( cdaEncounter.getMoodCode() != org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentEncounterMood.EVN ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter();
 			
+			Bundle fhirEncounterBundle = new Bundle();
+			fhirEncounterBundle.addEntry( new Bundle.Entry().setResource(fhirEncounter) );
 			
 			// id
 			IdDt resourceId = new IdDt("Encounter",getUniqueId() );
@@ -186,11 +399,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						
 						fhirParticipant.addType().addCoding( vst.ParticipationType2ParticipationTypeCode( ParticipationType.PRF ) );
 						
-						Practitioner fhirPractitioner = Performer22Practitioner( cdaPerformer );
+						Practitioner fhirPractitioner = null;
+						Bundle fhirPractitionerBundle = Performer22Practitioner( cdaPerformer );
+						for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirPractitionerBundle.getEntry() ){
+							if( entity.getResource() instanceof Practitioner ){
+								fhirPractitioner = (Practitioner) entity.getResource();
+							}
+						}
+						
 						if( fhirPractitioner != null ){
 							ResourceReferenceDt practitionerReference = new ResourceReferenceDt();
 							practitionerReference.setReference( fhirPractitioner.getId() );
 							fhirParticipant.setIndividual( practitionerReference );
+							fhirEncounterBundle.addEntry( new Bundle().addEntry().setResource( fhirPractitioner ) );
+							
 						}
 						fhirEncounter.addParticipant(fhirParticipant);
 					}
@@ -229,48 +451,17 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 //					}//null-check
 //				}//traversing participantRoles
 //			}
-			
-			
-			// serviceProvider Reference(Organizaton) <-> 	.particiaption[typeCode=PFM].role
-//			if( cdaEncounter.getParticipations() != null && !cdaEncounter.getParticipations().isEmpty() ){
-//				for( Participation participation : cdaEncounter.getParticipations() ){
-//					if( participation.getTypeCode() == org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType.PPRF /* PFM? NOT SURE */ ){
-//						 Role2Organization
-//						fhirEncounter.setServiceProvider( Organization2Organization( participation.getRole() ) );
-//					}
-//						 typeCode pfm ?
-//				}
-//			}
-			
-			// entryRelationsip.Observation
-//			if( cdaEncounter.getEntryRelationships() != null && !cdaEncounter.getEntryRelationships().isEmpty() ){
-//				for( org.openhealthtools.mdht.uml.cda.EntryRelationship entryRel : cdaEncounter.getEntryRelationships() ){
-//					if( entryRel != null && !entryRel.isSetNullFlavor() ){
-//						// TODO entryRel.getObservation()
-//						
-//					}
-//				}
-//			}
-			return fhirEncounter;
+			return fhirEncounterBundle;
 		}
 	}
 	
-	// tested
-	public Practitioner Performer22Practitioner( Performer2 cdaPerformer ){
-		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() ) return null;
-		else{
-			Practitioner fhirPractitioner = AssignedEntity2Practitioner(cdaPerformer.getAssignedEntity());
-			return fhirPractitioner;
-		}
-	}
-	
-	// incomplete
-	public Group Entity2Group( Entity entity ){
+	public Bundle Entity2Group( Entity entity ){
 		if( entity == null || entity.isSetNullFlavor() ) return null;
 		else if( entity.getDeterminerCode() != org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer.KIND ) return null;
 		else{
 			Group group = new Group();
-
+			Bundle groupBundle = new Bundle();
+			groupBundle.addEntry( new Bundle.Entry().setResource(group) );
 			
 			// identifier <-> id
 			if( entity.getIds() != null && !entity.getIds().isEmpty() ){
@@ -307,156 +498,296 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				group.setCode( dtt.CD2CodeableConcept(entity.getCode()) );
 			}
 			
-			// name
 			
 			
-			// quantity
 			
-			
-			// characteristic
-			
-			// member
-//			if( entity.getScopedRoles() != null && !entity.getScopedRoles().isEmpty() ){
-//				for( Role role: entity.getScopedRoles() ){
-//					if( role != null && role.getClassCode() == org.openhealthtools.mdht.uml.hl7.vocab.RoleClass.MBR ){
-//						if( role.getPlayer() != null ){
-//							group.addMember( role.getPlayer() );
-//									Group.MEMBER <-> ENTITY
-//						}
-//					}
-//				}
-//			}
-			
-			
-			return group;
+			return groupBundle;
 		}
 	}
-	
-	
-	// tested
-	public Practitioner AssignedEntity2Practitioner( AssignedEntity assignedEntity ){
-		if( assignedEntity == null || assignedEntity.isSetNullFlavor() ) return null;
+
+	public Bundle Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization ){
+		if( cdaOrganization == null || cdaOrganization.isSetNullFlavor() ) return null;
 		else{
-			Practitioner practitioner = new Practitioner();
+			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = new ca.uhn.fhir.model.dstu2.resource.Organization();
+			Bundle fhirOrganizationBundle  = new Bundle();
+			fhirOrganizationBundle.addEntry( new Bundle.Entry().setResource(fhirOrganization) );
 			
 			// id
-			IdDt resourceId = new IdDt("Practitioner", getUniqueId());
-			practitioner.setId(resourceId);
+			IdDt resourceId = new IdDt("Organization",""+getUniqueId() );
+			fhirOrganization.setId(resourceId);
 			
-			// identifier
-			if( assignedEntity.getIds() != null && !assignedEntity.getIds().isEmpty() ){
-				for( II id : assignedEntity.getIds() ){
-					if( id != null && !id.isSetNullFlavor() ){
-						practitioner.addIdentifier( dtt.II2Identifier(id) );
+			
+			
+			if( cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty() )
+			{
+				List<IdentifierDt> idList = new ArrayList<IdentifierDt>();
+				for( II id : cdaOrganization.getIds()  ){
+					if( id.getRoot() != null && !id.getRoot().isEmpty() ){
+						idList.add(dtt.II2Identifier(id));
+					}
+				}
+				if( !idList.isEmpty() ){
+					fhirOrganization.setIdentifier(idList);
+				}
+				
+			}
+			
+			if( cdaOrganization.getNames() != null && !cdaOrganization.isSetNullFlavor() ){
+				for( ON name:cdaOrganization.getNames() ){
+					if( name != null && !name.isSetNullFlavor() && name.getText() != null && !name.getText().isEmpty() ){
+						fhirOrganization.setName( name.getText() );
+					}
+				}
+			}
+			if( cdaOrganization.getTelecoms() != null && !cdaOrganization.getTelecoms().isEmpty() ){
+				for(TEL tel : cdaOrganization.getTelecoms() ){
+					if( tel != null && !tel.isSetNullFlavor()){
+						Contact c = new Contact();
+						ContactPointDt contactPoint = dtt.TEL2ContactPoint(tel);
+						if( contactPoint != null && !contactPoint.isEmpty() ){
+							c.addTelecom( contactPoint );
+							fhirOrganization.addContact( c );
+						}
 					}
 				}
 			}
 			
-			// name
-			if( assignedEntity.getAssignedPerson() != null && !assignedEntity.getAssignedPerson().isSetNullFlavor() ){
-				for( PN pn : assignedEntity.getAssignedPerson().getNames() ){
-					if( pn != null && !pn.isSetNullFlavor() ){
-						// asserting that at most one name exists
-						practitioner.setName( dtt.EN2HumanName( pn ) );
-					}
-				}
-			}
-			
-			// address
-			if( assignedEntity.getAddrs() != null && !assignedEntity.getAddrs().isEmpty() ){
-				for( AD ad : assignedEntity.getAddrs() ){
+			if( cdaOrganization.getAddrs() != null && !cdaOrganization.getAddrs().isEmpty() ){
+				for( AD ad : cdaOrganization.getAddrs()  ){
 					if( ad != null && !ad.isSetNullFlavor() ){
-						practitioner.addAddress( dtt.AD2Address(ad) );
+						fhirOrganization.addAddress( dtt.AD2Address(ad) );
 					}
 				}
 			}
 			
-			// telecom
-			if( assignedEntity.getTelecoms() != null && ! assignedEntity.getTelecoms().isEmpty() ){
-				for( TEL tel : assignedEntity.getTelecoms() ){
-					if( tel != null && !tel.isSetNullFlavor() ){
-						practitioner.addTelecom( dtt.TEL2ContactPoint( tel ) );
-					}
-				}
-			}
-			
-			// role
-			if( assignedEntity.getRepresentedOrganizations() != null && !assignedEntity.getRepresentedOrganizations().isEmpty() ){
-				for( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization : assignedEntity.getRepresentedOrganizations() ){
-					if( cdaOrganization != null && !cdaOrganization.isSetNullFlavor() ){
-						// Notice that for every organization we add, we create a new practitioner role
-						
-						ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = Organization2Organization( cdaOrganization );
-						
-						
-						if( fhirOrganization != null ){
-							ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-							organizationReference.setReference( fhirOrganization.getId() );
-							if( fhirOrganization.getName() != null ){
-								organizationReference.setDisplay(fhirOrganization.getName());
-							}
-							practitioner.addPractitionerRole().setManagingOrganization( organizationReference );	
-						}	
-						
-//						ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-//						String uniqueIdString = "Organization/"+getUniqueId();
-//						
-//						organizationReference.setReference(uniqueIdString);
-//						
-//						if( fhirOrganization.getName() != null ){
-//							organizationReference.setDisplay(fhirOrganization.getName());
-//						}
-//						practitioner.addPractitionerRole().setManagingOrganization( organizationReference );		
-					}
-				}	
-			}
-			return practitioner;
+			return fhirOrganizationBundle;
 		}
 	}
 
+	public Bundle PatientRole2Patient(PatientRole patRole){
+			// https://www.hl7.org/fhir/patient-mappings.html
+			
+			if( patRole == null || patRole.isSetNullFlavor() ) return null;
+			else{
+				Patient patient = new Patient();
+				Bundle patientBundle  = new Bundle();
+				patientBundle.addEntry( new Bundle.Entry().setResource(patient) );
+				
+				// id
+				IdDt resourceId = new IdDt("Patient", getUniqueId());
+				patient.setId(resourceId);
+				
+				
+				// identifier <-> id
+				if( patRole.getIds() != null && !patRole.getIds().isEmpty() ){
+					for( II id : patRole.getIds() ){
+						if( id == null || id.isSetNullFlavor() ) continue;
+						else{
+							patient.addIdentifier(  dtt.II2Identifier(id)  );
+						}
+					}
+				}
+				
+				// name <-> patient.name
+				if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && 
+						patRole.getPatient().getNames() != null && !patRole.getPatient().getNames().isEmpty() )
+				{
+					for( PN pn : patRole.getPatient().getNames() ){
+						if( pn == null || pn.isSetNullFlavor() ) continue;
+						else{
+							patient.addName( dtt.EN2HumanName(pn) );
+						}
+					}
+				}
+				
+				// telecom <-> telecom
+				if( patRole.getTelecoms() != null && !patRole.getTelecoms().isEmpty() )
+				{
+					for( TEL tel : patRole.getTelecoms() ){
+						if( tel == null || tel.isSetNullFlavor() ) continue;
+						else{
+							patient.addTelecom( dtt.TEL2ContactPoint(tel) );
+						}
+					}
+				}
+				
+				// gender <-> patient.administrativeGenderCode
+				if(     patRole.getPatient() != null &&
+						!patRole.getPatient().isSetNullFlavor() &&
+						patRole.getPatient().getAdministrativeGenderCode() != null && 
+						!patRole.getPatient().getAdministrativeGenderCode().isSetNullFlavor()  )
+				{
+					
+					if( patRole.getPatient().getAdministrativeGenderCode().getCode() != null && 
+							!patRole.getPatient().getAdministrativeGenderCode().getCode().isEmpty() )
+					{
+						patient.setGender(vst.AdministrativeGenderCode2AdministrativeGenderEnum( patRole.getPatient().getAdministrativeGenderCode().getCode() ) );
+					}
+				}
+				
+				// birthDate <-> patient.birthTime
+				if( patRole.getPatient() != null && 
+						!patRole.getPatient().isSetNullFlavor() &&
+						patRole.getPatient().getBirthTime() != null &&
+						!patRole.getPatient().getBirthTime().isSetNullFlavor() )
+				{
+					patient.setBirthDate( dtt.TS2Date(patRole.getPatient().getBirthTime()) );
+				}
+				
+				// address <-> addr
+				if( patRole.getAddrs() != null && !patRole.getAddrs().isEmpty() ){
+					for(AD ad : patRole.getAddrs()){
+						if( ad == null || ad.isSetNullFlavor() ) continue;
+						else{
+							patient.addAddress(dtt.AD2Address(ad));
+						}
+					}
+				}
+				
+				// maritalStatus <-> patient.maritalStatusCode
+				if(patRole.getPatient().getMaritalStatusCode() != null 
+						&& !patRole.getPatient().getMaritalStatusCode().isSetNullFlavor())
+				{
+					if( patRole.getPatient().getMaritalStatusCode().getCode() != null && !patRole.getPatient().getMaritalStatusCode().getCode().isEmpty() )
+					{
+						patient.setMaritalStatus( vst.MaritalStatusCode2MaritalStatusCodesEnum(patRole.getPatient().getMaritalStatusCode().getCode()) );
+					}
+				}
+				
+				// communication <-> patient.languageCommunication
+				if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() &&
+						patRole.getPatient().getLanguageCommunications() != null &&
+						!patRole.getPatient().getLanguageCommunications().isEmpty() )
+				{
+					
+					for( LanguageCommunication LC : patRole.getPatient().getLanguageCommunications() ){
+						if(LC == null || LC.isSetNullFlavor() ) continue;
+						else{
+							Communication communication = LanguageCommunication2Communication(LC);
+							patient.addCommunication(communication);
+						}
+					}
+				}
+				
+				// managingOrganization <-> providerOrganization
+				if( patRole.getProviderOrganization() != null && !patRole.getProviderOrganization().isSetNullFlavor() ){
+					
+					ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = null;
+					Bundle fhirOrganizationBundle = Organization2Organization( patRole.getProviderOrganization() );
+					for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirOrganizationBundle.getEntry() ){
+						if( entity.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization ){
+							fhirOrganization = (Organization) entity.getResource();
+						}
+					}
+
+					// See https://www.hl7.org/fhir/references.html#Reference
+					
+					if( fhirOrganization != null && !fhirOrganization.isEmpty() ){
+						ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+						organizationReference.setReference(fhirOrganization.getId());
+						if( fhirOrganization.getName() != null ){
+							organizationReference.setDisplay( fhirOrganization.getName() );
+						}
+						patientBundle.addEntry( new Bundle().addEntry().setResource( fhirOrganization ) );
+						
+						patient.setManagingOrganization(organizationReference);
+					}
+	//				ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+	//				String uniqueIdString = "Organization/"+getUniqueId();
+	//				// TODO: The information about the organization should be pushed to database using the uniqueIdString
+	//				// Also, the id of the organization should be set
+	//				organizationReference.setReference( uniqueIdString );
+	//				if( fhirOrganization.getName() != null ){
+	//					organizationReference.setDisplay( fhirOrganization.getName() );
+	//				}
+	//				patient.setManagingOrganization( organizationReference );
+				}
+				
+	//			// guardian <-> patient.guardians
+				if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && 
+						patRole.getPatient().getGuardians() != null && !patRole.getPatient().getGuardians().isEmpty() )
+				{
+					for( org.openhealthtools.mdht.uml.cda.Guardian guardian : patRole.getPatient().getGuardians() ){
+						patient.addContact( Guardian2Contact(guardian) );
+					}
+				}
+				
+				
+				////////////////////
+				// extensions start
+				
+				// extRace <-> patient.raceCode
+				if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getRaceCode() != null && !patRole.getPatient().getRaceCode().isSetNullFlavor())
+				{
+					ExtensionDt extRace = new ExtensionDt();
+					extRace.setModifier(false);
+					extRace.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-race");
+					CD raceCode = patRole.getPatient().getRaceCode();
+					extRace.setValue( dtt.CD2CodeableConcept(raceCode) );
+					patient.addUndeclaredExtension( extRace );
+				}
 	
-	// tested
-	public Performer Performer22Performer( Performer2 cdaPerformer ){
-		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() || cdaPerformer.getAssignedEntity() == null || cdaPerformer.getAssignedEntity().isSetNullFlavor() ) return null;
+				// extEthnicity <-> patient.ethnicGroupCode
+				if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getEthnicGroupCode() != null && !patRole.getPatient().getEthnicGroupCode().isSetNullFlavor() )
+				{
+					ExtensionDt extEthnicity = new ExtensionDt();
+					extEthnicity.setModifier(false);
+					extEthnicity.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-ethnicity");
+					CD ethnicGroupCode = patRole.getPatient().getEthnicGroupCode();
+					extEthnicity.setValue( dtt.CD2CodeableConcept(ethnicGroupCode) );
+					patient.addUndeclaredExtension(extEthnicity);
+				}
+				
+				
+				// extBirthPlace
+	//			ExtensionDt extBirthPlace = new ExtensionDt();
+	//			extBirthPlace.setModifier(false);
+	//			extBirthPlace.setUrl("http://hl7.org/fhir/extension-birthplace.html");
+	//			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getBirthplace() != null && !patRole.getPatient().getBirthplace().isSetNullFlavor() )
+	//			{
+	////				extBirthPlace.setValue(  dtt.sometransformer( patRole.getPatient().getBirthplace() ) );
+	//				// Birthplace mapping
+	//				// We can get the Birthplace info from ccd
+	//				// However, there is no type to put it
+	//			}
+	//			patient.addUndeclaredExtension(extBirthPlace);
+				
+				// extReligion
+				if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getReligiousAffiliationCode() != null && !patRole.getPatient().getReligiousAffiliationCode().isSetNullFlavor() )
+				{
+					ExtensionDt extReligion = new ExtensionDt();
+					extReligion.setModifier(false);
+					// TODO: This url doesn't exist. Look for a existing one.
+					extReligion.setUrl("http://hl7.org/fhir/extension-religion.html");
+					CD religiousAffiliationCode = patRole.getPatient().getReligiousAffiliationCode();
+					extReligion.setValue( dtt.CD2CodeableConcept(religiousAffiliationCode) );
+					patient.addUndeclaredExtension(extReligion);
+				}
+				
+				// extensions end
+				/////////////////
+				
+				
+				// Visit https://www.hl7.org/fhir/daf/patient-daf.html
+				
+				return patientBundle;
+			}
+		}
+
+	public Bundle Performer22Practitioner( Performer2 cdaPerformer ){
+		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() ) return null;
 		else{
-			Performer fhirPerformer = new Performer();
-
-			Practitioner practitioner = AssignedEntity2Practitioner(cdaPerformer.getAssignedEntity());
-			if( practitioner != null && !practitioner.isEmpty() ){
-				ResourceReferenceDt actorReference = new ResourceReferenceDt();
-				actorReference.setReference(practitioner.getId());
-				if( practitioner.getName() != null && practitioner.getName().getText() != null ){
-					actorReference.setDisplay( practitioner.getName().getText() );
-				}
-				fhirPerformer.setActor(actorReference);
-			}
-			
-//			ResourceReferenceDt actorReference = new ResourceReferenceDt();
-//			String uniqueIdString = "Practitioner/"+getUniqueId();
-//			
-//			
-//			Practitioner practitioner = AssignedEntity2Practitioner(cdaPerformer.getAssignedEntity());
-//			actorReference.setReference( uniqueIdString );
-//			if( practitioner.getName() != null && practitioner.getName().getText() != null ){
-//				actorReference.setDisplay( practitioner.getName().getText() );
-//			}
-//			fhirPerformer.setActor( actorReference );
-			
-			
-			
-			
-			return fhirPerformer;
+			return AssignedEntity2Practitioner( cdaPerformer.getAssignedEntity() );
 		}
 	}
 	
-	
-	// tested
-	public ca.uhn.fhir.model.dstu2.resource.Procedure Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaPr){
+	public Bundle Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaPr){
 		// TODO: used <-> device,  subject <-> subject
 		if( cdaPr == null || cdaPr.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
-			
+			Bundle fhirPrBundle  = new Bundle();
+			fhirPrBundle.addEntry( new Bundle.Entry().setResource(fhirPr) );
 			// id
 			IdDt resourceId = new IdDt("Procedure",""+getUniqueId() );
 			fhirPr.setId(resourceId);
@@ -518,17 +849,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 //				System.out.println("==========");
 //			}
 			
-			return fhirPr;
+			return fhirPrBundle;
 		}
 	}
-	
-	
-	// tested
+
 	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( Guardian guardian ){
-		
-		// There doesn't exist a well specified mapping between contact and guardian
-		// If found, control the mapping
-		// 04.08.16: Tests OK
+			
 		if( guardian == null || guardian.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = new ca.uhn.fhir.model.dstu2.resource.Patient.Contact();
@@ -551,80 +877,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( guardian.getCode() != null && !guardian.getCode().isSetNullFlavor() ){
 				contact.addRelationship( dtt.CD2CodeableConcept( guardian.getCode() ) );
 			}
-
-			
-//			if( guardian.getIds() != null && !guardian.getIds().isEmpty() ){
-//				if( guardian.getIds().get(0) != null && !guardian.getIds().get(0).isSetNullFlavor() ){
-//					guardian.getIds().get(0);
-//				}
-//			}
-			
-
 			return contact;
 		}
 	}
-	
-	
-	// tested
-	public ca.uhn.fhir.model.dstu2.resource.Organization Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization ){
-		if( cdaOrganization == null || cdaOrganization.isSetNullFlavor() ) return null;
-		else{
-			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = new ca.uhn.fhir.model.dstu2.resource.Organization();
 
-			
-			// id
-			IdDt resourceId = new IdDt("Organization",""+getUniqueId() );
-			fhirOrganization.setId(resourceId);
-			
-			
-			
-			if( cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty() )
-			{
-				List<IdentifierDt> idList = new ArrayList<IdentifierDt>();
-				for( II id : cdaOrganization.getIds()  ){
-					if( id.getRoot() != null && !id.getRoot().isEmpty() ){
-						idList.add(dtt.II2Identifier(id));
-					}
-				}
-				if( !idList.isEmpty() ){
-					fhirOrganization.setIdentifier(idList);
-				}
-				
-			}
-			
-			if( cdaOrganization.getNames() != null && !cdaOrganization.isSetNullFlavor() ){
-				for( ON name:cdaOrganization.getNames() ){
-					if( name != null && !name.isSetNullFlavor() && name.getText() != null && !name.getText().isEmpty() ){
-						fhirOrganization.setName( name.getText() );
-					}
-				}
-			}
-			if( cdaOrganization.getTelecoms() != null && !cdaOrganization.getTelecoms().isEmpty() ){
-				for(TEL tel : cdaOrganization.getTelecoms() ){
-					if( tel != null && !tel.isSetNullFlavor()){
-						Contact c = new Contact();
-						ContactPointDt contactPoint = dtt.TEL2ContactPoint(tel);
-						if( contactPoint != null && !contactPoint.isEmpty() ){
-							c.addTelecom( contactPoint );
-							fhirOrganization.addContact( c );
-						}
-					}
-				}
-			}
-			
-			if( cdaOrganization.getAddrs() != null && !cdaOrganization.getAddrs().isEmpty() ){
-				for( AD ad : cdaOrganization.getAddrs()  ){
-					if( ad != null && !ad.isSetNullFlavor() ){
-						fhirOrganization.addAddress( dtt.AD2Address(ad) );
-					}
-				}
-			}
-			
-			return fhirOrganization;
-		}
-	}
-
-	// tested
 	public Communication LanguageCommunication2Communication( LanguageCommunication LC ){
 		if(LC == null || LC.isSetNullFlavor()) return null;
 		else{
@@ -639,215 +895,56 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return communication;
 		}
 	}
-	
-	// tested
-	@Override
-	public Patient PatientRole2Patient(PatientRole patRole){
-		// https://www.hl7.org/fhir/patient-mappings.html
-		
-		if( patRole == null || patRole.isSetNullFlavor() ) return null;
-		else{
-			Patient patient = new Patient();
-			
-			// id
-			IdDt resourceId = new IdDt("Patient", getUniqueId());
-			patient.setId(resourceId);
-			
-			
-			// identifier <-> id
-			if( patRole.getIds() != null && !patRole.getIds().isEmpty() ){
-				for( II id : patRole.getIds() ){
-					if( id == null || id.isSetNullFlavor() ) continue;
-					else{
-						patient.addIdentifier(  dtt.II2Identifier(id)  );
-					}
-				}
-			}
-			
-			// name <-> patient.name
-			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && 
-					patRole.getPatient().getNames() != null && !patRole.getPatient().getNames().isEmpty() )
-			{
-				for( PN pn : patRole.getPatient().getNames() ){
-					if( pn == null || pn.isSetNullFlavor() ) continue;
-					else{
-						patient.addName( dtt.EN2HumanName(pn) );
-					}
-				}
-			}
-			
-			// telecom <-> telecom
-			if( patRole.getTelecoms() != null && !patRole.getTelecoms().isEmpty() )
-			{
-				for( TEL tel : patRole.getTelecoms() ){
-					if( tel == null || tel.isSetNullFlavor() ) continue;
-					else{
-						patient.addTelecom( dtt.TEL2ContactPoint(tel) );
-					}
-				}
-			}
-			
-			// gender <-> patient.administrativeGenderCode
-			if(     patRole.getPatient() != null &&
-					!patRole.getPatient().isSetNullFlavor() &&
-					patRole.getPatient().getAdministrativeGenderCode() != null && 
-					!patRole.getPatient().getAdministrativeGenderCode().isSetNullFlavor()  )
-			{
-				
-				if( patRole.getPatient().getAdministrativeGenderCode().getCode() != null && 
-						!patRole.getPatient().getAdministrativeGenderCode().getCode().isEmpty() )
-				{
-					patient.setGender(vst.AdministrativeGenderCode2AdministrativeGenderEnum( patRole.getPatient().getAdministrativeGenderCode().getCode() ) );
-				}
-			}
-			
-			// birthDate <-> patient.birthTime
-			if( patRole.getPatient() != null && 
-					!patRole.getPatient().isSetNullFlavor() &&
-					patRole.getPatient().getBirthTime() != null &&
-					!patRole.getPatient().getBirthTime().isSetNullFlavor() )
-			{
-				patient.setBirthDate( dtt.TS2Date(patRole.getPatient().getBirthTime()) );
-			}
-			
-			// address <-> addr
-			if( patRole.getAddrs() != null && !patRole.getAddrs().isEmpty() ){
-				for(AD ad : patRole.getAddrs()){
-					if( ad == null || ad.isSetNullFlavor() ) continue;
-					else{
-						patient.addAddress(dtt.AD2Address(ad));
-					}
-				}
-			}
-			
-			// maritalStatus <-> patient.maritalStatusCode
-			if(patRole.getPatient().getMaritalStatusCode() != null 
-					&& !patRole.getPatient().getMaritalStatusCode().isSetNullFlavor())
-			{
-				if( patRole.getPatient().getMaritalStatusCode().getCode() != null && !patRole.getPatient().getMaritalStatusCode().getCode().isEmpty() )
-				{
-					patient.setMaritalStatus( vst.MaritalStatusCode2MaritalStatusCodesEnum(patRole.getPatient().getMaritalStatusCode().getCode()) );
-				}
-			}
-			
-			// communication <-> patient.languageCommunication
-			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() &&
-					patRole.getPatient().getLanguageCommunications() != null &&
-					!patRole.getPatient().getLanguageCommunications().isEmpty() )
-			{
-				
-				for( LanguageCommunication LC : patRole.getPatient().getLanguageCommunications() ){
-					if(LC == null || LC.isSetNullFlavor() ) continue;
-					else{
-						Communication communication = LanguageCommunication2Communication(LC);
-						patient.addCommunication(communication);
-					}
-				}
-			}
-			
-			// managingOrganization <-> providerOrganization
-			if( patRole.getProviderOrganization() != null && !patRole.getProviderOrganization().isSetNullFlavor() ){
-				ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = Organization2Organization( patRole.getProviderOrganization() );
-				
-				// See https://www.hl7.org/fhir/references.html#Reference
-				
-				if( fhirOrganization != null && !fhirOrganization.isEmpty() ){
-					ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-					organizationReference.setReference(fhirOrganization.getId());
-					if( fhirOrganization.getName() != null ){
-						organizationReference.setDisplay( fhirOrganization.getName() );
-					}
-					patient.setManagingOrganization(organizationReference);
-				}
-//				ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-//				String uniqueIdString = "Organization/"+getUniqueId();
-//				// TODO: The information about the organization should be pushed to database using the uniqueIdString
-//				// Also, the id of the organization should be set
-//				organizationReference.setReference( uniqueIdString );
-//				if( fhirOrganization.getName() != null ){
-//					organizationReference.setDisplay( fhirOrganization.getName() );
-//				}
-//				patient.setManagingOrganization( organizationReference );
-			}
-			
-//			// guardian <-> patient.guardians
-			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && 
-					patRole.getPatient().getGuardians() != null && !patRole.getPatient().getGuardians().isEmpty() )
-			{
-				for( org.openhealthtools.mdht.uml.cda.Guardian guardian : patRole.getPatient().getGuardians() ){
-					patient.addContact( Guardian2Contact(guardian) );
-				}
-			}
-			
-			
-			////////////////////
-			// extensions start
-			
-			// extRace <-> patient.raceCode
-			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getRaceCode() != null && !patRole.getPatient().getRaceCode().isSetNullFlavor())
-			{
-				ExtensionDt extRace = new ExtensionDt();
-				extRace.setModifier(false);
-				extRace.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-race");
-				CD raceCode = patRole.getPatient().getRaceCode();
-				extRace.setValue( dtt.CD2CodeableConcept(raceCode) );
-				patient.addUndeclaredExtension( extRace );
-			}
 
-			// extEthnicity <-> patient.ethnicGroupCode
-			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getEthnicGroupCode() != null && !patRole.getPatient().getEthnicGroupCode().isSetNullFlavor() )
-			{
-				ExtensionDt extEthnicity = new ExtensionDt();
-				extEthnicity.setModifier(false);
-				extEthnicity.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-ethnicity");
-				CD ethnicGroupCode = patRole.getPatient().getEthnicGroupCode();
-				extEthnicity.setValue( dtt.CD2CodeableConcept(ethnicGroupCode) );
-				patient.addUndeclaredExtension(extEthnicity);
+	public ca.uhn.fhir.model.dstu2.resource.Procedure.Performer Performer22Performer( Performer2 cdaPerformer ){
+		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() || cdaPerformer.getAssignedEntity() == null || cdaPerformer.getAssignedEntity().isSetNullFlavor() ) return null;
+		else{
+			Performer fhirPerformer = new Performer();
+			
+			Practitioner fhirPractitioner = null;
+			Bundle fhirPractitionerBundle = AssignedEntity2Practitioner( cdaPerformer.getAssignedEntity() );
+			for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirPractitionerBundle.getEntry() ){
+				if( entity.getResource() instanceof Practitioner ){
+					fhirPractitioner = (Practitioner) entity.getResource();
+				}
 			}
 			
+			if( fhirPractitioner != null && !fhirPractitioner.isEmpty() ){
+				ResourceReferenceDt actorReference = new ResourceReferenceDt();
+				actorReference.setReference(fhirPractitioner.getId());
+				if( fhirPractitioner.getName() != null && fhirPractitioner.getName().getText() != null ){
+					actorReference.setDisplay( fhirPractitioner.getName().getText() );
+				}
+				fhirPractitionerBundle.addEntry( new Bundle().addEntry().setResource( fhirPractitioner ) );
+				fhirPerformer.setActor(actorReference);
+			}
 			
-			// extBirthPlace
-//			ExtensionDt extBirthPlace = new ExtensionDt();
-//			extBirthPlace.setModifier(false);
-//			extBirthPlace.setUrl("http://hl7.org/fhir/extension-birthplace.html");
-//			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getBirthplace() != null && !patRole.getPatient().getBirthplace().isSetNullFlavor() )
-//			{
-////				extBirthPlace.setValue(  dtt.sometransformer( patRole.getPatient().getBirthplace() ) );
-//				// Birthplace mapping
-//				// We can get the Birthplace info from ccd
-//				// However, there is no type to put it
+//			ResourceReferenceDt actorReference = new ResourceReferenceDt();
+//			String uniqueIdString = "Practitioner/"+getUniqueId();
+//			
+//			
+//			Practitioner practitioner = AssignedEntity2Practitioner(cdaPerformer.getAssignedEntity());
+//			actorReference.setReference( uniqueIdString );
+//			if( practitioner.getName() != null && practitioner.getName().getText() != null ){
+//				actorReference.setDisplay( practitioner.getName().getText() );
 //			}
-//			patient.addUndeclaredExtension(extBirthPlace);
-			
-			// extReligion
-			if( patRole.getPatient() != null && !patRole.getPatient().isSetNullFlavor() && patRole.getPatient().getReligiousAffiliationCode() != null && !patRole.getPatient().getReligiousAffiliationCode().isSetNullFlavor() )
-			{
-				ExtensionDt extReligion = new ExtensionDt();
-				extReligion.setModifier(false);
-				// TODO: This url doesn't exist. Look for a existing one.
-				extReligion.setUrl("http://hl7.org/fhir/extension-religion.html");
-				CD religiousAffiliationCode = patRole.getPatient().getReligiousAffiliationCode();
-				extReligion.setValue( dtt.CD2CodeableConcept(religiousAffiliationCode) );
-				patient.addUndeclaredExtension(extReligion);
-			}
-			
-			// extensions end
-			/////////////////
+//			fhirPerformer.setActor( actorReference );
 			
 			
-			// Visit https://www.hl7.org/fhir/daf/patient-daf.html
 			
-			return patient;
+			
+			return fhirPerformer;
 		}
 	}
-
-	// necip end
-	////////////
+	
+// necip end
 	
 	
 	///////////////
 	// ismail start
-	
+
+		
+		
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	public Bundle ProblemConcernAct2Condition(ProblemConcernAct probAct) {
 		
@@ -882,7 +979,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 			if(probAct.getEncounters().size() > 0) {
 				ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
-				ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter(probAct.getEncounters().get(0));
+				// TODO: Bundle issue
+				ca.uhn.fhir.model.dstu2.resource.Encounter enc = (ca.uhn.fhir.model.dstu2.resource.Encounter) Encounter2Encounter(probAct.getEncounters().get(0)).getEntry().get(0).getResource();
 				resourceReferenceEncounter.setReference(enc.getId());
 				condition.setEncounter(resourceReferenceEncounter);
 				conditionBundle.addEntry( new Bundle.Entry().setResource(enc));
