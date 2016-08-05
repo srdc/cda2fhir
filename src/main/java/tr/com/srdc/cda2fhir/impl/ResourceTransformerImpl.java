@@ -125,6 +125,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter();
 			
+			
+			// id
+			IdDt resourceId = new IdDt("Encounter",getUniqueId() );
+			fhirEncounter.setId(resourceId);
+						
+			
 			// identifier <-> id
 			if( cdaEncounter.getIds() != null && !cdaEncounter.getIds().isEmpty() ){
 				for( II id : cdaEncounter.getIds() ){
@@ -143,9 +149,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 			
-			// class
-			
-			
 			// type <-> code
 			if( cdaEncounter.getCode() != null && !cdaEncounter.getCode().isSetNullFlavor() ){
 				fhirEncounter.addType( dtt.CD2CodeableConcept( cdaEncounter.getCode() ) );
@@ -157,37 +160,41 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 			
 			// patient
-			if( cdaEncounter.getParticipations() != null && !cdaEncounter.getParticipations().isEmpty()){
-				for( Participation participation : cdaEncounter.getParticipations() ){
-					if( participation.getTypeCode() == org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType.SBJ  ){
-						if( participation.getRole() != null && participation.getRole().getClassCode() == org.openhealthtools.mdht.uml.hl7.vocab.RoleClass.PAT ){
-							// PatientRole extends Role
-							Patient fhirPatient = PatientRole2Patient( (PatientRole) participation.getRole() );
-							
-							if( fhirPatient != null ){
-								ResourceReferenceDt patientReference = new ResourceReferenceDt();
-								patientReference.setReference( fhirPatient.getId() );
-								fhirEncounter.setPatient(patientReference);
-							}
-							
-							
+			// UnsupportedOperationException
+//			if( cdaEncounter.getParticipations() != null && !cdaEncounter.getParticipations().isEmpty()){
+//				for( Participation participation : cdaEncounter.getParticipations() ){
+//					if( participation.getTypeCode() == org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType.SBJ  ){
+//						if( participation.getRole() != null && participation.getRole().getClassCode() == org.openhealthtools.mdht.uml.hl7.vocab.RoleClass.PAT ){
+//							// PatientRole extends Role
+//							Patient fhirPatient = PatientRole2Patient( (PatientRole) participation.getRole() );
 //							if( fhirPatient != null ){
 //								ResourceReferenceDt patientReference = new ResourceReferenceDt();
-//								String uniqueIdString = "Patient/"+getUniqueId();
-//								// TODO: The information about the patient should be pushed to database using the uniqueIdString
-//								patientReference.setReference( uniqueIdString );
-//								// TODO: Do we need to set display? What to set, name?
-////								patientReference.setDisplay( THE VALUE TO SET AS DISPLAY );
-//								fhirEncounter.setPatient( patientReference );
+//								patientReference.setReference( fhirPatient.getId() );
+//								fhirEncounter.setPatient(patientReference);
 //							}
+//						}
+//					}
+//				}
+//			}
+
+			// performer
+			if( cdaEncounter.getPerformers() != null && !cdaEncounter.getPerformers().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaEncounter.getPerformers()  ){
+					if( cdaPerformer != null && !cdaPerformer.isSetNullFlavor() ){
+						ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
+						
+						fhirParticipant.addType().addCoding( vst.ParticipationType2ParticipationTypeCode( ParticipationType.PRF ) );
+						
+						Practitioner fhirPractitioner = Performer22Practitioner( cdaPerformer );
+						if( fhirPractitioner != null ){
+							ResourceReferenceDt practitionerReference = new ResourceReferenceDt();
+							practitionerReference.setReference( fhirPractitioner.getId() );
+							fhirParticipant.setIndividual( practitionerReference );
 						}
+						fhirEncounter.addParticipant(fhirParticipant);
 					}
 				}
 			}
-			
-			// participant
-			
-			// appointment <-> .outboundRelationship[typeCode=FLFS].target[classCode=ENC, moodCode=APT] 
 			
 			
 			// period <-> .effectiveTime (low & high)
@@ -195,29 +202,33 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				fhirEncounter.setPeriod( dtt.IVL_TS2Period( cdaEncounter.getEffectiveTime() ) );
 			}
 			
-			
-			// indication <-> .outboundRelationship[typeCode=RSON].target
-
-			
-			// hospitalization <-> .outboundRelationship[typeCode=COMP].target[classCode=ENC, moodCode=EVN]
-
-			
 			// location <-> .participation[typeCode=LOC]
-//			if( cdaEncounter.getParticipations() != null && !cdaEncounter.getParticipations().isEmpty() ){
-//				for( Participation participation : cdaEncounter.getParticipations() ){
-//					if( participation.getTypeCode() == org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType.LOC ){
-//						Location locationToAdd = new Location();
-//						
-//						Role2Location
-//						// https://www.hl7.org/fhir/location-mappings.html
-//						// locationToAdd.setLocation(  Role2Location( participation.getRole() )  );
-//						
-//						// period <-> time?
-//						
-//						fhirEncounter.addLocation( locationToAdd );
-//					}
-//				}
+			// UnsupportedOperationException
+//			if( cdaEncounter.getParticipantRoles() != null && !cdaEncounter.getParticipantRoles().isEmpty() ){
+//				for( org.openhealthtools.mdht.uml.cda.ParticipantRole participantRole : cdaEncounter.getParticipantRoles() ){
+//					if( participantRole != null && !participantRole.isSetNullFlavor() ){
+//						if(participantRole.getClassCode() == org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot.SDLOC){
+//							org.openhealthtools.mdht.uml.cda.ParticipantRole cdaLoc = participantRole; // to make it more readable, let's call it as cdaLoc
+//							
+//							// we first fill fhirLoc with our location information
+//							// then, we give its reference to fhirEncounterLoc
+//							ca.uhn.fhir.model.dstu2.resource.Encounter.Location fhirEncounterLoc = new ca.uhn.fhir.model.dstu2.resource.Encounter.Location();
+//							
+//							ca.uhn.fhir.model.dstu2.resource.Location fhirLoc = ParticipantRole2Location( cdaLoc );
+//							
+//							if( fhirLoc != null ){
+//								ResourceReferenceDt locationReference = new ResourceReferenceDt();
+//								locationReference.setReference( fhirLoc.getId() );
+//								
+//								fhirEncounterLoc.setLocation( locationReference );
+//							}
+//							
+//							fhirEncounter.addLocation( fhirEncounterLoc );
+//						}//classCode-check
+//					}//null-check
+//				}//traversing participantRoles
 //			}
+			
 			
 			// serviceProvider Reference(Organizaton) <-> 	.particiaption[typeCode=PFM].role
 //			if( cdaEncounter.getParticipations() != null && !cdaEncounter.getParticipations().isEmpty() ){
@@ -226,27 +237,29 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 //						 Role2Organization
 //						fhirEncounter.setServiceProvider( Organization2Organization( participation.getRole() ) );
 //					}
-						// typeCode pfm ?
+//						 typeCode pfm ?
 //				}
 //			}
 			
-			
-			// partOf <-> .inboundRelationship[typeCode=COMP].source[classCode=COMP, moodCode=EVN]
-//			if( cdaEncounter.getInboundRelationships() != null && !cdaEncounter.getInboundRelationships().isEmpty() ){
-//				for( ActRelationship actRelationship : cdaEncounter.getInboundRelationships() ){
-//					if( actRelationship != null && actRelationship ){
-//						actRelationship
+			// entryRelationsip.Observation
+//			if( cdaEncounter.getEntryRelationships() != null && !cdaEncounter.getEntryRelationships().isEmpty() ){
+//				for( org.openhealthtools.mdht.uml.cda.EntryRelationship entryRel : cdaEncounter.getEntryRelationships() ){
+//					if( entryRel != null && !entryRel.isSetNullFlavor() ){
+//						// TODO entryRel.getObservation()
+//						
 //					}
 //				}
 //			}
-			
-			
-			
-			
-			
-			
-			
 			return fhirEncounter;
+		}
+	}
+	
+	// tested
+	public Practitioner Performer22Practitioner( Performer2 cdaPerformer ){
+		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() ) return null;
+		else{
+			Practitioner fhirPractitioner = AssignedEntity2Practitioner(cdaPerformer.getAssignedEntity());
+			return fhirPractitioner;
 		}
 	}
 	

@@ -34,6 +34,9 @@ public interface ResourceTransformer {
 
 	Communication LanguageCommunication2Communication( LanguageCommunication LC );
 
+	Practitioner Performer22Practitioner( Performer2 cdaPerformer );
+	
+	
 	// necip end
 	
 	// ismail start
