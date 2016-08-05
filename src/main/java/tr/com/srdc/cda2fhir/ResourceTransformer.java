@@ -11,6 +11,7 @@ import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
@@ -40,14 +41,14 @@ public interface ResourceTransformer {
 	// necip end
 	
 	// ismail start
-	Medication Medication2Medication(ManufacturedProduct manPro);
+Bundle Medication2Medication(ManufacturedProduct manPro);
 	
-	List<Condition> ProblemConcernAct2Condition(ProblemConcernAct probAct);
+	Bundle ProblemConcernAct2Condition(ProblemConcernAct probAct);
 
-	MedicationStatement MedicationActivity2MedicationSatement(
-			SubstanceAdministration subAd);
+	Bundle MedicationActivity2MedicationSatement(
+			MedicationActivity subAd);
 	
-	MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
+	Bundle MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
 	
 	Location ParticipantRole2Location(ParticipantRole patRole );
 	// ismail end

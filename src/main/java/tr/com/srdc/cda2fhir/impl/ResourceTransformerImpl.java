@@ -849,16 +849,18 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	// ismail start
 	
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
-	public List<Condition> ProblemConcernAct2Condition(ProblemConcernAct probAct) {
+	public Bundle ProblemConcernAct2Condition(ProblemConcernAct probAct) {
 		
 		if( probAct == null || probAct.isSetNullFlavor()) return null;
 		
-		List<Condition> conditionList = new ArrayList<Condition>();
+		Bundle conditionBundle = new Bundle();
+		//List<Condition> conditionList = new ArrayList<Condition>();
 		
 		for(EntryRelationship entryRelationship : probAct.getEntryRelationships())
 		{	
 			
 			Condition condition = new Condition();
+			conditionBundle.addEntry( new Bundle.Entry().setResource(condition) );
 			
 			IdDt id = new IdDt("Condition", "" + getUniqueId());
 			condition.setId( id );
@@ -883,6 +885,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter(probAct.getEncounters().get(0));
 				resourceReferenceEncounter.setReference(enc.getId());
 				condition.setEncounter(resourceReferenceEncounter);
+				conditionBundle.addEntry( new Bundle.Entry().setResource(enc));
 			}
 			
 			//TODO: Mustafa: AssignedEntity2Practitioner method does not work for AssignedAuthor; needs to be implemented separately
@@ -1040,22 +1043,24 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	        
 	        
 	        //TODO: Stage type does not exist.
-	        conditionList.add(condition);
+	        //conditionBundle.addEntry( new Bundle.Entry().setResource(condition) );
 	        
 		}
 		
-		return conditionList;
+		return conditionBundle;
 	}
 
 	
 	
 
 	@SuppressWarnings("deprecation")
-	public Medication Medication2Medication(ManufacturedProduct manPro) {
+	public Bundle Medication2Medication(ManufacturedProduct manPro) {
 		
 		if( manPro == null || manPro.isSetNullFlavor() ) return null;
 		
+		Bundle medicationBundle = new Bundle();
 		Medication medication = new Medication();
+		medicationBundle.addEntry( new Bundle.Entry().setResource(medicationBundle) );
 		
 		//ID
 		IdDt id = new IdDt( "Medication" , "" + getUniqueId());
@@ -1074,7 +1079,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( ce.getDisplayName() != null )
 			coding.setDisplay( ce.getDisplayName() );
 			if( ce.getCodeSystem() != null )
-				coding.setSystem( vst.oid2Url( ce.getCodeSystem() ) );
+				coding.setSystem(  ce.getCodeSystem() );
 			if( ce.getCodeSystemVersion() != null )
 				coding.setVersion( ce.getCodeSystemVersion() );
 			
@@ -1088,7 +1093,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if( cd.getDisplayName() != null )
 				codingTrans.setDisplay( cd.getDisplayName() );
 			if( cd.getCodeSystem() != null )
-				codingTrans.setSystem( vst.oid2Url( cd.getCodeSystem() ) );
+				codingTrans.setSystem(  cd.getCodeSystem() );
 			if( cd.getCodeSystemVersion() != null )
 				codingTrans.setVersion( cd.getCodeSystemVersion() );
 			codeableConcept.addCoding(codingTrans);
@@ -1099,6 +1104,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		//IS_BRAND and MANUFACTURER
 		ResourceReferenceDt resourceReferenceManu = new ResourceReferenceDt();
+		
 		if( manPro.getManufacturerOrganization() != null ){
 			
 			if( !manPro.getManufacturerOrganization().isSetNullFlavor()  )
@@ -1106,14 +1112,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				medication.setIsBrand(true);
 				
 				//MANUFACTURER
-	
-				resourceReferenceManu.setReference( Organization2Organization( manPro.getManufacturerOrganization() ).getId() );
+				Organization org = Organization2Organization( manPro.getManufacturerOrganization() );
+				resourceReferenceManu.setReference( org.getId() );
 
 				if( manPro.getManufacturerOrganization().getNames() != null){
 					if( manPro.getManufacturerOrganization().getNames().size() != 0 )
 						resourceReferenceManu.setDisplay( manPro.getManufacturerOrganization().getNames().get(0).getText() );
 				}
-				
+				medication.setManufacturer( resourceReferenceManu );
+				medicationBundle.addEntry( new Bundle.Entry().setResource(org) );
 			}
 			else
 			{
@@ -1122,7 +1129,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}else{
 			medication.setIsBrand(false);
 		}
-		medication.setManufacturer( resourceReferenceManu );
+		
 		
 		
 		
@@ -1131,17 +1138,19 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		//TODO Package.
 		
 		
-		return medication;
+		return medicationBundle;
 	}
 
-	public MedicationStatement MedicationActivity2MedicationSatement(
-			SubstanceAdministration subAd) {
+	public Bundle MedicationActivity2MedicationSatement(
+			MedicationActivity subAd) {
 		
 		if( subAd == null || subAd.isSetNegationInd() ) return null;
 		
 		if (subAd.getMoodCode() != x_DocumentSubstanceMood.EVN ) return null;
 		
+		Bundle medStatementBundle = new Bundle();
 		MedicationStatement medSt = new MedicationStatement();
+		medStatementBundle.addEntry( new Bundle.Entry().setResource(medSt) );
 	
 		//ID
 		IdDt id = new IdDt( "MedicationActivity", "" + getUniqueId()  );
@@ -1149,16 +1158,19 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		
 		//IDENNTIFER
-		List<IdentifierDt> idList = new ArrayList<IdentifierDt>();
-		medSt.setIdentifier( idList );
-		if( subAd.getIds().isEmpty() == false){
-			IdentifierDt identifier = dtt.II2Identifier( subAd.getIds().get(0) );
-			medSt.addIdentifier( identifier ); 
+		for(II ii : subAd.getIds()){
+			medSt.addIdentifier( dtt.II2Identifier(ii) );
 		}
-		//STATUS
-		ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
-		medSt.setStatus( vst.StatusCode2MedicationStatementStatusEnum( subAd.getStatusCode().getDisplayName()) );
 		
+		//STATUS
+		if( subAd.getStatusCode() != null){
+			if( !subAd.getStatusCode().isSetNullFlavor()){
+				if( subAd.getStatusCode().getDisplayName() != null ){
+					ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
+					medSt.setStatus( vst.StatusCode2MedicationStatementStatusEnum( subAd.getStatusCode().getDisplayName()) );
+				}
+			}
+		}
 		
 		//PATIENT
 		ResourceReferenceDt patRef = new ResourceReferenceDt();
@@ -1179,6 +1191,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		
 		//DOSAGE
+		medSt.addDosage();
 		if(medSt.getDosage() != null){
 			if(medSt.getDosage().size() != 0){
 				CodeableConceptDt route = new CodeableConceptDt();
@@ -1190,7 +1203,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if( subAd.getRouteCode().getDisplayName() != null )
 						routeCoding.setDisplay( subAd.getRouteCode().getDisplayName() );
 					if( subAd.getRouteCode().getCodeSystem() != null )
-						routeCoding.setSystem( vst.oid2Url( subAd.getRouteCode().getCodeSystem() ) );
+						routeCoding.setSystem( subAd.getRouteCode().getCodeSystem() );
 					if( subAd.getRouteCode().getCodeSystemVersion() != null ){
 						routeCoding.setVersion( subAd.getRouteCode().getCodeSystemVersion() );
 					}
@@ -1264,18 +1277,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		return medSt;
+		return medStatementBundle;
 			
 		
 	}
 
-	public MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup) {
+	public Bundle MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup) {
 		
 		if( sup == null || sup.isSetNullFlavor() ) return null;
 		
 		if( sup.getMoodCode().getLiteral() == "EVN" ){
 			
+			Bundle meDispenseBundle = new Bundle();
 			MedicationDispense meDis = new MedicationDispense();
+			meDispenseBundle.addEntry( new Bundle.Entry().setResource(meDis));
 			
 			//ID
 			IdDt id = new IdDt( "MedicationDispense", "" + getUniqueId() );
@@ -1297,6 +1312,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			ResourceReferenceDt performerRef = new ResourceReferenceDt();
 			performerRef.setReference( performer.getId() );
 			meDis.setDispenser( performerRef );
+			//TODO: Performer is not a resource.
+			//meDispenseBundle.addEntry( new Bundle.Entry().setResource( performer ) );
 			
 			//TYPE
 			// TODO No .code attribute.
@@ -1347,9 +1364,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			meDis.setQuantity( quantity );
 			
 			ResourceReferenceDt medRef = new ResourceReferenceDt();
-			Medication med = Medication2Medication( sup.getProduct().getManufacturedProduct() );
+			Bundle med = Medication2Medication( sup.getProduct().getManufacturedProduct() );
 			medRef.setReference( med.getId() );
 			meDis.setMedication( medRef );
+			meDispenseBundle.addEntry( new Bundle.Entry().setResource( med ) );
 			
 			
 			if( sup.getEffectiveTimes() != null & sup.getEffectiveTimes().size() != 0 ){
@@ -1370,7 +1388,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			
 			
-			return meDis;
+			return meDispenseBundle;
 		}
 		
 		return null;
@@ -1428,6 +1446,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		return null;
 	}
+
 
 	
 	// ismail end
