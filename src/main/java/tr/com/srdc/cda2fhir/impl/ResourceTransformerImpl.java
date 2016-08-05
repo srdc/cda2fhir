@@ -1956,8 +1956,16 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					resourceReference.setReference("Organization/" + getUniqueId());
 					prRole.setManagingOrganization(resourceReference);
 					prRoles.add(prRole);
-					  ca.uhn.fhir.model.dstu2.resource.Organization FHIROrganization = Organization2Organization(organization);
-					 practBundle.addEntry(new Bundle.Entry().setResource(FHIROrganization));
+					 Bundle FHIROrganizationBundle = Organization2Organization(organization);
+					 for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : FHIROrganizationBundle.getEntry())
+					 {
+						 if(entry.getResource() instanceof  ca.uhn.fhir.model.dstu2.resource.Organization )
+						 {
+							 ca.uhn.fhir.model.dstu2.resource.Organization FHIROrganization = ( ca.uhn.fhir.model.dstu2.resource.Organization ) entry.getResource();
+							 practBundle.addEntry(new Bundle.Entry().setResource(FHIROrganization));
+						 }
+					 }
+					 
 				}//end for
 				
 				practitioner.setPractitionerRole(prRoles);
