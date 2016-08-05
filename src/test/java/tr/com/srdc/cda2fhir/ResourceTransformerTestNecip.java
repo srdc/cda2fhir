@@ -47,8 +47,8 @@ public class ResourceTransformerTestNecip {
         CDAUtil.loadPackages();
         try {
 	        fisCDA = new FileInputStream("src/test/resources/SampleCDADocument.xml");
-	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-//	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
+//	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 		} catch (FileNotFoundException ex) {
 	        ex.printStackTrace();
 	    }
@@ -68,6 +68,35 @@ public class ResourceTransformerTestNecip {
 		}
     }
 	
+	@Test
+	public void testEncounter2Encounter(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		int encounterCount = 0;
+//		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() && test.ccd.getEncountersSection() != null ){
+		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
+			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
+				
+				if( section != null && !section.isSetNullFlavor() ){
+					
+					
+					for( org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter : section.getEncounters() ){
+						if( cdaEncounter != null && !cdaEncounter.isSetNullFlavor()  ){
+							System.out.println("Encounter["+encounterCount+"]");
+							System.out.println("Transformation starting..");
+							ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = rt.Encounter2Encounter(cdaEncounter);
+							
+							System.out.println("End of transformation. Printing the resource as JSON object..");
+							printJSON( fhirEncounter );
+							System.out.println("End of print.");
+							System.out.print("\n***\n"); // to visualize
+						}
+						encounterCount++;
+					}
+				}
+			}
+		}
+	}
 	
 	@Ignore
 	public void testGuardian2Contact(){

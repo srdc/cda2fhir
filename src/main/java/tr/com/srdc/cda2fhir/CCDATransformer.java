@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import ca.uhn.fhir.model.primitive.IdDt;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 
 /**
@@ -15,6 +16,8 @@ public interface CCDATransformer {
     void setIdGenerator(IdGeneratorEnum idGen);
 
     String getUniqueId();
+
+    IdDt getPatientId();
 
     Bundle transformCCD(ContinuityOfCareDocument ccd);
 }
