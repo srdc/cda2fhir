@@ -106,8 +106,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	public ResourceTransformerImpl(CCDATransformer ccdaTransformer) {
 		this();
 		cct = ccdaTransformer;
-		//TODO: will get the patientId reference from CCDATransformer
-		//patientId = cct.
+		// Refresh the patientId to get the real value transformed from the recordTarget of the CDA document
+		patientId = cct.getPatientId();
 	}
 
 	protected String getUniqueId() {
@@ -649,7 +649,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			Patient patient = new Patient();
 			
 			// id
-			IdDt resourceId = new IdDt("Patient",""+getUniqueId() );
+			IdDt resourceId = new IdDt("Patient", getUniqueId());
 			patient.setId(resourceId);
 			
 			
@@ -874,7 +874,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			ResourceReferenceDt resourceReferencePatient = new ResourceReferenceDt();
 			//PatientRole2Patient( probAct.getSubject().getRole() )
-			resourceReferencePatient.setReference( "Patient/1"  );
+			resourceReferencePatient.setReference(patientId);
 			condition.setPatient( resourceReferencePatient );
 
 			if(probAct.getEncounters().size() > 0) {
@@ -1161,7 +1161,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		//PATIENT
 		ResourceReferenceDt patRef = new ResourceReferenceDt();
-		patRef.setReference( "Patient/1" );
+		patRef.setReference(patientId);
 		medSt.setPatient(patRef);
 		
 		//PRACTITIONER

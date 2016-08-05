@@ -11,7 +11,6 @@ import org.openhealthtools.mdht.uml.cda.consol.*;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -22,6 +21,7 @@ public class CCDATransformerImpl implements CCDATransformer {
     private int counter;
     private IdGeneratorEnum idGenerator;
     private ResourceTransformer resTransformer;
+    private IdDt patientId;
 
     public CCDATransformerImpl() {
         this.counter = 0;
@@ -52,6 +52,11 @@ public class CCDATransformerImpl implements CCDATransformer {
     }
 
     @Override
+    public IdDt getPatientId() {
+        return patientId;
+    }
+
+    @Override
     public Bundle transformCCD(ContinuityOfCareDocument ccd) {
         if(ccd == null)
             return null;
@@ -64,7 +69,8 @@ public class CCDATransformerImpl implements CCDATransformer {
 
         // transform the patient data and assign it to Composition.subject
         Patient subject = resTransformer.PatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
-        ccdComposition.setSubject(new ResourceReferenceDt(subject.getId()));
+        patientId = subject.getId();
+        ccdComposition.setSubject(new ResourceReferenceDt(patientId));
         ccdBundle.addEntry(new Bundle.Entry().setResource(subject));
 
         for(Section cdaSec: ccd.getSections()) {
