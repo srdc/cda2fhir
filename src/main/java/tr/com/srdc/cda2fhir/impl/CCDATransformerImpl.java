@@ -126,16 +126,16 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof PlanOfCareSection) {
 
             }
-            /*else if(cdaSec instanceof ProblemSection) {
+            else if(cdaSec instanceof ProblemSection) {
                 ProblemSection probSec = (ProblemSection) cdaSec;
                 for(ProblemConcernAct pcAct: probSec.getConsolProblemConcerns()) {
-                    for(Condition condition: resTransformer.ProblemConcernAct2Condition(pcAct)) {
-                        ResourceReferenceDt ref = fhirSec.addEntry();
-                        ref.setReference(condition.getId());
-                        ccdBundle.addEntry(new Bundle.Entry().setResource(condition));
-                    }
+                    Bundle condition = resTransformer.ProblemConcernAct2Condition(pcAct);
+                    ResourceReferenceDt ref = fhirSec.addEntry();
+                    ref.setReference(condition.getId());
+                    ccdBundle.addEntry(new Bundle.Entry().setResource(condition));
+                    
                 }
-            }*/
+            }
             else if(cdaSec instanceof ProceduresSection) {
 
             }

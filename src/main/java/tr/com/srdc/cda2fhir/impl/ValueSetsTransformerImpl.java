@@ -10,6 +10,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.FamilyHistoryStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.LocationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
@@ -114,6 +115,22 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	            break;
         }
 		return system;
+	}
+	
+	public FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode ){
+		switch( FamilyHistoryOrganizerStatusCode.toLowerCase() ){
+		case "completed":
+			return FamilyHistoryStatusEnum.COMPLETED;
+		case "error":
+			return FamilyHistoryStatusEnum.ENTERED_IN_ERROR;
+		case "unk":
+		case "un":
+			return FamilyHistoryStatusEnum.HEALTH_UNKNOWN;
+		case "part":
+			return FamilyHistoryStatusEnum.PARTIAL;
+		default:
+			return null;
+		}
 	}
 	
 	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString ){

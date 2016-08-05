@@ -18,7 +18,12 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.api.IResource;
+import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.parser.IParser;
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
@@ -84,8 +89,14 @@ public class ResourceTransformerTestNecip {
 						if( cdaEncounter != null && !cdaEncounter.isSetNullFlavor()  ){
 							System.out.println("Encounter["+encounterCount+"]");
 							System.out.println("Transformation starting..");
-							ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = rt.Encounter2Encounter(cdaEncounter);
+							ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = null;
 							
+							Bundle fhirEncounterBundle = rt.Encounter2Encounter(cdaEncounter);
+							for( Entry entry : fhirEncounterBundle.getEntry() ){
+								if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Encounter){
+									fhirEncounter = (Encounter) entry.getResource();
+								}
+							}
 							System.out.println("End of transformation. Printing the resource as JSON object..");
 							printJSON( fhirEncounter );
 							System.out.println("End of print.");
@@ -129,7 +140,6 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	
 	@Ignore
 	public void testProcedure2Procedure(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -141,7 +151,15 @@ public class ResourceTransformerTestNecip {
 					System.out.println( "Procedure["+ procedureCount++ +"]" );
 					
 					System.out.println("Transformation starting..");
-					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = rt.Procedure2Procedure(cdaProcedure);
+					
+					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
+					
+					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+					for( Entry entry : fhirProcedureBundle.getEntry() ){
+						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+							fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
+						}
+					}
 					
 					System.out.println("End of transformation. Printing the resource as JSON object..");
 					printJSON( fhirProcedure );
@@ -161,7 +179,15 @@ public class ResourceTransformerTestNecip {
 					System.out.println( "Procedure["+ encounterProceduresCount++ +"]" );
 					
 					System.out.println("Transformation starting..");
-					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = rt.Procedure2Procedure(cdaProcedure);
+
+					ca.uhn.fhir.model.dstu2.resource.Encounter fhirProcedure = null;
+					
+					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+					for( Entry entry : fhirProcedureBundle.getEntry() ){
+						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+							fhirProcedure = (Encounter) entry.getResource();
+						}
+					}
 					
 					System.out.println("End of transformation. Printing the resource as JSON object..");
 					printJSON( fhirProcedure );
@@ -183,7 +209,15 @@ public class ResourceTransformerTestNecip {
 						System.out.println("Section["+sectionCount+"]"+" -> Procedure["+ procedureCount2++ +"]");
 
 						System.out.println("Transformation starting..");
-						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = rt.Procedure2Procedure(cdaProcedure);
+
+						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
+						
+						Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+						for( Entry entry : fhirProcedureBundle.getEntry() ){
+							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+								fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
+							}
+						}
 						
 						System.out.println("End of transformation. Printing the resource as JSON object..");
 						printJSON( fhirProcedure );
@@ -197,7 +231,6 @@ public class ResourceTransformerTestNecip {
 		}
 		
 	}
-	
 	
 	@Ignore
 	public void testPerformer22Performer(){
@@ -241,7 +274,6 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	
 	@Ignore
 	public void testAssignedEntity2Practitioner(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -258,7 +290,17 @@ public class ResourceTransformerTestNecip {
 							if( performer.getAssignedEntity() != null && !performer.getAssignedEntity().isSetNullFlavor() ){
 									System.out.println("-> AssignedEntity");
 									System.out.println("Transformation starting..");
-									ca.uhn.fhir.model.dstu2.resource.Practitioner practitioner = rt.AssignedEntity2Practitioner(performer.getAssignedEntity() );
+									
+									ca.uhn.fhir.model.dstu2.resource.Practitioner practitioner = null;
+									
+									Bundle fhirPractitionerBundle = rt.AssignedEntity2Practitioner(performer.getAssignedEntity() );
+									for( Entry entry : fhirPractitionerBundle.getEntry() ){
+										if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Practitioner){
+											practitioner = (Practitioner) entry.getResource();
+										}
+									}
+									
+									
 									System.out.println("End of transformation. Printing the resource as JSON object..");
 									printJSON( practitioner );
 									System.out.println("End of print.");
@@ -283,7 +325,16 @@ public class ResourceTransformerTestNecip {
 			System.out.print("PatientRole["+patientCount++ +"].");
 			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
 			System.out.println( "Transformation starting..." );
-			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = rt.Organization2Organization(cdaOrg);
+
+			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = null;
+			
+			Bundle fhirOrgBundle = rt.Organization2Organization(cdaOrg);
+			for( Entry entry : fhirOrgBundle.getEntry() ){
+				if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization){
+					fhirOrg = (Organization) entry.getResource();
+				}
+			}
+			
 			System.out.println("End of transformation. Printing the resource as JSON object..");
 			printJSON( fhirOrg );
 			System.out.println("End of print.");
@@ -326,7 +377,15 @@ public class ResourceTransformerTestNecip {
 		for( PatientRole pr : patientRoles ){
 			
 			// here we do the transformation by calling the method rt.PatientRole2Patient
-			Patient patient = rt.PatientRole2Patient(pr);
+			
+			Patient patient = null;
+			
+			Bundle patientBundle = rt.PatientRole2Patient(pr);
+			for( Entry entry : patientBundle.getEntry() ){
+				if( entry.getResource() instanceof Patient){
+					patient = (Patient) entry.getResource();
+				}
+			}
 			
 			// ta-ta-ta-taa!
 			System.out.println("Printing the resource as JSON object..");

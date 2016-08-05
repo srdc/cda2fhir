@@ -11,6 +11,8 @@ import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
@@ -20,34 +22,36 @@ import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 public interface ResourceTransformer {
 	
 	// necip start
-	Patient PatientRole2Patient(PatientRole patRole);
+	Bundle PatientRole2Patient(PatientRole patRole);
 
-	ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( org.openhealthtools.mdht.uml.cda.Guardian guardian );
+	Bundle Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
 	
-	ca.uhn.fhir.model.dstu2.resource.Procedure Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
+	Bundle AssignedEntity2Practitioner(AssignedEntity assignedEntity );
 
-	Performer Performer22Performer( Performer2 cdaPerformer );
+	Bundle Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
 
-	Practitioner AssignedEntity2Practitioner(AssignedEntity assignedEntity );
-
-	ca.uhn.fhir.model.dstu2.resource.Organization Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
-
+	Bundle Performer22Practitioner( Performer2 cdaPerformer );
+	
+	Bundle Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter);
+	
+	Bundle FamilyMemberOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
+	
 	Communication LanguageCommunication2Communication( LanguageCommunication LC );
-
-	Practitioner Performer22Practitioner( Performer2 cdaPerformer );
 	
+	ca.uhn.fhir.model.dstu2.resource.Procedure.Performer Performer22Performer( Performer2 cdaPerformer );
 	
+	ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( org.openhealthtools.mdht.uml.cda.Guardian guardian );
 	// necip end
 	
 	// ismail start
-	Medication Medication2Medication(ManufacturedProduct manPro);
+Bundle Medication2Medication(ManufacturedProduct manPro);
 	
-	List<Condition> ProblemConcernAct2Condition(ProblemConcernAct probAct);
+	Bundle ProblemConcernAct2Condition(ProblemConcernAct probAct);
 
-	MedicationStatement MedicationActivity2MedicationSatement(
-			SubstanceAdministration subAd);
+	Bundle MedicationActivity2MedicationSatement(
+			MedicationActivity subAd);
 	
-	MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
+	Bundle MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
 	
 	Location ParticipantRole2Location(ParticipantRole patRole );
 	// ismail end
