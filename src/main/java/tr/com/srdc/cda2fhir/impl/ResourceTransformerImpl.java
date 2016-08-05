@@ -1210,7 +1210,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				medication.setIsBrand(true);
 				
 				//MANUFACTURER
-				Organization org = Organization2Organization( manPro.getManufacturerOrganization() );
+				Bundle orgBundle = Organization2Organization( manPro.getManufacturerOrganization() );
+				Organization org = null;
+				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : orgBundle.getEntry()){
+					if( entry.getResource() instanceof Organization )
+						org = (Organization) entry.getResource();
+				}
 				resourceReferenceManu.setReference( org.getId() );
 
 				if( manPro.getManufacturerOrganization().getNames() != null){
