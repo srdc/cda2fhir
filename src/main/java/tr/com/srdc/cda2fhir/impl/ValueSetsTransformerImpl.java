@@ -10,6 +10,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
+import ca.uhn.fhir.model.dstu2.valueset.LocationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
@@ -251,6 +252,12 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case PST: return AddressTypeEnum.POSTAL;
 			default: return null;
 		}
+	}
+
+
+	public LocationStatusEnum StatusCode2LocationStatusEnum(String status) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

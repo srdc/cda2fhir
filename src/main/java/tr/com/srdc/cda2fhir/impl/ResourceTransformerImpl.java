@@ -7,10 +7,12 @@ import java.util.UUID;
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Device;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Location;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Procedure;
+
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
@@ -860,19 +862,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			//PatientRole2Patient( probAct.getSubject().getRole() )
 			resourceReferencePatient.setReference( "Patient/1"  );
 			condition.setPatient( resourceReferencePatient );
-			
-			ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
-			ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter( probAct.getEncounters().get(0) );
-			resourceReferenceEncounter.setReference( enc.getId());
-			condition.setEncounter( resourceReferenceEncounter );
-			
-			//TODO Asserter Reference
-			if( probAct.getAuthors()!=null && probAct.getAuthors().size() != 0 ){
-				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
-				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
-				resourceReferenceAsserter.setReference( prac.getId() ); 
-				condition.setAsserter( resourceReferenceAsserter );
+
+			if(probAct.getEncounters().size() > 0) {
+				ResourceReferenceDt resourceReferenceEncounter = new ResourceReferenceDt();
+				ca.uhn.fhir.model.dstu2.resource.Encounter enc = Encounter2Encounter(probAct.getEncounters().get(0));
+				resourceReferenceEncounter.setReference(enc.getId());
+				condition.setEncounter(resourceReferenceEncounter);
 			}
+			
+			//TODO: Mustafa: AssignedEntity2Practitioner method does not work for AssignedAuthor; needs to be implemented separately
+//			if(probAct.getAuthors().size() > 0 ){
+//				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
+//				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
+//				resourceReferenceAsserter.setReference( prac.getId() );
+//				condition.setAsserter( resourceReferenceAsserter );
+//			}
 			
 			
 			
@@ -1250,7 +1254,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 	}
 
-	public MedicationDispense MedicationDispense2MedicationDispense(Supply sup) {
+	public MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup) {
 		
 		if( sup == null || sup.isSetNullFlavor() ) return null;
 		
@@ -1356,6 +1360,19 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		return null;
 	}
+	
+	public Location ParticipantRole2Location(ParticipantRole patRole) {
+		
+		if( patRole == null || patRole.isSetNullFlavor() ) return null;
+		
+		if( patRole.getClassCode().getLiteral() == "SDLOC" ){
+			
+		}
+		
+		
+		return null;
+	}
+
 	
 	// ismail end
 	/////////////
@@ -2110,6 +2127,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// He will complete the method and change return value
 		}
 	}
+
+	
+	
 
 
 

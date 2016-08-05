@@ -10,6 +10,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
+import ca.uhn.fhir.model.dstu2.valueset.LocationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
@@ -31,6 +32,7 @@ public interface ValueSetsTransformer {
 	// ismail start
 	MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status);
 	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status);
+	LocationStatusEnum StatusCode2LocationStatusEnum( String status );
 	// ismail end
 	
 	NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse);

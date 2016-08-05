@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir;
 import java.util.List;
 
 import ca.uhn.fhir.model.dstu2.resource.*;
+import ca.uhn.fhir.model.dstu2.resource.Location;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
@@ -43,7 +44,9 @@ public interface ResourceTransformer {
 	MedicationStatement MedicationActivity2MedicationSatement(
 			SubstanceAdministration subAd);
 	
-	MedicationDispense MedicationDispense2MedicationDispense(Supply sup);
+	MedicationDispense MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
+	
+	Location ParticipantRole2Location(ParticipantRole patRole );
 	// ismail end
 
 	//tahsin start
