@@ -2034,6 +2034,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return immunization;
 		}
 	}//end immunization transform
+	
 
 	@Override
 	public Composition.Section section2Section(Section cdaSec) {
@@ -2048,14 +2049,5 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		return fhirSec;
 	}
-
-	
-	
-
-	
-	
-
-
-
 
 }

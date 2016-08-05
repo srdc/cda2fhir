@@ -63,7 +63,6 @@ public interface ResourceTransformer {
 
     Immunization SubstanceAdministration2Immunization(SubstanceAdministration subAd);
     
-    ca.uhn.fhir.model.dstu2.resource.Device Device2Device(org.openhealthtools.mdht.uml.cda.Device device);
     //tahsin end
 
 	Composition.Section section2Section(Section cdaSec);
