@@ -225,7 +225,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			// statusCode
 			if( cdaFHO.getStatusCode() != null && !cdaFHO.getStatusCode().isSetNullFlavor() ){
-				// TODO
 				fhirFMH.setStatus( vst.FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( cdaFHO.getStatusCode().getCode() ) );
 			}
 //			cdaFHO.getComponents().get(0).getObservation()
@@ -692,15 +691,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						
 						patient.setManagingOrganization(organizationReference);
 					}
-	//				ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-	//				String uniqueIdString = "Organization/"+getUniqueId();
-	//				// TODO: The information about the organization should be pushed to database using the uniqueIdString
-	//				// Also, the id of the organization should be set
-	//				organizationReference.setReference( uniqueIdString );
-	//				if( fhirOrganization.getName() != null ){
-	//					organizationReference.setDisplay( fhirOrganization.getName() );
-	//				}
-	//				patient.setManagingOrganization( organizationReference );
 				}
 				
 	//			// guardian <-> patient.guardians
@@ -997,8 +987,18 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			
 			//DATE-RECORDED
-			DateDt dateRecorded = dtt.TS2Date(entryRelationship.getObservation().getAuthors().get(0).getTime());
-			condition.setDateRecorded( dateRecorded );
+			// if nullCheckForDateRecorded evaluates to true, then it can be stated that it is not null and null-flavor is NOT set
+			boolean nullCheckForDateRecorded =  entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor()
+					&& entryRelationship.getObservation().getAuthors() != null && !entryRelationship.getObservation().getAuthors().isEmpty()
+					&& entryRelationship.getObservation().getAuthors().get(0) != null && !entryRelationship.getObservation().getAuthors().get(0).isSetNullFlavor()
+					&& entryRelationship.getObservation().getAuthors().get(0).getTime() != null && !entryRelationship.getObservation().getAuthors().get(0).getTime().isSetNullFlavor();
+			if( nullCheckForDateRecorded ){
+				DateDt dateRecorded = dtt.TS2Date(entryRelationship.getObservation().getAuthors().get(0).getTime());
+				condition.setDateRecorded( dateRecorded );
+			}
+			
+			
+			
 			/////
 		
 			
@@ -1026,26 +1026,34 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			//CODE AND CATEGORY
 			CodingDt codingForCategory = new CodingDt();
 			//CodingDt codingForCategory2 = new CodingDt();
-			CodingDt codingForSetCode = new CodingDt();
-			CodeableConceptDt codeableConcept = new CodeableConceptDt();
 			BoundCodeableConceptDt boundCodeableConceptDt = new BoundCodeableConceptDt();
 			//TODO: VALIDATE: Casting ANY to CD.
-			if( entryRelationship.getObservation().getValues() != null ){
-				CD cd = (CD) ( entryRelationship.getObservation().getValues().get(0) );
-	
-				codingForSetCode.setCode( cd.getCode() );
-				codingForSetCode.setDisplay( cd.getDisplayName() );
-				codingForSetCode.setSystem(  cd.getCodeSystem()  );
-				codeableConcept.addCoding( codingForSetCode );
+			if( entryRelationship.getObservation() != null  && entryRelationship.getObservation().isSetNullFlavor()
+					&& entryRelationship.getObservation().getValues() != null && !entryRelationship.getObservation().getValues().isEmpty()){
+				if( entryRelationship.getObservation().getValues().get(0) != null && !entryRelationship.getObservation().getValues().get(0).isSetNullFlavor() ) {
+					if( entryRelationship.getObservation().getValues().get(0) instanceof CD ){
+						condition.setCode( dtt.CD2CodeableConcept( (CD) entryRelationship.getObservation().getValues().get(0) ) );
+					}
+					
+				}
 			}
 			
-			codingForCategory.setCode( entryRelationship.getObservation().getCode().getCode() );
-			codingForCategory.setDisplay(  entryRelationship.getObservation().getCode().getDisplayName() );
-			codingForCategory.setSystem( entryRelationship.getObservation().getCode().getCodeSystem() );
-			boundCodeableConceptDt.addCoding( codingForCategory );
+			if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
+					&& entryRelationship.getObservation().getCode() != null && !entryRelationship.getObservation().getCode().isSetNullFlavor()){
+				if( entryRelationship.getObservation().getCode().getCode() != null ){
+					codingForCategory.setCode( entryRelationship.getObservation().getCode().getCode() );
+				}
+				if( entryRelationship.getObservation().getCode().getDisplayName() != null ){
+					codingForCategory.setDisplay(  entryRelationship.getObservation().getCode().getDisplayName() );
+				}
+				if( entryRelationship.getObservation().getCode().getCodeSystem() != null ){
+					codingForCategory.setSystem( entryRelationship.getObservation().getCode().getCodeSystem() );
+				}
+				boundCodeableConceptDt.addCoding( codingForCategory );
+				condition.setCategory( boundCodeableConceptDt );
+				
+			}
 			
-			condition.setCategory( boundCodeableConceptDt );
-			condition.setCode( codeableConcept);
 			/////
 			
 		
@@ -1053,7 +1061,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			//ONSET and ABATEMENT
 			// It is not clear which effectiveTime getter to call: 
 			//                  ...getObservation().getEffectiveTime()  OR  probAct.getEffectiveTime()
-			if(entryRelationship.getObservation().getEffectiveTime() != null || 
+			if(entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
+			&& entryRelationship.getObservation().getEffectiveTime() != null && 
 					!entryRelationship.getObservation().getEffectiveTime().isSetNullFlavor())
 			{
 				PeriodDt period = dtt.IVL_TS2Period(entryRelationship.getObservation().getEffectiveTime());
@@ -1083,7 +1092,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	        CodingDt codingBodysite = new CodingDt();
 	        //CodingDt codingSeverity = new CodingDt();
 	        
-	        if( entryRelationship.getObservation().getValues() != null ){
+	        if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor()
+	        		&& entryRelationship.getObservation().getValues() != null ){
 				CD cd = (CD) ( entryRelationship.getObservation().getValues().get(0) );
 				
 		        if(cd.getQualifiers() != null && !cd.getQualifiers().isEmpty()){
