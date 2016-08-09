@@ -84,7 +84,6 @@ public class ResourceTransformerTestNecip {
 				
 				if( section != null && !section.isSetNullFlavor() ){
 					
-					
 					for( org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter : section.getEncounters() ){
 						if( cdaEncounter != null && !cdaEncounter.isSetNullFlavor()  ){
 							System.out.println("Encounter["+encounterCount+"]");

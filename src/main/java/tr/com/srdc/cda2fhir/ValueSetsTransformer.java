@@ -18,6 +18,7 @@ import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 
 public interface ValueSetsTransformer {
@@ -31,6 +32,7 @@ public interface ValueSetsTransformer {
 	ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString );
 	CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT);
 	FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode );
+	ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode );
 	// necip end
 	
 	// ismail start

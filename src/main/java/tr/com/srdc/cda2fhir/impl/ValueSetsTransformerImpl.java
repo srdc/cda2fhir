@@ -18,6 +18,7 @@ import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
@@ -115,6 +116,19 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	            break;
         }
 		return system;
+	}
+	
+	public ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode ){
+		switch( obsStatusCode.toLowerCase() ){
+			case "completed": return ObservationStatusEnum.FINAL;
+			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
+			case "unk":
+			case "un": return ObservationStatusEnum.UNKNOWN_STATUS;
+			case "cancelled": return ObservationStatusEnum.CANCELLED;
+			case "amended": return ObservationStatusEnum.AMENDED;
+			default:
+				return null;
+		}
 	}
 	
 	public FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode ){
