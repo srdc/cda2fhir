@@ -6,6 +6,7 @@ import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Composition;
 import ca.uhn.fhir.model.dstu2.resource.Condition;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
@@ -73,7 +74,17 @@ public class CCDATransformerImpl implements CCDATransformer {
         ccdBundle.addEntry(new Bundle.Entry().setResource(ccdComposition));
 
         // transform the patient data and assign it to Composition.subject
-        Patient subject = resTransformer.PatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
+        // start of bundle-to-patient
+        // Since the methods of resTransformer class have return type Bundle, we need the following lines to get the 'Patient' from the 'Bundle'
+        Patient subject = null; // subject will be assigned to the appropriate entry of the bundle, we may need null-check
+        Bundle subjectBundle = resTransformer.PatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
+		for( Entry entry : subjectBundle.getEntry() ){
+			if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Patient){
+				subject = (ca.uhn.fhir.model.dstu2.resource.Patient) entry.getResource();
+			}
+		}
+        // end of bundle-to-patient
+		
         patientId = subject.getId();
         ccdComposition.setSubject(new ResourceReferenceDt(patientId));
         ccdBundle.addEntry(new Bundle.Entry().setResource(subject));
