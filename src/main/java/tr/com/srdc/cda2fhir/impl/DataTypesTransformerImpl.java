@@ -456,6 +456,40 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 	}
 
+	public SimpleQuantityDt PQ2SimpleQuantityDt( PQ pq ){
+		if( pq == null || pq.isSetNullFlavor() ) return null;
+		else{
+			SimpleQuantityDt simpleQuantity = new SimpleQuantityDt();
+			
+			// https://www.hl7.org/fhir/datatypes-mappings.html#simplequantity
+			
+			// value
+			if( pq.getValue() != null ){
+				simpleQuantity.setValue(pq.getValue());
+			}
+			
+			// unit
+			if( pq.getUnit() != null && !pq.getUnit().isEmpty() ){
+				simpleQuantity.setUnit( pq.getUnit() );
+			}
+			
+			// system and code
+			if( pq.getTranslations() != null && !pq.getTranslations().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.hl7.datatypes.PQR pqr : pq.getTranslations() ){
+					if( pqr != null && !pqr.isSetNullFlavor() ){
+						
+						// system
+						simpleQuantity.setSystem( VSTI.oid2Url( pqr.getCodeSystem() ) );
+						
+						// code
+						simpleQuantity.setCode( pqr.getCode() );
+					}
+				}
+			}
+			return simpleQuantity;
+		}
+	}
+	
 	public DecimalDt REAL2Decimal(REAL real){
     	return (real == null || real.isSetNullFlavor() ) ? null : new DecimalDt(real.getValue());
     }

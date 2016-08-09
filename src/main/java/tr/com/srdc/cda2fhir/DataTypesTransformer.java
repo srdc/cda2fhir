@@ -68,6 +68,8 @@ public interface DataTypesTransformer {
     
 	RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 2 */
 	
+	SimpleQuantityDt PQ2SimpleQuantityDt( PQ pq ); /* Maturity Level: 1 */
+	
 	QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 2 */
     
 	DecimalDt REAL2Decimal(REAL real); /* Maturity Level: 2 */
