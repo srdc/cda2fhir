@@ -27,6 +27,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
@@ -1142,22 +1143,22 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 
 // ismail start
-	// Find the corresponding mapping and control this method
+
 	public Bundle ProblemConcernAct2Condition(ProblemConcernAct probAct) {
 		
 		if( probAct == null || probAct.isSetNullFlavor()) return null;
 		
 		Bundle conditionBundle = new Bundle();
 
-		for(EntryRelationship entryRelationship : probAct.getEntryRelationships())
-		{
+		for(EntryRelationship entryRelationship : probAct.getEntryRelationships()){
 			
 			Condition condition = new Condition();
+			
 			conditionBundle.addEntry( new Bundle.Entry().setResource(condition) );
 			
 			// id
-			IdDt id = new IdDt("Condition", getUniqueId());
-			condition.setId( id );
+			IdDt resourceId = new IdDt("Condition", getUniqueId());
+			condition.setId( resourceId );
 			
 			// identifier
 			if( probAct.getIds() != null && !probAct.getIds().isEmpty() ){
@@ -1171,6 +1172,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// patient
 			condition.setPatient( new ResourceReferenceDt( patientId ) );
 
+			
+			// TODO: Severity
+			// See https://www.hl7.org/fhir/daf/condition-daf.html
+			// Couldn't found in the CDA example
+			
 			// encounter
 			if( probAct.getEncounters() != null && !probAct.getEncounters().isEmpty() ){
 				if(probAct.getEncounters().get(0) != null && probAct.getEncounters().get(0).isSetNullFlavor() ){
@@ -1186,7 +1192,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					conditionBundle.addEntry( new Bundle.Entry().setResource(fhirEncounter));
 				}
 			}
-
 			
 			//TODO: Mustafa: AssignedEntity2Practitioner method does not work for AssignedAuthor; needs to be implemented separately
 //			if(probAct.getAuthors().size() > 0 ){
@@ -1211,36 +1216,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 			
 			
-			
-		
-			
-			
-			/*if( probAct.getEntryRelationships().get(0).getObservation().getCode().getDisplayName().equals("Problem") ){
-				
-			codingForSetCode.setCode( cd.getTranslations().get(0).getCode() );
-			codingForSetCode.setDisplay( cd.getTranslations().get(0).getDisplayName() );
-			codingForSetCode.setSystem( oid2Url( cd.getTranslations().get(0).getCodeSystem() ) );
-			
-			codingForCategory.setCode( probAct.getEntryRelationships().get(0).getObservation().getCode().getCode() );
-			codingForCategory.setDisplay( probAct.getEntryRelationships().get(0).getObservation().getCode().getDisplayName() );
-			codingForCategory.setSystem( oid2Url( probAct.getEntryRelationships().get(0).getObservation().getCode().getCodeSystem() ) );
-			
-			codingForCategory2.setCode( "finding" );
-			codingForCategory2.setDisplay( "Finding" );
-			codingForCategory2.setSystem( "http://hl7.org/fhir/condition-category" );
-			
-			boundCodeableConceptDt.addCoding( codingForCategory );
-			boundCodeableConceptDt.addCoding( codingForCategory2 );
-			codeableConcept.addCoding( codingForSetCode );
-			
-			}*/
-			
-			
-
-			// TODO: Necip: There is a enumeration for category
-			// We may use this enumeration
-			
-			
 			// code <-> value
 			if( entryRelationship.getObservation() != null  && entryRelationship.getObservation().isSetNullFlavor()
 					&& entryRelationship.getObservation().getValues() != null && !entryRelationship.getObservation().getValues().isEmpty()){
@@ -1248,140 +1223,90 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if( entryRelationship.getObservation().getValues().get(0) instanceof CD ){
 						condition.setCode( dtt.CD2CodeableConcept( (CD) entryRelationship.getObservation().getValues().get(0) ) );
 					}
+				}
+			}
+			
+			
+			// category
+			if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() ){
+				if( entryRelationship.getObservation().getCode() != null && !entryRelationship.getObservation().getCode().isSetNullFlavor() ){
+					CodeableConceptDt categoryCoding = dtt.CD2CodeableConcept( entryRelationship.getObservation().getCode() );
+					
+					// TODO: Necip
+					// See the coding example below
+					// How to map this coding to  ConditionCategoryCodesEnum ?
+					// Coding example:
+					/*	<code code="64572001" displayName="Condition" codeSystemName="SNOMED-CT" codeSystem="2.16.840.1.113883.6.96">
+					<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
+					<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
+					-->
+					<translation nullFlavor="NI"/>
+				</code> */
+					
 					
 				}
 			}
 			
-			// category
-			// we may use the following block(not finalized)
-			// it will be determined after tests
-//			if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() ){
-//				if( entryRelationship.getObservation().getCode() != null && !entryRelationship.getObservation().getCode().isSetNullFlavor() ){
-//					
+			// Following lines are the former mapping for category
+			// However, seems unappropriate
+//			CodingDt codingForCategory = new CodingDt();
+//			BoundCodeableConceptDt boundCodeableConceptDt = new BoundCodeableConceptDt();
+//			if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
+//					&& entryRelationship.getObservation().getCode() != null && !entryRelationship.getObservation().getCode().isSetNullFlavor()){
+//
+//				if( entryRelationship.getObservation().getCode().getCode() != null ){
+//					codingForCategory.setCode( entryRelationship.getObservation().getCode().getCode() );
 //				}
+//				if( entryRelationship.getObservation().getCode().getDisplayName() != null ){
+//					codingForCategory.setDisplay(  entryRelationship.getObservation().getCode().getDisplayName() );
+//				}
+//				if( entryRelationship.getObservation().getCode().getCodeSystem() != null ){
+//					codingForCategory.setSystem( entryRelationship.getObservation().getCode().getCodeSystem() );
+//				}
+//				
+//				boundCodeableConceptDt.addCoding( codingForCategory );
+//				condition.setCategory( boundCodeableConceptDt );
+//				
 //			}
-			
-			CodingDt codingForCategory = new CodingDt();
-			BoundCodeableConceptDt boundCodeableConceptDt = new BoundCodeableConceptDt();
-			if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
-					&& entryRelationship.getObservation().getCode() != null && !entryRelationship.getObservation().getCode().isSetNullFlavor()){
-
-				if( entryRelationship.getObservation().getCode().getCode() != null ){
-					codingForCategory.setCode( entryRelationship.getObservation().getCode().getCode() );
-				}
-				if( entryRelationship.getObservation().getCode().getDisplayName() != null ){
-					codingForCategory.setDisplay(  entryRelationship.getObservation().getCode().getDisplayName() );
-				}
-				if( entryRelationship.getObservation().getCode().getCodeSystem() != null ){
-					codingForCategory.setSystem( entryRelationship.getObservation().getCode().getCodeSystem() );
-				}
-				
-				
-				boundCodeableConceptDt.addCoding( codingForCategory );
-				condition.setCategory( boundCodeableConceptDt );
-			}
 			
 			/////
 			
 		
 			
-			//ONSET and ABATEMENT
-			// It is not clear which effectiveTime getter to call: 
-			//                  ...getObservation().getEffectiveTime()  OR  probAct.getEffectiveTime()
+			// onset and abatement
 			if(entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
 			&& entryRelationship.getObservation().getEffectiveTime() != null && 
 					!entryRelationship.getObservation().getEffectiveTime().isSetNullFlavor())
 			{
-				PeriodDt period = dtt.IVL_TS2Period(entryRelationship.getObservation().getEffectiveTime());
-				DateTimeDt dateStart = new DateTimeDt();
-				DateTimeDt dateEnd = new DateTimeDt();
-				if(period.getStart() != null)
-				{
-					dateStart.setValue( period.getStart() );
-					
+				
+				IVXB_TS low = entryRelationship.getObservation().getEffectiveTime().getLow();
+				IVXB_TS high = entryRelationship.getObservation().getEffectiveTime().getHigh();
+				
+				// low <-> onset
+				if( low != null && !low.isSetNullFlavor() ){
+					condition.setOnset( dtt.TS2DateTime(low ) );
 				}
-		        
-				if(period.getEnd() != null )
-				{
-			        dateEnd.setValue( period.getEnd() );
-			        
+				
+				// high <-> abatement
+				if( high != null && !high.isSetNullFlavor() ){
+					condition.setAbatement( dtt.TS2DateTime(high) );
 				}
-			    
-				condition.setOnset(  dateStart );
-				condition.setAbatement(  dateEnd );
+
 			}
 	        
-	        
-	        
-	        // BODYSITE, SEVERITY and NOTES
-	        CodeableConceptDt codeableConceptBodySite = new CodeableConceptDt();
-	        //CodeableConceptDt codeableConceptSeverity = new CodeableConceptDt();
-	        CodingDt codingBodysite = new CodingDt();
-	        //CodingDt codingSeverity = new CodingDt();
-	        
-	        if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor()
-	        		&& entryRelationship.getObservation().getValues() != null ){
-				CD cd = (CD) ( entryRelationship.getObservation().getValues().get(0) );
-				
-		        if(cd.getQualifiers() != null && !cd.getQualifiers().isEmpty()){
-		        	for(CR cr : cd.getQualifiers()){
-				        if(cr.getName().getDisplayName().toLowerCase().equals("finding site")){
-				        	
-				        	codingBodysite.setDisplay( cr.getValue().getDisplayName() );
-				        	codingBodysite.setCode( cr.getValue().getCode() );
-				        	
-				        }
-//				        if(cr.getName().getDisplayName().toLowerCase().equals("problem severity")) {
-//				        	
-//				        	codingSeverity.setCode( cr.getValue().getCode() );
-//				        	codingSeverity.setDisplay( cr.getValue().getDisplayName() );
-//				        	
-//				        }
-		        	}
-		        	
-		        	//Notes
-//		        	for(CD cdInner : cd.getTranslations() ){
-//		        		
-//		        		if(cdInner.getDisplayName().toLowerCase().equals("annotation")){
-//		        			//TODO : What to write in Notes.
-//		        			conditionList[i].setNotes( cdInner.getCode() );
-//		        			
-//		        		}
-//		        		
-//		        	}
-		        		
-		        }
-	        }
-	        
-	        codeableConceptBodySite.addCoding( codingBodysite );
-	        //codeableConceptSeverity.addCoding( codingSeverity );
-	        condition.addBodySite(codeableConceptBodySite);
-	        //condition.setSeverity(codeableConceptSeverity);
-	        ////
-	        
-	        
-	      //VERIFICATION_STATUS
-//	        BoundCodeDt boundcodeVerif = new BoundCodeDt();
-//	       
-//	        for ( CR cr :entryRelationship.getObservation().getCode().getQualifiers()){
-//	        	if(cr.getName().getDisplayName().toLowerCase().equals("verification status")
-//	        			  || cr.getName().getDisplayName().toLowerCase().equals("verificationstatus")
-//	        			  || cr.getName().getDisplayName().toLowerCase().equals("verification")
-//	        				)
-//	        	{
-//	        		
-//	        		boundcodeVerif.setValueAsString( cr.getValue().getDisplayName() );
-//	        		
-//	        	}
-//	        }
-	        
-	        
-	        
-	        //TODO: Stage type does not exist.
-	        //conditionBundle.addEntry( new Bundle.Entry().setResource(condition) );
-	        
+			// bodysite
+			if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
+					&&entryRelationship.getObservation().getValues() != null && !entryRelationship.getObservation().getValues().isEmpty()){
+				for( ANY value : entryRelationship.getObservation().getValues() ){
+					if( value == null || value.isSetNullFlavor() ) continue;
+					else{
+						if( value instanceof CD ){
+							condition.addBodySite( dtt.CD2CodeableConcept( (CD) value ) );
+						}
+					}
+				}
+			}
 		}
-		
 		return conditionBundle;
 	}
 
@@ -1696,7 +1621,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return null;
 	}
 
-	
+	// never used
 	public Bundle ParticipantRole2Location(ParticipantRole patRole) {
 		
 		if( patRole == null || patRole.isSetNullFlavor() ) return null;
@@ -1807,10 +1732,23 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 			
+			// onset <-> effectiveTime.low
+			if( cdaAllergyProbAct.getEffectiveTime() != null && !cdaAllergyProbAct.getEffectiveTime().isSetNullFlavor() ){
+				if( cdaAllergyProbAct.getEffectiveTime().getLow() != null && !cdaAllergyProbAct.getEffectiveTime().getLow().isSetNullFlavor() ){
+					allergyIntolerance.setOnset( dtt.TS2DateTime( cdaAllergyProbAct.getEffectiveTime().getLow() ) );
+				}
+			}
+			
+			// TODO: Necip
+			// following lines of code of this method is unreadable
+			// check or write from scratch
+			// allergyIntolerance.setRecorder <-> author, assigned author vs
+			// Allergy Severity <-> AllergyIntolerance.reaction.severity
+			// Allergy Intolerance Reaction Duration <-> AllergyIntolerance.reaction.duration
+			
 			for (EntryRelationship entryRelationship : cdaAllergyProbAct.getEntryRelationships())
 			{
                 // check for alert observation
-				
                 if (entryRelationship.getObservation() instanceof AllergyObservation) 
                 {
                     AllergyObservation allergyObservation = (AllergyObservation) entryRelationship.getObservation();
@@ -1950,122 +1888,124 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 	
 	
-	public Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd)
-	{
+	public Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd){
 		if(subAd==null || subAd.isSetNullFlavor()) return null;
 		else
 		{
-			Bundle immunizationBundle = new Bundle();
 			Immunization immunization = new Immunization ();
+			
+			Bundle immunizationBundle = new Bundle();
+			immunizationBundle.addEntry(new Bundle.Entry().setResource(immunization));
 			
 			// id
 			IdDt resourceId = new IdDt("Immunization", getUniqueId());
 			immunization.setId(resourceId);
 			
-			immunizationBundle.addEntry(new Bundle.Entry().setResource(immunization));
-			if(subAd.getIds()!=null && !subAd.getIds().isEmpty())
-			{
-				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt>();
-				for(II ii : subAd.getIds())
-				{
-					if(ii.getRoot()!=null)
-						idS.add(dtt.II2Identifier(ii));
+			// patient
+			immunization.setPatient(new ResourceReferenceDt( patientId ));
+			
+			// identifier
+			if(subAd.getIds()!=null && !subAd.getIds().isEmpty()){
+				for( II ii : subAd.getIds() ){
+					if( ii != null && !ii.isSetNullFlavor() ){
+						immunization.addIdentifier( dtt.II2Identifier(ii) );
+					}
 				}
-				immunization.setIdentifier(idS);
-			}//end if
-			if(subAd.getEffectiveTimes()!=null && !subAd.getEffectiveTimes().isEmpty())
-			{
-				for(SXCM_TS effectiveTime : subAd.getEffectiveTimes())
-				{
-					if(effectiveTime.getValue()!=null)
+			}
+			
+			
+			// effective time
+			if(subAd.getEffectiveTimes()!=null && !subAd.getEffectiveTimes().isEmpty()) {
+				for(SXCM_TS effectiveTime : subAd.getEffectiveTimes()) {
+					if( effectiveTime != null && !effectiveTime.isSetNullFlavor() ){
+						// Asserting that at most one effective time exists
 						immunization.setDate(dtt.TS2DateTime(effectiveTime));
-				}//end for
-			}//end if
+					}
+						
+				}
+			}
+			
+			// lotNumber, vaccineCode, organization
 			if(subAd.getConsumable()!=null && !subAd.getConsumable().isSetNullFlavor())
 			{
 				if(subAd.getConsumable().getManufacturedProduct()!=null && !subAd.getConsumable().getManufacturedProduct().isSetNullFlavor())
 				{
 					ManufacturedProduct manufacturedProduct=subAd.getConsumable().getManufacturedProduct();
+					
 					if(manufacturedProduct.getManufacturedMaterial()!=null && !manufacturedProduct.getManufacturedMaterial().isSetNullFlavor())
 					{
 						Material manufacturedMaterial=manufacturedProduct.getManufacturedMaterial();
-						immunization.setVaccineCode(dtt.CD2CodeableConcept((CD)manufacturedMaterial.getCode()));
-						if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor())
-						{
+						
+						// vaccineCode
+						if( manufacturedProduct.getManufacturedMaterial().getCode() != null && !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor() ){
+							immunization.setVaccineCode(dtt.CD2CodeableConcept( manufacturedMaterial.getCode() ) );
+						}
+						
+						// lotNumber
+						if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor()){
 							immunization.setLotNumber(dtt.ST2String(manufacturedMaterial.getLotNumberText()));
-						}//end if
-					}//end if
+						}
+					}
+					
+					// organization
 					if(manufacturedProduct.getManufacturerOrganization()!=null && !manufacturedProduct.getManufacturerOrganization().isSetNullFlavor())
 					{
-						org.openhealthtools.mdht.uml.cda.Organization organization = manufacturedProduct.getManufacturerOrganization();
-						if(organization.getNames()!=null && !organization.getNames().isEmpty())
-						{
-							for(ON on : organization.getNames())
-							{
-								ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-								if(on.getGivens()!=null && !on.getGivens().isEmpty())
-								{
-									for(ENXP enxp : on.getGivens())
-									{
-										resourceReference.setReference(enxp.getReference().getValue());
-									}//end for
-								}//end for
-								immunization.setManufacturer(resourceReference);
-							}//end for
-						}//end if
+						
+						ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = null;
+						Bundle fhirOrganizationBundle = Organization2Organization( manufacturedProduct.getManufacturerOrganization() );
+						
+						for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirOrganizationBundle.getEntry() ){
+							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization ){
+								fhirOrganization = (ca.uhn.fhir.model.dstu2.resource.Organization) entry.getResource();
+							}
+						}
+						immunization.setManufacturer( new ResourceReferenceDt(fhirOrganization.getId()) );
+						immunizationBundle.addEntry( new Bundle.Entry().setResource(fhirOrganization) );
 					}
-				}//end if
-			}//end if
+				}
+			}
+			
+			// performer
 			if(subAd.getPerformers()!=null && !subAd.getPerformers().isEmpty())
 			{
 				for(Performer2 performer : subAd.getPerformers())
 				{
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
-						
 						Bundle practitioner=Performer22Practitioner(performer);
-						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-						resourceReference.setReference(practitioner.getId());
-						immunization.setPerformer(resourceReference);
+						immunization.setPerformer(  new ResourceReferenceDt( practitioner.getId() )  );
 						immunizationBundle.addEntry(new Bundle.Entry().setResource(practitioner));
-					}//end if
-				}//end for
-			}//end if
-			if(subAd.getApproachSiteCodes()!=null && !subAd.getApproachSiteCodes().isEmpty())
-			{
-				for(CD cd : subAd.getApproachSiteCodes())
-				{
-					immunization.setSite(dtt.CD2CodeableConcept(cd));
-				}//end for
-			}//end if
-			if(subAd.getRouteCode()!=null && !subAd.getRouteCode().isSetNullFlavor())
-			{
-				immunization.setRoute(dtt.CD2CodeableConcept((CD)subAd.getRouteCode()));
+					}
+				}
 			}
-			if(subAd.getDoseQuantity()!=null && !subAd.getDoseQuantity().isSetNullFlavor())
-			{
-				IVL_PQ ivl_pq = subAd.getDoseQuantity();
-				SimpleQuantityDt simpleQuantity= new SimpleQuantityDt();
-				if(ivl_pq.getValue()!=null)
-				{
-					simpleQuantity.setValue(ivl_pq.getValue());
-				}//end if
-				if(ivl_pq.getUnit()!=null)
-				{
-					simpleQuantity.setUnit(ivl_pq.getUnit());
-				}//end if
-				immunization.setDoseQuantity(simpleQuantity);
-			}//end if
-			if(subAd.getStatusCode()!=null && !subAd.getStatusCode().isSetNullFlavor())
-			{
+			
+			// site
+			if(subAd.getApproachSiteCodes()!=null && !subAd.getApproachSiteCodes().isEmpty()){
+				for(CD cd : subAd.getApproachSiteCodes()){
+					// Asserting that at most one site exists
+					immunization.setSite(dtt.CD2CodeableConcept(cd));
+				}
+			}
+			
+			// route
+			if(subAd.getRouteCode()!=null && !subAd.getRouteCode().isSetNullFlavor()){
+				immunization.setRoute( dtt.CD2CodeableConcept( subAd.getRouteCode()) );
+			}
+			
+			// dose quantity
+			if(subAd.getDoseQuantity()!=null && !subAd.getDoseQuantity().isSetNullFlavor()){
+				immunization.setDoseQuantity( dtt.PQ2SimpleQuantityDt( subAd.getDoseQuantity() ) );
+			}
+			
+			// status
+			if(subAd.getStatusCode()!=null && !subAd.getStatusCode().isSetNullFlavor()){
 				immunization.setStatus(subAd.getStatusCode().getCode());
-			}//end if
-			ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-			resourceReference.setReference(cct.getPatientId());
-			immunization.setPatient(resourceReference);
+			}
+			
+			
 			return immunizationBundle;
 		}
-	}//end immunization transform
+	}
 	
 	
 	// tahsin end

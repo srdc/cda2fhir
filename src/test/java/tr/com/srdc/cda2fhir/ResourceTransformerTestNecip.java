@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
@@ -74,6 +75,19 @@ public class ResourceTransformerTestNecip {
     }
 	
 	@Test
+	public void testAllergy(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		for( AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs() ){
+			System.out.println("Transformation starting..");
+			Bundle allergyBundle = rt.AllergyProblemAct2AllergyIntolerance(cdaAPA);
+			System.out.println("End of transformation. Printing..");
+			printJSON( allergyBundle );
+			System.out.println("End of print");
+			System.out.println("***");
+		}
+	}
+	
+	@Ignore
 	public void testSection2Section(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 
