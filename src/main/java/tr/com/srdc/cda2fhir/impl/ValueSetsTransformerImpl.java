@@ -10,6 +10,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.model.dstu2.valueset.FamilyHistoryStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.LocationStatusEnum;
@@ -214,9 +215,9 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	}
 
 	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status){
-		switch( status ){
+		switch( status.toLowerCase() ){
 			case "active": return MedicationStatementStatusEnum.ACTIVE;
-			
+			case "intended": return MedicationStatementStatusEnum.INTENDED;
 			case "completed": return MedicationStatementStatusEnum.COMPLETED;
 			case "nullified": return MedicationStatementStatusEnum.ENTERED_IN_ERROR;
 			
@@ -232,6 +233,28 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case "nullified": return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
 			case "stopped": return MedicationDispenseStatusEnum.STOPPED;
 			default: return null;
+		}
+	}
+	
+	public EncounterStateEnum StatusCode2EncounterStatusEnum(String status){
+		switch( status.toLowerCase() ){
+			case "in-progress":
+			case "active":
+				return EncounterStateEnum.IN_PROGRESS;
+			case "onleave":
+			case "on-leave":
+				return EncounterStateEnum.ON_LEAVE;
+			case "finished":
+			case "completed":
+				return EncounterStateEnum.FINISHED;
+			case "cancelled":
+				return EncounterStateEnum.CANCELLED;
+			case "planned":
+				return EncounterStateEnum.PLANNED;
+			case "arrived":
+				return EncounterStateEnum.ARRIVED;
+			default: 
+				return null;
 		}
 	}
 	
@@ -266,9 +289,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	{
 		switch(telecommunicationAddressUse){
 			case H: return ContactPointUseEnum.HOME;
-			// new code start
 			case HP: return ContactPointUseEnum.HOME;
-			// new code end
 			case WP: return ContactPointUseEnum.WORK;
 			case TMP: return ContactPointUseEnum.TEMP;
 			case BAD: return ContactPointUseEnum.OLD;

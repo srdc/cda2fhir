@@ -1,14 +1,7 @@
 package tr.com.srdc.cda2fhir;
 
-import java.util.List;
-
 import ca.uhn.fhir.model.dstu2.resource.*;
-import ca.uhn.fhir.model.dstu2.resource.Location;
-import ca.uhn.fhir.model.dstu2.resource.Observation;
-import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
-import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
-
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
@@ -21,7 +14,7 @@ import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
  */
 public interface ResourceTransformer {
 	
-	// necip start
+// necip start
 	Bundle PatientRole2Patient(PatientRole patRole);
 
 	Bundle Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
@@ -41,36 +34,41 @@ public interface ResourceTransformer {
 	ca.uhn.fhir.model.dstu2.resource.Procedure.Performer Performer22Performer( Performer2 cdaPerformer );
 	
 	ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( org.openhealthtools.mdht.uml.cda.Guardian guardian );
-	// necip end
+// necip end
 	
-	// ismail start
-Bundle Medication2Medication(ManufacturedProduct manPro);
+// ismail start
+	
+	Bundle ManufacturedProduct2Medication(ManufacturedProduct manPro);
+	
 	
 	Bundle ProblemConcernAct2Condition(ProblemConcernAct probAct);
 
-	Bundle MedicationActivity2MedicationSatement(
-			MedicationActivity subAd);
+	
+	Bundle MedicationActivity2MedicationStatement(MedicationActivity subAd);
+	
 	
 	Bundle MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup);
 	
-	Location ParticipantRole2Location(ParticipantRole patRole );
-	// ismail end
+	
+	Bundle ParticipantRole2Location(ParticipantRole patRole );
+// ismail end
 
-	//tahsin start
+	
+// tahsin start
     Bundle ResultObservation2Observation(ResultObservation resObs);
 
-    Observation VitalSignObservation2Observation(VitalSignObservation vsObs);
+    Bundle VitalSignObservation2Observation(VitalSignObservation vsObs);
     
     
     /*This is not a fully independent mapping method.*/
     Bundle Performer2Practitioner(Performer2 performer);
     /*It will be called by functions which contain Practitioner as a subresource*/
     
-    AllergyIntolerance AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
+    Bundle AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
 
     Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd);
     
-    //tahsin end
-
-	Composition.Section section2Section(Section cdaSec);
+    Composition.Section section2Section(Section cdaSec);
+    
+// tahsin end
 }

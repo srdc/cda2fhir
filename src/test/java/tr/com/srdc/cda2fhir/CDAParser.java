@@ -60,6 +60,7 @@ import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Immunization;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
@@ -99,7 +100,18 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 	            			
 	            			if(ii.getRoot().equals("2.16.840.1.113883.10.20.22.4.27"))//This is the template Id for VitalSignObservation 
 	            			{
-	            				ca.uhn.fhir.model.dstu2.resource.Observation obs = rt.VitalSignObservation2Observation(vsObs);
+	            				ca.uhn.fhir.model.dstu2.resource.Observation obs = null;
+	            				
+	            				// getting observation from observation bundle
+	            				Bundle obsBundle = rt.VitalSignObservation2Observation(vsObs);
+	            				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : obsBundle.getEntry()){
+	            					if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Observation )
+	            						obs = (ca.uhn.fhir.model.dstu2.resource.Observation) entry.getResource();
+	            				}
+	            				
+	            				// we may need to check if obs is null
+	            				
+
 	            				ArrayList <String> idS= new ArrayList <String> ();
 	                    		for(II id: vsObs.getIds())
 	                    		{
@@ -265,7 +277,17 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
         // for each enclosing problem act
         for (AllergyProblemAct problemAct : allergiesSection.getConsolAllergyProblemActs()) {
             
-        	AllergyIntolerance allergyIntolerance = rt.AllergyProblemAct2AllergyIntolerance(problemAct);
+        	AllergyIntolerance allergyIntolerance = null;
+        			
+        	// getting allergyIntolerance from observation bundle
+			Bundle allergyIntoleranceBundle = rt.AllergyProblemAct2AllergyIntolerance(problemAct);
+			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : allergyIntoleranceBundle.getEntry()){
+				if( entry.getResource() instanceof AllergyIntolerance )
+					allergyIntolerance = (AllergyIntolerance) entry.getResource();
+			}
+
+			// we may need to check if obs is null
+        	
             for (EntryRelationship entryRelationship : problemAct.getEntryRelationships()) {
                 // check for alert observation
                 if (entryRelationship.getObservation() instanceof AllergyObservation) 

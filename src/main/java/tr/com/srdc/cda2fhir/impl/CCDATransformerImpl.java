@@ -9,6 +9,7 @@ import ca.uhn.fhir.model.dstu2.resource.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.primitive.IdDt;
 import org.openhealthtools.mdht.uml.cda.Section;
@@ -99,7 +100,17 @@ public class CCDATransformerImpl implements CCDATransformer {
             	AllergiesSection allSec = (AllergiesSection) cdaSec;
             	for(AllergyProblemAct probAct : allSec.getAllergyProblemActs())
             	{
-            		AllergyIntolerance allergyIntolerance = resTransformer.AllergyProblemAct2AllergyIntolerance(probAct);
+            		AllergyIntolerance allergyIntolerance = null;
+
+            		// getting allergyIntolerance from observation bundle
+            		Bundle allergyIntoleranceBundle = resTransformer.AllergyProblemAct2AllergyIntolerance(probAct);
+    				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : allergyIntoleranceBundle.getEntry()){
+    					if( entry.getResource() instanceof AllergyIntolerance )
+    						allergyIntolerance = (AllergyIntolerance) entry.getResource();
+    				}
+    				
+    				// we may need to check if allergyIntolerance is null
+    				
             		ResourceReferenceDt ref = fhirSec.addEntry();
         			ref.setReference(allergyIntolerance.getId());
         			ccdBundle.addEntry(new Bundle.Entry().setResource(allergyIntolerance));
@@ -123,8 +134,8 @@ public class CCDATransformerImpl implements CCDATransformer {
             	    ResourceReferenceDt ref = fhirSec.addEntry();
                     ref.setReference(immunization.getId());
                     ccdBundle.addEntry(new Bundle.Entry().setResource(immunization));
-            	}//end for
-            }//end else if
+            	}
+            }
             else if(cdaSec instanceof MedicalEquipmentSection) {
 
             }
@@ -160,10 +171,10 @@ public class CCDATransformerImpl implements CCDATransformer {
             			ResourceReferenceDt ref = fhirSec.addEntry();
             			ref.setReference(observation.getId());
             			ccdBundle.addEntry(new Bundle.Entry().setResource(observation));
-            		}//end for
-            	}//end for
+            		}
+            	}
 
-            }//end else if
+            }
             else if(cdaSec instanceof SocialHistorySection) {
 
             }
@@ -173,13 +184,23 @@ public class CCDATransformerImpl implements CCDATransformer {
             	{
             		for(VitalSignObservation vsObs : vsOrg.getVitalSignObservations())
             		{
-            			Observation observation = resTransformer.VitalSignObservation2Observation(vsObs);
+            			Observation observation = null;
+            			
+            			// getting allergyIntolerance from observation bundle
+            			Bundle observationBundle = resTransformer.VitalSignObservation2Observation(vsObs);
+            			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : observationBundle.getEntry()){
+            				if( entry.getResource() instanceof Observation )
+            					observation = (Observation) entry.getResource();
+            			}
+
+            			// we may need to check if observation is null
+            			
             			ResourceReferenceDt ref = fhirSec.addEntry();
             			ref.setReference(observation.getId());
             			ccdBundle.addEntry(new Bundle.Entry().setResource(observation));
-            		}//end for
-            	}//end for
-            }//end else if
+            		}
+            	}
+            }
         }
 
         return ccdBundle;
