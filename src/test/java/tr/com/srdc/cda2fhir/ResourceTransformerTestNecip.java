@@ -52,8 +52,8 @@ public class ResourceTransformerTestNecip {
         CDAUtil.loadPackages();
         try {
 	        fisCDA = new FileInputStream("src/test/resources/SampleCDADocument.xml");
-//	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
+	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+//	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 		} catch (FileNotFoundException ex) {
 	        ex.printStackTrace();
 	    }
@@ -74,9 +74,38 @@ public class ResourceTransformerTestNecip {
     }
 	
 	@Test
+	public void testSection2Section(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+
+		org.openhealthtools.mdht.uml.cda.Section sampleSection = null;
+		
+		// assigning sampleSection to one sample section
+		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
+			if( test.ccd.getEncountersSection().getAllSections() != null && !test.ccd.getEncountersSection().getAllSections().isEmpty() ){
+				if( test.ccd.getEncountersSection().getAllSections().get(0) != null && !test.ccd.getEncountersSection().getAllSections().get(0).isSetNullFlavor() ){
+					sampleSection = test.ccd.getEncountersSection().getAllSections().get(0);
+				}
+			}
+		}
+		
+		if( sampleSection != null ){
+			System.out.println("Transformating..");
+			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.section2Section(sampleSection);
+			System.out.println("End of transformation. Printing the JSON Object..");
+			
+			// We need to embed fhirSection to fhirCompositon to use the method printJSON
+			ca.uhn.fhir.model.dstu2.resource.Composition fhirComposition = new ca.uhn.fhir.model.dstu2.resource.Composition();
+			fhirComposition.addSection(fhirSection);
+			
+			printJSON( fhirComposition );
+			System.out.println("End of print.");
+			System.out.print("\n***\n");
+		}
+	}
+	
+	@Ignore
 	public void testEncounter2Encounter(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
-		
 		int encounterCount = 0;
 //		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() && test.ccd.getEncountersSection() != null ){
 		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){

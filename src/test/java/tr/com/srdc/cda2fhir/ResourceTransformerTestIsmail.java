@@ -163,7 +163,7 @@ public class ResourceTransformerTestIsmail {
 	        for( MedicationActivity medicationActivity  : medicationSection.getMedicationActivities() )
 	        {
 	        	ManufacturedProduct manPro = medicationActivity.getConsumable().getManufacturedProduct();
-	        	Bundle medicationBundle = rt.Medication2Medication( manPro );
+	        	Bundle medicationBundle = rt.ManufacturedProduct2Medication( manPro );
 	        	for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : medicationBundle.getEntry() ){
 		        	if( entry.getResource()  instanceof Medication ){
 			        	Medication medication = (Medication) entry.getResource();
@@ -277,7 +277,7 @@ public void traverseCCDMedicationActivity(InputStream is) throws Exception {
 	        
 	        for(MedicationActivity medAc : medicationSection.getMedicationActivities()){
 		     
-		        	Bundle medStBundle = rt.MedicationActivity2MedicationSatement( medAc );
+		        	Bundle medStBundle = rt.MedicationActivity2MedicationStatement( medAc );
 		        	
 		        	for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : medStBundle.getEntry()){ 
 		        		if(entry.getResource() instanceof MedicationStatement){
