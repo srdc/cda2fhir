@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir.impl;
 
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
@@ -9,13 +10,13 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.model.dstu2.valueset.FamilyHistoryStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.LocationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
-import ca.uhn.fhir.model.dstu2.valueset.MedicationAdministrationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
@@ -193,6 +194,47 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
+	public CodingDt NullFlavor2DataAbsentReasonCode( NullFlavor nullFlavor ){
+		CodingDt DataAbsentReasonCode = new CodingDt();
+		String code = null;
+		String display = null;
+		
+		switch( nullFlavor ){
+			case UNK: 
+				code = "unknown"; display = "Unkown"; break;
+			case ASKU: 
+				code = "asked"; display = "Asked"; break;
+			case MSK:
+				code = "masked"; display = "Masked"; break;
+			case NA:
+				code = "not-applicable"; display= "Not Applicable"; break;
+			case NASK:
+				code= "not-asked"; display = "Not Asked"; break;
+			case NAV:
+				code = "temp"; display = "Temp"; break;
+			case NI:
+				code = "no-information"; display = "No Information"; break;
+			case NINF:
+				code = "negative-infinity"; display = "Negative Infinity"; break;
+			case NP:
+				code = "not-present"; display = "Not Present"; break;
+			case OTH:
+				code = "other"; display = "other"; break;
+			case PINF:
+				code = "positive-infinity"; display = "positive Infinity"; break;
+			case TRC:
+				code = "trace"; display = "trace"; break;
+			default:
+				break;
+		}
+		
+		DataAbsentReasonCode.setSystem("http://hl7.org/fhir/valueset-data-absent-reason.html");
+		DataAbsentReasonCode.setCode(code);
+		DataAbsentReasonCode.setDisplay(display);
+		
+		return DataAbsentReasonCode;
+	}
+	
 	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String administrativeGenderCode ){
 		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
 		switch (administrativeGenderCode) {
@@ -214,6 +256,20 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		} // end of switch block
 	}
 
+	public AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status ){
+		switch( status.toLowerCase() ){
+			case "active": return AllergyIntoleranceStatusEnum.ACTIVE;
+			case "nullified":
+			case "error": return AllergyIntoleranceStatusEnum.ENTERED_IN_ERROR;
+			case "confirmed": return AllergyIntoleranceStatusEnum.CONFIRMED;
+			case "unconfirmed": return AllergyIntoleranceStatusEnum.UNCONFIRMED;
+			case "refuted": return AllergyIntoleranceStatusEnum.REFUTED;
+			case "inactive": return AllergyIntoleranceStatusEnum.INACTIVE;
+			case "resolved": return AllergyIntoleranceStatusEnum.RESOLVED;
+			default: return null;
+		}
+	}
+	
 	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status){
 		switch( status.toLowerCase() ){
 			case "active": return MedicationStatementStatusEnum.ACTIVE;
@@ -421,14 +477,9 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-
 	public LocationStatusEnum StatusCode2LocationStatusEnum(String status) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
-	
-	
 
 }

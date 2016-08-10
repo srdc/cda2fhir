@@ -60,10 +60,6 @@ public interface ResourceTransformer {
     Bundle VitalSignObservation2Observation(VitalSignObservation vsObs);
     
     
-    /*This is not a fully independent mapping method.*/
-    Bundle Performer2Practitioner(Performer2 performer);
-    /*It will be called by functions which contain Practitioner as a subresource*/
-    
     Bundle AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allergyProblemAct);
 
     Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd);

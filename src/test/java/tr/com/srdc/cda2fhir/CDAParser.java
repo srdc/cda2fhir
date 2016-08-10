@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.emf.common.util.Diagnostic;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
@@ -74,19 +75,22 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 		ResourceTransformer rt= new ResourceTransformerImpl();
 		DataTypesTransformer dtt = new DataTypesTransformerImpl();
 		private static final FhirContext myCtx = FhirContext.forDstu2();
+	
 	public CDAParser() {
         CDAUtil.loadPackages();
     }
-	@Test
+	
+	@Ignore
     public void traverseCCD(InputStream is) throws Exception {
 		ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is);
 		testVitalSignObservation2Observation(ccd);
 		testResultObservation2Observation(ccd);
 		testAllergyObservation2AllergyIntolerance(ccd);
 		testSubstanceAdministration2Immunization(ccd);
-		testPerformer2Practitioner(ccd);
     }
-    @Test
+    
+	
+	@Ignore
 	public void testVitalSignObservation2Observation(ContinuityOfCareDocument ccd)
 	{
 		 try {
@@ -182,7 +186,8 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 	            ex.printStackTrace();
 	        }
 	}//end VitalSignObservation test
-    @Test
+    
+    @Ignore
     public void testResultObservation2Observation(ContinuityOfCareDocument ccd)
     {
     	
@@ -269,6 +274,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     	}
     }//end ResultObservation test
     
+    @Ignore
     public void testAllergyObservation2AllergyIntolerance(ContinuityOfCareDocument ccd)
     {
     	 // get the allergies section from the document using domain-specific "getter" method
@@ -333,7 +339,8 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 //            printJSON(allergyIntolerance);
         }//end for
     }//end  AllergyIntolerance test
-    @Test
+   
+    @Ignore
     public void testSubstanceAdministration2Immunization(ContinuityOfCareDocument ccd)
     {
     	for(SubstanceAdministration substanceAdministration : ccd.getImmunizationsSectionEntriesOptional().getSubstanceAdministrations())
@@ -349,51 +356,8 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     		}
     	}
     }
-    @Test
-    public void testPerformer2Practitioner(ContinuityOfCareDocument ccd)
-    {
-    	for(SubstanceAdministration subAd : ccd.getImmunizationsSectionEntriesOptional().getSubstanceAdministrations())
-		{
-			if(subAd.getPerformers()!=null && !subAd.getPerformers().isEmpty())
-			{
-				for(Performer2 performer : subAd.getPerformers())
-				{
-					Bundle practitionerBundle=rt.Performer2Practitioner(performer);
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practitionerBundle.getEntry())
-					{
-						if(entry.getResource() instanceof Practitioner)
-						{
-							Practitioner practitioner = (Practitioner) entry.getResource();
-							printJSON(practitioner);
-						}
-					}
-				}
-			}
-		}//end for
-    	
-    	for(ResultOrganizer resOrg :ccd.getResultsSection().getResultOrganizers())
-    	{
-    		for(ResultObservation resObs : resOrg.getResultObservations())
-    		{
-    			if(resObs.getPerformers()!=null && !resObs.getPerformers().isEmpty())
-    			{
-    				for(Performer2 performer : resObs.getPerformers())
-    				{
-    					Bundle practitionerBundle = rt.Performer2Practitioner(performer);
-    					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practitionerBundle.getEntry())
-    					{
-    						if(entry.getResource() instanceof Practitioner)
-    						{
-    							Practitioner practitioner = (Practitioner) entry.getResource();
-    							printJSON(practitioner);
-    						}
-    					}
-    				}//end for
-    			}//end if
-    		}//end for
-    	}//end for
-    }
-	private void printJSON(IResource res) {
+
+    private void printJSON(IResource res) {
 	    IParser jsonParser = myCtx.newJsonParser();
 	    jsonParser.setPrettyPrint(true);
 	    System.out.println(jsonParser.encodeResourceToString(res));

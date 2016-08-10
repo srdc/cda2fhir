@@ -10,11 +10,7 @@ import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 
-import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
-import org.eclipse.emf.ecore.util.BasicFeatureMap;
-import org.eclipse.emf.ecore.util.FeatureMap;
 import org.openhealthtools.mdht.uml.cda.*;
-import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
@@ -25,11 +21,8 @@ import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CR;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
-import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
@@ -43,11 +36,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
-import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
-
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 import ca.uhn.fhir.model.dstu2.composite.BoundCodeableConceptDt;
@@ -55,7 +45,6 @@ import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-import ca.uhn.fhir.model.dstu2.composite.NarrativeDt;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
@@ -64,15 +53,12 @@ import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Organization.Contact;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
-import ca.uhn.fhir.model.dstu2.resource.Practitioner.PractitionerRole;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceTypeEnum;
-import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
@@ -112,7 +98,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 	
 	
-	
+	// TODO: Control patientIds
 // necip start
 	
 
@@ -180,12 +166,55 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				fhirObs.setEffective( dtt.IVL_TS2Period(cdaObs.getEffectiveTime()) );
 			}
 			
-			// value
+			// targetSiteCode <-> bodySite
+			if( cdaObs.getTargetSiteCodes() != null && !cdaObs.getTargetSiteCodes().isEmpty()){
+				for(CD cd : cdaObs.getTargetSiteCodes())
+				{
+					if( cd != null && !cd.isSetNullFlavor() ){
+						fhirObs.setBodySite( dtt.CD2CodeableConcept(cd) );
+					}
+				}
+			}
+			
+			// value or dataAbsentReason
 			if( cdaObs.getValues() != null && !cdaObs.getValues().isEmpty() ){
+				// We traverse the values in cdaObs
 				for( ANY value : cdaObs.getValues()){
-					if( value instanceof CD ){
-						if( value != null && !value.isSetNullFlavor() ){
+					if( value == null ) continue; // If the value is null, continue
+					else if( value.isSetNullFlavor() ){
+						// If a null flavor exists, then we set dataAbsentReason by looking at the null-flavor value
+						CodingDt DataAbsentReasonCode = vst.NullFlavor2DataAbsentReasonCode( value.getNullFlavor() );
+						if( DataAbsentReasonCode != null ){
+							if( fhirObs.getDataAbsentReason() == null || fhirObs.getDataAbsentReason().isEmpty() ){
+								// If DataAbsentReason was not set, create a new CodeableConcept and add our code into it
+								fhirObs.setDataAbsentReason( new CodeableConceptDt().addCoding(DataAbsentReasonCode));
+							} else{
+								// If DataAbsentReason was set, just get the CodeableConcept and add our code into it
+								fhirObs.getDataAbsentReason().addCoding( DataAbsentReasonCode );
+							}
+						}
+					} else{
+						// If a non-null value which has no null-flavor exists, then we can get the value
+						// Checking the type of value
+						if( value instanceof CD ){
 							fhirObs.setValue( dtt.CD2CodeableConcept( (CD) value ) );
+						} else if(value instanceof PQ){
+							fhirObs.setValue(dtt.PQ2Quantity( (PQ) value ));
+						} else if(value instanceof ST){
+							fhirObs.setValue(dtt.ST2String( (ST) value ));
+						} else if(value instanceof IVL_PQ){
+							fhirObs.setValue(dtt.IVL_PQ2Range( (IVL_PQ) value ));
+						} else if(value instanceof RTO){
+							fhirObs.setValue(dtt.RTO2Ratio( (RTO) value ));
+						} else if(value instanceof ED){
+							fhirObs.setValue(dtt.ED2Attachment( (ED) value ));
+						}
+						else if(value instanceof TS){
+							if(((TS)value).getValue().length()>12) {
+								fhirObs.setValue(dtt.TS2DateTime( (TS) value));
+							} else {
+								fhirObs.setValue(dtt.TS2Date( (TS) value));
+							}
 						}
 					}
 				}
@@ -229,6 +258,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 						 
 						if( fhirPractitioner != null ){
+							// Notice the usage of fhirObs.addPerformer()
 							ResourceReferenceDt practitionerReference = fhirObs.addPerformer();
 							practitionerReference.setReference( fhirPractitioner.getId() );
 							fhirObsBundle.addEntry( new Bundle().addEntry().setResource( fhirPractitioner ) );
@@ -332,7 +362,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}
 				}
 				
-				// role
+				// practitionerRole.organization
 				if( assignedEntity.getRepresentedOrganizations() != null && !assignedEntity.getRepresentedOrganizations().isEmpty() ){
 					for( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization : assignedEntity.getRepresentedOrganizations() ){
 						if( cdaOrganization != null && !cdaOrganization.isSetNullFlavor() ){
@@ -1067,7 +1097,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 	
 	// Following method ( ReferenceRange2ReferenceRange ) will be used as helper for Observation transformation methods
-	public ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange ReferenceRange2ReferenceRange( org.openhealthtools.mdht.uml.cda.ReferenceRange cdaRefRange){
+	public Observation.ReferenceRange ReferenceRange2ReferenceRange( org.openhealthtools.mdht.uml.cda.ReferenceRange cdaRefRange){
 		if( cdaRefRange == null || cdaRefRange.isSetNullFlavor() ) return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange fhirRefRange = new ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange();
@@ -1665,7 +1695,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		return null;
 	}
-	
+
 	
 	public Bundle ParticipantRole2Location(ParticipantRole patRole) {
 		
@@ -1730,447 +1760,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 // tahsin start
 	
 	public Bundle VitalSignObservation2Observation(VitalSignObservation vsObs) {
-		if(vsObs!=null && !vsObs.isSetNullFlavor()){
-			Observation observation= new Observation();
-			
-			Bundle observationBundle = new Bundle();
-			observationBundle.addEntry( new Bundle.Entry().setResource(observation));
-			
-			// id
-			IdDt resourceId = new IdDt("Observation", getUniqueId());
-			observation.setId(resourceId);
-		
-			if(vsObs.getIds()!=null & !vsObs.getIds().isEmpty())
-			{
-				for(II myIds : vsObs.getIds())
-				{
-					observation.addIdentifier(dtt.II2Identifier(myIds));
-				}//end for
-			}//end if
-			if(vsObs.getStatusCode()!=null && !vsObs.getStatusCode().isSetNullFlavor())
-			{
-				if(vsObs.getStatusCode().getCode().equals("completed"))
-				{
-					observation.setStatus(ObservationStatusEnum.FINAL);
-				}//end if
-			}
-			if(vsObs.getInterpretationCodes()!=null && !vsObs.getInterpretationCodes().isEmpty())
-			{
-				for(CE ce: vsObs.getInterpretationCodes())
-				{
-					CD cd=(CD) ce;
-					observation.setInterpretation(dtt.CD2CodeableConcept(cd));
-				}//end for
-			}//end if
-			if(vsObs.getAuthors()!=null && !vsObs.getAuthors().isEmpty())
-			{
-				for(Author author : vsObs.getAuthors())
-				{
-					if(author.getTime()!=null && !author.getTime().isSetNullFlavor())
-					{
-						observation.setIssued(dtt.TS2Instant(author.getTime()));
-					}//end if
-				}//end for
-			}//end if
-			if(!vsObs.getEffectiveTime().isSetNullFlavor() && vsObs.getEffectiveTime()!=null)
-			{
-				if(vsObs.getEffectiveTime().getValue()!=null)
-				{
-					TS ts=DatatypesFactory.eINSTANCE.createTS();
-					ts.setValue(vsObs.getEffectiveTime().getValue());
-					observation.setEffective(dtt.TS2DateTime(ts));
-				}
-				else
-				{
-					observation.setEffective(dtt.IVL_TS2Period(vsObs.getEffectiveTime()));
-				}
-			}//end if
-			if(!vsObs.getValues().isEmpty() && vsObs.getValues()!=null)
-			{
-				for(ANY any : vsObs.getValues())
-				{
-					if(any.isSetNullFlavor())
-					{
-						CodeableConceptDt cd = new CodeableConceptDt();
-						cd.setText(any.getNullFlavor().getLiteral());
-						observation.setDataAbsentReason(cd);
-					}
-					else
-					{
-						if(any instanceof PQ)
-						{
-							PQ pq=(PQ) any;
-							observation.setValue(dtt.PQ2Quantity(pq));
-						}
-						else if(any instanceof ST)
-						{
-							ST st=(ST) any;
-							observation.setValue(dtt.ST2String(st));
-						}
-						else if(any instanceof CD)
-						{
-							CD cd=(CD) any;
-							observation.setValue(dtt.CD2CodeableConcept(cd));
-						}
-						else if(any instanceof IVL_PQ)
-						{
-							IVL_PQ ivlpq=(IVL_PQ) any;
-							observation.setValue(dtt.IVL_PQ2Range(ivlpq));
-						}
-						else if(any instanceof RTO)
-						{
-							RTO rto=(RTO) any;
-							observation.setValue(dtt.RTO2Ratio(rto));
-						}
-						else if(any instanceof ED)
-						{
-							ED ed=(ED) any;
-							observation.setValue(dtt.ED2Attachment(ed));
-							
-						}//end else if
-						else if(any instanceof TS)
-						{
-							TS ts=(TS) any;
-							if(ts.getValue().length()>12)
-							{
-								observation.setValue(dtt.TS2DateTime(ts));
-							}//end if
-							else
-							{
-								observation.setValue(dtt.TS2Date(ts));
-							}//end else
-						}//end else if
-					}//END ELSE
-				}//end for
-			}//end if
-			if(vsObs.getTargetSiteCodes()!=null && !vsObs.getTargetSiteCodes().isEmpty())
-			{
-				for(CD cd : vsObs.getTargetSiteCodes())
-				{
-					if(!cd.isSetNullFlavor())
-						observation.setBodySite(dtt.CD2CodeableConcept(cd));
-				}//end for
-			}//end if
-			
-			if(vsObs.getMethodCodes()!=null && !vsObs.getMethodCodes().isEmpty())
-			{
-				for(CE ce : vsObs.getMethodCodes())
-				{
-					if(!ce.isSetNullFlavor())
-					{
-						CD cd= (CD) ce;
-						observation.setMethod(dtt.CD2CodeableConcept(cd));
-					}
-				}//end for
-			}//end if
-			if(vsObs.getCode()!=null && !vsObs.getCode().isSetNullFlavor())
-			{
-				observation.setCode(dtt.CD2CodeableConcept(vsObs.getCode()));
-			}//end if
-			ResourceReferenceDt resourceReference= new ResourceReferenceDt();
-			resourceReference.setReference(cct.getPatientId());
-			observation.setSubject(resourceReference);
-			return observationBundle;
-		}//end if
-		else
-		{
-			return null;
-		}
-	}//end FHIR func
+		// Had a detailed look and seen that Observation2Observation satisfies the necessary mapping for this method
+		return Observation2Observation(vsObs);
+	}
 
 	
 	public Bundle ResultObservation2Observation(ResultObservation resObs) {
-		if(resObs!=null &&  !resObs.isSetNullFlavor())
-		{
-			Bundle obsBundle = new Bundle();
-			Observation observation= new Observation();
-			obsBundle.addEntry(new Bundle.Entry().setResource(observation));
-			
-			// id
-			IdDt resourceId = new IdDt("Observation", getUniqueId());
-			observation.setId(resourceId);
-			
-			if(resObs.getIds()!=null && !resObs.getIds().isEmpty())
-			{
-				for(II myIds : resObs.getIds())
-				{
-					observation.addIdentifier(dtt.II2Identifier(myIds));
-				}//end for
-			}//end if
-			if(resObs.getStatusCode()!=null && !resObs.getStatusCode().isSetNullFlavor())
-			{
-				if(resObs.getStatusCode().getCode().equals("completed"))
-				{
-					observation.setStatus(ObservationStatusEnum.FINAL);
-				}//end if
-				
-			}//end if
-			if(resObs.getCode()!=null && !resObs.getCode().isSetNullFlavor())
-			{
-				observation.setCode(dtt.CD2CodeableConcept(resObs.getCode()));
-			}//end if
-			if(resObs.getTargetSiteCodes()!=null && !resObs.getTargetSiteCodes().isEmpty())
-			{
-				for(CD cd : resObs.getTargetSiteCodes())
-				{
-					if(!cd.isSetNullFlavor())
-						observation.setBodySite(dtt.CD2CodeableConcept(cd));
-				}//end for
-			}//end if
-			
-			if(resObs.getMethodCodes()!=null && !resObs.getMethodCodes().isEmpty())
-			{
-				for(CE ce : resObs.getMethodCodes())
-				{
-					if(!ce.isSetNullFlavor())
-					{
-						CD cd= (CD) ce;
-						observation.setMethod(dtt.CD2CodeableConcept(cd));
-					}
-				}//end for
-			}//end if
-			if(resObs.getInterpretationCodes()!=null && !resObs.getInterpretationCodes().isEmpty())
-			{
-				for(CE ce: resObs.getInterpretationCodes())
-				{
-					CD cd=(CD) ce;
-					observation.setInterpretation(dtt.CD2CodeableConcept(cd));
-				}//end for
-			}//end if
-			if(resObs.getAuthors()!=null && !resObs.getAuthors().isEmpty())
-			{
-				for(Author author : resObs.getAuthors())
-				{
-					if(author.getTime()!=null && !author.getTime().isSetNullFlavor())
-					{
-						observation.setIssued(dtt.TS2Instant(author.getTime()));
-					}//end if
-				}//end for
-			}//end if
-			if(!resObs.getEffectiveTime().isSetNullFlavor() && resObs.getEffectiveTime()!=null)
-			{
-				if(resObs.getEffectiveTime().getValue()!=null)
-				{
-					TS ts=DatatypesFactory.eINSTANCE.createTS();
-					ts.setValue(resObs.getEffectiveTime().getValue());
-					observation.setEffective(dtt.TS2DateTime(ts));
-				}
-				else
-				{
-					observation.setEffective(dtt.IVL_TS2Period(resObs.getEffectiveTime()));
-				}
-			}//end if
-			if(!resObs.getValues().isEmpty() && resObs.getValues()!=null)
-			{
-				for(ANY any : resObs.getValues())
-				{
-					if(any.isSetNullFlavor())
-					{
-						CodeableConceptDt cd = new CodeableConceptDt();
-						ArrayList <CodingDt> myCodings = new ArrayList <CodingDt> ();
-						CodingDt coding = new CodingDt();
-						if(any.getNullFlavor().equals(NullFlavor.NA))
-						{
-							coding.setCode("not-asked");
-							coding.setDisplay("Not Asked");
-						}//end if
-						else if(any.getNullFlavor().equals(NullFlavor.NI))
-						{
-							coding.setCode("no-information");
-							coding.setDisplay("No Information");
-						}
-						else if(any.getNullFlavor().equals(NullFlavor.UNK))
-						{
-							coding.setCode("unknown");
-							coding.setDisplay("Unknown");
-						}
-						coding.setSystem("http://hl7.org/fhir/data-absent-reason");
-						myCodings.add(coding);
-						cd.setCoding(myCodings);
-						observation.setDataAbsentReason(cd);
-					}
-					else
-					{
-						if(any instanceof PQ)
-						{
-							PQ pq=(PQ) any;
-							if(pq!=null && !pq.isSetNullFlavor())
-								observation.setValue(dtt.PQ2Quantity(pq));
-							
-						}
-						else if(any instanceof ST)
-						{
-							ST st=(ST) any;
-							observation.setValue(dtt.ST2String(st));
-						}
-						else if(any instanceof CD)
-						{
-							CD cd=(CD) any;
-							observation.setValue(dtt.CD2CodeableConcept(cd));
-						}
-						else if(any instanceof IVL_PQ)
-						{
-							IVL_PQ ivlpq=(IVL_PQ) any;
-							observation.setValue(dtt.IVL_PQ2Range(ivlpq));
-						}
-						else if(any instanceof RTO)
-						{
-							RTO rto=(RTO) any;
-							observation.setValue(dtt.RTO2Ratio(rto));
-						}
-						else if(any instanceof ED)
-						{
-							ED ed=(ED) any;
-							observation.setValue(dtt.ED2Attachment(ed));
-							
-						}//end else if
-						else if(any instanceof TS)
-						{
-							TS ts=(TS) any;
-							if(ts.getValue().length()>12)
-							{
-								observation.setValue(dtt.TS2DateTime(ts));
-							}//end if
-							else
-							{
-								observation.setValue(dtt.TS2Date(ts));
-							}//end else
-						}//end else if
-					}//END ELSE
-				}//end for
-			}//end if
-			if(resObs.getReferenceRanges()!=null && !resObs.getReferenceRanges().isEmpty())
-			{
-				for(org.openhealthtools.mdht.uml.cda.ReferenceRange CDArefRange : resObs.getReferenceRanges())
-				{
-					ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange	FHIRrefRange = new ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange ();
-					if(CDArefRange.getObservationRange()!=null && !CDArefRange.getObservationRange().isSetNullFlavor())
-					{
-						if(CDArefRange.getObservationRange().getText()!=null && !CDArefRange.getObservationRange().getText().isSetNullFlavor())
-						{
-							if(CDArefRange.getObservationRange().getText().getText()!=null)
-								FHIRrefRange.setText(CDArefRange.getObservationRange().getText().getText());
-						}
-					}
-				}//end for
-			}//end if
-			
-			if(resObs.getPerformers()!=null && !resObs.getPerformers().isEmpty())
-			{
-				ArrayList <ResourceReferenceDt> resourceReferences= new ArrayList <ResourceReferenceDt> ();
-				for(Performer2 performer : resObs.getPerformers())
-				{
-					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
-					{
-						
-						Bundle practitioner=Performer2Practitioner(performer);
-						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practitioner.getEntry())
-						{
-							if(entry.getResource() instanceof Practitioner)
-							{
-								Practitioner pract = (Practitioner) entry.getResource();
-								resourceReference.setReference(pract.getId());
-							}
-						}
-						resourceReferences.add(resourceReference);
-						obsBundle.addEntry(new Bundle.Entry().setResource(practitioner));
-					}
-				}
-				observation.setPerformer(resourceReferences);
-			}//end if
-			ResourceReferenceDt resourceReference= new ResourceReferenceDt();
-			resourceReference.setReference(cct.getPatientId());
-			observation.setSubject(resourceReference);
-			return obsBundle;
-		}//end if
-		else
-			return null;
-	}//end function
+		// Had a detailed look and seen that Observation2Observation satisfies the necessary mapping for this method
+		return Observation2Observation(resObs);
+	}
 	
 	
-	public Bundle Performer2Practitioner(Performer2 performer) {
-		Bundle practBundle = new Bundle();
-		Practitioner practitioner = new Practitioner();
-		
-		// id
-		IdDt resourceId = new IdDt("Practitioner", getUniqueId());
-		practitioner.setId(resourceId);
-		
-		practBundle.addEntry(new Bundle.Entry().setResource(practitioner));
-		if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
-		{
-			AssignedEntity assignedEntity= performer.getAssignedEntity();
-			if(assignedEntity.getIds()!=null && !performer.getAssignedEntity().isSetNullFlavor())
-			{
-				ArrayList <IdentifierDt> idS = new ArrayList <IdentifierDt> ();
-				for(II ii : assignedEntity.getIds())
-				{
-					idS.add(dtt.II2Identifier(ii));
-				}//end for
-				practitioner.setIdentifier(idS);
-			}//end if
-			if(assignedEntity.getAddrs()!=null && !performer.getAssignedEntity().getAddrs().isEmpty())
-			{
-				for(AD ad : assignedEntity.getAddrs())
-				{
-					if(!ad.isSetNullFlavor() && ad!=null)
-						practitioner.addAddress(dtt.AD2Address(ad));
-				}//end for
-			}//end if
-			if(assignedEntity.getTelecoms()!=null && !assignedEntity.getTelecoms().isEmpty())
-			{
-				for(TEL tel : assignedEntity.getTelecoms())
-				{
-					if(!tel.isSetNullFlavor() && tel!=null)
-						practitioner.addTelecom(dtt.TEL2ContactPoint(tel));
-				}//end for
-			}//end if
-			if(assignedEntity.getAssignedPerson()!=null && !assignedEntity.getAssignedPerson().isSetNullFlavor())
-			{
-				Person person=assignedEntity.getAssignedPerson();
-				if(person.getNames()!=null && !person.getNames().isEmpty())
-				{
-					for(PN pn : person.getNames())
-					{
-						EN en =(EN) pn;
-						if(!en.isSetNullFlavor() && en!=null)
-							practitioner.setName(dtt.EN2HumanName(en));
-					}//end for
-				}//end if
-			}//end if
-			if(assignedEntity.getRepresentedOrganizations()!=null && !assignedEntity.getRepresentedOrganizations().isEmpty())
-			{
-				ArrayList <PractitionerRole> prRoles= new ArrayList <PractitionerRole>();
-				for(org.openhealthtools.mdht.uml.cda.Organization organization : assignedEntity.getRepresentedOrganizations())
-				{
-					PractitionerRole prRole= new PractitionerRole();
-					ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-					resourceReference.setReference("Organization/" + getUniqueId());
-					prRole.setManagingOrganization(resourceReference);
-					prRoles.add(prRole);
-					 Bundle FHIROrganizationBundle = Organization2Organization(organization);
-					 for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : FHIROrganizationBundle.getEntry())
-					 {
-						 if(entry.getResource() instanceof  ca.uhn.fhir.model.dstu2.resource.Organization )
-						 {
-							 ca.uhn.fhir.model.dstu2.resource.Organization FHIROrganization = ( ca.uhn.fhir.model.dstu2.resource.Organization ) entry.getResource();
-							 practBundle.addEntry(new Bundle.Entry().setResource(FHIROrganization));
-						 }
-					 }
-					 
-				}//end for
-				
-				practitioner.setPractitionerRole(prRoles);
-			}//end if
-		}//end assignedEntity if
-		return practBundle;
-	}//END FUNC
-	
-	
-	public Bundle AllergyProblemAct2AllergyIntolerance(AllergyProblemAct allProb)
+	public Bundle AllergyProblemAct2AllergyIntolerance(AllergyProblemAct cdaAllergyProbAct)
 	{
-		if(allProb==null || allProb.isSetNullFlavor()) return null;
+		if(cdaAllergyProbAct==null || cdaAllergyProbAct.isSetNullFlavor()) return null;
 		else
 		{
 			AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
@@ -2182,10 +1785,29 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			IdDt resourceId = new IdDt("AllergyIntolerance", getUniqueId());
 			allergyIntolerance.setId(resourceId);
 			
-			ResourceReferenceDt resourceReference = new ResourceReferenceDt();
-			resourceReference.setReference(cct.getPatientId());
-			allergyIntolerance.setPatient(resourceReference);
-			for (EntryRelationship entryRelationship : allProb.getEntryRelationships())
+			// identifier
+			if( cdaAllergyProbAct.getIds() != null && !cdaAllergyProbAct.getIds().isEmpty() ){
+				for( II ii : cdaAllergyProbAct.getIds() ){
+					if( ii != null && ii.isSetNullFlavor() ){
+						allergyIntolerance.addIdentifier( dtt.II2Identifier(ii) );
+					}
+				}
+			}
+			
+			// patient
+			allergyIntolerance.setPatient( new ResourceReferenceDt( patientId ) );
+			
+			// status
+			if( cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor() ){
+				if( cdaAllergyProbAct.getStatusCode().getCode() != null && !cdaAllergyProbAct.getStatusCode().getCode().isEmpty() ){
+					AllergyIntoleranceStatusEnum allergyIntoleranceStatusEnum = vst.StatusCode2AllergyIntoleranceStatusEnum( cdaAllergyProbAct.getStatusCode().getCode() );
+					if( allergyIntoleranceStatusEnum != null ){
+						allergyIntolerance.setStatus( allergyIntoleranceStatusEnum );
+					}
+				}
+			}
+			
+			for (EntryRelationship entryRelationship : cdaAllergyProbAct.getEntryRelationships())
 			{
                 // check for alert observation
 				
@@ -2198,12 +1820,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
                     	{
                     		if(ii!=null && !ii.isSetNullFlavor())
                     			allergyIntolerance.addIdentifier(dtt.II2Identifier(ii));
-                    	}//end for
-                    }//end if
-                    if(allProb.getStatusCode()!=null && !allProb.getStatusCode().isSetNullFlavor())
-                    	if(allProb.getStatusCode().getCode().equals("active"))
-                    		allergyIntolerance.setStatus(AllergyIntoleranceStatusEnum.ACTIVE);
-                    	/*TODO:The other cases are not handled, since lack of example*/
+                    	}
+                    }
+                    
                     	if(allergyObservation.getValues()!=null && !allergyObservation.getValues().isEmpty())
                     	{
                     		for(ANY any : allergyObservation.getValues())
@@ -2250,10 +1869,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
                     						default:
                     							allergyIntolerance.setType(AllergyIntoleranceTypeEnum.ALLERGY);
                     							allergyIntolerance.setCategory(AllergyIntoleranceCategoryEnum.ENVIRONMENT);
-                    					}//end switch
-                    				}//end if
-                    			}//end if
-                    		}//end for
+                    					}
+                    				}
+                    			}
+                    		}
                     		if(allergyObservation.getParticipants()!=null && !allergyObservation.getParticipants().isEmpty())
                     		{
                     			for(Participant2 participant : allergyObservation.getParticipants())
@@ -2273,13 +1892,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
                     							for(PN pn : participantRole.getPlayingEntity().getNames())
                     							{
                     								/*TODO: Name attribute will be filled.*/
-                    							}//end for
-                    						}//end if
-                    					}//end if
-                    				}//end if
-                    			}//end for
-                    		}//end if
-                    	}//end if
+                    							}
+                    						}
+                    					}
+                    				}
+                    			}
+                    		}
+                    	}
                     	if(allergyObservation.getEntryRelationships()!=null && !allergyObservation.getEntryRelationships().isEmpty())
                     	{
                     		for (EntryRelationship entryRelationship2 : allergyObservation.getEntryRelationships())
@@ -2309,26 +1928,26 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
                     		                    				if(ivl_ts.getLow()!=null && !ivl_ts.getLow().isSetNullFlavor())
                     		                    				{
                     		                    					reaction.setOnset(dtt.TS2DateTime(ivl_ts.getLow()));
-                    		                    				}//end if
-                    		                    			}//en if
+                    		                    				}
+                    		                    			}
                     		                    			reactions.add(reaction);
-                    		                    		}//end if
-                    		                    	}//end for
+                    		                    		}
+                    		                    	}
                     		                    	allergyIntolerance.setReaction(reactions);
-                    		                    }//end if
-                    						}//end if
-                    					}//end for
-                    				}//end if
-                    			}//end if
-                			}//end for
-                    	}//end if
-                	}//end if
+                    		                    }
+                    						}
+                    					}
+                    				}
+                    			}
+                			}
+                    	}
+                	}
                 	
-				}//end for
+				}
 				
 				return allergyIntoleranceBundle;
-			}//end outer else
-	}//end func
+			}
+	}
 	
 	
 	public Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd)
@@ -2404,7 +2023,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
 						
-						Bundle practitioner=Performer2Practitioner(performer);
+						Bundle practitioner=Performer22Practitioner(performer);
 						ResourceReferenceDt resourceReference = new ResourceReferenceDt();
 						resourceReference.setReference(practitioner.getId());
 						immunization.setPerformer(resourceReference);
@@ -2459,7 +2078,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			Composition.Section fhirSec = new Composition.Section();
 			fhirSec.setTitle(cdaSec.getTitle().getText());
 			fhirSec.setCode(dtt.CD2CodeableConcept(cdaSec.getCode()));
-			// TODO: narrative text transformation is not so straightforward
 			fhirSec.setText(dtt.StrucDocText2Narrative(cdaSec.getText()));
 			
 			return fhirSec;
