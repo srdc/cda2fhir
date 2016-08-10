@@ -15,6 +15,9 @@ import ca.uhn.fhir.model.primitive.UriDt;
 import ca.uhn.fhir.model.primitive.InstantDt;
 import java.util.TimeZone;
 
+import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
+import org.eclipse.emf.ecore.util.BasicFeatureMap;
+import org.eclipse.emf.ecore.util.FeatureMap;
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.Person;
@@ -521,7 +524,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	public NarrativeDt StrucDocText2Narrative(StrucDocText sdt) {
 		if(sdt != null) {
 			NarrativeDt narrative = new NarrativeDt();
-//			narrative.setDiv(sdt.getMixed().toString());
+			narrative.setDiv(  StrucDocText2String(sdt)  );
 			narrative.setStatus(NarrativeStatusEnum.ADDITIONAL);
 			return narrative;
 		}
@@ -889,6 +892,70 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		return instantDt;
 
 	}
-
+	
+	// Following method is a recursive one and will be used as helper for StructDocText2Narrative
+	// Since it calls itself repeatedly and handles with different types of objects, parameter is taken as Object
+	// However, parameters of type StrucDocText should be given by the caller
+	private String StrucDocText2String( Object param ){
+		
+		if( param instanceof org.openhealthtools.mdht.uml.cda.StrucDocText ){
+			org.openhealthtools.mdht.uml.cda.StrucDocText paramStrucDocText = (org.openhealthtools.mdht.uml.cda.StrucDocText)param;
+			return "<text>" +StrucDocText2String(  paramStrucDocText.getMixed() ) + "</text>";
+			
+		} 
+		else if( param instanceof BasicFeatureMap ){
+			String returnValue = "";
+			for( Object object : (BasicFeatureMap)param ){
+				String pieceOfReturn = StrucDocText2String( object );
+				if( pieceOfReturn != null && !pieceOfReturn.isEmpty() ){
+					returnValue = returnValue + pieceOfReturn;
+				}
+			}
+			return returnValue;
+		} 
+		else if( param instanceof EStructuralFeatureImpl.SimpleFeatureMapEntry ){
+			return ((EStructuralFeatureImpl.SimpleFeatureMapEntry)param).getValue().toString();
+		} 
+		else if( param instanceof EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry){
+			EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry = (EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry)param;
+			return "<"+entry.getEStructuralFeature().getName()
+					+ getAttributeHelperStrucDocText2String(entry)
+					+">" + StrucDocText2String( entry.getValue() ) + "</"+entry.getEStructuralFeature().getName()+">";
+		} 
+		else if( param instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl ){
+			// since the name and the attributes are taken already, we just send the mixed of anyTypeImpl
+			return StrucDocText2String( ((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl)param).getMixed() );
+		} 
+		else{
+			// Undesired situtation
+			// Check the class of param
+			return null;
+		}
+	}
+	
+	// Helper for StrucDocText2String
+	private String getAttributeHelperStrucDocText2String( EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry ){
+		// This method extracts attributes from AnyTypeImpl
+		// Return example: border="1"
+		if( entry.getValue() instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl ){
+			String returnValue = "";
+			for( FeatureMap.Entry attribute : ((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) entry.getValue()).getAnyAttribute() ){
+				String name = attribute.getEStructuralFeature().getName();
+				String value = attribute.getValue().toString();
+				if( name != null && !name.isEmpty()){
+					// we may have attributes which doesn't have any value
+					returnValue = returnValue + " " + name;
+					if( value != null && !value.isEmpty() ){
+						returnValue = returnValue + "=\""+value+"\"";
+					}
+				}
+			}
+			return returnValue;
+		} else{
+			// Undesired situtation
+			// Check the class of entry.getValue()
+			return null;
+		}
+	}
 }
 
