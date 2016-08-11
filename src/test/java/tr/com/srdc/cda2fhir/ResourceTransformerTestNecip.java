@@ -74,6 +74,8 @@ public class ResourceTransformerTestNecip {
 		}
     }
 	
+	// Most of the test methods just print the transformed object in JSON form.
+	
 	@Test
 	public void testAllergy(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -86,6 +88,7 @@ public class ResourceTransformerTestNecip {
 			System.out.println("***");
 		}
 	}
+	
 	
 	@Ignore
 	public void testSection2Section(){
@@ -116,6 +119,7 @@ public class ResourceTransformerTestNecip {
 			System.out.print("\n***\n");
 		}
 	}
+	
 	
 	@Ignore
 	public void testEncounter2Encounter(){
@@ -151,6 +155,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
+	
 	@Ignore
 	public void testGuardian2Contact(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -181,6 +186,7 @@ public class ResourceTransformerTestNecip {
 			}
 		}
 	}
+	
 	
 	@Ignore
 	public void testProcedure2Procedure(){
@@ -274,6 +280,7 @@ public class ResourceTransformerTestNecip {
 		
 	}
 	
+	
 	@Ignore
 	public void testPerformer22Performer(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -316,6 +323,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
+	
 	@Ignore
 	public void testAssignedEntity2Practitioner(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -356,8 +364,6 @@ public class ResourceTransformerTestNecip {
 	}
 	
 	
-	// Following method just prints the [FHIR]Organization in JSON form.
-	// One example transformed to fhir form and there was no error.
 	@Ignore
 	public void testOrganization2Organization(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -384,8 +390,6 @@ public class ResourceTransformerTestNecip {
 	}
 	
 	
-	// Following method just prints the [FHIR]Communication in JSON form.
-	// One example transformed to fhir form and there was no error.
 	@Ignore
 	public void testLanguageCommunication2Communication(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();

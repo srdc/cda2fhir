@@ -32,6 +32,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO_PQ_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
@@ -51,6 +52,7 @@ import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
+import ca.uhn.fhir.model.dstu2.composite.TimingDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Organization.Contact;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
@@ -59,6 +61,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
@@ -100,6 +103,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 	
 	// TODO: Control patientIds
+	// Ask about author
 // necip start
 	
 
@@ -128,7 +132,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	public Bundle Observation2Observation( org.openhealthtools.mdht.uml.cda.Observation cdaObs ){
 		if( cdaObs == null || cdaObs.isSetNullFlavor() ) return null;
 		else{
-			Observation fhirObs = new ca.uhn.fhir.model.dstu2.resource.Observation();
+			Observation fhirObs = new Observation();
 			
 			// bundle
 			Bundle fhirObsBundle = new Bundle();
@@ -415,6 +419,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 			
+			// patient
+			fhirFMH.setPatient( new ResourceReferenceDt( patientId ) );
+			
 			// statusCode
 			if( cdaFHO.getStatusCode() != null && !cdaFHO.getStatusCode().isSetNullFlavor() ){
 				fhirFMH.setStatus( vst.FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( cdaFHO.getStatusCode().getCode() ) );
@@ -639,7 +646,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 	
-	
+	// never used
 	public Bundle Entity2Group( Entity entity ){
 		if( entity == null || entity.isSetNullFlavor() ) return null;
 		else if( entity.getDeterminerCode() != org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer.KIND ) return null;
@@ -1143,7 +1150,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 
 // ismail start
-
+	// needs testing
 	public Bundle ProblemConcernAct2Condition(ProblemConcernAct probAct) {
 		
 		if( probAct == null || probAct.isSetNullFlavor()) return null;
@@ -1310,13 +1317,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return conditionBundle;
 	}
 
-	
+	// needs testing
 	public Bundle ManufacturedProduct2Medication(ManufacturedProduct manPro) {
 		
 		if( manPro == null || manPro.isSetNullFlavor() ) return null;
 		
 		Medication medication = new Medication();
-		
 		
 		Bundle medicationBundle = new Bundle();
 		medicationBundle.addEntry( new Bundle.Entry().setResource(medicationBundle) );
@@ -1337,7 +1343,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		ResourceReferenceDt resourceReferenceManu = new ResourceReferenceDt();
 		
 		if( manPro.getManufacturerOrganization() != null && !manPro.getManufacturerOrganization().isSetNullFlavor() ){
-			
 			// is_brand
 			medication.setIsBrand(true);
 			
@@ -1358,264 +1363,278 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		} else {
 			medication.setIsBrand(false);
 		}
-		// TODO Product & Package may need mapping
-		// https://www.hl7.org/fhir/medication-mappings.html
-		
 		
 		return medicationBundle;
 	}
 	
-	
-	// we may think of writing this method anew
-	public Bundle MedicationActivity2MedicationStatement(MedicationActivity subAd) {
+	// needs testing
+	public Bundle MedicationActivity2MedicationStatement(MedicationActivity cdaMedAct) {
 		
-		if( subAd == null || subAd.isSetNullFlavor() ) return null;
+		if( cdaMedAct == null || cdaMedAct.isSetNullFlavor() ) return null;
+		// TODO: Necip:
+		// Do we need to check moodCode here?
 //		if (subAd.getMoodCode() != x_DocumentSubstanceMood.EVN ) return null;
 		
-		MedicationStatement medSt = new MedicationStatement();
+		MedicationStatement fhirMedSt = new MedicationStatement();
 		
 		Bundle medStatementBundle = new Bundle();
-		medStatementBundle.addEntry( new Bundle.Entry().setResource(medSt) );
-	
+		medStatementBundle.addEntry( new Bundle.Entry().setResource(fhirMedSt) );
+
 		// id
-		IdDt id = new IdDt( "MedicationActivity", getUniqueId()  );
-		medSt.setId( id );
+		IdDt resourceId = new IdDt( "MedicationActivity", getUniqueId()  );
+		fhirMedSt.setId( resourceId );
 		
 		
 		// identifier
-		if( subAd.getIds() != null && !subAd.getIds().isEmpty() ){
-			for(II ii : subAd.getIds()){
-				medSt.addIdentifier( dtt.II2Identifier(ii) );
+		if( cdaMedAct.getIds() != null && !cdaMedAct.getIds().isEmpty() ){
+			for(II ii : cdaMedAct.getIds()){
+				fhirMedSt.addIdentifier( dtt.II2Identifier(ii) );
 			}
 		}
 		
 		
 		// status
-		if( subAd.getStatusCode() != null && !subAd.getStatusCode().isSetNullFlavor()){
-			if( subAd.getStatusCode().getCode() != null && !subAd.getStatusCode().getCode().isEmpty() ){
-				MedicationStatementStatusEnum statusCode = vst.StatusCode2MedicationStatementStatusEnum( subAd.getStatusCode().getDisplayName());
+		if( cdaMedAct.getStatusCode() != null && !cdaMedAct.getStatusCode().isSetNullFlavor()){
+			if( cdaMedAct.getStatusCode().getCode() != null && !cdaMedAct.getStatusCode().getCode().isEmpty() ){
+				MedicationStatementStatusEnum statusCode = vst.StatusCode2MedicationStatementStatusEnum( cdaMedAct.getStatusCode().getDisplayName());
 				if( statusCode != null  ){
-					medSt.setStatus( statusCode );
+					fhirMedSt.setStatus( statusCode );
 				}
 			}
 		}
 		
 		// patient
-		medSt.setPatient(new ResourceReferenceDt( patientId ));
+		fhirMedSt.setPatient(new ResourceReferenceDt( patientId ));
 		
-		//PRACTITIONER
-//		if( subAd.getPerformers() != null && !subAd.getPerformers().isEmpty() ){
-//			
-//			if( !subAd.getPerformers().get(0).isSetNullFlavor() ){
-//				
-//				ResourceReferenceDt refPerf = new ResourceReferenceDt();
-//				refPerf.setReference( "practitioner:" + getUniqueId() );
-//				medSt.setPractitioner( refPerf );
-//			}
-//			
-//		}
-		
-		
-		//DOSAGE
-		medSt.addDosage();
-		if(medSt.getDosage() != null){
-			if(medSt.getDosage().size() != 0){
-				CodeableConceptDt route = new CodeableConceptDt();
-				CodingDt routeCoding = new CodingDt();
-				if( subAd.getRouteCode() != null && !subAd.getRouteCode().isSetNullFlavor() ){
-					
-					if( subAd.getRouteCode().getCode() != null )
-						routeCoding.setCode( subAd.getRouteCode().getCode() );
-					if( subAd.getRouteCode().getDisplayName() != null )
-						routeCoding.setDisplay( subAd.getRouteCode().getDisplayName() );
-					if( subAd.getRouteCode().getCodeSystem() != null )
-						routeCoding.setSystem( subAd.getRouteCode().getCodeSystem() );
-					if( subAd.getRouteCode().getCodeSystemVersion() != null ){
-						routeCoding.setVersion( subAd.getRouteCode().getCodeSystemVersion() );
+		// medication <-> cdaMedAct.consumable.manufacturedProduct
+		if( cdaMedAct.getConsumable() != null && !cdaMedAct.getConsumable().isSetNullFlavor() ){
+			if( cdaMedAct.getConsumable().getManufacturedProduct() != null && !cdaMedAct.getConsumable().getManufacturedProduct().isSetNullFlavor() ){
+
+				Medication fhirMedication = null;
+				Bundle fhirMedicationBundle = ManufacturedProduct2Medication(cdaMedAct.getConsumable().getManufacturedProduct() );
+				
+				for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirMedicationBundle.getEntry() ){
+					if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Medication){
+						fhirMedication = (ca.uhn.fhir.model.dstu2.resource.Medication) entry.getResource();
 					}
-					
-					route.addCoding( routeCoding );
-					medSt.getDosage().get(0).setRoute( route );
-					
-					
 				}
 				
-				SimpleQuantityDt quantityDose = new SimpleQuantityDt();
-				if( subAd.getDoseQuantity() != null && !subAd.getDoseQuantity().isSetNullFlavor() ){
-					
-					quantityDose.setValue( subAd.getDoseQuantity().getValue() );
-					if( subAd.getDoseQuantity().getUnit() != null )
-						quantityDose.setUnit( subAd.getDoseQuantity().getUnit() );
-					
-				}
-				medSt.getDosage().get(0).setQuantity( quantityDose );
-				
-				RangeDt rate = dtt.IVL_PQ2Range( subAd.getRateQuantity() );
-				medSt.getDosage().get(0).setRate( rate );
-				
-				RatioDt ratio = dtt.RTO2Ratio( (RTO) subAd.getMaxDoseQuantity() );
-				medSt.getDosage().get(0).setMaxDosePerPeriod(ratio);
+				medStatementBundle.addEntry( new Bundle.Entry().setResource( fhirMedication ) );
+				fhirMedSt.setMedication( new ResourceReferenceDt( fhirMedication.getId() ) );
 			}
 		}
-		////DOSAGE END
 		
-		
-		//EFFECTIVE
-		PeriodDt period = new PeriodDt();
-		if( subAd.getEffectiveTimes().get(0) != null ){
-			
-			period = dtt.IVL_TS2Period( (IVL_TS) subAd.getEffectiveTimes().get(0) );
-			
+		// effectiveTime
+		if( cdaMedAct.getEffectiveTimes() != null && !cdaMedAct.getEffectiveTimes().isEmpty() ){
+			for( org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS ts : cdaMedAct.getEffectiveTimes() ){
+				if( ts != null && !ts.isSetNullFlavor() ){
+					if( ts instanceof IVL_TS ){
+							fhirMedSt.setEffective( dtt.IVL_TS2Period( (IVL_TS) ts ) );
+					}
+				}
+			}
 		}
-		medSt.setEffective( period );
+		
+		// dosage
+		MedicationStatement.Dosage fhirDosage = fhirMedSt.addDosage();
+		
+		// dosage.route
+		if( cdaMedAct.getRouteCode() != null && !cdaMedAct.getRouteCode().isSetNullFlavor() ){
+			fhirDosage.setRoute( dtt.CD2CodeableConcept( cdaMedAct.getRouteCode() ) );
+		}
+		
+		// dosage.quantity
+		if( cdaMedAct.getDoseQuantity() != null && !cdaMedAct.getDoseQuantity().isSetNullFlavor() ){
+			fhirDosage.setQuantity( dtt.PQ2SimpleQuantityDt( cdaMedAct.getDoseQuantity() ) );
+		}
+		
+		// dosage.rate
+		if( cdaMedAct.getRateQuantity() != null && !cdaMedAct.getRateQuantity().isSetNullFlavor() ){
+			fhirDosage.setRate( dtt.IVL_PQ2Range( cdaMedAct.getRateQuantity() ) );
+		}
+		
+		// dosage.maxDosePerPeriod
+		if( cdaMedAct.getMaxDoseQuantity() != null && !cdaMedAct.getMaxDoseQuantity().isSetNullFlavor() ){
+			// cdaDataType.RTO does nothing but extends cdaDataType.RTO_PQ_PQ
+			fhirDosage.setMaxDosePerPeriod( dtt.RTO2Ratio( (RTO) cdaMedAct.getMaxDoseQuantity() ) );
+		}
 		
 		
-		//REASON
-		// TODO: Validate: RSON type code AND place of NEGATION.IND
-		for( EntryRelationship ers : subAd.getEntryRelationships() ){
-			
+		
+		// wasNotTaken
+		if( cdaMedAct.getNegationInd() != null ){
+			fhirMedSt.setWasNotTaken( cdaMedAct.getNegationInd() );
+		}
+		
+		// reason
+		for( EntryRelationship ers : cdaMedAct.getEntryRelationships() ){
 			if( ers.getTypeCode() == x_ActRelationshipEntryRelationship.RSON ){
 				
-				if( !ers.getObservation().isSetNegationInd() || ers.getObservation().getNegationInd() == false){
+				
+				if( ers.getObservation() != null && !ers.isSetNullFlavor() ){
 					
-					if( ers.getObservation() != null  && !ers.getObservation().isSetNullFlavor()){
-						if(ers.getObservation().getValues() != null && ers.getObservation().getValues()!=null){
-							CodeableConceptDt rson = dtt.CD2CodeableConcept( (CD) ers.getObservation().getValues().get(0) );
-							medSt.setReasonForUse(rson);
-							medSt.setWasNotTaken(false);
-						}	
-					}
-				}else{
-					if( ers.getObservation() != null  && !ers.getObservation().isSetNullFlavor()){
-						if(ers.getObservation().getValues() != null && ers.getObservation().getValues()!=null){
-							List<CodeableConceptDt> list = new ArrayList<CodeableConceptDt>(); 
-							for( ANY any : ers.getObservation().getValues() ){
-								CodeableConceptDt rson = dtt.CD2CodeableConcept( (CD) any );
-								list.add(rson);
-							}
-							medSt.setWasNotTaken(true);
-							medSt.setReasonNotTaken(list);
+					// reasonForUse
+					ca.uhn.fhir.model.dstu2.resource.Observation fhirObservation = null;
+					Bundle fhirObservationBundle = Observation2Observation( ers.getObservation() );
+					
+					for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirObservationBundle.getEntry() ){
+						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Observation ){
+							fhirObservation = (ca.uhn.fhir.model.dstu2.resource.Observation) entry.getResource();
 						}
-					
 					}
+					
+					medStatementBundle.addEntry( new Bundle.Entry().setResource( fhirObservation ) );
+					fhirMedSt.setReasonForUse( new ResourceReferenceDt( fhirObservation.getId() ) );
+					
 				}
-			
+
+				// reasonNotTaken
+				if( cdaMedAct.getNegationInd() != null && cdaMedAct.getNegationInd() ){
+					// TODO: Necip:
+					// Do we need to fill reasonNotTaken?
+				}
 			}
 		}
-		
-		return medStatementBundle;
-			
-		
+		return medStatementBundle;	
 	}
 	
+	// needs testing
+	public Bundle MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaMediDisp) {
+		
+		if( cdaMediDisp == null || cdaMediDisp.isSetNullFlavor() ) return null;
+		
+		if( cdaMediDisp.getMoodCode().getLiteral() == "EVN" ){
+			
+			MedicationDispense fhirMediDisp = new MedicationDispense();
 
-	public Bundle MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense sup) {
-		
-		if( sup == null || sup.isSetNullFlavor() ) return null;
-		
-		if( sup.getMoodCode().getLiteral() == "EVN" ){
+			Bundle fhirMediDispBundle = new Bundle();
+			fhirMediDispBundle.addEntry( new Bundle.Entry().setResource(fhirMediDisp));
 			
-			Bundle meDispenseBundle = new Bundle();
-			MedicationDispense meDis = new MedicationDispense();
-			meDispenseBundle.addEntry( new Bundle.Entry().setResource(meDis));
+			// patient
+			fhirMediDisp.setPatient( new ResourceReferenceDt( patientId ) );
 			
-			//ID
-			IdDt id = new IdDt( "MedicationDispense", getUniqueId() );
-			meDis.setId( id );
+			// id
+			IdDt resourceId = new IdDt( "MedicationDispense", getUniqueId() );
+			fhirMediDisp.setId( resourceId );
 			
-			
-			//IDENTIFIER
-			if( sup.getIds() != null &  !sup.getIds().isEmpty() )
-				meDis.setIdentifier( dtt.II2Identifier( sup.getIds().get(0) ) );
-			
-			//STATUS
-			if( !sup.getStatusCode().isSetNullFlavor() && sup.getStatusCode().getDisplayName() != null ){
-				ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
-				meDis.setStatus( vst.StatusCode2MedicationDispenseStatusEnum( sup.getStatusCode().getDisplayName() ) );
+			// identifier
+			if( cdaMediDisp.getIds() != null &  !cdaMediDisp.getIds().isEmpty() ){
+				for( II ii : cdaMediDisp.getIds() ){
+					if( ii != null && !ii.isSetNullFlavor() ){
+						// Asserting at most one identifier exists
+						fhirMediDisp.setIdentifier( dtt.II2Identifier(ii) );
+					}
+				}
 			}
 			
-			//DISPENSER
-			Performer performer =  Performer22Performer( sup.getPerformers().get(0) );
-			ResourceReferenceDt performerRef = new ResourceReferenceDt();
-			performerRef.setReference( performer.getId() );
-			meDis.setDispenser( performerRef );
-			//TODO: Performer is not a resource.
-			//meDispenseBundle.addEntry( new Bundle.Entry().setResource( performer ) );
+			// status
+			if( cdaMediDisp.getStatusCode() != null && !cdaMediDisp.getStatusCode().isSetNullFlavor()){
+				if( cdaMediDisp.getStatusCode().getCode() != null && !cdaMediDisp.getStatusCode().getCode().isEmpty() ){
+					MedicationDispenseStatusEnum mediDispStatEnum = vst.StatusCode2MedicationDispenseStatusEnum( cdaMediDisp.getStatusCode().getCode() );
+					if( mediDispStatEnum != null ){
+						fhirMediDisp.setStatus( mediDispStatEnum );
+					}
+				}
+			}
 			
-			//TYPE
-			// TODO No .code attribute.
-//			CodeableConceptDt type = new CodeableConceptDt();
-//			CodingDt coding = new CodingDt();
-//			if(sup.getCode() != null  ){
-//					if( !sup.getCode().isSetNullFlavor() ){
-//						CD cd = sup.getCode();
-//						if(cd.getCode() != null )
-//							coding.setCode( cd.getCode() );
-//						if(cd.getDisplayName() != null )
-//							coding.setDisplay( cd.getDisplayName() );
-//						if( cd.getCodeSystem() != null )
-//							coding.setSystem( cd.getCodeSystem() );
-//						if( cd.getCodeSystemVersion() != null )
-//							coding.setVersion( cd.getCodeSystemVersion() );
-//						type.addCoding( coding );
-//						 for( CD trans : cd.getTranslations() ){
-//								
-//								CodingDt codingTr  = new CodingDt();
-//								
-//								if(trans.getCode() != null )
-//									codingTr.setCode( trans.getCode() );
-//								if(trans.getDisplayName() != null )
-//									codingTr.setDisplay( trans.getDisplayName() );
-//								if( trans.getCodeSystem() != null )
-//									codingTr.setSystem( trans.getCodeSystem() );
-//								if( trans.getCodeSystemVersion() != null )
-//									codingTr.setVersion( trans.getCodeSystemVersion() );
-//								
-//								type.addCoding( codingTr );
-//							}
-//					}
-//					
-//				
-//			}
+			// type <-> code
+			if( cdaMediDisp.getCode() != null && !cdaMediDisp.getCode().isSetNullFlavor() ){
+				fhirMediDisp.setType( dtt.CD2CodeableConcept( cdaMediDisp.getCode() ) );
+			}
 			
+			// medication <-> product.manufacturedProduct
+			if( cdaMediDisp.getProduct() != null && !cdaMediDisp.getProduct().isSetNullFlavor() ){
+				if( cdaMediDisp.getProduct().getManufacturedProduct() != null && !cdaMediDisp.getProduct().getManufacturedProduct().isSetNullFlavor() ){
+
+					ca.uhn.fhir.model.dstu2.resource.Medication fhirMedication = null;
+					Bundle fhirMedicationBundle = ManufacturedProduct2Medication( cdaMediDisp.getProduct().getManufacturedProduct() );
+					
+					for(  ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirMedicationBundle.getEntry()  ){
+						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Medication){
+							fhirMedication = (ca.uhn.fhir.model.dstu2.resource.Medication) entry.getResource();
+						}
+					}
+					
+					fhirMediDispBundle.addEntry( new Bundle.Entry().setResource( fhirMedication ) );
+					fhirMediDisp.setMedication( new ResourceReferenceDt( fhirMedication.getId() ) );
+				}
+			}
 			
+			// dispenser
+			if( cdaMediDisp.getPerformers() != null && !cdaMediDisp.getPerformers().isEmpty()){
+				for( org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaMediDisp.getPerformers() ){
+					if( cdaPerformer != null && !cdaPerformer.isSetNullFlavor() ){
+						// Asserting that at most one performer exists
+						ca.uhn.fhir.model.dstu2.resource.Practitioner fhirPractitioner = null;
+						Bundle fhirPractitionerBundle = Performer22Practitioner( cdaPerformer );
+						
+						for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry() ){
+							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Practitioner ){
+								fhirPractitioner = (ca.uhn.fhir.model.dstu2.resource.Practitioner) entry.getResource();
+							}
+						}
+						
+						fhirMediDispBundle.addEntry( new Bundle.Entry().setResource(fhirPractitioner));
+						fhirMediDisp.setDispenser( new ResourceReferenceDt( fhirPractitioner.getId() ) );
+					}
+				}
+			}
 			
-//			meDis.setType( type );
+			// quantity
+			if( cdaMediDisp.getQuantity() != null && !cdaMediDisp.getQuantity().isSetNullFlavor() ){
+				fhirMediDisp.setQuantity( dtt.PQ2SimpleQuantityDt( cdaMediDisp.getQuantity() ) );
+			}
 			
-			//QUANTITY
-			SimpleQuantityDt quantity = new SimpleQuantityDt();
-			if( sup.getQuantity().getValue() != null )
-				quantity.setValue( sup.getQuantity().getValue() );
-			if( sup.getQuantity().getUnit() != null)
-				quantity.setUnit( sup.getQuantity().getUnit() );
-			meDis.setQuantity( quantity );
+			// whenPrepared and whenHandedOver
+			int effectiveTimeCount = 0;
+			if( cdaMediDisp.getEffectiveTimes() != null && !cdaMediDisp.getEffectiveTimes().isEmpty() ){
+				for( SXCM_TS ts : cdaMediDisp.getEffectiveTimes() ){
+					if( effectiveTimeCount == 0 ){
+						// whenPrepared: 1st effectiveTime
+						if( ts != null && !ts.isSetNullFlavor() ){
+							fhirMediDisp.setWhenPrepared( dtt.TS2DateTime(ts) );
+						}
+						effectiveTimeCount++;
+					} else if( effectiveTimeCount == 1 ){
+						// whenHandedOver: 2nd effectiveTime
+						if( ts != null && !ts.isSetNullFlavor() ){
+							fhirMediDisp.setWhenHandedOver( dtt.TS2DateTime(ts) );
+						}
+						effectiveTimeCount++;
+					}
+				}
+			}
 			
-			ResourceReferenceDt medRef = new ResourceReferenceDt();
-			Bundle med = ManufacturedProduct2Medication( sup.getProduct().getManufacturedProduct() );
-			medRef.setReference( med.getId() );
-			meDis.setMedication( medRef );
-			meDispenseBundle.addEntry( new Bundle.Entry().setResource( med ) );
+			// dosageInstruction
+			MedicationDispense.DosageInstruction fhirDosageInstruction = fhirMediDisp.addDosageInstruction();
 			
+			// TODO: Necip:
+			// The information used for dosageInstruction is used for different fields, too.
+			// Determine which field the information should fit
+			// Some other question: where to put cdaMediDisp.repeatNumber
 			
-			if( sup.getEffectiveTimes() != null & sup.getEffectiveTimes().size() != 0 ){
+			// dosageInstruction.timing <-> effectiveTimes
+			if( cdaMediDisp.getEffectiveTimes() != null && !cdaMediDisp.getEffectiveTimes().isEmpty() ){
+				TimingDt fhirTiming = new TimingDt();
 				
-				DateTimeDt date = dtt.TS2DateTime( sup.getEffectiveTimes().get(0) );
-				meDis.setWhenPrepared( date );
-				
-				if(sup.getEffectiveTimes().size() != 1 ){
-					DateTimeDt handDate = dtt.TS2DateTime( sup.getEffectiveTimes().get(1) );
-					meDis.setWhenHandedOver(handDate);
+				// adding effectiveTimes to fhirTiming
+				for( org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS ts : cdaMediDisp.getEffectiveTimes() ){
+					if( ts != null && !ts.isSetNullFlavor() ){
+						fhirTiming.addEvent( dtt.TS2DateTime(ts) );
+					}
 				}
 				
+				// setting fhirTiming for dosageInstruction if it is not empty
+				if( !fhirTiming.isEmpty() ){
+						fhirDosageInstruction.setTiming(fhirTiming);
+				}
 			}
 			
-			
-			// TODO : No dosageInstruction and Patient section exists in CCD example.
-			meDis.setDosageInstruction(null);
-			
-			
-			
-			return meDispenseBundle;
+			// dosageInstruction.dose
+			if( cdaMediDisp.getQuantity() != null && !cdaMediDisp.getQuantity().isSetNullFlavor() ){
+				fhirDosageInstruction.setDose( dtt.PQ2SimpleQuantityDt( cdaMediDisp.getQuantity() ) );
+			}
+			return fhirMediDispBundle;
 		}
 		
 		return null;
@@ -1887,28 +1906,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 	}
 	
-	
+	// needs testing
 	public Bundle SubstanceAdministration2Immunization(SubstanceAdministration subAd){
 		if(subAd==null || subAd.isSetNullFlavor()) return null;
 		else
 		{
-			Immunization immunization = new Immunization ();
+			Immunization fhirImmunization = new Immunization ();
 			
-			Bundle immunizationBundle = new Bundle();
-			immunizationBundle.addEntry(new Bundle.Entry().setResource(immunization));
+			Bundle fhirImmunizationBundle = new Bundle();
+			fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(fhirImmunization));
 			
 			// id
 			IdDt resourceId = new IdDt("Immunization", getUniqueId());
-			immunization.setId(resourceId);
+			fhirImmunization.setId(resourceId);
 			
 			// patient
-			immunization.setPatient(new ResourceReferenceDt( patientId ));
+			fhirImmunization.setPatient(new ResourceReferenceDt( patientId ));
 			
 			// identifier
 			if(subAd.getIds()!=null && !subAd.getIds().isEmpty()){
 				for( II ii : subAd.getIds() ){
 					if( ii != null && !ii.isSetNullFlavor() ){
-						immunization.addIdentifier( dtt.II2Identifier(ii) );
+						fhirImmunization.addIdentifier( dtt.II2Identifier(ii) );
 					}
 				}
 			}
@@ -1919,7 +1938,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				for(SXCM_TS effectiveTime : subAd.getEffectiveTimes()) {
 					if( effectiveTime != null && !effectiveTime.isSetNullFlavor() ){
 						// Asserting that at most one effective time exists
-						immunization.setDate(dtt.TS2DateTime(effectiveTime));
+						fhirImmunization.setDate(dtt.TS2DateTime(effectiveTime));
 					}
 						
 				}
@@ -1938,12 +1957,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						
 						// vaccineCode
 						if( manufacturedProduct.getManufacturedMaterial().getCode() != null && !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor() ){
-							immunization.setVaccineCode(dtt.CD2CodeableConcept( manufacturedMaterial.getCode() ) );
+							fhirImmunization.setVaccineCode(dtt.CD2CodeableConcept( manufacturedMaterial.getCode() ) );
 						}
 						
 						// lotNumber
 						if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor()){
-							immunization.setLotNumber(dtt.ST2String(manufacturedMaterial.getLotNumberText()));
+							fhirImmunization.setLotNumber(dtt.ST2String(manufacturedMaterial.getLotNumberText()));
 						}
 					}
 					
@@ -1959,8 +1978,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 								fhirOrganization = (ca.uhn.fhir.model.dstu2.resource.Organization) entry.getResource();
 							}
 						}
-						immunization.setManufacturer( new ResourceReferenceDt(fhirOrganization.getId()) );
-						immunizationBundle.addEntry( new Bundle.Entry().setResource(fhirOrganization) );
+						fhirImmunization.setManufacturer( new ResourceReferenceDt(fhirOrganization.getId()) );
+						fhirImmunizationBundle.addEntry( new Bundle.Entry().setResource(fhirOrganization) );
 					}
 				}
 			}
@@ -1973,8 +1992,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
 					{
 						Bundle practitioner=Performer22Practitioner(performer);
-						immunization.setPerformer(  new ResourceReferenceDt( practitioner.getId() )  );
-						immunizationBundle.addEntry(new Bundle.Entry().setResource(practitioner));
+						fhirImmunization.setPerformer(  new ResourceReferenceDt( practitioner.getId() )  );
+						fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(practitioner));
 					}
 				}
 			}
@@ -1983,34 +2002,34 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if(subAd.getApproachSiteCodes()!=null && !subAd.getApproachSiteCodes().isEmpty()){
 				for(CD cd : subAd.getApproachSiteCodes()){
 					// Asserting that at most one site exists
-					immunization.setSite(dtt.CD2CodeableConcept(cd));
+					fhirImmunization.setSite(dtt.CD2CodeableConcept(cd));
 				}
 			}
 			
 			// route
 			if(subAd.getRouteCode()!=null && !subAd.getRouteCode().isSetNullFlavor()){
-				immunization.setRoute( dtt.CD2CodeableConcept( subAd.getRouteCode()) );
+				fhirImmunization.setRoute( dtt.CD2CodeableConcept( subAd.getRouteCode()) );
 			}
 			
 			// dose quantity
 			if(subAd.getDoseQuantity()!=null && !subAd.getDoseQuantity().isSetNullFlavor()){
-				immunization.setDoseQuantity( dtt.PQ2SimpleQuantityDt( subAd.getDoseQuantity() ) );
+				fhirImmunization.setDoseQuantity( dtt.PQ2SimpleQuantityDt( subAd.getDoseQuantity() ) );
 			}
 			
 			// status
 			if(subAd.getStatusCode()!=null && !subAd.getStatusCode().isSetNullFlavor()){
-				immunization.setStatus(subAd.getStatusCode().getCode());
+				fhirImmunization.setStatus(subAd.getStatusCode().getCode());
 			}
 			
 			
-			return immunizationBundle;
+			return fhirImmunizationBundle;
 		}
 	}
 	
 	
 	// tahsin end
 	
-	
+	// tested
 	public Composition.Section section2Section(Section cdaSec) {
 		if(cdaSec == null || cdaSec.isSetNullFlavor()){
 			return null;

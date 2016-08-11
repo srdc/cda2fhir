@@ -282,12 +282,23 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	}
 	
 	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status){
-		switch( status ){
-			case "active": return MedicationDispenseStatusEnum.IN_PROGRESS;
-			case "suspended": return MedicationDispenseStatusEnum.ON_HOLD;
-			case "completed": return MedicationDispenseStatusEnum.COMPLETED;
-			case "nullified": return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
-			case "stopped": return MedicationDispenseStatusEnum.STOPPED;
+		switch( status.toLowerCase() ){
+			case "active": 
+			case "in-progress":
+			case "inprogress":
+				return MedicationDispenseStatusEnum.IN_PROGRESS;
+			case "on-hold":
+			case "onhold":
+			case "suspended": 
+				return MedicationDispenseStatusEnum.ON_HOLD;
+			case "completed": 
+				return MedicationDispenseStatusEnum.COMPLETED;
+			case "nullified": 
+			case "error":
+			case "entered-in-error":
+				return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
+			case "stopped": 
+				return MedicationDispenseStatusEnum.STOPPED;
 			default: return null;
 		}
 	}
