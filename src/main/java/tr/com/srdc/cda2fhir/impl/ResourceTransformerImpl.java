@@ -1803,7 +1803,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return null;
 	}
 
-// never used
 	public Bundle ParticipantRole2Location(ParticipantRole patRole) {
 	
 		if( patRole == null || patRole.isSetNullFlavor() ) return null;
