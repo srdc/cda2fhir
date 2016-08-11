@@ -76,6 +76,7 @@ public class ResourceTransformerTestNecip {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
+	
 	@Test
 	public void testAllergy(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();

@@ -21,9 +21,7 @@ import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CR;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
@@ -32,7 +30,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
-import org.openhealthtools.mdht.uml.hl7.datatypes.RTO_PQ_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
@@ -42,20 +39,16 @@ import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-import ca.uhn.fhir.model.dstu2.composite.BoundCodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
-import ca.uhn.fhir.model.dstu2.composite.RangeDt;
-import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.TimingDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Organization.Contact;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner.PractitionerRole;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
@@ -66,7 +59,6 @@ import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
-import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
@@ -101,12 +93,156 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return UUID.randomUUID().toString();
 	}
 	
-	
-	// TODO: Control patientIds
-	// Ask about author
 // necip start
 	
+	
+	// Necip: I am not sure where to map AssignedAuthor. AssignedAuthor2Practitioner makes more sense.
+	public Bundle AssignedAuthor2Practitioner( AssignedAuthor cdaAssignedAuthor ){
+		if( cdaAssignedAuthor == null || !cdaAssignedAuthor.isSetNullFlavor() ) return null;
+		else{
+			Practitioner fhirPractitioner = new Practitioner();
+			
+			// bundle
+			Bundle fhirPractitionerBundle = new Bundle();
+			fhirPractitionerBundle.addEntry( new Bundle.Entry().setResource(fhirPractitioner));
+			
+			// id
+			IdDt resourceId = new IdDt("Practitioner",getUniqueId());
+			fhirPractitioner.setId(resourceId);
+			
+			// identifier
+			if( cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty() ){
+				for( II ii : cdaAssignedAuthor.getIds() ){
+					if( ii != null && !ii.isSetNullFlavor() ){
+						fhirPractitioner.addIdentifier( dtt.II2Identifier(ii) );
+					}
+				}
+			}
+			
+			// name <-> assignedAuthor.assignedPerson.name
+			if( cdaAssignedAuthor.getAssignedPerson() != null && !cdaAssignedAuthor.getAssignedPerson().isSetNullFlavor() ){
+				if( cdaAssignedAuthor.getAssignedPerson().getNames() != null && !cdaAssignedAuthor.getAssignedPerson().getNames().isEmpty()){
+					for( PN pn : cdaAssignedAuthor.getAssignedPerson().getNames() ){
+						if( pn != null && !pn.isSetNullFlavor() ){
+							// Asserting that at most one name exists
+							fhirPractitioner.setName( dtt.EN2HumanName(pn) );
+						}
+					}
+				}
+			}
+			
+			// address
+			if( cdaAssignedAuthor.getAddrs() != null && !cdaAssignedAuthor.getAddrs().isEmpty() ){
+				for( AD ad : cdaAssignedAuthor.getAddrs() ){
+					if( ad != null && !ad.isSetNullFlavor() ){
+						fhirPractitioner.addAddress( dtt.AD2Address(ad) );
+					}
+				}
+			}
+			
+			// telecom
+			if( cdaAssignedAuthor.getTelecoms() != null && !cdaAssignedAuthor.getTelecoms().isEmpty() ){
+				for( TEL tel : cdaAssignedAuthor.getTelecoms() ){
+					if( tel != null && !tel.isSetNullFlavor() ){
+						fhirPractitioner.addTelecom( dtt.TEL2ContactPoint(tel) );
+					}
+				}
+			}
+			
+			// Adding a practitionerRole
+			Practitioner.PractitionerRole fhirPractitionerRole = fhirPractitioner.addPractitionerRole();
+			
+			// practitionerRole.role <-> assignedAuthor.code
+			if( cdaAssignedAuthor.getCode() != null && !cdaAssignedAuthor.isSetNullFlavor() ){
+				fhirPractitionerRole.setRole( dtt.CD2CodeableConcept(cdaAssignedAuthor.getCode()) );
+				}
+			
+			// practitionerRole.organization <-> organization
+			if( cdaAssignedAuthor.getRepresentedOrganization() != null && !cdaAssignedAuthor.getRepresentedOrganization().isSetNullFlavor() ){
+				Organization fhirOrganization = null;
+				Bundle fhirOrganizationBundle = Organization2Organization( cdaAssignedAuthor.getRepresentedOrganization() );
+				
+				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirOrganizationBundle.getEntry()){
+					if( entry.getResource() instanceof Organization )
+						fhirOrganization = (Organization) entry.getResource();
+				}
+				
+				fhirPractitionerRole.setManagingOrganization( new ResourceReferenceDt(fhirOrganization.getId()) );
+				fhirPractitionerBundle.addEntry( new Bundle.Entry().setResource(fhirOrganization));
+			}
+			
+			
+			
+			return fhirPractitionerBundle;
+		}
+	}
 
+	// You may delete following method after determining where to map AssignedAuthor
+	public Bundle AssignedAuthor2RelatedPerson( AssignedAuthor cdaAssignedAuthor ){
+		if( cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor() ) return null;
+		else{
+			RelatedPerson fhirRelatedPerson = new RelatedPerson();
+			
+			// bundle
+			Bundle fhirRelatedPersonBundle = new Bundle();
+			fhirRelatedPersonBundle.addEntry( new Bundle.Entry().setResource(fhirRelatedPerson));
+			
+			// id
+			IdDt resourceId = new IdDt("RelatedPerson",getUniqueId());
+			fhirRelatedPerson.setId(resourceId);
+			
+			// identifier
+			if( cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty() ){
+				for( II ii : cdaAssignedAuthor.getIds() ){
+					if( ii != null && !ii.isSetNullFlavor() ){
+						fhirRelatedPerson.addIdentifier( dtt.II2Identifier(ii) );
+					}
+				}
+			}
+			
+			// relationship <-> assignedAuthor.code
+			if( cdaAssignedAuthor.getCode() != null && !cdaAssignedAuthor.isSetNullFlavor() ){
+				fhirRelatedPerson.setRelationship( dtt.CD2CodeableConcept(cdaAssignedAuthor.getCode()) );
+			}
+			
+			// name <-> assignedAuthor.assignedPerson.name
+			if( cdaAssignedAuthor.getAssignedPerson() != null && !cdaAssignedAuthor.getAssignedPerson().isSetNullFlavor() ){
+				if( cdaAssignedAuthor.getAssignedPerson().getNames() != null && !cdaAssignedAuthor.getAssignedPerson().getNames().isEmpty()){
+					for( PN pn : cdaAssignedAuthor.getAssignedPerson().getNames() ){
+						if( pn != null && !pn.isSetNullFlavor() ){
+							// Asserting that at most one name exists
+							fhirRelatedPerson.setName( dtt.EN2HumanName(pn) );
+						}
+					}
+				}
+			}
+			
+			// address
+			if( cdaAssignedAuthor.getAddrs() != null && !cdaAssignedAuthor.getAddrs().isEmpty() ){
+				for( AD ad : cdaAssignedAuthor.getAddrs() ){
+					if( ad != null && !ad.isSetNullFlavor() ){
+						fhirRelatedPerson.addAddress( dtt.AD2Address(ad) );
+					}
+				}
+			}
+			
+			// telecom
+			if( cdaAssignedAuthor.getTelecoms() != null && !cdaAssignedAuthor.getTelecoms().isEmpty() ){
+				for( TEL tel : cdaAssignedAuthor.getTelecoms() ){
+					if( tel != null && !tel.isSetNullFlavor() ){
+						fhirRelatedPerson.addTelecom( dtt.TEL2ContactPoint(tel) );
+					}
+				}
+			}
+			
+			// organization?
+			
+			
+			return fhirRelatedPersonBundle;
+		}
+	}
+	
+	// needs testing
 	public Bundle SocialHistoryObservation2Observation( org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation socialHistoryObs ){
 		if( socialHistoryObs == null || socialHistoryObs.isSetNullFlavor() ) return null;
 		else{
@@ -128,7 +264,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 
-	
+	// needs testing
 	public Bundle Observation2Observation( org.openhealthtools.mdht.uml.cda.Observation cdaObs ){
 		if( cdaObs == null || cdaObs.isSetNullFlavor() ) return null;
 		else{
@@ -261,7 +397,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 								fhirPractitioner = (Practitioner) entity.getResource();
 							}
 						}
-						 
+
 						if( fhirPractitioner != null ){
 							// Notice the usage of fhirObs.addPerformer()
 							ResourceReferenceDt practitionerReference = fhirObs.addPerformer();
@@ -318,7 +454,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 	
-	
+	// tested
 	public Bundle AssignedEntity2Practitioner( AssignedEntity assignedEntity ){
 			if( assignedEntity == null || assignedEntity.isSetNullFlavor() ) return null;
 			else{
@@ -399,7 +535,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 	}
 	
-	
+	// needs testing
 	public Bundle FamilyMemberOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO){
 		if( cdaFHO == null || cdaFHO.isSetNullFlavor() ) return null;
 		else{
@@ -695,7 +831,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 
-	
+	// tested
 	public Bundle Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization ){
 		if( cdaOrganization == null || cdaOrganization.isSetNullFlavor() ) return null;
 		else{
@@ -759,7 +895,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 
-	
+	// tested
 	public Bundle PatientRole2Patient(PatientRole patRole){
 			if( patRole == null || patRole.isSetNullFlavor() ) return null;
 			else{
@@ -950,7 +1086,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-	
+	// tested
 	public Bundle Performer22Practitioner( Performer2 cdaPerformer ){
 		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() ) return null;
 		else{
@@ -958,7 +1094,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 	
-	
+	// tested
 	public Bundle Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaPr){
 		// TODO: used <-> device
 		if( cdaPr == null || cdaPr.isSetNullFlavor() ) return null;
@@ -1029,7 +1165,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 
-	
+	// tested
 	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( Guardian guardian ){
 			
 		if( guardian == null || guardian.isSetNullFlavor() ) return null;
@@ -1058,7 +1194,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 
-	
+	// tested
 	public Communication LanguageCommunication2Communication( LanguageCommunication LC ){
 		if(LC == null || LC.isSetNullFlavor()) return null;
 		else{
@@ -1077,7 +1213,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 
-	
+	// tested
 	public ca.uhn.fhir.model.dstu2.resource.Procedure.Performer Performer22Performer( Performer2 cdaPerformer ){
 		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() || cdaPerformer.getAssignedEntity() == null || cdaPerformer.getAssignedEntity().isSetNullFlavor() ) return null;
 		else{
@@ -1104,6 +1240,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 	
+	// needs testing
 	// Following method ( ReferenceRange2ReferenceRange ) will be used as helper for Observation transformation methods
 	public Observation.ReferenceRange ReferenceRange2ReferenceRange( org.openhealthtools.mdht.uml.cda.ReferenceRange cdaRefRange){
 		if( cdaRefRange == null || cdaRefRange.isSetNullFlavor() ) return null;
@@ -1200,15 +1337,24 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 			
-			//TODO: Mustafa: AssignedEntity2Practitioner method does not work for AssignedAuthor; needs to be implemented separately
-//			if(probAct.getAuthors().size() > 0 ){
-//				ResourceReferenceDt resourceReferenceAsserter = new ResourceReferenceDt();
-//				Practitioner prac = AssignedEntity2Practitioner( (AssignedEntity) probAct.getAuthors().get(0).getAssignedAuthor() );
-//				resourceReferenceAsserter.setReference( prac.getId() );
-//				condition.setAsserter( resourceReferenceAsserter );
-//			}
-			
-			
+			if( probAct.getAuthors() != null && !probAct.getAuthors().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Author author : probAct.getAuthors() ){
+					if( author != null && !author.isSetNullFlavor() ){
+						Practitioner fhirPractitioner = null;
+						Bundle fhirPractitionerBundle = AssignedAuthor2Practitioner( author.getAssignedAuthor() );
+						
+						for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry() ){
+							if( entry.getResource() instanceof Practitioner ){
+								
+								fhirPractitioner = (Practitioner) entry.getResource();
+							}
+						}
+					
+					condition.setAsserter( new ResourceReferenceDt( fhirPractitioner.getId() ) );
+					conditionBundle.addEntry( new Bundle.Entry().setResource(fhirPractitioner) );	
+					}
+				}
+			}
 			
 			// date recorded
 			// if nullCheckForDateRecorded evaluates to true, then it can be stated that it is not null and null-flavor is NOT set
@@ -1325,7 +1471,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		Medication medication = new Medication();
 		
 		Bundle medicationBundle = new Bundle();
-		medicationBundle.addEntry( new Bundle.Entry().setResource(medicationBundle) );
+		medicationBundle.addEntry( new Bundle.Entry().setResource(medication) );
 		
 		// id
 		IdDt resourceId = new IdDt( "Medication" , getUniqueId());
@@ -1396,7 +1542,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// status
 		if( cdaMedAct.getStatusCode() != null && !cdaMedAct.getStatusCode().isSetNullFlavor()){
 			if( cdaMedAct.getStatusCode().getCode() != null && !cdaMedAct.getStatusCode().getCode().isEmpty() ){
-				MedicationStatementStatusEnum statusCode = vst.StatusCode2MedicationStatementStatusEnum( cdaMedAct.getStatusCode().getDisplayName());
+				MedicationStatementStatusEnum statusCode = vst.StatusCode2MedicationStatementStatusEnum( cdaMedAct.getStatusCode().getCode());
 				if( statusCode != null  ){
 					fhirMedSt.setStatus( statusCode );
 				}
@@ -1703,12 +1849,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 // tahsin start
 	
+	// needs testing
 	public Bundle VitalSignObservation2Observation(VitalSignObservation vsObs) {
 		// Had a detailed look and seen that Observation2Observation satisfies the necessary mapping for this method
 		return Observation2Observation(vsObs);
 	}
 
-	
+	// needs testing
 	public Bundle ResultObservation2Observation(ResultObservation resObs) {
 		// Had a detailed look and seen that Observation2Observation satisfies the necessary mapping for this method
 		return Observation2Observation(resObs);
@@ -1757,13 +1904,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					allergyIntolerance.setOnset( dtt.TS2DateTime( cdaAllergyProbAct.getEffectiveTime().getLow() ) );
 				}
 			}
-			
+
 			// TODO: Necip
 			// following lines of code of this method is unreadable
 			// check or write from scratch
 			// allergyIntolerance.setRecorder <-> author, assigned author vs
 			// Allergy Severity <-> AllergyIntolerance.reaction.severity
 			// Allergy Intolerance Reaction Duration <-> AllergyIntolerance.reaction.duration
+			
+//			// getting allergyObservation
+//			if( cdaAllergyProbAct.getAllergyObservations() != null && !cdaAllergyProbAct.getAllergyObservations().isEmpty() ){
+//				for( AllergyObservation allergyObs : cdaAllergyProbAct.getAllergyObservations() ){
+//					
+//				}
+//			}
 			
 			for (EntryRelationship entryRelationship : cdaAllergyProbAct.getEntryRelationships())
 			{

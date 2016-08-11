@@ -284,7 +284,7 @@ public void traverseCCDMedicationActivity(InputStream is) throws Exception {
 			        		MedicationStatement medSt = (MedicationStatement) entry.getResource();
 			        		
 			        		Assert.assertEquals( "medStatement.identifier failed" , dtt.II2Identifier(medAc.getIds().get(0)).getValue() , medSt.getIdentifier().get(0).getValue() );
-				        	Assert.assertEquals( "medStatement.status failed" , medAc.getStatusCode().getDisplayName() , medSt.getStatus()  );
+				        	Assert.assertEquals( "medStatement.status failed" , medAc.getStatusCode().getCode() , medSt.getStatus()  );
 				        	
 				        	if(medSt.getDosage() == null || medSt.getDosage().size() == 0){
 				        		System.out.println("asd");
@@ -298,7 +298,9 @@ public void traverseCCDMedicationActivity(InputStream is) throws Exception {
 				    			if( ers.getTypeCode() == x_ActRelationshipEntryRelationship.RSON ){
 				    				if( ers.getObservation() != null  && !ers.getObservation().isSetNullFlavor()){
 										if(ers.getObservation().getValues() != null && ers.getObservation().getValues()!=null){
-											Assert.assertEquals( "medStatement.reason failed" , false , medSt.getWasNotTaken() );
+											// Since no information is given about taken or not taken
+											// We do not check if it is false or true
+//											Assert.assertEquals( "medStatement.reason failed" , false , medSt.getWasNotTaken() );
 										}
 				    				}
 				    				
