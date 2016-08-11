@@ -98,7 +98,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 	// Necip: I am not sure where to map AssignedAuthor. AssignedAuthor2Practitioner makes more sense.
 	public Bundle AssignedAuthor2Practitioner( AssignedAuthor cdaAssignedAuthor ){
-		if( cdaAssignedAuthor == null || !cdaAssignedAuthor.isSetNullFlavor() ) return null;
+		if( cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor() ) return null;
 		else{
 			Practitioner fhirPractitioner = new Practitioner();
 			
