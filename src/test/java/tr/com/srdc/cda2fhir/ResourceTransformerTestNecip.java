@@ -76,9 +76,26 @@ public class ResourceTransformerTestNecip {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
+	@Ignore
+	public void testObservation2Observation(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		if( test.ccd.getSocialHistorySection() != null && !test.ccd.getSocialHistorySection().isSetNullFlavor() ){
+			if( test.ccd.getSocialHistorySection().getObservations() != null && !test.ccd.getSocialHistorySection().getObservations().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Observation cdaObs : test.ccd.getSocialHistorySection().getObservations() ){
+					if( cdaObs != null && !cdaObs.isSetNullFlavor()){
+						System.out.println("Transformation starting..");
+						Bundle obsBundle = rt.Observation2Observation( cdaObs );
+						System.out.println("End of transformation. Printing..");
+						printJSON(obsBundle);
+						System.out.println("End of print.\n***");
+					}
+				}
+			}
+		}
+	}
 	
-	@Test
-	public void testAllergy(){
+	@Ignore
+	public void testAllergyProblemAct2AllergyIntolerance(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		for( AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs() ){
 			System.out.println("Transformation starting..");
@@ -122,7 +139,7 @@ public class ResourceTransformerTestNecip {
 	}
 	
 	
-	@Ignore
+	@Test
 	public void testEncounter2Encounter(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int encounterCount = 0;
@@ -136,16 +153,11 @@ public class ResourceTransformerTestNecip {
 						if( cdaEncounter != null && !cdaEncounter.isSetNullFlavor()  ){
 							System.out.println("Encounter["+encounterCount+"]");
 							System.out.println("Transformation starting..");
-							ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = null;
 							
 							Bundle fhirEncounterBundle = rt.Encounter2Encounter(cdaEncounter);
-							for( Entry entry : fhirEncounterBundle.getEntry() ){
-								if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Encounter){
-									fhirEncounter = (Encounter) entry.getResource();
-								}
-							}
+
 							System.out.println("End of transformation. Printing the resource as JSON object..");
-							printJSON( fhirEncounter );
+							printJSON( fhirEncounterBundle );
 							System.out.println("End of print.");
 							System.out.print("\n***\n"); // to visualize
 						}
