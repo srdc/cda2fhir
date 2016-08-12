@@ -461,7 +461,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return fhirPractitionerBundle;
 		}
 	}
-
+	
 	public Bundle Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter){
 		if( cdaEncounter == null || cdaEncounter.isSetNullFlavor() ) return null;
 		else if( cdaEncounter.getMoodCode() != org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentEncounterMood.EVN ) return null;
@@ -1469,27 +1469,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 			
 			// managingOrganization <-> providerOrganization
-			if( cdaPatientRole.getProviderOrganization() != null && !cdaPatientRole.getProviderOrganization().isSetNullFlavor() ){
-				
-				ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = null;
-				Bundle fhirOrganizationBundle = Organization2Organization( cdaPatientRole.getProviderOrganization() );
-				for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirOrganizationBundle.getEntry() ){
-					if( entity.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization ){
-						fhirOrganization = (Organization) entity.getResource();
-					}
-				}
-				
-				if( fhirOrganization != null && !fhirOrganization.isEmpty() ){
-					ResourceReferenceDt organizationReference = new ResourceReferenceDt();
-					organizationReference.setReference(fhirOrganization.getId());
-					if( fhirOrganization.getName() != null ){
-						organizationReference.setDisplay( fhirOrganization.getName() );
-					}
-					fhirPatientBundle.addEntry( new Bundle().addEntry().setResource( fhirOrganization ) );
-					
-					fhirPatient.setManagingOrganization(organizationReference);
-				}
-			}
+			// According to the DAF profile of Patient, there is no need to map managingOrganization2providerOrganization
+//			if( cdaPatientRole.getProviderOrganization() != null && !cdaPatientRole.getProviderOrganization().isSetNullFlavor() ){
+//				
+//				ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = null;
+//				Bundle fhirOrganizationBundle = Organization2Organization( cdaPatientRole.getProviderOrganization() );
+//				for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirOrganizationBundle.getEntry() ){
+//					if( entity.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization ){
+//						fhirOrganization = (Organization) entity.getResource();
+//					}
+//				}
+//				
+//				if( fhirOrganization != null && !fhirOrganization.isEmpty() ){
+//					ResourceReferenceDt organizationReference = new ResourceReferenceDt();
+//					organizationReference.setReference(fhirOrganization.getId());
+//					if( fhirOrganization.getName() != null ){
+//						organizationReference.setDisplay( fhirOrganization.getName() );
+//					}
+//					fhirPatientBundle.addEntry( new Bundle().addEntry().setResource( fhirOrganization ) );
+//					
+//					fhirPatient.setManagingOrganization(organizationReference);
+//				}
+//			}
 			
 			// guardian <-> patient.guardians
 			if( cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && 
@@ -1535,19 +1536,22 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				extReligion.setValue( dtt.CD2CodeableConcept(religiousAffiliationCode) );
 				fhirPatient.addUndeclaredExtension(extReligion);
 				}
-			
+
 			// extBirthPlace
-//				ExtensionDt extBirthPlace = new ExtensionDt();
-//				extBirthPlace.setModifier(false);
-//				extBirthPlace.setUrl("http://hl7.org/fhir/StructureDefinition/birthPlace");
-//					if( cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getBirthplace() != null && !cdaPatientRole.getPatient().getBirthplace().isSetNullFlavor() )
-//				{
-//					extBirthPlace.setValue(  dtt.sometransformer( cdaPatientRole.getPatient().getBirthplace() ) );
-//					// Birthplace mapping
-//					// We can get the Birthplace info from ccd
-//					// However, there is no type to put it
-//				}
-//				patient.addUndeclaredExtension(extBirthPlace);
+				ExtensionDt extBirthPlace = new ExtensionDt();
+				extBirthPlace.setModifier(false);
+				extBirthPlace.setUrl("http://hl7.org/fhir/StructureDefinition/birthPlace");
+					if( cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor()
+							&& cdaPatientRole.getPatient().getBirthplace() != null && !cdaPatientRole.getPatient().getBirthplace().isSetNullFlavor() 
+							&& cdaPatientRole.getPatient().getBirthplace().getPlace() != null && !cdaPatientRole.getPatient().getBirthplace().getPlace().isSetNullFlavor()
+							&& cdaPatientRole.getPatient().getBirthplace().getPlace().getAddr() != null && !cdaPatientRole.getPatient().getBirthplace().getPlace().getAddr().isSetNullFlavor())
+				{
+					extBirthPlace.setValue( dtt.AD2Address(cdaPatientRole.getPatient().getBirthplace().getPlace().getAddr()) );
+					// Birthplace mapping
+					// We can get the Birthplace info from ccd
+					// However, there is no type to put it
+				}
+				fhirPatient.addUndeclaredExtension(extBirthPlace);
 			
 			return fhirPatientBundle;
 		}
