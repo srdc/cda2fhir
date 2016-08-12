@@ -28,6 +28,6 @@ public class CCDATransformerTest {
         ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(fis);
         CCDATransformer ccdaTransformer = new CCDATransformerImpl(CCDATransformer.IdGeneratorEnum.COUNTER);
         Bundle bundle = ccdaTransformer.transformCCD(ccd);
-        FHIRUtil.printJSON(bundle);
+        FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
     }
 }

@@ -128,12 +128,17 @@ public class CCDATransformerImpl implements CCDATransformer {
             }
             else if(cdaSec instanceof ImmunizationsSection) {
             	ImmunizationsSection immSec = (ImmunizationsSection) cdaSec;
-            	for(SubstanceAdministration subAd : immSec.getSubstanceAdministrations())
-            	{
-            		Bundle immunization = resTransformer.SubstanceAdministration2Immunization(subAd);
-            	    ResourceReferenceDt ref = fhirSec.addEntry();
-                    ref.setReference(immunization.getId());
-                    ccdBundle.addEntry(new Bundle.Entry().setResource(immunization));
+            	for(SubstanceAdministration subAd : immSec.getSubstanceAdministrations()) {
+            		Bundle immBundle = resTransformer.SubstanceAdministration2Immunization(subAd);
+                    for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : immBundle.getEntry()) {
+                        // Add all the resources returned from the bundle to the main CCD bundle
+                        ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+                        // Add a reference to the section for each Condition
+                        if(entry.getResource() instanceof Immunization) {
+                            ResourceReferenceDt ref = fhirSec.addEntry();
+                            ref.setReference(entry.getResource().getId());
+                        }
+                    }
             	}
             }
             else if(cdaSec instanceof MedicalEquipmentSection) {
@@ -151,11 +156,16 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof ProblemSection) {
                 ProblemSection probSec = (ProblemSection) cdaSec;
                 for(ProblemConcernAct pcAct: probSec.getConsolProblemConcerns()) {
-                    Bundle condition = resTransformer.ProblemConcernAct2Condition(pcAct);
-                    ResourceReferenceDt ref = fhirSec.addEntry();
-                    ref.setReference(condition.getId());
-                    ccdBundle.addEntry(new Bundle.Entry().setResource(condition));
-                    
+                    Bundle conBundle = resTransformer.ProblemConcernAct2Condition(pcAct);
+                    for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : conBundle.getEntry()) {
+                        // Add all the resources returned from the bundle to the main CCD bundle
+                        ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+                        // Add a reference to the section for each Condition
+                        if(entry.getResource() instanceof Condition) {
+                            ResourceReferenceDt ref = fhirSec.addEntry();
+                            ref.setReference(entry.getResource().getId());
+                        }
+                    }
                 }
             }
             else if(cdaSec instanceof ProceduresSection) {
@@ -163,41 +173,32 @@ public class CCDATransformerImpl implements CCDATransformer {
             }
             else if(cdaSec instanceof ResultsSection) {
             	ResultsSection resultSec = (ResultsSection) cdaSec;
-            	for(ResultOrganizer resOrg : resultSec.getResultOrganizers())
-            	{
-            		for(ResultObservation resObs : resOrg.getResultObservations())
-            		{
+            	for(ResultOrganizer resOrg : resultSec.getResultOrganizers()) {
+            		for(ResultObservation resObs : resOrg.getResultObservations()) {
             			Bundle observation = resTransformer.ResultObservation2Observation(resObs);
             			ResourceReferenceDt ref = fhirSec.addEntry();
             			ref.setReference(observation.getId());
             			ccdBundle.addEntry(new Bundle.Entry().setResource(observation));
             		}
             	}
-
             }
             else if(cdaSec instanceof SocialHistorySection) {
 
             }
             else if(cdaSec instanceof VitalSignsSection) {
             	VitalSignsSection vitalSec = (VitalSignsSection) cdaSec;
-            	for(VitalSignsOrganizer vsOrg : vitalSec.getVitalSignsOrganizers())
-            	{
-            		for(VitalSignObservation vsObs : vsOrg.getVitalSignObservations())
-            		{
-            			Observation observation = null;
-            			
-            			// getting allergyIntolerance from observation bundle
-            			Bundle observationBundle = resTransformer.VitalSignObservation2Observation(vsObs);
-            			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : observationBundle.getEntry()){
-            				if( entry.getResource() instanceof Observation )
-            					observation = (Observation) entry.getResource();
+            	for(VitalSignsOrganizer vsOrg : vitalSec.getVitalSignsOrganizers())	{
+            		for(VitalSignObservation vsObs : vsOrg.getVitalSignObservations()) {
+            			Bundle vsBundle = resTransformer.VitalSignObservation2Observation(vsObs);
+            			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : vsBundle.getEntry()) {
+                            // Add all the resources returned from the bundle to the main CCD bundle
+                            ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+                            // Add a reference to the section for each Observation
+            				if(entry.getResource() instanceof Observation) {
+                                ResourceReferenceDt ref = fhirSec.addEntry();
+                                ref.setReference(entry.getResource().getId());
+                            }
             			}
-
-            			// we may need to check if observation is null
-            			
-            			ResourceReferenceDt ref = fhirSec.addEntry();
-            			ref.setReference(observation.getId());
-            			ccdBundle.addEntry(new Bundle.Entry().setResource(observation));
             		}
             	}
             }

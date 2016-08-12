@@ -1733,8 +1733,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 	public Bundle Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaPr){
 		// TODO: used <-> device
-		if( cdaPr == null || cdaPr.isSetNullFlavor() ) return null;
-		else{
+		if(cdaPr == null || cdaPr.isSetNullFlavor())
+			return null;
+		else {
 			ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
 			Bundle fhirPrBundle  = new Bundle();
 			fhirPrBundle.addEntry( new Bundle.Entry().setResource(fhirPr) );
@@ -1796,8 +1797,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// however, it exists in transformed version
 			
 			return fhirPrBundle;
-					}
-				}
+		}
+	}
 
 	public Bundle ResultObservation2Observation(ResultObservation cdaResultObs) {
 		// Had a detailed look and seen that Observation2Observation satisfies the necessary mapping for this method
@@ -1826,9 +1827,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 
 	public Bundle SubstanceAdministration2Immunization(SubstanceAdministration cdaSubAdm){
-		if(cdaSubAdm==null || cdaSubAdm.isSetNullFlavor()) return null;
-		else
-		{
+		if(cdaSubAdm == null || cdaSubAdm.isSetNullFlavor())
+			return null;
+		else {
 			Immunization fhirImmunization = new Immunization ();
 			
 			Bundle fhirImmunizationBundle = new Bundle();
@@ -1839,13 +1840,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirImmunization.setId(resourceId);
 			
 			// patient
-			fhirImmunization.setPatient(new ResourceReferenceDt( patientId ));
+			fhirImmunization.setPatient(new ResourceReferenceDt(patientId));
 			
 			// identifier
 			if(cdaSubAdm.getIds()!=null && !cdaSubAdm.getIds().isEmpty()){
 				for( II ii : cdaSubAdm.getIds() ){
 					if( ii != null && !ii.isSetNullFlavor() ){
-						fhirImmunization.addIdentifier( dtt.II2Identifier(ii) );
+						fhirImmunization.addIdentifier(dtt.II2Identifier(ii));
 					}
 				}
 			}
@@ -1857,7 +1858,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						// Asserting that at most one effective time exists
 						fhirImmunization.setDate(dtt.TS2DateTime(effectiveTime));
 					}
-						
 				}
 			}
 			
@@ -1902,15 +1902,17 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 			
 			// performer
-			if(cdaSubAdm.getPerformers()!=null && !cdaSubAdm.getPerformers().isEmpty())
-			{
-				for(Performer2 performer : cdaSubAdm.getPerformers())
-				{
-					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor())
-					{
-						Bundle practitioner=Performer22Practitioner(performer);
-						fhirImmunization.setPerformer(  new ResourceReferenceDt( practitioner.getId() )  );
-						fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(practitioner));
+			if(cdaSubAdm.getPerformers() != null && !cdaSubAdm.getPerformers().isEmpty()) {
+				for(Performer2 performer : cdaSubAdm.getPerformers()) {
+					if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
+						Bundle practBundle = Performer22Practitioner(performer);
+						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+							// Add all the resources returned from the bundle to the main bundle
+							fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+							// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
+							if(entry.getResource() instanceof Practitioner)
+								fhirImmunization.setPerformer(new ResourceReferenceDt(entry.getResource().getId()));
+						}
 					}
 				}
 			}
@@ -1925,7 +1927,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			// route
 			if(cdaSubAdm.getRouteCode()!=null && !cdaSubAdm.getRouteCode().isSetNullFlavor()){
-				fhirImmunization.setRoute( dtt.CD2CodeableConcept( cdaSubAdm.getRouteCode()) );
+				fhirImmunization.setRoute(dtt.CD2CodeableConcept(cdaSubAdm.getRouteCode()));
 			}
 			
 			// dose quantity
@@ -1937,8 +1939,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if(cdaSubAdm.getStatusCode()!=null && !cdaSubAdm.getStatusCode().isSetNullFlavor()){
 				fhirImmunization.setStatus(cdaSubAdm.getStatusCode().getCode());
 			}
-			
-			
+
 			return fhirImmunizationBundle;
 		}
 	}
@@ -1948,11 +1949,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return Observation2Observation(cdaVSO);
 	}
 
-	
-	
 	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( Guardian cdaGuardian ){
-			
-		if( cdaGuardian == null || cdaGuardian.isSetNullFlavor() ) return null;
+		if(cdaGuardian == null || cdaGuardian.isSetNullFlavor())
+			return null;
 		else{
 			ca.uhn.fhir.model.dstu2.resource.Patient.Contact fhirContact = new ca.uhn.fhir.model.dstu2.resource.Patient.Contact();
 			
