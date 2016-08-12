@@ -683,7 +683,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				return new InstantDt();
 			String date=ts.getValue();
 			return dateParserInstant(date);
-		}//end else
+		}
 	}
 
 	public UriDt URL2Uri(URL url){

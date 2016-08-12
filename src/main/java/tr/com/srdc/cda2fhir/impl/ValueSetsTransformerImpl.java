@@ -26,6 +26,139 @@ import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	
+	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String administrativeGenderCode ){
+		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
+		switch (administrativeGenderCode) {
+			case "F": // Female
+			case "f":
+				return AdministrativeGenderEnum.FEMALE;
+			case "M": // Male
+			case "m":
+				return AdministrativeGenderEnum.MALE;
+			case "U": // Undifferentiated
+			case "u":
+			case "UN":
+			case "UNK":
+			case "un":
+			case "unk":
+				return AdministrativeGenderEnum.UNKNOWN;
+			default:
+				return AdministrativeGenderEnum.UNKNOWN;
+		}
+	}
+
+	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
+		switch(entityClassRoot){
+			case PSN: return GroupTypeEnum.PERSON;
+			case ANM: return GroupTypeEnum.ANIMAL;
+			case DEV: return GroupTypeEnum.DEVICE;
+			case MMAT: return GroupTypeEnum.MEDICATION;
+			default: return null;
+		}
+	}
+
+	public NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse){
+		
+		switch(entityNameUse){
+			case C: return NameUseEnum.USUAL;
+			// Visit https://www.hl7.org/fhir/valueset-name-use.html
+			// Trying: case OR: return NameUseEnum.OFFICIAL;
+			// .. T, ANON, OLD, M.
+			// However, these cases don't exist
+			case P: return NameUseEnum.NICKNAME;
+			default: return NameUseEnum.USUAL;
+		}
+	}
+
+	public FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode ){
+		switch( FamilyHistoryOrganizerStatusCode.toLowerCase() ){
+		case "completed":
+			return FamilyHistoryStatusEnum.COMPLETED;
+		case "error":
+			return FamilyHistoryStatusEnum.ENTERED_IN_ERROR;
+		case "unk":
+		case "un":
+			return FamilyHistoryStatusEnum.HEALTH_UNKNOWN;
+		case "part":
+			return FamilyHistoryStatusEnum.PARTIAL;
+		default:
+			return null;
+		}
+	}
+
+	public MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode ){
+		// Visit https://www.hl7.org/fhir/valueset-marital-status.html
+		switch(maritalStatusCode.toUpperCase()){
+			case "A": return MaritalStatusCodesEnum.A;
+			case "D": return MaritalStatusCodesEnum.D;
+			case "I": return MaritalStatusCodesEnum.I;
+			case "L": return MaritalStatusCodesEnum.L;
+			case "M": return MaritalStatusCodesEnum.M;
+			case "P": return MaritalStatusCodesEnum.P;
+			case "S": return MaritalStatusCodesEnum.S;
+			case "T": return MaritalStatusCodesEnum.T;
+			case "W": return MaritalStatusCodesEnum.W;
+			case "UNK":
+			case "U": 
+			default:
+				return MaritalStatusCodesEnum.UNK;
+		}
+	}
+
+	public CodingDt NullFlavor2DataAbsentReasonCode( NullFlavor nullFlavor ){
+		CodingDt DataAbsentReasonCode = new CodingDt();
+		String code = null;
+		String display = null;
+		
+		switch( nullFlavor ){
+			case UNK: 
+				code = "unknown"; display = "Unkown"; break;
+			case ASKU: 
+				code = "asked"; display = "Asked"; break;
+			case MSK:
+				code = "masked"; display = "Masked"; break;
+			case NA:
+				code = "not-applicable"; display= "Not Applicable"; break;
+			case NASK:
+				code= "not-asked"; display = "Not Asked"; break;
+			case NAV:
+				code = "temp"; display = "Temp"; break;
+			case NI:
+				code = "no-information"; display = "No Information"; break;
+			case NINF:
+				code = "negative-infinity"; display = "Negative Infinity"; break;
+			case NP:
+				code = "not-present"; display = "Not Present"; break;
+			case OTH:
+				code = "other"; display = "other"; break;
+			case PINF:
+				code = "positive-infinity"; display = "positive Infinity"; break;
+			case TRC:
+				code = "trace"; display = "trace"; break;
+			default:
+				break;
+		}
+		
+		DataAbsentReasonCode.setSystem("http://hl7.org/fhir/valueset-data-absent-reason.html");
+		DataAbsentReasonCode.setCode(code);
+		DataAbsentReasonCode.setDisplay(display);
+		
+		return DataAbsentReasonCode;
+	}
+
+	public ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode ){
+		switch( obsStatusCode.toLowerCase() ){
+			case "completed": return ObservationStatusEnum.FINAL;
+			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
+			case "unk":
+			case "un": return ObservationStatusEnum.UNKNOWN_STATUS;
+			case "cancelled": return ObservationStatusEnum.CANCELLED;
+			case "amended": return ObservationStatusEnum.AMENDED;
+			default:
+				return null;
+		}
+	}
+	
 	public String oid2Url(String codeSystem){
 		String system = null;
 		switch (codeSystem) {
@@ -116,257 +249,10 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	        default:
 	            system = "urn:oid:" + codeSystem;
 	            break;
-        }
+	    }
 		return system;
 	}
-	
-	public ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode ){
-		switch( obsStatusCode.toLowerCase() ){
-			case "completed": return ObservationStatusEnum.FINAL;
-			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
-			case "unk":
-			case "un": return ObservationStatusEnum.UNKNOWN_STATUS;
-			case "cancelled": return ObservationStatusEnum.CANCELLED;
-			case "amended": return ObservationStatusEnum.AMENDED;
-			default:
-				return null;
-		}
-	}
-	
-	public FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode ){
-		switch( FamilyHistoryOrganizerStatusCode.toLowerCase() ){
-		case "completed":
-			return FamilyHistoryStatusEnum.COMPLETED;
-		case "error":
-			return FamilyHistoryStatusEnum.ENTERED_IN_ERROR;
-		case "unk":
-		case "un":
-			return FamilyHistoryStatusEnum.HEALTH_UNKNOWN;
-		case "part":
-			return FamilyHistoryStatusEnum.PARTIAL;
-		default:
-			return null;
-		}
-	}
-	
-	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString ){
-		switch( statusCodeString.toLowerCase() ){
-		case "active":
-			return ProcedureStatusEnum.IN_PROGRESS;
-		case "completed":
-			return ProcedureStatusEnum.COMPLETED;
-		case "aborted":
-		case "aboted":
-			return ProcedureStatusEnum.ABOTED;
-		case "error":
-			return ProcedureStatusEnum.ENTERED_IN_ERROR;
-		default:
-			return null;
-		}
-	}
-	
-	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
-		switch(entityClassRoot){
-			case PSN: return GroupTypeEnum.PERSON;
-			case ANM: return GroupTypeEnum.ANIMAL;
-			case DEV: return GroupTypeEnum.DEVICE;
-			case MMAT: return GroupTypeEnum.MEDICATION;
-			default: return null;
-		}
-	}
-	
-	public MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode ){
-		// Visit https://www.hl7.org/fhir/valueset-marital-status.html
-		switch(maritalStatusCode){
-			case "A": return MaritalStatusCodesEnum.A;
-			case "D": return MaritalStatusCodesEnum.D;
-			case "I": return MaritalStatusCodesEnum.I;
-			case "L": return MaritalStatusCodesEnum.L;
-			case "M": return MaritalStatusCodesEnum.M;
-			case "P": return MaritalStatusCodesEnum.P;
-			case "S": return MaritalStatusCodesEnum.S;
-			case "T": return MaritalStatusCodesEnum.T;
-			case "W": return MaritalStatusCodesEnum.W;
-			case "UNK":
-			case "U": 
-			default:
-				return MaritalStatusCodesEnum.UNK;
-		}
-	}
-	
-	public CodingDt NullFlavor2DataAbsentReasonCode( NullFlavor nullFlavor ){
-		CodingDt DataAbsentReasonCode = new CodingDt();
-		String code = null;
-		String display = null;
-		
-		switch( nullFlavor ){
-			case UNK: 
-				code = "unknown"; display = "Unkown"; break;
-			case ASKU: 
-				code = "asked"; display = "Asked"; break;
-			case MSK:
-				code = "masked"; display = "Masked"; break;
-			case NA:
-				code = "not-applicable"; display= "Not Applicable"; break;
-			case NASK:
-				code= "not-asked"; display = "Not Asked"; break;
-			case NAV:
-				code = "temp"; display = "Temp"; break;
-			case NI:
-				code = "no-information"; display = "No Information"; break;
-			case NINF:
-				code = "negative-infinity"; display = "Negative Infinity"; break;
-			case NP:
-				code = "not-present"; display = "Not Present"; break;
-			case OTH:
-				code = "other"; display = "other"; break;
-			case PINF:
-				code = "positive-infinity"; display = "positive Infinity"; break;
-			case TRC:
-				code = "trace"; display = "trace"; break;
-			default:
-				break;
-		}
-		
-		DataAbsentReasonCode.setSystem("http://hl7.org/fhir/valueset-data-absent-reason.html");
-		DataAbsentReasonCode.setCode(code);
-		DataAbsentReasonCode.setDisplay(display);
-		
-		return DataAbsentReasonCode;
-	}
-	
-	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String administrativeGenderCode ){
-		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
-		switch (administrativeGenderCode) {
-			case "F": // Female
-			case "f":
-				return AdministrativeGenderEnum.FEMALE;
-			case "M": // Male
-			case "m":
-				return AdministrativeGenderEnum.MALE;
-			case "U": // Undifferentiated
-			case "u":
-			case "UN":
-			case "UNK":
-			case "un":
-			case "unk":
-				return AdministrativeGenderEnum.UNKNOWN;
-			default:
-				return AdministrativeGenderEnum.UNKNOWN;
-		} // end of switch block
-	}
 
-	public AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status ){
-		switch( status.toLowerCase() ){
-			case "active": return AllergyIntoleranceStatusEnum.ACTIVE;
-			case "nullified":
-			case "error": return AllergyIntoleranceStatusEnum.ENTERED_IN_ERROR;
-			case "confirmed": return AllergyIntoleranceStatusEnum.CONFIRMED;
-			case "unconfirmed": return AllergyIntoleranceStatusEnum.UNCONFIRMED;
-			case "refuted": return AllergyIntoleranceStatusEnum.REFUTED;
-			case "inactive": return AllergyIntoleranceStatusEnum.INACTIVE;
-			case "resolved": return AllergyIntoleranceStatusEnum.RESOLVED;
-			default: return null;
-		}
-	}
-	
-	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status){
-		switch( status.toLowerCase() ){
-			case "active": return MedicationStatementStatusEnum.ACTIVE;
-			case "intended": return MedicationStatementStatusEnum.INTENDED;
-			case "completed": return MedicationStatementStatusEnum.COMPLETED;
-			case "nullified": return MedicationStatementStatusEnum.ENTERED_IN_ERROR;
-			
-			default: return null;
-		}
-	}
-	
-	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status){
-		switch( status.toLowerCase() ){
-			case "active": 
-			case "in-progress":
-			case "inprogress":
-				return MedicationDispenseStatusEnum.IN_PROGRESS;
-			case "on-hold":
-			case "onhold":
-			case "suspended": 
-				return MedicationDispenseStatusEnum.ON_HOLD;
-			case "completed": 
-				return MedicationDispenseStatusEnum.COMPLETED;
-			case "nullified": 
-			case "error":
-			case "entered-in-error":
-				return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
-			case "stopped": 
-				return MedicationDispenseStatusEnum.STOPPED;
-			default: return null;
-		}
-	}
-	
-	public EncounterStateEnum StatusCode2EncounterStatusEnum(String status){
-		switch( status.toLowerCase() ){
-			case "in-progress":
-			case "active":
-				return EncounterStateEnum.IN_PROGRESS;
-			case "onleave":
-			case "on-leave":
-				return EncounterStateEnum.ON_LEAVE;
-			case "finished":
-			case "completed":
-				return EncounterStateEnum.FINISHED;
-			case "cancelled":
-				return EncounterStateEnum.CANCELLED;
-			case "planned":
-				return EncounterStateEnum.PLANNED;
-			case "arrived":
-				return EncounterStateEnum.ARRIVED;
-			default: 
-				return null;
-		}
-	}
-	
-	public NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse){
-		
-		switch(entityNameUse){
-			case C: return NameUseEnum.USUAL;
-			// Visit https://www.hl7.org/fhir/valueset-name-use.html
-			// Trying: case OR: return NameUseEnum.OFFICIAL;
-			// .. T, ANON, OLD, M.
-			// However, these cases don't exist
-			case P: return NameUseEnum.NICKNAME;
-			default: return NameUseEnum.USUAL;
-		}
-	}
-	
-	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse){
-		
-		switch(postalAddressUse){
-			case HP:
-			case H: return AddressUseEnum.HOME;
-			case WP: return AddressUseEnum.WORK;
-			case TMP: return AddressUseEnum.TEMPORARY;
-			case BAD: return AddressUseEnum.OLD___INCORRECT;
-		default:
-			return AddressUseEnum.TEMPORARY;
-		}
-		
-	}
-	
-	public ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum( TelecommunicationAddressUse telecommunicationAddressUse )
-	{
-		switch(telecommunicationAddressUse){
-			case H: return ContactPointUseEnum.HOME;
-			case HP: return ContactPointUseEnum.HOME;
-			case WP: return ContactPointUseEnum.WORK;
-			case TMP: return ContactPointUseEnum.TEMP;
-			case BAD: return ContactPointUseEnum.OLD;
-			case MC: return ContactPointUseEnum.MOBILE;
-			default:
-				return ContactPointUseEnum.TEMP;
-		}
-			
-	}
-	
 	public CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT){
 		CodingDt fhirPT = new CodingDt(); // fhirPT: fhirParticipationTypeCode
 		fhirPT.setSystem("http://hl7.org/fhir/v3/ParticipationType");
@@ -479,7 +365,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 		return fhirPT;
 	}
-	
+
 	public AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse ){
 		switch(postalAddressUse){
 			case PHYS: return AddressTypeEnum.PHYSICAL;
@@ -488,9 +374,117 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public LocationStatusEnum StatusCode2LocationStatusEnum(String status) {
-		// TODO Auto-generated method stub
-		return null;
+	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse){
+		switch(postalAddressUse){
+			case HP:
+			case H: return AddressUseEnum.HOME;
+			case WP: return AddressUseEnum.WORK;
+			case TMP: return AddressUseEnum.TEMPORARY;
+			case BAD: return AddressUseEnum.OLD___INCORRECT;
+		default:
+			return AddressUseEnum.TEMPORARY;
+		}
 	}
+
+	public AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status ){
+		switch( status.toLowerCase() ){
+			case "active": return AllergyIntoleranceStatusEnum.ACTIVE;
+			case "nullified":
+			case "error": return AllergyIntoleranceStatusEnum.ENTERED_IN_ERROR;
+			case "confirmed": return AllergyIntoleranceStatusEnum.CONFIRMED;
+			case "unconfirmed": return AllergyIntoleranceStatusEnum.UNCONFIRMED;
+			case "refuted": return AllergyIntoleranceStatusEnum.REFUTED;
+			case "inactive": return AllergyIntoleranceStatusEnum.INACTIVE;
+			case "resolved": return AllergyIntoleranceStatusEnum.RESOLVED;
+			default: return null;
+		}
+	}
+	
+	public EncounterStateEnum StatusCode2EncounterStatusEnum(String status){
+		switch( status.toLowerCase() ){
+			case "in-progress":
+			case "active":
+				return EncounterStateEnum.IN_PROGRESS;
+			case "onleave":
+			case "on-leave":
+				return EncounterStateEnum.ON_LEAVE;
+			case "finished":
+			case "completed":
+				return EncounterStateEnum.FINISHED;
+			case "cancelled":
+				return EncounterStateEnum.CANCELLED;
+			case "planned":
+				return EncounterStateEnum.PLANNED;
+			case "arrived":
+				return EncounterStateEnum.ARRIVED;
+			default: 
+				return null;
+		}
+	}
+
+	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status){
+		switch( status.toLowerCase() ){
+			case "active": 
+			case "in-progress":
+			case "inprogress":
+				return MedicationDispenseStatusEnum.IN_PROGRESS;
+			case "on-hold":
+			case "onhold":
+			case "suspended": 
+				return MedicationDispenseStatusEnum.ON_HOLD;
+			case "completed": 
+				return MedicationDispenseStatusEnum.COMPLETED;
+			case "nullified": 
+			case "error":
+			case "entered-in-error":
+				return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
+			case "stopped": 
+				return MedicationDispenseStatusEnum.STOPPED;
+			default: return null;
+		}
+	}
+
+	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status){
+		switch( status.toLowerCase() ){
+			case "active": return MedicationStatementStatusEnum.ACTIVE;
+			case "intended": return MedicationStatementStatusEnum.INTENDED;
+			case "completed": return MedicationStatementStatusEnum.COMPLETED;
+			case "nullified": return MedicationStatementStatusEnum.ENTERED_IN_ERROR;
+			
+			default: return null;
+		}
+	}
+	
+	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString ){
+		switch( statusCodeString.toLowerCase() ){
+		case "active":
+			return ProcedureStatusEnum.IN_PROGRESS;
+		case "completed":
+			return ProcedureStatusEnum.COMPLETED;
+		case "aborted":
+		case "aboted":
+			return ProcedureStatusEnum.ABOTED;
+		case "error":
+			return ProcedureStatusEnum.ENTERED_IN_ERROR;
+		default:
+			return null;
+		}
+	}
+
+	public ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum( TelecommunicationAddressUse telecommunicationAddressUse )
+	{
+		switch(telecommunicationAddressUse){
+			case H: return ContactPointUseEnum.HOME;
+			case HP: return ContactPointUseEnum.HOME;
+			case WP: return ContactPointUseEnum.WORK;
+			case TMP: return ContactPointUseEnum.TEMP;
+			case BAD: return ContactPointUseEnum.OLD;
+			case MC: return ContactPointUseEnum.MOBILE;
+			default:
+				return ContactPointUseEnum.TEMP;
+		}
+			
+	}
+
 
 }

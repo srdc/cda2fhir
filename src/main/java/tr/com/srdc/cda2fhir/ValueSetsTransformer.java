@@ -26,31 +26,38 @@ import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 
 public interface ValueSetsTransformer {
 	
-	String oid2Url(String codeSystem);
-	
-	// necip start
-	GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot );
-	MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode );
 	AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String AdministrativeGenderCode );
-	ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString );
-	CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT);
-	FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode );
-	ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode );
-	EncounterStateEnum StatusCode2EncounterStatusEnum(String status);
-	AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status );
-	CodingDt NullFlavor2DataAbsentReasonCode( NullFlavor nullFlavor );
-	// necip end
 	
-	// ismail start
-	MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status);
-	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status);
-	LocationStatusEnum StatusCode2LocationStatusEnum( String status );
-	// ismail end
+	GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot );
 	
 	NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse);
-	AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);
-	ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum( TelecommunicationAddressUse telecommunicationAddressUse );
+	
+	FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode );
+	
+	MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode );
+	
+	CodingDt NullFlavor2DataAbsentReasonCode( NullFlavor nullFlavor );
+	
+	ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode );
+	
+	String oid2Url(String codeSystem);
+	
+	CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT);
+	
 	AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse );
 	
+	AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);
 	
+	AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status );
+	
+	EncounterStateEnum StatusCode2EncounterStatusEnum(String status);
+	
+	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status);
+	
+	MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status);
+	
+	ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString );
+	
+	ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum( TelecommunicationAddressUse telecommunicationAddressUse );
+
 }

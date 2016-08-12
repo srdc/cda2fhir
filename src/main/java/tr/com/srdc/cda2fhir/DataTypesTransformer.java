@@ -37,59 +37,50 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
  */
 public interface DataTypesTransformer {
 
-	/* MATURITY LEVELS
-	 * 0: not ready to test
-	 * 1: needs testing
-	 * 2: tested
-	 * 3: finalized
-	 */
+	AnnotationDt Act2Annotation(Act act);
 	
-	AnnotationDt Act2Annotation(Act act); /* Maturity Level: 1 */
+	AddressDt AD2Address(AD ad);
 	
-	AddressDt AD2Address(AD ad); /*Maturity Level: 2 */
+	Base64BinaryDt BIN2Base64Binary(BIN bin);
 	
-	Base64BinaryDt BIN2Base64Binary(BIN bin);/*Maturity Level: 1*/
+	BooleanDt BL2Boolean(BL bl);
 	
-	BooleanDt BL2Boolean(BL bl); /* Maturity Level: 2 */
+	CodeableConceptDt CD2CodeableConcept(CD cd);
 	
-	CodeableConceptDt CD2CodeableConcept(CD cd); /* Maturity Level: 2 */
+	CodingDt CV2Coding(CV cv);
 	
-	CodingDt CV2Coding(CV cv); /* Maturity Level: 2 */
+	AttachmentDt ED2Attachment(ED ed);
 	
-	AttachmentDt ED2Attachment(ED ed); /*Maturity Level: 2 */
+	HumanNameDt EN2HumanName(EN en); 
 	
-	HumanNameDt EN2HumanName(EN en);  /* Maturity Level: 2 */
-	
-	IdentifierDt II2Identifier(II ii);  /* Maturity Level: 2 */
+	IdentifierDt II2Identifier(II ii); 
     
-	IntegerDt INT2Integer(INT myInt);/*Maturity Level: 2 */
+	IntegerDt INT2Integer(INT myInt);
     
-	PeriodDt IVL_TS2Period(IVL_TS ivlts); /* Maturity Level: 2 */
+	PeriodDt IVL_TS2Period(IVL_TS ivlts);
     
-	RangeDt IVL_PQ2Range(IVL_PQ ivlpq); /* Maturity Level: 2 */
+	RangeDt IVL_PQ2Range(IVL_PQ ivlpq);
 	
-	SimpleQuantityDt PQ2SimpleQuantityDt( PQ pq ); /* Maturity Level: 1 */
+	SimpleQuantityDt PQ2SimpleQuantityDt( PQ pq );
 	
-	QuantityDt PQ2Quantity(PQ pq); /* Maturity Level: 2 */
+	QuantityDt PQ2Quantity(PQ pq);
     
-	DecimalDt REAL2Decimal(REAL real); /* Maturity Level: 2 */
+	DecimalDt REAL2Decimal(REAL real);
     
-	RatioDt RTO2Ratio(RTO rto); /* Maturity Level: 2 */
+	RatioDt RTO2Ratio(RTO rto);
 	
-	StringDt ST2String(ST st); /* Maturity Level: 2 */
+	StringDt ST2String(ST st);
 
-	NarrativeDt StrucDocText2Narrative(StrucDocText sdt); /* Maturity Level: 1 */
+	NarrativeDt StrucDocText2Narrative(StrucDocText sdt);
 	
-	ContactPointDt TEL2ContactPoint(TEL tel);  /* Maturity Level: 2 */
+	ContactPointDt TEL2ContactPoint(TEL tel);
 	
-	DateDt TS2Date(TS ts); /* Maturity Level: 2 */
+	DateDt TS2Date(TS ts);
 	
-	DateTimeDt TS2DateTime(TS ts); /* Maturity Level: 2 */
+	DateTimeDt TS2DateTime(TS ts);
 	
 	InstantDt TS2Instant(TS ts);
 	
-	UriDt URL2Uri(URL url); /* Maturity Level: 1 */
+	UriDt URL2Uri(URL url);
     
-    /*---The datatype SLIST and GLIST does not exist in MDHT----*/
-    //SampledDataDt SLITS2SampledData(SLIST slist);
 }
