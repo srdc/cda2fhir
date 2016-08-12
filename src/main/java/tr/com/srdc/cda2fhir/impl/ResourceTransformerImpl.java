@@ -1530,8 +1530,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			{
 				ExtensionDt extReligion = new ExtensionDt();
 				extReligion.setModifier(false);
-				// TODO: This url doesn't exist. Look for a existing one.
-				extReligion.setUrl("http://hl7.org/fhir/extension-religion.html");
+				extReligion.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-religion");
 				CD religiousAffiliationCode = cdaPatientRole.getPatient().getReligiousAffiliationCode();
 				extReligion.setValue( dtt.CD2CodeableConcept(religiousAffiliationCode) );
 				fhirPatient.addUndeclaredExtension(extReligion);
@@ -1540,7 +1539,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// extBirthPlace
 //				ExtensionDt extBirthPlace = new ExtensionDt();
 //				extBirthPlace.setModifier(false);
-//				extBirthPlace.setUrl("http://hl7.org/fhir/extension-birthplace.html");
+//				extBirthPlace.setUrl("http://hl7.org/fhir/StructureDefinition/birthPlace");
 //					if( cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getBirthplace() != null && !cdaPatientRole.getPatient().getBirthplace().isSetNullFlavor() )
 //				{
 //					extBirthPlace.setValue(  dtt.sometransformer( cdaPatientRole.getPatient().getBirthplace() ) );

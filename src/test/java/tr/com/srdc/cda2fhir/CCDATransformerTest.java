@@ -24,8 +24,7 @@ public class CCDATransformerTest {
     public void testReferenceCCDInstance() throws Exception {
 //        FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml"); 
-        
-//        FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+
         ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(fis);
         CCDATransformer ccdaTransformer = new CCDATransformerImpl(CCDATransformer.IdGeneratorEnum.COUNTER);
         Bundle bundle = ccdaTransformer.transformCCD(ccd);
