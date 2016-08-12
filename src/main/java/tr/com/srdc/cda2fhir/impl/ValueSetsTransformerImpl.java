@@ -47,6 +47,35 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public String AgeObservationUnit2AgeUnit(String cdaUnit){
+		if(cdaUnit == null || cdaUnit.isEmpty()) return null;
+		else{
+			switch(cdaUnit.toLowerCase()){
+				case "a":
+				case "age":
+				case "year":
+					return "Year";
+				case "mo":
+				case "month":
+					return "Month";
+				case "wk":
+				case "week":
+					return "Week";
+				case "d":
+				case "day":
+					return "Day";
+				case "h":
+				case "hour":
+					return "Hour";
+				case "min":
+				case "minute":
+					return "Minute";
+				default:
+					return null;
+			}
+		}
+	}
+	
 	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
 		switch(entityClassRoot){
 			case PSN: return GroupTypeEnum.PERSON;

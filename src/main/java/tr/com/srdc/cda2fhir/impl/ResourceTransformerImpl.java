@@ -38,6 +38,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 import ca.uhn.fhir.model.api.ExtensionDt;
+import ca.uhn.fhir.model.dstu2.composite.AgeDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
@@ -621,6 +622,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	public Bundle FamilyMemberOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO){
 		if( cdaFHO == null || cdaFHO.isSetNullFlavor() ) return null;
 		else{
+			// TODO: Necip: Couldn't understand what corresponds to outcome when looked to the example CDA file
 			FamilyMemberHistory fhirFMH = new FamilyMemberHistory();
 			Bundle fhirFMHBundle = new Bundle();
 			fhirFMHBundle.addEntry( new Bundle.Entry().setResource(fhirFMH) );
@@ -645,68 +647,50 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				fhirFMH.setStatus( vst.FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( cdaFHO.getStatusCode().getCode() ) );
 			}
 			
-			// condition <-> observation
-			if( cdaFHO.getObservations() != null && !cdaFHO.getObservations().isEmpty() ){
-				for( org.openhealthtools.mdht.uml.cda.Observation observation : cdaFHO.getObservations() ){
-					if( observation != null && !observation.isSetNullFlavor() ){
-						ca.uhn.fhir.model.dstu2.resource.FamilyMemberHistory.Condition condition = new ca.uhn.fhir.model.dstu2.resource.FamilyMemberHistory.Condition();
+			// condition <-> familyHistoryObservation
+			// also, deceased value is set by looking at familyHistoryObservation.familyHistoryDeathObservation
+			if( cdaFHO.getFamilyHistoryObservations() != null && !cdaFHO.getFamilyHistoryObservations().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryObservation familyHistoryObs : cdaFHO.getFamilyHistoryObservations() ){
+					if( familyHistoryObs != null && !familyHistoryObs.isSetNullFlavor() ){
 						
-						// onset
-						if( observation.getEffectiveTime() != null && !observation.getEffectiveTime().isSetNullFlavor() ){
-							condition.setOnset( dtt.IVL_TS2Period( observation.getEffectiveTime() ) );
-						}
+						// adding a new condition to fhirFMH
+						FamilyMemberHistory.Condition condition = fhirFMH.addCondition();
 						
-						// condition code
-						if( observation.getValues() != null && !observation.getValues().isEmpty() ){
-							for( ANY value : observation.getValues() ){
-								if( value instanceof CD ){
-									condition.setCode( dtt.CD2CodeableConcept( (CD) value ) );
-								}
-							}
-						}
-						
-						// traversing entryRelationShips
-						if( observation.getEntryRelationships() != null && !observation.getEntryRelationships().isEmpty() ){
-							for( org.openhealthtools.mdht.uml.cda.EntryRelationship ERS : observation.getEntryRelationships() ){
-								if( ERS != null && !ERS.isSetNullFlavor() ){
-									// two kinds of typeCode for ERS
-									// CAUS & SUBJ
-									if( ERS.getTypeCode() == x_ActRelationshipEntryRelationship.CAUS  ){
-										// CAUS
-										if( ERS.getObservation() != null && !ERS.getObservation().isSetNullFlavor() ){
-											if( ERS.getObservation().getCode() != null && !ERS.getObservation().getCode().isSetNullFlavor() ){
-												if( ERS.getObservation().getValues() != null && !ERS.getObservation().getValues().isEmpty() ){
-													for( ANY value : ERS.getObservation().getValues()){
-														if( value instanceof CD ){
-															if( ((CD) value).getCode().equals("419099009")){
-																// TODO: Check if it is OK to use code value to understand if dead
-																fhirFMH.setDeceased(new BooleanDt(true));
-															}
-															
-														}
-													}
-												}
-											}
-										}
-									} else if(ERS.getTypeCode() == x_ActRelationshipEntryRelationship.SUBJ ){
-										// SUBJ
-										if( ERS.getObservation() != null && !ERS.getObservation().isSetNullFlavor() ){
-											if( ERS.getObservation().getValues() != null && !ERS.getObservation().isSetNullFlavor() ){
-												if( ERS.getObservation().getCode() != null && !ERS.getObservation().getCode().isSetNullFlavor()){
-													condition.setOutcome( dtt.CD2CodeableConcept(ERS.getObservation().getCode()) );
-												}
-											}
-										}
+						// code familHistoryObs.value(CD)
+						if(familyHistoryObs.getValues() != null && !familyHistoryObs.getValues().isEmpty()){
+							for(ANY value : familyHistoryObs.getValues()){
+								if(value != null && !value.isSetNullFlavor()){
+									if(value instanceof CD){
+										condition.setCode(dtt.CD2CodeableConcept((CD)value));
 									}
 								}
 							}
 						}
-						fhirFMH.addCondition(condition);
+
+						// deceased
+						if( familyHistoryObs.getFamilyHistoryDeathObservation() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().isSetNullFlavor() ){
+							// deceased <- true
+							fhirFMH.setDeceased(new BooleanDt(true));
+							
+							// effective
+							// TODO: Necip: When trying to set the time of death, deceased value disappears from the JSON object
+							// You can try by using the following line:
+//							fhirFMH.setDeceased( dtt.IVL_TS2Period( familyHistoryObs.getEffectiveTime() ) );
+//							 The value of effectiveTime in the example: <effectiveTime value="1967"/>
+						}
+						
+						// onset <-> familyHistoryObs.ageObservation
+						if( familyHistoryObs.getAgeObservation() != null && !familyHistoryObs.getAgeObservation().isSetNullFlavor() ){
+							// onset
+							AgeDt onset = AgeObservation2AgeDt(familyHistoryObs.getAgeObservation());
+							if(onset != null){
+								condition.setOnset(onset);
+							}
+						}
 					}
 				}
 			}
-			
-			
+				
 			// getting information from cda->subject->relatedSubject
 			if( cdaFHO.getSubject() != null && !cdaFHO.isSetNullFlavor() && cdaFHO.getSubject().getRelatedSubject() != null && !cdaFHO.getSubject().getRelatedSubject().isSetNullFlavor() ){
 				org.openhealthtools.mdht.uml.cda.RelatedSubject cdaRelatedSubject = cdaFHO.getSubject().getRelatedSubject();
@@ -1953,6 +1937,57 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return Observation2Observation(cdaVSO);
 	}
 
+	public AgeDt AgeObservation2AgeDt(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation){
+		if(cdaAgeObservation == null || cdaAgeObservation.isSetNullFlavor()) return null;
+		else{
+			AgeDt fhirAge = new AgeDt();
+			
+			// coding
+			if(cdaAgeObservation.getCode() != null && !cdaAgeObservation.getCode().isSetNullFlavor()){
+				CodeableConceptDt codeableConcept = dtt.CD2CodeableConcept(cdaAgeObservation.getCode());
+				if(codeableConcept != null){
+					for(CodingDt coding : codeableConcept.getCoding()){
+						// Asserting that only one coding exists
+						if(coding != null && !coding.isEmpty()){
+							// code
+							if(coding.getCode() != null && !coding.getCode().isEmpty()){
+								fhirAge.setCode(coding.getCode());
+							}
+							
+							// system
+							if(coding.getSystem() != null && !coding.getSystem().isEmpty()){
+								fhirAge.setSystem(coding.getSystem());
+							}
+						}
+						
+					}
+				}
+			}
+			
+			// age <-> value
+			if(cdaAgeObservation != null && !cdaAgeObservation.getValues().isEmpty()){
+				for(ANY value : cdaAgeObservation.getValues()){
+					if(value != null && !value.isSetNullFlavor()){
+						if(value instanceof PQ){
+							if(((PQ)value).getValue() != null){
+								fhirAge.setValue(((PQ)value).getValue());
+								
+								// definition requires a human readable unit for fhirAge
+								String unit = vst.AgeObservationUnit2AgeUnit(((PQ)value).getUnit());
+								if(unit != null){
+									fhirAge.setUnit(unit);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			
+			return fhirAge;
+		}
+	}
+	
 	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( Guardian cdaGuardian ){
 		if(cdaGuardian == null || cdaGuardian.isSetNullFlavor())
 			return null;

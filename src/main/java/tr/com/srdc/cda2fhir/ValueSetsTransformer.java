@@ -28,6 +28,8 @@ public interface ValueSetsTransformer {
 	
 	AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String AdministrativeGenderCode );
 	
+	String AgeObservationUnit2AgeUnit(String cdaUnit);
+	
 	GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot );
 	
 	NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse);

@@ -77,24 +77,6 @@ public class ResourceTransformerTestNecip {
 	// Most of the test methods just print the transformed object in JSON form.
 	
 	@Ignore
-	public void testObservation2Observation(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
-		if( test.ccd.getSocialHistorySection() != null && !test.ccd.getSocialHistorySection().isSetNullFlavor() ){
-			if( test.ccd.getSocialHistorySection().getObservations() != null && !test.ccd.getSocialHistorySection().getObservations().isEmpty() ){
-				for( org.openhealthtools.mdht.uml.cda.Observation cdaObs : test.ccd.getSocialHistorySection().getObservations() ){
-					if( cdaObs != null && !cdaObs.isSetNullFlavor()){
-						System.out.println("Transformation starting..");
-						Bundle obsBundle = rt.Observation2Observation( cdaObs );
-						System.out.println("End of transformation. Printing..");
-						printJSON(obsBundle);
-						System.out.println("End of print.\n***");
-					}
-				}
-			}
-		}
-	}
-	
-	@Ignore
 	public void testAllergyProblemAct2AllergyIntolerance(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		for( AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs() ){
@@ -106,44 +88,69 @@ public class ResourceTransformerTestNecip {
 			System.out.println("***");
 		}
 	}
-	
-	
-	@Ignore
-	public void testSection2Section(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 
-		org.openhealthtools.mdht.uml.cda.Section sampleSection = null;
+	@Ignore
+	public void testAssignedAuthor2Practitioner(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
-		// assigning sampleSection to one sample section
-		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
-			if( test.ccd.getEncountersSection().getAllSections() != null && !test.ccd.getEncountersSection().getAllSections().isEmpty() ){
-				if( test.ccd.getEncountersSection().getAllSections().get(0) != null && !test.ccd.getEncountersSection().getAllSections().get(0).isSetNullFlavor() ){
-					sampleSection = test.ccd.getEncountersSection().getAllSections().get(0);
+		if( test.ccd.getAuthors() != null ){
+			for( org.openhealthtools.mdht.uml.cda.Author author : test.ccd.getAuthors() ){
+				// traversing authors
+				if( author != null && author.getAssignedAuthor() != null ){
+					
+					System.out.println("Transformation starting..");
+					Bundle practitionerBundle = rt.AssignedAuthor2Practitioner( author.getAssignedAuthor() );
+					System.out.println("End of transformation. Printing the resource as JSON object..");
+					printJSON( practitionerBundle );
+					System.out.println("End of print.");
 				}
 			}
 		}
-		
-		if( sampleSection != null ){
-			System.out.println("Transformating..");
-			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.section2Section(sampleSection);
-			System.out.println("End of transformation. Printing the JSON Object..");
-			
-			// We need to embed fhirSection to fhirCompositon to use the method printJSON
-			ca.uhn.fhir.model.dstu2.resource.Composition fhirComposition = new ca.uhn.fhir.model.dstu2.resource.Composition();
-			fhirComposition.addSection(fhirSection);
-			
-			printJSON( fhirComposition );
-			System.out.println("End of print.");
-			System.out.print("\n***\n");
-		}
 	}
 	
-	
+	@Ignore
+	public void testAssignedEntity2Practitioner(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		int procedureCount = 0;
+		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
+			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Procedure procedure : test.ccd.getProceduresSection().getProcedures() ){
+					// traversing procedures
+					System.out.print( "Procedure["+ procedureCount++ +"]" );
+					int performerCount = 0;
+					if( procedure.getPerformers() != null && !procedure.getPerformers().isEmpty() ){
+						for( org.openhealthtools.mdht.uml.cda.Performer2 performer : procedure.getPerformers()  ){
+							System.out.print( "-> Performer["+ performerCount++ +"]" );
+							if( performer.getAssignedEntity() != null && !performer.getAssignedEntity().isSetNullFlavor() ){
+									System.out.println("-> AssignedEntity");
+									System.out.println("Transformation starting..");
+									
+									ca.uhn.fhir.model.dstu2.resource.Practitioner practitioner = null;
+									
+									Bundle fhirPractitionerBundle = rt.AssignedEntity2Practitioner(performer.getAssignedEntity() );
+									for( Entry entry : fhirPractitionerBundle.getEntry() ){
+										if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Practitioner){
+											practitioner = (Practitioner) entry.getResource();
+										}
+									}
+									
+									
+									System.out.println("End of transformation. Printing the resource as JSON object..");
+									printJSON( practitioner );
+									System.out.println("End of print.");
+							}
+						}
+					}
+					System.out.print("\n***\n"); // to visualize
+				}
+			}
+		}
+	}
+
 	@Ignore
 	public void testEncounter2Encounter(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int encounterCount = 0;
-//		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() && test.ccd.getEncountersSection() != null ){
 		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
 			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
 				
@@ -155,7 +162,7 @@ public class ResourceTransformerTestNecip {
 							System.out.println("Transformation starting..");
 							
 							Bundle fhirEncounterBundle = rt.Encounter2Encounter(cdaEncounter);
-
+							
 							System.out.println("End of transformation. Printing the resource as JSON object..");
 							printJSON( fhirEncounterBundle );
 							System.out.println("End of print.");
@@ -167,8 +174,7 @@ public class ResourceTransformerTestNecip {
 			}
 		}
 	}
-	
-	
+
 	@Ignore
 	public void testGuardian2Contact(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -199,101 +205,315 @@ public class ResourceTransformerTestNecip {
 			}
 		}
 	}
-	
-	
-	@Ignore
-	public void testProcedure2Procedure(){
+
+	@Test
+	public void testFamilyMemberOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
-		int procedureCount = 0;
-		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
-			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
-				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getProceduresSection().getProcedures() ){
-					// traversing procedures
-					System.out.println( "Procedure["+ procedureCount++ +"]" );
-					
+		
+		// TODO: Death observation?
+		if( test.ccd.getFamilyHistorySection() != null && test.ccd.getFamilyHistorySection().getFamilyHistories() != null ){
+			for( org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : test.ccd.getFamilyHistorySection().getFamilyHistories() ){
+				if( familyHistoryOrganizer != null ){
 					System.out.println("Transformation starting..");
-					
-					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
-					
-					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
-					for( Entry entry : fhirProcedureBundle.getEntry() ){
-						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
-							fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
-						}
-					}
-					
+					Bundle familyHistoryOrganizerBundle = rt.FamilyMemberOrganizer2FamilyMemberHistory( familyHistoryOrganizer );
 					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON( fhirProcedure );
+					printJSON( familyHistoryOrganizerBundle );
 					System.out.println("End of print.");
-					System.out.print("\n***\n"); // to visualize
 				}
-				
 			}
 		}
-		
-		int encounterProceduresCount = 0;
-		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
-			if( test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty() ){
-				System.out.println("**** ENCOUNTERS -> PROCEDURES *****");
-				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures() ){
-					// traversing procedures
-					System.out.println( "Procedure["+ encounterProceduresCount++ +"]" );
-					
-					System.out.println("Transformation starting..");
-
-					ca.uhn.fhir.model.dstu2.resource.Encounter fhirProcedure = null;
-					
-					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
-					for( Entry entry : fhirProcedureBundle.getEntry() ){
-						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
-							fhirProcedure = (Encounter) entry.getResource();
-						}
-					}
-					
-					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON( fhirProcedure );
-					System.out.println("End of print.");
-					System.out.print("\n***\n"); // to visualize
-				}
-				
-			}
-		}
-		
-		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
-			System.out.println( "*** SECTIONS ****" );
-			int sectionCount = 0;
-			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
-				if( section.getProcedures() != null && !section.getProcedures().isEmpty() ){
-					int procedureCount2 = 0;
-					for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures() ){
-						// traversing procedures
-						System.out.println("Section["+sectionCount+"]"+" -> Procedure["+ procedureCount2++ +"]");
-
-						System.out.println("Transformation starting..");
-
-						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
-						
-						Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
-						for( Entry entry : fhirProcedureBundle.getEntry() ){
-							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
-								fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
-							}
-						}
-						
-						System.out.println("End of transformation. Printing the resource as JSON object..");
-						printJSON( fhirProcedure );
-						System.out.println("End of print.");
-						System.out.println("\n***\n"); // to visualize
-					}
-					
-				}
-				sectionCount++;
-			}
-		}
-		
 	}
 	
+	@Ignore
+	public void testObservation2Observation(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		if( test.ccd.getSocialHistorySection() != null && !test.ccd.getSocialHistorySection().isSetNullFlavor() ){
+			if( test.ccd.getSocialHistorySection().getObservations() != null && !test.ccd.getSocialHistorySection().getObservations().isEmpty() ){
+				for( org.openhealthtools.mdht.uml.cda.Observation cdaObs : test.ccd.getSocialHistorySection().getObservations() ){
+					if( cdaObs != null && !cdaObs.isSetNullFlavor()){
+						System.out.println("Transformation starting..");
+						Bundle obsBundle = rt.Observation2Observation( cdaObs );
+						System.out.println("End of transformation. Printing..");
+						printJSON(obsBundle);
+						System.out.println("End of print.\n***");
+					}
+				}
+			}
+		}
+	}
+
+	@Ignore
+	public void testOrganization2Organization(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		int patientCount = 0;
+		for( org.openhealthtools.mdht.uml.cda.PatientRole patRole : test.ccd.getPatientRoles() ){
+			System.out.print("PatientRole["+patientCount++ +"].");
+			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
+			System.out.println( "Transformation starting..." );
 	
+			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = null;
+			
+			Bundle fhirOrgBundle = rt.Organization2Organization(cdaOrg);
+			for( Entry entry : fhirOrgBundle.getEntry() ){
+				if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization){
+					fhirOrg = (Organization) entry.getResource();
+				}
+			}
+			
+			System.out.println("End of transformation. Printing the resource as JSON object..");
+			printJSON( fhirOrg );
+			System.out.println("End of print.");
+		}
+	}
+
+	@Ignore
+	public void testPatientRole2Patient(){
+			ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+			EList<PatientRole> patientRoles = test.ccd.getPatientRoles();
+	
+			// We traverse each of the patientRoles included in the document
+			// We apply the tests for each of them
+			for( PatientRole pr : patientRoles ){
+				
+				// here we do the transformation by calling the method rt.PatientRole2Patient
+				
+				Patient patient = null;
+				
+				Bundle patientBundle = rt.PatientRole2Patient(pr);
+				for( Entry entry : patientBundle.getEntry() ){
+					if( entry.getResource() instanceof Patient){
+						patient = (Patient) entry.getResource();
+					}
+				}
+				
+				// ta-ta-ta-taa!
+				System.out.println("Printing the resource as JSON object..");
+				printJSON( patient );
+				System.out.println("End of print");
+				
+				
+				// patient.identifier
+				int idCount = 0;
+				for( II id : pr.getIds() ){
+					// To see the values, you can use the following print lines.
+	//				System.out.println( id.getRoot() );
+	//				System.out.println( id.getExtension() );
+	//				System.out.println( id.getAssigningAuthorityName() );
+					
+					// cdoeSystem method is changed and tested
+	//				Assert.assertEquals("pr.id.root #"+ idCount +" was not transformed",id.getRoot(),  patient.getIdentifier().get(idCount).getSystem() );
+					
+					Assert.assertEquals("pr.id.assigningAuthorityName #"+ idCount +" was not transformed",id.getAssigningAuthorityName(),  patient.getIdentifier().get(idCount).getAssigner().getReference().getValue() );
+					idCount++;
+				}
+				// patient.name
+				// Notice that patient.name is fullfilled by the method EN2HumanName.
+				int nameCount = 0;
+				for( EN pn : pr.getPatient().getNames() ){
+					
+					// patient.name.use
+					if( pn.getUses() == null || pn.getUses().isEmpty() ){
+						Assert.assertNull( patient.getName().get(nameCount).getUse() );
+					} else{
+						Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.EntityNameUse2NameUseEnum(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse() );
+					}
+					
+					// patient.name.text
+					Assert.assertEquals("pr.patient.name["+nameCount+"].text was not transformed", pn.getText(),patient.getName().get(nameCount).getText() );
+					
+					// patient.name.family
+					int familyCount = 0;
+					for( ENXP family : pn.getFamilies() ){
+						if( family == null || family.isSetNullFlavor() ){
+							// It can return null or an empty list
+							Assert.assertTrue( patient.getName().get(nameCount).getFamily() == null || patient.getName().get(nameCount).getFamily().size() == 0  );
+						} else{
+							Assert.assertEquals("pr.patient.name["+nameCount+"].family was not transformed", family.getText(),patient.getName().get(nameCount).getFamily().get(familyCount).getValue());
+						}
+						familyCount++;
+					}
+					
+					// patient.name.given
+					int givenCount = 0;
+					for( ENXP given : pn.getGivens() ){
+						if( given == null || given.isSetNullFlavor() ){
+							// It can return null or an empty list
+							Assert.assertTrue( patient.getName().get(nameCount).getGiven() == null || patient.getName().get(nameCount).getGiven().size() == 0  );
+						} else{
+							Assert.assertEquals("pr.patient.name["+nameCount+"].given was not transformed", given.getText(),patient.getName().get(nameCount).getGiven().get(givenCount).getValue());
+						}
+						givenCount++;
+					}
+					
+					// patient.name.prefix
+					int prefixCount = 0;
+					for( ENXP prefix : pn.getPrefixes() ){
+						if( prefix == null || prefix.isSetNullFlavor() ){
+							// It can return null or an empty list
+							Assert.assertTrue( patient.getName().get(nameCount).getPrefix() == null || patient.getName().get(nameCount).getPrefix().size() == 0  );
+						} else{
+							Assert.assertEquals("pr.patient.name["+nameCount+"].prefix was not transformed", prefix.getText(),patient.getName().get(nameCount).getPrefix().get(prefixCount).getValue());
+						}
+						prefixCount++;
+					}
+					
+					// patient.name.suffix
+					int suffixCount = 0;
+					for( ENXP suffix : pn.getPrefixes() ){
+						if( suffix == null || suffix.isSetNullFlavor() ){
+							// It can return null or an empty list
+							Assert.assertTrue( patient.getName().get(nameCount).getSuffix() == null || patient.getName().get(nameCount).getSuffix().size() == 0  );
+						} else{
+							Assert.assertEquals("pr.patient.name["+nameCount+"].suffix was not transformed", suffix.getText(),patient.getName().get(nameCount).getSuffix().get(suffixCount).getValue());
+						}
+						suffixCount++;
+					}
+					
+					// patient.name.period
+					if( pn.getValidTime() == null || pn.getValidTime().isSetNullFlavor() ){
+						// It can return null or an empty list
+						Assert.assertTrue( patient.getName().get(nameCount).getPeriod() == null || patient.getName().get(nameCount).getPeriod().isEmpty() );
+					} else{ // start of non-null period test
+						
+						if( pn.getValidTime().getLow() == null || pn.getValidTime().getLow().isSetNullFlavor() ){
+							
+							Assert.assertTrue( patient.getName().get(nameCount).getPeriod().getStart() == null );
+						} else{
+							System.out.println("Following lines should contain identical non-null dates:");
+							System.out.println("[FHIR] " + patient.getName().get(nameCount).getPeriod().getStart());
+							System.out.println("[CDA] "+ pn.getValidTime().getLow());
+						}
+						
+						if( pn.getValidTime().getHigh() == null || pn.getValidTime().getHigh().isSetNullFlavor() ){
+							Assert.assertTrue( patient.getName().get(nameCount).getPeriod().getEnd() == null );
+						} else{
+							System.out.println("Following lines should contain identical non-null dates:");
+							System.out.println("[FHIR] " + patient.getName().get(nameCount).getPeriod().getEnd());
+							System.out.println("[CDA] "+ pn.getValidTime().getHigh());
+						}
+					} // end of non-null period test
+					nameCount++;
+				} // end of patient.name tests
+			
+				
+				// patient.telecom
+				// Notice that patient.telecom is fullfilled by the method dtt.TEL2ContactPoint
+				if( pr.getTelecoms() == null || pr.getTelecoms().isEmpty() ){
+					Assert.assertTrue( patient.getTelecom() == null || patient.getTelecom().isEmpty() );
+				} else{
+					// size check
+					Assert.assertTrue( pr.getTelecoms().size() == patient.getTelecom().size() );
+					// We have already tested the method TEL2ContactPoint. Therefore, null-check and size-check is enough for now.
+				}
+				
+				// patient.gender
+				// vst.AdministrativeGenderCode2AdministrativeGenderEnum is used in this transformation.
+				// Following test aims to test that ValueSetTransformer method.
+				if( pr.getPatient().getAdministrativeGenderCode() == null || pr.getPatient().getAdministrativeGenderCode().isSetNullFlavor() ){
+					Assert.assertTrue( patient.getGender() == null || patient.getGender().isEmpty() );
+				} else{
+					System.out.println( "Following lines should contain two lines of non-null gender information which are relevant(male,female,unknown):" );
+					System.out.println("  [FHIR]: " + patient.getGender() );
+					System.out.println( "  [CDA]: " + pr.getPatient().getAdministrativeGenderCode().getCode() );
+				}
+				
+				// patient.birthDate
+				// Notice that patient.birthDate is fullfilled by the method dtt.TS2Date 
+				if( pr.getPatient().getBirthTime() == null || pr.getPatient().getBirthTime().isSetNullFlavor() ){
+					Assert.assertTrue( patient.getBirthDate() == null );
+				} else{
+					System.out.println( "Following lines should contain two lines of non-null, equivalent birthdate information:" );
+					System.out.println("  [FHIR]: " + patient.getBirthDate() );
+					System.out.println("  [CDA]: "+ pr.getPatient().getBirthTime().getValue());
+				}
+				
+				// patient.address
+				// Notice that patient.address is fullfilled by the method dtt.AD2Address  
+				if( pr.getAddrs() == null || pr.getAddrs().isEmpty() ){
+					Assert.assertTrue( patient.getAddress() == null || patient.getAddress().isEmpty() );
+				} else{
+					// We have already tested the method AD2Address. Therefore, null-check and size-check is enough for now.
+					Assert.assertTrue( pr.getAddrs().size() == patient.getAddress().size() );
+				}
+				
+				// patient.maritalStatus
+				// vst.MaritalStatusCode2MaritalStatusCodesEnum is used in this transformation.
+				// Following test aims to test that ValueSetTransformer method.
+				if( pr.getPatient().getMaritalStatusCode() == null || pr.getPatient().getMaritalStatusCode().isSetNullFlavor() ){
+					Assert.assertTrue( patient.getMaritalStatus() == null || patient.getMaritalStatus().isEmpty() );
+				} else{
+					System.out.println( "Following lines should contain two lines of non-null, equivalent marital status information:" );
+					System.out.println("  [FHIR]: " + patient.getMaritalStatus().getCoding().get(0).getCode() );
+					System.out.println("  [CDA]: "+ pr.getPatient().getMaritalStatusCode().getCode() );
+					
+				}
+				
+				
+				// patient.languageCommunication
+				if( pr.getPatient().getLanguageCommunications() == null || pr.getPatient().getLanguageCommunications().isEmpty() ){
+					Assert.assertTrue( patient.getCommunication() == null || patient.getCommunication().isEmpty() );
+				} else{
+					Assert.assertTrue( pr.getPatient().getLanguageCommunications().size() == patient.getCommunication().size() );
+					
+					int sizeCommunication = pr.getPatient().getLanguageCommunications().size() ;
+					while( sizeCommunication != 0){
+						
+						//language
+						if( pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getLanguageCode() == null ||  
+								pr.getPatient().getLanguageCommunications().get(0).getLanguageCode().isSetNullFlavor() ){
+							Assert.assertTrue( patient.getCommunication().get(sizeCommunication - 1).getLanguage() == null || patient.getCommunication().get(sizeCommunication -1 ).getLanguage().isEmpty() );
+						} else{
+							// We have already tested the method CD2CodeableConcept. Therefore, null-check is enough for now.
+						}
+						
+						// preference
+						if( pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd() == null ||
+								pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd().isSetNullFlavor() ){
+							Assert.assertTrue( patient.getCommunication().get(sizeCommunication - 1).getPreferred() == null );
+						} else{
+							Assert.assertEquals(pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd().getValue(), patient.getCommunication().get(sizeCommunication - 1).getPreferred());
+						}
+						sizeCommunication--;
+					}
+					
+				}
+				
+				// providerOrganization
+				if( pr.getProviderOrganization() == null || pr.getProviderOrganization().isSetNullFlavor() ){
+					Assert.assertTrue( patient.getManagingOrganization() == null || patient.getManagingOrganization().isEmpty() );
+				} else{
+					if( pr.getProviderOrganization().getNames() == null ){
+						Assert.assertTrue( patient.getManagingOrganization().getDisplay() == null );
+					}
+					System.out.println("[FHIR] Reference for managing organization: "+  patient.getManagingOrganization().getReference() );
+					
+				}
+				
+				// guardian
+				if( pr.getPatient().getGuardians() == null || pr.getPatient().getGuardians().isEmpty() ){
+					Assert.assertTrue( patient.getContact() == null || patient.getContact().isEmpty() );
+				} else{
+					// Notice that, inside this mapping, the methods dtt.TEL2ContactPoint and dtt.AD2Address are used.
+					// Therefore, null-check and size-check are enough
+					Assert.assertTrue( pr.getPatient().getGuardians().size() == patient.getContact().size() );
+				}
+				
+				// extensions
+				int extCount = 0;
+				for( ExtensionDt extension : patient.getUndeclaredExtensions() ){
+					Assert.assertTrue( extension.getUrl() != null );
+					Assert.assertTrue( extension.getValue() != null );
+					System.out.println("[FHIR] Extension["+extCount+"] url: "+extension.getUrl());
+					System.out.println("[FHIR] Extension["+ extCount++ +"] value: "+extension.getValue());
+				}
+	
+				
+				
+				
+			}
+	    }
+
 	@Ignore
 	public void testPerformer22Performer(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -336,73 +556,128 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	
 	@Ignore
-	public void testAssignedEntity2Practitioner(){
+	public void testProcedure2Procedure(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int procedureCount = 0;
 		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
 			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
-				for( org.openhealthtools.mdht.uml.cda.Procedure procedure : test.ccd.getProceduresSection().getProcedures() ){
+				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getProceduresSection().getProcedures() ){
 					// traversing procedures
-					System.out.print( "Procedure["+ procedureCount++ +"]" );
-					int performerCount = 0;
-					if( procedure.getPerformers() != null && !procedure.getPerformers().isEmpty() ){
-						for( org.openhealthtools.mdht.uml.cda.Performer2 performer : procedure.getPerformers()  ){
-							System.out.print( "-> Performer["+ performerCount++ +"]" );
-							if( performer.getAssignedEntity() != null && !performer.getAssignedEntity().isSetNullFlavor() ){
-									System.out.println("-> AssignedEntity");
-									System.out.println("Transformation starting..");
-									
-									ca.uhn.fhir.model.dstu2.resource.Practitioner practitioner = null;
-									
-									Bundle fhirPractitionerBundle = rt.AssignedEntity2Practitioner(performer.getAssignedEntity() );
-									for( Entry entry : fhirPractitionerBundle.getEntry() ){
-										if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Practitioner){
-											practitioner = (Practitioner) entry.getResource();
-										}
-									}
-									
-									
-									System.out.println("End of transformation. Printing the resource as JSON object..");
-									printJSON( practitioner );
-									System.out.println("End of print.");
-							}
+					System.out.println( "Procedure["+ procedureCount++ +"]" );
+					
+					System.out.println("Transformation starting..");
+					
+					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
+					
+					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+					for( Entry entry : fhirProcedureBundle.getEntry() ){
+						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+							fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
 						}
 					}
+					
+					System.out.println("End of transformation. Printing the resource as JSON object..");
+					printJSON( fhirProcedure );
+					System.out.println("End of print.");
 					System.out.print("\n***\n"); // to visualize
 				}
+				
 			}
 		}
-	}
-	
-	
-	@Ignore
-	public void testOrganization2Organization(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
-		int patientCount = 0;
-		for( org.openhealthtools.mdht.uml.cda.PatientRole patRole : test.ccd.getPatientRoles() ){
-			System.out.print("PatientRole["+patientCount++ +"].");
-			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
-			System.out.println( "Transformation starting..." );
+		int encounterProceduresCount = 0;
+		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
+			if( test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty() ){
+				System.out.println("**** ENCOUNTERS -> PROCEDURES *****");
+				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures() ){
+					// traversing procedures
+					System.out.println( "Procedure["+ encounterProceduresCount++ +"]" );
+					
+					System.out.println("Transformation starting..");
+	
+					ca.uhn.fhir.model.dstu2.resource.Encounter fhirProcedure = null;
+					
+					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+					for( Entry entry : fhirProcedureBundle.getEntry() ){
+						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+							fhirProcedure = (Encounter) entry.getResource();
+						}
+					}
+					
+					System.out.println("End of transformation. Printing the resource as JSON object..");
+					printJSON( fhirProcedure );
+					System.out.println("End of print.");
+					System.out.print("\n***\n"); // to visualize
+				}
+				
+			}
+		}
+		
+		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
+			System.out.println( "*** SECTIONS ****" );
+			int sectionCount = 0;
+			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
+				if( section.getProcedures() != null && !section.getProcedures().isEmpty() ){
+					int procedureCount2 = 0;
+					for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures() ){
+						// traversing procedures
+						System.out.println("Section["+sectionCount+"]"+" -> Procedure["+ procedureCount2++ +"]");
+	
+						System.out.println("Transformation starting..");
+	
+						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
+						
+						Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+						for( Entry entry : fhirProcedureBundle.getEntry() ){
+							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+								fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
+							}
+						}
+						
+						System.out.println("End of transformation. Printing the resource as JSON object..");
+						printJSON( fhirProcedure );
+						System.out.println("End of print.");
+						System.out.println("\n***\n"); // to visualize
+					}
+					
+				}
+				sectionCount++;
+			}
+		}
+		
+	}
 
-			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = null;
-			
-			Bundle fhirOrgBundle = rt.Organization2Organization(cdaOrg);
-			for( Entry entry : fhirOrgBundle.getEntry() ){
-				if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization){
-					fhirOrg = (Organization) entry.getResource();
+	@Ignore
+	public void testSection2Section(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+	
+		org.openhealthtools.mdht.uml.cda.Section sampleSection = null;
+		
+		// assigning sampleSection to one sample section
+		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
+			if( test.ccd.getEncountersSection().getAllSections() != null && !test.ccd.getEncountersSection().getAllSections().isEmpty() ){
+				if( test.ccd.getEncountersSection().getAllSections().get(0) != null && !test.ccd.getEncountersSection().getAllSections().get(0).isSetNullFlavor() ){
+					sampleSection = test.ccd.getEncountersSection().getAllSections().get(0);
 				}
 			}
+		}
+		
+		if( sampleSection != null ){
+			System.out.println("Transformating..");
+			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.section2Section(sampleSection);
+			System.out.println("End of transformation. Printing the JSON Object..");
 			
-			System.out.println("End of transformation. Printing the resource as JSON object..");
-			printJSON( fhirOrg );
+			// We need to embed fhirSection to fhirCompositon to use the method printJSON
+			ca.uhn.fhir.model.dstu2.resource.Composition fhirComposition = new ca.uhn.fhir.model.dstu2.resource.Composition();
+			fhirComposition.addSection(fhirSection);
+			
+			printJSON( fhirComposition );
 			System.out.println("End of print.");
+			System.out.print("\n***\n");
 		}
 	}
-	
-	
+
 	@Ignore
 	public void testLanguageCommunication2Communication(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -424,252 +699,4 @@ public class ResourceTransformerTestNecip {
 			}
 		}
 	}
-	
-	
-	@Test
-    public void testPatientRole2Patient(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
-		EList<PatientRole> patientRoles = test.ccd.getPatientRoles();
-
-		// We traverse each of the patientRoles included in the document
-		// We apply the tests for each of them
-		for( PatientRole pr : patientRoles ){
-			
-			// here we do the transformation by calling the method rt.PatientRole2Patient
-			
-			Patient patient = null;
-			
-			Bundle patientBundle = rt.PatientRole2Patient(pr);
-			for( Entry entry : patientBundle.getEntry() ){
-				if( entry.getResource() instanceof Patient){
-					patient = (Patient) entry.getResource();
-				}
-			}
-			
-			// ta-ta-ta-taa!
-			System.out.println("Printing the resource as JSON object..");
-			printJSON( patient );
-			System.out.println("End of print");
-			
-			
-			// patient.identifier
-			int idCount = 0;
-			for( II id : pr.getIds() ){
-				// To see the values, you can use the following print lines.
-//				System.out.println( id.getRoot() );
-//				System.out.println( id.getExtension() );
-//				System.out.println( id.getAssigningAuthorityName() );
-				
-				// cdoeSystem method is changed and tested
-//				Assert.assertEquals("pr.id.root #"+ idCount +" was not transformed",id.getRoot(),  patient.getIdentifier().get(idCount).getSystem() );
-				
-				Assert.assertEquals("pr.id.assigningAuthorityName #"+ idCount +" was not transformed",id.getAssigningAuthorityName(),  patient.getIdentifier().get(idCount).getAssigner().getReference().getValue() );
-				idCount++;
-			}
-			// patient.name
-			// Notice that patient.name is fullfilled by the method EN2HumanName.
-			int nameCount = 0;
-			for( EN pn : pr.getPatient().getNames() ){
-				
-				// patient.name.use
-				if( pn.getUses() == null || pn.getUses().isEmpty() ){
-					Assert.assertNull( patient.getName().get(nameCount).getUse() );
-				} else{
-					Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.EntityNameUse2NameUseEnum(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse() );
-				}
-				
-				// patient.name.text
-				Assert.assertEquals("pr.patient.name["+nameCount+"].text was not transformed", pn.getText(),patient.getName().get(nameCount).getText() );
-				
-				// patient.name.family
-				int familyCount = 0;
-				for( ENXP family : pn.getFamilies() ){
-					if( family == null || family.isSetNullFlavor() ){
-						// It can return null or an empty list
-						Assert.assertTrue( patient.getName().get(nameCount).getFamily() == null || patient.getName().get(nameCount).getFamily().size() == 0  );
-					} else{
-						Assert.assertEquals("pr.patient.name["+nameCount+"].family was not transformed", family.getText(),patient.getName().get(nameCount).getFamily().get(familyCount).getValue());
-					}
-					familyCount++;
-				}
-				
-				// patient.name.given
-				int givenCount = 0;
-				for( ENXP given : pn.getGivens() ){
-					if( given == null || given.isSetNullFlavor() ){
-						// It can return null or an empty list
-						Assert.assertTrue( patient.getName().get(nameCount).getGiven() == null || patient.getName().get(nameCount).getGiven().size() == 0  );
-					} else{
-						Assert.assertEquals("pr.patient.name["+nameCount+"].given was not transformed", given.getText(),patient.getName().get(nameCount).getGiven().get(givenCount).getValue());
-					}
-					givenCount++;
-				}
-				
-				// patient.name.prefix
-				int prefixCount = 0;
-				for( ENXP prefix : pn.getPrefixes() ){
-					if( prefix == null || prefix.isSetNullFlavor() ){
-						// It can return null or an empty list
-						Assert.assertTrue( patient.getName().get(nameCount).getPrefix() == null || patient.getName().get(nameCount).getPrefix().size() == 0  );
-					} else{
-						Assert.assertEquals("pr.patient.name["+nameCount+"].prefix was not transformed", prefix.getText(),patient.getName().get(nameCount).getPrefix().get(prefixCount).getValue());
-					}
-					prefixCount++;
-				}
-				
-				// patient.name.suffix
-				int suffixCount = 0;
-				for( ENXP suffix : pn.getPrefixes() ){
-					if( suffix == null || suffix.isSetNullFlavor() ){
-						// It can return null or an empty list
-						Assert.assertTrue( patient.getName().get(nameCount).getSuffix() == null || patient.getName().get(nameCount).getSuffix().size() == 0  );
-					} else{
-						Assert.assertEquals("pr.patient.name["+nameCount+"].suffix was not transformed", suffix.getText(),patient.getName().get(nameCount).getSuffix().get(suffixCount).getValue());
-					}
-					suffixCount++;
-				}
-				
-				// patient.name.period
-				if( pn.getValidTime() == null || pn.getValidTime().isSetNullFlavor() ){
-					// It can return null or an empty list
-					Assert.assertTrue( patient.getName().get(nameCount).getPeriod() == null || patient.getName().get(nameCount).getPeriod().isEmpty() );
-				} else{ // start of non-null period test
-					
-					if( pn.getValidTime().getLow() == null || pn.getValidTime().getLow().isSetNullFlavor() ){
-						
-						Assert.assertTrue( patient.getName().get(nameCount).getPeriod().getStart() == null );
-					} else{
-						System.out.println("Following lines should contain identical non-null dates:");
-						System.out.println("[FHIR] " + patient.getName().get(nameCount).getPeriod().getStart());
-						System.out.println("[CDA] "+ pn.getValidTime().getLow());
-					}
-					
-					if( pn.getValidTime().getHigh() == null || pn.getValidTime().getHigh().isSetNullFlavor() ){
-						Assert.assertTrue( patient.getName().get(nameCount).getPeriod().getEnd() == null );
-					} else{
-						System.out.println("Following lines should contain identical non-null dates:");
-						System.out.println("[FHIR] " + patient.getName().get(nameCount).getPeriod().getEnd());
-						System.out.println("[CDA] "+ pn.getValidTime().getHigh());
-					}
-				} // end of non-null period test
-				nameCount++;
-			} // end of patient.name tests
-		
-			
-			// patient.telecom
-			// Notice that patient.telecom is fullfilled by the method dtt.TEL2ContactPoint
-			if( pr.getTelecoms() == null || pr.getTelecoms().isEmpty() ){
-				Assert.assertTrue( patient.getTelecom() == null || patient.getTelecom().isEmpty() );
-			} else{
-				// size check
-				Assert.assertTrue( pr.getTelecoms().size() == patient.getTelecom().size() );
-				// We have already tested the method TEL2ContactPoint. Therefore, null-check and size-check is enough for now.
-			}
-			
-			// patient.gender
-			// vst.AdministrativeGenderCode2AdministrativeGenderEnum is used in this transformation.
-			// Following test aims to test that ValueSetTransformer method.
-			if( pr.getPatient().getAdministrativeGenderCode() == null || pr.getPatient().getAdministrativeGenderCode().isSetNullFlavor() ){
-				Assert.assertTrue( patient.getGender() == null || patient.getGender().isEmpty() );
-			} else{
-				System.out.println( "Following lines should contain two lines of non-null gender information which are relevant(male,female,unknown):" );
-				System.out.println("  [FHIR]: " + patient.getGender() );
-				System.out.println( "  [CDA]: " + pr.getPatient().getAdministrativeGenderCode().getCode() );
-			}
-			
-			// patient.birthDate
-			// Notice that patient.birthDate is fullfilled by the method dtt.TS2Date 
-			if( pr.getPatient().getBirthTime() == null || pr.getPatient().getBirthTime().isSetNullFlavor() ){
-				Assert.assertTrue( patient.getBirthDate() == null );
-			} else{
-				System.out.println( "Following lines should contain two lines of non-null, equivalent birthdate information:" );
-				System.out.println("  [FHIR]: " + patient.getBirthDate() );
-				System.out.println("  [CDA]: "+ pr.getPatient().getBirthTime().getValue());
-			}
-			
-			// patient.address
-			// Notice that patient.address is fullfilled by the method dtt.AD2Address  
-			if( pr.getAddrs() == null || pr.getAddrs().isEmpty() ){
-				Assert.assertTrue( patient.getAddress() == null || patient.getAddress().isEmpty() );
-			} else{
-				// We have already tested the method AD2Address. Therefore, null-check and size-check is enough for now.
-				Assert.assertTrue( pr.getAddrs().size() == patient.getAddress().size() );
-			}
-			
-			// patient.maritalStatus
-			// vst.MaritalStatusCode2MaritalStatusCodesEnum is used in this transformation.
-			// Following test aims to test that ValueSetTransformer method.
-			if( pr.getPatient().getMaritalStatusCode() == null || pr.getPatient().getMaritalStatusCode().isSetNullFlavor() ){
-				Assert.assertTrue( patient.getMaritalStatus() == null || patient.getMaritalStatus().isEmpty() );
-			} else{
-				System.out.println( "Following lines should contain two lines of non-null, equivalent marital status information:" );
-				System.out.println("  [FHIR]: " + patient.getMaritalStatus().getCoding().get(0).getCode() );
-				System.out.println("  [CDA]: "+ pr.getPatient().getMaritalStatusCode().getCode() );
-				
-			}
-			
-			
-			// patient.languageCommunication
-			if( pr.getPatient().getLanguageCommunications() == null || pr.getPatient().getLanguageCommunications().isEmpty() ){
-				Assert.assertTrue( patient.getCommunication() == null || patient.getCommunication().isEmpty() );
-			} else{
-				Assert.assertTrue( pr.getPatient().getLanguageCommunications().size() == patient.getCommunication().size() );
-				
-				int sizeCommunication = pr.getPatient().getLanguageCommunications().size() ;
-				while( sizeCommunication != 0){
-					
-					//language
-					if( pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getLanguageCode() == null ||  
-							pr.getPatient().getLanguageCommunications().get(0).getLanguageCode().isSetNullFlavor() ){
-						Assert.assertTrue( patient.getCommunication().get(sizeCommunication - 1).getLanguage() == null || patient.getCommunication().get(sizeCommunication -1 ).getLanguage().isEmpty() );
-					} else{
-						// We have already tested the method CD2CodeableConcept. Therefore, null-check is enough for now.
-					}
-					
-					// preference
-					if( pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd() == null ||
-							pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd().isSetNullFlavor() ){
-						Assert.assertTrue( patient.getCommunication().get(sizeCommunication - 1).getPreferred() == null );
-					} else{
-						Assert.assertEquals(pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd().getValue(), patient.getCommunication().get(sizeCommunication - 1).getPreferred());
-					}
-					sizeCommunication--;
-				}
-				
-			}
-			
-			// providerOrganization
-			if( pr.getProviderOrganization() == null || pr.getProviderOrganization().isSetNullFlavor() ){
-				Assert.assertTrue( patient.getManagingOrganization() == null || patient.getManagingOrganization().isEmpty() );
-			} else{
-				if( pr.getProviderOrganization().getNames() == null ){
-					Assert.assertTrue( patient.getManagingOrganization().getDisplay() == null );
-				}
-				System.out.println("[FHIR] Reference for managing organization: "+  patient.getManagingOrganization().getReference() );
-				
-			}
-			
-			// guardian
-			if( pr.getPatient().getGuardians() == null || pr.getPatient().getGuardians().isEmpty() ){
-				Assert.assertTrue( patient.getContact() == null || patient.getContact().isEmpty() );
-			} else{
-				// Notice that, inside this mapping, the methods dtt.TEL2ContactPoint and dtt.AD2Address are used.
-				// Therefore, null-check and size-check are enough
-				Assert.assertTrue( pr.getPatient().getGuardians().size() == patient.getContact().size() );
-			}
-			
-			// extensions
-			int extCount = 0;
-			for( ExtensionDt extension : patient.getUndeclaredExtensions() ){
-				Assert.assertTrue( extension.getUrl() != null );
-				Assert.assertTrue( extension.getValue() != null );
-				System.out.println("[FHIR] Extension["+extCount+"] url: "+extension.getUrl());
-				System.out.println("[FHIR] Extension["+ extCount++ +"] value: "+extension.getValue());
-			}
-
-			
-			
-			
-		}
-    }
 }
