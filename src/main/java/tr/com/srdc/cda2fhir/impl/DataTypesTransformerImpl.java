@@ -672,7 +672,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				date=date.substring(0,8);
 			return dateParser(date);
 		}
-	}//end DateTimeDt
+	}
 	
 	public InstantDt TS2Instant(TS ts)
 	{

@@ -1723,69 +1723,69 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// TODO: used <-> device
 		if(cdaPr == null || cdaPr.isSetNullFlavor())
 			return null;
-		else {
-			ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
-			Bundle fhirPrBundle  = new Bundle();
-			fhirPrBundle.addEntry( new Bundle.Entry().setResource(fhirPr) );
-			
-			// subject
-			fhirPr.setSubject( new ResourceReferenceDt( patientId ) );
-			
-			// id
-			IdDt resourceId = new IdDt("Procedure",getUniqueId() );
-			fhirPr.setId(resourceId);
-	
-			// identifier
-			if( cdaPr.getIds() != null && !cdaPr.getIds().isEmpty() ){
-				for( II id : cdaPr.getIds() ){
-					if( id != null && !id.isSetNullFlavor() ){
-						fhirPr.addIdentifier( dtt.II2Identifier(id) );
-					}
+
+		ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
+		Bundle fhirPrBundle  = new Bundle();
+		fhirPrBundle.addEntry( new Bundle.Entry().setResource(fhirPr) );
+
+		// subject
+		fhirPr.setSubject( new ResourceReferenceDt( patientId ) );
+
+		// id
+		IdDt resourceId = new IdDt("Procedure",getUniqueId() );
+		fhirPr.setId(resourceId);
+
+		// identifier
+		if( cdaPr.getIds() != null && !cdaPr.getIds().isEmpty() ){
+			for( II id : cdaPr.getIds() ){
+				if( id != null && !id.isSetNullFlavor() ){
+					fhirPr.addIdentifier( dtt.II2Identifier(id) );
 				}
 			}
-			
-			// performed
-			if( cdaPr.getEffectiveTime() != null && !cdaPr.getEffectiveTime().isSetNullFlavor() ){
-				fhirPr.setPerformed( dtt.IVL_TS2Period( cdaPr.getEffectiveTime() )  );
-			}
-			
-			// bodySite
-			if( cdaPr.getTargetSiteCodes() != null && !cdaPr.getTargetSiteCodes().isEmpty() ){
-				for( CD cd : cdaPr.getTargetSiteCodes() ){
-					if( cd != null && !cd.isSetNullFlavor() ){
-						fhirPr.addBodySite( dtt.CD2CodeableConcept(cd) );
-					}
-				}
-			}
-						
-			// performer
-			if( cdaPr.getPerformers() != null && !cdaPr.getPerformers().isEmpty() ){
-				for( Performer2 performer : cdaPr.getPerformers() ){
-					if( performer != null && !performer.isSetNullFlavor() ){
-						fhirPr.addPerformer( Performer22Performer(performer) );
-					}
-				}
-			}
-						
-			// status
-			if( cdaPr.getStatusCode() != null && !cdaPr.getStatusCode().isSetNullFlavor() && cdaPr.getStatusCode().getCode() != null ){
-				ProcedureStatusEnum status = vst.StatusCode2ProcedureStatusEnum( cdaPr.getStatusCode().getCode() );
-				if( status != null ){
-					fhirPr.setStatus( status ); 
-				}
-			}
-						
-			// code
-			if( cdaPr.getCode() != null && !cdaPr.getCode().isSetNullFlavor() ){
-				fhirPr.setCode( dtt.CD2CodeableConcept( cdaPr.getCode() ) );
-			}
-			
-			// used <-> device
-			// no example found in example cda.xml file
-			// however, it exists in transformed version
-			
-			return fhirPrBundle;
 		}
+
+		// performed
+		if( cdaPr.getEffectiveTime() != null && !cdaPr.getEffectiveTime().isSetNullFlavor() ){
+			fhirPr.setPerformed( dtt.IVL_TS2Period( cdaPr.getEffectiveTime() )  );
+		}
+
+		// bodySite
+		if( cdaPr.getTargetSiteCodes() != null && !cdaPr.getTargetSiteCodes().isEmpty() ){
+			for( CD cd : cdaPr.getTargetSiteCodes() ){
+				if( cd != null && !cd.isSetNullFlavor() ){
+					fhirPr.addBodySite( dtt.CD2CodeableConcept(cd) );
+				}
+			}
+		}
+
+		// performer
+		if( cdaPr.getPerformers() != null && !cdaPr.getPerformers().isEmpty() ){
+			for( Performer2 performer : cdaPr.getPerformers() ){
+				if( performer != null && !performer.isSetNullFlavor() ){
+					fhirPr.addPerformer( Performer22Performer(performer) );
+				}
+			}
+		}
+
+		// status
+		if( cdaPr.getStatusCode() != null && !cdaPr.getStatusCode().isSetNullFlavor() && cdaPr.getStatusCode().getCode() != null ){
+			ProcedureStatusEnum status = vst.StatusCode2ProcedureStatusEnum( cdaPr.getStatusCode().getCode() );
+			if( status != null ){
+				fhirPr.setStatus( status );
+			}
+		}
+
+		// code
+		if( cdaPr.getCode() != null && !cdaPr.getCode().isSetNullFlavor() ){
+			fhirPr.setCode( dtt.CD2CodeableConcept( cdaPr.getCode() ) );
+		}
+
+		// used <-> device
+		// no example found in example cda.xml file
+		// however, it exists in transformed version
+
+		return fhirPrBundle;
+
 	}
 
 	public Bundle ResultObservation2Observation(ResultObservation cdaResultObs) {
@@ -1794,24 +1794,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 
 	public Bundle SocialHistoryObservation2Observation( org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation cdaSocialHistoryObs ){
-		if( cdaSocialHistoryObs == null || cdaSocialHistoryObs.isSetNullFlavor() ) return null;
-		else{
-			Bundle fhirObsBundle = new Bundle();
-			for( org.openhealthtools.mdht.uml.cda.Observation cdaObs : cdaSocialHistoryObs.getObservations() ){
-				if( cdaObs == null || cdaObs.isSetNullFlavor() ) continue;
-				else{
-					Observation fhirObs = null;
-					Bundle tempObsBundle = Observation2Observation(cdaObs);
-					for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : tempObsBundle.getEntry() ){
-						if( entry.getResource() instanceof Observation ){
-							fhirObs = (Observation) entry.getResource();
-						}
+		if(cdaSocialHistoryObs == null || cdaSocialHistoryObs.isSetNullFlavor())
+			return null;
+
+		Bundle fhirObsBundle = new Bundle();
+		for( org.openhealthtools.mdht.uml.cda.Observation cdaObs : cdaSocialHistoryObs.getObservations() ){
+			if( cdaObs == null || cdaObs.isSetNullFlavor() ) continue;
+			else{
+				Observation fhirObs = null;
+				Bundle tempObsBundle = Observation2Observation(cdaObs);
+				for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : tempObsBundle.getEntry() ){
+					if( entry.getResource() instanceof Observation ){
+						fhirObs = (Observation) entry.getResource();
 					}
-					fhirObsBundle.addEntry( new Bundle.Entry().setResource( fhirObs ) );
 				}
+				fhirObsBundle.addEntry( new Bundle.Entry().setResource( fhirObs ) );
 			}
-			return fhirObsBundle;
 		}
+		return fhirObsBundle;
+
 	}
 
 	public Bundle SubstanceAdministration2Immunization(SubstanceAdministration cdaSubAdm){

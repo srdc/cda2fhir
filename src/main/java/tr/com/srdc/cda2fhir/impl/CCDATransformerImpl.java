@@ -1,15 +1,9 @@
 package tr.com.srdc.cda2fhir.impl;
 
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance;
-import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
-import ca.uhn.fhir.model.dstu2.resource.Composition;
-import ca.uhn.fhir.model.dstu2.resource.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
-import ca.uhn.fhir.model.dstu2.resource.Immunization;
-import ca.uhn.fhir.model.dstu2.resource.Observation;
-import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.primitive.IdDt;
 import org.openhealthtools.mdht.uml.cda.Section;
@@ -163,7 +157,19 @@ public class CCDATransformerImpl implements CCDATransformer {
                 }
             }
             else if(cdaSec instanceof ProceduresSection) {
-
+                ProceduresSection procSec = (ProceduresSection) cdaSec;
+                for(ProcedureActivityProcedure proc: procSec.getConsolProcedureActivityProcedures()) {
+                    Bundle procBundle = resTransformer.Procedure2Procedure(proc);
+                    for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : procBundle.getEntry()) {
+                        // Add all the resources returned from the bundle to the main CCD bundle
+                        ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+                        // Add a reference to the section for each Procedure
+                        if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
+                            ResourceReferenceDt ref = fhirSec.addEntry();
+                            ref.setReference(entry.getResource().getId());
+                        }
+                    }
+                }
             }
             else if(cdaSec instanceof ResultsSection) {
             	ResultsSection resultSec = (ResultsSection) cdaSec;
