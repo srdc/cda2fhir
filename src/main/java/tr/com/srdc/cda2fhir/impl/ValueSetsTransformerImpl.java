@@ -25,7 +25,7 @@ import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
-	
+
 	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String administrativeGenderCode ){
 		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
 		switch (administrativeGenderCode) {
@@ -48,34 +48,34 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	}
 
 	public String AgeObservationUnit2AgeUnit(String cdaUnit){
-		if(cdaUnit == null || cdaUnit.isEmpty()) return null;
-		else{
-			switch(cdaUnit.toLowerCase()){
-				case "a":
-				case "age":
-				case "year":
-					return "Year";
-				case "mo":
-				case "month":
-					return "Month";
-				case "wk":
-				case "week":
-					return "Week";
-				case "d":
-				case "day":
-					return "Day";
-				case "h":
-				case "hour":
-					return "Hour";
-				case "min":
-				case "minute":
-					return "Minute";
-				default:
-					return null;
-			}
+		if(cdaUnit == null || cdaUnit.isEmpty())
+			return null;
+
+		switch(cdaUnit.toLowerCase()){
+			case "a":
+			case "age":
+			case "year":
+				return "Year";
+			case "mo":
+			case "month":
+				return "Month";
+			case "wk":
+			case "week":
+				return "Week";
+			case "d":
+			case "day":
+				return "Day";
+			case "h":
+			case "hour":
+				return "Hour";
+			case "min":
+			case "minute":
+				return "Minute";
+			default:
+				return null;
 		}
 	}
-	
+
 	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
 		switch(entityClassRoot){
 			case PSN: return GroupTypeEnum.PERSON;
@@ -87,7 +87,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	}
 
 	public NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse){
-		
+
 		switch(entityNameUse){
 			case C: return NameUseEnum.USUAL;
 			// Visit https://www.hl7.org/fhir/valueset-name-use.html
@@ -128,7 +128,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case "T": return MaritalStatusCodesEnum.T;
 			case "W": return MaritalStatusCodesEnum.W;
 			case "UNK":
-			case "U": 
+			case "U":
 			default:
 				return MaritalStatusCodesEnum.UNK;
 		}
@@ -138,11 +138,11 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		CodingDt DataAbsentReasonCode = new CodingDt();
 		String code = null;
 		String display = null;
-		
-		switch( nullFlavor ){
-			case UNK: 
+
+		switch(nullFlavor){
+			case UNK:
 				code = "unknown"; display = "Unkown"; break;
-			case ASKU: 
+			case ASKU:
 				code = "asked"; display = "Asked"; break;
 			case MSK:
 				code = "masked"; display = "Masked"; break;
@@ -167,11 +167,11 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			default:
 				break;
 		}
-		
-		DataAbsentReasonCode.setSystem("http://hl7.org/fhir/valueset-data-absent-reason.html");
+
+		DataAbsentReasonCode.setSystem("http://hl7.org/fhir/data-absent-reason");
 		DataAbsentReasonCode.setCode(code);
 		DataAbsentReasonCode.setDisplay(display);
-		
+
 		return DataAbsentReasonCode;
 	}
 
@@ -187,7 +187,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 				return null;
 		}
 	}
-	
+
 	public String oid2Url(String codeSystem){
 		String system = null;
 		switch (codeSystem) {
@@ -287,11 +287,11 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		fhirPT.setSystem("http://hl7.org/fhir/v3/ParticipationType");
 		String code = null;
 		String display = null;
-		
+
 		switch( cdaPT ){
-			case PRF: code = "PRF"; display = "performer"; 
+			case PRF: code = "PRF"; display = "performer";
 					break;
-			case SBJ: code = "SBJ"; display ="subject"; 
+			case SBJ: code = "SBJ"; display ="subject";
 					break;
 			case ADM: code = "ADM"; display = "admitter";
 					break;
@@ -428,7 +428,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			default: return null;
 		}
 	}
-	
+
 	public EncounterStateEnum StatusCode2EncounterStatusEnum(String status){
 		switch( status.toLowerCase() ){
 			case "in-progress":
@@ -446,28 +446,28 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 				return EncounterStateEnum.PLANNED;
 			case "arrived":
 				return EncounterStateEnum.ARRIVED;
-			default: 
+			default:
 				return null;
 		}
 	}
 
 	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status){
 		switch( status.toLowerCase() ){
-			case "active": 
+			case "active":
 			case "in-progress":
 			case "inprogress":
 				return MedicationDispenseStatusEnum.IN_PROGRESS;
 			case "on-hold":
 			case "onhold":
-			case "suspended": 
+			case "suspended":
 				return MedicationDispenseStatusEnum.ON_HOLD;
-			case "completed": 
+			case "completed":
 				return MedicationDispenseStatusEnum.COMPLETED;
-			case "nullified": 
+			case "nullified":
 			case "error":
 			case "entered-in-error":
 				return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
-			case "stopped": 
+			case "stopped":
 				return MedicationDispenseStatusEnum.STOPPED;
 			default: return null;
 		}
@@ -479,11 +479,11 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case "intended": return MedicationStatementStatusEnum.INTENDED;
 			case "completed": return MedicationStatementStatusEnum.COMPLETED;
 			case "nullified": return MedicationStatementStatusEnum.ENTERED_IN_ERROR;
-			
+
 			default: return null;
 		}
 	}
-	
+
 	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString ){
 		switch( statusCodeString.toLowerCase() ){
 		case "active":
@@ -512,7 +512,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			default:
 				return ContactPointUseEnum.TEMP;
 		}
-			
+
 	}
 
 

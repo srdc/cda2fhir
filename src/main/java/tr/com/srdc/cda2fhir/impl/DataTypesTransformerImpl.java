@@ -47,7 +47,6 @@ import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
-import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 
 /**
  * Created by mustafa on 7/21/2016.
@@ -524,7 +523,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	public NarrativeDt StrucDocText2Narrative(StrucDocText sdt) {
 		if(sdt != null) {
 			NarrativeDt narrative = new NarrativeDt();
-			narrative.setDiv(  StrucDocText2String(sdt)  );
+			narrative.setDiv(StrucDocText2String(sdt));
 			narrative.setStatus(NarrativeStatusEnum.ADDITIONAL);
 			return narrative;
 		}
@@ -897,11 +896,9 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	// Since it calls itself repeatedly and handles with different types of objects, parameter is taken as Object
 	// However, parameters of type StrucDocText should be given by the caller
 	private String StrucDocText2String( Object param ){
-		
-		if( param instanceof org.openhealthtools.mdht.uml.cda.StrucDocText ){
+		if( param instanceof org.openhealthtools.mdht.uml.cda.StrucDocText ) {
 			org.openhealthtools.mdht.uml.cda.StrucDocText paramStrucDocText = (org.openhealthtools.mdht.uml.cda.StrucDocText)param;
-			return "<text>" +StrucDocText2String(  paramStrucDocText.getMixed() ) + "</text>";
-			
+			return "<div>" +StrucDocText2String(  paramStrucDocText.getMixed() ) + "</div>";
 		} 
 		else if( param instanceof BasicFeatureMap ){
 			String returnValue = "";
