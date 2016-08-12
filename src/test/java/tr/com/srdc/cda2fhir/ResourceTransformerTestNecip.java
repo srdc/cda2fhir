@@ -139,7 +139,7 @@ public class ResourceTransformerTestNecip {
 	}
 	
 	
-	@Test
+	@Ignore
 	public void testEncounter2Encounter(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int encounterCount = 0;
@@ -426,7 +426,7 @@ public class ResourceTransformerTestNecip {
 	}
 	
 	
-	@Ignore
+	@Test
     public void testPatientRole2Patient(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		EList<PatientRole> patientRoles = test.ccd.getPatientRoles();
