@@ -78,7 +78,6 @@ public class CCDATransformerImpl implements CCDATransformer {
 				subject = (ca.uhn.fhir.model.dstu2.resource.Patient) entry.getResource();
 			}
 		}
-        // end of bundle-to-patient
 		
         patientId = subject.getId();
         ccdComposition.setSubject(new ResourceReferenceDt(patientId));
@@ -93,16 +92,8 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof AllergiesSection) {
             	AllergiesSection allSec = (AllergiesSection) cdaSec;
             	for(AllergyProblemAct probAct : allSec.getAllergyProblemActs()) {
-            		Bundle allergyBundle = resTransformer.AllergyProblemAct2AllergyIntolerance(probAct);
-                    for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : allergyBundle.getEntry()) {
-                        // Add all the resources returned from the bundle to the main CCD bundle
-                        ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-                        // Add a reference to the section for each AllergyIntolerance
-                        if(entry.getResource() instanceof AllergyIntolerance) {
-                            ResourceReferenceDt ref = fhirSec.addEntry();
-                            ref.setReference(entry.getResource().getId());
-                        }
-                    }
+            		Bundle allBundle = resTransformer.AllergyProblemAct2AllergyIntolerance(probAct);
+                    mergeBundles(allBundle, ccdBundle, fhirSec, AllergyIntolerance.class);
             	}
             }
             else if(cdaSec instanceof EncountersSection) {
@@ -118,15 +109,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             	ImmunizationsSection immSec = (ImmunizationsSection) cdaSec;
             	for(SubstanceAdministration subAd : immSec.getSubstanceAdministrations()) {
             		Bundle immBundle = resTransformer.SubstanceAdministration2Immunization(subAd);
-                    for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : immBundle.getEntry()) {
-                        // Add all the resources returned from the bundle to the main CCD bundle
-                        ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-                        // Add a reference to the section for each Condition
-                        if(entry.getResource() instanceof Immunization) {
-                            ResourceReferenceDt ref = fhirSec.addEntry();
-                            ref.setReference(entry.getResource().getId());
-                        }
-                    }
+                    mergeBundles(immBundle, ccdBundle, fhirSec, Immunization.class);
             	}
             }
             else if(cdaSec instanceof MedicalEquipmentSection) {
@@ -145,30 +128,14 @@ public class CCDATransformerImpl implements CCDATransformer {
                 ProblemSection probSec = (ProblemSection) cdaSec;
                 for(ProblemConcernAct pcAct: probSec.getConsolProblemConcerns()) {
                     Bundle conBundle = resTransformer.ProblemConcernAct2Condition(pcAct);
-                    for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : conBundle.getEntry()) {
-                        // Add all the resources returned from the bundle to the main CCD bundle
-                        ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-                        // Add a reference to the section for each Condition
-                        if(entry.getResource() instanceof Condition) {
-                            ResourceReferenceDt ref = fhirSec.addEntry();
-                            ref.setReference(entry.getResource().getId());
-                        }
-                    }
+                    mergeBundles(conBundle, ccdBundle, fhirSec, Condition.class);
                 }
             }
             else if(cdaSec instanceof ProceduresSection) {
                 ProceduresSection procSec = (ProceduresSection) cdaSec;
                 for(ProcedureActivityProcedure proc: procSec.getConsolProcedureActivityProcedures()) {
                     Bundle procBundle = resTransformer.Procedure2Procedure(proc);
-                    for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : procBundle.getEntry()) {
-                        // Add all the resources returned from the bundle to the main CCD bundle
-                        ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-                        // Add a reference to the section for each Procedure
-                        if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
-                            ResourceReferenceDt ref = fhirSec.addEntry();
-                            ref.setReference(entry.getResource().getId());
-                        }
-                    }
+                    mergeBundles(procBundle, ccdBundle, fhirSec, ca.uhn.fhir.model.dstu2.resource.Procedure.class);
                 }
             }
             else if(cdaSec instanceof ResultsSection) {
@@ -176,15 +143,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             	for(ResultOrganizer resOrg : resultSec.getResultOrganizers()) {
             		for(ResultObservation resObs : resOrg.getResultObservations()) {
             			Bundle resBundle = resTransformer.ResultObservation2Observation(resObs);
-                        for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : resBundle.getEntry()) {
-                            // Add all the resources returned from the bundle to the main CCD bundle
-                            ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-                            // Add a reference to the section for each Observation
-                            if(entry.getResource() instanceof Observation) {
-                                ResourceReferenceDt ref = fhirSec.addEntry();
-                                ref.setReference(entry.getResource().getId());
-                            }
-                        }
+                        mergeBundles(resBundle, ccdBundle, fhirSec, Observation.class);
             		}
             	}
             }
@@ -196,20 +155,31 @@ public class CCDATransformerImpl implements CCDATransformer {
             	for(VitalSignsOrganizer vsOrg : vitalSec.getVitalSignsOrganizers())	{
             		for(VitalSignObservation vsObs : vsOrg.getVitalSignObservations()) {
             			Bundle vsBundle = resTransformer.VitalSignObservation2Observation(vsObs);
-            			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : vsBundle.getEntry()) {
-                            // Add all the resources returned from the bundle to the main CCD bundle
-                            ccdBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-                            // Add a reference to the section for each Observation
-            				if(entry.getResource() instanceof Observation) {
-                                ResourceReferenceDt ref = fhirSec.addEntry();
-                                ref.setReference(entry.getResource().getId());
-                            }
-            			}
+                        mergeBundles(vsBundle, ccdBundle, fhirSec, Observation.class);
             		}
             	}
             }
         }
 
         return ccdBundle;
+    }
+
+    /**
+     * Copies all the entries from the source bundle to the target bundle, and at the same time adds a reference to the Section.Entry for each instance of the specified class
+     * @param sourceBundle
+     * @param targetBundle
+     * @param fhirSec
+     * @param sectionRefCls
+     */
+    private void mergeBundles(Bundle sourceBundle, Bundle targetBundle, Composition.Section fhirSec, Class<?> sectionRefCls) {
+        for(Entry entry : sourceBundle.getEntry()) {
+            // Add all the resources returned from the source bundle to the target bundle
+            targetBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+            // Add a reference to the section for each instance of requested class, e.g. Observation, Procedure ...
+            if(sectionRefCls.isInstance(entry.getResource())) {
+                ResourceReferenceDt ref = fhirSec.addEntry();
+                ref.setReference(entry.getResource().getId());
+            }
+        }
     }
 }
