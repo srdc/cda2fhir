@@ -210,7 +210,6 @@ public class ResourceTransformerTestNecip {
 	public void testFamilyMemberOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
-		// TODO: Death observation?
 		if( test.ccd.getFamilyHistorySection() != null && test.ccd.getFamilyHistorySection().getFamilyHistories() != null ){
 			for( org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : test.ccd.getFamilyHistorySection().getFamilyHistories() ){
 				if( familyHistoryOrganizer != null ){

@@ -10,6 +10,7 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceSeverityEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
@@ -77,6 +78,29 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public AllergyIntoleranceCategoryEnum AllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode){
+		if(allergyCategoryCode == null)
+			return null;
+		switch(allergyCategoryCode){
+			case "416098002":
+			case "59037007":
+			case "419511003":
+				return AllergyIntoleranceCategoryEnum.MEDICATION;
+			case "414285001": 
+			case "235719002":
+			case "418471000":
+				return AllergyIntoleranceCategoryEnum.FOOD;
+			case "232347008":
+				return AllergyIntoleranceCategoryEnum.ENVIRONMENT;
+			case "420134006":
+			case "418038007":
+			case "419199007": 
+				return AllergyIntoleranceCategoryEnum.OTHER;
+			default:
+				return null;
+		}
+	}
+	
 	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
 		switch(entityClassRoot){
 			case PSN: return GroupTypeEnum.PERSON;
@@ -420,7 +444,6 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		if(severityCode == null)
 			return null;
 		switch(severityCode){
-		// TODO: See pdf's page 833, ask about the mapping of the value set
 			case "255604002": 
 				return AllergyIntoleranceSeverityEnum.MILD;
 			case "371923003": 

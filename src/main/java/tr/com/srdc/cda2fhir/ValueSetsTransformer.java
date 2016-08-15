@@ -11,6 +11,7 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceSeverityEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
@@ -30,6 +31,8 @@ public interface ValueSetsTransformer {
 	AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String AdministrativeGenderCode );
 	
 	String AgeObservationUnit2AgeUnit(String cdaUnit);
+	
+	AllergyIntoleranceCategoryEnum AllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode);
 	
 	GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot );
 	
