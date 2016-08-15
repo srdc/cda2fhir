@@ -236,7 +236,6 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	
 	@Test
 	public void testMedicationActivity2MedicationStatement(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
@@ -250,6 +249,33 @@ public class ResourceTransformerTestNecip {
 						System.out.println("End of transformation. Printing the resource as JSON object..");
 						printJSON(fhirMedStBundle);
 						System.out.println("End of print.");
+					}
+				}
+			}
+		}
+	}
+	
+	@Test
+	public void testMedicationDispense2MedicationDispense(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		// medicationsSection.medicationActivities.medicationDispense
+		if(test.ccd.getMedicationsSection() != null && !test.ccd.getMedicationsSection().isSetNullFlavor()){
+			org.openhealthtools.mdht.uml.cda.consol.MedicationsSection medSec = test.ccd.getMedicationsSection();
+			if(medSec.getMedicationActivities() != null && !medSec.getMedicationActivities().isEmpty()){
+				for(MedicationActivity medAct : medSec.getMedicationActivities()){
+					if(medAct != null && !medAct.isSetNullFlavor()){
+						if(medAct.getMedicationDispenses() != null && !medAct.getMedicationDispenses().isEmpty()){
+							for(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense medDisp : medAct.getMedicationDispenses()){
+								if(medDisp != null && !medDisp.isSetNullFlavor()){
+									System.out.println("Transformation starting..");
+									Bundle fhirMedDispBundle = rt.MedicationDispense2MedicationDispense(medDisp);
+									System.out.println("End of transformation. Printing the resource as JSON object..");
+									printJSON(fhirMedDispBundle);
+									System.out.println("End of print.");
+								}
+							}
+						}
 					}
 				}
 			}
