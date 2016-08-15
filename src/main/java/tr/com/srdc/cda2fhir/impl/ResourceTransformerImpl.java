@@ -605,17 +605,16 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 	}
 
-	public Bundle FamilyMemberOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO){
+	@Override
+	public FamilyMemberHistory FamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO){
 		if(cdaFHO == null || cdaFHO.isSetNullFlavor())
 			return null;
 		
 		// TODO: Necip: Couldn't understand what corresponds to outcome when looked to the example CDA file
 		FamilyMemberHistory fhirFMH = new FamilyMemberHistory();
-		Bundle fhirFMHBundle = new Bundle();
-		fhirFMHBundle.addEntry(new Bundle.Entry().setResource(fhirFMH));
 		
 		// id
-		IdDt resourceId = new IdDt("FamilyMemberHistory",getUniqueId());
+		IdDt resourceId = new IdDt("FamilyMemberHistory", getUniqueId());
 		fhirFMH.setId(resourceId);
 		
 		// identifier
@@ -712,21 +711,16 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						subjectPerson.getAdministrativeGenderCode().getCode() != null){
 					fhirFMH.setGender(vst.AdministrativeGenderCode2AdministrativeGenderEnum(subjectPerson.getAdministrativeGenderCode().getCode()));
 				}
-				
-				// TODO: Birthtime is already set. Do we need to set age?
-				// There is no distinct information about age in CDA.
-				// In daf, it needs the mapping birthtime <-> age.
-				
-				// birtTime
+
+				// birthTime -> born
 				if(subjectPerson.getBirthTime() != null && !subjectPerson.getBirthTime().isSetNullFlavor()){
-					fhirFMH.setAge(dtt.TS2Date(subjectPerson.getBirthTime()));
 					fhirFMH.setBorn(dtt.TS2Date(subjectPerson.getBirthTime()));
 				}
 				
 			}
 		}
 		
-		return fhirFMHBundle;
+		return fhirFMH;
 	
 	}
 
@@ -1927,53 +1921,27 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 
 	public AgeDt AgeObservation2AgeDt(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation){
-		if(cdaAgeObservation == null || cdaAgeObservation.isSetNullFlavor()) return null;
-		else{
-			AgeDt fhirAge = new AgeDt();
-			
-			// coding
-			if(cdaAgeObservation.getCode() != null && !cdaAgeObservation.getCode().isSetNullFlavor()){
-				CodeableConceptDt codeableConcept = dtt.CD2CodeableConcept(cdaAgeObservation.getCode());
-				if(codeableConcept != null){
-					for(CodingDt coding : codeableConcept.getCoding()){
-						// Asserting that only one coding exists
-						if(coding != null && !coding.isEmpty()){
-							// code
-							if(coding.getCode() != null && !coding.getCode().isEmpty()){
-								fhirAge.setCode(coding.getCode());
-							}
-							
-							// system
-							if(coding.getSystem() != null && !coding.getSystem().isEmpty()){
-								fhirAge.setSystem(coding.getSystem());
-							}
-						}
-						
-					}
-				}
-			}
-			
-			// age <-> value
-			if(cdaAgeObservation != null && !cdaAgeObservation.getValues().isEmpty()){
-				for(ANY value : cdaAgeObservation.getValues()){
-					if(value != null && !value.isSetNullFlavor()){
-						if(value instanceof PQ){
-							if(((PQ)value).getValue() != null){
-								fhirAge.setValue(((PQ)value).getValue());
-								
-								// definition requires a human readable unit for fhirAge
-								String unit = vst.AgeObservationUnit2AgeUnit(((PQ)value).getUnit());
-								if(unit != null){
-									fhirAge.setUnit(unit);
-								}
-							}
+		if(cdaAgeObservation == null || cdaAgeObservation.isSetNullFlavor())
+			return null;
+
+		AgeDt fhirAge = new AgeDt();
+
+		// age <-> value
+		if(cdaAgeObservation != null && !cdaAgeObservation.getValues().isEmpty()){
+			for(ANY value : cdaAgeObservation.getValues()){
+				if(value != null && !value.isSetNullFlavor()){
+					if(value instanceof PQ){
+						if(((PQ)value).getValue() != null){
+							fhirAge.setValue(((PQ)value).getValue());
+							fhirAge.setUnit(((PQ)value).getUnit());
+							fhirAge.setSystem("http://unitsofmeasure.org");
 						}
 					}
 				}
 			}
-			
-			return fhirAge;
 		}
+
+		return fhirAge;
 	}
 	
 	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( Guardian cdaGuardian ){

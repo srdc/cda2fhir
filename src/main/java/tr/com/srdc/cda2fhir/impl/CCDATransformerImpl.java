@@ -99,7 +99,13 @@ public class CCDATransformerImpl implements CCDATransformer {
 
             }
             else if(cdaSec instanceof FamilyHistorySection) {
-
+                FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
+                for(FamilyHistoryOrganizer fhOrganizer : famSec.getFamilyHistories()) {
+                    FamilyMemberHistory fmh = resTransformer.FamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
+                    ResourceReferenceDt ref = fhirSec.addEntry();
+                    ref.setReference(fmh.getId());
+                    ccdBundle.addEntry(new Bundle.Entry().setResource(fmh));
+                }
             }
             else if(cdaSec instanceof FunctionalStatusSection) {
 

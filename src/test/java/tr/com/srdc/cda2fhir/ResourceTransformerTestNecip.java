@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import ca.uhn.fhir.model.dstu2.resource.*;
 import org.eclipse.emf.common.util.EList;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -22,12 +23,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.api.IResource;
-import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
-import ca.uhn.fhir.model.dstu2.resource.Encounter;
-import ca.uhn.fhir.model.dstu2.resource.Organization;
-import ca.uhn.fhir.model.dstu2.resource.Patient;
-import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.parser.IParser;
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
@@ -290,9 +286,9 @@ public class ResourceTransformerTestNecip {
 			for( org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : test.ccd.getFamilyHistorySection().getFamilyHistories() ){
 				if( familyHistoryOrganizer != null ){
 					System.out.println("Transformation starting..");
-					Bundle familyHistoryOrganizerBundle = rt.FamilyMemberOrganizer2FamilyMemberHistory( familyHistoryOrganizer );
+					FamilyMemberHistory fmHistory = rt.FamilyHistoryOrganizer2FamilyMemberHistory( familyHistoryOrganizer );
 					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON( familyHistoryOrganizerBundle );
+					printJSON(fmHistory);
 					System.out.println("End of print.");
 				}
 			}

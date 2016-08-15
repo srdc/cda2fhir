@@ -25,7 +25,7 @@ public interface ResourceTransformer {
 	
 	Bundle Entity2Group( Entity cdaEntity );
 	
-	Bundle FamilyMemberOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
+	FamilyMemberHistory FamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
 	
 	Bundle ManufacturedProduct2Medication(ManufacturedProduct cdaManuProd);
 	
