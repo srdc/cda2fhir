@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
@@ -236,7 +237,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testMedicationActivity2MedicationStatement(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -255,7 +256,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testMedicationDispense2MedicationDispense(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -588,10 +589,30 @@ public class ResourceTransformerTestNecip {
 				
 			}
 	    }
-
+	
+	@Test
+	public void testProblemConcernAct2Condition(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		if(test.ccd.getProblemSection() != null && !test.ccd.getProblemSection().isSetNullFlavor()) {
+			if(test.ccd.getProblemSection().getProblemConcerns() != null && !test.ccd.getProblemSection().getProblemConcerns().isEmpty()) {
+				for(ProblemConcernAct problemConcernAct : test.ccd.getProblemSection().getProblemConcerns()) {
+					if(problemConcernAct != null && !problemConcernAct.isSetNullFlavor()) {
+						System.out.println("Transformation starting..");
+						Bundle fhirConditionBundle = rt.ProblemConcernAct2Condition(problemConcernAct);
+						System.out.println("End of transformation. Printing the resource as JSON object..");
+						printJSON(fhirConditionBundle);
+						System.out.println("End of print.");
+					}
+				}
+			}
+		}
+	}
+	
 	@Ignore
 	public void testProcedure2Procedure(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
 		int procedureCount = 0;
 		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
 			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
