@@ -11,6 +11,7 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceSeverityEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
@@ -49,6 +50,8 @@ public interface ValueSetsTransformer {
 	AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse );
 	
 	AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);
+	
+	AllergyIntoleranceSeverityEnum SeverityCode2AllergyIntoleranceSeverityEnum(String severityCode);
 	
 	AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status );
 	

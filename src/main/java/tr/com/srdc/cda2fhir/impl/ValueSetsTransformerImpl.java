@@ -10,6 +10,7 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceSeverityEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
@@ -415,6 +416,28 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public AllergyIntoleranceSeverityEnum SeverityCode2AllergyIntoleranceSeverityEnum(String severityCode){
+		if(severityCode == null)
+			return null;
+		switch(severityCode){
+		// TODO: See pdf's page 833, ask about the mapping of the value set
+			case "255604002": 
+				return AllergyIntoleranceSeverityEnum.MILD;
+			case "371923003": 
+				return AllergyIntoleranceSeverityEnum.MILD;
+			case "6736007": 
+				return AllergyIntoleranceSeverityEnum.MODERATE;
+			case "371924009": 
+				return AllergyIntoleranceSeverityEnum.MODERATE;
+			case "24484000": 
+				return AllergyIntoleranceSeverityEnum.SEVERE;
+			case "399166001": 
+				return AllergyIntoleranceSeverityEnum.SEVERE;
+			default: 
+				return null;
+		}
+	}
+	
 	public AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status ){
 		switch( status.toLowerCase() ){
 			case "active": return AllergyIntoleranceStatusEnum.ACTIVE;
