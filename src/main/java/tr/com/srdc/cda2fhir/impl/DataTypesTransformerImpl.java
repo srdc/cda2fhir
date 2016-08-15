@@ -585,79 +585,80 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		return null;
 	}
-	
+	// TODO: Following method (TS2Date) gives null output although given parameter is OK
+	// Check. Ex. input: 200704171515-0800
 	public DateDt TS2Date(TS ts){
-    	if( ts == null || ts.isSetNullFlavor() ) return null;
-    	else {
-    		boolean monthExist=false;
-    		boolean dayExist=false;
-    		DateDt resultDateDt = new DateDt();
-    		int lengthOfTheDateString = ts.getValue().length();
-    		String dateString = ts.getValue();
-    		boolean isPrecisionSet = false;
-    		
-    		switch(lengthOfTheDateString){
-    		/* The cases where the length of the string is 10, 7 or 4 is for the date of forms yyyy-mm-dd, yyyy-mm and yyyy
-    		 * The cases will leave the switch block at case 4 (by break). 
-    		 * If the date is of another form (yyyymmdd or yyyymm  ), then the following cases will apply (case 8,6) 
-    		 * */ 
-    		case 10: /* yyyy-mm-dd */
-    			if( !isPrecisionSet ) {
-    				/* If the precision hasn't set yet, set it and set isPrecisionSet to be true. */
-    				resultDateDt.setPrecision(TemporalPrecisionEnum.DAY);
-    				isPrecisionSet = true; 
-    			}
-    			dayExist=true;
-    			resultDateDt.setDay( Integer.parseInt(dateString.substring(8,10)) );
-    		case 7: /* yyyy-mm */
-    			if( !isPrecisionSet ) {
-    				resultDateDt.setPrecision(TemporalPrecisionEnum.MONTH);
-    				isPrecisionSet = true; 
-    			}
-    			monthExist=true;
-    			if(!dayExist)
-    				resultDateDt.setMonth( Integer.parseInt(dateString.substring(5,7)) );
-    			else
-    				resultDateDt.setMonth( Integer.parseInt(dateString.substring(5,7)) - 1);
-    			
-    		case 4: /* yyyy */
-    			if( !isPrecisionSet ) {
-    				resultDateDt.setPrecision(TemporalPrecisionEnum.YEAR);
-    				isPrecisionSet = true; 
-    			}
-    			if(!monthExist)
-    				resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) + 1 );
-    			else
-    				resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)));
-    			break;
-    		case 8: /* yyyymmdd */
-    			if( !isPrecisionSet ) {
-    				resultDateDt.setPrecision(TemporalPrecisionEnum.DAY);
-    				isPrecisionSet = true; 
-    			}
-    			dayExist=true;
-    			resultDateDt.setDay( Integer.parseInt(dateString.substring(6,8)) );		
-    		case 6: /* yyyymm */
-    			if( !isPrecisionSet ) {
-    				resultDateDt.setPrecision(TemporalPrecisionEnum.MONTH);
-    				isPrecisionSet = true; 
-    			}
-    			monthExist=true;
-    			if(!dayExist)
-    				resultDateDt.setMonth( Integer.parseInt(dateString.substring(4,6)) );
-    			else
-    				resultDateDt.setMonth( Integer.parseInt(dateString.substring(4,6)) - 1);
-    			
-    			if(!monthExist)
-    				resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) + 1 );
-    			else
-    				resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)));
-    			/* The case where the date is of form yyyy is covered in case 4.
-    			 * Therefore, we just set the year in one line for the cases yyyymm and yyyymmdd 
-    			 */
+    	if(ts == null || ts.isSetNullFlavor())
+    		return null;
+
+    	boolean monthExist=false;
+    	boolean dayExist=false;
+    	DateDt resultDateDt = new DateDt();
+    	int lengthOfTheDateString = ts.getValue().length();
+    	String dateString = ts.getValue();
+    	boolean isPrecisionSet = false;
+    	
+    	switch(lengthOfTheDateString){
+    	/* The cases where the length of the string is 10, 7 or 4 is for the date of forms yyyy-mm-dd, yyyy-mm and yyyy
+    	 * The cases will leave the switch block at case 4 (by break). 
+    	 * If the date is of another form (yyyymmdd or yyyymm  ), then the following cases will apply (case 8,6) 
+    	 * */ 
+    	case 10: /* yyyy-mm-dd */
+    		if( !isPrecisionSet ) {
+    			/* If the precision hasn't set yet, set it and set isPrecisionSet to be true. */
+    			resultDateDt.setPrecision(TemporalPrecisionEnum.DAY);
+    			isPrecisionSet = true; 
     		}
-    	return resultDateDt;
+    		dayExist=true;
+    		resultDateDt.setDay( Integer.parseInt(dateString.substring(8,10)) );
+    	case 7: /* yyyy-mm */
+    		if( !isPrecisionSet ) {
+    			resultDateDt.setPrecision(TemporalPrecisionEnum.MONTH);
+    			isPrecisionSet = true; 
+    		}
+    		monthExist=true;
+    		if(!dayExist)
+    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(5,7)) );
+    		else
+    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(5,7)) - 1);
+    		
+    	case 4: /* yyyy */
+    		if( !isPrecisionSet ) {
+    			resultDateDt.setPrecision(TemporalPrecisionEnum.YEAR);
+    			isPrecisionSet = true; 
+    		}
+    		if(!monthExist)
+    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) + 1 );
+    		else
+    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)));
+    		break;
+    	case 8: /* yyyymmdd */
+    		if( !isPrecisionSet ) {
+    			resultDateDt.setPrecision(TemporalPrecisionEnum.DAY);
+    			isPrecisionSet = true; 
+    		}
+    		dayExist=true;
+    		resultDateDt.setDay( Integer.parseInt(dateString.substring(6,8)) );		
+    	case 6: /* yyyymm */
+    		if( !isPrecisionSet ) {
+    			resultDateDt.setPrecision(TemporalPrecisionEnum.MONTH);
+    			isPrecisionSet = true; 
+    		}
+    		monthExist=true;
+    		if(!dayExist)
+    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(4,6)) );
+    		else
+    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(4,6)) - 1);
+    		
+    		if(!monthExist)
+    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) + 1 );
+    		else
+    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)));
+    		/* The case where the date is of form yyyy is covered in case 4.
+    		 * Therefore, we just set the year in one line for the cases yyyymm and yyyymmdd 
+    		 */
     	}
+    return resultDateDt;
     }
 	
 	public DateTimeDt TS2DateTime(TS ts){
@@ -955,4 +956,3 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		}
 	}
 }
-
