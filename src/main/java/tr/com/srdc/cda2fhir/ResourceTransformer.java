@@ -55,13 +55,10 @@ public interface ResourceTransformer {
     
     Bundle VitalSignObservation2Observation(VitalSignObservation cdaVSO);
     
-    
     ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( org.openhealthtools.mdht.uml.cda.Guardian cdaGuardian );
     
     Communication LanguageCommunication2Communication( LanguageCommunication cdaLanguageCommunication );
 	
-    ca.uhn.fhir.model.dstu2.resource.Procedure.Performer Performer22Performer( Performer2 cdaPerformer );
-
 	Observation.ReferenceRange ReferenceRange2ReferenceRange( org.openhealthtools.mdht.uml.cda.ReferenceRange cdaRefRange);
     
 	Composition.Section section2Section(Section cdaSec);

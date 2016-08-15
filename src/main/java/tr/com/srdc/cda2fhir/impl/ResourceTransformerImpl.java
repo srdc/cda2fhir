@@ -1737,10 +1737,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 
 		// performer
-		if( cdaPr.getPerformers() != null && !cdaPr.getPerformers().isEmpty() ){
-			for( Performer2 performer : cdaPr.getPerformers() ){
-				if( performer != null && !performer.isSetNullFlavor() ){
-					fhirPr.addPerformer( Performer22Performer(performer) );
+		if(cdaPr.getPerformers() != null && !cdaPr.getPerformers().isEmpty()) {
+			for(Performer2 performer : cdaPr.getPerformers()) {
+				if(performer.getAssignedEntity()!= null && !performer.getAssignedEntity().isSetNullFlavor()) {
+					Bundle practBundle = Performer22Practitioner(performer);
+					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+						// Add all the resources returned from the bundle to the main bundle
+						fhirPrBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+						// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
+						if(entry.getResource() instanceof Practitioner) {
+							Performer fhirPerformer = new Performer();
+							fhirPerformer.setActor(new ResourceReferenceDt(entry.getResource().getId()));
+							fhirPr.addPerformer(fhirPerformer);
+						}
+					}
 				}
 			}
 		}
@@ -1748,8 +1758,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// status
 		if( cdaPr.getStatusCode() != null && !cdaPr.getStatusCode().isSetNullFlavor() && cdaPr.getStatusCode().getCode() != null ){
 			ProcedureStatusEnum status = vst.StatusCode2ProcedureStatusEnum( cdaPr.getStatusCode().getCode() );
-			if( status != null ){
-				fhirPr.setStatus( status );
+			if(status != null){
+				fhirPr.setStatus(status);
 			}
 		}
 
@@ -1962,7 +1972,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 			
-			
 			return fhirAge;
 		}
 	}
@@ -2010,32 +2019,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				fhirCommunication.setPreferred(  dtt.BL2Boolean( cdaLanguageCommunication.getPreferenceInd() )  );
 			}
 			return fhirCommunication;
-		}
-	}
-
-	public ca.uhn.fhir.model.dstu2.resource.Procedure.Performer Performer22Performer( Performer2 cdaPerformer ){
-		if( cdaPerformer == null || cdaPerformer.isSetNullFlavor() || cdaPerformer.getAssignedEntity() == null || cdaPerformer.getAssignedEntity().isSetNullFlavor() ) return null;
-		else{
-			Performer fhirPerformer = new Performer();
-			
-			Practitioner fhirPractitioner = null;
-			Bundle fhirPractitionerBundle = AssignedEntity2Practitioner( cdaPerformer.getAssignedEntity() );
-			for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirPractitionerBundle.getEntry() ){
-				if( entity.getResource() instanceof Practitioner ){
-					fhirPractitioner = (Practitioner) entity.getResource();
-				}
-			}
-			
-			if( fhirPractitioner != null && !fhirPractitioner.isEmpty() ){
-				ResourceReferenceDt actorReference = new ResourceReferenceDt();
-				actorReference.setReference(fhirPractitioner.getId());
-				if( fhirPractitioner.getName() != null && fhirPractitioner.getName().getText() != null ){
-					actorReference.setDisplay( fhirPractitioner.getName().getText() );
-				}
-				fhirPractitionerBundle.addEntry( new Bundle().addEntry().setResource( fhirPractitioner ) );
-				fhirPerformer.setActor(actorReference);
-			}
-			return fhirPerformer;
 		}
 	}
 	
