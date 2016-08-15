@@ -76,7 +76,7 @@ public class ResourceTransformerTestNecip {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
-	@Test
+	@Ignore
 	public void testAllergyProblemAct2AllergyIntolerance(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		for( AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs() ){
@@ -147,7 +147,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testEncounter2Encounter(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int encounterCount = 0;

@@ -14,6 +14,7 @@ import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
@@ -48,6 +49,7 @@ import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.TimingDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
+import ca.uhn.fhir.model.dstu2.resource.Encounter.Hospitalization;
 import ca.uhn.fhir.model.dstu2.resource.Organization.Contact;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
@@ -399,112 +401,155 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 	
 	public Bundle Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter){
-		if( cdaEncounter == null || cdaEncounter.isSetNullFlavor() ) return null;
-		else if( cdaEncounter.getMoodCode() != org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentEncounterMood.EVN ) return null;
-		else{
-			ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter();
-			
-			Bundle fhirEncounterBundle = new Bundle();
-			fhirEncounterBundle.addEntry( new Bundle.Entry().setResource(fhirEncounter) );
-			
-			// patient
-			fhirEncounter.setPatient( new ResourceReferenceDt( patientId ));
-			
-			// id
-			IdDt resourceId = new IdDt("Encounter",getUniqueId() );
-			fhirEncounter.setId(resourceId);
-						
-			// identifier <-> id
-			if( cdaEncounter.getIds() != null && !cdaEncounter.getIds().isEmpty() ){
-				for( II id : cdaEncounter.getIds() ){
-					if( id != null && !id.isSetNullFlavor() ){
-						fhirEncounter.addIdentifier(  dtt.II2Identifier(id) );
+		if(cdaEncounter == null || cdaEncounter.isSetNullFlavor()) 
+			return null;
+		else if(cdaEncounter.getMoodCode() != org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentEncounterMood.EVN) 
+			return null;
+		
+		ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = new ca.uhn.fhir.model.dstu2.resource.Encounter();
+		
+		Bundle fhirEncounterBundle = new Bundle();
+		fhirEncounterBundle.addEntry(new Bundle.Entry().setResource(fhirEncounter));
+		// TODO: hospitalization.period not found. However, daf requires it being mapped
+		// check: reason, type, class
+		
+		// patient
+		fhirEncounter.setPatient(new ResourceReferenceDt(patientId));
+		
+		// id
+		IdDt resourceId = new IdDt("Encounter",getUniqueId());
+		fhirEncounter.setId(resourceId);
+					
+		// identifier <-> id
+		if(cdaEncounter.getIds() != null && !cdaEncounter.getIds().isEmpty()){
+			for(II id : cdaEncounter.getIds()){
+				if(id != null && !id.isSetNullFlavor()){
+					fhirEncounter.addIdentifier(dtt.II2Identifier(id));
+				}
+			}
+		}
+		
+		// status <-> statusCode
+		if(cdaEncounter.getStatusCode() != null && !cdaEncounter.getStatusCode().isSetNullFlavor()){
+			if(vst.StatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()) != null){
+				fhirEncounter.setStatus(vst.StatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()));
+			}
+		}
+		
+		// class <-> code
+		if(cdaEncounter.getCode() != null && !cdaEncounter.getCode().isSetNullFlavor()){
+			if(cdaEncounter.getCode().getCode() != null){
+				
+				if(vst.EncounterCode2EncounterClassEnum(cdaEncounter.getCode().getCode()) != null){
+					fhirEncounter.setClassElement(vst.EncounterCode2EncounterClassEnum(cdaEncounter.getCode().getCode()));
+				}
+			}
+		}
+		
+		// priority <-> priorityCode
+		if(cdaEncounter.getPriorityCode() != null && !cdaEncounter.getPriorityCode().isSetNullFlavor()){
+			fhirEncounter.setPriority(dtt.CD2CodeableConcept(cdaEncounter.getPriorityCode()));
+		}
+		
+		// performer
+		if(cdaEncounter.getPerformers() != null && !cdaEncounter.getPerformers().isEmpty()){
+			for(org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaEncounter.getPerformers()){
+				if(cdaPerformer != null && !cdaPerformer.isSetNullFlavor()){
+					ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
+					
+					fhirParticipant.addType().addCoding( vst.ParticipationType2ParticipationTypeCode( ParticipationType.PRF ) );
+					
+					Practitioner fhirPractitioner = null;
+					Bundle fhirPractitionerBundle = Performer22Practitioner( cdaPerformer );
+					for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirPractitionerBundle.getEntry() ){
+						if( entity.getResource() instanceof Practitioner ){
+							fhirPractitioner = (Practitioner) entity.getResource();
+						}
 					}
+					
+					if( fhirPractitioner != null ){
+						ResourceReferenceDt practitionerReference = new ResourceReferenceDt();
+						practitionerReference.setReference( fhirPractitioner.getId() );
+						fhirParticipant.setIndividual( practitionerReference );
+						fhirEncounterBundle.addEntry( new Bundle().addEntry().setResource( fhirPractitioner ) );
+						
+					}
+					fhirEncounter.addParticipant(fhirParticipant);
 				}
 			}
-			
-			// status <-> statusCode
-			if( cdaEncounter.getStatusCode() != null && !cdaEncounter.getStatusCode().isSetNullFlavor() ){
-				if( vst.StatusCode2EncounterStatusEnum( cdaEncounter.getStatusCode().getCode() ) != null ){
-					fhirEncounter.setStatus( vst.StatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()) );
-				}
-			}
-			
-			// type <-> code
-			if( cdaEncounter.getCode() != null && !cdaEncounter.getCode().isSetNullFlavor() ){
-				fhirEncounter.addType( dtt.CD2CodeableConcept( cdaEncounter.getCode() ) );
-			}
-			
-			// priority <-> priorityCode
-			if( cdaEncounter.getPriorityCode() != null && !cdaEncounter.getPriorityCode().isSetNullFlavor() ){
-				fhirEncounter.setPriority( dtt.CD2CodeableConcept( cdaEncounter.getPriorityCode() ) );
-			}
-			
-			// performer
-			if( cdaEncounter.getPerformers() != null && !cdaEncounter.getPerformers().isEmpty() ){
-				for( org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaEncounter.getPerformers()  ){
-					if( cdaPerformer != null && !cdaPerformer.isSetNullFlavor() ){
-						ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
-						
-						fhirParticipant.addType().addCoding( vst.ParticipationType2ParticipationTypeCode( ParticipationType.PRF ) );
-						
-						Practitioner fhirPractitioner = null;
-						Bundle fhirPractitionerBundle = Performer22Practitioner( cdaPerformer );
-						for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entity : fhirPractitionerBundle.getEntry() ){
-							if( entity.getResource() instanceof Practitioner ){
-								fhirPractitioner = (Practitioner) entity.getResource();
+		}
+		
+		// period <-> .effectiveTime (low & high)
+		if( cdaEncounter.getEffectiveTime() != null && !cdaEncounter.getEffectiveTime().isSetNullFlavor() ){
+			fhirEncounter.setPeriod( dtt.IVL_TS2Period( cdaEncounter.getEffectiveTime() ) );
+		}
+
+		// location <-> .participant[typeCode=LOC]
+		if( cdaEncounter.getParticipants() != null && !cdaEncounter.getParticipants().isEmpty() ){
+			for( org.openhealthtools.mdht.uml.cda.Participant2 cdaParticipant : cdaEncounter.getParticipants() ){
+				if( cdaParticipant != null && !cdaParticipant.isSetNullFlavor() ){
+					
+					// checking if the participant is location
+					if( cdaParticipant.getTypeCode() == ParticipationType.LOC ){
+						if( cdaParticipant.getParticipantRole() != null && !cdaParticipant.getParticipantRole().isSetNullFlavor() ){
+							// We first make the mapping to a resource.location
+							// then, we create a resource.encounter.location
+							// then, we add the resource.location to resource.encounter.location
+							ca.uhn.fhir.model.dstu2.resource.Location fhirLocation = null;
+							// usage of ParticipantRole2Location
+							Bundle fhirLocationBundle = ParticipantRole2Location( cdaParticipant.getParticipantRole() );
+
+							for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirLocationBundle.getEntry() ){
+								if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Location ){
+									fhirLocation = (ca.uhn.fhir.model.dstu2.resource.Location) entry.getResource();
+								}
 							}
-						}
-						
-						if( fhirPractitioner != null ){
-							ResourceReferenceDt practitionerReference = new ResourceReferenceDt();
-							practitionerReference.setReference( fhirPractitioner.getId() );
-							fhirParticipant.setIndividual( practitionerReference );
-							fhirEncounterBundle.addEntry( new Bundle().addEntry().setResource( fhirPractitioner ) );
 							
+							fhirEncounterBundle.addEntry( new Bundle.Entry().setResource(fhirLocation) );
+							fhirEncounter.addLocation().setLocation( new ResourceReferenceDt( fhirLocation.getId() ) );
 						}
-						fhirEncounter.addParticipant(fhirParticipant);
 					}
 				}
 			}
-			
-			// period <-> .effectiveTime (low & high)
-			if( cdaEncounter.getEffectiveTime() != null && !cdaEncounter.getEffectiveTime().isSetNullFlavor() ){
-				fhirEncounter.setPeriod( dtt.IVL_TS2Period( cdaEncounter.getEffectiveTime() ) );
-			}
-			
-			// location <-> .participant[typeCode=LOC]
-			if( cdaEncounter.getParticipants() != null && !cdaEncounter.getParticipants().isEmpty() ){
-				for( org.openhealthtools.mdht.uml.cda.Participant2 cdaParticipant : cdaEncounter.getParticipants() ){
-					if( cdaParticipant != null && !cdaParticipant.isSetNullFlavor() ){
-						
-						// checking if the participant is location
-						if( cdaParticipant.getTypeCode() == ParticipationType.LOC ){
-							if( cdaParticipant.getParticipantRole() != null && !cdaParticipant.getParticipantRole().isSetNullFlavor() ){
-								// We first make the mapping to a resource.location
-								// then, we create a resource.encounter.location
-								// then, we add the resource.location to resource.encounter.location
-								ca.uhn.fhir.model.dstu2.resource.Location fhirLocation = null;
-								// usage of ParticipantRole2Location
-								Bundle fhirLocationBundle = ParticipantRole2Location( cdaParticipant.getParticipantRole() );
-	
-								for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirLocationBundle.getEntry() ){
-									if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Location ){
-										fhirLocation = (ca.uhn.fhir.model.dstu2.resource.Location) entry.getResource();
+		}
+		
+		// TODO: Necip: Check if the following mapping is OK.
+		// Getting information from entryRelShip.observation(indication)
+		if(cdaEncounter.getEntryRelationships() != null && !cdaEncounter.getEntryRelationships().isEmpty()){
+			for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaEncounter.getEntryRelationships()){
+				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()){
+					if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()){
+						if(entryRelShip.getObservation() instanceof Indication){
+							Indication cdaIndication = (Indication)entryRelShip.getObservation();	
+							
+							// reason <-> indication.value(CD)
+							if(cdaIndication.getValues() != null && !cdaIndication.getValues().isEmpty()){
+								for(ANY value : cdaIndication.getValues()){
+									if(value != null && !value.isSetNullFlavor()){
+										if(value instanceof CD){
+											fhirEncounter.addReason(dtt.CD2CodeableConcept((CD)value));
+										}
 									}
 								}
-								
-								fhirEncounterBundle.addEntry( new Bundle.Entry().setResource(fhirLocation) );
-								fhirEncounter.addLocation().setLocation( new ResourceReferenceDt( fhirLocation.getId() ) );
 							}
+							
+							// type <-> indication.code
+							if(cdaIndication.getCode() != null && !cdaIndication.getCode().isSetNullFlavor()){
+								fhirEncounter.addType(dtt.CD2CodeableConcept(cdaIndication.getCode()));
+							}
+							
+							
 						}
 					}
 				}
 			}
-			
-			return fhirEncounterBundle;
 		}
+		
+		
+		return fhirEncounterBundle;
 	}
+	
+
 
 	public Bundle Entity2Group( Entity cdaEntity ){
 		if( cdaEntity == null || cdaEntity.isSetNullFlavor() ) return null;
