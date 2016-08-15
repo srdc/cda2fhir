@@ -14,6 +14,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceSeverityEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+import ca.uhn.fhir.model.dstu2.valueset.EncounterClassEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.model.dstu2.valueset.FamilyHistoryStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
@@ -98,6 +99,50 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 				return AllergyIntoleranceCategoryEnum.OTHER;
 			default:
 				return null;
+		}
+	}
+	
+	public EncounterClassEnum EncounterCode2EncounterClassEnum(String encounterCode){
+		// TODO: Visit pdf's 483rd page
+		// pdf name: CDAR2_IG_CCDA_CLINNOTES_R1_DSTU2.1_2015AUG_Vol2_Templates_and_Supporting_Material.pdf
+		// There are three dots at the end of the codes
+		// Does it mean that more of them exist?
+
+		if(encounterCode == null)
+			return null;
+		switch(encounterCode){
+			case "99201":
+			case "99202":
+			case "99203":
+			case "99204":
+			case "99205":
+			case "99211":
+			case "99212":
+			case "99213":
+			case "99214":
+			case "99215":
+				return EncounterClassEnum.OUTPATIENT;
+			// TODO: Following codes were taken from http://www.cyfairhospital.com/en-us/documents/cpt%20product%20list.pdf
+			// However, they haven't been completed, yet. Finish after checking.
+			case "99356":
+			case "99357":
+			case "99251":
+			case "99252":
+			case "99253":
+			case "99254":
+			case "99255":
+			case "99261":
+			case "99262":
+			case "99263":
+				return EncounterClassEnum.INPATIENT;
+			case "93784":
+			case "93786":
+			case "93788":
+			case "95950":
+				return EncounterClassEnum.AMBULATORY;
+			default:
+				return null;
+			
 		}
 	}
 	
