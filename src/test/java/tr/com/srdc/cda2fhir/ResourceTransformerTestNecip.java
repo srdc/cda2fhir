@@ -9,8 +9,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
@@ -147,7 +150,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void testEncounter2Encounter(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int encounterCount = 0;
@@ -206,6 +209,53 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
+	@Ignore
+	public void testManufacturedProduct2Medication(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		ImmunizationsSectionEntriesOptional immSection = test.ccd.getImmunizationsSectionEntriesOptional();
+		if(immSection != null && !immSection.isSetNullFlavor()){
+			if(immSection.getImmunizationActivities() != null && !immSection.getImmunizationActivities().isEmpty()){
+				for(ImmunizationActivity immAct : immSection.getImmunizationActivities()){
+					if(immAct != null && !immAct.isSetNullFlavor()){
+						if(immAct.getConsumable() != null && !immAct.getConsumable().isSetNullFlavor()){
+							if(immAct.getConsumable().getManufacturedProduct() != null && !immAct.getConsumable().getManufacturedProduct().isSetNullFlavor()){
+								// immAct.immSection.immAct.consumable.manuProd
+								
+								System.out.println("Transformation starting..");
+								Bundle fhirMed = rt.ManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
+								System.out.println("End of transformation. Printing the resource as JSON object..");
+								printJSON(fhirMed);
+								System.out.println("End of print.");
+								System.out.print("\n***\n"); // to visualize
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	@Test
+	public void testMedicationActivity2MedicationStatement(){
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		if(test.ccd.getMedicationsSection() != null && !test.ccd.getMedicationsSection().isSetNullFlavor()) {
+			if(test.ccd.getMedicationsSection().getMedicationActivities() != null && !test.ccd.getMedicationsSection().getMedicationActivities().isEmpty()) {
+				for(MedicationActivity cdaMedAct : test.ccd.getMedicationsSection().getMedicationActivities()) {
+					if(cdaMedAct != null && !cdaMedAct.isSetNullFlavor()) {
+						System.out.println("Transformation starting..");
+						Bundle fhirMedStBundle = rt.MedicationActivity2MedicationStatement(cdaMedAct);
+						System.out.println("End of transformation. Printing the resource as JSON object..");
+						printJSON(fhirMedStBundle);
+						System.out.println("End of print.");
+					}
+				}
+			}
+		}
+	}
+	
 	@Ignore
 	public void testFamilyMemberOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
