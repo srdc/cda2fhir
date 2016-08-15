@@ -13,12 +13,12 @@ import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceSeverityEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterClassEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.model.dstu2.valueset.FamilyHistoryStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
-import ca.uhn.fhir.model.dstu2.valueset.LocationStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
@@ -465,6 +465,43 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return fhirPT;
 	}
 
+	public ConditionCategoryCodesEnum ProblemType2ConditionCategoryCodesEnum(String problemType) {
+		if(problemType == null)
+			return null;
+		// TODO: See pdf's 499th page
+		// Where to map "Condition", "Problem"?
+		switch(problemType) {
+			case "248536006":
+			case "373930000":
+			case "404684003": 
+			case "75321-0":
+			case "75312-9":
+				return ConditionCategoryCodesEnum.FINDING;
+			case "409586006": 
+			case "75322-8":
+			case "75313-7":
+				return ConditionCategoryCodesEnum.COMPLAINT;
+			case "282291009": 
+			case "29308-4":
+			case "75314-5":
+				return ConditionCategoryCodesEnum.DIAGNOSIS;
+			case "418799008": 
+			case "75325-1":
+			case "75317-8":
+				return ConditionCategoryCodesEnum.SYMPTOM;
+			case "75323-6":
+			case "75315-2":
+			case "64572001": 
+				// condition case
+			case "55607006":
+			case "75318-6": 
+				// problem case
+				
+			default: 
+				return null;
+		}
+	}
+	
 	public AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse ){
 		switch(postalAddressUse){
 			case PHYS: return AddressTypeEnum.PHYSICAL;
