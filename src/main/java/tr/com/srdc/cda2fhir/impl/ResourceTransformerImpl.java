@@ -17,6 +17,7 @@ import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.SeverityObservation;
@@ -60,6 +61,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceTypeEnum;
+import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
@@ -604,7 +606,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return fhirGroupBundle;
 		}
 	}
-
 	public Bundle FamilyMemberOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO){
 		if(cdaFHO == null || cdaFHO.isSetNullFlavor())
 			return null;
@@ -1557,7 +1558,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 			
 			// TODO: Severity
-			// See https://www.hl7.org/fhir/daf/condition-daf.html
 			// Couldn't found in the CDA example
 
 			// encounter
@@ -1593,110 +1593,73 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						fhirConditionBundle.addEntry(new Bundle.Entry().setResource(fhirPractitioner));	
 					}
 				}
-			}
+			}				
 						
-			// date recorded
-			// if nullCheckForDateRecorded evaluates to true, then it can be stated that it is not null and null-flavor is NOT set
-			boolean nullCheckForDateRecorded =  entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor()
-					&& entryRelationship.getObservation().getAuthors() != null && !entryRelationship.getObservation().getAuthors().isEmpty()
-					&& entryRelationship.getObservation().getAuthors().get(0) != null && !entryRelationship.getObservation().getAuthors().get(0).isSetNullFlavor()
-					&& entryRelationship.getObservation().getAuthors().get(0).getTime() != null && !entryRelationship.getObservation().getAuthors().get(0).getTime().isSetNullFlavor();
-			
-			if(nullCheckForDateRecorded) {
-				DateDt dateRecorded = dtt.TS2Date(entryRelationship.getObservation().getAuthors().get(0).getTime());
-				fhirCondition.setDateRecorded(dateRecorded);
-			}
-			
-		
-			// code <-> value
-			if(entryRelationship.getObservation() != null && entryRelationship.getObservation().isSetNullFlavor()
-					&& entryRelationship.getObservation().getValues() != null && !entryRelationship.getObservation().getValues().isEmpty()) {
-				if(entryRelationship.getObservation().getValues().get(0) != null && !entryRelationship.getObservation().getValues().get(0).isSetNullFlavor()) {
-					if(entryRelationship.getObservation().getValues().get(0) instanceof CD) {
-						fhirCondition.setCode(dtt.CD2CodeableConcept( (CD) entryRelationship.getObservation().getValues().get(0)));
-					}
-				}
-			}
-						
-						
-			// category
+			// getting information from problem observation
 			if(entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor()) {
-				if(entryRelationship.getObservation().getCode() != null && !entryRelationship.getObservation().getCode().isSetNullFlavor()) {
-					CodeableConceptDt categoryCoding = dtt.CD2CodeableConcept( entryRelationship.getObservation().getCode());
+				if(entryRelationship.getObservation() instanceof ProblemObservation){
+					ProblemObservation cdaProbObs = (ProblemObservation)entryRelationship.getObservation();
 					
-					// TODO: Necip
-					// See the coding example below
-					// How to map this coding to  ConditionCategoryCodesEnum ?
-					// Coding example:
-					/*	<code code="64572001" displayName="Condition" codeSystemName="SNOMED-CT" codeSystem="2.16.840.1.113883.6.96">
-					<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
-					<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
-					-->
-					<translation nullFlavor="NI"/>
-				</code> */
-					
-					
-				}
-			}
-			
-//			Following lines are the former mapping for category
-//			However, seems unappropriate
-//			CodingDt codingForCategory = new CodingDt();
-//			BoundCodeableConceptDt boundCodeableConceptDt = new BoundCodeableConceptDt();
-//			if( entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
-//					&& entryRelationship.getObservation().getCode() != null && !entryRelationship.getObservation().getCode().isSetNullFlavor()){
-//			
-//				if( entryRelationship.getObservation().getCode().getCode() != null ){
-//					codingForCategory.setCode( entryRelationship.getObservation().getCode().getCode() );
-//				}
-//				if( entryRelationship.getObservation().getCode().getDisplayName() != null ){
-//					codingForCategory.setDisplay(  entryRelationship.getObservation().getCode().getDisplayName() );
-//				}
-//				if( entryRelationship.getObservation().getCode().getCodeSystem() != null ){
-//					codingForCategory.setSystem( entryRelationship.getObservation().getCode().getCodeSystem() );
-//				}
-//				
-//				boundCodeableConceptDt.addCoding( codingForCategory );
-//				condition.setCategory( boundCodeableConceptDt );
-//				
-//			}
-
-			
-			// onset and abatement
-			if(entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
-			&& entryRelationship.getObservation().getEffectiveTime() != null && 
-					!entryRelationship.getObservation().getEffectiveTime().isSetNullFlavor()) {
-				
-				IVXB_TS low = entryRelationship.getObservation().getEffectiveTime().getLow();
-				IVXB_TS high = entryRelationship.getObservation().getEffectiveTime().getHigh();
-		
-				// low <-> onset
-				if(low != null && !low.isSetNullFlavor()) {
-					fhirCondition.setOnset(dtt.TS2DateTime(low ));
-				}
-				
-				// high <-> abatement
-				if(high != null && !high.isSetNullFlavor()) {
-					fhirCondition.setAbatement(dtt.TS2DateTime(high));
-				}
-
-			}
-				        
-			// bodysite
-			if(entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor() 
-					&& entryRelationship.getObservation().getValues() != null && !entryRelationship.getObservation().getValues().isEmpty()) {
-				for(ANY value : entryRelationship.getObservation().getValues()) {
-					if(value != null && !value.isSetNullFlavor() ) {
-						if(value instanceof CD) {
-							fhirCondition.addBodySite(dtt.CD2CodeableConcept((CD)value));
+					// category
+					if(cdaProbObs.getCode() != null && !cdaProbObs.getCode().isSetNullFlavor()) {
+						if(cdaProbObs.getCode().getCode() != null) {
+							ConditionCategoryCodesEnum conditionCategory = vst.ProblemType2ConditionCategoryCodesEnum(cdaProbObs.getCode().getCode());
+							if(conditionCategory != null) {
+								fhirCondition.setCategory(conditionCategory);
+							}
 						}
 					}
+					
+					// TODO: Following lines get the data from ProblemObservation.value(CD)
+					// Determine where to map it: bodySite or code
+					// For now, it is mapped to code
+					// code <-> value
+					if(cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
+						for(ANY value : cdaProbObs.getValues()) {
+							if(value != null && !value.isSetNullFlavor()) {
+								if(value instanceof CD) {
+									fhirCondition.setCode(dtt.CD2CodeableConcept((CD)value));
+								}
+							}
+						}
+					}
+					
+					// onset and abatement
+					if(cdaProbObs.getEffectiveTime() != null &&  !cdaProbObs.getEffectiveTime().isSetNullFlavor()) {
+						
+						IVXB_TS low = cdaProbObs.getEffectiveTime().getLow();
+						IVXB_TS high = cdaProbObs.getEffectiveTime().getHigh();
+				
+						// low <-> onset
+						if(low != null && !low.isSetNullFlavor()) {
+							fhirCondition.setOnset(dtt.TS2DateTime(low));
+						}
+						
+						// high <-> abatement
+						if(high != null && !high.isSetNullFlavor()) {
+							fhirCondition.setAbatement(dtt.TS2DateTime(high));
+						}
+					}
+					
+					
+					// date recorded <-> ProblemObservation.author.time
+					if(cdaProbObs.getAuthors() != null && !cdaProbObs.getAuthors().isEmpty()) {
+						for(Author author : cdaProbObs.getAuthors()) {
+							if(author != null && !author.isSetNullFlavor()) {
+								if(author.getTime() != null && !author.getTime().isSetNullFlavor()) {
+									fhirCondition.setDateRecorded(dtt.TS2Date(author.getTime()));
+								}
+							}
+						}
+					}
+					
+					
 				}
-			}
+			}	
 		}
 		return fhirConditionBundle;
 	}
-
+	
 	public Bundle Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaPr){
 		// TODO: used <-> device
 		if(cdaPr == null || cdaPr.isSetNullFlavor())
