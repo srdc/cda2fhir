@@ -1,7 +1,7 @@
 package tr.com.srdc.cda2fhir;
 
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
-import ca.uhn.fhir.model.primitive.IdDt;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 
 /**
@@ -17,7 +17,7 @@ public interface CCDATransformer {
 
     String getUniqueId();
 
-    IdDt getPatientId();
+    ResourceReferenceDt getPatientRef();
 
     Bundle transformCCD(ContinuityOfCareDocument ccd);
 }

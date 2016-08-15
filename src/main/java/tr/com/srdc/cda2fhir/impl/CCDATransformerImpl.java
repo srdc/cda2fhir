@@ -22,7 +22,7 @@ public class CCDATransformerImpl implements CCDATransformer {
     private int counter;
     private IdGeneratorEnum idGenerator;
     private ResourceTransformer resTransformer;
-    private IdDt patientId;
+    private ResourceReferenceDt patientRef;
 
     public CCDATransformerImpl() {
         this.counter = 0;
@@ -53,8 +53,8 @@ public class CCDATransformerImpl implements CCDATransformer {
     }
 
     @Override
-    public IdDt getPatientId() {
-        return patientId;
+    public ResourceReferenceDt getPatientRef() {
+        return patientRef;
     }
 
     @Override
@@ -69,7 +69,6 @@ public class CCDATransformerImpl implements CCDATransformer {
         ccdBundle.addEntry(new Bundle.Entry().setResource(ccdComposition));
 
         // transform the patient data and assign it to Composition.subject
-        // start of bundle-to-patient
         // Since the methods of resTransformer class have return type Bundle, we need the following lines to get the 'Patient' from the 'Bundle'
         Patient subject = null; // subject will be assigned to the appropriate entry of the bundle, we may need null-check
         Bundle subjectBundle = resTransformer.PatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
@@ -79,8 +78,8 @@ public class CCDATransformerImpl implements CCDATransformer {
 			}
 		}
 		
-        patientId = subject.getId();
-        ccdComposition.setSubject(new ResourceReferenceDt(patientId));
+        patientRef = new ResourceReferenceDt(subject.getId());
+        ccdComposition.setSubject(patientRef);
         ccdBundle.addEntry(new Bundle.Entry().setResource(subject));
 
         for(Section cdaSec: ccd.getSections()) {
@@ -126,14 +125,14 @@ public class CCDATransformerImpl implements CCDATransformer {
             }
             else if(cdaSec instanceof ProblemSection) {
                 ProblemSection probSec = (ProblemSection) cdaSec;
-                for(ProblemConcernAct pcAct: probSec.getConsolProblemConcerns()) {
+                for(ProblemConcernAct pcAct : probSec.getConsolProblemConcerns()) {
                     Bundle conBundle = resTransformer.ProblemConcernAct2Condition(pcAct);
                     mergeBundles(conBundle, ccdBundle, fhirSec, Condition.class);
                 }
             }
             else if(cdaSec instanceof ProceduresSection) {
                 ProceduresSection procSec = (ProceduresSection) cdaSec;
-                for(ProcedureActivityProcedure proc: procSec.getConsolProcedureActivityProcedures()) {
+                for(ProcedureActivityProcedure proc : procSec.getConsolProcedureActivityProcedures()) {
                     Bundle procBundle = resTransformer.Procedure2Procedure(proc);
                     mergeBundles(procBundle, ccdBundle, fhirSec, ca.uhn.fhir.model.dstu2.resource.Procedure.class);
                 }
