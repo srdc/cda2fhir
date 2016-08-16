@@ -726,7 +726,7 @@ public class DataTypesTransformerTest{
     	Assert.assertNull("TS.nullFlavor was not transformed",date3);
     }
 
-    @Ignore
+    @Test
     public void testTS2DateTime(){
     	//simple instance test,yyyy
     	TS ts=DatatypesFactory.eINSTANCE.createTS();
@@ -750,15 +750,22 @@ public class DataTypesTransformerTest{
         TS ts4=DatatypesFactory.eINSTANCE.createTS();
     	ts4.setValue("201605271540");
     	DateTimeDt datetime4=dtt.TS2DateTime(ts4);
-    	// TODO: Following test fails, check the corresponding transformer method
-//        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",datetime4.getValueAsString());
+    	
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",datetime4.getValueAsString());
         
-    	//complex instance test,with timezone
+    	// complex instance test,with +timezone
     	TS ts5=DatatypesFactory.eINSTANCE.createTS();
-    	ts5.setValue("201605271540-0800");
+    	ts5.setValue("201605271540+0800");
     	DateTimeDt datetime5=dtt.TS2DateTime(ts5);
-    	// TODO: Following test fails, check the corresponding transformer method
-//        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",datetime5.getValueAsString());
+
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",datetime5.getValueAsString());
+        
+        // complex instance test,with -timezone
+    	TS ts7=DatatypesFactory.eINSTANCE.createTS();
+    	ts7.setValue("201605271540-0800");
+    	DateTimeDt datetime7=dtt.TS2DateTime(ts7);
+
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40-08:00",datetime7.getValueAsString());
         
         //null instance test
         

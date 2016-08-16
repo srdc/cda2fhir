@@ -5,6 +5,7 @@ import ca.uhn.fhir.model.dstu2.composite.*;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NarrativeStatusEnum;
 import ca.uhn.fhir.model.primitive.Base64BinaryDt;
+import ca.uhn.fhir.model.primitive.BaseDateTimeDt;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -585,14 +586,70 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		return null;
 	}
+
+	public DateTimeDt String2DateTime(String date) {
+		return (DateTimeDt) TS2BaseDateTime(date,new DateTimeDt());
+	}
 	
 	public DateDt TS2Date(TS ts){
-		if(ts == null || ts.isSetNullFlavor())
+		return (DateDt) TS2BaseDateTime(ts,new DateDt());
+	}
+	
+	public DateTimeDt TS2DateTime(TS ts) {
+		return (DateTimeDt) TS2BaseDateTime(ts,new DateTimeDt());
+	}
+	
+	public InstantDt TS2Instant(TS ts) {
+		return (InstantDt) TS2BaseDateTime(ts,new InstantDt());
+	}
+	
+	public UriDt URL2Uri(URL url){
+    	return (url == null || url.isSetNullFlavor()) ? null : new UriDt(url.getValue());
+    }
+	
+
+	
+	
+	
+	// Helper Methods
+	
+	// 1st parameter(tsObject) can be an object of type TS or a String representing the time
+	// 2nd parameter(returnObject) is given to determine the type of the returning object
+	private BaseDateTimeDt TS2BaseDateTime(Object tsObject, Object returnObject) {
+		if(tsObject == null)
 			return null;
 		
-		String dateString = ts.getValue();
-		DateDt date = new DateDt();
-		TemporalPrecisionEnum precision = null;
+		String dateString;
+		// checking the type of tsObject, assigning dateString accordingly
+		if(tsObject instanceof TS){
+			// null-flavor check
+			if(((TS)tsObject).isSetNullFlavor() || ((TS)tsObject).getValue() == null) {
+				return null;
+			} else {
+				dateString = ((TS)tsObject).getValue();
+			}
+		} else if(tsObject instanceof String) {
+			dateString = (String)tsObject;
+		} else {
+			// unexpected situtation
+			// 1st parameter of this method should be either an instanceof TS or String
+			return null;
+		}
+		
+		BaseDateTimeDt date;
+		// initializing date
+		if(returnObject instanceof DateDt) {
+			date = new DateDt();
+		} else if(returnObject instanceof DateTimeDt) {
+			date = new DateTimeDt();
+		} else if(returnObject instanceof InstantDt) {
+			date = new InstantDt();
+		} else {
+			// unexpected situtation
+			// caller of this method must have a need of DateDt, DateTimeDt or InstantDt
+			// otherwise, the returning object will be of type DateDt
+			date = new DateDt();
+		}
 		
 		/*
 		 * Possible date forms
@@ -604,6 +661,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		 * YYYYMMDDHHMM+TIZO: year month day hour minute timezone
 		 */
 		
+		TemporalPrecisionEnum precision = null;
 		// determining precision
 		switch(dateString.length()) {
 			case 4: // yyyy
@@ -621,29 +679,48 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				precision = null;
 		}
 		
-		// for special cases
-		if(dateString.contains("."))
+		// given string may include up to four digits of fractions of a second
+		// therefore, there may be cases where the length of the string is 17,18 or 19 and the precision is MILLI.
+		// for those of cases where the length causes conflicts, let's check if dot(.) exists in the string
+		if(dateString.contains(".")){
 			precision =  TemporalPrecisionEnum.MILLI;
-		
+		}
+			
 		// setting precision
-		date.setPrecision(precision);
+		if(precision != null){
+			date.setPrecision(precision);
+		} else {
+			// incorrect format
+			return null;
+		}
+		
+		
 		
 		// YYYYMMDDHHMM+TIZO and YYYYMMDDHHMMSS.S are special cases
 		// If our case is one of them, we will treat differently
 		
 		if(dateString.contains(".")) {
-			// get the integer starting from char '.' as the millis
+			// get the integer starting from the dot(.) char 'till the end of the string as the millis
 			int millis = new Integer(dateString.substring(dateString.indexOf('.')+1));
+			
+			// if millis is given as .4 , it corresponds to 400 millis. 
+			// therefore, we need a conversion.
 			if(millis > 0 && millis < 1000) {
 				while(millis*10 <1000) {
 					millis *= 10;
 				}
+			} else if(millis >= 1000){
+				// unexpected situtation
+				millis = 999;
 			} else {
+				// unexpected situtation
 				millis = 0;
 			}
+			
+			// setting millis
 			date.setMillis(millis);
 			
-			// second, minute, hour, day, month, year..
+			// setting second, minute, hour, day, month, year..
 			date.setSecond(new Integer(dateString.substring(12,14)));
 			date.setMinute(new Integer(dateString.substring(10, 12)));
 			date.setHour(new Integer(dateString.substring(8,10)));
@@ -681,7 +758,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					date.setYear(new Integer(dateString.substring(0,4))); 
 					break;
 				case YEAR:
-					// there is a strange situtation
 					date.setYear(new Integer(dateString.substring(0,4))+1); 
 					break;
 				default:
@@ -689,240 +765,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 		}
 		return date;
-	}
-
-	public DateTimeDt TS2DateTime(TS ts) {
-		if(ts == null || ts.isSetNullFlavor() ) return null;
-		else{
-			if( ts.getValue() == null )
-				return new DateTimeDt();
-			
-			String date=ts.getValue();
-			if(date.length()>8)
-				date=date.substring(0,8);
-			return String2DateTime(date);
-		}
-	}
-	
-	public InstantDt TS2Instant(TS ts) {
-		if(ts==null || ts.isSetNullFlavor())
-			return null;
-		else{
-			if(ts.getValue()==null)
-				return new InstantDt();
-			String date=ts.getValue();
-			return dateParserInstant(date);
-		}
-	}
-
-	public UriDt URL2Uri(URL url){
-    	return (url == null || url.isSetNullFlavor()) ? null : new UriDt(url.getValue());
-    }
-
-	@Override
-	public DateTimeDt String2DateTime(String date)
-	{
-		DateTimeDt dateTimeDt = new DateTimeDt();
-		boolean isPrecisionSet=false;
-		boolean dayExist=false;
-		boolean monthExist=false;
-		switch(date.length())
-		{	
-			default:
-				if(date.length()>12)
-				{
-					if(!isPrecisionSet)
-					{
-						dateTimeDt.setPrecision(TemporalPrecisionEnum.MINUTE);
-						isPrecisionSet=true;
-					}
-					/*12th element is a hyphen.*/
-					if(date.length()>14)
-					{
-						String timezone="GMT+";
-						timezone=timezone.concat(date.substring(13,15));
-					
-						timezone=timezone.concat(":");
-						timezone=timezone.concat(date.substring(15,17));
-						dateTimeDt.setTimeZone(TimeZone.getTimeZone(timezone));
-					}
-					else if(date.length()==14)
-					{
-						if(!isPrecisionSet)
-						{
-							dateTimeDt.setPrecision(TemporalPrecisionEnum.SECOND);
-							isPrecisionSet=true;
-						}
-						String second=date.substring(12,14);
-						int secondInt=Integer.parseInt(second);
-						dateTimeDt.setSecond(secondInt);
-					}
-				}//end if
-				else
-				{
-					//do nothing
-					break;
-				}
-			case 12:
-				
-				if(!isPrecisionSet)
-				{
-					dateTimeDt.setPrecision(TemporalPrecisionEnum.MINUTE);
-					isPrecisionSet=true;
-				}
-				String minute=date.substring(10,12);
-				int minuteInt=Integer.parseInt(minute);
-				dateTimeDt.setMinute(minuteInt);
-				
-			case 10:
-				String hour=date.substring(8,10);
-				int hourInt=Integer.parseInt(hour);
-				dateTimeDt.setHour(hourInt);
-			case 8:
-				dayExist=true;
-				if(!isPrecisionSet)
-				{
-					dateTimeDt.setPrecision(TemporalPrecisionEnum.DAY);
-					isPrecisionSet=true;
-				}
-				String day=date.substring(6,8);
-				int dayInt=Integer.parseInt(day);
-				dateTimeDt.setDay(dayInt);
-			case 6:
-				monthExist=true;
-				if(!isPrecisionSet)
-				{
-					dateTimeDt.setPrecision(TemporalPrecisionEnum.MONTH);
-					isPrecisionSet=true;
-				}
-				String month=date.substring(4,6);
-				int monthInt=Integer.parseInt(month);
-				if(!dayExist)
-				{
-					//System.out.println(monthInt);
-					dateTimeDt.setMonth(monthInt);
-				}
-				else 
-					dateTimeDt.setMonth(monthInt-1);
-				
-			case 4:
-				if(!isPrecisionSet)
-				{
-					dateTimeDt.setPrecision(TemporalPrecisionEnum.YEAR);
-					isPrecisionSet=true;
-				}
-				String year=date.substring(0,4);
-				int yearInt=Integer.parseInt(year);
-				if(!monthExist)
-					dateTimeDt.setYear(yearInt+1);
-				else
-					dateTimeDt.setYear(yearInt);
-		}
-
-		return dateTimeDt;
-	}
-
-	// Helper Functions
-	private InstantDt dateParserInstant(String date)
-	{
-		InstantDt instantDt = new InstantDt();
-		boolean isPrecisionSet=false;
-		boolean dayExist=false;
-		boolean monthExist=false;
-		switch(date.length())
-		{	
-			default:
-				if(date.length()>12)
-				{
-					if(!isPrecisionSet)
-					{
-						instantDt.setPrecision(TemporalPrecisionEnum.MINUTE);
-						isPrecisionSet=true;
-					}
-					/*12th element is a hyphen.*/
-					if(date.length()>14)
-					{
-						String timezone="GMT+";
-						timezone=timezone.concat(date.substring(13,15));
-					
-						timezone=timezone.concat(":");
-						timezone=timezone.concat(date.substring(15,17));
-						instantDt.setTimeZone(TimeZone.getTimeZone(timezone));
-					}
-					else if(date.length()==14)
-					{
-						if(!isPrecisionSet)
-						{
-							instantDt.setPrecision(TemporalPrecisionEnum.SECOND);
-							isPrecisionSet=true;
-						}
-						String second=date.substring(12,14);
-						int secondInt=Integer.parseInt(second);
-						instantDt.setSecond(secondInt);
-					}
-				}//end if
-				else
-				{
-					//do nothing
-					break;
-				}
-			case 12:
-				
-				if(!isPrecisionSet)
-				{
-					instantDt.setPrecision(TemporalPrecisionEnum.MINUTE);
-					isPrecisionSet=true;
-				}
-				String minute=date.substring(10,12);
-				int minuteInt=Integer.parseInt(minute);
-				instantDt.setMinute(minuteInt);
-				
-			case 10:
-				String hour=date.substring(8,10);
-				int hourInt=Integer.parseInt(hour);
-				instantDt.setHour(hourInt);
-			case 8:
-				dayExist=true;
-				if(!isPrecisionSet)
-				{
-					instantDt.setPrecision(TemporalPrecisionEnum.DAY);
-					isPrecisionSet=true;
-				}
-				String day=date.substring(6,8);
-				int dayInt=Integer.parseInt(day);
-				instantDt.setDay(dayInt);
-			case 6:
-				monthExist=true;
-				if(!isPrecisionSet)
-				{
-					instantDt.setPrecision(TemporalPrecisionEnum.MONTH);
-					isPrecisionSet=true;
-				}
-				String month=date.substring(4,6);
-				int monthInt=Integer.parseInt(month);
-				if(!dayExist)
-				{
-					//System.out.println(monthInt);
-					instantDt.setMonth(monthInt);
-				}
-				else 
-					instantDt.setMonth(monthInt-1);
-				
-			case 4:
-				if(!isPrecisionSet)
-				{
-					instantDt.setPrecision(TemporalPrecisionEnum.YEAR);
-					isPrecisionSet=true;
-				}
-				String year=date.substring(0,4);
-				int yearInt=Integer.parseInt(year);
-				if(!monthExist)
-					instantDt.setYear(yearInt+1);
-				else
-					instantDt.setYear(yearInt);
-		}//end switch
-		return instantDt;
-
 	}
 	
 	// Following method is a recursive one and will be used as helper for StructDocText2Narrative
