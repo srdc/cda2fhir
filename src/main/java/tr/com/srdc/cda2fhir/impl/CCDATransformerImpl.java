@@ -33,6 +33,7 @@ public class CCDATransformerImpl implements CCDATransformer {
 
     public CCDATransformerImpl(IdGeneratorEnum idGen) {
         this();
+        // Override the default resource id pattern
         this.idGenerator = idGen;
     }
 
@@ -121,7 +122,11 @@ public class CCDATransformerImpl implements CCDATransformer {
 
             }
             else if(cdaSec instanceof MedicationsSection) {
-
+                MedicationsSection medSec = (MedicationsSection) cdaSec;
+                for(MedicationActivity medAct : medSec.getMedicationActivities()) {
+                    Bundle medBundle = resTransformer.MedicationActivity2MedicationStatement(medAct);
+                    mergeBundles(medBundle, ccdBundle, fhirSec, MedicationStatement.class);
+                }
             }
             else if(cdaSec instanceof PayersSection) {
 

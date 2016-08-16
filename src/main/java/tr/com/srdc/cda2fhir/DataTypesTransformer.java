@@ -71,6 +71,8 @@ public interface DataTypesTransformer {
 	
 	StringDt ST2String(ST st);
 
+	DateTimeDt String2DateTime(String date);
+
 	NarrativeDt StrucDocText2Narrative(StrucDocText sdt);
 	
 	ContactPointDt TEL2ContactPoint(TEL tel);

@@ -726,6 +726,72 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 	}
 
+	@Override
+	public Condition Indication2Condition(Indication indication) {
+		if(indication == null || indication.isSetNullFlavor())
+			return null;
+
+		Condition fhirCond = new Condition();
+
+		// id
+		IdDt resourceId = new IdDt("Condition", getUniqueId());
+		fhirCond.setId(resourceId);
+
+		// identifier
+		if(indication.getIds() != null && !indication.getIds().isEmpty()) {
+			for(II ii : indication.getIds()) {
+				fhirCond.addIdentifier(dtt.II2Identifier(ii));
+			}
+		}
+
+		// code -> category
+		if(indication.getCode() != null && !indication.getCode().isSetNullFlavor()) {
+			if(indication.getCode().getCode() != null) {
+				ConditionCategoryCodesEnum conditionCategory = vst.ProblemType2ConditionCategoryCodesEnum(indication.getCode().getCode());
+				if(conditionCategory != null) {
+					fhirCond.setCategory(conditionCategory);
+				}
+			}
+		}
+
+		// effectiveTime -> onset & abatement
+		if(indication.getEffectiveTime() != null && !indication.getEffectiveTime().isSetNullFlavor()) {
+
+			IVXB_TS low = indication.getEffectiveTime().getLow();
+			IVXB_TS high = indication.getEffectiveTime().getHigh();
+			String value = indication.getEffectiveTime().getValue();
+
+			// low and high are both empty, and only the @value exists -> onset
+			if(low == null && high == null && value != null && !value.equals("")) {
+				fhirCond.setOnset(dtt.String2DateTime(value));
+			}
+			else {
+				// low -> onset
+				if (low != null && !low.isSetNullFlavor()) {
+					fhirCond.setOnset(dtt.TS2DateTime(low));
+				}
+				// high -> abatement
+				if (high != null && !high.isSetNullFlavor()) {
+					fhirCond.setAbatement(dtt.TS2DateTime(high));
+				}
+			}
+		}
+
+		// value -> code
+		if(indication.getValues() != null && !indication.getValues().isEmpty()) {
+			// There is only 1 value, but anyway...
+			for(ANY value : indication.getValues()) {
+				if(value != null && !value.isSetNullFlavor()) {
+					if(value instanceof CD)
+						fhirCond.setCode(dtt.CD2CodeableConcept((CD)value));
+				}
+			}
+		}
+
+
+		return fhirCond;
+	}
+
 	public Bundle ManufacturedProduct2Medication(ManufacturedProduct cdaManuProd) {
 		if(cdaManuProd == null || cdaManuProd.isSetNullFlavor())
 			return null;
@@ -794,16 +860,14 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// id
 		IdDt resourceId = new IdDt("MedicationActivity", getUniqueId());
 		fhirMedSt.setId(resourceId);
-		
-		
+
 		// identifier
 		if(cdaMedAct.getIds() != null && !cdaMedAct.getIds().isEmpty()) {
 			for(II ii : cdaMedAct.getIds()) {
 				fhirMedSt.addIdentifier(dtt.II2Identifier(ii));
 			}
 		}
-		
-		
+
 		// status
 		if(cdaMedAct.getStatusCode() != null && !cdaMedAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaMedAct.getStatusCode().getCode() != null && !cdaMedAct.getStatusCode().getCode().isEmpty()) {
@@ -869,43 +933,53 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// cdaDataType.RTO does nothing but extends cdaDataType.RTO_PQ_PQ
 			fhirDosage.setMaxDosePerPeriod(dtt.RTO2Ratio( (RTO) cdaMedAct.getMaxDoseQuantity()));
 		}
-		
-		
+
 		// wasNotTaken
 		if(cdaMedAct.getNegationInd() != null) {
 			fhirMedSt.setWasNotTaken(cdaMedAct.getNegationInd());
 		}
+
+		// indication -> reason
+		for(Indication indication : cdaMedAct.getIndications()) {
+			// First, to set reasonForUse, we need to set wasNotTaken to false
+			fhirMedSt.setWasNotTaken(false);
+
+			Condition cond = Indication2Condition(indication);
+			medStatementBundle.addEntry(new Bundle.Entry().setResource(cond));
+			fhirMedSt.setReasonForUse(new ResourceReferenceDt(cond.getId()));
+		}
 		
 		// reason
-		for(EntryRelationship ers : cdaMedAct.getEntryRelationships()) {
-			if(ers.getTypeCode() == x_ActRelationshipEntryRelationship.RSON) {
-				if(ers.getObservation() != null && !ers.isSetNullFlavor()) {
-					
-					// to set reasonForUse, we need to set wasNotTaken to false
-					fhirMedSt.setWasNotTaken(false);
-					
-					// reasonForUse
-					ca.uhn.fhir.model.dstu2.resource.Observation fhirObservation = null;
-					Bundle fhirObservationBundle = Observation2Observation(ers.getObservation());
-					
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirObservationBundle.getEntry()) {
-						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Observation) {
-							fhirObservation = (ca.uhn.fhir.model.dstu2.resource.Observation)entry.getResource();
-						}
-					}
-					
-					medStatementBundle.addEntry(new Bundle.Entry().setResource(fhirObservation));
-					fhirMedSt.setReasonForUse(new ResourceReferenceDt(fhirObservation.getId()));
-					
-				}
-	
-				// reasonNotTaken
-				if(cdaMedAct.getNegationInd() != null && cdaMedAct.getNegationInd()) {
-					// TODO: Necip:
-					// Do we need to fill reasonNotTaken?
-				}
-			}
-		}
+//		for(EntryRelationship ers : cdaMedAct.getEntryRelationships()) {
+//			if(ers.getTypeCode() == x_ActRelationshipEntryRelationship.RSON) {
+//				if(ers.getObservation() != null && !ers.isSetNullFlavor()) {
+//
+//					// to set reasonForUse, we need to set wasNotTaken to false
+//					fhirMedSt.setWasNotTaken(false);
+//
+//					// reasonForUse
+//					ca.uhn.fhir.model.dstu2.resource.Observation fhirObservation = null;
+//					Bundle fhirObservationBundle = Observation2Observation(ers.getObservation());
+//
+//					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirObservationBundle.getEntry()) {
+//						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Observation) {
+//							fhirObservation = (ca.uhn.fhir.model.dstu2.resource.Observation)entry.getResource();
+//						}
+//					}
+//
+//					medStatementBundle.addEntry(new Bundle.Entry().setResource(fhirObservation));
+//					fhirMedSt.setReasonForUse(new ResourceReferenceDt(fhirObservation.getId()));
+//
+//				}
+//
+//				// reasonNotTaken
+//				if(cdaMedAct.getNegationInd() != null && cdaMedAct.getNegationInd()) {
+//					// TODO: Necip:
+//					// Do we need to fill reasonNotTaken?
+//				}
+//			}
+//		}
+
 		return medStatementBundle;	
 	}
 
@@ -1605,10 +1679,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 
-					// TODO: Following lines get the data from ProblemObservation.value(CD)
-					// Determine where to map it: bodySite or code
-					// For now, it is mapped to code
-					// code <-> value
+					// value -> code
 					if(cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
 						for(ANY value : cdaProbObs.getValues()) {
 							if(value != null && !value.isSetNullFlavor()) {
@@ -1647,8 +1718,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 							}
 						}
 					}
-
-
 				}
 			}
 		}

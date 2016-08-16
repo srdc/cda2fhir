@@ -2,14 +2,17 @@ package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import org.openhealthtools.mdht.uml.cda.*;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
-import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
-import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
+import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
+import org.openhealthtools.mdht.uml.cda.Encounter;
+import org.openhealthtools.mdht.uml.cda.Guardian;
+import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
+import org.openhealthtools.mdht.uml.cda.PatientRole;
+import org.openhealthtools.mdht.uml.cda.Procedure;
+import org.openhealthtools.mdht.uml.cda.consol.*;
+
 /**
  * Created by mustafa on 7/28/2016.
  */
@@ -26,6 +29,8 @@ public interface ResourceTransformer {
 	Bundle Entity2Group( Entity cdaEntity );
 	
 	FamilyMemberHistory FamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
+
+	Condition Indication2Condition(Indication indication);
 	
 	Bundle ManufacturedProduct2Medication(ManufacturedProduct cdaManuProd);
 	

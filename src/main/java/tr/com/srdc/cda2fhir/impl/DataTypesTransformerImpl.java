@@ -380,12 +380,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor())
 			{
 				String date=ivlts.getLow().getValue();
-				periodDt.setStart(dateParser(date));
+				periodDt.setStart(String2DateTime(date));
 			}
 			if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor())
 			{
 				String date=ivlts.getHigh().getValue();
-				periodDt.setEnd(dateParser(date));
+				periodDt.setEnd(String2DateTime(date));
 			}
 			return periodDt;
 		}
@@ -671,7 +671,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			String date=ts.getValue();
 			if(date.length()>8)
 				date=date.substring(0,8);
-			return dateParser(date);
+			return String2DateTime(date);
 		}
 	}
 	
@@ -690,8 +690,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	return ( url == null || url.isSetNullFlavor() ) ? null : new UriDt(url.getValue());
     }
 
-	// Helper Functions
-	private DateTimeDt dateParser(String date)
+	@Override
+	public DateTimeDt String2DateTime(String date)
 	{
 		DateTimeDt dateTimeDt = new DateTimeDt();
 		boolean isPrecisionSet=false;
@@ -788,9 +788,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					dateTimeDt.setYear(yearInt+1);
 				else
 					dateTimeDt.setYear(yearInt);
-		}//end switch
+		}
+
 		return dateTimeDt;
-	}//end dateParser
+	}
+
+	// Helper Functions
 	private InstantDt dateParserInstant(String date)
 	{
 		InstantDt instantDt = new InstantDt();
