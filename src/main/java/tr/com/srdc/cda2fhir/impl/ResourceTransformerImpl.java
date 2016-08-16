@@ -62,6 +62,7 @@ import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
+import ca.uhn.fhir.model.dstu2.valueset.EncounterClassEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
@@ -203,6 +204,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					
 					
 					// searching for reaction observation
+					// NOTE: fhirAllergyIntolerance.reaction.duration doesn't exists although daf wants it mapped
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()){
 						for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()){
 							if(entryRelShip != null && !entryRelShip.isSetNullFlavor()){
@@ -222,9 +224,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 												}
 											}
 										}
-										
-										// TODO: fhirReaction.duration doesn't exists
-										// However, daf mapping requires it to be mapped
 
 										// severity <-> reactionObservation.severityObservation.value(CD).code
 										if(cdaReactionObs.getSeverityObservation() != null && !cdaReactionObs.getSeverityObservation().isSetNullFlavor()){
@@ -420,8 +419,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		Bundle fhirEncounterBundle = new Bundle();
 		fhirEncounterBundle.addEntry(new Bundle.Entry().setResource(fhirEncounter));
-		// TODO: hospitalization.period not found. However, daf requires it being mapped
-		// check: reason, type, class
+		
+		// NOTE: hospitalization.period not found. However, daf requires it being mapped
 
 		// patient
 		fhirEncounter.setPatient(getPatientRef());
@@ -446,12 +445,23 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// class <-> code
-		if(cdaEncounter.getCode() != null && !cdaEncounter.getCode().isSetNullFlavor()){
-			if(cdaEncounter.getCode().getCode() != null){
-
-				if(vst.EncounterCode2EncounterClassEnum(cdaEncounter.getCode().getCode()) != null){
-					fhirEncounter.setClassElement(vst.EncounterCode2EncounterClassEnum(cdaEncounter.getCode().getCode()));
+		// type <-> code
+		if(cdaEncounter.getCode() != null && !cdaEncounter.getCode().isSetNullFlavor()) {
+			fhirEncounter.addType(dtt.CD2CodeableConcept(cdaEncounter.getCode()));
+		}
+		
+		// class <-> code.translation
+		if(cdaEncounter.getCode() != null && !cdaEncounter.getCode().isSetNullFlavor()) {
+			if(cdaEncounter.getCode().getTranslations() != null && !cdaEncounter.getCode().getTranslations().isEmpty()) {
+				for(CD cd : cdaEncounter.getCode().getTranslations()) {
+					if(cd != null && !cd.isSetNullFlavor()) {
+						System.out.println("***");
+						System.out.println(cd.getCode());
+						EncounterClassEnum encounterClass = vst.EncounterCode2EncounterClassEnum(cd.getCode());
+						if(encounterClass != null){
+							fhirEncounter.setClassElement(encounterClass);
+						}
+					}
 				}
 			}
 		}
@@ -523,7 +533,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// TODO: Necip: Check if the following mapping is OK.
 		// Getting information from entryRelShip.observation(indication)
 		if(cdaEncounter.getEntryRelationships() != null && !cdaEncounter.getEntryRelationships().isEmpty()){
 			for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaEncounter.getEntryRelationships()){
@@ -542,13 +551,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 									}
 								}
 							}
-
-							// type <-> indication.code
-							if(cdaIndication.getCode() != null && !cdaIndication.getCode().isSetNullFlavor()){
-								fhirEncounter.addType(dtt.CD2CodeableConcept(cdaIndication.getCode()));
-							}
-
-
 						}
 					}
 				}
@@ -559,6 +561,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirEncounterBundle;
 	}
 
+	// never used
 	public Bundle Entity2Group(Entity cdaEntity){
 		if( cdaEntity == null || cdaEntity.isSetNullFlavor() ) return null;
 		else if( cdaEntity.getDeterminerCode() != org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer.KIND ) return null;
@@ -611,8 +614,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	public FamilyMemberHistory FamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO){
 		if(cdaFHO == null || cdaFHO.isSetNullFlavor())
 			return null;
-		
-		// TODO: Necip: Couldn't understand what corresponds to outcome when looked to the example CDA file
+
 		FamilyMemberHistory fhirFMH = new FamilyMemberHistory();
 		
 		// id
@@ -642,10 +644,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryObservation familyHistoryObs : cdaFHO.getFamilyHistoryObservations()){
 				if(familyHistoryObs != null && !familyHistoryObs.isSetNullFlavor()){
 					
-					// TODO: In daf, it needs condition.age and condition.type to be mapped.
-					// However, there are no such fields.
-					// Instead, code&onset mappings are done. Check if OK
-					
 					// adding a new condition to fhirFMH
 					FamilyMemberHistory.Condition condition = fhirFMH.addCondition();
 					
@@ -659,17 +657,22 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 							}
 						}
 					}
-
+					
 					// deceased
 					if(familyHistoryObs.getFamilyHistoryDeathObservation() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().isSetNullFlavor()){
 						// deceased <- true
 						fhirFMH.setDeceased(new BooleanDt(true));
 						
-						// effective
-						// TODO: Necip: When trying to set the time of death, deceased value disappears from the JSON object
-						// You can try by using the following line:
-//							fhirFMH.setDeceased( dtt.IVL_TS2Period( familyHistoryObs.getEffectiveTime() ) );
-//							 The value of effectiveTime in the example: <effectiveTime value="1967"/>
+						// if dead, set outcome as dead
+						if(familyHistoryObs.getFamilyHistoryDeathObservation().getValues() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().getValues().isEmpty()) {
+							for(ANY value : familyHistoryObs.getFamilyHistoryDeathObservation().getValues()) {
+								if(value != null && !value.isSetNullFlavor()) {
+									if(value instanceof CD) {
+										condition.setOutcome(dtt.CD2CodeableConcept((CD)value));
+									}
+								}
+							}
+						}
 					}
 					
 					// onset <-> familyHistoryObs.ageObservation
