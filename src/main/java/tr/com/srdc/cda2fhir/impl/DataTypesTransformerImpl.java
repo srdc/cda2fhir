@@ -22,37 +22,18 @@ import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.cda.StrucDocText;
-import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ADXP;
-import org.openhealthtools.mdht.uml.hl7.datatypes.BIN;
-import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
-import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
-import org.openhealthtools.mdht.uml.hl7.datatypes.II;
-import org.openhealthtools.mdht.uml.hl7.datatypes.INT;
-import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
-import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
-import org.openhealthtools.mdht.uml.hl7.datatypes.PQR;
-import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
-import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
-import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
-import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
+import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
+import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 /**
  * Created by mustafa on 7/21/2016.
  */
 public class DataTypesTransformerImpl implements DataTypesTransformer {
-	ValueSetsTransformerImpl VSTI = new ValueSetsTransformerImpl();
+	ValueSetsTransformer vst = new ValueSetsTransformerImpl();
 	public AddressDt AD2Address(AD ad) {
 	    
 	    if(ad == null || ad.isSetNullFlavor()) return null;
@@ -68,13 +49,13 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	        	for(PostalAddressUse postalAddressUse : ad.getUses()){
 	        		// If we catch a valid value for type or use, we assign it
 	        		if( postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST ){
-	        			address.setType( VSTI.PostalAddressUse2AddressTypeEnum( postalAddressUse ) );
+	        			address.setType( vst.PostalAddressUse2AddressTypeEnum( postalAddressUse ) );
 	        		} else if( postalAddressUse == PostalAddressUse.H ||
 	        				postalAddressUse == PostalAddressUse.HP ||
 	        				postalAddressUse == PostalAddressUse.WP ||
 	        				postalAddressUse == PostalAddressUse.TMP ||
 	        				postalAddressUse == PostalAddressUse.BAD ){
-	        			address.setUse( VSTI.PostalAdressUse2AddressUseEnum( postalAddressUse ) );
+	        			address.setUse( vst.PostalAdressUse2AddressUseEnum( postalAddressUse ) );
 	        		}
 	        	}
 	        }       
@@ -197,7 +178,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         		boolean isEmpty = true;
             	
             	if( myCd.getCodeSystem() != null ){
-            		codingDt.setSystem( VSTI.oid2Url(myCd.getCodeSystem()) );
+            		codingDt.setSystem( vst.oid2Url(myCd.getCodeSystem()) );
             		isEmpty = false;
             	}
             	if( myCd.getCode() !=null ){
@@ -220,7 +201,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	
         	CodingDt codingDt = new CodingDt();
         	if( cd.getCodeSystem() != null ){
-        		codingDt.setSystem(VSTI.oid2Url(cd.getCodeSystem())  );
+        		codingDt.setSystem(vst.oid2Url(cd.getCodeSystem())  );
         		isEmpty = false;
         	}
         	if( cd.getCode() !=null ){
@@ -427,6 +408,31 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		}
 	}
 
+	public TimingDt PIVL_TS2Timing(PIVL_TS pivlts) {
+		if(pivlts == null || pivlts.isSetNullFlavor())
+			return null;
+
+		TimingDt timing = new TimingDt();
+
+		// period -> period
+		if(pivlts.getPeriod() != null && !pivlts.getPeriod().isSetNullFlavor()) {
+			TimingDt.Repeat repeat = new TimingDt.Repeat();
+			timing.setRepeat(repeat);
+			// period.value -> repeat.period
+			if(pivlts.getPeriod().getValue() != null)
+				repeat.setPeriod(pivlts.getPeriod().getValue());
+			// period.unit -> repeat.periodUnits
+			if(pivlts.getPeriod().getUnit() != null)
+				repeat.setPeriodUnits(vst.PeriodUnit2UnitsOfTimeEnum(pivlts.getPeriod().getUnit()));
+		}
+
+		// phase -> phase
+		// TODO: Necip buradan devam et
+
+
+		return timing;
+	}
+
 	public QuantityDt PQ2Quantity(PQ pq)
 	{
 		if(pq == null || pq.isSetNullFlavor() ) return null;
@@ -481,7 +487,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					if( pqr != null && !pqr.isSetNullFlavor() ){
 						
 						// system
-						simpleQuantity.setSystem( VSTI.oid2Url( pqr.getCodeSystem() ) );
+						simpleQuantity.setSystem( vst.oid2Url( pqr.getCodeSystem() ) );
 						
 						// code
 						simpleQuantity.setCode( pqr.getCode() );

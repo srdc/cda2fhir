@@ -46,7 +46,7 @@ public class CCDATransformerImpl implements CCDATransformer {
     public synchronized String getUniqueId() {
         switch (this.idGenerator) {
             case COUNTER:
-                return "" + (++counter);
+                return Integer.toString(++counter);
             case UUID:
             default:
                 return UUID.randomUUID().toString();

@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir;
 
+import ca.uhn.fhir.model.dstu2.valueset.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
@@ -7,24 +8,6 @@ import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-import ca.uhn.fhir.model.dstu2.valueset.AddressTypeEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceSeverityEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
-import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
-import ca.uhn.fhir.model.dstu2.valueset.EncounterClassEnum;
-import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
-import ca.uhn.fhir.model.dstu2.valueset.FamilyHistoryStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
-import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
-import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
-import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 
 public interface ValueSetsTransformer {
 	
@@ -51,7 +34,9 @@ public interface ValueSetsTransformer {
 	String oid2Url(String codeSystem);
 	
 	CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT);
-	
+
+	UnitsOfTimeEnum PeriodUnit2UnitsOfTimeEnum(String periodUnit);
+
 	ConditionCategoryCodesEnum ProblemType2ConditionCategoryCodesEnum(String problemType);
 	
 	AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse );

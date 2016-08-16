@@ -22,23 +22,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.SeverityObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
-import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
-import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
-import org.openhealthtools.mdht.uml.hl7.datatypes.II;
-import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
-import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
-import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
-import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
-import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
-import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
-import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
@@ -147,7 +131,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 					fhirAllergyIntolerance.setRecorder(new ResourceReferenceDt(fhirPractitioner.getId()));
-				allergyIntoleranceBundle.addEntry(new Bundle.Entry().setResource(fhirPractitioner));	
+					allergyIntoleranceBundle.addEntry(new Bundle.Entry().setResource(fhirPractitioner));
 				}
 			}
 		}
@@ -856,6 +840,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return null;
 		
 		MedicationStatement fhirMedSt = new MedicationStatement();
+		MedicationStatement.Dosage fhirDosage = fhirMedSt.addDosage();
 		
 		Bundle medStatementBundle = new Bundle();
 		medStatementBundle.addEntry(new Bundle.Entry().setResource(fhirMedSt));
@@ -906,15 +891,17 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaMedAct.getEffectiveTimes() != null && !cdaMedAct.getEffectiveTimes().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS ts : cdaMedAct.getEffectiveTimes()) {
 				if(ts != null && !ts.isSetNullFlavor()) {
+					// IVL_TS -> effectivePeriod
 					if(ts instanceof IVL_TS) {
-						fhirMedSt.setEffective( dtt.IVL_TS2Period((IVL_TS)ts));
+						fhirMedSt.setEffective(dtt.IVL_TS2Period((IVL_TS)ts));
+					}
+					// PIVL_TS -> dosage.timing
+					if(ts instanceof PIVL_TS) {
+						fhirDosage.setTiming(dtt.PIVL_TS2Timing((PIVL_TS)ts));
 					}
 				}
 			}
 		}
-		
-		// dosage
-		MedicationStatement.Dosage fhirDosage = fhirMedSt.addDosage();
 		
 		// dosage.route
 		if(cdaMedAct.getRouteCode() != null && !cdaMedAct.getRouteCode().isSetNullFlavor()) {
@@ -951,37 +938,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			medStatementBundle.addEntry(new Bundle.Entry().setResource(cond));
 			fhirMedSt.setReasonForUse(new ResourceReferenceDt(cond.getId()));
 		}
-		
-		// reason
-//		for(EntryRelationship ers : cdaMedAct.getEntryRelationships()) {
-//			if(ers.getTypeCode() == x_ActRelationshipEntryRelationship.RSON) {
-//				if(ers.getObservation() != null && !ers.isSetNullFlavor()) {
-//
-//					// to set reasonForUse, we need to set wasNotTaken to false
-//					fhirMedSt.setWasNotTaken(false);
-//
-//					// reasonForUse
-//					ca.uhn.fhir.model.dstu2.resource.Observation fhirObservation = null;
-//					Bundle fhirObservationBundle = Observation2Observation(ers.getObservation());
-//
-//					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirObservationBundle.getEntry()) {
-//						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Observation) {
-//							fhirObservation = (ca.uhn.fhir.model.dstu2.resource.Observation)entry.getResource();
-//						}
-//					}
-//
-//					medStatementBundle.addEntry(new Bundle.Entry().setResource(fhirObservation));
-//					fhirMedSt.setReasonForUse(new ResourceReferenceDt(fhirObservation.getId()));
-//
-//				}
-//
-//				// reasonNotTaken
-//				if(cdaMedAct.getNegationInd() != null && cdaMedAct.getNegationInd()) {
-//					// TODO: Necip:
-//					// Do we need to fill reasonNotTaken?
-//				}
-//			}
-//		}
 
 		return medStatementBundle;	
 	}
