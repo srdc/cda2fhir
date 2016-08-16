@@ -12,6 +12,9 @@ import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
@@ -605,7 +608,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testProcedure2Procedure(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -729,6 +732,25 @@ public class ResourceTransformerTestNecip {
 	}
 
 	@Ignore
+	public void testSubstanceAdministration2Immunization() {
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		ImmunizationsSectionEntriesOptional immSec = test.ccd.getImmunizationsSectionEntriesOptional();
+		
+		if(immSec != null && !immSec.isSetNullFlavor()) {
+			for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
+				if(immAct != null && !immAct.isSetNullFlavor()) {
+					System.out.println( "Transformating starting..." );
+					Bundle fhirImm = rt.SubstanceAdministration2Immunization(immAct);
+					System.out.println("End of transformation. Printing the resource as JSON object..");
+					printJSON(fhirImm);
+					System.out.println("End of print.");
+				}
+			}
+		}
+	}
+	
+	@Ignore
 	public void testLanguageCommunication2Communication(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int patientCount = 0;
@@ -749,4 +771,43 @@ public class ResourceTransformerTestNecip {
 			}
 		}
 	}
+	
+	@Ignore
+	public void testVitalSignObservation2Observation() {
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		VitalSignsSectionEntriesOptional vitalSignsSec = test.ccd.getVitalSignsSectionEntriesOptional();
+		if(vitalSignsSec != null && !vitalSignsSec.isSetNullFlavor()) {
+			if(vitalSignsSec.getVitalSignsOrganizers() != null && !vitalSignsSec.getVitalSignsOrganizers().isEmpty()) {
+				for(VitalSignsOrganizer vitalSignOrganizer : vitalSignsSec.getVitalSignsOrganizers()) {
+					if(vitalSignOrganizer != null && !vitalSignOrganizer.isSetNullFlavor()) {
+						if(vitalSignOrganizer.getVitalSignObservations() != null && !vitalSignOrganizer.getVitalSignObservations().isEmpty()) {
+							for(VitalSignObservation vitalSignObservation : vitalSignOrganizer.getVitalSignObservations()) {
+								if(vitalSignObservation != null && !vitalSignObservation.isSetNullFlavor()) {
+									System.out.println( "Transformating starting..." );
+									Bundle fhirObservation = rt.VitalSignObservation2Observation((VitalSignObservation)vitalSignObservation);
+									System.out.println("End of transformation. Printing the resource as JSON object..");
+									printJSON(fhirObservation);
+									System.out.println("End of print.");
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

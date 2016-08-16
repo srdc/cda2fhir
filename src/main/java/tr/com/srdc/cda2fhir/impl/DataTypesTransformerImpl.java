@@ -374,23 +374,29 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     }
 	
 	public PeriodDt IVL_TS2Period(IVL_TS ivlts) {
-		if( ivlts == null || ivlts.isSetNullFlavor() ) return null;
-		else{
-			PeriodDt periodDt =new PeriodDt();
-			
-			if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor())
-			{
-				String date=ivlts.getLow().getValue();
-				periodDt.setStart(String2DateTime(date));
-			}
-			if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor())
-			{
-				String date=ivlts.getHigh().getValue();
-				periodDt.setEnd(String2DateTime(date));
-			}
-			return periodDt;
+		if(ivlts == null || ivlts.isSetNullFlavor()) 
+			return null;
+		
+		PeriodDt periodDt = new PeriodDt();
+		
+		// low
+		if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor()) {
+			String date=ivlts.getLow().getValue();
+			periodDt.setStart(String2DateTime(date));
 		}
 		
+		// high
+		if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor()) {
+			String date=ivlts.getHigh().getValue();
+			periodDt.setEnd(String2DateTime(date));
+		}
+		
+		// low is null, high is null and the value is carrying the low value
+		if(ivlts.getLow() == null && ivlts.getHigh() == null && ivlts.getValue() != null && !ivlts.getValue().equals("")) {
+			periodDt.setStart(String2DateTime(ivlts.getValue()));
+		}
+		
+		return periodDt;
 	}
 	
 	public RangeDt IVL_PQ2Range(IVL_PQ ivlpq){

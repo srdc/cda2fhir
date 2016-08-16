@@ -41,7 +41,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 
 import ca.uhn.fhir.model.api.ExtensionDt;
@@ -53,14 +52,11 @@ import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.composite.TimingDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
-import ca.uhn.fhir.model.dstu2.resource.Encounter.Hospitalization;
 import ca.uhn.fhir.model.dstu2.resource.Organization.Contact;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceCategoryEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceTypeEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterClassEnum;
 import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
@@ -68,7 +64,6 @@ import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
-import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
@@ -162,10 +157,14 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// onset <-> effectiveTime.low
+		// onset <-> effectiveTime.low(or value)
 		if(cdaAllergyProbAct.getEffectiveTime() != null && !cdaAllergyProbAct.getEffectiveTime().isSetNullFlavor()){
+			
+			// low(if not exists, value) -> onset
 			if(cdaAllergyProbAct.getEffectiveTime().getLow() != null && !cdaAllergyProbAct.getEffectiveTime().getLow().isSetNullFlavor()){
 				fhirAllergyIntolerance.setOnset(dtt.TS2DateTime(cdaAllergyProbAct.getEffectiveTime().getLow()));
+			} else if(cdaAllergyProbAct.getEffectiveTime().getValue() != null && !cdaAllergyProbAct.getEffectiveTime().getValue().isEmpty()) {
+				fhirAllergyIntolerance.setOnset(dtt.String2DateTime(cdaAllergyProbAct.getEffectiveTime().getValue()));
 			}
 		}
 		
@@ -500,8 +499,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 
 		// period <-> .effectiveTime (low & high)
-		if( cdaEncounter.getEffectiveTime() != null && !cdaEncounter.getEffectiveTime().isSetNullFlavor() ){
-			fhirEncounter.setPeriod( dtt.IVL_TS2Period( cdaEncounter.getEffectiveTime() ) );
+		if(cdaEncounter.getEffectiveTime() != null && !cdaEncounter.getEffectiveTime().isSetNullFlavor()) {
+			fhirEncounter.setPeriod(dtt.IVL_TS2Period(cdaEncounter.getEffectiveTime()));
 		}
 
 		// location <-> .participant[typeCode=LOC]
@@ -907,7 +906,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS ts : cdaMedAct.getEffectiveTimes()) {
 				if(ts != null && !ts.isSetNullFlavor()) {
 					if(ts instanceof IVL_TS) {
-						fhirMedSt.setEffective( dtt.IVL_TS2Period((IVL_TS)ts));
+						fhirMedSt.setEffective(dtt.IVL_TS2Period((IVL_TS)ts));
 					}
 				}
 			}
@@ -1108,6 +1107,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS ts : cdaMediDisp.getEffectiveTimes()) {
 				if(ts != null && !ts.isSetNullFlavor()) {
 					fhirTiming.addEvent(dtt.TS2DateTime(ts));
+				} else if(ts.getValue() != null && !ts.getValue().isEmpty()) {
+					fhirTiming.addEvent(dtt.String2DateTime(ts.getValue()));
 				}
 			}
 			
@@ -1702,6 +1703,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						// low <-> onset
 						if(low != null && !low.isSetNullFlavor()) {
 							fhirCondition.setOnset(dtt.TS2DateTime(low));
+						} else if(cdaProbObs.getEffectiveTime().getValue() != null && !cdaProbObs.getEffectiveTime().getValue().isEmpty()) {
+							fhirCondition.setOnset(dtt.String2DateTime(cdaProbObs.getEffectiveTime().getValue()));
 						}
 
 						// high <-> abatement
@@ -1753,8 +1756,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 
 		// performed
-		if( cdaPr.getEffectiveTime() != null && !cdaPr.getEffectiveTime().isSetNullFlavor() ){
-			fhirPr.setPerformed( dtt.IVL_TS2Period( cdaPr.getEffectiveTime() )  );
+		if(cdaPr.getEffectiveTime() != null && !cdaPr.getEffectiveTime().isSetNullFlavor()){
+			fhirPr.setPerformed(dtt.IVL_TS2Period(cdaPr.getEffectiveTime()));
 		}
 
 		// bodySite
@@ -1861,7 +1864,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// effective time
 			if(cdaSubAdm.getEffectiveTimes()!=null && !cdaSubAdm.getEffectiveTimes().isEmpty()) {
 				for(SXCM_TS effectiveTime : cdaSubAdm.getEffectiveTimes()) {
-						if( effectiveTime != null && !effectiveTime.isSetNullFlavor() ){
+					if(effectiveTime != null && !effectiveTime.isSetNullFlavor()) {
 						// Asserting that at most one effective time exists
 						fhirImmunization.setDate(dtt.TS2DateTime(effectiveTime));
 					}
