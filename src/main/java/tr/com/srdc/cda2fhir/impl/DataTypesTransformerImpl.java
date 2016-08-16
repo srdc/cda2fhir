@@ -4,6 +4,7 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.*;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NarrativeStatusEnum;
+import ca.uhn.fhir.model.dstu2.valueset.TimingAbbreviationEnum;
 import ca.uhn.fhir.model.primitive.Base64BinaryDt;
 import ca.uhn.fhir.model.primitive.BaseDateTimeDt;
 import ca.uhn.fhir.model.primitive.BooleanDt;
@@ -407,6 +408,9 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		return rangeDt;
 	}
 
+	// TODO: Necip: I will test the following method.
+	// http://wiki.hl7.org/images/c/ca/Medication_Frequencies_in_CDA.pdf
+	// http://www.cdapro.com/know/24997
 	public TimingDt PIVL_TS2Timing(PIVL_TS pivlts) {
 		if(pivlts == null || pivlts.isSetNullFlavor())
 			return null;
@@ -423,12 +427,13 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			// period.unit -> repeat.periodUnits
 			if(pivlts.getPeriod().getUnit() != null)
 				repeat.setPeriodUnits(vst.PeriodUnit2UnitsOfTimeEnum(pivlts.getPeriod().getUnit()));
+			
+			// phase -> repeat.bounds
+			if(pivlts.getPhase() != null && !pivlts.getPhase().isSetNullFlavor()) {
+				repeat.setBounds(IVL_TS2Period(pivlts.getPhase()));
+			}
 		}
-
-		// phase -> phase
-		// TODO: Necip buradan devam et
-
-
+		
 		return timing;
 	}
 
