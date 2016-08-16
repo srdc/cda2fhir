@@ -585,86 +585,115 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		return null;
 	}
-	// TODO: Following method (TS2Date) gives null output although given parameter is OK
-	// Check. Ex. input: 200704171515-0800
-	public DateDt TS2Date(TS ts){
-    	if(ts == null || ts.isSetNullFlavor())
-    		return null;
-
-    	boolean monthExist=false;
-    	boolean dayExist=false;
-    	DateDt resultDateDt = new DateDt();
-    	int lengthOfTheDateString = ts.getValue().length();
-    	String dateString = ts.getValue();
-    	boolean isPrecisionSet = false;
-    	
-    	switch(lengthOfTheDateString){
-    	/* The cases where the length of the string is 10, 7 or 4 is for the date of forms yyyy-mm-dd, yyyy-mm and yyyy
-    	 * The cases will leave the switch block at case 4 (by break). 
-    	 * If the date is of another form (yyyymmdd or yyyymm  ), then the following cases will apply (case 8,6) 
-    	 * */ 
-    	case 10: /* yyyy-mm-dd */
-    		if( !isPrecisionSet ) {
-    			/* If the precision hasn't set yet, set it and set isPrecisionSet to be true. */
-    			resultDateDt.setPrecision(TemporalPrecisionEnum.DAY);
-    			isPrecisionSet = true; 
-    		}
-    		dayExist=true;
-    		resultDateDt.setDay( Integer.parseInt(dateString.substring(8,10)) );
-    	case 7: /* yyyy-mm */
-    		if( !isPrecisionSet ) {
-    			resultDateDt.setPrecision(TemporalPrecisionEnum.MONTH);
-    			isPrecisionSet = true; 
-    		}
-    		monthExist=true;
-    		if(!dayExist)
-    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(5,7)) );
-    		else
-    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(5,7)) - 1);
-    		
-    	case 4: /* yyyy */
-    		if( !isPrecisionSet ) {
-    			resultDateDt.setPrecision(TemporalPrecisionEnum.YEAR);
-    			isPrecisionSet = true; 
-    		}
-    		if(!monthExist)
-    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) + 1 );
-    		else
-    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)));
-    		break;
-    	case 8: /* yyyymmdd */
-    		if( !isPrecisionSet ) {
-    			resultDateDt.setPrecision(TemporalPrecisionEnum.DAY);
-    			isPrecisionSet = true; 
-    		}
-    		dayExist=true;
-    		resultDateDt.setDay( Integer.parseInt(dateString.substring(6,8)) );		
-    	case 6: /* yyyymm */
-    		if( !isPrecisionSet ) {
-    			resultDateDt.setPrecision(TemporalPrecisionEnum.MONTH);
-    			isPrecisionSet = true; 
-    		}
-    		monthExist=true;
-    		if(!dayExist)
-    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(4,6)) );
-    		else
-    			resultDateDt.setMonth( Integer.parseInt(dateString.substring(4,6)) - 1);
-    		
-    		if(!monthExist)
-    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)) + 1 );
-    		else
-    			resultDateDt.setYear( Integer.parseInt(dateString.substring(0,4)));
-    		/* The case where the date is of form yyyy is covered in case 4.
-    		 * Therefore, we just set the year in one line for the cases yyyymm and yyyymmdd 
-    		 */
-    	}
-    return resultDateDt;
-    }
 	
-	public DateTimeDt TS2DateTime(TS ts){
+	public DateDt TS2Date(TS ts){
+		if(ts == null || ts.isSetNullFlavor())
+			return null;
+		
+		String dateString = ts.getValue();
+		DateDt date = new DateDt();
+		TemporalPrecisionEnum precision = null;
+		
+		/*
+		 * Possible date forms
+		 * YYYY: year
+		 * YYYYMM: year month
+		 * YYYYMMDD: year month day
+		 * YYYYMMDDHHMM: year month day hour minute
+		 * YYYYMMDDHHMMSS.S: year month day hour minute second
+		 * YYYYMMDDHHMM+TIZO: year month day hour minute timezone
+		 */
+		
+		// determining precision
+		switch(dateString.length()) {
+			case 4: // yyyy
+				precision = TemporalPrecisionEnum.YEAR; break;
+			case 6: // yyyymm
+				precision = TemporalPrecisionEnum.MONTH; break;
+			case 8: // yyyymmdd
+				precision = TemporalPrecisionEnum.DAY; break;
+			case 12: // yyyymmddhhmm
+			case 17: // yyyymmddhhmm+tizo
+				precision = TemporalPrecisionEnum.MINUTE; break;
+			case 16: // yyyymmddhhmmss.s
+				precision = TemporalPrecisionEnum.MILLI; break;
+			default:
+				precision = null;
+		}
+		
+		// for special cases
+		if(dateString.contains("."))
+			precision =  TemporalPrecisionEnum.MILLI;
+		
+		// setting precision
+		date.setPrecision(precision);
+		
+		// YYYYMMDDHHMM+TIZO and YYYYMMDDHHMMSS.S are special cases
+		// If our case is one of them, we will treat differently
+		
+		if(dateString.contains(".")) {
+			// get the integer starting from char '.' as the millis
+			int millis = new Integer(dateString.substring(dateString.indexOf('.')+1));
+			if(millis > 0 && millis < 1000) {
+				while(millis*10 <1000) {
+					millis *= 10;
+				}
+			} else {
+				millis = 0;
+			}
+			date.setMillis(millis);
+			
+			// second, minute, hour, day, month, year..
+			date.setSecond(new Integer(dateString.substring(12,14)));
+			date.setMinute(new Integer(dateString.substring(10, 12)));
+			date.setHour(new Integer(dateString.substring(8,10)));
+			date.setDay(new Integer(dateString.substring(6,8)));
+			date.setMonth(new Integer(dateString.substring(4,6))-1); // 0-index
+			date.setYear(new Integer(dateString.substring(0,4)));
+			
+		} else if(dateString.contains("+") || dateString.contains("-")) {
+			// getting the timezone part
+			date.setTimeZone(TimeZone.getTimeZone("GMT"+dateString.substring(12)));
+			
+			// minute, hour, day, month, year..
+			date.setMinute(new Integer(dateString.substring(10, 12)));
+			date.setHour(new Integer(dateString.substring(8,10)));
+			date.setDay(new Integer(dateString.substring(6,8)));
+			date.setMonth(new Integer(dateString.substring(4,6))-1); // 0-index
+			date.setYear(new Integer(dateString.substring(0,4)));
+		} else {
+			// since there are strange situtations where the index changes upon the precision, we set every value in its precision block
+			switch(precision) {
+				case MINUTE: 
+					date.setMinute(new Integer(dateString.substring(10,12)));
+					date.setHour(new Integer(dateString.substring(8,10)));
+					date.setDay(new Integer(dateString.substring(6,8)));
+					date.setMonth(new Integer(dateString.substring(4,6))-1);
+					date.setYear(new Integer(dateString.substring(0,4))); 
+					break;
+				case DAY:
+					date.setDay(new Integer(dateString.substring(6,8)));
+					date.setMonth(new Integer(dateString.substring(4,6))-1);
+					date.setYear(new Integer(dateString.substring(0,4))); 
+					break;
+				case MONTH:
+					date.setMonth(new Integer(dateString.substring(4,6)));
+					date.setYear(new Integer(dateString.substring(0,4))); 
+					break;
+				case YEAR:
+					// there is a strange situtation
+					date.setYear(new Integer(dateString.substring(0,4))+1); 
+					break;
+				default:
+					date = null;
+			}
+		}
+		return date;
+	}
+
+	public DateTimeDt TS2DateTime(TS ts) {
 		if(ts == null || ts.isSetNullFlavor() ) return null;
 		else{
-			
 			if( ts.getValue() == null )
 				return new DateTimeDt();
 			
@@ -675,9 +704,9 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		}
 	}
 	
-	public InstantDt TS2Instant(TS ts)
-	{
-		if(ts==null || ts.isSetNullFlavor()) return null;
+	public InstantDt TS2Instant(TS ts) {
+		if(ts==null || ts.isSetNullFlavor())
+			return null;
 		else{
 			if(ts.getValue()==null)
 				return new InstantDt();
@@ -687,7 +716,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 
 	public UriDt URL2Uri(URL url){
-    	return ( url == null || url.isSetNullFlavor() ) ? null : new UriDt(url.getValue());
+    	return (url == null || url.isSetNullFlavor()) ? null : new UriDt(url.getValue());
     }
 
 	@Override

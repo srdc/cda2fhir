@@ -279,7 +279,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testFamilyMemberOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -586,7 +586,7 @@ public class ResourceTransformerTestNecip {
 			}
 	    }
 	
-	@Test
+	@Ignore
 	public void testProblemConcernAct2Condition(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		

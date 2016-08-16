@@ -103,56 +103,59 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	}
 	
 	public EncounterClassEnum EncounterCode2EncounterClassEnum(String encounterCode){
-		// TODO: Visit pdf's 483rd page
-		// pdf name: CDAR2_IG_CCDA_CLINNOTES_R1_DSTU2.1_2015AUG_Vol2_Templates_and_Supporting_Material.pdf
-		// There are three dots at the end of the codes
-		// Does it mean that more of them exist?
-
 		if(encounterCode == null)
 			return null;
-		switch(encounterCode){
-			case "99201":
-			case "99202":
-			case "99203":
-			case "99204":
-			case "99205":
-			case "99211":
-			case "99212":
-			case "99213":
-			case "99214":
-			case "99215":
-				return EncounterClassEnum.OUTPATIENT;
-			// TODO: Following codes were taken from http://www.cyfairhospital.com/en-us/documents/cpt%20product%20list.pdf
-			// However, they haven't been completed, yet. Finish after checking.
-			case "99356":
-			case "99357":
-			case "99251":
-			case "99252":
-			case "99253":
-			case "99254":
-			case "99255":
-			case "99261":
-			case "99262":
-			case "99263":
-				return EncounterClassEnum.INPATIENT;
-			case "93784":
-			case "93786":
-			case "93788":
-			case "95950":
+		switch(encounterCode.toLowerCase()){
+			case "amb": 
+			case "ambulatory":
 				return EncounterClassEnum.AMBULATORY;
+			case "out": 
+			case "outpatient":
+			case "out-patient":
+					return EncounterClassEnum.OUTPATIENT;
+			case "in":
+			case "inp":
+			case "inpatient":
+			case "in-patient":
+					return EncounterClassEnum.INPATIENT;
+			case "day":
+			case "daytime":
+			case "day-time":
+				return EncounterClassEnum.DAYTIME;
+			case "em":
+			case "eme":
+			case "emergency":
+				return EncounterClassEnum.EMERGENCY;
+			case "hom":
+			case "home":
+				return EncounterClassEnum.HOME;
+			case "vir":
+			case "virtual":
+				return EncounterClassEnum.VIRTUAL;
+			case "fie":
+			case "field":
+				return EncounterClassEnum.FIELD;
+			case "other":
+			case "oth":
+				return EncounterClassEnum.OTHER;
 			default:
 				return null;
-			
+				
 		}
 	}
 	
 	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
 		switch(entityClassRoot){
-			case PSN: return GroupTypeEnum.PERSON;
-			case ANM: return GroupTypeEnum.ANIMAL;
-			case DEV: return GroupTypeEnum.DEVICE;
-			case MMAT: return GroupTypeEnum.MEDICATION;
-			default: return null;
+			case PSN:
+				return GroupTypeEnum.PERSON;
+			case ANM:
+				return GroupTypeEnum.ANIMAL;
+			case DEV:
+				return GroupTypeEnum.DEVICE;
+			case MMAT:
+				return GroupTypeEnum.MEDICATION;
+			default:
+				return null;
 		}
 	}
 
@@ -468,8 +471,6 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	public ConditionCategoryCodesEnum ProblemType2ConditionCategoryCodesEnum(String problemType) {
 		if(problemType == null)
 			return null;
-		// TODO: See pdf's 499th page
-		// Where to map "Condition", "Problem"?
 		switch(problemType) {
 			case "248536006":
 			case "373930000":
@@ -484,18 +485,16 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case "282291009": 
 			case "29308-4":
 			case "75314-5":
+			case "55607006": // problem
+			case "75318-6": 
+			case "75323-6": // condition
+			case "75315-2":
+			case "64572001": 
 				return ConditionCategoryCodesEnum.DIAGNOSIS;
 			case "418799008": 
 			case "75325-1":
 			case "75317-8":
 				return ConditionCategoryCodesEnum.SYMPTOM;
-			case "75323-6":
-			case "75315-2":
-			case "64572001": 
-				// condition case
-			case "55607006":
-			case "75318-6": 
-				// problem case
 				
 			default: 
 				return null;
