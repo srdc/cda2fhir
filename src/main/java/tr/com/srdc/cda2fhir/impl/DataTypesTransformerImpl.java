@@ -400,38 +400,30 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 	
 	public RangeDt IVL_PQ2Range(IVL_PQ ivlpq){
-		if( ivlpq == null || ivlpq.isSetNullFlavor() ) return null;
-		else{
-			RangeDt rangeDt = new RangeDt();
-			if(ivlpq.getLow()==null && ivlpq.getHigh()==null)
-			{
-				return rangeDt;
-			}
-			else
-			{	
-				if(ivlpq.getLow() != null){
-				if(ivlpq.getLow().getValue()!=null && !ivlpq.getLow().isSetNullFlavor())
-				{
-					
-					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
-					simpleQuantity.setValue(ivlpq.getLow().getValue().doubleValue());
-					simpleQuantity.setUnit( ivlpq.getLow().getUnit() );
-					rangeDt.setLow(simpleQuantity);
-					
-				}
-				}
-				if(ivlpq.getHigh() != null){
-				if(ivlpq.getHigh().getValue()!=null && !ivlpq.getHigh().isSetNullFlavor())
-				{
-					SimpleQuantityDt simpleQuantity=new SimpleQuantityDt();
-					simpleQuantity.setValue(ivlpq.getHigh().getValue().doubleValue());
-					simpleQuantity.setUnit( ivlpq.getHigh().getUnit() );
-					rangeDt.setHigh(simpleQuantity);
-				}
-				}
-				return rangeDt;
-			}
+		if(ivlpq == null || ivlpq.isSetNullFlavor()) 
+			return null;
+		
+		RangeDt rangeDt = new RangeDt();
+		
+		// low
+		if(ivlpq.getLow() != null && !ivlpq.getLow().isSetNullFlavor()){
+			rangeDt.setLow(PQ2SimpleQuantityDt(ivlpq.getLow()));
+			
 		}
+		
+		// high
+		if(ivlpq.getHigh() != null && !ivlpq.getHigh().isSetNullFlavor()){
+			rangeDt.setHigh(PQ2SimpleQuantityDt(ivlpq.getHigh()));
+		}
+		
+		// low is null, high is null and the value is carrying the low value
+		if(ivlpq.getLow() == null && ivlpq.getHigh() == null && ivlpq.getValue() != null) {
+			SimpleQuantityDt low = new SimpleQuantityDt();
+			low.setValue(ivlpq.getValue());
+			rangeDt.setLow(low);
+		}
+		
+		return rangeDt;
 	}
 
 	public QuantityDt PQ2Quantity(PQ pq)

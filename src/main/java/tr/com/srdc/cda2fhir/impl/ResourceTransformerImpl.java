@@ -1283,7 +1283,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(author.getTime() != null && !author.getTime().isSetNullFlavor()) {
 						fhirObs.setIssued(dtt.TS2Instant(author.getTime()));
 					}
-					}
+				}
 			}
 		}
 
