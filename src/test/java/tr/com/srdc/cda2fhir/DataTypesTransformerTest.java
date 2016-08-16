@@ -16,8 +16,11 @@ import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.DecimalDt;
+import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
+
+import javax.xml.crypto.Data;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -108,7 +111,7 @@ public class DataTypesTransformerTest{
     }//end Annotation test
 
     @SuppressWarnings("deprecation")
-	@Ignore
+	@Test
     public void testAD2Address(){
 
     	// simple instance test
@@ -204,7 +207,7 @@ public class DataTypesTransformerTest{
     	Assert.assertNull("AD.nullFlavor set instance transform failed",address3);
     }
     
-    @Ignore
+    @Test
     public void testBL2Boolean(){
     	//simple instance test
     	BL bl=DatatypesFactory.eINSTANCE.createBL();
@@ -219,7 +222,7 @@ public class DataTypesTransformerTest{
 
     }
     
-    @Ignore
+    @Test
     public void testCD2CodeableConcept(){
         
         CD cd = DatatypesFactory.eINSTANCE.createCD();
@@ -255,7 +258,7 @@ public class DataTypesTransformerTest{
         
     }
     
-    @Ignore
+    @Test
     public void testCV2Coding(){
     	// simple instance test
     	CV cv = DatatypesFactory.eINSTANCE.createCV();
@@ -293,7 +296,7 @@ public class DataTypesTransformerTest{
     	Assert.assertNull("CV.nullFlavor set instance transform failed",coding3);
     }
 
-    @Ignore
+    @Test
     public void testED2Attachment(){
     	// simple instance test
     	
@@ -338,7 +341,7 @@ public class DataTypesTransformerTest{
     	
     }
 
-    @Ignore
+    @Test
     public void testEN2HumanName(){
     	// simple instance test 1
     	
@@ -395,7 +398,7 @@ public class DataTypesTransformerTest{
     	Assert.assertNull("EN.nullFlavor set instance transform failed",humanName3);
     }
     
-    @Ignore
+    @Test
     public void testII2Identifier(){
     	//simple instance test
     	II ii=DatatypesFactory.eINSTANCE.createII();
@@ -420,7 +423,7 @@ public class DataTypesTransformerTest{
     	Assert.assertNull("II nullFlavor set instance transform failed",identifier3);
     }//end IdentifierDt (from II) Test
 
-    @Ignore
+    @Test
     public void testINT2Integer() {
         // simple instance test
         INT myInt = DatatypesFactory.eINSTANCE.createINT();
@@ -437,7 +440,7 @@ public class DataTypesTransformerTest{
     }
 
     @SuppressWarnings("deprecation")
-	@Ignore
+	@Test
     public void testIVL_TS2Period(){
     	// simple instance test 1
     	
@@ -488,7 +491,7 @@ public class DataTypesTransformerTest{
     	
     }
     
-    @Ignore
+    @Test
     public void testIVL_PQ2Range(){
         
         IVL_PQ ivlpq = DatatypesFactory.eINSTANCE.createIVL_PQ();
@@ -540,7 +543,7 @@ public class DataTypesTransformerTest{
         
     }
     
-    @Ignore
+    @Test
     public void testPQ2Quantity() {
         // simple instance test
         PQ pq = DatatypesFactory.eINSTANCE.createPQ();
@@ -571,7 +574,7 @@ public class DataTypesTransformerTest{
         Assert.assertNull("PQ.unit null was not transformed",quantity4.getUnit());
     }//end Quantity test
 
-    @Ignore
+    @Test
     public void testREAL2Decimal(){
     	//simple instance test
     	REAL real=DatatypesFactory.eINSTANCE.createREAL();
@@ -586,7 +589,7 @@ public class DataTypesTransformerTest{
 
     }
     
-    @Ignore
+    @Test
     public void testRTO2Ratio(){
     	//simple instance test
     	RTO rto=DatatypesFactory.eINSTANCE.createRTO();
@@ -612,7 +615,7 @@ public class DataTypesTransformerTest{
     	Assert.assertNull("RTO nullFlavor instance set was failed",ratio3);
     }//end Ratio test
     
-    @Ignore
+    @Test
     public void testST2String(){
     	//simple instance test
     	ST st=DatatypesFactory.eINSTANCE.createST();
@@ -628,7 +631,7 @@ public class DataTypesTransformerTest{
     }
     
     @SuppressWarnings("deprecation")
-   	@Ignore
+   	@Test
     public void testTEL2ContactPoint(){
        	
        	TEL tel = DatatypesFactory.eINSTANCE.createTEL();
@@ -682,6 +685,59 @@ public class DataTypesTransformerTest{
        }
     
     @Test
+    public void testTS2Instant() {
+    	// null instance test
+    	TS nullTs = null;
+    	InstantDt nullInstant1 = dtt.TS2Instant(nullTs);
+    	Assert.assertNull("TS null was not transformed", nullInstant1);
+    	
+    	// nullFlavor instance test
+    	TS nullFlavorTs = DatatypesFactory.eINSTANCE.createTS();
+    	nullFlavorTs.setNullFlavor(NullFlavor.NA);
+    	InstantDt nullInstant2 = dtt.TS2Instant(nullFlavorTs);
+    	Assert.assertNull("TS.nullFlavor was not transformed",nullInstant2);
+    	
+    	// simple instance tests
+    	
+    	// 1
+    	TS ts1 = DatatypesFactory.eINSTANCE.createTS();
+    	ts1.setValue("2013");
+    	InstantDt instant1 = dtt.TS2Instant(ts1);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013",instant1.getValueAsString());
+    	
+    	
+    	// 2
+    	TS ts2 = DatatypesFactory.eINSTANCE.createTS();
+    	ts2.setValue("199711");
+    	InstantDt instant2 = dtt.TS2Instant(ts2);
+    	
+    	Assert.assertEquals("TS.value was not transformed","1997-11",instant2.getValueAsString());
+    	
+    	// 3
+    	TS ts3 = DatatypesFactory.eINSTANCE.createTS();
+    	ts3.setValue("20160514");
+    	InstantDt instant3 = dtt.TS2Instant(ts3);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2016-05-14",instant3.getValueAsString());
+    	
+    	// 4
+    	TS ts4 = DatatypesFactory.eINSTANCE.createTS();
+    	ts4.setValue("201305141317");
+    	InstantDt instant4 = dtt.TS2Instant(ts4);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17",instant4.getValueAsString());
+    	
+    	// 5
+    	TS ts5 = DatatypesFactory.eINSTANCE.createTS();
+    	ts5.setValue("20130514131719.6");
+    	InstantDt instant5 = dtt.TS2Instant(ts5);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.600",instant5.getValueAsString());
+    	
+    }
+    
+    @Test
     public void testTS2Date(){
     	//simple instance test yyyymmdd
     	TS ts=DatatypesFactory.eINSTANCE.createTS();
@@ -725,47 +781,97 @@ public class DataTypesTransformerTest{
     	DateDt date3=dtt.TS2Date(ts3);
     	Assert.assertNull("TS.nullFlavor was not transformed",date3);
     }
-
-    @Ignore
+    
+    @Test
     public void testTS2DateTime(){
-    	//simple instance test,yyyy
+    	// simple instance test,yyyy
     	TS ts=DatatypesFactory.eINSTANCE.createTS();
     	ts.setValue("2016");
     	DateTimeDt datetime=dtt.TS2DateTime(ts);
         Assert.assertEquals("TS.value was not transformed","2016",datetime.getValueAsString());
         
-        //simple instance test,yyyymm
+        // simple instance test,yyyymm
         TS ts2=DatatypesFactory.eINSTANCE.createTS();
     	ts2.setValue("201605");
     	DateTimeDt datetime2=dtt.TS2DateTime(ts2);
         Assert.assertEquals("TS.value was not transformed","2016-05",datetime2.getValueAsString());
         
-        //simple instance test,yyyymmdd
+        // simple instance test,yyyymmdd
         TS ts3=DatatypesFactory.eINSTANCE.createTS();
     	ts3.setValue("20160527");
     	DateTimeDt datetime3=dtt.TS2DateTime(ts3);
         Assert.assertEquals("TS.value was not transformed","2016-05-27",datetime3.getValueAsString());
         
-        //simple instance test,yyyymmddhhmm
+        // simple instance test,yyyymmddhhmm
         TS ts4=DatatypesFactory.eINSTANCE.createTS();
     	ts4.setValue("201605271540");
     	DateTimeDt datetime4=dtt.TS2DateTime(ts4);
-    	// TODO: Following test fails, check the corresponding transformer method
-//        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",datetime4.getValueAsString());
+    	
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",datetime4.getValueAsString());
         
-    	//complex instance test,with timezone
+    	// complex instance test,with +timezone
     	TS ts5=DatatypesFactory.eINSTANCE.createTS();
-    	ts5.setValue("201605271540-0800");
+    	ts5.setValue("201605271540+0800");
     	DateTimeDt datetime5=dtt.TS2DateTime(ts5);
-    	// TODO: Following test fails, check the corresponding transformer method
-//        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",datetime5.getValueAsString());
+
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",datetime5.getValueAsString());
         
-        //null instance test
+        // complex instance test,with -timezone
+    	TS ts7=DatatypesFactory.eINSTANCE.createTS();
+    	ts7.setValue("201605271540-0800");
+    	DateTimeDt datetime7=dtt.TS2DateTime(ts7);
+
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40-08:00",datetime7.getValueAsString());
         
+        // null instance test
         TS ts6=null;
         DateTimeDt datetime6=dtt.TS2DateTime(ts6);
         Assert.assertNull("TS null instance set was failed",datetime6);
-    }//end Datetime test
+    }
 
+    @Test
+    public void testString2DateTime() {
+    	// null instance test
+        String nullStr = null;
+        DateTimeDt dateTimeNull = dtt.String2DateTime(nullStr);
+        Assert.assertNull("TS null instance set was failed",dateTimeNull);
+    	
+    	// simple instance tests
+    	
+    	// 1 yyyy
+    	String str1 = "2016";
+    	DateTimeDt dateTime1 = dtt.String2DateTime(str1);
+    	
+        Assert.assertEquals("TS.value was not transformed","2016",dateTime1.getValueAsString());
+        
+        // 2 yyyymm
+        String str2 = "201605";
+        DateTimeDt dateTime2 = dtt.String2DateTime(str2);
+        
+        Assert.assertEquals("TS.value was not transformed","2016-05",dateTime2.getValueAsString());
+        
+        // 3 yyyymmdd
+        String str3 = "20160527";
+        DateTimeDt dateTime3 = dtt.String2DateTime(str3);
+        Assert.assertEquals("TS.value was not transformed","2016-05-27",dateTime3.getValueAsString());
+        
+        // 4 yyyymmddhhmm
+        String str4 = "201605271540";
+        DateTimeDt dateTime4 = dtt.String2DateTime(str4);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",dateTime4.getValueAsString());
+        
+    	// 5 +timezone
+        String str5 = "201605271540+0800";
+        DateTimeDt dateTime5 = dtt.String2DateTime(str5);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",dateTime5.getValueAsString());
+    	
+    	// 6 -timezone
+        String str6 = "201605271540-0800";
+        DateTimeDt dateTime6 = dtt.String2DateTime(str6);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40-08:00",dateTime6.getValueAsString());
+    }
 }
 
