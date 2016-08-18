@@ -72,7 +72,7 @@ public class CCDATransformerImpl implements CCDATransformer {
         // transform the patient data and assign it to Composition.subject
         // Since the methods of resTransformer class have return type Bundle, we need the following lines to get the 'Patient' from the 'Bundle'
         Patient subject = null; // subject will be assigned to the appropriate entry of the bundle, we may need null-check
-        Bundle subjectBundle = resTransformer.PatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
+        Bundle subjectBundle = resTransformer.tPatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
 		for( Entry entry : subjectBundle.getEntry() ){
 			if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Patient){
 				subject = (ca.uhn.fhir.model.dstu2.resource.Patient) entry.getResource();
@@ -84,7 +84,7 @@ public class CCDATransformerImpl implements CCDATransformer {
         ccdBundle.addEntry(new Bundle.Entry().setResource(subject));
 
         for(Section cdaSec: ccd.getSections()) {
-            Composition.Section fhirSec = resTransformer.section2Section(cdaSec);
+            Composition.Section fhirSec = resTransformer.tSection2Section(cdaSec);
             ccdComposition.addSection(fhirSec);
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
@@ -92,7 +92,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof AllergiesSection) {
             	AllergiesSection allSec = (AllergiesSection) cdaSec;
             	for(AllergyProblemAct probAct : allSec.getAllergyProblemActs()) {
-            		Bundle allBundle = resTransformer.AllergyProblemAct2AllergyIntolerance(probAct);
+            		Bundle allBundle = resTransformer.tAllergyProblemAct2AllergyIntolerance(probAct);
                     mergeBundles(allBundle, ccdBundle, fhirSec, AllergyIntolerance.class);
             	}
             }
@@ -102,7 +102,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof FamilyHistorySection) {
                 FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
                 for(FamilyHistoryOrganizer fhOrganizer : famSec.getFamilyHistories()) {
-                    FamilyMemberHistory fmh = resTransformer.FamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
+                    FamilyMemberHistory fmh = resTransformer.tFamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
                     ResourceReferenceDt ref = fhirSec.addEntry();
                     ref.setReference(fmh.getId());
                     ccdBundle.addEntry(new Bundle.Entry().setResource(fmh));
@@ -114,7 +114,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof ImmunizationsSection) {
             	ImmunizationsSection immSec = (ImmunizationsSection) cdaSec;
             	for(SubstanceAdministration subAd : immSec.getSubstanceAdministrations()) {
-            		Bundle immBundle = resTransformer.SubstanceAdministration2Immunization(subAd);
+            		Bundle immBundle = resTransformer.tSubstanceAdministration2Immunization(subAd);
                     mergeBundles(immBundle, ccdBundle, fhirSec, Immunization.class);
             	}
             }
@@ -124,7 +124,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof MedicationsSection) {
                 MedicationsSection medSec = (MedicationsSection) cdaSec;
                 for(MedicationActivity medAct : medSec.getMedicationActivities()) {
-                    Bundle medBundle = resTransformer.MedicationActivity2MedicationStatement(medAct);
+                    Bundle medBundle = resTransformer.tMedicationActivity2MedicationStatement(medAct);
                     mergeBundles(medBundle, ccdBundle, fhirSec, MedicationStatement.class);
                 }
             }
@@ -137,14 +137,14 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof ProblemSection) {
                 ProblemSection probSec = (ProblemSection) cdaSec;
                 for(ProblemConcernAct pcAct : probSec.getConsolProblemConcerns()) {
-                    Bundle conBundle = resTransformer.ProblemConcernAct2Condition(pcAct);
+                    Bundle conBundle = resTransformer.tProblemConcernAct2Condition(pcAct);
                     mergeBundles(conBundle, ccdBundle, fhirSec, Condition.class);
                 }
             }
             else if(cdaSec instanceof ProceduresSection) {
                 ProceduresSection procSec = (ProceduresSection) cdaSec;
                 for(ProcedureActivityProcedure proc : procSec.getConsolProcedureActivityProcedures()) {
-                    Bundle procBundle = resTransformer.Procedure2Procedure(proc);
+                    Bundle procBundle = resTransformer.tProcedure2Procedure(proc);
                     mergeBundles(procBundle, ccdBundle, fhirSec, ca.uhn.fhir.model.dstu2.resource.Procedure.class);
                 }
             }
@@ -152,7 +152,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             	ResultsSection resultSec = (ResultsSection) cdaSec;
             	for(ResultOrganizer resOrg : resultSec.getResultOrganizers()) {
             		for(ResultObservation resObs : resOrg.getResultObservations()) {
-            			Bundle resBundle = resTransformer.ResultObservation2Observation(resObs);
+            			Bundle resBundle = resTransformer.tResultObservation2Observation(resObs);
                         mergeBundles(resBundle, ccdBundle, fhirSec, Observation.class);
             		}
             	}
@@ -164,7 +164,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             	VitalSignsSection vitalSec = (VitalSignsSection) cdaSec;
             	for(VitalSignsOrganizer vsOrg : vitalSec.getVitalSignsOrganizers())	{
             		for(VitalSignObservation vsObs : vsOrg.getVitalSignObservations()) {
-            			Bundle vsBundle = resTransformer.VitalSignObservation2Observation(vsObs);
+            			Bundle vsBundle = resTransformer.tVitalSignObservation2Observation(vsObs);
                         mergeBundles(vsBundle, ccdBundle, fhirSec, Observation.class);
             		}
             	}

@@ -107,7 +107,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 	            				ca.uhn.fhir.model.dstu2.resource.Observation obs = null;
 	            				
 	            				// getting observation from observation bundle
-	            				Bundle obsBundle = rt.VitalSignObservation2Observation(vsObs);
+	            				Bundle obsBundle = rt.tVitalSignObservation2Observation(vsObs);
 	            				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : obsBundle.getEntry()){
 	            					if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Observation )
 	            						obs = (ca.uhn.fhir.model.dstu2.resource.Observation) entry.getResource();
@@ -133,7 +133,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 									codings.add(coding.getCode());
 	                    		}
 								ArrayList <String> testCodings= new ArrayList <String> ();
-								for(CodingDt testCoding : dtt.CD2CodeableConcept(vsObs.getCode()).getCoding())
+								for(CodingDt testCoding : dtt.tCD2CodeableConcept(vsObs.getCode()).getCoding())
 								{
 									testCodings.add(testCoding.getCode());
 								}
@@ -143,12 +143,12 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 									DateTimeDt datetime= (DateTimeDt) obs.getEffective();
 									TS ts=DatatypesFactory.eINSTANCE.createTS();
 									ts.setValue(vsObs.getEffectiveTime().getValue());
-									Assert.assertEquals("Effective time were not transformed",datetime.getValueAsString(),dtt.TS2DateTime(ts).getValueAsString());
+									Assert.assertEquals("Effective time were not transformed",datetime.getValueAsString(),dtt.tTS2DateTime(ts).getValueAsString());
 								}
 								else
 								{
 									PeriodDt period = (PeriodDt) obs.getEffective();
-									Assert.assertEquals("VitalSignObservation.effectiveTime was not transformed",period,dtt.IVL_TS2Period(vsObs.getEffectiveTime()));
+									Assert.assertEquals("VitalSignObservation.effectiveTime was not transformed",period,dtt.tIVL_TS2Period(vsObs.getEffectiveTime()));
 								}//end else
 								for(ANY any : vsObs.getValues())
 								{
@@ -196,7 +196,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     		for(ResultObservation resObs : resOrg.getResultObservations())
     		{
 				//ca.uhn.fhir.model.dstu2.resource.Observation obs = rt.ResultObservation2Observation(resObs);
-				Bundle obsBundle = rt.ResultObservation2Observation(resObs);
+				Bundle obsBundle = rt.tResultObservation2Observation(resObs);
 				ArrayList <String> idS= new ArrayList <String> ();
         		for(II id: resObs.getIds())
         		{
@@ -222,7 +222,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
         					codings.add(coding.getCode());
                 		}//end for
         				ArrayList <String> testCodings= new ArrayList <String> ();
-        				for(CodingDt testCoding : dtt.CD2CodeableConcept(resObs.getCode()).getCoding())
+        				for(CodingDt testCoding : dtt.tCD2CodeableConcept(resObs.getCode()).getCoding())
         				{
         					testCodings.add(testCoding.getCode());
         				}
@@ -232,12 +232,12 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
         					DateTimeDt datetime= (DateTimeDt) observation.getEffective();
         					TS ts=DatatypesFactory.eINSTANCE.createTS();
         					ts.setValue(resObs.getEffectiveTime().getValue());
-        					Assert.assertEquals("Effective time were not transformed",datetime.getValueAsString(),dtt.TS2DateTime(ts).getValueAsString());
+        					Assert.assertEquals("Effective time were not transformed",datetime.getValueAsString(),dtt.tTS2DateTime(ts).getValueAsString());
         				}
         				else
         				{
         					PeriodDt period = (PeriodDt) observation.getEffective();
-        					Assert.assertEquals("VitalSignObservation.effectiveTime was not transformed",period,dtt.IVL_TS2Period(resObs.getEffectiveTime()));
+        					Assert.assertEquals("VitalSignObservation.effectiveTime was not transformed",period,dtt.tIVL_TS2Period(resObs.getEffectiveTime()));
         				}//end else
         				for(ANY any : resObs.getValues())
         				{
@@ -286,7 +286,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
         	AllergyIntolerance allergyIntolerance = null;
         			
         	// getting allergyIntolerance from observation bundle
-			Bundle allergyIntoleranceBundle = rt.AllergyProblemAct2AllergyIntolerance(problemAct);
+			Bundle allergyIntoleranceBundle = rt.tAllergyProblemAct2AllergyIntolerance(problemAct);
 			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : allergyIntoleranceBundle.getEntry()){
 				if( entry.getResource() instanceof AllergyIntolerance )
 					allergyIntolerance = (AllergyIntolerance) entry.getResource();
@@ -345,7 +345,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
     {
     	for(SubstanceAdministration substanceAdministration : ccd.getImmunizationsSectionEntriesOptional().getSubstanceAdministrations())
     	{
-    		Bundle immunizationBundle = rt.SubstanceAdministration2Immunization(substanceAdministration);
+    		Bundle immunizationBundle = rt.tSubstanceAdministration2Immunization(substanceAdministration);
     		for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : immunizationBundle.getEntry())
     		{
     			if(entry.getResource() instanceof Immunization)

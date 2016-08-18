@@ -20,54 +20,54 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.*;
  */
 public interface DataTypesTransformer {
 
-	AnnotationDt Act2Annotation(Act act);
+	AnnotationDt tAct2Annotation(Act act);
 	
 	AddressDt AD2Address(AD ad);
 	
-	Base64BinaryDt BIN2Base64Binary(BIN bin);
+	Base64BinaryDt tBIN2Base64Binary(BIN bin);
 	
-	BooleanDt BL2Boolean(BL bl);
+	BooleanDt tBL2Boolean(BL bl);
 	
-	CodeableConceptDt CD2CodeableConcept(CD cd);
+	CodeableConceptDt tCD2CodeableConcept(CD cd);
 	
-	CodingDt CV2Coding(CV cv);
+	CodingDt tCV2Coding(CV cv);
 	
-	AttachmentDt ED2Attachment(ED ed);
+	AttachmentDt tED2Attachment(ED ed);
 	
-	HumanNameDt EN2HumanName(EN en); 
+	HumanNameDt tEN2HumanName(EN en); 
 	
-	IdentifierDt II2Identifier(II ii); 
+	IdentifierDt tII2Identifier(II ii); 
     
-	IntegerDt INT2Integer(INT myInt);
+	IntegerDt tINT2Integer(INT myInt);
     
-	PeriodDt IVL_TS2Period(IVL_TS ivlts);
+	PeriodDt tIVL_TS2Period(IVL_TS ivlts);
     
-	RangeDt IVL_PQ2Range(IVL_PQ ivlpq);
+	RangeDt tIVL_PQ2Range(IVL_PQ ivlpq);
 
-	TimingDt PIVL_TS2Timing(PIVL_TS pivlts);
+	TimingDt tPIVL_TS2Timing(PIVL_TS pivlts);
 	
-	SimpleQuantityDt PQ2SimpleQuantityDt( PQ pq );
+	SimpleQuantityDt tPQ2SimpleQuantityDt( PQ pq );
 	
-	QuantityDt PQ2Quantity(PQ pq);
+	QuantityDt tPQ2Quantity(PQ pq);
     
-	DecimalDt REAL2Decimal(REAL real);
+	DecimalDt tREAL2Decimal(REAL real);
     
-	RatioDt RTO2Ratio(RTO rto);
+	RatioDt tRTO2Ratio(RTO rto);
 	
-	StringDt ST2String(ST st);
+	StringDt tST2String(ST st);
 
-	DateTimeDt String2DateTime(String date);
+	DateTimeDt tString2DateTime(String date);
 
-	NarrativeDt StrucDocText2Narrative(StrucDocText sdt);
+	NarrativeDt tStrucDocText2Narrative(StrucDocText sdt);
 	
-	ContactPointDt TEL2ContactPoint(TEL tel);
+	ContactPointDt tTEL2ContactPoint(TEL tel);
 	
-	DateDt TS2Date(TS ts);
+	DateDt tTS2Date(TS ts);
 	
-	DateTimeDt TS2DateTime(TS ts);
+	DateTimeDt tTS2DateTime(TS ts);
 	
-	InstantDt TS2Instant(TS ts);
+	InstantDt tTS2Instant(TS ts);
 	
-	UriDt URL2Uri(URL url);
+	UriDt tURL2Uri(URL url);
     
 }
