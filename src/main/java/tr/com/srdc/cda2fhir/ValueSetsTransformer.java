@@ -11,7 +11,7 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 
 public interface ValueSetsTransformer {
 	
-	AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String AdministrativeGenderCode );
+	AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum(String AdministrativeGenderCode);
 	
 	String AgeObservationUnit2AgeUnit(String cdaUnit);
 	
@@ -19,17 +19,17 @@ public interface ValueSetsTransformer {
 	
 	EncounterClassEnum EncounterCode2EncounterClassEnum(String encounterCode);
 	
-	GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot );
+	GroupTypeEnum EntityClassRoot2GroupTypeEnum(EntityClassRoot entityClassRoot);
 	
 	NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse);
 	
-	FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode );
+	FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String FamilyHistoryOrganizerStatusCode);
 	
-	MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode );
+	MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum(String maritalStatusCode);
 	
-	CodingDt NullFlavor2DataAbsentReasonCode( NullFlavor nullFlavor );
+	CodingDt NullFlavor2DataAbsentReasonCode(NullFlavor nullFlavor);
 	
-	ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode );
+	ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum(String obsStatusCode);
 	
 	String oid2Url(String codeSystem);
 	
@@ -39,22 +39,23 @@ public interface ValueSetsTransformer {
 
 	ConditionCategoryCodesEnum ProblemType2ConditionCategoryCodesEnum(String problemType);
 	
-	AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse );
+	AddressTypeEnum PostalAddressUse2AddressTypeEnum(PostalAddressUse postalAddressUse);
 	
 	AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);
 	
 	AllergyIntoleranceSeverityEnum SeverityCode2AllergyIntoleranceSeverityEnum(String severityCode);
 	
-	AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status );
+	AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum(String status);
 	
 	EncounterStateEnum StatusCode2EncounterStatusEnum(String status);
 	
-	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status);
+	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum(String status);
 	
-	MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status);
+	MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum(String status);
 	
-	ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString );
+	ProcedureStatusEnum StatusCode2ProcedureStatusEnum(String statusCodeString);
 	
-	ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum( TelecommunicationAddressUse telecommunicationAddressUse );
+	ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse telecommunicationAddressUse);
 
+	ContactPointSystemEnum TelValue2ContactPointSystemEnum(String telValue);
 }

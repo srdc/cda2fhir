@@ -12,7 +12,7 @@ import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 
-	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum( String administrativeGenderCode ){
+	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum(String administrativeGenderCode) {
 		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
 		switch (administrativeGenderCode) {
 			case "F": // Female
@@ -33,11 +33,11 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public String AgeObservationUnit2AgeUnit(String cdaUnit){
+	public String AgeObservationUnit2AgeUnit(String cdaUnit) {
 		if(cdaUnit == null || cdaUnit.isEmpty())
 			return null;
 
-		switch(cdaUnit.toLowerCase()){
+		switch(cdaUnit.toLowerCase()) {
 			case "a":
 			case "age":
 			case "year":
@@ -62,10 +62,10 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public AllergyIntoleranceCategoryEnum AllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode){
+	public AllergyIntoleranceCategoryEnum AllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode) {
 		if(allergyCategoryCode == null)
 			return null;
-		switch(allergyCategoryCode){
+		switch(allergyCategoryCode) {
 			case "416098002":
 			case "59037007":
 			case "419511003":
@@ -85,10 +85,10 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public EncounterClassEnum EncounterCode2EncounterClassEnum(String encounterCode){
+	public EncounterClassEnum EncounterCode2EncounterClassEnum(String encounterCode) {
 		if(encounterCode == null)
 			return null;
-		switch(encounterCode.toLowerCase()){
+		switch(encounterCode.toLowerCase()) {
 			case "amb": 
 			case "ambulatory":
 				return EncounterClassEnum.AMBULATORY;
@@ -127,8 +127,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public GroupTypeEnum EntityClassRoot2GroupTypeEnum( EntityClassRoot entityClassRoot ){
-		switch(entityClassRoot){
+	public GroupTypeEnum EntityClassRoot2GroupTypeEnum(EntityClassRoot entityClassRoot) {
+		switch(entityClassRoot) {
 			case PSN:
 				return GroupTypeEnum.PERSON;
 			case ANM:
@@ -142,9 +142,9 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse){
+	public NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse) {
 
-		switch(entityNameUse){
+		switch(entityNameUse) {
 			case C: return NameUseEnum.USUAL;
 			// Visit https://www.hl7.org/fhir/valueset-name-use.html
 			// Trying: case OR: return NameUseEnum.OFFICIAL;
@@ -155,8 +155,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum( String FamilyHistoryOrganizerStatusCode ){
-		switch( FamilyHistoryOrganizerStatusCode.toLowerCase() ){
+	public FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String FamilyHistoryOrganizerStatusCode) {
+		switch(FamilyHistoryOrganizerStatusCode.toLowerCase()){
 		case "completed":
 			return FamilyHistoryStatusEnum.COMPLETED;
 		case "error":
@@ -171,9 +171,9 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum( String maritalStatusCode ){
+	public MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum(String maritalStatusCode) {
 		// Visit https://www.hl7.org/fhir/valueset-marital-status.html
-		switch(maritalStatusCode.toUpperCase()){
+		switch(maritalStatusCode.toUpperCase()) {
 			case "A": return MaritalStatusCodesEnum.A;
 			case "D": return MaritalStatusCodesEnum.D;
 			case "I": return MaritalStatusCodesEnum.I;
@@ -190,12 +190,12 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public CodingDt NullFlavor2DataAbsentReasonCode( NullFlavor nullFlavor ){
+	public CodingDt NullFlavor2DataAbsentReasonCode(NullFlavor nullFlavor) {
 		CodingDt DataAbsentReasonCode = new CodingDt();
 		String code = null;
 		String display = null;
 
-		switch(nullFlavor){
+		switch(nullFlavor) {
 			case UNK:
 				code = "unknown"; display = "Unkown"; break;
 			case ASKU:
@@ -231,8 +231,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return DataAbsentReasonCode;
 	}
 
-	public ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum( String obsStatusCode ){
-		switch( obsStatusCode.toLowerCase() ){
+	public ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum(String obsStatusCode) {
+		switch(obsStatusCode.toLowerCase()) {
 			case "completed": return ObservationStatusEnum.FINAL;
 			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
 			case "unk":
@@ -244,7 +244,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public String oid2Url(String codeSystem){
+	public String oid2Url(String codeSystem) {
 		String system = null;
 		switch (codeSystem) {
 	        case "2.16.840.1.113883.6.96":
@@ -338,13 +338,13 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return system;
 	}
 
-	public CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT){
+	public CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT) {
 		CodingDt fhirPT = new CodingDt(); // fhirPT: fhirParticipationTypeCode
 		fhirPT.setSystem("http://hl7.org/fhir/v3/ParticipationType");
 		String code = null;
 		String display = null;
 
-		switch( cdaPT ){
+		switch(cdaPT) {
 			case PRF: code = "PRF"; display = "performer";
 					break;
 			case SBJ: code = "SBJ"; display ="subject";
@@ -505,30 +505,37 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public AddressTypeEnum PostalAddressUse2AddressTypeEnum( PostalAddressUse postalAddressUse ){
-		switch(postalAddressUse){
-			case PHYS: return AddressTypeEnum.PHYSICAL;
-			case PST: return AddressTypeEnum.POSTAL;
-			default: return null;
+	public AddressTypeEnum PostalAddressUse2AddressTypeEnum(PostalAddressUse postalAddressUse) {
+		switch(postalAddressUse) {
+			case PHYS:
+				return AddressTypeEnum.PHYSICAL;
+			case PST:
+				return AddressTypeEnum.POSTAL;
+			default:
+				return null;
 		}
 	}
 
-	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse){
-		switch(postalAddressUse){
+	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse) {
+		switch(postalAddressUse) {
 			case HP:
-			case H: return AddressUseEnum.HOME;
-			case WP: return AddressUseEnum.WORK;
-			case TMP: return AddressUseEnum.TEMPORARY;
-			case BAD: return AddressUseEnum.OLD___INCORRECT;
-		default:
-			return AddressUseEnum.TEMPORARY;
+			case H:
+				return AddressUseEnum.HOME;
+			case WP:
+				return AddressUseEnum.WORK;
+			case TMP:
+				return AddressUseEnum.TEMPORARY;
+			case BAD:
+				return AddressUseEnum.OLD___INCORRECT;
+			default:
+				return AddressUseEnum.TEMPORARY;
 		}
 	}
 
-	public AllergyIntoleranceSeverityEnum SeverityCode2AllergyIntoleranceSeverityEnum(String severityCode){
+	public AllergyIntoleranceSeverityEnum SeverityCode2AllergyIntoleranceSeverityEnum(String severityCode) {
 		if(severityCode == null)
 			return null;
-		switch(severityCode){
+		switch(severityCode) {
 			case "255604002": 
 				return AllergyIntoleranceSeverityEnum.MILD;
 			case "371923003": 
@@ -546,22 +553,30 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum( String status ){
-		switch( status.toLowerCase() ){
-			case "active": return AllergyIntoleranceStatusEnum.ACTIVE;
+	public AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum(String status) {
+		switch(status.toLowerCase()) {
+			case "active":
+				return AllergyIntoleranceStatusEnum.ACTIVE;
 			case "nullified":
-			case "error": return AllergyIntoleranceStatusEnum.ENTERED_IN_ERROR;
-			case "confirmed": return AllergyIntoleranceStatusEnum.CONFIRMED;
-			case "unconfirmed": return AllergyIntoleranceStatusEnum.UNCONFIRMED;
-			case "refuted": return AllergyIntoleranceStatusEnum.REFUTED;
-			case "inactive": return AllergyIntoleranceStatusEnum.INACTIVE;
-			case "resolved": return AllergyIntoleranceStatusEnum.RESOLVED;
-			default: return null;
+			case "error":
+				return AllergyIntoleranceStatusEnum.ENTERED_IN_ERROR;
+			case "confirmed":
+				return AllergyIntoleranceStatusEnum.CONFIRMED;
+			case "unconfirmed":
+				return AllergyIntoleranceStatusEnum.UNCONFIRMED;
+			case "refuted":
+				return AllergyIntoleranceStatusEnum.REFUTED;
+			case "inactive":
+				return AllergyIntoleranceStatusEnum.INACTIVE;
+			case "resolved":
+				return AllergyIntoleranceStatusEnum.RESOLVED;
+			default:
+				return null;
 		}
 	}
 
-	public EncounterStateEnum StatusCode2EncounterStatusEnum(String status){
-		switch( status.toLowerCase() ){
+	public EncounterStateEnum StatusCode2EncounterStatusEnum(String status) {
+		switch(status.toLowerCase()) {
 			case "in-progress":
 			case "active":
 				return EncounterStateEnum.IN_PROGRESS;
@@ -582,8 +597,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum( String status){
-		switch( status.toLowerCase() ){
+	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum(String status) {
+		switch(status.toLowerCase()) {
 			case "active":
 			case "in-progress":
 			case "inprogress":
@@ -604,47 +619,73 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum( String status){
-		switch( status.toLowerCase() ){
-			case "active": return MedicationStatementStatusEnum.ACTIVE;
-			case "intended": return MedicationStatementStatusEnum.INTENDED;
-			case "completed": return MedicationStatementStatusEnum.COMPLETED;
-			case "nullified": return MedicationStatementStatusEnum.ENTERED_IN_ERROR;
-
-			default: return null;
+	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum(String status) {
+		switch(status.toLowerCase()) {
+			case "active":
+				return MedicationStatementStatusEnum.ACTIVE;
+			case "intended":
+				return MedicationStatementStatusEnum.INTENDED;
+			case "completed":
+				return MedicationStatementStatusEnum.COMPLETED;
+			case "nullified":
+				return MedicationStatementStatusEnum.ENTERED_IN_ERROR;
+			default:
+				return null;
 		}
 	}
 
-	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum( String statusCodeString ){
-		switch( statusCodeString.toLowerCase() ){
-		case "active":
-			return ProcedureStatusEnum.IN_PROGRESS;
-		case "completed":
-			return ProcedureStatusEnum.COMPLETED;
-		case "aborted":
-		case "aboted":
-			return ProcedureStatusEnum.ABOTED;
-		case "error":
-			return ProcedureStatusEnum.ENTERED_IN_ERROR;
-		default:
-			return null;
+	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum(String statusCodeString) {
+		switch(statusCodeString.toLowerCase()) {
+			case "active":
+				return ProcedureStatusEnum.IN_PROGRESS;
+			case "completed":
+				return ProcedureStatusEnum.COMPLETED;
+			case "aborted":
+			case "aboted":
+				return ProcedureStatusEnum.ABOTED;
+			case "error":
+				return ProcedureStatusEnum.ENTERED_IN_ERROR;
+			default:
+				return null;
 		}
 	}
 
-	public ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum( TelecommunicationAddressUse telecommunicationAddressUse )
-	{
-		switch(telecommunicationAddressUse){
-			case H: return ContactPointUseEnum.HOME;
-			case HP: return ContactPointUseEnum.HOME;
-			case WP: return ContactPointUseEnum.WORK;
-			case TMP: return ContactPointUseEnum.TEMP;
-			case BAD: return ContactPointUseEnum.OLD;
-			case MC: return ContactPointUseEnum.MOBILE;
+	public ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse telecommunicationAddressUse) {
+		switch(telecommunicationAddressUse) {
+			case H:
+			case HP:
+				return ContactPointUseEnum.HOME;
+			case WP:
+				return ContactPointUseEnum.WORK;
+			case TMP:
+				return ContactPointUseEnum.TEMP;
+			case BAD:
+				return ContactPointUseEnum.OLD;
+			case MC:
+				return ContactPointUseEnum.MOBILE;
 			default:
 				return ContactPointUseEnum.TEMP;
 		}
 
 	}
 
-
+	public ContactPointSystemEnum TelValue2ContactPointSystemEnum(String telValue) {
+		if(telValue == null)
+			return null;
+		
+		switch(telValue.toLowerCase()) {
+			case "phone":
+			case "tel":
+				return ContactPointSystemEnum.PHONE;
+			case "email":
+				return ContactPointSystemEnum.EMAIL;
+			case "fax":
+				return ContactPointSystemEnum.FAX;
+			case "http":
+			case "https":
+				return ContactPointSystemEnum.URL;
+			default:
+				return null;
+		}
+	}
 }
