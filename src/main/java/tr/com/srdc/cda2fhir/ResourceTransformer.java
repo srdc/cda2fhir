@@ -1,7 +1,9 @@
 package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.resource.*;
+import ca.uhn.fhir.model.dstu2.resource.Location;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import org.openhealthtools.mdht.uml.cda.*;
@@ -26,7 +28,7 @@ public interface ResourceTransformer {
 	
 	Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter);
 	
-	Bundle tEntity2Group( Entity cdaEntity );
+	Group tEntity2Group( Entity cdaEntity );
 	
 	FamilyMemberHistory tFamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
 
@@ -40,9 +42,9 @@ public interface ResourceTransformer {
 	
 	Bundle tObservation2Observation( org.openhealthtools.mdht.uml.cda.Observation cdaObs );
 	
-	Bundle tOrganization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
+	Organization tOrganization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
 	
-	Bundle tParticipantRole2Location(ParticipantRole cdaParticipantRole );
+	Location tParticipantRole2Location(ParticipantRole cdaParticipantRole );
 	
 	Bundle tPatientRole2Patient(PatientRole cdaPatientRole);
 	
