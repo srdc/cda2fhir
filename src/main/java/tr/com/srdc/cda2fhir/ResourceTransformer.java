@@ -70,4 +70,8 @@ public interface ResourceTransformer {
     
 	Composition.Section tSection2Section(Section cdaSec);
     
+	Bundle tContinuityOfCareDocument2Composition(org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument ccd);
+	
+	Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaOrganization);
+	
 }

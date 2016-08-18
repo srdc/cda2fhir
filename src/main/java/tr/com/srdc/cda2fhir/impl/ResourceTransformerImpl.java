@@ -2089,7 +2089,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(ccd.getCustodian() != null && !ccd.getCustodian().isSetNullFlavor()) {
 			if(ccd.getCustodian().getAssignedCustodian() != null && !ccd.getCustodian().getAssignedCustodian().isSetNullFlavor()) {
 				if(ccd.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization() != null && !ccd.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().isSetNullFlavor()) {
-					Organization fhirOrganization = CustodianOrganization2Organization(ccd.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization());
+					Organization fhirOrganization = tCustodianOrganization2Organization(ccd.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization());
 					fhirComp.setCustodian(new ResourceReferenceDt(fhirOrganization.getId()));
 					fhirCompBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
 				}
@@ -2108,7 +2108,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirCompBundle;
 	}
 	
-	public Organization CustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaOrganization) {
+	public Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaOrganization) {
 		if(cdaOrganization == null || cdaOrganization.isSetNullFlavor())
 			return null;
 		
