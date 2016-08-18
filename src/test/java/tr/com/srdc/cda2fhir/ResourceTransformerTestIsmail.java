@@ -96,7 +96,7 @@ public class ResourceTransformerTestIsmail {
                 // look at subordinate observations
                 // we don't have a domain-specific "getter" method here so we use
                 // entry relationship
-            	Bundle conditionList = rt.ProblemConcernAct2Condition(problemAct);
+            	Bundle conditionList = rt.tProblemConcernAct2Condition(problemAct);
             	int i = 0;
             	
                 for (EntryRelationship entryRelationship : problemAct.getEntryRelationships()) {
@@ -112,17 +112,17 @@ public class ResourceTransformerTestIsmail {
                         Assert.assertEquals("probAct.value transformation failed" , 
                         		value.getDisplayName() , ((Condition) conditionList.getEntry().get(i).getResource()).getCode().getCoding().get(0).getDisplay() );
                         
-                        DateDt date = dtt.TS2Date( problemObservation.getAuthors().get(0).getTime() );
+                        DateDt date = dtt.tTS2Date( problemObservation.getAuthors().get(0).getTime() );
                         Assert.assertEquals("probAct.dateRecoreded transformation failed" , date ,  ((Condition) conditionList.getEntry().get(i).getResource()).getDateRecordedElement() );
                         
-                        PeriodDt period = dtt.IVL_TS2Period( problemObservation.getEffectiveTime() );
+                        PeriodDt period = dtt.tIVL_TS2Period( problemObservation.getEffectiveTime() );
                         Assert.assertEquals("probAct.Onset transformation failed", period.getStart(), 
                         			((DateTimeDt) ((Condition) conditionList.getEntry().get(i).getResource()).getOnset()).getValue() );
                         Assert.assertEquals("probAct.abatement transformation failed", period.getEnd()
                         		, ((DateTimeDt) ((Condition) conditionList.getEntry().get(i).getResource()).getAbatement()).getValue() );
                         
                         if(problemAct.getIds() != null & !problemAct.getIds().isEmpty()){
-	                        IdentifierDt identifier = dtt.II2Identifier( problemAct.getIds().get(0) );
+	                        IdentifierDt identifier = dtt.tII2Identifier( problemAct.getIds().get(0) );
 	                        Assert.assertEquals("probAct.id transformation failed" + i  , identifier.getPeriod().getStart()  , ((Condition) conditionList.getEntry().get(i).getResource()).getIdentifier().get(0).getPeriod().getStart());
 	                        
                         }
@@ -163,7 +163,7 @@ public class ResourceTransformerTestIsmail {
 	        for( MedicationActivity medicationActivity  : medicationSection.getMedicationActivities() )
 	        {
 	        	ManufacturedProduct manPro = medicationActivity.getConsumable().getManufacturedProduct();
-	        	Bundle medicationBundle = rt.ManufacturedProduct2Medication( manPro );
+	        	Bundle medicationBundle = rt.tManufacturedProduct2Medication( manPro );
 	        	for( ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : medicationBundle.getEntry() ){
 		        	if( entry.getResource()  instanceof Medication ){
 			        	Medication medication = (Medication) entry.getResource();
@@ -228,18 +228,18 @@ public class ResourceTransformerTestIsmail {
 	        	for(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense meDisCda : medicationActivity.getMedicationDispenses()){
 	
 		        	if( meDisCda.getMoodCode() != x_DocumentSubstanceMood.EVN ) continue;
-		        	Bundle meDisBundle = rt.MedicationDispense2MedicationDispense( meDisCda );
+		        	Bundle meDisBundle = rt.tMedicationDispense2MedicationDispense( meDisCda );
 		        	for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : meDisBundle.getEntry()){
 				        if( entry.getResource() instanceof MedicationDispense ){
 				        	MedicationDispense meDis = (MedicationDispense) entry.getResource();
-				        	Assert.assertEquals( "dispense.Identifier failed" , dtt.II2Identifier(meDisCda.getIds().get(0)).getValue(), meDis.getIdentifier().getValue());
+				        	Assert.assertEquals( "dispense.Identifier failed" , dtt.tII2Identifier(meDisCda.getIds().get(0)).getValue(), meDis.getIdentifier().getValue());
 				        	//Assert.assertEquals( "dispense.code failed", dtt.CD2CodeableConcept(meDisCda.getCode()).getCoding().get(0).getCode() , meDis.getType().getCoding().get(0).getCode()   );
 				        	Assert.assertEquals( "dispense.statusCode failed" , meDisCda.getStatusCode().getDisplayName() , meDis.getStatus() );
 				        	Assert.assertEquals( "dispense.quantity failed" , meDisCda.getQuantity().getValue() , meDis.getQuantity().getValue() );
 				        	if( meDisCda.getEffectiveTimes() != null & meDisCda.getEffectiveTimes().size() != 0 ){
-				        		Assert.assertEquals( "dispense.whenPrepared failed" , dtt.TS2DateTime( meDisCda.getEffectiveTimes().get(0) ).getValue(), meDis.getWhenPrepared());
+				        		Assert.assertEquals( "dispense.whenPrepared failed" , dtt.tTS2DateTime( meDisCda.getEffectiveTimes().get(0) ).getValue(), meDis.getWhenPrepared());
 				        		if(meDisCda.getEffectiveTimes().size() != 1 )
-				        			Assert.assertEquals( "dispense.whenHandedOver failed" , dtt.TS2DateTime( meDisCda.getEffectiveTimes().get(1) ).getValue(), meDis.getWhenHandedOver());
+				        			Assert.assertEquals( "dispense.whenHandedOver failed" , dtt.tTS2DateTime( meDisCda.getEffectiveTimes().get(1) ).getValue(), meDis.getWhenHandedOver());
 				        	}
 				        	
 				        	printJSON(meDis);
@@ -277,13 +277,13 @@ public void traverseCCDMedicationActivity(InputStream is) throws Exception {
 	        
 	        for(MedicationActivity medAc : medicationSection.getMedicationActivities()){
 		     
-		        	Bundle medStBundle = rt.MedicationActivity2MedicationStatement( medAc );
+		        	Bundle medStBundle = rt.tMedicationActivity2MedicationStatement( medAc );
 		        	
 		        	for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : medStBundle.getEntry()){ 
 		        		if(entry.getResource() instanceof MedicationStatement){
 			        		MedicationStatement medSt = (MedicationStatement) entry.getResource();
 			        		
-			        		Assert.assertEquals( "medStatement.identifier failed" , dtt.II2Identifier(medAc.getIds().get(0)).getValue() , medSt.getIdentifier().get(0).getValue() );
+			        		Assert.assertEquals( "medStatement.identifier failed" , dtt.tII2Identifier(medAc.getIds().get(0)).getValue() , medSt.getIdentifier().get(0).getValue() );
 				        	Assert.assertEquals( "medStatement.status failed" , medAc.getStatusCode().getCode() , medSt.getStatus()  );
 				        	
 				        	if(medSt.getDosage() == null || medSt.getDosage().size() == 0){
@@ -291,7 +291,7 @@ public void traverseCCDMedicationActivity(InputStream is) throws Exception {
 				        		break;
 				        	}
 				        	Assert.assertEquals("doseQuantity Failed" , medAc.getDoseQuantity().getValue() , ((SimpleQuantityDt) medSt.getDosage().get(0).getQuantity() ).getValue() );
-				        	Assert.assertEquals( "medStatement.effective failed" ,  dtt.IVL_TS2Period( (IVL_TS) medAc.getEffectiveTimes().get(0) ).getStart() , ((PeriodDt) medSt.getEffective()).getStart() );
+				        	Assert.assertEquals( "medStatement.effective failed" ,  dtt.tIVL_TS2Period( (IVL_TS) medAc.getEffectiveTimes().get(0) ).getStart() , ((PeriodDt) medSt.getEffective()).getStart() );
 				        	
 				        	for( EntryRelationship ers : medAc.getEntryRelationships() ){
 				    			

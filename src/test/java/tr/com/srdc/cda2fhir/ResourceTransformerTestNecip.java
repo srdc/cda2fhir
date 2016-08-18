@@ -33,7 +33,7 @@ import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 
 public class ResourceTransformerTestNecip {
-	// Test one method at a time. Use annotation @Ignore for the remaining methods.
+	// Test one method at a time. Use annotation @Test for the remaining methods.
 	
 	// context
 	private static final FhirContext myCtx = FhirContext.forDstu2();
@@ -79,12 +79,12 @@ public class ResourceTransformerTestNecip {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
-	@Ignore
+	@Test
 	public void testAllergyProblemAct2AllergyIntolerance(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		for( AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs() ){
 			System.out.println("Transformation starting..");
-			Bundle allergyBundle = rt.AllergyProblemAct2AllergyIntolerance(cdaAPA);
+			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA);
 			System.out.println("End of transformation. Printing..");
 			printJSON( allergyBundle );
 			System.out.println("End of print");
@@ -92,7 +92,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testAssignedAuthor2Practitioner(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -102,7 +102,7 @@ public class ResourceTransformerTestNecip {
 				if( author != null && author.getAssignedAuthor() != null ){
 					
 					System.out.println("Transformation starting..");
-					Bundle practitionerBundle = rt.AssignedAuthor2Practitioner( author.getAssignedAuthor() );
+					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner( author.getAssignedAuthor() );
 					System.out.println("End of transformation. Printing the resource as JSON object..");
 					printJSON( practitionerBundle );
 					System.out.println("End of print.");
@@ -111,7 +111,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testAssignedEntity2Practitioner(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int procedureCount = 0;
@@ -130,7 +130,7 @@ public class ResourceTransformerTestNecip {
 									
 									ca.uhn.fhir.model.dstu2.resource.Practitioner practitioner = null;
 									
-									Bundle fhirPractitionerBundle = rt.AssignedEntity2Practitioner(performer.getAssignedEntity() );
+									Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity() );
 									for( Entry entry : fhirPractitionerBundle.getEntry() ){
 										if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Practitioner){
 											practitioner = (Practitioner) entry.getResource();
@@ -150,7 +150,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testEncounter2Encounter(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int encounterCount = 0;
@@ -164,7 +164,7 @@ public class ResourceTransformerTestNecip {
 							System.out.println("Encounter["+encounterCount+"]");
 							System.out.println("Transformation starting..");
 							
-							Bundle fhirEncounterBundle = rt.Encounter2Encounter(cdaEncounter);
+							Bundle fhirEncounterBundle = rt.tEncounter2Encounter(cdaEncounter);
 							
 							System.out.println("End of transformation. Printing the resource as JSON object..");
 							printJSON( fhirEncounterBundle );
@@ -178,7 +178,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testGuardian2Contact(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -192,7 +192,7 @@ public class ResourceTransformerTestNecip {
 							System.out.println("PatientRole["+patientRoleCount+"], Guardian["+guardianCount+"]");
 							
 							System.out.println("Transformation starting..");
-							ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = rt.Guardian2Contact(guardian);
+							ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = rt.tGuardian2Contact(guardian);
 							
 							System.out.println("End of transformation. Printing the resource as JSON object..");
 							
@@ -209,7 +209,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testManufacturedProduct2Medication(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -223,7 +223,7 @@ public class ResourceTransformerTestNecip {
 								// immAct.immSection.immAct.consumable.manuProd
 								
 								System.out.println("Transformation starting..");
-								Bundle fhirMed = rt.ManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
+								Bundle fhirMed = rt.tManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
 								System.out.println("End of transformation. Printing the resource as JSON object..");
 								printJSON(fhirMed);
 								System.out.println("End of print.");
@@ -236,7 +236,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testMedicationActivity2MedicationStatement(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -245,7 +245,7 @@ public class ResourceTransformerTestNecip {
 				for(MedicationActivity cdaMedAct : test.ccd.getMedicationsSection().getMedicationActivities()) {
 					if(cdaMedAct != null && !cdaMedAct.isSetNullFlavor()) {
 						System.out.println("Transformation starting..");
-						Bundle fhirMedStBundle = rt.MedicationActivity2MedicationStatement(cdaMedAct);
+						Bundle fhirMedStBundle = rt.tMedicationActivity2MedicationStatement(cdaMedAct);
 						System.out.println("End of transformation. Printing the resource as JSON object..");
 						printJSON(fhirMedStBundle);
 						System.out.println("End of print.");
@@ -255,7 +255,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testMedicationDispense2MedicationDispense(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -269,7 +269,7 @@ public class ResourceTransformerTestNecip {
 							for(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense medDisp : medAct.getMedicationDispenses()){
 								if(medDisp != null && !medDisp.isSetNullFlavor()){
 									System.out.println("Transformation starting..");
-									Bundle fhirMedDispBundle = rt.MedicationDispense2MedicationDispense(medDisp);
+									Bundle fhirMedDispBundle = rt.tMedicationDispense2MedicationDispense(medDisp);
 									System.out.println("End of transformation. Printing the resource as JSON object..");
 									printJSON(fhirMedDispBundle);
 									System.out.println("End of print.");
@@ -282,7 +282,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testFamilyMemberOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -290,7 +290,7 @@ public class ResourceTransformerTestNecip {
 			for( org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : test.ccd.getFamilyHistorySection().getFamilyHistories() ){
 				if( familyHistoryOrganizer != null ){
 					System.out.println("Transformation starting..");
-					FamilyMemberHistory fmHistory = rt.FamilyHistoryOrganizer2FamilyMemberHistory( familyHistoryOrganizer );
+					FamilyMemberHistory fmHistory = rt.tFamilyHistoryOrganizer2FamilyMemberHistory( familyHistoryOrganizer );
 					System.out.println("End of transformation. Printing the resource as JSON object..");
 					printJSON(fmHistory);
 					System.out.println("End of print.");
@@ -299,7 +299,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testObservation2Observation(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		if( test.ccd.getSocialHistorySection() != null && !test.ccd.getSocialHistorySection().isSetNullFlavor() ){
@@ -307,7 +307,7 @@ public class ResourceTransformerTestNecip {
 				for( org.openhealthtools.mdht.uml.cda.Observation cdaObs : test.ccd.getSocialHistorySection().getObservations() ){
 					if( cdaObs != null && !cdaObs.isSetNullFlavor()){
 						System.out.println("Transformation starting..");
-						Bundle obsBundle = rt.Observation2Observation( cdaObs );
+						Bundle obsBundle = rt.tObservation2Observation( cdaObs );
 						System.out.println("End of transformation. Printing..");
 						printJSON(obsBundle);
 						System.out.println("End of print.\n***");
@@ -317,7 +317,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testOrganization2Organization(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -329,7 +329,7 @@ public class ResourceTransformerTestNecip {
 	
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = null;
 			
-			Bundle fhirOrgBundle = rt.Organization2Organization(cdaOrg);
+			Bundle fhirOrgBundle = rt.tOrganization2Organization(cdaOrg);
 			for( Entry entry : fhirOrgBundle.getEntry() ){
 				if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Organization){
 					fhirOrg = (Organization) entry.getResource();
@@ -342,7 +342,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testPatientRole2Patient(){
 			ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 			EList<PatientRole> patientRoles = test.ccd.getPatientRoles();
@@ -355,7 +355,7 @@ public class ResourceTransformerTestNecip {
 				
 				Patient patient = null;
 				
-				Bundle patientBundle = rt.PatientRole2Patient(pr);
+				Bundle patientBundle = rt.tPatientRole2Patient(pr);
 				for( Entry entry : patientBundle.getEntry() ){
 					if( entry.getResource() instanceof Patient){
 						patient = (Patient) entry.getResource();
@@ -364,22 +364,21 @@ public class ResourceTransformerTestNecip {
 				
 				// ta-ta-ta-taa!
 				System.out.println("Printing the resource as JSON object..");
-				printJSON( patient );
+				printJSON(patientBundle);
 				System.out.println("End of print");
 				
 				
 				// patient.identifier
 				int idCount = 0;
-				for( II id : pr.getIds() ){
+				for(II id : pr.getIds()){
 					// To see the values, you can use the following print lines.
 	//				System.out.println( id.getRoot() );
 	//				System.out.println( id.getExtension() );
 	//				System.out.println( id.getAssigningAuthorityName() );
 					
-					// cdoeSystem method is changed and tested
-	//				Assert.assertEquals("pr.id.root #"+ idCount +" was not transformed",id.getRoot(),  patient.getIdentifier().get(idCount).getSystem() );
+					// codeSystem method is changed and tested
+					Assert.assertEquals("pr.id.root #"+ idCount +" was not transformed",id.getRoot(),  patient.getIdentifier().get(idCount).getValue() );
 					
-					Assert.assertEquals("pr.id.assigningAuthorityName #"+ idCount +" was not transformed",id.getAssigningAuthorityName(),  patient.getIdentifier().get(idCount).getAssigner().getReference().getValue() );
 					idCount++;
 				}
 				// patient.name
@@ -589,7 +588,7 @@ public class ResourceTransformerTestNecip {
 			}
 	    }
 	
-	@Ignore
+	@Test
 	public void testProblemConcernAct2Condition(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -598,7 +597,7 @@ public class ResourceTransformerTestNecip {
 				for(ProblemConcernAct problemConcernAct : test.ccd.getProblemSection().getProblemConcerns()) {
 					if(problemConcernAct != null && !problemConcernAct.isSetNullFlavor()) {
 						System.out.println("Transformation starting..");
-						Bundle fhirConditionBundle = rt.ProblemConcernAct2Condition(problemConcernAct);
+						Bundle fhirConditionBundle = rt.tProblemConcernAct2Condition(problemConcernAct);
 						System.out.println("End of transformation. Printing the resource as JSON object..");
 						printJSON(fhirConditionBundle);
 						System.out.println("End of print.");
@@ -608,7 +607,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testProcedure2Procedure(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -623,7 +622,7 @@ public class ResourceTransformerTestNecip {
 					
 					ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
 					
-					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
 					for( Entry entry : fhirProcedureBundle.getEntry() ){
 						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
 							fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
@@ -651,7 +650,7 @@ public class ResourceTransformerTestNecip {
 	
 					ca.uhn.fhir.model.dstu2.resource.Encounter fhirProcedure = null;
 					
-					Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
 					for( Entry entry : fhirProcedureBundle.getEntry() ){
 						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
 							fhirProcedure = (Encounter) entry.getResource();
@@ -681,7 +680,7 @@ public class ResourceTransformerTestNecip {
 	
 						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
 						
-						Bundle fhirProcedureBundle = rt.Procedure2Procedure(cdaProcedure);
+						Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
 						for( Entry entry : fhirProcedureBundle.getEntry() ){
 							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
 								fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
@@ -701,7 +700,7 @@ public class ResourceTransformerTestNecip {
 		
 	}
 
-	@Ignore
+	@Test
 	public void testSection2Section(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 	
@@ -718,7 +717,7 @@ public class ResourceTransformerTestNecip {
 		
 		if( sampleSection != null ){
 			System.out.println("Transformating..");
-			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.section2Section(sampleSection);
+			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.tSection2Section(sampleSection);
 			System.out.println("End of transformation. Printing the JSON Object..");
 			
 			// We need to embed fhirSection to fhirCompositon to use the method printJSON
@@ -731,7 +730,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testSubstanceAdministration2Immunization() {
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -741,7 +740,7 @@ public class ResourceTransformerTestNecip {
 			for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
 				if(immAct != null && !immAct.isSetNullFlavor()) {
 					System.out.println( "Transformating starting..." );
-					Bundle fhirImm = rt.SubstanceAdministration2Immunization(immAct);
+					Bundle fhirImm = rt.tSubstanceAdministration2Immunization(immAct);
 					System.out.println("End of transformation. Printing the resource as JSON object..");
 					printJSON(fhirImm);
 					System.out.println("End of print.");
@@ -750,7 +749,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testLanguageCommunication2Communication(){
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		int patientCount = 0;
@@ -761,7 +760,7 @@ public class ResourceTransformerTestNecip {
 				System.out.print("LC["+ lcCount++ +"]\n");
 				
 				System.out.println( "Transformating starting..." );
-				ca.uhn.fhir.model.dstu2.resource.Patient.Communication fhirCommunication = rt.LanguageCommunication2Communication(LC);
+				ca.uhn.fhir.model.dstu2.resource.Patient.Communication fhirCommunication = rt.tLanguageCommunication2Communication(LC);
 				System.out.println("End of transformation. Building a patient resource..");
 				ca.uhn.fhir.model.dstu2.resource.Patient fhirPatient = new ca.uhn.fhir.model.dstu2.resource.Patient();
 				fhirPatient.addCommunication(fhirCommunication);
@@ -772,7 +771,7 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testVitalSignObservation2Observation() {
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
 		
@@ -785,7 +784,7 @@ public class ResourceTransformerTestNecip {
 							for(VitalSignObservation vitalSignObservation : vitalSignOrganizer.getVitalSignObservations()) {
 								if(vitalSignObservation != null && !vitalSignObservation.isSetNullFlavor()) {
 									System.out.println( "Transformating starting..." );
-									Bundle fhirObservation = rt.VitalSignObservation2Observation((VitalSignObservation)vitalSignObservation);
+									Bundle fhirObservation = rt.tVitalSignObservation2Observation((VitalSignObservation)vitalSignObservation);
 									System.out.println("End of transformation. Printing the resource as JSON object..");
 									printJSON(fhirObservation);
 									System.out.println("End of print.");

@@ -18,54 +18,54 @@ import org.openhealthtools.mdht.uml.cda.consol.*;
  */
 public interface ResourceTransformer {
 
-	Bundle AllergyProblemAct2AllergyIntolerance(AllergyProblemAct cdaAllergyProbAct);
+	Bundle tAllergyProblemAct2AllergyIntolerance(AllergyProblemAct cdaAllergyProbAct);
 	
-	Bundle AssignedAuthor2Practitioner( AssignedAuthor cdaAssignedAuthor );
+	Bundle tAssignedAuthor2Practitioner( AssignedAuthor cdaAssignedAuthor );
 	
-	Bundle AssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity );
+	Bundle tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity );
 	
-	Bundle Encounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter);
+	Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter);
 	
-	Bundle Entity2Group( Entity cdaEntity );
+	Bundle tEntity2Group( Entity cdaEntity );
 	
-	FamilyMemberHistory FamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
+	FamilyMemberHistory tFamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
 
-	Condition Indication2Condition(Indication indication);
+	Condition tIndication2Condition(Indication indication);
 	
-	Bundle ManufacturedProduct2Medication(ManufacturedProduct cdaManuProd);
+	Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManuProd);
 	
-	Bundle MedicationActivity2MedicationStatement(MedicationActivity cdaMedAct);
+	Bundle tMedicationActivity2MedicationStatement(MedicationActivity cdaMedAct);
 	
-	Bundle MedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaMediDisp);
+	Bundle tMedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaMediDisp);
 	
-	Bundle Observation2Observation( org.openhealthtools.mdht.uml.cda.Observation cdaObs );
+	Bundle tObservation2Observation( org.openhealthtools.mdht.uml.cda.Observation cdaObs );
 	
-	Bundle Organization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
+	Bundle tOrganization2Organization ( org.openhealthtools.mdht.uml.cda.Organization cdaOrganization );
 	
-	Bundle ParticipantRole2Location(ParticipantRole cdaParticipantRole );
+	Bundle tParticipantRole2Location(ParticipantRole cdaParticipantRole );
 	
-	Bundle PatientRole2Patient(PatientRole cdaPatientRole);
+	Bundle tPatientRole2Patient(PatientRole cdaPatientRole);
 	
-	Bundle Performer22Practitioner( Performer2 cdaPerformer );
+	Bundle tPerformer22Practitioner( Performer2 cdaPerformer );
 	
-	Bundle ProblemConcernAct2Condition(ProblemConcernAct cdaProbConcAct);
+	Bundle tProblemConcernAct2Condition(ProblemConcernAct cdaProbConcAct);
 
-	Bundle Procedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
+	Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
 	
-	Bundle ResultObservation2Observation(ResultObservation cdaResultObs);
+	Bundle tResultObservation2Observation(ResultObservation cdaResultObs);
 	
-	Bundle SocialHistoryObservation2Observation( org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation cdaSocialHistoryObs );
+	Bundle tSocialHistoryObservation2Observation( org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation cdaSocialHistoryObs );
 	
-	Bundle SubstanceAdministration2Immunization(SubstanceAdministration cdaSubAdm);
+	Bundle tSubstanceAdministration2Immunization(SubstanceAdministration cdaSubAdm);
     
-    Bundle VitalSignObservation2Observation(VitalSignObservation cdaVSO);
+    Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVSO);
     
-    ca.uhn.fhir.model.dstu2.resource.Patient.Contact Guardian2Contact( org.openhealthtools.mdht.uml.cda.Guardian cdaGuardian );
+    ca.uhn.fhir.model.dstu2.resource.Patient.Contact tGuardian2Contact( org.openhealthtools.mdht.uml.cda.Guardian cdaGuardian );
     
-    Communication LanguageCommunication2Communication( LanguageCommunication cdaLanguageCommunication );
+    Communication tLanguageCommunication2Communication( LanguageCommunication cdaLanguageCommunication );
 	
-	Observation.ReferenceRange ReferenceRange2ReferenceRange( org.openhealthtools.mdht.uml.cda.ReferenceRange cdaRefRange);
+	Observation.ReferenceRange tReferenceRange2ReferenceRange( org.openhealthtools.mdht.uml.cda.ReferenceRange cdaRefRange);
     
-	Composition.Section section2Section(Section cdaSec);
+	Composition.Section tSection2Section(Section cdaSec);
     
 }
