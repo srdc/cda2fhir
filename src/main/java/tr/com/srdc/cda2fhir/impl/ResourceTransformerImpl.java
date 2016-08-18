@@ -137,7 +137,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// status
 		if(cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor()){
 			if(cdaAllergyProbAct.getStatusCode().getCode() != null && !cdaAllergyProbAct.getStatusCode().getCode().isEmpty()){
-				AllergyIntoleranceStatusEnum allergyIntoleranceStatusEnum = vst.StatusCode2AllergyIntoleranceStatusEnum(cdaAllergyProbAct.getStatusCode().getCode());
+				AllergyIntoleranceStatusEnum allergyIntoleranceStatusEnum = vst.tStatusCode2AllergyIntoleranceStatusEnum(cdaAllergyProbAct.getStatusCode().getCode());
 				if(allergyIntoleranceStatusEnum != null){
 					fhirAllergyIntolerance.setStatus(allergyIntoleranceStatusEnum);
 				}
@@ -180,8 +180,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						for(ANY value : cdaAllergyObs.getValues()){
 							if(value != null && !value.isSetNullFlavor()){
 								if(value instanceof CD){
-									if(vst.AllergyCategoryCode2AllergyIntoleranceCategoryEnum(((CD)value).getCode()) != null){
-										fhirAllergyIntolerance.setCategory(vst.AllergyCategoryCode2AllergyIntoleranceCategoryEnum(((CD)value).getCode()));
+									if(vst.tAllergyCategoryCode2AllergyIntoleranceCategoryEnum(((CD)value).getCode()) != null){
+										fhirAllergyIntolerance.setCategory(vst.tAllergyCategoryCode2AllergyIntoleranceCategoryEnum(((CD)value).getCode()));
 									}
 								}
 							}
@@ -218,8 +218,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 												for(ANY value : cdaSeverityObs.getValues()){
 													if(value != null && !value.isSetNullFlavor()){
 														if(value instanceof CD){
-															if(vst.SeverityCode2AllergyIntoleranceSeverityEnum(((CD)value).getCode()) != null){
-																fhirReaction.setSeverity(vst.SeverityCode2AllergyIntoleranceSeverityEnum(((CD)value).getCode()));
+															if(vst.tSeverityCode2AllergyIntoleranceSeverityEnum(((CD)value).getCode()) != null){
+																fhirReaction.setSeverity(vst.tSeverityCode2AllergyIntoleranceSeverityEnum(((CD)value).getCode()));
 															}
 														}
 													}
@@ -426,8 +426,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		// status <-> statusCode
 		if(cdaEncounter.getStatusCode() != null && !cdaEncounter.getStatusCode().isSetNullFlavor()){
-			if(vst.StatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()) != null){
-				fhirEncounter.setStatus(vst.StatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()));
+			if(vst.tStatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()) != null){
+				fhirEncounter.setStatus(vst.tStatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()));
 			}
 		}
 
@@ -443,7 +443,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					if(cd != null && !cd.isSetNullFlavor()) {
 						System.out.println("***");
 						System.out.println(cd.getCode());
-						EncounterClassEnum encounterClass = vst.EncounterCode2EncounterClassEnum(cd.getCode());
+						EncounterClassEnum encounterClass = vst.tEncounterCode2EncounterClassEnum(cd.getCode());
 						if(encounterClass != null){
 							fhirEncounter.setClassElement(encounterClass);
 						}
@@ -463,7 +463,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				if(cdaPerformer != null && !cdaPerformer.isSetNullFlavor()){
 					ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
 
-					fhirParticipant.addType().addCoding( vst.ParticipationType2ParticipationTypeCode( ParticipationType.PRF ) );
+					fhirParticipant.addType().addCoding( vst.tParticipationType2ParticipationTypeCode( ParticipationType.PRF ) );
 
 					Practitioner fhirPractitioner = null;
 					Bundle fhirPractitionerBundle = tPerformer22Practitioner( cdaPerformer );
@@ -571,7 +571,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 			// type
 			if( cdaEntity.getClassCode() != null ){
-				GroupTypeEnum groupTypeEnum = vst.EntityClassRoot2GroupTypeEnum( cdaEntity.getClassCode() );
+				GroupTypeEnum groupTypeEnum = vst.tEntityClassRoot2GroupTypeEnum( cdaEntity.getClassCode() );
 				if( groupTypeEnum != null ){
 					fhirGroup.setType( groupTypeEnum );
 				}
@@ -621,7 +621,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		// statusCode
 		if(cdaFHO.getStatusCode() != null && !cdaFHO.getStatusCode().isSetNullFlavor()){
-			fhirFMH.setStatus(vst.FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(cdaFHO.getStatusCode().getCode()));
+			fhirFMH.setStatus(vst.tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(cdaFHO.getStatusCode().getCode()));
 		}
 		
 		// condition <-> familyHistoryObservation
@@ -700,7 +700,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				// gender
 				if(subjectPerson.getAdministrativeGenderCode() != null && !subjectPerson.getAdministrativeGenderCode().isSetNullFlavor() &&
 						subjectPerson.getAdministrativeGenderCode().getCode() != null){
-					fhirFMH.setGender(vst.AdministrativeGenderCode2AdministrativeGenderEnum(subjectPerson.getAdministrativeGenderCode().getCode()));
+					fhirFMH.setGender(vst.tAdministrativeGenderCode2AdministrativeGenderEnum(subjectPerson.getAdministrativeGenderCode().getCode()));
 				}
 
 				// birthTime -> born
@@ -736,7 +736,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// code -> category
 		if(indication.getCode() != null && !indication.getCode().isSetNullFlavor()) {
 			if(indication.getCode().getCode() != null) {
-				ConditionCategoryCodesEnum conditionCategory = vst.ProblemType2ConditionCategoryCodesEnum(indication.getCode().getCode());
+				ConditionCategoryCodesEnum conditionCategory = vst.tProblemType2ConditionCategoryCodesEnum(indication.getCode().getCode());
 				if(conditionCategory != null) {
 					fhirCond.setCategory(conditionCategory);
 				}
@@ -861,7 +861,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// status
 		if(cdaMedAct.getStatusCode() != null && !cdaMedAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaMedAct.getStatusCode().getCode() != null && !cdaMedAct.getStatusCode().getCode().isEmpty()) {
-				MedicationStatementStatusEnum statusCode = vst.StatusCode2MedicationStatementStatusEnum(cdaMedAct.getStatusCode().getCode());
+				MedicationStatementStatusEnum statusCode = vst.tStatusCode2MedicationStatementStatusEnum(cdaMedAct.getStatusCode().getCode());
 				if(statusCode != null) {
 					fhirMedSt.setStatus(statusCode);
 				}
@@ -977,7 +977,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// status
 		if(cdaMediDisp.getStatusCode() != null && !cdaMediDisp.getStatusCode().isSetNullFlavor()) {
 			if(cdaMediDisp.getStatusCode().getCode() != null && !cdaMediDisp.getStatusCode().getCode().isEmpty()) {
-				MedicationDispenseStatusEnum mediDispStatEnum = vst.StatusCode2MedicationDispenseStatusEnum(cdaMediDisp.getStatusCode().getCode());
+				MedicationDispenseStatusEnum mediDispStatEnum = vst.tStatusCode2MedicationDispenseStatusEnum(cdaMediDisp.getStatusCode().getCode());
 				if(mediDispStatEnum != null){
 					fhirMediDisp.setStatus(mediDispStatEnum);
 				}
@@ -1118,7 +1118,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// status
 		if(cdaObs.getStatusCode() != null && !cdaObs.getStatusCode().isSetNullFlavor()) {
 			if(cdaObs.getStatusCode().getCode() != null) {
-				fhirObs.setStatus(vst.ObservationStatusCode2ObservationStatusEnum(cdaObs.getStatusCode().getCode()));
+				fhirObs.setStatus(vst.tObservationStatusCode2ObservationStatusEnum(cdaObs.getStatusCode().getCode()));
 			}
 		}
 
@@ -1144,7 +1144,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				if(value == null) continue; // If the value is null, continue
 				else if( value.isSetNullFlavor()) {
 					// If a null flavor exists, then we set dataAbsentReason by looking at the null-flavor value
-					CodingDt DataAbsentReasonCode = vst.NullFlavor2DataAbsentReasonCode(value.getNullFlavor());
+					CodingDt DataAbsentReasonCode = vst.tNullFlavor2DataAbsentReasonCode(value.getNullFlavor());
 					if(DataAbsentReasonCode != null) {
 						if(fhirObs.getDataAbsentReason() == null || fhirObs.getDataAbsentReason().isEmpty()) {
 							// If DataAbsentReason was not set, create a new CodeableConcept and add our code into it
@@ -1432,7 +1432,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				&& cdaPatientRole.getPatient().getAdministrativeGenderCode().getCode() != null
 				&& !cdaPatientRole.getPatient().getAdministrativeGenderCode().getCode().isEmpty();
 		if(administrativeGenderCodeNullCheck) {
-			AdministrativeGenderEnum administrativeGender = vst.AdministrativeGenderCode2AdministrativeGenderEnum(cdaPatientRole.getPatient().getAdministrativeGenderCode().getCode());
+			AdministrativeGenderEnum administrativeGender = vst.tAdministrativeGenderCode2AdministrativeGenderEnum(cdaPatientRole.getPatient().getAdministrativeGenderCode().getCode());
 			fhirPatient.setGender(administrativeGender);
 		}
 
@@ -1455,7 +1455,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaPatientRole.getPatient().getMaritalStatusCode() != null
 				&& !cdaPatientRole.getPatient().getMaritalStatusCode().isSetNullFlavor()) {
 			if(cdaPatientRole.getPatient().getMaritalStatusCode().getCode() != null && !cdaPatientRole.getPatient().getMaritalStatusCode().getCode().isEmpty()) {
-				fhirPatient.setMaritalStatus(vst.MaritalStatusCode2MaritalStatusCodesEnum(cdaPatientRole.getPatient().getMaritalStatusCode().getCode()));
+				fhirPatient.setMaritalStatus(vst.tMaritalStatusCode2MaritalStatusCodesEnum(cdaPatientRole.getPatient().getMaritalStatusCode().getCode()));
 			}
 		}
 
@@ -1632,7 +1632,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					// category
 					if(cdaProbObs.getCode() != null && !cdaProbObs.getCode().isSetNullFlavor()) {
 						if(cdaProbObs.getCode().getCode() != null) {
-							ConditionCategoryCodesEnum conditionCategory = vst.ProblemType2ConditionCategoryCodesEnum(cdaProbObs.getCode().getCode());
+							ConditionCategoryCodesEnum conditionCategory = vst.tProblemType2ConditionCategoryCodesEnum(cdaProbObs.getCode().getCode());
 							if(conditionCategory != null) {
 								fhirCondition.setCategory(conditionCategory);
 							}
@@ -1746,7 +1746,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		// status
 		if( cdaPr.getStatusCode() != null && !cdaPr.getStatusCode().isSetNullFlavor() && cdaPr.getStatusCode().getCode() != null ){
-			ProcedureStatusEnum status = vst.StatusCode2ProcedureStatusEnum( cdaPr.getStatusCode().getCode() );
+			ProcedureStatusEnum status = vst.tStatusCode2ProcedureStatusEnum( cdaPr.getStatusCode().getCode() );
 			if(status != null){
 				fhirPr.setStatus(status);
 			}

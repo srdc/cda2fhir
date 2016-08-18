@@ -11,51 +11,51 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 
 public interface ValueSetsTransformer {
 	
-	AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum(String AdministrativeGenderCode);
+	AdministrativeGenderEnum tAdministrativeGenderCode2AdministrativeGenderEnum(String AdministrativeGenderCode);
 	
-	String AgeObservationUnit2AgeUnit(String cdaUnit);
+	String tAgeObservationUnit2AgeUnit(String cdaUnit);
 	
-	AllergyIntoleranceCategoryEnum AllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode);
+	AllergyIntoleranceCategoryEnum tAllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode);
 	
-	EncounterClassEnum EncounterCode2EncounterClassEnum(String encounterCode);
+	EncounterClassEnum tEncounterCode2EncounterClassEnum(String encounterCode);
 	
-	GroupTypeEnum EntityClassRoot2GroupTypeEnum(EntityClassRoot entityClassRoot);
+	GroupTypeEnum tEntityClassRoot2GroupTypeEnum(EntityClassRoot entityClassRoot);
 	
-	NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse);
+	NameUseEnum tEntityNameUse2NameUseEnum(EntityNameUse entityNameUse);
 	
-	FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String FamilyHistoryOrganizerStatusCode);
+	FamilyHistoryStatusEnum tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String FamilyHistoryOrganizerStatusCode);
 	
-	MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum(String maritalStatusCode);
+	MaritalStatusCodesEnum tMaritalStatusCode2MaritalStatusCodesEnum(String maritalStatusCode);
 	
-	CodingDt NullFlavor2DataAbsentReasonCode(NullFlavor nullFlavor);
+	CodingDt tNullFlavor2DataAbsentReasonCode(NullFlavor nullFlavor);
 	
-	ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum(String obsStatusCode);
+	ObservationStatusEnum tObservationStatusCode2ObservationStatusEnum(String obsStatusCode);
 	
-	String oid2Url(String codeSystem);
+	String tOid2Url(String codeSystem);
 	
-	CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT);
+	CodingDt tParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT);
 
-	UnitsOfTimeEnum PeriodUnit2UnitsOfTimeEnum(String periodUnit);
+	UnitsOfTimeEnum tPeriodUnit2UnitsOfTimeEnum(String periodUnit);
 
-	ConditionCategoryCodesEnum ProblemType2ConditionCategoryCodesEnum(String problemType);
+	ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String problemType);
 	
-	AddressTypeEnum PostalAddressUse2AddressTypeEnum(PostalAddressUse postalAddressUse);
+	AddressTypeEnum tPostalAddressUse2AddressTypeEnum(PostalAddressUse postalAddressUse);
 	
-	AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);
+	AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);
 	
-	AllergyIntoleranceSeverityEnum SeverityCode2AllergyIntoleranceSeverityEnum(String severityCode);
+	AllergyIntoleranceSeverityEnum tSeverityCode2AllergyIntoleranceSeverityEnum(String severityCode);
 	
-	AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum(String status);
+	AllergyIntoleranceStatusEnum tStatusCode2AllergyIntoleranceStatusEnum(String status);
 	
-	EncounterStateEnum StatusCode2EncounterStatusEnum(String status);
+	EncounterStateEnum tStatusCode2EncounterStatusEnum(String status);
 	
-	MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum(String status);
+	MedicationDispenseStatusEnum tStatusCode2MedicationDispenseStatusEnum(String status);
 	
-	MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum(String status);
+	MedicationStatementStatusEnum tStatusCode2MedicationStatementStatusEnum(String status);
 	
-	ProcedureStatusEnum StatusCode2ProcedureStatusEnum(String statusCodeString);
+	ProcedureStatusEnum tStatusCode2ProcedureStatusEnum(String statusCodeString);
 	
-	ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse telecommunicationAddressUse);
+	ContactPointUseEnum tTelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse telecommunicationAddressUse);
 
-	ContactPointSystemEnum TelValue2ContactPointSystemEnum(String telValue);
+	ContactPointSystemEnum tTelValue2ContactPointSystemEnum(String telValue);
 }

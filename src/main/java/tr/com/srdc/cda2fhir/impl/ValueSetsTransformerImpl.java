@@ -12,7 +12,7 @@ import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
 public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 
-	public AdministrativeGenderEnum AdministrativeGenderCode2AdministrativeGenderEnum(String administrativeGenderCode) {
+	public AdministrativeGenderEnum tAdministrativeGenderCode2AdministrativeGenderEnum(String administrativeGenderCode) {
 		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
 		switch (administrativeGenderCode) {
 			case "F": // Female
@@ -33,7 +33,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public String AgeObservationUnit2AgeUnit(String cdaUnit) {
+	public String tAgeObservationUnit2AgeUnit(String cdaUnit) {
 		if(cdaUnit == null || cdaUnit.isEmpty())
 			return null;
 
@@ -62,7 +62,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public AllergyIntoleranceCategoryEnum AllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode) {
+	public AllergyIntoleranceCategoryEnum tAllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode) {
 		if(allergyCategoryCode == null)
 			return null;
 		switch(allergyCategoryCode) {
@@ -85,7 +85,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public EncounterClassEnum EncounterCode2EncounterClassEnum(String encounterCode) {
+	public EncounterClassEnum tEncounterCode2EncounterClassEnum(String encounterCode) {
 		if(encounterCode == null)
 			return null;
 		switch(encounterCode.toLowerCase()) {
@@ -127,7 +127,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public GroupTypeEnum EntityClassRoot2GroupTypeEnum(EntityClassRoot entityClassRoot) {
+	public GroupTypeEnum tEntityClassRoot2GroupTypeEnum(EntityClassRoot entityClassRoot) {
 		switch(entityClassRoot) {
 			case PSN:
 				return GroupTypeEnum.PERSON;
@@ -142,7 +142,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public NameUseEnum EntityNameUse2NameUseEnum(EntityNameUse entityNameUse) {
+	public NameUseEnum tEntityNameUse2NameUseEnum(EntityNameUse entityNameUse) {
 
 		switch(entityNameUse) {
 			case C: return NameUseEnum.USUAL;
@@ -155,7 +155,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public FamilyHistoryStatusEnum FamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String FamilyHistoryOrganizerStatusCode) {
+	public FamilyHistoryStatusEnum tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String FamilyHistoryOrganizerStatusCode) {
 		switch(FamilyHistoryOrganizerStatusCode.toLowerCase()){
 		case "completed":
 			return FamilyHistoryStatusEnum.COMPLETED;
@@ -171,7 +171,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public MaritalStatusCodesEnum MaritalStatusCode2MaritalStatusCodesEnum(String maritalStatusCode) {
+	public MaritalStatusCodesEnum tMaritalStatusCode2MaritalStatusCodesEnum(String maritalStatusCode) {
 		// Visit https://www.hl7.org/fhir/valueset-marital-status.html
 		switch(maritalStatusCode.toUpperCase()) {
 			case "A": return MaritalStatusCodesEnum.A;
@@ -190,7 +190,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public CodingDt NullFlavor2DataAbsentReasonCode(NullFlavor nullFlavor) {
+	public CodingDt tNullFlavor2DataAbsentReasonCode(NullFlavor nullFlavor) {
 		CodingDt DataAbsentReasonCode = new CodingDt();
 		String code = null;
 		String display = null;
@@ -231,7 +231,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return DataAbsentReasonCode;
 	}
 
-	public ObservationStatusEnum ObservationStatusCode2ObservationStatusEnum(String obsStatusCode) {
+	public ObservationStatusEnum tObservationStatusCode2ObservationStatusEnum(String obsStatusCode) {
 		switch(obsStatusCode.toLowerCase()) {
 			case "completed": return ObservationStatusEnum.FINAL;
 			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
@@ -244,7 +244,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public String oid2Url(String codeSystem) {
+	public String tOid2Url(String codeSystem) {
 		String system = null;
 		switch (codeSystem) {
 	        case "2.16.840.1.113883.6.96":
@@ -338,7 +338,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return system;
 	}
 
-	public CodingDt ParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT) {
+	public CodingDt tParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT) {
 		CodingDt fhirPT = new CodingDt(); // fhirPT: fhirParticipationTypeCode
 		fhirPT.setSystem("http://hl7.org/fhir/v3/ParticipationType");
 		String code = null;
@@ -451,7 +451,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return fhirPT;
 	}
 
-	public UnitsOfTimeEnum PeriodUnit2UnitsOfTimeEnum(String periodUnit) {
+	public UnitsOfTimeEnum tPeriodUnit2UnitsOfTimeEnum(String periodUnit) {
 		switch(periodUnit.toLowerCase()) {
 			case "a":
 				return UnitsOfTimeEnum.A;
@@ -472,7 +472,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public ConditionCategoryCodesEnum ProblemType2ConditionCategoryCodesEnum(String problemType) {
+	public ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String problemType) {
 		if(problemType == null)
 			return null;
 		switch(problemType) {
@@ -505,7 +505,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public AddressTypeEnum PostalAddressUse2AddressTypeEnum(PostalAddressUse postalAddressUse) {
+	public AddressTypeEnum tPostalAddressUse2AddressTypeEnum(PostalAddressUse postalAddressUse) {
 		switch(postalAddressUse) {
 			case PHYS:
 				return AddressTypeEnum.PHYSICAL;
@@ -516,7 +516,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public AddressUseEnum PostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse) {
+	public AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse) {
 		switch(postalAddressUse) {
 			case HP:
 			case H:
@@ -532,7 +532,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public AllergyIntoleranceSeverityEnum SeverityCode2AllergyIntoleranceSeverityEnum(String severityCode) {
+	public AllergyIntoleranceSeverityEnum tSeverityCode2AllergyIntoleranceSeverityEnum(String severityCode) {
 		if(severityCode == null)
 			return null;
 		switch(severityCode) {
@@ -553,7 +553,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
-	public AllergyIntoleranceStatusEnum StatusCode2AllergyIntoleranceStatusEnum(String status) {
+	public AllergyIntoleranceStatusEnum tStatusCode2AllergyIntoleranceStatusEnum(String status) {
 		switch(status.toLowerCase()) {
 			case "active":
 				return AllergyIntoleranceStatusEnum.ACTIVE;
@@ -575,7 +575,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public EncounterStateEnum StatusCode2EncounterStatusEnum(String status) {
+	public EncounterStateEnum tStatusCode2EncounterStatusEnum(String status) {
 		switch(status.toLowerCase()) {
 			case "in-progress":
 			case "active":
@@ -597,7 +597,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public MedicationDispenseStatusEnum StatusCode2MedicationDispenseStatusEnum(String status) {
+	public MedicationDispenseStatusEnum tStatusCode2MedicationDispenseStatusEnum(String status) {
 		switch(status.toLowerCase()) {
 			case "active":
 			case "in-progress":
@@ -619,7 +619,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public MedicationStatementStatusEnum StatusCode2MedicationStatementStatusEnum(String status) {
+	public MedicationStatementStatusEnum tStatusCode2MedicationStatementStatusEnum(String status) {
 		switch(status.toLowerCase()) {
 			case "active":
 				return MedicationStatementStatusEnum.ACTIVE;
@@ -634,7 +634,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public ProcedureStatusEnum StatusCode2ProcedureStatusEnum(String statusCodeString) {
+	public ProcedureStatusEnum tStatusCode2ProcedureStatusEnum(String statusCodeString) {
 		switch(statusCodeString.toLowerCase()) {
 			case "active":
 				return ProcedureStatusEnum.IN_PROGRESS;
@@ -650,7 +650,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public ContactPointUseEnum TelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse telecommunicationAddressUse) {
+	public ContactPointUseEnum tTelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse telecommunicationAddressUse) {
 		switch(telecommunicationAddressUse) {
 			case H:
 			case HP:
@@ -669,7 +669,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 
 	}
 
-	public ContactPointSystemEnum TelValue2ContactPointSystemEnum(String telValue) {
+	public ContactPointSystemEnum tTelValue2ContactPointSystemEnum(String telValue) {
 		if(telValue == null)
 			return null;
 		

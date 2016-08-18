@@ -50,13 +50,13 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	for(PostalAddressUse postalAddressUse : ad.getUses()) {
         		// If we catch a valid value for type or use, we assign it
         		if(postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST) {
-        			address.setType(vst.PostalAddressUse2AddressTypeEnum(postalAddressUse));
+        			address.setType(vst.tPostalAddressUse2AddressTypeEnum(postalAddressUse));
         		} else if(postalAddressUse == PostalAddressUse.H ||
         				postalAddressUse == PostalAddressUse.HP ||
         				postalAddressUse == PostalAddressUse.WP ||
         				postalAddressUse == PostalAddressUse.TMP ||
         				postalAddressUse == PostalAddressUse.BAD) {
-        			address.setUse(vst.PostalAdressUse2AddressUseEnum(postalAddressUse));
+        			address.setUse(vst.tPostalAdressUse2AddressUseEnum(postalAddressUse));
         		}
         	}
         }       
@@ -213,7 +213,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
        	
        	// codeSystem
        	if(cd.getCodeSystem() != null && !cd.getCodeSystem().isEmpty()){
-       		codingDt.setSystem(vst.oid2Url(cd.getCodeSystem()));
+       		codingDt.setSystem(vst.tOid2Url(cd.getCodeSystem()));
        		isEmpty = false;
        	}
        	
@@ -245,7 +245,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
            		
            		// codeSystem
                	if(myCd.getCodeSystem() != null && !myCd.getCodeSystem().isEmpty()) {
-               		codingDt.setSystem(vst.oid2Url(myCd.getCodeSystem()));
+               		codingDt.setSystem(vst.tOid2Url(myCd.getCodeSystem()));
                		isEmpty = false;
                	}
                	
@@ -359,7 +359,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if(en.getUses() != null && !en.getUses().isEmpty()) {
 			for(EntityNameUse entityNameUse : en.getUses()) {
 				if(entityNameUse != null) {
-					myHumanName.setUse(vst.EntityNameUse2NameUseEnum(entityNameUse));
+					myHumanName.setUse(vst.tEntityNameUse2NameUseEnum(entityNameUse));
 				}
 			}
 		}
@@ -497,7 +497,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				repeat.setPeriod(pivlts.getPeriod().getValue());
 			// period.unit -> repeat.periodUnits
 			if(pivlts.getPeriod().getUnit() != null)
-				repeat.setPeriodUnits(vst.PeriodUnit2UnitsOfTimeEnum(pivlts.getPeriod().getUnit()));
+				repeat.setPeriodUnits(vst.tPeriodUnit2UnitsOfTimeEnum(pivlts.getPeriod().getUnit()));
 			
 			// phase -> repeat.bounds
 			if(pivlts.getPhase() != null && !pivlts.getPhase().isSetNullFlavor()) {
@@ -564,7 +564,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				if(pqr != null && !pqr.isSetNullFlavor()) {
 					// system -> codeSystem
 					if(pqr.getCodeSystem() != null && !pqr.getCodeSystem().isEmpty()) {
-						simpleQuantity.setSystem(vst.oid2Url(pqr.getCodeSystem()));
+						simpleQuantity.setSystem(vst.tOid2Url(pqr.getCodeSystem()));
 					}
 					
 					// code -> code
@@ -635,7 +635,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			
 			// for the values in form tel:+1(555)555-1000
 			if(systemType.length > 1){
-				ContactPointSystemEnum contactPointSystem = vst.TelValue2ContactPointSystemEnum(systemType[0]);
+				ContactPointSystemEnum contactPointSystem = vst.tTelValue2ContactPointSystemEnum(systemType[0]);
 				// system
 				if(contactPointSystem != null) {
 					contactPointDt.setSystem(contactPointSystem);
@@ -676,7 +676,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if(tel.getUses() != null && !tel.getUses().isEmpty()) {
 			for(TelecommunicationAddressUse telAddressUse : tel.getUses()) {
 				if(telAddressUse != null) {
-					contactPointDt.setUse(vst.TelecommunicationAddressUse2ContacPointUseEnum(telAddressUse));
+					contactPointDt.setUse(vst.tTelecommunicationAddressUse2ContacPointUseEnum(telAddressUse));
 				}
 			}
 		}

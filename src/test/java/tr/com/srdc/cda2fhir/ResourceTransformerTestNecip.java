@@ -390,7 +390,7 @@ public class ResourceTransformerTestNecip {
 					if( pn.getUses() == null || pn.getUses().isEmpty() ){
 						Assert.assertNull( patient.getName().get(nameCount).getUse() );
 					} else{
-						Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.EntityNameUse2NameUseEnum(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse() );
+						Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.tEntityNameUse2NameUseEnum(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse() );
 					}
 					
 					// patient.name.text
