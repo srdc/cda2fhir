@@ -29,12 +29,11 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
-import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Composition.Section;
-import ca.uhn.fhir.parser.IParser;
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerTest {
 	// Test one method at a time. Use annotation @Ignore for the remaining methods.
@@ -47,12 +46,6 @@ public class ResourceTransformerTest {
 	ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
 	private FileInputStream fisCCD;
 	private ContinuityOfCareDocument ccd;
-	
-	private void printJSON(IResource res) {
-	    IParser jsonParser = myCtx.newJsonParser();
-	    jsonParser.setPrettyPrint(true);
-	    System.out.println(jsonParser.encodeResourceToString(res));
-	}
 	
 	public ResourceTransformerTest() {
         CDAUtil.loadPackages();
@@ -91,7 +84,7 @@ public class ResourceTransformerTest {
 			System.out.println("Transformation starting..");
 			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA);
 			System.out.println("End of transformation. Printing..");
-			printJSON(allergyBundle);
+			FHIRUtil.printJSON(allergyBundle);
 			System.out.println("End of print\n***");
 		}
 	}
@@ -114,7 +107,7 @@ public class ResourceTransformerTest {
 					System.out.println("Transformation starting..");
 					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner(author.getAssignedAuthor());
 					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON(practitionerBundle);
+					FHIRUtil.printJSON(practitionerBundle);
 					System.out.println("End of print.");
 				}
 			}
@@ -146,7 +139,7 @@ public class ResourceTransformerTest {
 									System.out.println("Transformation starting..");
 									Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity());
 									System.out.println("End of transformation. Printing the resource as JSON object..");
-									printJSON(fhirPractitionerBundle);
+									FHIRUtil.printJSON(fhirPractitionerBundle);
 									System.out.println("End of print.");
 							}
 						}
@@ -177,7 +170,7 @@ public class ResourceTransformerTest {
 							System.out.println("Transformation starting..");
 							Bundle fhirEncounterBundle = rt.tEncounter2Encounter(cdaEncounter);
 							System.out.println("End of transformation. Printing the resource as JSON object..");
-							printJSON( fhirEncounterBundle );
+							FHIRUtil.printJSON( fhirEncounterBundle );
 							System.out.println("End of print.\n***\n");
 						}
 						encounterCount++;
@@ -213,7 +206,7 @@ public class ResourceTransformerTest {
 							System.out.println("End of transformation. Printing the resource as JSON object..");
 							
 							ca.uhn.fhir.model.dstu2.resource.Patient patient = new Patient().addContact(contact);
-							printJSON(patient);
+							FHIRUtil.printJSON(patient);
 							System.out.println("End of print.\n***\n");
 						}
 						guardianCount++;
@@ -245,7 +238,7 @@ public class ResourceTransformerTest {
 								System.out.println("Transformation starting..");
 								Bundle fhirMed = rt.tManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
 								System.out.println("End of transformation. Printing the resource as JSON object..");
-								printJSON(fhirMed);
+								FHIRUtil.printJSON(fhirMed);
 								System.out.println("End of print."+"\n***\n");
 							}
 						}
@@ -272,7 +265,7 @@ public class ResourceTransformerTest {
 						System.out.println("Transformation starting..");
 						Bundle fhirMedStBundle = rt.tMedicationActivity2MedicationStatement(cdaMedAct);
 						System.out.println("End of transformation. Printing the resource as JSON object..");
-						printJSON(fhirMedStBundle);
+						FHIRUtil.printJSON(fhirMedStBundle);
 						System.out.println("End of print.");
 					}
 				}
@@ -302,7 +295,7 @@ public class ResourceTransformerTest {
 									System.out.println("Transformation starting..");
 									Bundle fhirMedDispBundle = rt.tMedicationDispense2MedicationDispense(medDisp);
 									System.out.println("End of transformation. Printing the resource as JSON object..");
-									printJSON(fhirMedDispBundle);
+									FHIRUtil.printJSON(fhirMedDispBundle);
 									System.out.println("End of print.");
 								}
 							}
@@ -329,7 +322,7 @@ public class ResourceTransformerTest {
 					System.out.println("Transformation starting..");
 					FamilyMemberHistory fmHistory = rt.tFamilyHistoryOrganizer2FamilyMemberHistory(familyHistoryOrganizer);
 					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON(fmHistory);
+					FHIRUtil.printJSON(fmHistory);
 					System.out.println("End of print.");
 				}
 			}
@@ -353,7 +346,7 @@ public class ResourceTransformerTest {
 						System.out.println("Transformation starting..");
 						Bundle obsBundle = rt.tObservation2Observation(cdaObs);
 						System.out.println("End of transformation. Printing..");
-						printJSON(obsBundle);
+						FHIRUtil.printJSON(obsBundle);
 						System.out.println("End of print.\n***");
 					}
 				}
@@ -378,7 +371,7 @@ public class ResourceTransformerTest {
 			System.out.println("Transformation starting...");
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
 			System.out.println("End of transformation. Printing the resource as JSON object..");
-			printJSON(fhirOrg);
+			FHIRUtil.printJSON(fhirOrg);
 			System.out.println("End of print."+"\n***");
 		}
 	}
@@ -408,7 +401,7 @@ public class ResourceTransformerTest {
 
 			// printer
 			System.out.println("Printing the resource as JSON object..");
-			printJSON(patientBundle);
+			FHIRUtil.printJSON(patientBundle);
 			System.out.println("End of print");
 
 
@@ -641,7 +634,7 @@ public class ResourceTransformerTest {
 						System.out.println("Transformation starting..");
 						Bundle fhirConditionBundle = rt.tProblemConcernAct2Condition(problemConcernAct);
 						System.out.println("End of transformation. Printing the resource as JSON object..");
-						printJSON(fhirConditionBundle);
+						FHIRUtil.printJSON(fhirConditionBundle);
 						System.out.println("End of print.");
 					}
 				}
@@ -668,7 +661,7 @@ public class ResourceTransformerTest {
 					System.out.println("Transformation starting..");
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
 					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON(fhirProcedureBundle);
+					FHIRUtil.printJSON(fhirProcedureBundle);
 					System.out.println("End of print."+"\n***");
 				}
 			}
@@ -694,7 +687,7 @@ public class ResourceTransformerTest {
 					}
 					
 					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON( fhirProcedure );
+					FHIRUtil.printJSON( fhirProcedure );
 					System.out.println("End of print.");
 					System.out.print("\n***\n"); // to visualize
 				}
@@ -724,7 +717,7 @@ public class ResourceTransformerTest {
 						}
 						
 						System.out.println("End of transformation. Printing the resource as JSON object..");
-						printJSON( fhirProcedure );
+						FHIRUtil.printJSON( fhirProcedure );
 						System.out.println("End of print.");
 						System.out.println("\n***\n"); // to visualize
 					}
@@ -763,7 +756,7 @@ public class ResourceTransformerTest {
 			// We need to embed fhirSection to fhirCompositon to use the method printJSON
 			ca.uhn.fhir.model.dstu2.resource.Composition fhirComposition = new ca.uhn.fhir.model.dstu2.resource.Composition();
 			fhirComposition.addSection(fhirSection);
-			printJSON(fhirComposition);
+			FHIRUtil.printJSON(fhirComposition);
 			System.out.println("End of print."+"\n***");
 		}
 	}
@@ -786,7 +779,7 @@ public class ResourceTransformerTest {
 					System.out.println("Transformating starting...");
 					Bundle fhirImm = rt.tSubstanceAdministration2Immunization(immAct);
 					System.out.println("End of transformation. Printing the resource as JSON object..");
-					printJSON(fhirImm);
+					FHIRUtil.printJSON(fhirImm);
 					System.out.println("End of print.");
 				}
 			}
@@ -815,7 +808,7 @@ public class ResourceTransformerTest {
 				ca.uhn.fhir.model.dstu2.resource.Patient fhirPatient = new ca.uhn.fhir.model.dstu2.resource.Patient();
 				fhirPatient.addCommunication(fhirCommunication);
 				System.out.println("End of build. Printing the resource as JSON object..");
-				printJSON(fhirPatient);
+				FHIRUtil.printJSON(fhirPatient);
 				System.out.println("End of print.");
 			}
 		}
@@ -842,7 +835,7 @@ public class ResourceTransformerTest {
 									System.out.println("Transformation starting...");
 									Bundle fhirObservation = rt.tVitalSignObservation2Observation((VitalSignObservation)vitalSignObservation);
 									System.out.println("End of transformation. Printing the resource as JSON object..");
-									printJSON(fhirObservation);
+									FHIRUtil.printJSON(fhirObservation);
 									System.out.println("End of print.");
 								}
 							}
@@ -859,7 +852,7 @@ public class ResourceTransformerTest {
 
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument cdaNull = null;
-		Bundle fhirNull = rt.tContinuityOfCareDocument2Composition(cdaNull);
+		Bundle fhirNull = rt.tClinicalDocument2Composition(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instance from file
@@ -867,7 +860,7 @@ public class ResourceTransformerTest {
 			System.out.println("Transformation starting...");
 			Bundle fhirComp = rt.tClinicalDocument2Composition(test.ccd);
 			System.out.println("End of transformation. Printing the resource as JSON object..");
-			printJSON(fhirComp);
+			FHIRUtil.printJSON(fhirComp);
 			System.out.println("End of print.");
 		}
 	}
@@ -892,7 +885,7 @@ public class ResourceTransformerTest {
 							System.out.println( "Transformation starting..." );
 							Bundle fhirDiagReport = rt.tResultOrganizer2DiagnosticReport((ResultOrganizer)cdaOrganizer);
 							System.out.println("End of transformation. Printing the resource as JSON object..");
-							printJSON(fhirDiagReport);
+							FHIRUtil.printJSON(fhirDiagReport);
 							System.out.println("End of print.");
 						}
 					}
@@ -915,7 +908,7 @@ public class ResourceTransformerTest {
 						System.out.println( "Transformation starting..." );
 						Bundle fhirObs = rt.tObservation2Observation(cdaObs);
 						System.out.println("End of transformation. Printing the resource as JSON object..");
-						printJSON(fhirObs);
+						FHIRUtil.printJSON(fhirObs);
 						System.out.println("End of print.");
 					}
 				}
@@ -945,7 +938,7 @@ public class ResourceTransformerTest {
 									System.out.println("Transformation starting...");
 									Bundle fhirObs = rt.tFunctionalStatus2Observation(cdaObs);
 									System.out.println("End of transformation. Printing the resource as JSON object..");
-									printJSON(fhirObs);
+									FHIRUtil.printJSON(fhirObs);
 									System.out.println("End of print.");
 								}
 							}
