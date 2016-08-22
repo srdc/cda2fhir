@@ -1,12 +1,5 @@
 package tr.com.srdc.cda2fhir.impl;
 
-// TODO: Viewing the example CDA file, seen that Result Organizer contains some information (effectiveTime, code)
-// Ask if they are necessary. If yes, where to keep this information.
-// Also, notice that one result organizer may include more than one Result Observation.
-// You may see "testResultObservation"
-// TODO: Viewing the example CDA file, seen that Vital Sign Organizer contains some information (effectiveTime)
-// Ask if they are necessary. If yes, where to keep this information.
-
 import java.util.UUID;
 
 import ca.uhn.fhir.model.dstu2.resource.*;
