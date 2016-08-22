@@ -22,6 +22,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ProductInstance;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.SeverityObservation;
 import org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
@@ -2232,5 +2233,97 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		// quantity?
 		return fhirDev;
+	}
+
+	public Bundle tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer) {
+		if(cdaResultOrganizer == null || cdaResultOrganizer.isSetNullFlavor())
+			return null;
+		
+		DiagnosticReport fhirDiagReport = new DiagnosticReport();
+		
+		// bundle
+		Bundle fhirDiagReportBundle = new Bundle();
+		fhirDiagReportBundle.addEntry(new Bundle.Entry().setResource(fhirDiagReport));
+		
+		// id
+		IdDt resourceId = new IdDt("DiagnosticReport", getUniqueId());
+		fhirDiagReport.setId(resourceId);
+		
+		// subject
+		fhirDiagReport.setSubject(getPatientRef());
+		
+		// Although DiagnosticReport.request(DiagnosticOrder) is needed by daf, no information exists in CDA side to fill that field.
+		
+		// id -> identifier 
+		if(cdaResultOrganizer.getIds() != null && !cdaResultOrganizer.getIds().isEmpty()) {
+			for(II ii : cdaResultOrganizer.getIds()) {
+				if(ii != null && !ii.isSetNullFlavor()) {
+					fhirDiagReport.addIdentifier(dtt.tII2Identifier(ii));
+				}
+			}
+		}
+		
+		// code -> code
+		if(cdaResultOrganizer.getCode() != null && !cdaResultOrganizer.getCode().isSetNullFlavor()) {
+			fhirDiagReport.setCode(dtt.tCD2CodeableConcept(cdaResultOrganizer.getCode()));
+		}
+		
+		// effectiveTime -> effective
+		if(cdaResultOrganizer.getEffectiveTime() != null && !cdaResultOrganizer.getEffectiveTime().isSetNullFlavor()) {
+			fhirDiagReport.setEffective(dtt.tIVL_TS2Period(cdaResultOrganizer.getEffectiveTime()));
+		}
+		
+		// author.time -> issued
+		if(cdaResultOrganizer.getAuthors() != null && !cdaResultOrganizer.getAuthors().isEmpty()) {
+			for(org.openhealthtools.mdht.uml.cda.Author author : cdaResultOrganizer.getAuthors()) {
+				if(author != null && !author.isSetNullFlavor()) {
+					if(author.getTime() != null && !author.getTime().isSetNullFlavor()) {
+						fhirDiagReport.setIssued(dtt.tTS2Instant(author.getTime()));
+					}
+				}
+			}
+		}
+		
+		// author -> performer
+		if(cdaResultOrganizer.getAuthors() != null && !cdaResultOrganizer.getAuthors().isEmpty()) {
+			for(org.openhealthtools.mdht.uml.cda.Author author : cdaResultOrganizer.getAuthors()) {
+				// Asserting that at most one author exists
+				if(author != null && !author.isSetNullFlavor()) {
+					Practitioner fhirPractitioner = null;
+					Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+
+					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
+						fhirDiagReportBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+						if(entry.getResource() instanceof Practitioner) {
+							fhirPractitioner = (Practitioner)entry.getResource();
+						}
+					}
+					if(fhirPractitioner != null) {
+						fhirDiagReport.setPerformer(new ResourceReferenceDt(fhirPractitioner.getId()));
+					}
+				}
+			}
+		}
+		
+		// observation(s) -> result
+		if(cdaResultOrganizer.getObservations() != null && !cdaResultOrganizer.getObservations().isEmpty()) {
+			for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : cdaResultOrganizer.getObservations()) {
+				if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
+					Observation fhirObs = null;
+					Bundle fhirObsBundle = tObservation2Observation(cdaObs);
+					for(Bundle.Entry entry : fhirObsBundle.getEntry()) {
+						fhirDiagReportBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+						if(entry.getResource() instanceof Observation) {
+							fhirObs = (Observation)entry.getResource();
+						}
+					}
+					if(fhirObs != null) {
+						fhirDiagReport.addResult().setReference(fhirObs.getId());
+					}
+				}
+			}
+		}
+		
+ 		return fhirDiagReportBundle;
 	}
 }

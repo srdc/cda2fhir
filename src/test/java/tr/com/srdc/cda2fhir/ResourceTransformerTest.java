@@ -11,6 +11,7 @@ import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
 import org.openhealthtools.mdht.uml.cda.consol.SocialHistorySection;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
@@ -871,25 +872,28 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
-	public void testResultObservation() {
+	@Test
+	public void testResultOrganizer2DiagnosticReport() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		
+		// null instance test
+		ResultOrganizer cdaNull = null;
+		Bundle fhirNull = rt.tResultOrganizer2DiagnosticReport(cdaNull);
+		Assert.assertNull(fhirNull);		
+		
+		// instance from file
 		ResultsSection resultsSec = test.ccd.getResultsSection();
 		
 		if(resultsSec != null && !resultsSec.isSetNullFlavor()) {
 			if(resultsSec.getOrganizers() != null && !resultsSec.getOrganizers().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Organizer cdaOrganizer : resultsSec.getOrganizers()) {
 					if(cdaOrganizer != null && !cdaOrganizer.isSetNullFlavor()) {
-						for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : cdaOrganizer.getObservations()) {
-							if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
-								System.out.println("Class: "+cdaObs.getClass().getSimpleName());
-								System.out.println( "Transformation starting..." );
-								Bundle fhirObs = rt.tObservation2Observation(cdaObs);
-								System.out.println("End of transformation. Printing the resource as JSON object..");
-								printJSON(fhirObs);
-								System.out.println("End of print.");
-							}
+						if(cdaOrganizer instanceof ResultOrganizer) {
+							System.out.println( "Transformation starting..." );
+							Bundle fhirDiagReport = rt.tResultOrganizer2DiagnosticReport((ResultOrganizer)cdaOrganizer);
+							System.out.println("End of transformation. Printing the resource as JSON object..");
+							printJSON(fhirDiagReport);
+							System.out.println("End of print.");
 						}
 					}
 				}
