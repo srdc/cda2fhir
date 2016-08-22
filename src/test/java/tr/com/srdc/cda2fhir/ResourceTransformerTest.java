@@ -793,7 +793,7 @@ public class ResourceTransformerTest {
 
 		if(test.ccd != null && !test.ccd.isSetNullFlavor()) {
 			System.out.println( "Transformation starting..." );
-			Bundle fhirComp = rt.tContinuityOfCareDocument2Composition(test.ccd);
+			Bundle fhirComp = rt.tClinicalDocument2Composition(test.ccd);
 			System.out.println("End of transformation. Printing the resource as JSON object..");
 			printJSON(fhirComp);
 			System.out.println("End of print.");

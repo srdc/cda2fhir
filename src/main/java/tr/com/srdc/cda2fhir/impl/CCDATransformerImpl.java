@@ -63,26 +63,14 @@ public class CCDATransformerImpl implements CCDATransformer {
         if(ccd == null)
             return null;
 
-        // create and init the global bundle and the composition resources
-        Bundle ccdBundle = new Bundle();
-        Composition ccdComposition = new Composition();
-        ccdComposition.setId(new IdDt("Composition", getUniqueId()));
-        ccdBundle.addEntry(new Bundle.Entry().setResource(ccdComposition));
+        // init the global ccd bundle via a call to resource transformer, which handles cda header data (i.e. all except the sections)
+        Bundle ccdBundle = resTransformer.tClinicalDocument2Composition(ccd);
+        // the first bundle entry is always the composition
+        Composition ccdComposition = (Composition)ccdBundle.getEntry().get(0).getResource();
+        // init the patient id reference. the patient is always the 2nd bundle entry
+        patientRef = new ResourceReferenceDt(ccdBundle.getEntry().get(1).getResource().getId());
 
-        // transform the patient data and assign it to Composition.subject
-        // Since the methods of resTransformer class have return type Bundle, we need the following lines to get the 'Patient' from the 'Bundle'
-        Patient subject = null; // subject will be assigned to the appropriate entry of the bundle, we may need null-check
-        Bundle subjectBundle = resTransformer.tPatientRole2Patient(ccd.getRecordTargets().get(0).getPatientRole());
-		for( Entry entry : subjectBundle.getEntry() ){
-			if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Patient){
-				subject = (ca.uhn.fhir.model.dstu2.resource.Patient) entry.getResource();
-			}
-		}
-		
-        patientRef = new ResourceReferenceDt(subject.getId());
-        ccdComposition.setSubject(patientRef);
-        ccdBundle.addEntry(new Bundle.Entry().setResource(subject));
-
+        // transform the sections
         for(Section cdaSec: ccd.getSections()) {
             Composition.Section fhirSec = resTransformer.tSection2Section(cdaSec);
             ccdComposition.addSection(fhirSec);
