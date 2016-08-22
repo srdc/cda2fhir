@@ -1,7 +1,5 @@
 package tr.com.srdc.cda2fhir.impl;
 
-// TODO: See the test "testSocialHistory" in ResourceTransformerTestNecip
-// Is there a need of a distinct method for SocialHistory?
 // TODO: Viewing the example CDA file, seen that Result Organizer contains some information (effectiveTime, code)
 // Ask if they are necessary. If yes, where to keep this information.
 // Also, notice that one result organizer may include more than one Result Observation.
@@ -1977,18 +1975,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(ccd.getCode() != null && !ccd.getCode().isSetNullFlavor()) {
 			fhirComp.setType(dtt.tCD2CodeableConcept(ccd.getCode()));
 		}
-		
-		// class -> classCode
-//		if(ccd.getClassCode() != null) {
-//			fhirComp.setClassElement( *** )
-//			// TODO: Necip: fhirComposition.class <-> ccd.classCode
-//			// https://www.hl7.org/fhir/valueset-doc-classcodes.html
-//			// ccd.getClassCode returns org.openhealthtools.mdht.uml.hl7.vocab.ActClinicalDocument
-//			// fhirComp.setClassElement accepts CodeableConceptDt
-//			// See the vocab and determine how to map
-//			
-//		}
-		
+
 		// title -> title.text
 		if(ccd.getTitle() != null && !ccd.getTitle().isSetNullFlavor()) {
 			if(ccd.getTitle().getText() != null && !ccd.getTitle().getText().isEmpty()) {
@@ -1996,34 +1983,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// TODO: StatusCode doesn't exist in CDA side
-		// However, fhir reqiures it to be mapped
-		
 		// confidentiality -> ConfidentialityCode.code
 		if(ccd.getConfidentialityCode() != null && !ccd.getConfidentialityCode().isSetNullFlavor()) {
 			if(ccd.getConfidentialityCode().getCode() != null && !ccd.getConfidentialityCode().getCode().isEmpty()) {
 				fhirComp.setConfidentiality(ccd.getConfidentialityCode().getCode());
 			}
 		}
-		
-		// subject -> recordTargets.patientRole
-//		if(ccd.getRecordTargets() != null && !ccd.getRecordTargets().isEmpty()) {
-//			for(RecordTarget recordTarget : ccd.getRecordTargets()) {
-//				if(recordTarget != null && !recordTarget.isSetNullFlavor()) {
-//					if(recordTarget.getPatientRole() != null && !recordTarget.getPatientRole().isSetNullFlavor()) {
-//						Bundle patientRoleBundle = tPatientRole2Patient(recordTarget.getPatientRole());
-//						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : patientRoleBundle.getEntry()) {
-//							if(entry.getResource() instanceof Patient) {
-//								fhirComp.setSubject(new ResourceReferenceDt().setReference(entry.getResource().getId()));
-//							}
-//							// Add all the resources returned from the bundle to the main bundle
-//							fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-//							
-//						}
-//					}
-//				}
-//			}
-//		}
 		
 		// author -> author.assignedAuthor
 		if(ccd.getAuthors() != null && !ccd.getAuthors().isEmpty()) {
@@ -2048,9 +2013,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(ccd.getAuthenticators() != null && !ccd.getAuthenticators().isEmpty()) {
 			for(Authenticator authen : ccd.getAuthenticators()) {
 				if(authen != null && !authen.isSetNullFlavor()) {
-					// TODO: What to get from CDA?
-					// One possible case is Authenticator2Attester as the mapping specifies this way: https://www.hl7.org/fhir/composition-mappings.html
-					// ca.uhn.fhir.model.dstu2.resource.Composition.Attester Authenticator2Attester(org.openhealthtools.mdht.uml.cda.Authenticator authen);
+					// Bundle Authenticator2Attester(org.openhealthtools.mdht.uml.cda.Authenticator authen);
+					// Attester: ca.uhn.fhir.model.dstu2.resource.Composition.Attester
+					// Since we need to return Bundle, we can't implement Authenticator2Attester
 				}
 			}
 		}

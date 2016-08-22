@@ -7,8 +7,6 @@ import ca.uhn.fhir.model.dstu2.resource.*;
 import org.eclipse.emf.common.util.EList;
 import org.junit.Assert;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
@@ -37,7 +35,7 @@ import ca.uhn.fhir.parser.IParser;
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 
-public class ResourceTransformerTestNecip {
+public class ResourceTransformerTest {
 	// Test one method at a time. Use annotation @Ignore for the remaining methods.
 	
 	// context
@@ -46,9 +44,7 @@ public class ResourceTransformerTestNecip {
 	ResourceTransformerImpl rt = new ResourceTransformerImpl();
 	DataTypesTransformerTest dtt = new DataTypesTransformerTest();
 	ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
-	private FileInputStream fisCDA;
 	private FileInputStream fisCCD;
-	private ClinicalDocument cda;
 	private ContinuityOfCareDocument ccd;
 	
 	private void printJSON(IResource res) {
@@ -57,10 +53,9 @@ public class ResourceTransformerTestNecip {
 	    System.out.println(jsonParser.encodeResourceToString(res));
 	}
 	
-	public ResourceTransformerTestNecip() {
+	public ResourceTransformerTest() {
         CDAUtil.loadPackages();
         try {
-	        fisCDA = new FileInputStream("src/test/resources/SampleCDADocument.xml");
 	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 //	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 		} catch (FileNotFoundException ex) {
@@ -68,9 +63,6 @@ public class ResourceTransformerTestNecip {
 	    }
         
         try {
-        	if( fisCDA != null ) { 
-        		cda = CDAUtil.load(fisCDA); 
-        	}
         	if( fisCCD != null ) {
         		// To validate the file, use the following two lines instead of the third line
 //        		ValidationResult result = new ValidationResult();
@@ -86,7 +78,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testAllergyProblemAct2AllergyIntolerance(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		for( AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs() ){
 			System.out.println("Transformation starting..");
 			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA);
@@ -99,7 +91,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testAssignedAuthor2Practitioner(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		if( test.ccd.getAuthors() != null ){
 			for( org.openhealthtools.mdht.uml.cda.Author author : test.ccd.getAuthors() ){
@@ -118,7 +110,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testAssignedEntity2Practitioner(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		int procedureCount = 0;
 		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
 			if( test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty() ){
@@ -157,7 +149,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testEncounter2Encounter(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		int encounterCount = 0;
 		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
 			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
@@ -185,7 +177,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testGuardian2Contact(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		int patientRoleCount = 0;
 		if( test.ccd.getPatientRoles() != null && !test.ccd.getPatientRoles().isEmpty() ){
@@ -216,7 +208,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testManufacturedProduct2Medication(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		ImmunizationsSectionEntriesOptional immSection = test.ccd.getImmunizationsSectionEntriesOptional();
 		if(immSection != null && !immSection.isSetNullFlavor()){
@@ -243,7 +235,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testMedicationActivity2MedicationStatement(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		if(test.ccd.getMedicationsSection() != null && !test.ccd.getMedicationsSection().isSetNullFlavor()) {
 			if(test.ccd.getMedicationsSection().getMedicationActivities() != null && !test.ccd.getMedicationsSection().getMedicationActivities().isEmpty()) {
@@ -262,7 +254,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testMedicationDispense2MedicationDispense(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		// medicationsSection.medicationActivities.medicationDispense
 		if(test.ccd.getMedicationsSection() != null && !test.ccd.getMedicationsSection().isSetNullFlavor()){
@@ -289,7 +281,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testFamilyMemberOrganizer2FamilyMemberHistory(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		if( test.ccd.getFamilyHistorySection() != null && test.ccd.getFamilyHistorySection().getFamilyHistories() != null ){
 			for( org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : test.ccd.getFamilyHistorySection().getFamilyHistories() ){
@@ -306,7 +298,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testObservation2Observation(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		if( test.ccd.getSocialHistorySection() != null && !test.ccd.getSocialHistorySection().isSetNullFlavor() ){
 			if( test.ccd.getSocialHistorySection().getObservations() != null && !test.ccd.getSocialHistorySection().getObservations().isEmpty() ){
 				for( org.openhealthtools.mdht.uml.cda.Observation cdaObs : test.ccd.getSocialHistorySection().getObservations() ){
@@ -324,7 +316,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testOrganization2Organization(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		int patientCount = 0;
 		for(org.openhealthtools.mdht.uml.cda.PatientRole patRole : test.ccd.getPatientRoles()) {
@@ -342,7 +334,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testPatientRole2Patient(){
-			ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+			ResourceTransformerTest test = new ResourceTransformerTest();
 			EList<PatientRole> patientRoles = test.ccd.getPatientRoles();
 	
 			// We traverse each of the patientRoles included in the document
@@ -588,7 +580,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testProblemConcernAct2Condition(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		if(test.ccd.getProblemSection() != null && !test.ccd.getProblemSection().isSetNullFlavor()) {
 			if(test.ccd.getProblemSection().getProblemConcerns() != null && !test.ccd.getProblemSection().getProblemConcerns().isEmpty()) {
@@ -607,7 +599,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testProcedure2Procedure(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		int procedureCount = 0;
 		if( test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor() ){
@@ -700,7 +692,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testSection2Section(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 	
 		org.openhealthtools.mdht.uml.cda.Section sampleSection = null;
 		
@@ -730,7 +722,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testSubstanceAdministration2Immunization() {
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		ImmunizationsSectionEntriesOptional immSec = test.ccd.getImmunizationsSectionEntriesOptional();
 		
@@ -749,7 +741,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testLanguageCommunication2Communication(){
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		int patientCount = 0;
 		for( org.openhealthtools.mdht.uml.cda.Patient patient : test.ccd.getPatients() ){
 			System.out.print("Patient["+patientCount++ +"].");
@@ -771,7 +763,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testVitalSignObservation2Observation() {
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		VitalSignsSectionEntriesOptional vitalSignsSec = test.ccd.getVitalSignsSectionEntriesOptional();
 		if(vitalSignsSec != null && !vitalSignsSec.isSetNullFlavor()) {
@@ -797,7 +789,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testContinuityOfCareDocument2Composition() {
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 
 		if(test.ccd != null && !test.ccd.isSetNullFlavor()) {
 			System.out.println( "Transformation starting..." );
@@ -810,7 +802,7 @@ public class ResourceTransformerTestNecip {
 
 	@Ignore
 	public void testResultObservation() {
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		ResultsSection resultsSec = test.ccd.getResultsSection();
 		
@@ -836,7 +828,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testSocialHistory() {
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		SocialHistorySection socialHistSec = test.ccd.getSocialHistorySection();
 		
@@ -859,7 +851,7 @@ public class ResourceTransformerTestNecip {
 	
 	@Ignore
 	public void testFunctionalStatusResultOrganizer2Observation() {
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		FunctionalStatusSection funcStatSec = test.ccd.getFunctionalStatusSection();
 
@@ -883,20 +875,6 @@ public class ResourceTransformerTestNecip {
 			}
 		}
 	}
-	
-	@Ignore
-	public void testArea() {
-		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
-		FunctionalStatusSection funcStat = test.ccd.getFunctionalStatusSection();
-		FunctionalStatusResultOrganizer organizer = (FunctionalStatusResultOrganizer)funcStat.getOrganizers().get(0);
-		Object a = organizer.getFunctionalStatusResultObservations().get(0).getSupplies().get(0);
-		NonMedicinalSupplyActivity sup = (NonMedicinalSupplyActivity)a;
-		
-		System.out.println(sup.getExpectedUseTime());
-		
-	}
-	
-	
 	
 	
 }
