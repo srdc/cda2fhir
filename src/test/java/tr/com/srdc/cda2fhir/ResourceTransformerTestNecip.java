@@ -9,21 +9,26 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
+import org.openhealthtools.mdht.uml.cda.consol.SocialHistorySection;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusResultOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusSection;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.api.IResource;
@@ -790,10 +795,10 @@ public class ResourceTransformerTestNecip {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testContinuityOfCareDocument2Composition() {
 		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
-		
+
 		if(test.ccd != null && !test.ccd.isSetNullFlavor()) {
 			System.out.println( "Transformation starting..." );
 			Bundle fhirComp = rt.tContinuityOfCareDocument2Composition(test.ccd);
@@ -802,12 +807,94 @@ public class ResourceTransformerTestNecip {
 			System.out.println("End of print.");
 		}
 	}
+
+	@Ignore
+	public void testResultObservation() {
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		ResultsSection resultsSec = test.ccd.getResultsSection();
+		
+		if(resultsSec != null && !resultsSec.isSetNullFlavor()) {
+			if(resultsSec.getOrganizers() != null && !resultsSec.getOrganizers().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Organizer cdaOrganizer : resultsSec.getOrganizers()) {
+					if(cdaOrganizer != null && !cdaOrganizer.isSetNullFlavor()) {
+						for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : cdaOrganizer.getObservations()) {
+							if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
+								System.out.println("Class: "+cdaObs.getClass().getSimpleName());
+								System.out.println( "Transformation starting..." );
+								Bundle fhirObs = rt.tObservation2Observation(cdaObs);
+								System.out.println("End of transformation. Printing the resource as JSON object..");
+								printJSON(fhirObs);
+								System.out.println("End of print.");
+							}
+						}
+					}
+				}
+			}	
+		}
+	}
 	
+	@Ignore
+	public void testSocialHistory() {
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		SocialHistorySection socialHistSec = test.ccd.getSocialHistorySection();
+		
+		if(socialHistSec != null && !socialHistSec.isSetNullFlavor()) {
+			if(socialHistSec.getObservations() != null && !socialHistSec.getObservations().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : socialHistSec.getObservations()) {
+					if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
+						System.out.println("Class: "+cdaObs.getClass().getSimpleName());
+						System.out.println( "Transformation starting..." );
+						Bundle fhirObs = rt.tObservation2Observation(cdaObs);
+						System.out.println("End of transformation. Printing the resource as JSON object..");
+						printJSON(fhirObs);
+						System.out.println("End of print.");
+						
+					}
+				}
+			}
+		}
+	}
 	
+	@Ignore
+	public void testFunctionalStatusResultOrganizer2Observation() {
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		
+		FunctionalStatusSection funcStatSec = test.ccd.getFunctionalStatusSection();
+
+		if(funcStatSec != null && !funcStatSec.isSetNullFlavor()) {
+			if(funcStatSec.getOrganizers() != null && !funcStatSec.getOrganizers().isEmpty()) {
+				for(Organizer funcStatOrg : funcStatSec.getOrganizers()) {
+					if(funcStatOrg != null && !funcStatOrg.isSetNullFlavor()) {
+						if(funcStatOrg instanceof FunctionalStatusResultOrganizer) {
+							if(((FunctionalStatusResultOrganizer)funcStatOrg).getObservations() != null && !((FunctionalStatusResultOrganizer)funcStatOrg).getObservations().isEmpty()) {
+								for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : ((FunctionalStatusResultOrganizer)funcStatOrg).getObservations()) {
+									System.out.println( "Transformation starting..." );
+									Bundle fhirObs = rt.tFunctionalStatus2Observation(cdaObs);
+									System.out.println("End of transformation. Printing the resource as JSON object..");
+									printJSON(fhirObs);
+									System.out.println("End of print.");
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	
-	
-	
-	
+	@Ignore
+	public void testArea() {
+		ResourceTransformerTestNecip test = new ResourceTransformerTestNecip();
+		FunctionalStatusSection funcStat = test.ccd.getFunctionalStatusSection();
+		FunctionalStatusResultOrganizer organizer = (FunctionalStatusResultOrganizer)funcStat.getOrganizers().get(0);
+		Object a = organizer.getFunctionalStatusResultObservations().get(0).getSupplies().get(0);
+		NonMedicinalSupplyActivity sup = (NonMedicinalSupplyActivity)a;
+		
+		System.out.println(sup.getExpectedUseTime());
+		
+	}
 	
 	
 	

@@ -61,9 +61,9 @@ public class ResourceTransformerTestIsmail {
         try {
             fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
             //Does not work together. Works Separately
-            //traverseCCDProblemAct( fisCCD );
-            //traverseCCDManuPro( fisCCD );
-            //traverseCCDMedicationDispense( fisCCD );
+            traverseCCDProblemAct( fisCCD );
+            traverseCCDManuPro( fisCCD );
+            traverseCCDMedicationDispense( fisCCD );
             traverseCCDMedicationActivity( fisCCD );
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -81,8 +81,8 @@ public class ResourceTransformerTestIsmail {
             // create validation result to hold diagnostics
             ValidationResult result = new ValidationResult();
 
-            ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
-
+//            ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+            ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is);
             // print validation results
 //            for (Diagnostic diagnostic : result.getWarningDiagnostics()) {
 //                System.out.println(diagnostic.getMessage());
@@ -149,7 +149,8 @@ public class ResourceTransformerTestIsmail {
 	        // create validation result to hold diagnostics
 	        ValidationResult result = new ValidationResult();
 
-	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+//	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is);
 
 	        // print validation results
 //	        for (Diagnostic diagnostic : result.getWarningDiagnostics()) {
@@ -212,7 +213,8 @@ public class ResourceTransformerTestIsmail {
 	        // create validation result to hold diagnostics
 	        ValidationResult result = new ValidationResult();
 
-	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+//	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is);
 
 	        // print validation results
 //	        for (Diagnostic diagnostic : result.getWarningDiagnostics()) {
@@ -264,7 +266,8 @@ public void traverseCCDMedicationActivity(InputStream is) throws Exception {
 	        // create validation result to hold diagnostics
 	        ValidationResult result = new ValidationResult();
 
-	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+//	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is, result);
+	        ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(is);
 
 	        // print validation results
 //	        for (Diagnostic diagnostic : result.getWarningDiagnostics()) {
