@@ -617,7 +617,7 @@ public class ResourceTransformerTest {
 		}
     }
 	
-	@Ignore
+	@Test
 	public void testProblemConcernAct2Condition() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
