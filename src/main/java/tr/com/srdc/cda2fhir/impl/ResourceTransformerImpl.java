@@ -798,21 +798,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		MedicationStatement fhirMedSt = new MedicationStatement();
 		MedicationStatement.Dosage fhirDosage = fhirMedSt.addDosage();
 
+		// bundle
 		Bundle medStatementBundle = new Bundle();
 		medStatementBundle.addEntry(new Bundle.Entry().setResource(fhirMedSt));
 	
 		// id
 		IdDt resourceId = new IdDt("MedicationActivity", getUniqueId());
 		fhirMedSt.setId(resourceId);
+		
+		// patient
+		fhirMedSt.setPatient(getPatientRef());
 
-		// identifier
+		// id -> identifier
 		if(cdaMedAct.getIds() != null && !cdaMedAct.getIds().isEmpty()) {
 			for(II ii : cdaMedAct.getIds()) {
 				fhirMedSt.addIdentifier(dtt.tII2Identifier(ii));
 			}
 		}
 
-		// status
+		// statusCode -> status
 		if(cdaMedAct.getStatusCode() != null && !cdaMedAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaMedAct.getStatusCode().getCode() != null && !cdaMedAct.getStatusCode().getCode().isEmpty()) {
 				MedicationStatementStatusEnum statusCode = vst.tStatusCode2MedicationStatementStatusEnum(cdaMedAct.getStatusCode().getCode());
@@ -822,10 +826,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// patient
-		fhirMedSt.setPatient(getPatientRef());
-		
-		// medication <-> cdaMedAct.consumable.manufacturedProduct
+		// consumable.manufacturedProductmedication -> medication
 		if(cdaMedAct.getConsumable() != null && !cdaMedAct.getConsumable().isSetNullFlavor()) {
 			if(cdaMedAct.getConsumable().getManufacturedProduct() != null && !cdaMedAct.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
 	
@@ -844,15 +845,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// effectiveTime
+		// getting info from effectiveTimes
 		if(cdaMedAct.getEffectiveTimes() != null && !cdaMedAct.getEffectiveTimes().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS ts : cdaMedAct.getEffectiveTimes()) {
 				if(ts != null && !ts.isSetNullFlavor()) {
-					// IVL_TS -> effectivePeriod
+					// effectiveTime[@xsi:type='IVL_TS'] -> effective
 					if(ts instanceof IVL_TS) {
 						fhirMedSt.setEffective(dtt.tIVL_TS2Period((IVL_TS)ts));
 					}
-					// PIVL_TS -> dosage.timing
+					// effectiveTime[@xsi:type='PIVL_TS'] -> dosage.timing
 					if(ts instanceof PIVL_TS) {
 						fhirDosage.setTiming(dtt.tPIVL_TS2Timing((PIVL_TS)ts));
 					}
@@ -860,28 +861,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// dosage.route
-		if(cdaMedAct.getRouteCode() != null && !cdaMedAct.getRouteCode().isSetNullFlavor()) {
-			fhirDosage.setRoute(dtt.tCD2CodeableConcept(cdaMedAct.getRouteCode()));
-		}
-		
-		// dosage.quantity
+		// doseQuantity -> dosage.quantity
 		if(cdaMedAct.getDoseQuantity() != null && !cdaMedAct.getDoseQuantity().isSetNullFlavor()) {
 			fhirDosage.setQuantity(dtt.tPQ2SimpleQuantityDt(cdaMedAct.getDoseQuantity()));
 		}
 		
-		// dosage.rate
+		// routeCode -> dosage.route
+		if(cdaMedAct.getRouteCode() != null && !cdaMedAct.getRouteCode().isSetNullFlavor()) {
+			fhirDosage.setRoute(dtt.tCD2CodeableConcept(cdaMedAct.getRouteCode()));
+		}
+		
+		// rateQuantity -> dosage.rate
 		if(cdaMedAct.getRateQuantity() != null && !cdaMedAct.getRateQuantity().isSetNullFlavor()) {
 			fhirDosage.setRate(dtt.tIVL_PQ2Range(cdaMedAct.getRateQuantity()));
 		}
 		
-		// dosage.maxDosePerPeriod
+		// maxDoseQuantity -> dosage.maxDosePerPeriod
 		if(cdaMedAct.getMaxDoseQuantity() != null && !cdaMedAct.getMaxDoseQuantity().isSetNullFlavor()) {
 			// cdaDataType.RTO does nothing but extends cdaDataType.RTO_PQ_PQ
-			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio( (RTO) cdaMedAct.getMaxDoseQuantity()));
+			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio((RTO) cdaMedAct.getMaxDoseQuantity()));
 		}
 
-		// wasNotTaken
+		// negationInd -> wasNotTaken
 		if(cdaMedAct.getNegationInd() != null) {
 			fhirMedSt.setWasNotTaken(cdaMedAct.getNegationInd());
 		}
@@ -1688,6 +1689,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 	}
 
+	// Use tResultOrganizer2DiagnosticReport
+	@Deprecated
 	public Bundle tResultObservation2Observation(ResultObservation cdaResultObs) {
 		return tObservation2Observation(cdaResultObs);
 	}

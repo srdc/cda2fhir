@@ -140,6 +140,7 @@ public class CCDATransformerImpl implements CCDATransformer {
             	ResultsSection resultSec = (ResultsSection) cdaSec;
             	for(ResultOrganizer resOrg : resultSec.getResultOrganizers()) {
             		for(ResultObservation resObs : resOrg.getResultObservations()) {
+            			// TODO: tResultOrganizer2DiagnosticReport should be used instead of tResultObservation2Observation
             			Bundle resBundle = resTransformer.tResultObservation2Observation(resObs);
                         mergeBundles(resBundle, ccdBundle, fhirSec, Observation.class);
             		}
