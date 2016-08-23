@@ -573,7 +573,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("FamilyMemberHistory", getUniqueId());
 		fhirFMH.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaFHO.getIds() != null && !cdaFHO.getIds().isEmpty()) {
 			for(II id : cdaFHO.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
@@ -585,7 +585,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// patient
 		fhirFMH.setPatient(getPatientRef());
 		
-		// statusCode
+		// statusCode -> status
 		if(cdaFHO.getStatusCode() != null && !cdaFHO.getStatusCode().isSetNullFlavor()) {
 			fhirFMH.setStatus(vst.tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(cdaFHO.getStatusCode().getCode()));
 		}
@@ -599,7 +599,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					// adding a new condition to fhirFMH
 					FamilyMemberHistory.Condition condition = fhirFMH.addCondition();
 					
-					// code <-> familHistoryObs.value(CD)
+					// familyHistoryObservation.value[@xsi:type='CD'] -> code
 					if(familyHistoryObs.getValues() != null && !familyHistoryObs.getValues().isEmpty()) {
 						for(ANY value : familyHistoryObs.getValues()) {
 							if(value != null && !value.isSetNullFlavor()) {
@@ -639,20 +639,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 			
-		// getting information from cda->subject->relatedSubject
+		// info from subject.relatedSubject
 		if(cdaFHO.getSubject() != null && !cdaFHO.isSetNullFlavor() && cdaFHO.getSubject().getRelatedSubject() != null && !cdaFHO.getSubject().getRelatedSubject().isSetNullFlavor()) {
 			org.openhealthtools.mdht.uml.cda.RelatedSubject cdaRelatedSubject = cdaFHO.getSubject().getRelatedSubject();
 			
-			// relationship: mother, father etc.
+			// subject.relatedSubject.code -> relationship
 			if(cdaRelatedSubject.getCode() != null && !cdaRelatedSubject.getCode().isSetNullFlavor()) {
 				fhirFMH.setRelationship(dtt.tCD2CodeableConcept(cdaRelatedSubject.getCode()));
 			}
 			
-			// subject person
+			// info from subject.relatedSubject.subject
 			if(cdaRelatedSubject.getSubject() != null && !cdaRelatedSubject.getSubject().isSetNullFlavor()) {
 				org.openhealthtools.mdht.uml.cda.SubjectPerson subjectPerson = cdaRelatedSubject.getSubject();
 				
-				// name
+				// subject.relatedSubject.subject.name.text -> name
 				if(subjectPerson.getNames() != null && !subjectPerson.getNames().isEmpty()) {
 					for(EN en : subjectPerson.getNames()) {
 						if(en != null && !en.isSetNullFlavor()) {
@@ -663,13 +663,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}
 				}
 				
-				// gender
+				// subject.relatedSubject.subject.administrativeGenderCode -> gender
 				if(subjectPerson.getAdministrativeGenderCode() != null && !subjectPerson.getAdministrativeGenderCode().isSetNullFlavor() &&
 						subjectPerson.getAdministrativeGenderCode().getCode() != null) {
 					fhirFMH.setGender(vst.tAdministrativeGenderCode2AdministrativeGenderEnum(subjectPerson.getAdministrativeGenderCode().getCode()));
 				}
 
-				// birthTime -> born
+				// subject.relatedSubject.subject.birthTime -> born
 				if(subjectPerson.getBirthTime() != null && !subjectPerson.getBirthTime().isSetNullFlavor()) {
 					fhirFMH.setBorn(dtt.tTS2Date(subjectPerson.getBirthTime()));
 				}

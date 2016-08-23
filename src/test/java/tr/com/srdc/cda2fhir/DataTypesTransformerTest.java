@@ -740,6 +740,8 @@ public class DataTypesTransformerTest{
        	
        }
     
+    // tTS2Instant, tTS2Date and tTS2DateTime are based on tTS2BaseDateTimeDt
+    // The most comprehensive test is testTS2Instant
     @Test
     public void testTS2Instant() {
     	// null instance test
@@ -755,7 +757,7 @@ public class DataTypesTransformerTest{
     	
     	// simple instance tests
     	
-    	// 1
+    	// 1 yyyy
     	TS ts1 = DatatypesFactory.eINSTANCE.createTS();
     	ts1.setValue("2013");
     	InstantDt instant1 = dtt.tTS2Instant(ts1);
@@ -763,33 +765,69 @@ public class DataTypesTransformerTest{
     	Assert.assertEquals("TS.value was not transformed","2013",instant1.getValueAsString());
     	
     	
-    	// 2
+    	// 2 yyyymm
     	TS ts2 = DatatypesFactory.eINSTANCE.createTS();
     	ts2.setValue("199711");
     	InstantDt instant2 = dtt.tTS2Instant(ts2);
     	
     	Assert.assertEquals("TS.value was not transformed","1997-11",instant2.getValueAsString());
     	
-    	// 3
+    	// 3 yyyymmdd
     	TS ts3 = DatatypesFactory.eINSTANCE.createTS();
     	ts3.setValue("20160514");
     	InstantDt instant3 = dtt.tTS2Instant(ts3);
     	
     	Assert.assertEquals("TS.value was not transformed","2016-05-14",instant3.getValueAsString());
     	
-    	// 4
+    	// 4 yyyymmddhhmm
     	TS ts4 = DatatypesFactory.eINSTANCE.createTS();
     	ts4.setValue("201305141317");
     	InstantDt instant4 = dtt.tTS2Instant(ts4);
     	
     	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17",instant4.getValueAsString());
     	
-    	// 5
+    	// 5 yyyymmddhhmmss.s
     	TS ts5 = DatatypesFactory.eINSTANCE.createTS();
     	ts5.setValue("20130514131719.6");
     	InstantDt instant5 = dtt.tTS2Instant(ts5);
     	
     	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.600",instant5.getValueAsString());
+    	
+    	// 6 yyyymmddhhmmss.ss
+    	TS ts6 = DatatypesFactory.eINSTANCE.createTS();
+    	ts6.setValue("20130514131719.67");
+    	InstantDt instant6 = dtt.tTS2Instant(ts6);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.670",instant6.getValueAsString());
+    	
+    	
+    	// 7 yyyymmddhhmmss.sss
+    	TS ts7 = DatatypesFactory.eINSTANCE.createTS();
+    	ts7.setValue("20130514131719.673");
+    	InstantDt instant7 = dtt.tTS2Instant(ts7);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.673",instant7.getValueAsString());
+    	
+    	// 8 yyyymmddhhmmss.sss+ZZzz
+    	TS ts8 = DatatypesFactory.eINSTANCE.createTS();
+    	ts8.setValue("20130514131719.673+0107");
+    	InstantDt instant8= dtt.tTS2Instant(ts8);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.673+01:07",instant8.getValueAsString());
+    	
+    	// 9 yyyymmddhhmmss.ss-ZZzz
+    	TS ts9 = DatatypesFactory.eINSTANCE.createTS();
+    	ts9.setValue("20130514131719.12-0253");
+    	InstantDt instant9= dtt.tTS2Instant(ts9);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.120-02:53",instant9.getValueAsString());
+    	
+    	// 10 yyyymmddhhmmss
+    	TS ts10 = DatatypesFactory.eINSTANCE.createTS();
+    	ts10.setValue("20130514131719");
+    	InstantDt instant10= dtt.tTS2Instant(ts10);
+    	
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19",instant10.getValueAsString());
     	
     }
     
