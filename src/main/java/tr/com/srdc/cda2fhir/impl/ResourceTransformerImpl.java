@@ -103,7 +103,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("AllergyIntolerance", getUniqueId());
 		fhirAllergyIntolerance.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaAllergyProbAct.getIds() != null && !cdaAllergyProbAct.getIds().isEmpty()) {
 			for(II ii : cdaAllergyProbAct.getIds()){
 				if(ii != null && ii.isSetNullFlavor()){
@@ -115,7 +115,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// patient
 		fhirAllergyIntolerance.setPatient(getPatientRef());
 	
-		// recorder
+		// author -> recorder
 		if(cdaAllergyProbAct.getAuthors() != null && !cdaAllergyProbAct.getAuthors().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaAllergyProbAct.getAuthors()) {
 				// Asserting that at most one author exists
@@ -134,7 +134,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// status
+		// statusCode -> status
 		if(cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaAllergyProbAct.getStatusCode().getCode() != null && !cdaAllergyProbAct.getStatusCode().getCode().isEmpty()) {
 				AllergyIntoleranceStatusEnum allergyIntoleranceStatusEnum = vst.tStatusCode2AllergyIntoleranceStatusEnum(cdaAllergyProbAct.getStatusCode().getCode());
@@ -144,7 +144,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// onset <-> effectiveTime.low(or value)
+		// effectiveTime -> onset
 		if(cdaAllergyProbAct.getEffectiveTime() != null && !cdaAllergyProbAct.getEffectiveTime().isSetNullFlavor()) {
 
 			// low(if not exists, value) -> onset
@@ -160,7 +160,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(AllergyObservation cdaAllergyObs : cdaAllergyProbAct.getAllergyObservations()) {
 				if(cdaAllergyObs != null && !cdaAllergyObs.isSetNullFlavor()) {
 					
-					// substance <-> cdaAllergyProbAct.allergyObservation.participant.participantRole.playingEntity.code
+					// allergyObservation.participant.participantRole.playingEntity.code -> substance
 					if(cdaAllergyObs.getParticipants() != null && !cdaAllergyObs.getParticipants().isEmpty()) {
 						for(Participant2 participant : cdaAllergyObs.getParticipants()) {
 							if(participant != null && !participant.isSetNullFlavor()) {
@@ -175,7 +175,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 					
-					// category
+					// allergyObservation.value[@xsi:type='CD'] -> category
 					if(cdaAllergyObs.getValues() != null && !cdaAllergyObs.getValues().isEmpty()) {
 						for(ANY value : cdaAllergyObs.getValues()) {
 							if(value != null && !value.isSetNullFlavor()) {
@@ -200,7 +200,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 										ReactionObservation cdaReactionObs = (ReactionObservation) entryRelShip.getObservation();
 										Reaction fhirReaction = fhirAllergyIntolerance.addReaction();
 										
-										// reaction.manifestation <-> reactionObs.value(CD)
+										// reactionObservation.value[@xsi:type='CD'] -> reaction.manifestation
 										if(cdaReactionObs.getValues() != null && !cdaReactionObs.getValues().isEmpty()) {
 											for(ANY value : cdaReactionObs.getValues()) {
 												if(value != null && !value.isSetNullFlavor()) {
@@ -211,7 +211,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 											}
 										}
 
-										// severity <-> reactionObservation.severityObservation.value(CD).code
+										// severityObservation.value[@xsi:type='CD'].code -> severity
 										if(cdaReactionObs.getSeverityObservation() != null && !cdaReactionObs.getSeverityObservation().isSetNullFlavor()) {
 											SeverityObservation cdaSeverityObs = cdaReactionObs.getSeverityObservation();
 											if(cdaSeverityObs.getValues() != null && !cdaSeverityObs.getValues().isEmpty()) {
@@ -612,10 +612,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					
 					// deceased
 					if(familyHistoryObs.getFamilyHistoryDeathObservation() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().isSetNullFlavor()) {
-						// deceased <- true
+						// if deathObservation exists, set fmh.deceased true
 						fhirFMH.setDeceased(new BooleanDt(true));
 						
-						// if dead, set outcome as dead
+						// familyHistoryDeathObservation.value[@xsi:type='CD'] -> condition.outcome
 						if(familyHistoryObs.getFamilyHistoryDeathObservation().getValues() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().getValues().isEmpty()) {
 							for(ANY value : familyHistoryObs.getFamilyHistoryDeathObservation().getValues()) {
 								if(value != null && !value.isSetNullFlavor()) {
@@ -627,9 +627,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 					
-					// onset <-> familyHistoryObs.ageObservation
+					// familyHistoryObservation.ageObservation -> condition.onset 
 					if(familyHistoryObs.getAgeObservation() != null && !familyHistoryObs.getAgeObservation().isSetNullFlavor()) {
-						// onset
 						AgeDt onset = tAgeObservation2AgeDt(familyHistoryObs.getAgeObservation());
 						if(onset != null) {
 							condition.setOnset(onset);
@@ -1334,7 +1333,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Patient", getUniqueId());
 		fhirPatient.setId(resourceId);
 
-		// identifier <-> id
+		// id -> identifier
 		if(cdaPatientRole.getIds() != null && !cdaPatientRole.getIds().isEmpty()) {
 			for(II id : cdaPatientRole.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
@@ -1342,8 +1341,26 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+		
+		// addr -> address
+		if(cdaPatientRole.getAddrs() != null && !cdaPatientRole.getAddrs().isEmpty()) {
+			for(AD ad : cdaPatientRole.getAddrs()){
+				if(ad != null && !ad.isSetNullFlavor()) {
+					fhirPatient.addAddress(dtt.AD2Address(ad));
+				}
+			}
+		}
+		
+		// telecom -> telecom
+		if(cdaPatientRole.getTelecoms() != null && !cdaPatientRole.getTelecoms().isEmpty()) {
+			for(TEL tel : cdaPatientRole.getTelecoms()) {
+				if(tel != null && !tel.isSetNullFlavor()) {
+					fhirPatient.addTelecom(dtt.tTEL2ContactPoint(tel));
+				}
+			}
+		}
 
-		// name <-> patient.name
+		// patient.name -> name
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
 				cdaPatientRole.getPatient().getNames() != null && !cdaPatientRole.getPatient().getNames().isEmpty()) {
 			for(PN pn : cdaPatientRole.getPatient().getNames()) {
@@ -1353,16 +1370,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// telecom <-> telecom
-		if(cdaPatientRole.getTelecoms() != null && !cdaPatientRole.getTelecoms().isEmpty()) {
-			for(TEL tel : cdaPatientRole.getTelecoms()) {
-				if(tel != null && !tel.isSetNullFlavor()) {
-					fhirPatient.addTelecom(dtt.tTEL2ContactPoint(tel));
-				}
-			}
-		}
-
-		// gender <-> patient.administrativeGenderCode
+		// patient.administrativeGenderCode -> gender
 		boolean administrativeGenderCodeNullCheck = cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor()
 				&& cdaPatientRole.getPatient().getAdministrativeGenderCode() != null 
 				&& !cdaPatientRole.getPatient().getAdministrativeGenderCode().isSetNullFlavor() 
@@ -1373,22 +1381,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirPatient.setGender(administrativeGender);
 		}
 
-		// birthDate <-> patient.birthTime
+		// patient.birthTime -> birthDate
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() 
 				&& cdaPatientRole.getPatient().getBirthTime() != null && !cdaPatientRole.getPatient().getBirthTime().isSetNullFlavor()) {
-			fhirPatient.setBirthDate( dtt.tTS2Date(cdaPatientRole.getPatient().getBirthTime()));
+			fhirPatient.setBirthDate(dtt.tTS2Date(cdaPatientRole.getPatient().getBirthTime()));
 		}
 
-		// address <-> addr
-		if(cdaPatientRole.getAddrs() != null && !cdaPatientRole.getAddrs().isEmpty()) {
-			for(AD ad : cdaPatientRole.getAddrs()){
-				if(ad != null && !ad.isSetNullFlavor()) {
-					fhirPatient.addAddress(dtt.AD2Address(ad));
-				}
-			}
-		}
+		
 
-		// maritalStatus <-> patient.maritalStatusCode
+		// patient.maritalStatusCode -> maritalStatus 
 		if(cdaPatientRole.getPatient().getMaritalStatusCode() != null
 				&& !cdaPatientRole.getPatient().getMaritalStatusCode().isSetNullFlavor()) {
 			if(cdaPatientRole.getPatient().getMaritalStatusCode().getCode() != null && !cdaPatientRole.getPatient().getMaritalStatusCode().getCode().isEmpty()) {
@@ -1396,7 +1397,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// communication <-> patient.languageCommunication
+		// patient.languageCommunication -> communication
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
 				cdaPatientRole.getPatient().getLanguageCommunications() != null &&
 				!cdaPatientRole.getPatient().getLanguageCommunications().isEmpty()) {
@@ -1407,7 +1408,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
-		// managingOrganization <-> providerOrganization
+		// providerOrganization -> managingOrganization
 		if(cdaPatientRole.getProviderOrganization() != null && !cdaPatientRole.getProviderOrganization().isSetNullFlavor()) {
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(cdaPatientRole.getProviderOrganization());
 			fhirPatientBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
@@ -1415,7 +1416,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirPatient.setManagingOrganization(organizationReference);
 		}
 
-		// guardian <-> patient.guardians
+		// patient.guardian -> contact 
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
 				cdaPatientRole.getPatient().getGuardians() != null && !cdaPatientRole.getPatient().getGuardians().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Guardian guardian : cdaPatientRole.getPatient().getGuardians()) {
@@ -1426,37 +1427,37 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		// extensions
 
-		// extRace <-> patient.raceCode
+		// patient.raceCode -> extRace
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getRaceCode() != null && !cdaPatientRole.getPatient().getRaceCode().isSetNullFlavor()) {
 			ExtensionDt extRace = new ExtensionDt();
 			extRace.setModifier(false);
 			extRace.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-race");
 			CD raceCode = cdaPatientRole.getPatient().getRaceCode();
-			extRace.setValue( dtt.tCD2CodeableConcept(raceCode));
+			extRace.setValue(dtt.tCD2CodeableConcept(raceCode));
 			fhirPatient.addUndeclaredExtension(extRace);
 		}
 
-		// extEthnicity <-> patient.ethnicGroupCode
+		// patient.ethnicGroupCode -> extEthnicity
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getEthnicGroupCode() != null && !cdaPatientRole.getPatient().getEthnicGroupCode().isSetNullFlavor()) {
 			ExtensionDt extEthnicity = new ExtensionDt();
 			extEthnicity.setModifier(false);
 			extEthnicity.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-ethnicity");
 			CD ethnicGroupCode = cdaPatientRole.getPatient().getEthnicGroupCode();
-			extEthnicity.setValue( dtt.tCD2CodeableConcept(ethnicGroupCode));
+			extEthnicity.setValue(dtt.tCD2CodeableConcept(ethnicGroupCode));
 			fhirPatient.addUndeclaredExtension(extEthnicity);
 		}
 
-		// extReligion
+		// patient.religiousAffiliationCode -> extReligion
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getReligiousAffiliationCode() != null && !cdaPatientRole.getPatient().getReligiousAffiliationCode().isSetNullFlavor()) {
 			ExtensionDt extReligion = new ExtensionDt();
 			extReligion.setModifier(false);
 			extReligion.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-religion");
 			CD religiousAffiliationCode = cdaPatientRole.getPatient().getReligiousAffiliationCode();
-			extReligion.setValue( dtt.tCD2CodeableConcept(religiousAffiliationCode));
+			extReligion.setValue(dtt.tCD2CodeableConcept(religiousAffiliationCode));
 			fhirPatient.addUndeclaredExtension(extReligion);
 		}
 
-		// extBirthPlace
+		// patient.birthplace.place.addr -> extBirthPlace
 		boolean birthplaceExtensionNullCheck = cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor()
 				&& cdaPatientRole.getPatient().getBirthplace() != null && !cdaPatientRole.getPatient().getBirthplace().isSetNullFlavor()
 				&& cdaPatientRole.getPatient().getBirthplace().getPlace() != null && !cdaPatientRole.getPatient().getBirthplace().getPlace().isSetNullFlavor()
