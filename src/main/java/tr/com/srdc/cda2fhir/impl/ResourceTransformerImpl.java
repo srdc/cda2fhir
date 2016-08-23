@@ -1496,7 +1496,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			IdDt resourceId = new IdDt("Condition", getUniqueId());
 			fhirCondition.setId(resourceId);
 			
-			// identifier
+			// id -> identifier
 			if(cdaProbConcAct.getIds() != null && !cdaProbConcAct.getIds().isEmpty()) {
 				for(II ii : cdaProbConcAct.getIds()) {
 					if(ii != null && !ii.isSetNullFlavor()) {
@@ -1512,7 +1512,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// TODO: Severity
 			// Couldn't found in the CDA example
 
-			// encounter
+			// encounter -> encounter
 			if(cdaProbConcAct.getEncounters() != null && !cdaProbConcAct.getEncounters().isEmpty()) {
 				if(cdaProbConcAct.getEncounters().get(0) != null && cdaProbConcAct.getEncounters().get(0).isSetNullFlavor()) {
 					ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = null;
@@ -1525,11 +1525,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 				
-					fhirCondition.setEncounter( new ResourceReferenceDt(fhirEncounter.getId()));
+					fhirCondition.setEncounter(new ResourceReferenceDt(fhirEncounter.getId()));
 				}
 			}
 		
-			// asserter <-> author
+			// author -> asserter
 			if(cdaProbConcAct.getAuthors() != null && !cdaProbConcAct.getAuthors().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Author author : cdaProbConcAct.getAuthors()) {
 					if(author != null && !author.isSetNullFlavor()) {
@@ -1542,7 +1542,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 								fhirPractitioner = (Practitioner) entry.getResource();
 							}
 						}
-						
 						fhirCondition.setAsserter(new ResourceReferenceDt(fhirPractitioner.getId()));
 					}
 				}
@@ -1553,7 +1552,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				if(entryRelationship.getObservation() instanceof ProblemObservation){
 					ProblemObservation cdaProbObs = (ProblemObservation)entryRelationship.getObservation();
 					
-					// category
+					// code -> category
 					if(cdaProbObs.getCode() != null && !cdaProbObs.getCode().isSetNullFlavor()) {
 						if(cdaProbObs.getCode().getCode() != null) {
 							ConditionCategoryCodesEnum conditionCategory = vst.tProblemType2ConditionCategoryCodesEnum(cdaProbObs.getCode().getCode());
@@ -1580,21 +1579,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						IVXB_TS low = cdaProbObs.getEffectiveTime().getLow();
 						IVXB_TS high = cdaProbObs.getEffectiveTime().getHigh();
 
-						// low <-> onset
+						// low -> onset
 						if(low != null && !low.isSetNullFlavor()) {
 							fhirCondition.setOnset(dtt.tTS2DateTime(low));
 						} else if(cdaProbObs.getEffectiveTime().getValue() != null && !cdaProbObs.getEffectiveTime().getValue().isEmpty()) {
 							fhirCondition.setOnset(dtt.tString2DateTime(cdaProbObs.getEffectiveTime().getValue()));
 						}
 
-						// high <-> abatement
+						// high -> abatement
 						if(high != null && !high.isSetNullFlavor()) {
 							fhirCondition.setAbatement(dtt.tTS2DateTime(high));
 						}
 					}
 
 
-					// date recorded <-> ProblemObservation.author.time
+					// author.time -> dateRecorded
 					if(cdaProbObs.getAuthors() != null && !cdaProbObs.getAuthors().isEmpty()) {
 						for(Author author : cdaProbObs.getAuthors()) {
 							if(author != null && !author.isSetNullFlavor()) {
