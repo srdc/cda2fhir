@@ -3,29 +3,24 @@ package tr.com.srdc.cda2fhir.impl;
 import java.util.UUID;
 
 import ca.uhn.fhir.model.dstu2.resource.*;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Location;
+import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 
+import ca.uhn.fhir.model.dstu2.resource.Procedure;
+import ca.uhn.fhir.model.dstu2.valueset.*;
 import org.openhealthtools.mdht.uml.cda.*;
+import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
+import org.openhealthtools.mdht.uml.cda.Author;
+import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
+import org.openhealthtools.mdht.uml.cda.Guardian;
+import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
+import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.ccd.FunctionalStatusObservation;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
-import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusResultOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.Indication;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ProductInstance;
-import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.SeverityObservation;
-import org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
+import org.openhealthtools.mdht.uml.cda.consol.*;
 import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
@@ -42,14 +37,6 @@ import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Device;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
-import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
-import ca.uhn.fhir.model.dstu2.valueset.AllergyIntoleranceStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
-import ca.uhn.fhir.model.dstu2.valueset.EncounterClassEnum;
-import ca.uhn.fhir.model.dstu2.valueset.GroupTypeEnum;
-import ca.uhn.fhir.model.dstu2.valueset.MedicationDispenseStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
-import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import tr.com.srdc.cda2fhir.CCDATransformer;
@@ -356,21 +343,24 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
-		
-		// practitionerRole.organization
-		if(cdaAssignedEntity.getRepresentedOrganizations() != null && !cdaAssignedEntity.getRepresentedOrganizations().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.Organization cdaOrganization : cdaAssignedEntity.getRepresentedOrganizations()) {
-				
-				if(cdaOrganization != null && !cdaOrganization.isSetNullFlavor()) {
-					// Notice that for every organization we add, we create a new practitioner role
-					ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(cdaOrganization);
-					
-					ResourceReferenceDt organizationReference = new ResourceReferenceDt(fhirOrganization.getId());
-					fhirPractitioner.addPractitionerRole().setManagingOrganization(organizationReference);	
-					fhirPractitionerBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
-				}
-			}	
+
+		Practitioner.PractitionerRole fhirPractitionerRole = fhirPractitioner.addPractitionerRole();
+
+		// code -> practitionerRole.role
+		if(cdaAssignedEntity.getCode() != null && !cdaAssignedEntity.isSetNullFlavor()) {
+			fhirPractitionerRole.setRole(dtt.tCD2CodeableConcept(cdaAssignedEntity.getCode()));
 		}
+		
+		// representedOrganization -> practitionerRole.organization
+		// NOTE: we skipped multiple instances of representated organization; we just omit apart from the first
+		if(!cdaAssignedEntity.getRepresentedOrganizations().isEmpty()) {
+			if(cdaAssignedEntity.getRepresentedOrganizations().get(0) != null && !cdaAssignedEntity.getRepresentedOrganizations().get(0).isSetNullFlavor()) {
+				ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(cdaAssignedEntity.getRepresentedOrganizations().get(0));
+				fhirPractitionerRole.setManagingOrganization(new ResourceReferenceDt(fhirOrganization.getId()));
+				fhirPractitionerBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
+			}
+		}
+
 		return fhirPractitionerBundle;
 	}
 	
@@ -2010,11 +2000,36 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// legalAuthenticator -> attester
+		// legalAuthenticator -> attester[mode = legal]
 		if(cda.getLegalAuthenticator() != null && !cda.getLegalAuthenticator().isSetNullFlavor()) {
-			// Bundle Authenticator2Attester(org.openhealthtools.mdht.uml.cda.Authenticator authen);
-			// Attester: ca.uhn.fhir.model.dstu2.resource.Composition.Attester
-			// Since we need to return Bundle, we can't implement Authenticator2Attester
+			Composition.Attester attester = fhirComp.addAttester();
+			attester.setMode(CompositionAttestationModeEnum.LEGAL);
+			attester.setTime(dtt.tTS2DateTime(cda.getLegalAuthenticator().getTime()));
+			Bundle practBundle = tAssignedEntity2Practitioner(cda.getLegalAuthenticator().getAssignedEntity());
+			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+				// Add all the resources returned from the bundle to the main bundle
+				fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+				if(entry.getResource() instanceof Practitioner) {
+					attester.setParty(new ResourceReferenceDt((entry.getResource()).getId()));
+				}
+			}
+		}
+
+		// authenticator -> attester[mode = professional]
+		for(org.openhealthtools.mdht.uml.cda.Authenticator authenticator : cda.getAuthenticators()) {
+			if(!authenticator.isSetNullFlavor()) {
+				Composition.Attester attester = fhirComp.addAttester();
+				attester.setMode(CompositionAttestationModeEnum.PROFESSIONAL);
+				attester.setTime(dtt.tTS2DateTime(authenticator.getTime()));
+				Bundle practBundle = tAssignedEntity2Practitioner(authenticator.getAssignedEntity());
+				for (ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+					// Add all the resources returned from the bundle to the main bundle
+					fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+					if (entry.getResource() instanceof Practitioner) {
+						attester.setParty(new ResourceReferenceDt((entry.getResource()).getId()));
+					}
+				}
+			}
 		}
 		
 		// custodian -> custodian.assignedCustodian.representedCustodianOrganization
