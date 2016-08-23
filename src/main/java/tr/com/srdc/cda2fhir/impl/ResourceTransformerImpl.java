@@ -90,7 +90,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("AllergyIntolerance", getUniqueId());
 		fhirAllergyIntolerance.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaAllergyProbAct.getIds() != null && !cdaAllergyProbAct.getIds().isEmpty()) {
 			for(II ii : cdaAllergyProbAct.getIds()){
 				if(ii != null && ii.isSetNullFlavor()){
@@ -102,7 +102,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// patient
 		fhirAllergyIntolerance.setPatient(getPatientRef());
 	
-		// recorder
+		// author -> recorder
 		if(cdaAllergyProbAct.getAuthors() != null && !cdaAllergyProbAct.getAuthors().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaAllergyProbAct.getAuthors()) {
 				// Asserting that at most one author exists
@@ -121,7 +121,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// status
+		// statusCode -> status
 		if(cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaAllergyProbAct.getStatusCode().getCode() != null && !cdaAllergyProbAct.getStatusCode().getCode().isEmpty()) {
 				AllergyIntoleranceStatusEnum allergyIntoleranceStatusEnum = vst.tStatusCode2AllergyIntoleranceStatusEnum(cdaAllergyProbAct.getStatusCode().getCode());
@@ -131,7 +131,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// onset <-> effectiveTime.low(or value)
+		// effectiveTime -> onset
 		if(cdaAllergyProbAct.getEffectiveTime() != null && !cdaAllergyProbAct.getEffectiveTime().isSetNullFlavor()) {
 
 			// low(if not exists, value) -> onset
@@ -147,7 +147,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(AllergyObservation cdaAllergyObs : cdaAllergyProbAct.getAllergyObservations()) {
 				if(cdaAllergyObs != null && !cdaAllergyObs.isSetNullFlavor()) {
 					
-					// substance <-> cdaAllergyProbAct.allergyObservation.participant.participantRole.playingEntity.code
+					// allergyObservation.participant.participantRole.playingEntity.code -> substance
 					if(cdaAllergyObs.getParticipants() != null && !cdaAllergyObs.getParticipants().isEmpty()) {
 						for(Participant2 participant : cdaAllergyObs.getParticipants()) {
 							if(participant != null && !participant.isSetNullFlavor()) {
@@ -162,7 +162,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 					
-					// category
+					// allergyObservation.value[@xsi:type='CD'] -> category
 					if(cdaAllergyObs.getValues() != null && !cdaAllergyObs.getValues().isEmpty()) {
 						for(ANY value : cdaAllergyObs.getValues()) {
 							if(value != null && !value.isSetNullFlavor()) {
@@ -187,7 +187,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 										ReactionObservation cdaReactionObs = (ReactionObservation) entryRelShip.getObservation();
 										Reaction fhirReaction = fhirAllergyIntolerance.addReaction();
 										
-										// reaction.manifestation <-> reactionObs.value(CD)
+										// reactionObservation.value[@xsi:type='CD'] -> reaction.manifestation
 										if(cdaReactionObs.getValues() != null && !cdaReactionObs.getValues().isEmpty()) {
 											for(ANY value : cdaReactionObs.getValues()) {
 												if(value != null && !value.isSetNullFlavor()) {
@@ -198,7 +198,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 											}
 										}
 
-										// severity <-> reactionObservation.severityObservation.value(CD).code
+										// severityObservation.value[@xsi:type='CD'].code -> severity
 										if(cdaReactionObs.getSeverityObservation() != null && !cdaReactionObs.getSeverityObservation().isSetNullFlavor()) {
 											SeverityObservation cdaSeverityObs = cdaReactionObs.getSeverityObservation();
 											if(cdaSeverityObs.getValues() != null && !cdaSeverityObs.getValues().isEmpty()) {
@@ -563,7 +563,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("FamilyMemberHistory", getUniqueId());
 		fhirFMH.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaFHO.getIds() != null && !cdaFHO.getIds().isEmpty()) {
 			for(II id : cdaFHO.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
@@ -575,7 +575,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// patient
 		fhirFMH.setPatient(getPatientRef());
 		
-		// statusCode
+		// statusCode -> status
 		if(cdaFHO.getStatusCode() != null && !cdaFHO.getStatusCode().isSetNullFlavor()) {
 			fhirFMH.setStatus(vst.tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(cdaFHO.getStatusCode().getCode()));
 		}
@@ -589,7 +589,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					// adding a new condition to fhirFMH
 					FamilyMemberHistory.Condition condition = fhirFMH.addCondition();
 					
-					// code <-> familHistoryObs.value(CD)
+					// familyHistoryObservation.value[@xsi:type='CD'] -> code
 					if(familyHistoryObs.getValues() != null && !familyHistoryObs.getValues().isEmpty()) {
 						for(ANY value : familyHistoryObs.getValues()) {
 							if(value != null && !value.isSetNullFlavor()) {
@@ -602,10 +602,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					
 					// deceased
 					if(familyHistoryObs.getFamilyHistoryDeathObservation() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().isSetNullFlavor()) {
-						// deceased <- true
+						// if deathObservation exists, set fmh.deceased true
 						fhirFMH.setDeceased(new BooleanDt(true));
 						
-						// if dead, set outcome as dead
+						// familyHistoryDeathObservation.value[@xsi:type='CD'] -> condition.outcome
 						if(familyHistoryObs.getFamilyHistoryDeathObservation().getValues() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().getValues().isEmpty()) {
 							for(ANY value : familyHistoryObs.getFamilyHistoryDeathObservation().getValues()) {
 								if(value != null && !value.isSetNullFlavor()) {
@@ -617,9 +617,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 					
-					// onset <-> familyHistoryObs.ageObservation
+					// familyHistoryObservation.ageObservation -> condition.onset 
 					if(familyHistoryObs.getAgeObservation() != null && !familyHistoryObs.getAgeObservation().isSetNullFlavor()) {
-						// onset
 						AgeDt onset = tAgeObservation2AgeDt(familyHistoryObs.getAgeObservation());
 						if(onset != null) {
 							condition.setOnset(onset);
@@ -629,20 +628,20 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 			
-		// getting information from cda->subject->relatedSubject
+		// info from subject.relatedSubject
 		if(cdaFHO.getSubject() != null && !cdaFHO.isSetNullFlavor() && cdaFHO.getSubject().getRelatedSubject() != null && !cdaFHO.getSubject().getRelatedSubject().isSetNullFlavor()) {
 			org.openhealthtools.mdht.uml.cda.RelatedSubject cdaRelatedSubject = cdaFHO.getSubject().getRelatedSubject();
 			
-			// relationship: mother, father etc.
+			// subject.relatedSubject.code -> relationship
 			if(cdaRelatedSubject.getCode() != null && !cdaRelatedSubject.getCode().isSetNullFlavor()) {
 				fhirFMH.setRelationship(dtt.tCD2CodeableConcept(cdaRelatedSubject.getCode()));
 			}
 			
-			// subject person
+			// info from subject.relatedSubject.subject
 			if(cdaRelatedSubject.getSubject() != null && !cdaRelatedSubject.getSubject().isSetNullFlavor()) {
 				org.openhealthtools.mdht.uml.cda.SubjectPerson subjectPerson = cdaRelatedSubject.getSubject();
 				
-				// name
+				// subject.relatedSubject.subject.name.text -> name
 				if(subjectPerson.getNames() != null && !subjectPerson.getNames().isEmpty()) {
 					for(EN en : subjectPerson.getNames()) {
 						if(en != null && !en.isSetNullFlavor()) {
@@ -653,13 +652,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}
 				}
 				
-				// gender
+				// subject.relatedSubject.subject.administrativeGenderCode -> gender
 				if(subjectPerson.getAdministrativeGenderCode() != null && !subjectPerson.getAdministrativeGenderCode().isSetNullFlavor() &&
 						subjectPerson.getAdministrativeGenderCode().getCode() != null) {
 					fhirFMH.setGender(vst.tAdministrativeGenderCode2AdministrativeGenderEnum(subjectPerson.getAdministrativeGenderCode().getCode()));
 				}
 
-				// birthTime -> born
+				// subject.relatedSubject.subject.birthTime -> born
 				if(subjectPerson.getBirthTime() != null && !subjectPerson.getBirthTime().isSetNullFlavor()) {
 					fhirFMH.setBorn(dtt.tTS2Date(subjectPerson.getBirthTime()));
 				}
@@ -789,21 +788,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		MedicationStatement fhirMedSt = new MedicationStatement();
 		MedicationStatement.Dosage fhirDosage = fhirMedSt.addDosage();
 
+		// bundle
 		Bundle medStatementBundle = new Bundle();
 		medStatementBundle.addEntry(new Bundle.Entry().setResource(fhirMedSt));
 	
 		// id
 		IdDt resourceId = new IdDt("MedicationActivity", getUniqueId());
 		fhirMedSt.setId(resourceId);
+		
+		// patient
+		fhirMedSt.setPatient(getPatientRef());
 
-		// identifier
+		// id -> identifier
 		if(cdaMedAct.getIds() != null && !cdaMedAct.getIds().isEmpty()) {
 			for(II ii : cdaMedAct.getIds()) {
 				fhirMedSt.addIdentifier(dtt.tII2Identifier(ii));
 			}
 		}
 
-		// status
+		// statusCode -> status
 		if(cdaMedAct.getStatusCode() != null && !cdaMedAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaMedAct.getStatusCode().getCode() != null && !cdaMedAct.getStatusCode().getCode().isEmpty()) {
 				MedicationStatementStatusEnum statusCode = vst.tStatusCode2MedicationStatementStatusEnum(cdaMedAct.getStatusCode().getCode());
@@ -813,10 +816,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// patient
-		fhirMedSt.setPatient(getPatientRef());
-		
-		// medication <-> cdaMedAct.consumable.manufacturedProduct
+		// consumable.manufacturedProductmedication -> medication
 		if(cdaMedAct.getConsumable() != null && !cdaMedAct.getConsumable().isSetNullFlavor()) {
 			if(cdaMedAct.getConsumable().getManufacturedProduct() != null && !cdaMedAct.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
 	
@@ -835,15 +835,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// effectiveTime
+		// getting info from effectiveTimes
 		if(cdaMedAct.getEffectiveTimes() != null && !cdaMedAct.getEffectiveTimes().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS ts : cdaMedAct.getEffectiveTimes()) {
 				if(ts != null && !ts.isSetNullFlavor()) {
-					// IVL_TS -> effectivePeriod
+					// effectiveTime[@xsi:type='IVL_TS'] -> effective
 					if(ts instanceof IVL_TS) {
 						fhirMedSt.setEffective(dtt.tIVL_TS2Period((IVL_TS)ts));
 					}
-					// PIVL_TS -> dosage.timing
+					// effectiveTime[@xsi:type='PIVL_TS'] -> dosage.timing
 					if(ts instanceof PIVL_TS) {
 						fhirDosage.setTiming(dtt.tPIVL_TS2Timing((PIVL_TS)ts));
 					}
@@ -851,28 +851,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// dosage.route
-		if(cdaMedAct.getRouteCode() != null && !cdaMedAct.getRouteCode().isSetNullFlavor()) {
-			fhirDosage.setRoute(dtt.tCD2CodeableConcept(cdaMedAct.getRouteCode()));
-		}
-		
-		// dosage.quantity
+		// doseQuantity -> dosage.quantity
 		if(cdaMedAct.getDoseQuantity() != null && !cdaMedAct.getDoseQuantity().isSetNullFlavor()) {
 			fhirDosage.setQuantity(dtt.tPQ2SimpleQuantityDt(cdaMedAct.getDoseQuantity()));
 		}
 		
-		// dosage.rate
+		// routeCode -> dosage.route
+		if(cdaMedAct.getRouteCode() != null && !cdaMedAct.getRouteCode().isSetNullFlavor()) {
+			fhirDosage.setRoute(dtt.tCD2CodeableConcept(cdaMedAct.getRouteCode()));
+		}
+		
+		// rateQuantity -> dosage.rate
 		if(cdaMedAct.getRateQuantity() != null && !cdaMedAct.getRateQuantity().isSetNullFlavor()) {
 			fhirDosage.setRate(dtt.tIVL_PQ2Range(cdaMedAct.getRateQuantity()));
 		}
 		
-		// dosage.maxDosePerPeriod
+		// maxDoseQuantity -> dosage.maxDosePerPeriod
 		if(cdaMedAct.getMaxDoseQuantity() != null && !cdaMedAct.getMaxDoseQuantity().isSetNullFlavor()) {
 			// cdaDataType.RTO does nothing but extends cdaDataType.RTO_PQ_PQ
-			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio( (RTO) cdaMedAct.getMaxDoseQuantity()));
+			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio((RTO) cdaMedAct.getMaxDoseQuantity()));
 		}
 
-		// wasNotTaken
+		// negationInd -> wasNotTaken
 		if(cdaMedAct.getNegationInd() != null) {
 			fhirMedSt.setWasNotTaken(cdaMedAct.getNegationInd());
 		}
@@ -1324,7 +1324,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Patient", getUniqueId());
 		fhirPatient.setId(resourceId);
 
-		// identifier <-> id
+		// id -> identifier
 		if(cdaPatientRole.getIds() != null && !cdaPatientRole.getIds().isEmpty()) {
 			for(II id : cdaPatientRole.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
@@ -1332,8 +1332,26 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+		
+		// addr -> address
+		if(cdaPatientRole.getAddrs() != null && !cdaPatientRole.getAddrs().isEmpty()) {
+			for(AD ad : cdaPatientRole.getAddrs()){
+				if(ad != null && !ad.isSetNullFlavor()) {
+					fhirPatient.addAddress(dtt.AD2Address(ad));
+				}
+			}
+		}
+		
+		// telecom -> telecom
+		if(cdaPatientRole.getTelecoms() != null && !cdaPatientRole.getTelecoms().isEmpty()) {
+			for(TEL tel : cdaPatientRole.getTelecoms()) {
+				if(tel != null && !tel.isSetNullFlavor()) {
+					fhirPatient.addTelecom(dtt.tTEL2ContactPoint(tel));
+				}
+			}
+		}
 
-		// name <-> patient.name
+		// patient.name -> name
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
 				cdaPatientRole.getPatient().getNames() != null && !cdaPatientRole.getPatient().getNames().isEmpty()) {
 			for(PN pn : cdaPatientRole.getPatient().getNames()) {
@@ -1343,16 +1361,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// telecom <-> telecom
-		if(cdaPatientRole.getTelecoms() != null && !cdaPatientRole.getTelecoms().isEmpty()) {
-			for(TEL tel : cdaPatientRole.getTelecoms()) {
-				if(tel != null && !tel.isSetNullFlavor()) {
-					fhirPatient.addTelecom(dtt.tTEL2ContactPoint(tel));
-				}
-			}
-		}
-
-		// gender <-> patient.administrativeGenderCode
+		// patient.administrativeGenderCode -> gender
 		boolean administrativeGenderCodeNullCheck = cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor()
 				&& cdaPatientRole.getPatient().getAdministrativeGenderCode() != null 
 				&& !cdaPatientRole.getPatient().getAdministrativeGenderCode().isSetNullFlavor() 
@@ -1363,22 +1372,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirPatient.setGender(administrativeGender);
 		}
 
-		// birthDate <-> patient.birthTime
+		// patient.birthTime -> birthDate
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() 
 				&& cdaPatientRole.getPatient().getBirthTime() != null && !cdaPatientRole.getPatient().getBirthTime().isSetNullFlavor()) {
-			fhirPatient.setBirthDate( dtt.tTS2Date(cdaPatientRole.getPatient().getBirthTime()));
+			fhirPatient.setBirthDate(dtt.tTS2Date(cdaPatientRole.getPatient().getBirthTime()));
 		}
 
-		// address <-> addr
-		if(cdaPatientRole.getAddrs() != null && !cdaPatientRole.getAddrs().isEmpty()) {
-			for(AD ad : cdaPatientRole.getAddrs()){
-				if(ad != null && !ad.isSetNullFlavor()) {
-					fhirPatient.addAddress(dtt.AD2Address(ad));
-				}
-			}
-		}
+		
 
-		// maritalStatus <-> patient.maritalStatusCode
+		// patient.maritalStatusCode -> maritalStatus 
 		if(cdaPatientRole.getPatient().getMaritalStatusCode() != null
 				&& !cdaPatientRole.getPatient().getMaritalStatusCode().isSetNullFlavor()) {
 			if(cdaPatientRole.getPatient().getMaritalStatusCode().getCode() != null && !cdaPatientRole.getPatient().getMaritalStatusCode().getCode().isEmpty()) {
@@ -1386,7 +1388,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// communication <-> patient.languageCommunication
+		// patient.languageCommunication -> communication
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
 				cdaPatientRole.getPatient().getLanguageCommunications() != null &&
 				!cdaPatientRole.getPatient().getLanguageCommunications().isEmpty()) {
@@ -1397,7 +1399,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
-		// managingOrganization <-> providerOrganization
+		// providerOrganization -> managingOrganization
 		if(cdaPatientRole.getProviderOrganization() != null && !cdaPatientRole.getProviderOrganization().isSetNullFlavor()) {
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(cdaPatientRole.getProviderOrganization());
 			fhirPatientBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
@@ -1405,7 +1407,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirPatient.setManagingOrganization(organizationReference);
 		}
 
-		// guardian <-> patient.guardians
+		// patient.guardian -> contact 
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
 				cdaPatientRole.getPatient().getGuardians() != null && !cdaPatientRole.getPatient().getGuardians().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Guardian guardian : cdaPatientRole.getPatient().getGuardians()) {
@@ -1416,37 +1418,37 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		// extensions
 
-		// extRace <-> patient.raceCode
+		// patient.raceCode -> extRace
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getRaceCode() != null && !cdaPatientRole.getPatient().getRaceCode().isSetNullFlavor()) {
 			ExtensionDt extRace = new ExtensionDt();
 			extRace.setModifier(false);
 			extRace.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-race");
 			CD raceCode = cdaPatientRole.getPatient().getRaceCode();
-			extRace.setValue( dtt.tCD2CodeableConcept(raceCode));
+			extRace.setValue(dtt.tCD2CodeableConcept(raceCode));
 			fhirPatient.addUndeclaredExtension(extRace);
 		}
 
-		// extEthnicity <-> patient.ethnicGroupCode
+		// patient.ethnicGroupCode -> extEthnicity
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getEthnicGroupCode() != null && !cdaPatientRole.getPatient().getEthnicGroupCode().isSetNullFlavor()) {
 			ExtensionDt extEthnicity = new ExtensionDt();
 			extEthnicity.setModifier(false);
 			extEthnicity.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-ethnicity");
 			CD ethnicGroupCode = cdaPatientRole.getPatient().getEthnicGroupCode();
-			extEthnicity.setValue( dtt.tCD2CodeableConcept(ethnicGroupCode));
+			extEthnicity.setValue(dtt.tCD2CodeableConcept(ethnicGroupCode));
 			fhirPatient.addUndeclaredExtension(extEthnicity);
 		}
 
-		// extReligion
+		// patient.religiousAffiliationCode -> extReligion
 		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getReligiousAffiliationCode() != null && !cdaPatientRole.getPatient().getReligiousAffiliationCode().isSetNullFlavor()) {
 			ExtensionDt extReligion = new ExtensionDt();
 			extReligion.setModifier(false);
 			extReligion.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-religion");
 			CD religiousAffiliationCode = cdaPatientRole.getPatient().getReligiousAffiliationCode();
-			extReligion.setValue( dtt.tCD2CodeableConcept(religiousAffiliationCode));
+			extReligion.setValue(dtt.tCD2CodeableConcept(religiousAffiliationCode));
 			fhirPatient.addUndeclaredExtension(extReligion);
 		}
 
-		// extBirthPlace
+		// patient.birthplace.place.addr -> extBirthPlace
 		boolean birthplaceExtensionNullCheck = cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor()
 				&& cdaPatientRole.getPatient().getBirthplace() != null && !cdaPatientRole.getPatient().getBirthplace().isSetNullFlavor()
 				&& cdaPatientRole.getPatient().getBirthplace().getPlace() != null && !cdaPatientRole.getPatient().getBirthplace().getPlace().isSetNullFlavor()
@@ -1486,7 +1488,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			IdDt resourceId = new IdDt("Condition", getUniqueId());
 			fhirCondition.setId(resourceId);
 			
-			// identifier
+			// id -> identifier
 			if(cdaProbConcAct.getIds() != null && !cdaProbConcAct.getIds().isEmpty()) {
 				for(II ii : cdaProbConcAct.getIds()) {
 					if(ii != null && !ii.isSetNullFlavor()) {
@@ -1502,7 +1504,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// TODO: Severity
 			// Couldn't found in the CDA example
 
-			// encounter
+			// encounter -> encounter
 			if(cdaProbConcAct.getEncounters() != null && !cdaProbConcAct.getEncounters().isEmpty()) {
 				if(cdaProbConcAct.getEncounters().get(0) != null && cdaProbConcAct.getEncounters().get(0).isSetNullFlavor()) {
 					ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = null;
@@ -1515,11 +1517,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 				
-					fhirCondition.setEncounter( new ResourceReferenceDt(fhirEncounter.getId()));
+					fhirCondition.setEncounter(new ResourceReferenceDt(fhirEncounter.getId()));
 				}
 			}
 		
-			// asserter <-> author
+			// author -> asserter
 			if(cdaProbConcAct.getAuthors() != null && !cdaProbConcAct.getAuthors().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Author author : cdaProbConcAct.getAuthors()) {
 					if(author != null && !author.isSetNullFlavor()) {
@@ -1532,7 +1534,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 								fhirPractitioner = (Practitioner) entry.getResource();
 							}
 						}
-						
 						fhirCondition.setAsserter(new ResourceReferenceDt(fhirPractitioner.getId()));
 					}
 				}
@@ -1543,7 +1544,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				if(entryRelationship.getObservation() instanceof ProblemObservation){
 					ProblemObservation cdaProbObs = (ProblemObservation)entryRelationship.getObservation();
 					
-					// category
+					// code -> category
 					if(cdaProbObs.getCode() != null && !cdaProbObs.getCode().isSetNullFlavor()) {
 						if(cdaProbObs.getCode().getCode() != null) {
 							ConditionCategoryCodesEnum conditionCategory = vst.tProblemType2ConditionCategoryCodesEnum(cdaProbObs.getCode().getCode());
@@ -1570,21 +1571,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						IVXB_TS low = cdaProbObs.getEffectiveTime().getLow();
 						IVXB_TS high = cdaProbObs.getEffectiveTime().getHigh();
 
-						// low <-> onset
+						// low -> onset
 						if(low != null && !low.isSetNullFlavor()) {
 							fhirCondition.setOnset(dtt.tTS2DateTime(low));
 						} else if(cdaProbObs.getEffectiveTime().getValue() != null && !cdaProbObs.getEffectiveTime().getValue().isEmpty()) {
 							fhirCondition.setOnset(dtt.tString2DateTime(cdaProbObs.getEffectiveTime().getValue()));
 						}
 
-						// high <-> abatement
+						// high -> abatement
 						if(high != null && !high.isSetNullFlavor()) {
 							fhirCondition.setAbatement(dtt.tTS2DateTime(high));
 						}
 					}
 
 
-					// date recorded <-> ProblemObservation.author.time
+					// author.time -> dateRecorded
 					if(cdaProbObs.getAuthors() != null && !cdaProbObs.getAuthors().isEmpty()) {
 						for(Author author : cdaProbObs.getAuthors()) {
 							if(author != null && !author.isSetNullFlavor()) {
@@ -1678,6 +1679,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 	}
 
+	// Use tResultOrganizer2DiagnosticReport
+	@Deprecated
 	public Bundle tResultObservation2Observation(ResultObservation cdaResultObs) {
 		return tObservation2Observation(cdaResultObs);
 	}

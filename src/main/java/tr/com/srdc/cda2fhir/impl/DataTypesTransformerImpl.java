@@ -700,19 +700,19 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 
 	public DateTimeDt tString2DateTime(String date) {
-		return (DateTimeDt) tTS2BaseDateTime(date,new DateTimeDt());
+		return (DateTimeDt) tTS2BaseDateTime(date,DateTimeDt.class);
 	}
 	
 	public DateDt tTS2Date(TS ts){
-		return (DateDt) tTS2BaseDateTime(ts,new DateDt());
+		return (DateDt) tTS2BaseDateTime(ts,DateDt.class);
 	}
 	
 	public DateTimeDt tTS2DateTime(TS ts) {
-		return (DateTimeDt) tTS2BaseDateTime(ts,new DateTimeDt());
+		return (DateTimeDt) tTS2BaseDateTime(ts,DateTimeDt.class);
 	}
 	
 	public InstantDt tTS2Instant(TS ts) {
-		return (InstantDt) tTS2BaseDateTime(ts,new InstantDt());
+		return (InstantDt) tTS2BaseDateTime(ts,InstantDt.class);
 	}
 	
 	public UriDt tURL2Uri(URL url){
@@ -723,13 +723,13 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	
 	// 1st parameter(tsObject) can be an object of type TS or a String representing the time
 	// 2nd parameter(returnObject) is given to determine the type of the returning object
-	private BaseDateTimeDt tTS2BaseDateTime(Object tsObject, Object returnObject) {
+	private BaseDateTimeDt tTS2BaseDateTime(Object tsObject, Class<?> classOfReturningObject) {
 		if(tsObject == null)
 			return null;
 		
 		String dateString;
 		// checking the type of tsObject, assigning dateString accordingly
-		if(tsObject instanceof TS){
+		if(tsObject instanceof TS) {
 			// null-flavor check
 			if(((TS)tsObject).isSetNullFlavor() || ((TS)tsObject).getValue() == null) {
 				return null;
@@ -746,11 +746,11 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		BaseDateTimeDt date;
 		// initializing date
-		if(returnObject instanceof DateDt) {
+		if(classOfReturningObject == DateDt.class) {
 			date = new DateDt();
-		} else if(returnObject instanceof DateTimeDt) {
+		} else if(classOfReturningObject == DateTimeDt.class) {
 			date = new DateTimeDt();
-		} else if(returnObject instanceof InstantDt) {
+		} else if(classOfReturningObject == InstantDt.class) {
 			date = new InstantDt();
 		} else {
 			// unexpected situtation
@@ -770,6 +770,19 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		 */
 		
 		TemporalPrecisionEnum precision = null;
+		TimeZone timeZone = null;
+		
+		// getting the timezone
+		// once got the timezone, crop the timezone part from the string
+		if(dateString.contains("+")) {
+			timeZone = TimeZone.getTimeZone("GMT"+dateString.substring(dateString.indexOf('+')));
+			dateString = dateString.substring(0, dateString.indexOf('+'));
+		} else if(dateString.contains("-")) {
+			timeZone = TimeZone.getTimeZone("GMT"+dateString.substring(dateString.indexOf('-')));
+			dateString = dateString.substring(0, dateString.indexOf('-'));
+		}
+		
+		
 		// determining precision
 		switch(dateString.length()) {
 			case 4: // yyyy
@@ -779,9 +792,13 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			case 8: // yyyymmdd
 				precision = TemporalPrecisionEnum.DAY; break;
 			case 12: // yyyymmddhhmm
-			case 17: // yyyymmddhhmm+tizo
 				precision = TemporalPrecisionEnum.MINUTE; break;
+			case 14: // yyyymmddhhmmss
+				precision = TemporalPrecisionEnum.SECOND; break;
 			case 16: // yyyymmddhhmmss.s
+			case 17: // yyyymmddhhmmss.ss
+			case 18: // yyyymmddhhmmss.sss
+			case 19: // yyyymmddhhmmss.ssss
 				precision = TemporalPrecisionEnum.MILLI; break;
 			default:
 				precision = null;
@@ -790,9 +807,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		// given string may include up to four digits of fractions of a second
 		// therefore, there may be cases where the length of the string is 17,18 or 19 and the precision is MILLI.
 		// for those of cases where the length causes conflicts, let's check if dot(.) exists in the string
-		if(dateString.contains(".")){
-			precision =  TemporalPrecisionEnum.MILLI;
-		}
 			
 		// setting precision
 		if(precision != null){
@@ -802,15 +816,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return null;
 		}
 		
+		// if timeZone is present, setting it
+		if(timeZone != null) {
+			date.setTimeZone(timeZone);
+		}
 		
-		
-		// YYYYMMDDHHMM+TIZO and YYYYMMDDHHMMSS.S are special cases
-		// If our case is one of them, we will treat differently
-		
-		if(dateString.contains(".")) {
+		if(precision == TemporalPrecisionEnum.MILLI) {
 			// get the integer starting from the dot(.) char 'till the end of the string as the millis
 			int millis = new Integer(dateString.substring(dateString.indexOf('.')+1));
-			
 			// if millis is given as .4 , it corresponds to 400 millis. 
 			// therefore, we need a conversion.
 			if(millis > 0 && millis < 1000) {
@@ -833,22 +846,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			date.setMinute(new Integer(dateString.substring(10, 12)));
 			date.setHour(new Integer(dateString.substring(8,10)));
 			date.setDay(new Integer(dateString.substring(6,8)));
-			date.setMonth(new Integer(dateString.substring(4,6))-1); // 0-index
+			date.setMonth(new Integer(dateString.substring(4,6))-1);
 			date.setYear(new Integer(dateString.substring(0,4)));
 			
-		} else if(dateString.contains("+") || dateString.contains("-")) {
-			// getting the timezone part
-			date.setTimeZone(TimeZone.getTimeZone("GMT"+dateString.substring(12)));
-			
-			// minute, hour, day, month, year..
-			date.setMinute(new Integer(dateString.substring(10, 12)));
-			date.setHour(new Integer(dateString.substring(8,10)));
-			date.setDay(new Integer(dateString.substring(6,8)));
-			date.setMonth(new Integer(dateString.substring(4,6))-1); // 0-index
-			date.setYear(new Integer(dateString.substring(0,4)));
 		} else {
 			// since there are strange situtations where the index changes upon the precision, we set every value in its precision block
 			switch(precision) {
+				case SECOND:
+					date.setSecond(new Integer(dateString.substring(12,14)));
 				case MINUTE: 
 					date.setMinute(new Integer(dateString.substring(10,12)));
 					date.setHour(new Integer(dateString.substring(8,10)));

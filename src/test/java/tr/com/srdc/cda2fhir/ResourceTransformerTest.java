@@ -57,7 +57,7 @@ public class ResourceTransformerTest {
 	    }
         
         try {
-        	if( fisCCD != null ) {
+        	if(fisCCD != null) {
         		// To validate the file, use the following two lines instead of the third line
 //        		ValidationResult result = new ValidationResult();
 //        		ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD,result);
@@ -70,7 +70,7 @@ public class ResourceTransformerTest {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
-	@Ignore
+	@Test
 	public void testAllergyProblemAct2AllergyIntolerance() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -408,10 +408,17 @@ public class ResourceTransformerTest {
 			// patient.identifier
 			int idCount = 0;
 			for(II id : pr.getIds()) {
-
+				if(id.getRoot() != null && id.getExtension() != null) {
+					// since extension may contain "urn:oid:" or "urn:uuid:", assertion is about containing the value as a piece
+					Assert.assertTrue("pr.id.extension #"+ idCount +" was not transformed", patient.getIdentifier().get(idCount).getValue().contains(id.getExtension()));
+					Assert.assertTrue("pr.id.root #"+ idCount +" was not transformed",patient.getIdentifier().get(idCount).getSystem().contains(id.getRoot()));
+				} else if(id.getRoot() != null) {
+					Assert.assertTrue("pr.id.root #"+ idCount +" was not transformed",patient.getIdentifier().get(idCount).getValue().contains(id.getRoot()));
+				} else if(id.getExtension() != null) {
+					Assert.assertTrue("pr.id.root #"+ idCount +" was not transformed",patient.getIdentifier().get(idCount).getValue().contains(id.getExtension()));
+				}
 				// codeSystem method is changed and tested
-				Assert.assertEquals("pr.id.root #"+ idCount +" was not transformed",id.getRoot(),  patient.getIdentifier().get(idCount).getValue());
-
+				
 				idCount++;
 			}
 			// patient.name
@@ -865,7 +872,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void testResultOrganizer2DiagnosticReport() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
