@@ -2037,7 +2037,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		Organization fhirOrganization = new Organization();
 		
 		// id
-		IdDt resourceId = new IdDt("Organization",getUniqueId());
+		IdDt resourceId = new IdDt("Organization", getUniqueId());
 		fhirOrganization.setId(resourceId);
 		
 		// identifier

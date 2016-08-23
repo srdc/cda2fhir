@@ -31,13 +31,15 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
+import tr.com.srdc.cda2fhir.util.StringUtil;
 
 /**
  * Created by mustafa on 7/21/2016.
  */
 public class DataTypesTransformerImpl implements DataTypesTransformer {
-	ValueSetsTransformer vst = new ValueSetsTransformerImpl();
-	
+
+	private ValueSetsTransformer vst = new ValueSetsTransformerImpl();
+
 	public AddressDt AD2Address(AD ad) {
 	    if(ad == null || ad.isSetNullFlavor())
 	    	return null;
@@ -406,18 +408,31 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return null;
 		
 		IdentifierDt identifierDt = new IdentifierDt();
-			
-		// value -> root
-		if(ii.getRoot() != null && !ii.getRoot().isEmpty()){
+
+		// if both root and extension are present, then
+		// root -> system
+		// extension -> value
+		if(ii.getRoot() != null && !ii.getRoot().isEmpty()
+				&& ii.getExtension() != null && !ii.getExtension().isEmpty()){
+			// root is oid
+			if(StringUtil.isOID(ii.getRoot()))
+				identifierDt.setSystem("urn:oid:" + ii.getRoot());
+			// root is uuid
+			else if(StringUtil.isUUID(ii.getRoot()))
+				identifierDt.setSystem("urn:uuid:" + ii.getRoot());
+			else
+				identifierDt.setSystem(ii.getRoot());
+
+			identifierDt.setValue(ii.getExtension());
+		}
+		// else if only the root is present, then
+		// root -> value
+		else if(ii.getRoot() != null && !ii.getRoot().isEmpty())
 			identifierDt.setValue(ii.getRoot());
-		}
-		
-		// TODO: Necip: Doesn't seem OK because of the usage of reference. I will check
-		if(ii.getAssigningAuthorityName() != null && !ii.getAssigningAuthorityName().isEmpty()){
-			ResourceReferenceDt resourceReference = new ResourceReferenceDt(ii.getAssigningAuthorityName());
-			if(!resourceReference.isEmpty())
-				identifierDt.setAssigner(resourceReference);
-		}
+		// this is not very likely but, if there is only the extension, then
+		// extension -> value
+		else if(ii.getExtension() != null && !ii.getExtension().isEmpty())
+			identifierDt.setValue(ii.getExtension());
 		
 		return identifierDt;
 
@@ -922,4 +937,5 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return null;
 		}
 	}
+
 }

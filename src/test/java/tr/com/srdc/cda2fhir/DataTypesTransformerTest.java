@@ -406,15 +406,14 @@ public class DataTypesTransformerTest{
     @Test
     public void testII2Identifier(){
     	//simple instance test
-    	II ii=DatatypesFactory.eINSTANCE.createII();
-    	ii.setRoot("myIdentifierRoot");
+    	II ii = DatatypesFactory.eINSTANCE.createII();
+    	ii.setRoot("2.16.840.1.113883.19.5.99999.1");
     	ii.setExtension("myIdentifierExtension");
-    	ii.setAssigningAuthorityName("Tahsin");
     	
-    	IdentifierDt identifier=dtt.tII2Identifier(ii);
-    	Assert.assertEquals("II.root was not transformed","myIdentifierRoot",identifier.getValue());
-    	Assert.assertEquals("II.AssigningAuthorityName was not transformed","Tahsin",identifier.getAssigner().getReference().getValue());
-    	
+    	IdentifierDt identifier = dtt.tII2Identifier(ii);
+    	Assert.assertEquals("II.root was not transformed", "urn:oid:2.16.840.1.113883.19.5.99999.1", identifier.getSystem());
+		Assert.assertEquals("II.extension was not transformed", "myIdentifierExtension", identifier.getValue());
+
     	//null instance test
     	
     	II ii2=null;
