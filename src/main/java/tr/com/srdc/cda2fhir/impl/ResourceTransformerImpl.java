@@ -1485,6 +1485,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+
+		// code -> type
+		// TODO: Requires huge mapping work from HL7 HealthcareServiceLocation value set to http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType
+//		if(cdaParticipantRole.getCode() != null && !cdaParticipantRole.getCode().isSetNullFlavor())
+//			fhirLocation.setType();
 		
 		// playingEntity.name.text -> name
 		if(cdaParticipantRole.getPlayingEntity() != null && !cdaParticipantRole.getPlayingEntity().isSetNullFlavor()) {

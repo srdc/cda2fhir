@@ -4,11 +4,7 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
-import ca.uhn.fhir.model.dstu2.resource.Observation;
-import ca.uhn.fhir.model.dstu2.resource.Patient;
-import ca.uhn.fhir.model.dstu2.resource.Procedure;
-import ca.uhn.fhir.model.primitive.IdDt;
-import org.openhealthtools.mdht.uml.cda.*;
+import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
@@ -61,7 +57,7 @@ public class CCDATransformerImpl implements CCDATransformer {
         if(ccd == null)
             return null;
 
-        // init the global ccd bundle via a call to resource transformer, which handles cda header data (i.e. all except the sections)
+        // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
         Bundle ccdBundle = resTransformer.tClinicalDocument2Composition(ccd);
         // the first bundle entry is always the composition
         Composition ccdComposition = (Composition)ccdBundle.getEntry().get(0).getResource();
@@ -83,7 +79,11 @@ public class CCDATransformerImpl implements CCDATransformer {
             	}
             }
             else if(cdaSec instanceof EncountersSection) {
-
+                EncountersSection encSec = (EncountersSection) cdaSec;
+                for (EncounterActivities encAct : encSec.getConsolEncounterActivitiess()) {
+                    Bundle encBundle = resTransformer.tEncounterActivity2Encounter(encAct);
+                    mergeBundles(encBundle, ccdBundle, fhirSec, Encounter.class);
+                }
             }
             else if(cdaSec instanceof FamilyHistorySection) {
                 FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
@@ -102,7 +102,6 @@ public class CCDATransformerImpl implements CCDATransformer {
                         mergeBundles(funcBundle, ccdBundle, fhirSec, Observation.class);
                     }
                 }
-
             }
             else if(cdaSec instanceof ImmunizationsSection) {
             	ImmunizationsSection immSec = (ImmunizationsSection) cdaSec;
