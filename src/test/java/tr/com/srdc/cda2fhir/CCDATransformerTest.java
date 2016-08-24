@@ -7,6 +7,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import tr.com.srdc.cda2fhir.impl.CCDATransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
+import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 import java.io.FileInputStream;
 
@@ -26,7 +27,7 @@ public class CCDATransformerTest {
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml"); 
 
         ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.load(fis);
-        CCDATransformer ccdaTransformer = new CCDATransformerImpl(CCDATransformer.IdGeneratorEnum.COUNTER);
+        CCDATransformer ccdaTransformer = new CCDATransformerImpl(IdGeneratorEnum.COUNTER);
         Bundle bundle = ccdaTransformer.transformCCD(ccd);
         FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
     }

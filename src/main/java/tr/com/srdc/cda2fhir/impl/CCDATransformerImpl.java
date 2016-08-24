@@ -12,6 +12,7 @@ import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
+import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 import java.util.UUID;
 

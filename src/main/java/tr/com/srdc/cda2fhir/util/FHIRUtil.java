@@ -13,6 +13,8 @@ import java.io.IOException;
  */
 public class FHIRUtil {
 
+
+
     private static final FhirContext myCtx = FhirContext.forDstu2();
     private static IParser jsonParser = myCtx.newJsonParser();
     private static IParser xmlParser = myCtx.newXmlParser();
