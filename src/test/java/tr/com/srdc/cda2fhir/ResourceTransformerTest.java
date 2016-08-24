@@ -70,7 +70,7 @@ public class ResourceTransformerTest {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
-	@Test
+	@Ignore
 	public void testAllergyProblemAct2AllergyIntolerance() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -768,13 +768,13 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testSubstanceAdministration2Immunization() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		// null instance test
-		org.openhealthtools.mdht.uml.cda.SubstanceAdministration cdaNull = null;
-		Bundle fhirNull = rt.tSubstanceAdministration2Immunization(cdaNull);
+		org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity cdaNull = null;
+		Bundle fhirNull = rt.tImmunizationActivity2Immunization(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -784,7 +784,7 @@ public class ResourceTransformerTest {
 			for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
 				if(immAct != null && !immAct.isSetNullFlavor()) {
 					System.out.println("Transformating starting...");
-					Bundle fhirImm = rt.tSubstanceAdministration2Immunization(immAct);
+					Bundle fhirImm = rt.tImmunizationActivity2Immunization(immAct);
 					System.out.println("End of transformation. Printing the resource as JSON object..");
 					FHIRUtil.printJSON(fhirImm);
 					System.out.println("End of print.");

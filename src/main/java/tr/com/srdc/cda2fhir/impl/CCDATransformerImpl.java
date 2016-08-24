@@ -101,8 +101,8 @@ public class CCDATransformerImpl implements CCDATransformer {
             }
             else if(cdaSec instanceof ImmunizationsSection) {
             	ImmunizationsSection immSec = (ImmunizationsSection) cdaSec;
-            	for(SubstanceAdministration subAd : immSec.getSubstanceAdministrations()) {
-            		Bundle immBundle = resTransformer.tSubstanceAdministration2Immunization(subAd);
+            	for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
+            		Bundle immBundle = resTransformer.tImmunizationActivity2Immunization(immAct);
                     mergeBundles(immBundle, ccdBundle, fhirSec, Immunization.class);
             	}
             }

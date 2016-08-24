@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Immunization.Explanation;
 import ca.uhn.fhir.model.dstu2.resource.Location;
 import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
@@ -1685,8 +1686,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return tObservation2Observation(cdaResultObs);
 	}
 
-	public Bundle tSubstanceAdministration2Immunization(SubstanceAdministration cdaSubAdm) {
-		if(cdaSubAdm == null || cdaSubAdm.isSetNullFlavor())
+	public Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmAct) {
+		if(cdaImmAct == null || cdaImmAct.isSetNullFlavor())
 			return null;
 		
 		Immunization fhirImmunization = new Immunization();
@@ -1701,18 +1702,18 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// patient
 		fhirImmunization.setPatient(getPatientRef());
 		
-		// identifier
-		if(cdaSubAdm.getIds()!=null && !cdaSubAdm.getIds().isEmpty()) {
-			for(II ii : cdaSubAdm.getIds()) {
+		// id -> identifier
+		if(cdaImmAct.getIds()!=null && !cdaImmAct.getIds().isEmpty()) {
+			for(II ii : cdaImmAct.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
 					fhirImmunization.addIdentifier(dtt.tII2Identifier(ii));
 				}
 			}
 		}
 		
-		// effective time
-		if(cdaSubAdm.getEffectiveTimes()!=null && !cdaSubAdm.getEffectiveTimes().isEmpty()) {
-			for(SXCM_TS effectiveTime : cdaSubAdm.getEffectiveTimes()) {
+		// effectiveTime -> date
+		if(cdaImmAct.getEffectiveTimes() != null && !cdaImmAct.getEffectiveTimes().isEmpty()) {
+			for(SXCM_TS effectiveTime : cdaImmAct.getEffectiveTimes()) {
 				if(effectiveTime != null && !effectiveTime.isSetNullFlavor()) {
 					// Asserting that at most one effective time exists
 					fhirImmunization.setDate(dtt.tTS2DateTime(effectiveTime));
@@ -1721,25 +1722,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 		
 		// lotNumber, vaccineCode, organization
-		if(cdaSubAdm.getConsumable()!=null && !cdaSubAdm.getConsumable().isSetNullFlavor()) {
-			if(cdaSubAdm.getConsumable().getManufacturedProduct()!=null && !cdaSubAdm.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
-				ManufacturedProduct manufacturedProduct=cdaSubAdm.getConsumable().getManufacturedProduct();
+		if(cdaImmAct.getConsumable()!=null && !cdaImmAct.getConsumable().isSetNullFlavor()) {
+			if(cdaImmAct.getConsumable().getManufacturedProduct()!=null && !cdaImmAct.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
+				ManufacturedProduct manufacturedProduct=cdaImmAct.getConsumable().getManufacturedProduct();
 				
 				if(manufacturedProduct.getManufacturedMaterial()!=null && !manufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 					Material manufacturedMaterial=manufacturedProduct.getManufacturedMaterial();
 					
-					// vaccineCode
+					// consumable.manufacturedProduct.manufacturedMaterial.code -> vaccineCode
 					if(manufacturedProduct.getManufacturedMaterial().getCode() != null && !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor()) {
 						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode()));
 					}
 					
-					// lotNumber
+					// consumable.manufacturedProduct.manufacturedMaterial.lotNumber -> lotNumber
 					if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor()) {
 						fhirImmunization.setLotNumber(dtt.tST2String(manufacturedMaterial.getLotNumberText()));
 					}
 				}
 				
-				// organization
+				// consumable.manufacturedProduct.manufacturerOrganization -> manufacturer
 				if(manufacturedProduct.getManufacturerOrganization()!=null && !manufacturedProduct.getManufacturerOrganization().isSetNullFlavor()) {
 					
 					ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(manufacturedProduct.getManufacturerOrganization());
@@ -1750,9 +1751,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// performer
-		if(cdaSubAdm.getPerformers() != null && !cdaSubAdm.getPerformers().isEmpty()) {
-			for(Performer2 performer : cdaSubAdm.getPerformers()) {
+		// performer -> performer
+		if(cdaImmAct.getPerformers() != null && !cdaImmAct.getPerformers().isEmpty()) {
+			for(Performer2 performer : cdaImmAct.getPerformers()) {
 				if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
 					Bundle practBundle = tPerformer22Practitioner(performer);
 					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
@@ -1767,27 +1768,36 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 						
-		// site
-		if(cdaSubAdm.getApproachSiteCodes()!=null && !cdaSubAdm.getApproachSiteCodes().isEmpty()) {
-			for(CD cd : cdaSubAdm.getApproachSiteCodes()) {
+		// approachSiteCode -> site
+		if(cdaImmAct.getApproachSiteCodes()!=null && !cdaImmAct.getApproachSiteCodes().isEmpty()) {
+			for(CD cd : cdaImmAct.getApproachSiteCodes()) {
 				// Asserting that at most one site exists
 				fhirImmunization.setSite(dtt.tCD2CodeableConcept(cd));
 			}
 		}
 		
-		// route
-		if(cdaSubAdm.getRouteCode()!=null && !cdaSubAdm.getRouteCode().isSetNullFlavor()) {
-			fhirImmunization.setRoute(dtt.tCD2CodeableConcept(cdaSubAdm.getRouteCode()));
+		// routeCode -> route
+		if(cdaImmAct.getRouteCode()!=null && !cdaImmAct.getRouteCode().isSetNullFlavor()) {
+			fhirImmunization.setRoute(dtt.tCD2CodeableConcept(cdaImmAct.getRouteCode()));
 		}
 		
-		// dose quantity
-		if(cdaSubAdm.getDoseQuantity()!=null && !cdaSubAdm.getDoseQuantity().isSetNullFlavor()) {
-			fhirImmunization.setDoseQuantity(dtt.tPQ2SimpleQuantityDt( cdaSubAdm.getDoseQuantity()));
+		// doseQuantity -> doseQuantity
+		if(cdaImmAct.getDoseQuantity()!=null && !cdaImmAct.getDoseQuantity().isSetNullFlavor()) {
+			fhirImmunization.setDoseQuantity(dtt.tPQ2SimpleQuantityDt(cdaImmAct.getDoseQuantity()));
 		}
 		
-		// status
-		if(cdaSubAdm.getStatusCode()!=null && !cdaSubAdm.getStatusCode().isSetNullFlavor()) {
-			fhirImmunization.setStatus(cdaSubAdm.getStatusCode().getCode());
+		// statusCode -> status
+		if(cdaImmAct.getStatusCode()!=null && !cdaImmAct.getStatusCode().isSetNullFlavor()) {
+			if(cdaImmAct.getStatusCode().getCode() != null && !cdaImmAct.getStatusCode().getCode().isEmpty()) {
+				fhirImmunization.setStatus(cdaImmAct.getStatusCode().getCode());
+			}
+		}
+		
+		// immunizationRefusalReason.code -> explanation.reasonNotGiven
+		if(cdaImmAct.getImmunizationRefusalReason() != null && !cdaImmAct.getImmunizationRefusalReason().isSetNullFlavor()) {
+			if(cdaImmAct.getImmunizationRefusalReason().getCode() != null && !cdaImmAct.getImmunizationRefusalReason().getCode().isSetNullFlavor()) {
+				fhirImmunization.setExplanation(new Explanation().addReasonNotGiven(dtt.tCD2CodeableConcept(cdaImmAct.getImmunizationRefusalReason().getCode())));
+			}
 		}
 
 		return fhirImmunizationBundle;

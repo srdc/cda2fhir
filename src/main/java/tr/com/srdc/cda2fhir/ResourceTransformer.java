@@ -60,7 +60,7 @@ public interface ResourceTransformer {
 	// then, transform observations by using tObservation2Observation
 //	Bundle tSocialHistoryObservation2Observation( org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation cdaSocialHistoryObs );
 	
-	Bundle tSubstanceAdministration2Immunization(SubstanceAdministration cdaSubAdm);
+	Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmAct);
     
     Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVSO);
     
