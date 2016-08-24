@@ -18,8 +18,13 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 public interface ResourceTransformer {
 
 	Bundle tAllergyProblemAct2AllergyIntolerance(AllergyProblemAct cdaAllergyProbAct);
-	
-	Bundle tAssignedAuthor2Practitioner( AssignedAuthor cdaAssignedAuthor);
+
+	/**
+	 * Transforms a CDA AssignedAuthor instance to a FHIR Practitioner resource.
+	 * @param cdaAssignedAuthor A CDA AssignedAuthor instance
+	 * @return A Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
+     */
+	Bundle tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor);
 	
 	Bundle tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity);
 
