@@ -150,34 +150,49 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testEncounter2Encounter(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
 		// null instance test
-		org.openhealthtools.mdht.uml.cda.Encounter cdaNull = null;
-		Bundle fhirNull = rt.tEncounter2Encounter(cdaNull);
+		org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaNull = null;
+		Bundle fhirNull = rt.tEncounterActivity2Encounter(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		int encounterCount = 0;
-		if(test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections()) {
-				if(section != null && !section.isSetNullFlavor()) {
-					for(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter : section.getEncounters()) {
-						if(cdaEncounter != null && !cdaEncounter.isSetNullFlavor()) {
-							System.out.println("Encounter["+encounterCount+"]");
-							System.out.println("Transformation starting..");
-							Bundle fhirEncounterBundle = rt.tEncounter2Encounter(cdaEncounter);
-							System.out.println("End of transformation. Printing the resource as JSON object..");
-							FHIRUtil.printJSON( fhirEncounterBundle );
-							System.out.println("End of print.\n***\n");
-						}
-						encounterCount++;
+		if(test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor()) {
+			if(test.ccd.getEncountersSection().getEncounterActivitiess() != null && !test.ccd.getEncountersSection().getEncounterActivitiess().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities encounterActivity : test.ccd.getEncountersSection().getEncounterActivitiess()) {
+					if(encounterActivity != null && !encounterActivity.isSetNullFlavor()) {
+						System.out.println("Transformation starting..");
+						Bundle fhirEncounterBundle = rt.tEncounterActivity2Encounter(encounterActivity);
+						System.out.println("End of transformation. Printing the resource as JSON object..");
+						FHIRUtil.printJSON( fhirEncounterBundle );
+						System.out.println("End of print.\n***\n");
 					}
 				}
 			}
 		}
+		
+		
+//		int encounterCount = 0;
+//		if(test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty()) {
+//			for(org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections()) {
+//				if(section != null && !section.isSetNullFlavor()) {
+//					for(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter : section.getEncounters()) {
+//						if(cdaEncounter != null && !cdaEncounter.isSetNullFlavor()) {
+//							System.out.println("Encounter["+encounterCount+"]");
+//							System.out.println("Transformation starting..");
+//							Bundle fhirEncounterBundle = rt.tEncounter2Encounter(cdaEncounter);
+//							System.out.println("End of transformation. Printing the resource as JSON object..");
+//							FHIRUtil.printJSON( fhirEncounterBundle );
+//							System.out.println("End of print.\n***\n");
+//						}
+//						encounterCount++;
+//					}
+//				}
+//			}
+//		}
 	}
 
 	@Ignore
@@ -768,8 +783,8 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Test
-	public void testSubstanceAdministration2Immunization() {
+	@Ignore
+	public void testImmunizationActivity2Immunization() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
 		// null instance test
