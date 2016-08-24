@@ -667,7 +667,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		Group fhirGroup = new Group();
 		
-		// identifier <-> id
+		// id -> identifier
 		if(cdaEntity.getIds() != null && !cdaEntity.getIds().isEmpty()) {
 			for(II id : cdaEntity.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
@@ -679,7 +679,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// type
+		// classCode -> type
 		if(cdaEntity.getClassCode() != null) {
 			GroupTypeEnum groupTypeEnum = vst.tEntityClassRoot2GroupTypeEnum(cdaEntity.getClassCode());
 			if(groupTypeEnum != null) {
@@ -688,7 +688,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			
 		}
 		
-		// actual
+		// deteminerCode -> actual
 		if(cdaEntity.isSetDeterminerCode() && cdaEntity.getDeterminerCode() != null) {
 			if(cdaEntity.getDeterminerCode() == EntityDeterminer.KIND) {
 				fhirGroup.setActual(false);
@@ -697,7 +697,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// code
+		// code -> code
 		if(cdaEntity.getCode() != null && !cdaEntity.getCode().isSetNullFlavor()) {
 			fhirGroup.setCode(dtt.tCD2CodeableConcept(cdaEntity.getCode()));
 		}

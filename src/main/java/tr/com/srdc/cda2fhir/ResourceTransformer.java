@@ -25,15 +25,40 @@ public interface ResourceTransformer {
 	 * @return A Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
      */
 	Bundle tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor);
-	
+
+	/**
+	 * Transforms a CDA AssignedEntity instance to a FHIR Practitioner resource.
+	 * @param cdaAssignedEntity A CDA AssignedEntity instance
+	 * @return A Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
+     */
 	Bundle tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity);
 
+	/**
+	 * Transforms a CDA CD instance to a FHIR Substance resource.
+	 * @param cdaSubstanceCode A CDA CD instance
+	 * @return A Substance resource
+	 */
 	Substance tCD2Substance(CD cdaSubstanceCode);
 	
-	Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounterActivity);
+	/**
+	 * Transforms a CDA Encounter instance to a FHIR Encounter resource.
+	 * @param cdaEncounterActivity A CDA Encounter instance
+	 * @return A Bundle that contains the Encounter as the first entry, which can also include other referenced resources such as Practitioner, Location
+	 */
+	Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter);
 
-	Bundle tEncounterActivity2Encounter(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaEncounter);
+	/**
+	 * Transforms a CDA EncounterActivity instance to a FHIR Encounter resource.
+	 * @param cdaEncounterActivity A CDA EncounterActivity instance
+	 * @return A Bundle that contains the Encounter as the first entry, which can also include other referenced resources such as Practitioner, Location
+	 */
+	Bundle tEncounterActivity2Encounter(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaEncounterActivity);
 	
+	/**
+	 * Transforms a CDA Entity instance to a FHIR Group resource.
+	 * @param cdaEntity A CDA Entity instance
+	 * @return A Group resource
+	 */
 	Group tEntity2Group(Entity cdaEntity);
 	
 	FamilyMemberHistory tFamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
