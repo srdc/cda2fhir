@@ -14,19 +14,12 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 
 	public AdministrativeGenderEnum tAdministrativeGenderCode2AdministrativeGenderEnum(String administrativeGenderCode) {
 		// Visit https://www.hl7.org/fhir/valueset-administrative-gender.html
-		switch (administrativeGenderCode) {
-			case "F": // Female
+		switch (administrativeGenderCode.toLowerCase()) {
 			case "f":
 				return AdministrativeGenderEnum.FEMALE;
-			case "M": // Male
 			case "m":
 				return AdministrativeGenderEnum.MALE;
-			case "U": // Undifferentiated
-			case "u":
-			case "UN":
-			case "UNK":
 			case "un":
-			case "unk":
 				return AdministrativeGenderEnum.UNKNOWN;
 			default:
 				return AdministrativeGenderEnum.UNKNOWN;
@@ -36,26 +29,19 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 	public String tAgeObservationUnit2AgeUnit(String cdaUnit) {
 		if(cdaUnit == null || cdaUnit.isEmpty())
 			return null;
-
+		
 		switch(cdaUnit.toLowerCase()) {
 			case "a":
-			case "age":
-			case "year":
 				return "Year";
 			case "mo":
-			case "month":
 				return "Month";
 			case "wk":
-			case "week":
 				return "Week";
 			case "d":
-			case "day":
 				return "Day";
 			case "h":
-			case "hour":
 				return "Hour";
 			case "min":
-			case "minute":
 				return "Minute";
 			default:
 				return null;
@@ -94,16 +80,13 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 				return EncounterClassEnum.AMBULATORY;
 			case "out": 
 			case "outpatient":
-			case "out-patient":
 					return EncounterClassEnum.OUTPATIENT;
 			case "in":
 			case "inp":
 			case "inpatient":
-			case "in-patient":
 					return EncounterClassEnum.INPATIENT;
 			case "day":
 			case "daytime":
-			case "day-time":
 				return EncounterClassEnum.DAYTIME;
 			case "em":
 			case "eme":
@@ -161,7 +144,6 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			return FamilyHistoryStatusEnum.COMPLETED;
 		case "error":
 			return FamilyHistoryStatusEnum.ENTERED_IN_ERROR;
-		case "unk":
 		case "un":
 			return FamilyHistoryStatusEnum.HEALTH_UNKNOWN;
 		case "part":
@@ -183,8 +165,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case "S": return MaritalStatusCodesEnum.S;
 			case "T": return MaritalStatusCodesEnum.T;
 			case "W": return MaritalStatusCodesEnum.W;
-			case "UNK":
-			case "U":
+			case "UN":
 			default:
 				return MaritalStatusCodesEnum.UNK;
 		}
@@ -235,7 +216,6 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		switch(obsStatusCode.toLowerCase()) {
 			case "completed": return ObservationStatusEnum.FINAL;
 			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
-			case "unk":
 			case "un": return ObservationStatusEnum.UNKNOWN_STATUS;
 			case "cancelled": return ObservationStatusEnum.CANCELLED;
 			case "amended": return ObservationStatusEnum.AMENDED;
@@ -444,7 +424,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			default:
 				break;
 		}
-		if( code != null && display != null){
+		if(code != null && display != null) {
 			fhirPT.setCode(code);
 			fhirPT.setDisplay(display);
 		}
@@ -581,7 +561,6 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case "active":
 				return EncounterStateEnum.IN_PROGRESS;
 			case "onleave":
-			case "on-leave":
 				return EncounterStateEnum.ON_LEAVE;
 			case "finished":
 			case "completed":
@@ -615,7 +594,8 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 				return MedicationDispenseStatusEnum.ENTERED_IN_ERROR;
 			case "stopped":
 				return MedicationDispenseStatusEnum.STOPPED;
-			default: return null;
+			default:
+				return null;
 		}
 	}
 
