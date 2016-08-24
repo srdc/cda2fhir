@@ -13,8 +13,16 @@ public interface CCDATransformer {
         COUNTER, UUID
     }
 
+    /**
+     * Sets the resource id generator format, which is either a COUNTER or UUID
+     * @param idGen The id generator enumeration to be set
+     */
     void setIdGenerator(IdGeneratorEnum idGen);
 
+    /**
+     * A consistent unique resource id generator
+     * @return a unique resource id
+     */
     String getUniqueId();
 
     ResourceReferenceDt getPatientRef();

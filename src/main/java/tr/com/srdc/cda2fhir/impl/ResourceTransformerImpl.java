@@ -1888,8 +1888,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 	}
 
-	// Use tResultOrganizer2DiagnosticReport
-	@Deprecated
 	public Bundle tResultObservation2Observation(ResultObservation cdaResultObs) {
 		return tObservation2Observation(cdaResultObs);
 	}
@@ -2330,7 +2328,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		fhirObsBundle.addEntry(new Bundle.Entry().setResource(fhirObs));
 		
 		// id
-		IdDt resourceId = new IdDt("FunctionalStatusObservation", getUniqueId());
+		IdDt resourceId = new IdDt("Observation", getUniqueId());
 		fhirObs.setId(resourceId);
 		
 		// subject

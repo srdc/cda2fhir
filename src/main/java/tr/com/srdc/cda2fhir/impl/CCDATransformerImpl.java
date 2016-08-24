@@ -4,10 +4,11 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Procedure;
 import ca.uhn.fhir.model.primitive.IdDt;
-import org.openhealthtools.mdht.uml.cda.Section;
-import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
+import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
@@ -37,12 +38,10 @@ public class CCDATransformerImpl implements CCDATransformer {
         this.idGenerator = idGen;
     }
 
-    @Override
     public void setIdGenerator(IdGeneratorEnum idGen) {
         this.idGenerator = idGen;
     }
 
-    @Override
     public synchronized String getUniqueId() {
         switch (this.idGenerator) {
             case COUNTER:
@@ -53,12 +52,10 @@ public class CCDATransformerImpl implements CCDATransformer {
         }
     }
 
-    @Override
     public ResourceReferenceDt getPatientRef() {
         return patientRef;
     }
 
-    @Override
     public Bundle transformCCD(ContinuityOfCareDocument ccd) {
         if(ccd == null)
             return null;
@@ -97,6 +94,13 @@ public class CCDATransformerImpl implements CCDATransformer {
                 }
             }
             else if(cdaSec instanceof FunctionalStatusSection) {
+                FunctionalStatusSection funcSec = (FunctionalStatusSection) cdaSec;
+                for(FunctionalStatusResultOrganizer funcOrganizer : funcSec.getFunctionalStatusResultOrganizers()) {
+                    for(org.openhealthtools.mdht.uml.cda.Observation funcObservation : funcOrganizer.getObservations()) {
+                        Bundle funcBundle = resTransformer.tFunctionalStatus2Observation(funcObservation);
+                        mergeBundles(funcBundle, ccdBundle, fhirSec, Observation.class);
+                    }
+                }
 
             }
             else if(cdaSec instanceof ImmunizationsSection) {
@@ -139,11 +143,8 @@ public class CCDATransformerImpl implements CCDATransformer {
             else if(cdaSec instanceof ResultsSection) {
             	ResultsSection resultSec = (ResultsSection) cdaSec;
             	for(ResultOrganizer resOrg : resultSec.getResultOrganizers()) {
-            		for(ResultObservation resObs : resOrg.getResultObservations()) {
-            			// TODO: tResultOrganizer2DiagnosticReport should be used instead of tResultObservation2Observation
-            			Bundle resBundle = resTransformer.tResultObservation2Observation(resObs);
-                        mergeBundles(resBundle, ccdBundle, fhirSec, Observation.class);
-            		}
+                    Bundle resBundle = resTransformer.tResultOrganizer2DiagnosticReport(resOrg);
+                    mergeBundles(resBundle, ccdBundle, fhirSec, DiagnosticReport.class);
             	}
             }
             else if(cdaSec instanceof SocialHistorySection) {

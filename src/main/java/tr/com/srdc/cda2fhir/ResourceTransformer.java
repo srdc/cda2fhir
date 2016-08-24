@@ -33,6 +33,8 @@ public interface ResourceTransformer {
 	
 	FamilyMemberHistory tFamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
 
+	Bundle tFunctionalStatus2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObs);
+
 	Condition tIndication2Condition(Indication indication);
 	
 	Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManuProd);
@@ -56,6 +58,8 @@ public interface ResourceTransformer {
 	Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
 	
 	Bundle tResultObservation2Observation(ResultObservation cdaResultObs);
+
+	Bundle tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer);
 	
 	// Instead of using tSocialHistoryObservation2Observation, get observations from the social history section,
 	// then, transform observations by using tObservation2Observation
