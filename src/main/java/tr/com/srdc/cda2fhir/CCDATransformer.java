@@ -3,15 +3,12 @@ package tr.com.srdc.cda2fhir;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 /**
  * Created by mustafa on 8/3/2016.
  */
 public interface CCDATransformer {
-
-    enum IdGeneratorEnum {
-        COUNTER, UUID
-    }
 
     /**
      * Sets the resource id generator format, which is either a COUNTER or UUID
