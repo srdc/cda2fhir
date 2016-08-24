@@ -151,7 +151,7 @@ public class ResourceTransformerTest {
 	}
 
 	@Test
-	public void testEncounter2Encounter(){
+	public void testEncounterActivity2Encounter(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
 		// null instance test
