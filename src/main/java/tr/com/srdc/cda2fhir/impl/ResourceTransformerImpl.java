@@ -235,7 +235,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Practitioner", getUniqueId());
 		fhirPractitioner.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty()) {
 			for(II ii : cdaAssignedAuthor.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
@@ -244,7 +244,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// name <-> assignedAuthor.assignedPerson.name
+		// assignedPerson.name -> name 
 		if(cdaAssignedAuthor.getAssignedPerson() != null && !cdaAssignedAuthor.getAssignedPerson().isSetNullFlavor()) {
 			if(cdaAssignedAuthor.getAssignedPerson().getNames() != null && !cdaAssignedAuthor.getAssignedPerson().getNames().isEmpty()) {
 				for(PN pn : cdaAssignedAuthor.getAssignedPerson().getNames()) {
@@ -256,7 +256,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// address
+		// addr -> address
 		if(cdaAssignedAuthor.getAddrs() != null && !cdaAssignedAuthor.getAddrs().isEmpty()) {
 			for(AD ad : cdaAssignedAuthor.getAddrs()) {
 				if(ad != null && !ad.isSetNullFlavor()) {
@@ -265,7 +265,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// telecom
+		// telecom -> telecom
 		if(cdaAssignedAuthor.getTelecoms() != null && !cdaAssignedAuthor.getTelecoms().isEmpty()) {
 			for(TEL tel : cdaAssignedAuthor.getTelecoms()) {
 				if(tel != null && !tel.isSetNullFlavor()) {
@@ -277,12 +277,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// Adding a practitionerRole
 		Practitioner.PractitionerRole fhirPractitionerRole = fhirPractitioner.addPractitionerRole();
 		
-		// practitionerRole.role <-> assignedAuthor.code
+		// code -> practitionerRole.role 
 		if(cdaAssignedAuthor.getCode() != null && !cdaAssignedAuthor.isSetNullFlavor()) {
 			fhirPractitionerRole.setRole(dtt.tCD2CodeableConcept(cdaAssignedAuthor.getCode()));
 		}
 		
-		// practitionerRole.organization <-> organization
+		// represendtedOrganization -> practitionerRole.managingOrganization
 		if(cdaAssignedAuthor.getRepresentedOrganization() != null && !cdaAssignedAuthor.getRepresentedOrganization().isSetNullFlavor()) {
 			Organization fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
 			fhirPractitionerRole.setManagingOrganization(new ResourceReferenceDt(fhirOrganization.getId()));
@@ -297,6 +297,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return null;
 		
 		Practitioner fhirPractitioner = new Practitioner();
+		
+		// bundle
 		Bundle fhirPractitionerBundle = new Bundle();
 		fhirPractitionerBundle.addEntry(new Bundle.Entry().setResource(fhirPractitioner));
 			
@@ -304,7 +306,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Practitioner", getUniqueId());
 		fhirPractitioner.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaAssignedEntity.getIds() != null && !cdaAssignedEntity.getIds().isEmpty()) {
 			for(II id : cdaAssignedEntity.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
@@ -313,17 +315,17 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// name
+		// assignedPerson.name -> name
 		if(cdaAssignedEntity.getAssignedPerson() != null && !cdaAssignedEntity.getAssignedPerson().isSetNullFlavor()) {
 			for(PN pn : cdaAssignedEntity.getAssignedPerson().getNames()) {
 				if(pn != null && !pn.isSetNullFlavor()) {
 					// asserting that at most one name exists
-					fhirPractitioner.setName(dtt.tEN2HumanName( pn ));
+					fhirPractitioner.setName(dtt.tEN2HumanName(pn));
 				}
 			}
 		}
 		
-		// address
+		// addr -> address
 		if(cdaAssignedEntity.getAddrs() != null && !cdaAssignedEntity.getAddrs().isEmpty()) {
 			for(AD ad : cdaAssignedEntity.getAddrs()) {
 				if(ad != null && !ad.isSetNullFlavor()) {
@@ -332,7 +334,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// telecom
+		// telecom -> telecom
 		if(cdaAssignedEntity.getTelecoms() != null && ! cdaAssignedEntity.getTelecoms().isEmpty()) {
 			for(TEL tel : cdaAssignedEntity.getTelecoms()) {
 				if(tel != null && !tel.isSetNullFlavor()) {
@@ -812,7 +814,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Condition", getUniqueId());
 		fhirCond.setId(resourceId);
 
-		// identifier
+		// id -> identifier
 		if(indication.getIds() != null && !indication.getIds().isEmpty()) {
 			for(II ii : indication.getIds()) {
 				fhirCond.addIdentifier(dtt.tII2Identifier(ii));
@@ -852,7 +854,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// value -> code
+		// value[CD] -> code
 		if(indication.getValues() != null && !indication.getValues().isEmpty()) {
 			// There is only 1 value, but anyway...
 			for(ANY value : indication.getValues()) {
@@ -886,7 +888,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// All of them couldn't found in CDA
 		// (cdaManuProd.code gives a hint about all of them)
 		
-		// code <-> manufacturedMaterial.code
+		// manufacturedMaterial.code -> code
 		if(cdaManuProd.getManufacturedMaterial() != null && !cdaManuProd.getManufacturedMaterial().isSetNullFlavor()) {
 			if(cdaManuProd.getManufacturedMaterial().getCode() != null && !cdaManuProd.getManufacturedMaterial().isSetNullFlavor()) {
 				fhirMedication.setCode(dtt.tCD2CodeableConcept(cdaManuProd.getManufacturedMaterial().getCode()));
@@ -1028,8 +1030,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	public Bundle tMedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaMediDisp) {
 		if(cdaMediDisp == null || cdaMediDisp.isSetNullFlavor())
 			return null;
-		else if(cdaMediDisp.getMoodCode() != x_DocumentSubstanceMood.EVN)
-			return null;
 		
 		// TODO: Following mapping doesn't really suit the mapping proposed by daf
 		// Example file and the pdf doesn't explain much
@@ -1045,7 +1045,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("MedicationDispense", getUniqueId());
 		fhirMediDisp.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaMediDisp.getIds() != null &  !cdaMediDisp.getIds().isEmpty()) {
 			for(II ii : cdaMediDisp.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
@@ -1055,7 +1055,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// status
+		// statusCode -> status
 		if(cdaMediDisp.getStatusCode() != null && !cdaMediDisp.getStatusCode().isSetNullFlavor()) {
 			if(cdaMediDisp.getStatusCode().getCode() != null && !cdaMediDisp.getStatusCode().getCode().isEmpty()) {
 				MedicationDispenseStatusEnum mediDispStatEnum = vst.tStatusCode2MedicationDispenseStatusEnum(cdaMediDisp.getStatusCode().getCode());
@@ -1065,12 +1065,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// type <-> code
+		// code -> type
 		if(cdaMediDisp.getCode() != null && !cdaMediDisp.getCode().isSetNullFlavor()){
 			fhirMediDisp.setType(dtt.tCD2CodeableConcept(cdaMediDisp.getCode()));
 		}
-		
-		// medication <-> product.manufacturedProduct
+		// TODO: Necip: We may think of using template "Medication information"
+		// product.manufacturedProduct -> medication
 		if(cdaMediDisp.getProduct() != null && !cdaMediDisp.getProduct().isSetNullFlavor()) {
 			if(cdaMediDisp.getProduct().getManufacturedProduct() != null && !cdaMediDisp.getProduct().getManufacturedProduct().isSetNullFlavor()) {
 				Medication fhirMedication = null;
@@ -1122,7 +1122,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						fhirMediDisp.setWhenPrepared(dtt.tTS2DateTime(ts));
 					}
 					effectiveTimeCount++;
-				} else if( effectiveTimeCount == 1) {
+				} else if(effectiveTimeCount == 1) {
 					// whenHandedOver: 2nd effectiveTime
 					if(ts != null && !ts.isSetNullFlavor()) {
 						fhirMediDisp.setWhenHandedOver(dtt.tTS2DateTime(ts));
@@ -1354,7 +1354,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Organization",getUniqueId());
 		fhirOrganization.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
 			for(II ii : cdaOrganization.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
@@ -1363,7 +1363,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// name
+		// name -> name
 		if(cdaOrganization.getNames() != null && !cdaOrganization.isSetNullFlavor()) {
 			for(ON name:cdaOrganization.getNames()) {
 				if(name != null && !name.isSetNullFlavor() && name.getText() != null && !name.getText().isEmpty()) {
@@ -1372,7 +1372,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// contact <-> telecom
+		// telecom -> telecom
 		if(cdaOrganization.getTelecoms() != null && !cdaOrganization.getTelecoms().isEmpty()) {
 			for(TEL tel : cdaOrganization.getTelecoms()) {
 				if(tel != null && !tel.isSetNullFlavor()) {
@@ -1381,7 +1381,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// address
+		// addr -> address
 		if(cdaOrganization.getAddrs() != null && !cdaOrganization.getAddrs().isEmpty()) {
 			for(AD ad : cdaOrganization.getAddrs()) {
 				if(ad != null && !ad.isSetNullFlavor()) {
@@ -1393,6 +1393,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirOrganization;
 	}
 
+	// ServiceDeliveryLocation is also a ParticipantRole with a specific templateId.
+	// Mappings for them are identical
 	public Location tServiceDeliveryLocation2Location(ServiceDeliveryLocation cdaSDLOC) {
 		if(cdaSDLOC == null || cdaSDLOC.isSetNullFlavor())
 			return null;
@@ -1412,7 +1414,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// playingEntity.name.text -> name
+		// playingEntity.name.text-> name
 		if(cdaSDLOC.getPlayingEntity() != null && !cdaSDLOC.getPlayingEntity().isSetNullFlavor()) {
 			if(cdaSDLOC.getPlayingEntity().getNames() != null && !cdaSDLOC.getPlayingEntity().getNames().isEmpty()) {
 				for(PN pn : cdaSDLOC.getPlayingEntity().getNames()) {
@@ -1456,7 +1458,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Location", getUniqueId());
 		fhirLocation.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaParticipantRole.getIds() != null && !cdaParticipantRole.getIds().isEmpty()) {
 			for(II ii : cdaParticipantRole.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
@@ -1465,7 +1467,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// name
+		// playingEntity.name.text -> name
 		if(cdaParticipantRole.getPlayingEntity() != null && !cdaParticipantRole.getPlayingEntity().isSetNullFlavor()) {
 			if(cdaParticipantRole.getPlayingEntity().getNames() != null && !cdaParticipantRole.getPlayingEntity().getNames().isEmpty()) {
 				for(PN pn : cdaParticipantRole.getPlayingEntity().getNames()) {
@@ -1477,7 +1479,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// telecom
+		// telecom -> telecom
 		if(cdaParticipantRole.getTelecoms() != null && !cdaParticipantRole.getTelecoms().isEmpty()) {
 			for(TEL tel : cdaParticipantRole.getTelecoms()) {
 				if(tel != null && !tel.isSetNullFlavor()) {
@@ -1486,7 +1488,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// address
+		// addr -> address
 		if(cdaParticipantRole.getAddrs() != null && !cdaParticipantRole.getAddrs().isEmpty()) {
 			for(AD ad : cdaParticipantRole.getAddrs()) {
 				// Asserting that at most one address exists
@@ -2001,7 +2003,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		AgeDt fhirAge = new AgeDt();
 
-		// age <-> value
+		// value -> age
 		if(cdaAgeObservation != null && !cdaAgeObservation.getValues().isEmpty()) {
 			for(ANY value : cdaAgeObservation.getValues()) {
 				if(value != null && !value.isSetNullFlavor()) {
@@ -2025,12 +2027,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	
 		ca.uhn.fhir.model.dstu2.resource.Patient.Contact fhirContact = new ca.uhn.fhir.model.dstu2.resource.Patient.Contact();
 		
-		// addr
+		// addr -> address
 		if(cdaGuardian.getAddrs() != null && !cdaGuardian.getAddrs().isEmpty()) {
 			fhirContact.setAddress(dtt.AD2Address(cdaGuardian.getAddrs().get(0)));
 		} 
 		
-		// tel
+		// telecom -> telecom
 		if(cdaGuardian.getTelecoms() != null && !cdaGuardian.getTelecoms().isEmpty()) {
 			for(TEL tel : cdaGuardian.getTelecoms()) {
 				if(tel != null && !tel.isSetNullFlavor()) {
@@ -2039,25 +2041,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// relationship
+		// code -> relationship
 		if(cdaGuardian.getCode() != null && !cdaGuardian.getCode().isSetNullFlavor()) {
 			fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
 		}
 		return fhirContact;
 	}
 
-	public Communication tLanguageCommunication2Communication( LanguageCommunication cdaLanguageCommunication ){
+	public Communication tLanguageCommunication2Communication(LanguageCommunication cdaLanguageCommunication) {
 		if(cdaLanguageCommunication == null || cdaLanguageCommunication.isSetNullFlavor())
 			return null;
 		
 		Communication fhirCommunication = new Communication();
 		
-		// language
+		// languageCode -> language
 		if(cdaLanguageCommunication.getLanguageCode() != null && !cdaLanguageCommunication.getLanguageCode().isSetNullFlavor()) {
 			fhirCommunication.setLanguage(dtt.tCD2CodeableConcept(cdaLanguageCommunication.getLanguageCode()));
 		}
 		
-		// preferred
+		// preferenceInd -> preferred
 		if(cdaLanguageCommunication.getPreferenceInd() != null && !cdaLanguageCommunication.getPreferenceInd().isSetNullFlavor()) {
 			fhirCommunication.setPreferred(dtt.tBL2Boolean(cdaLanguageCommunication.getPreferenceInd()));
 		}
@@ -2090,12 +2092,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 			
-			// meaning
+			// observationRange.interpretationCode -> meaning
 			if(cdaRefRange.getObservationRange().getInterpretationCode() != null && !cdaRefRange.getObservationRange().getInterpretationCode().isSetNullFlavor()) {
 				fhirRefRange.setMeaning(dtt.tCD2CodeableConcept(cdaRefRange.getObservationRange().getInterpretationCode()));
 			}
 			
-			// text
+			// text.text -> text
 			if(cdaRefRange.getObservationRange().getText() != null && !cdaRefRange.getObservationRange().getText().isSetNullFlavor()) {
 				if(cdaRefRange.getObservationRange().getText().getText() != null && !cdaRefRange.getObservationRange().getText().getText().isEmpty()) {
 					fhirRefRange.setText(cdaRefRange.getObservationRange().getText().getText());
@@ -2232,7 +2234,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// custodian -> custodian.assignedCustodian.representedCustodianOrganization
+		// custodian.assignedCustodian.representedCustodianOrganization -> custodian
 		if(cda.getCustodian() != null && !cda.getCustodian().isSetNullFlavor()) {
 			if(cda.getCustodian().getAssignedCustodian() != null && !cda.getCustodian().getAssignedCustodian().isSetNullFlavor()) {
 				if(cda.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization() != null && !cda.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().isSetNullFlavor()) {
@@ -2256,7 +2258,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Organization", getUniqueId());
 		fhirOrganization.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
 			for(II ii : cdaOrganization.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
@@ -2265,7 +2267,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// name
+		// name.text -> name
 		if(cdaOrganization.getName() != null && !cdaOrganization.getName().isSetNullFlavor()) {
 			fhirOrganization.setName(cdaOrganization.getName().getText());
 		}
@@ -2279,7 +2281,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// address
+		// addr -> address
 		if(cdaOrganization.getAddrs() != null && !cdaOrganization.getAddrs().isEmpty()) {
 			for(AD ad : cdaOrganization.getAddrs()) {
 				if(ad != null && !ad.isSetNullFlavor()) {
@@ -2395,7 +2397,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Device", getUniqueId());
 		fhirDev.setId(resourceId);
 		
-		// identifier
+		// id -> identifier
 		if(cdaSupply.getIds() != null && !cdaSupply.getIds().isEmpty()) {
 			for(II ii : cdaSupply.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
@@ -2418,6 +2420,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
+		
 		// type -> productInstance.playingDevice.code
 		if(productInstance != null) {
 			if(productInstance.getPlayingDevice() != null && !productInstance.getPlayingDevice().isSetNullFlavor()) {
@@ -2428,7 +2431,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 		
 		// TODO: Check if OK manufacturedDate <-> effectiveTime
-		// manufacturedDate -> effectiveTime(high)
+		//effectiveTime(high) -> manufacturedDate
 		if(cdaSupply.getEffectiveTimes() != null && !cdaSupply.getEffectiveTimes().isEmpty()) {
 			for(SXCM_TS sxcmts : cdaSupply.getEffectiveTimes()) {
 				if(sxcmts != null && !sxcmts.isSetNullFlavor()) {

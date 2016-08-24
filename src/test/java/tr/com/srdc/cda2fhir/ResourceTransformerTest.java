@@ -150,7 +150,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void testEncounterActivity2Encounter(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -288,7 +288,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testMedicationDispense2MedicationDispense(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
