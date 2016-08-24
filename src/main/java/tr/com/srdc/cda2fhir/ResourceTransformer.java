@@ -4,15 +4,11 @@ import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Location;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Organization;
-import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
-import org.openhealthtools.mdht.uml.cda.Encounter;
-import org.openhealthtools.mdht.uml.cda.Guardian;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
-import org.openhealthtools.mdht.uml.cda.Procedure;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
@@ -29,8 +25,10 @@ public interface ResourceTransformer {
 
 	Substance tCD2Substance(CD cdaSubstanceCode);
 	
-	Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter);
+	Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounterActivity);
 
+	Bundle tEncounterActivity2Encounter(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaEncounter);
+	
 	Group tEntity2Group(Entity cdaEntity);
 	
 	FamilyMemberHistory tFamilyHistoryOrganizer2FamilyMemberHistory(FamilyHistoryOrganizer cdaFHO);
@@ -63,7 +61,7 @@ public interface ResourceTransformer {
 	// then, transform observations by using tObservation2Observation
 //	Bundle tSocialHistoryObservation2Observation( org.openhealthtools.mdht.uml.cda.consol.SocialHistoryObservation cdaSocialHistoryObs);
 	
-	Bundle tSubstanceAdministration2Immunization(SubstanceAdministration cdaSubAdm);
+	Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmAct);
     
     Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVSO);
     
