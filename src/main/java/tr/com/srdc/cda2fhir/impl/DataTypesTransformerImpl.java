@@ -204,46 +204,16 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 	
 	public CodeableConceptDt tCD2CodeableConcept(CD cd) {
-        if(cd == null || cd.isSetNullFlavor())
-        	return null;
-        
-       	CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
+       	CodeableConceptDt myCodeableConceptDt = tCD2CodeableConceptExcludingTranslations(cd);
 
-       	// .
-       	CodingDt codingDt = new CodingDt();
-       	boolean isEmpty = true;
-       	
-       	// codeSystem
-       	if(cd.getCodeSystem() != null && !cd.getCodeSystem().isEmpty()){
-       		codingDt.setSystem(vst.tOid2Url(cd.getCodeSystem()));
-       		isEmpty = false;
-       	}
-       	
-       	// code
-       	if(cd.getCode() !=null && !cd.getCode().isEmpty()) {
-       		codingDt.setCode(cd.getCode());
-       		isEmpty = false;
-       	}
-       	
-       	// codeSystemVersion
-       	if(cd.getCodeSystemVersion() !=null && !cd.getCodeSystemVersion().isEmpty()){
-       		codingDt.setVersion(cd.getCodeSystemVersion());
-       		isEmpty = false;
-       	}
-       	
-       	// displayName
-       	if(cd.getDisplayName() != null && !cd.getDisplayName().isEmpty()){
-       		codingDt.setDisplay(cd.getDisplayName());
-       		isEmpty = false;
-       	}
-       	if (isEmpty == false)
-       		myCodeableConceptDt.addCoding(codingDt);
+		if(myCodeableConceptDt == null)
+			return null;
        	
        	// translation
        	if(cd.getTranslations() != null && !cd.getTranslations().isEmpty()) {
        		for(CD myCd : cd.getTranslations()) {
-            	codingDt = new CodingDt();
-           		isEmpty = true;
+				CodingDt codingDt = new CodingDt();
+           		boolean isEmpty = true;
            		
            		// codeSystem
                	if(myCd.getCodeSystem() != null && !myCd.getCodeSystem().isEmpty()) {
@@ -268,17 +238,56 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
                		codingDt.setDisplay(myCd.getDisplayName());
                		isEmpty = false;
                	}
+
                	if(isEmpty == false)
                		myCodeableConceptDt.addCoding(codingDt);
            	}
        	}
-       	
-       	
-       	
-       	
-       	
+
        	return myCodeableConceptDt;
     }
+
+	public CodeableConceptDt tCD2CodeableConceptExcludingTranslations(CD cd) {
+		if(cd == null || cd.isSetNullFlavor())
+			return null;
+
+		CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
+
+		// .
+		CodingDt codingDt = new CodingDt();
+		boolean isEmpty = true;
+
+		// codeSystem
+		if(cd.getCodeSystem() != null && !cd.getCodeSystem().isEmpty()){
+			codingDt.setSystem(vst.tOid2Url(cd.getCodeSystem()));
+			isEmpty = false;
+		}
+
+		// code
+		if(cd.getCode() !=null && !cd.getCode().isEmpty()) {
+			codingDt.setCode(cd.getCode());
+			isEmpty = false;
+		}
+
+		// codeSystemVersion
+		if(cd.getCodeSystemVersion() !=null && !cd.getCodeSystemVersion().isEmpty()){
+			codingDt.setVersion(cd.getCodeSystemVersion());
+			isEmpty = false;
+		}
+
+		// displayName
+		if(cd.getDisplayName() != null && !cd.getDisplayName().isEmpty()){
+			codingDt.setDisplay(cd.getDisplayName());
+			isEmpty = false;
+		}
+
+		if (!isEmpty) {
+			myCodeableConceptDt.addCoding(codingDt);
+			return myCodeableConceptDt;
+		}
+		else
+			return null;
+	}
 	
 	public CodingDt tCV2Coding(CV cv) {
     	if(cv == null || cv.isSetNullFlavor())

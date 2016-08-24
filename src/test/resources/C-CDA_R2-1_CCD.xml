@@ -1824,7 +1824,10 @@
 									<templateId root="2.16.840.1.113883.10.20.22.4.23"/>
 									<id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
 									<manufacturedMaterial>
-										<code code="573621" displayName="Proventil 0.09 MG/ACTUAT inhalant solution" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm"/>
+										<code code="573621" displayName="Proventil 0.09 MG/ACTUAT inhalant solution" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+											<!-- This code MAY contain zero or more [0..*] translation, which MAY be selected from ValueSet Clinical Substance -->
+											<translation code="219483" codeSystem="2.16.840.1.113883.6.88" displayName="Proventil HFA" codeSystemName="RxNorm"/>
+										</code>
 									</manufacturedMaterial>
 									<manufacturerOrganization>
 										<name>Medication Factory Inc.</name>
@@ -2027,6 +2030,30 @@
 									</manufacturedMaterial>
 								</manufacturedProduct>
 							</consumable>
+							<author typeCode="AUT">
+								<templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+								<time value="201208151235-0800"/>
+								<assignedAuthor>
+									<id extension="5555555555" root="2.16.840.1.113883.4.6"/>
+									<code code="207QA0505X" displayName="Adult Medicine" codeSystem="2.16.840.1.113883.6.101" codeSystemName="Healthcare Provider Taxonomy (HIPAA)"/>
+									<addr>
+										<streetAddressLine>1004 Healthcare Drive </streetAddressLine>
+										<city>Portland</city>
+										<state>OR</state>
+										<postalCode>99123</postalCode>
+										<country>US</country>
+									</addr>
+									<telecom use="WP" value="tel:+1(555)555-1004"/>
+									<assignedPerson>
+										<name>
+											<given>Patricia</given>
+											<given qualifier="CL">Patty</given>
+											<family>Primary</family>
+											<suffix qualifier="AC">M.D.</suffix>
+										</name>
+									</assignedPerson>
+								</assignedAuthor>
+							</author>
 							<entryRelationship typeCode="RSON">
 								<observation classCode="OBS" moodCode="EVN">
 									<!-- ** Indication ** -->

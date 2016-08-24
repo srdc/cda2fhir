@@ -29,6 +29,8 @@ public interface DataTypesTransformer {
 	BooleanDt tBL2Boolean(BL bl);
 	
 	CodeableConceptDt tCD2CodeableConcept(CD cd);
+
+	CodeableConceptDt tCD2CodeableConceptExcludingTranslations(CD cd);
 	
 	CodingDt tCV2Coding(CV cv);
 	

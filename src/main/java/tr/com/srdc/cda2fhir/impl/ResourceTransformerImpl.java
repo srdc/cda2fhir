@@ -363,6 +363,21 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		return fhirPractitionerBundle;
 	}
+
+	public Substance tCD2Substance(CD cdaSubstanceCode) {
+		if(cdaSubstanceCode == null || cdaSubstanceCode.isSetNullFlavor())
+			return null;
+
+		Substance fhirSubstance = new Substance();
+
+		// resource id
+		fhirSubstance.setId(new IdDt("Substance", getUniqueId()));
+
+		// code -> code
+		fhirSubstance.setCode(dtt.tCD2CodeableConcept(cdaSubstanceCode));
+
+		return fhirSubstance;
+	}
 	
 	public Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter) {
 		if(cdaEncounter == null || cdaEncounter.isSetNullFlavor())
@@ -381,7 +396,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		fhirEncounter.setPatient(getPatientRef());
 
 		// id
-		IdDt resourceId = new IdDt("Encounter",getUniqueId());
+		IdDt resourceId = new IdDt("Encounter", getUniqueId());
 		fhirEncounter.setId(resourceId);
 
 		// identifier <-> id
@@ -741,41 +756,36 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		Bundle fhirMedicationBundle = new Bundle();
 		fhirMedicationBundle.addEntry(new Bundle.Entry().setResource(fhirMedication));
 		
-		// id
+		// resource id
 		IdDt resourceId = new IdDt("Medication", getUniqueId());
 		fhirMedication.setId(resourceId);
+
+		// init Medication.product
+		Medication.Product fhirProduct = new Medication.Product();
+		fhirMedication.setProduct(fhirProduct);
 		
-		// TODO: Medication.name?
-		// Medication.product.ingredient.amount?
-		// Medication.product.form?
-		// All of them couldn't found in CDA
-		// (cdaManuProd.code gives a hint about all of them)
-		
-		// code <-> manufacturedMaterial.code
+		// manufacturedMaterial -> code and ingredient
 		if(cdaManuProd.getManufacturedMaterial() != null && !cdaManuProd.getManufacturedMaterial().isSetNullFlavor()) {
 			if(cdaManuProd.getManufacturedMaterial().getCode() != null && !cdaManuProd.getManufacturedMaterial().isSetNullFlavor()) {
-				fhirMedication.setCode(dtt.tCD2CodeableConcept(cdaManuProd.getManufacturedMaterial().getCode()));
+				// manufacturedMaterial.code -> code
+				fhirMedication.setCode(dtt.tCD2CodeableConceptExcludingTranslations(cdaManuProd.getManufacturedMaterial().getCode()));
+				// translation -> ingredient
+				for(CD translation : cdaManuProd.getManufacturedMaterial().getCode().getTranslations()) {
+					if(!translation.isSetNullFlavor()) {
+						Medication.ProductIngredient fhirIngredient = fhirProduct.addIngredient();
+						Substance fhirSubstance = tCD2Substance(translation);
+						fhirIngredient.setItem(new ResourceReferenceDt(fhirSubstance.getId()));
+						fhirMedicationBundle.addEntry(new Bundle.Entry().setResource(fhirSubstance));
+					}
+				}
 			}
 		}
 		
-		// TODO: is_brand & manufacturer are mapped although it is not mandatory by daf
-		// Should we?
-		
-		// is_brand and manufacturer
-		ResourceReferenceDt resourceReferenceManu = new ResourceReferenceDt();
-		
+		// manufacturerOrganization -> manufacturer
 		if(cdaManuProd.getManufacturerOrganization() != null && !cdaManuProd.getManufacturerOrganization().isSetNullFlavor()) {
-			// is_brand
-			fhirMedication.setIsBrand(true);
-			
-			// manufacturer
 			Organization org = tOrganization2Organization(cdaManuProd.getManufacturerOrganization());
-			
-			resourceReferenceManu.setReference(org.getId());
-			fhirMedication.setManufacturer(resourceReferenceManu);
+			fhirMedication.setManufacturer(new ResourceReferenceDt(org.getId()));
 			fhirMedicationBundle.addEntry(new Bundle.Entry().setResource(org));
-		} else {
-			fhirMedication.setIsBrand(false);
 		}
 		
 		return fhirMedicationBundle;
@@ -793,7 +803,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		medStatementBundle.addEntry(new Bundle.Entry().setResource(fhirMedSt));
 	
 		// id
-		IdDt resourceId = new IdDt("MedicationActivity", getUniqueId());
+		IdDt resourceId = new IdDt("MedicationStatement", getUniqueId());
 		fhirMedSt.setId(resourceId);
 		
 		// patient
@@ -816,22 +826,31 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// consumable.manufacturedProductmedication -> medication
+		// author[0] -> informationSource
+		if(!cdaMedAct.getAuthors().isEmpty()) {
+			if(!cdaMedAct.getAuthors().get(0).isSetNullFlavor()) {
+				Bundle practBundle = tAssignedAuthor2Practitioner(cdaMedAct.getAuthors().get(0).getAssignedAuthor());
+				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+					// Add all the resources returned from the bundle to the main bundle
+					medStatementBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+					// Add a reference to informationSource attribute only for Practitioner resource. Further resources can include Organization.
+					if(entry.getResource() instanceof Practitioner) {
+						fhirMedSt.setInformationSource(new ResourceReferenceDt(entry.getResource().getId()));
+					}
+				}
+			}
+		}
+
+		// consumable.manufacturedProduct -> medication
 		if(cdaMedAct.getConsumable() != null && !cdaMedAct.getConsumable().isSetNullFlavor()) {
 			if(cdaMedAct.getConsumable().getManufacturedProduct() != null && !cdaMedAct.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
-	
-				Medication fhirMedication = null;
 				Bundle fhirMedicationBundle = tManufacturedProduct2Medication(cdaMedAct.getConsumable().getManufacturedProduct());
-				
 				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirMedicationBundle.getEntry()){
 					medStatementBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
 					if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Medication) {
-						fhirMedication = (ca.uhn.fhir.model.dstu2.resource.Medication)entry.getResource();
+						fhirMedSt.setMedication(new ResourceReferenceDt(entry.getResource().getId()));
 					}
 				}
-				
-				
-				fhirMedSt.setMedication(new ResourceReferenceDt(fhirMedication.getId()));
 			}
 		}
 		
@@ -850,7 +869,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
-		
+
 		// doseQuantity -> dosage.quantity
 		if(cdaMedAct.getDoseQuantity() != null && !cdaMedAct.getDoseQuantity().isSetNullFlavor()) {
 			fhirDosage.setQuantity(dtt.tPQ2SimpleQuantityDt(cdaMedAct.getDoseQuantity()));
@@ -869,7 +888,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// maxDoseQuantity -> dosage.maxDosePerPeriod
 		if(cdaMedAct.getMaxDoseQuantity() != null && !cdaMedAct.getMaxDoseQuantity().isSetNullFlavor()) {
 			// cdaDataType.RTO does nothing but extends cdaDataType.RTO_PQ_PQ
-			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio((RTO) cdaMedAct.getMaxDoseQuantity()));
+			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio((RTO)cdaMedAct.getMaxDoseQuantity()));
 		}
 
 		// negationInd -> wasNotTaken
