@@ -366,7 +366,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			myHumanName.setText(en.getText());
 		}
 		
-		// use -> uses
+		// use -> use
 		if(en.getUses() != null && !en.getUses().isEmpty()) {
 			for(EntityNameUse entityNameUse : en.getUses()) {
 				if(entityNameUse != null) {
@@ -396,14 +396,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 		}
 		
-		// suffix
+		// suffix -> suffix
 		if(en.getSuffixes() != null && !en.getSuffixes().isEmpty()) {
 			for(ENXP suffix : en.getSuffixes()) {
 				myHumanName.addSuffix(suffix.getText());
 			}
 		}
 		
-		// period -> validTime
+		// validTime -> period
 		if(en.getValidTime() != null && !en.getValidTime().isSetNullFlavor()) {
 			myHumanName.setPeriod(tIVL_TS2Period(en.getValidTime()));
 		}
