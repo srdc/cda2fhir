@@ -464,7 +464,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirEncounter.setPeriod(dtt.tIVL_TS2Period(cdaEncounter.getEffectiveTime()));
 		}
 
-		// participant[@typeCode='LOC'].participantRole[SDLOC] ->location.location
+		// participant[@typeCode='LOC'].participantRole[SDLOC] -> location.location
 		if(cdaEncounter.getParticipants() != null && !cdaEncounter.getParticipants().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Participant2 cdaParticipant : cdaEncounter.getParticipants()) {
 				if(cdaParticipant != null && !cdaParticipant.isSetNullFlavor()) {
@@ -599,6 +599,16 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirEncounter.setPeriod(dtt.tIVL_TS2Period(cdaEncounterActivity.getEffectiveTime()));
 		}
 
+		// indication -> indication
+		for(Indication cdaIndication : cdaEncounterActivity.getIndications()) {
+			if(!cdaIndication.isSetNullFlavor()) {
+				Condition fhirIndication = tIndication2Condition(cdaIndication);
+				fhirEncounterBundle.addEntry(new Bundle.Entry().setResource(fhirIndication));
+				ResourceReferenceDt indicationRef = fhirEncounter.addIndication();
+				indicationRef.setReference(fhirIndication.getId());
+			}
+		}
+
 		// serviceDeliveryLocation -> location.location
 		// Although encounter contains serviceDeliveryLocation, getServiceDeliveryLocation method returns empty list
 		// Therefore, get the location information from participant[@typeCode='LOC'].participantRole
@@ -627,7 +637,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 								// usage of ParticipantRole2Location
 								ca.uhn.fhir.model.dstu2.resource.Location fhirLocation = tParticipantRole2Location(cdaParticipant.getParticipantRole());
-
 								fhirEncounterBundle.addEntry(new Bundle.Entry().setResource(fhirLocation));
 								fhirEncounter.addLocation().setLocation(new ResourceReferenceDt(fhirLocation.getId()));
 							}
@@ -637,22 +646,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// indication.value[CD] -> reason
-		if(cdaEncounterActivity.getIndications() != null && !cdaEncounterActivity.getIndications().isEmpty()) {
-			for(Indication indication : cdaEncounterActivity.getIndications()) {
-				if(indication != null && !indication.isSetNullFlavor()) {
-					if(indication.getValues() != null && !indication.getValues().isEmpty()) {
-						for(ANY value : indication.getValues()) {
-							if(value != null && !value.isSetNullFlavor()) {
-								if(value instanceof CD) {
-									fhirEncounter.addReason(dtt.tCD2CodeableConcept((CD)value));
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 		return fhirEncounterBundle;
 	}
 
@@ -1592,8 +1585,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirPatient.setBirthDate(dtt.tTS2Date(cdaPatientRole.getPatient().getBirthTime()));
 		}
 
-		
-
 		// patient.maritalStatusCode -> maritalStatus 
 		if(cdaPatientRole.getPatient().getMaritalStatusCode() != null
 				&& !cdaPatientRole.getPatient().getMaritalStatusCode().isSetNullFlavor()) {
@@ -1714,9 +1705,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			// patient
 			fhirCondition.setPatient(getPatientRef());
 
-			
 			// TODO: Severity
-			// Couldn't found in the CDA example
+			// Couldn't find in the CDA example
 
 			// encounter -> encounter
 			if(cdaProbConcAct.getEncounters() != null && !cdaProbConcAct.getEncounters().isEmpty()) {
