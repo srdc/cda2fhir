@@ -729,9 +729,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     }
 	
 	// Helper Methods
-	
-	// 1st parameter(tsObject) can be an object of type TS or a String representing the time
-	// 2nd parameter(returnObject) is given to determine the type of the returning object
+
+	/**
+	 * Transforms a CDA TS instance or a string including the date information in CDA format to a FHIR BaseDateTimeDt primitive datatype instance.
+	 * Since BaseDateTimeDt is an abstract class, the second parameter of this method (Class<?> classOfReturningObject) determines the class that initiates the BaseDateTimeDt object the method is to return.
+	 * @param tsObject A CDA TS instance or a Java String including the date information in CDA format
+	 * @param classOfReturningObject A FHIR class that determines the initiater for the BaseDateTimeDt object the method is to return. DateDt.class, DateTimeDt.class or InstantDt.class are expected.
+	 * @return A FHIR BaseDateTimeDt primitive datatype instance
+	 */
 	private BaseDateTimeDt tTS2BaseDateTime(Object tsObject, Class<?> classOfReturningObject) {
 		if(tsObject == null)
 			return null;
@@ -892,6 +897,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	// Following method is a recursive one and will be used as helper for StructDocText2Narrative
 	// Since it calls itself repeatedly and handles with different types of objects, parameter is taken as Object
 	// However, parameters of type StrucDocText should be given by the caller
+	/**
+	 * Transforms A CDA StructDocText instance to a Java String containing the transformed text.
+	 * Since the method is a recursive one and handles with different types of object, parameter is taken as Object. However, parameters of type StructDocText should be given by the caller.
+	 * @param param A CDA StructDocText instance
+	 * @return A Java String containing the transformed text
+	 */
 	private String tStrucDocText2String(Object param) {
 		if(param instanceof org.openhealthtools.mdht.uml.cda.StrucDocText) {
 			org.openhealthtools.mdht.uml.cda.StrucDocText paramStrucDocText = (org.openhealthtools.mdht.uml.cda.StrucDocText)param;
@@ -928,6 +939,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 	
 	// Helper for StrucDocText2String
+	/**
+	 * Extracts the attributes of an HTML element.
+	 * This method is the helper for the method tStrucDocText2String.
+	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
+	 * @return A Java String containing the attributes of an HTML element in form: attributeName="attributeValue"
+	 */
 	private String getAttributeHelperStrucDocText2String(EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry){
 		// This method extracts attributes from AnyTypeImpl
 		// Return example: border="1"
