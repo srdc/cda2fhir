@@ -68,7 +68,7 @@ public class DataTypesTransformerTest{
 
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
 
-	//TODO: Mustafa: This will be revisited and updated for Act.author; not any participant
+	// TODO: Mustafa: This will be revisited and updated for Act.author; not any participant
     @Ignore
     public void testAct2Annotation(){	
     	//simple instance test
@@ -85,8 +85,8 @@ public class DataTypesTransformerTest{
     	
     	ED ed=DatatypesFactory.eINSTANCE.createED();
     	ed.setMediaType("application/xml");
-    	ed.setLanguage("English");
-    	ed.addText("this is data I think");
+    	ed.setLanguage("en");
+    	ed.addText("text");
     	TEL tel=DatatypesFactory.eINSTANCE.createTEL();
     	tel.setValue("www.facebook.com");
     	ed.setReference(tel);
@@ -96,11 +96,11 @@ public class DataTypesTransformerTest{
     	myParticipant.setTypeCode(ParticipationType.AUT);
     	
     	/*PN pn=DatatypesFactory.eINSTANCE.createPN();
-    	pn.addGiven("Tahsin");
-    	pn.addFamily("Kose");
-    	pn.addPrefix("Colonel");
-    	pn.addSuffix("Kurt");
-    	pn.addText("Tahsincan Kose");
+    	pn.addGiven("theGiven");
+    	pn.addFamily("theFamily");
+    	pn.addPrefix("thePrefix");
+    	pn.addSuffix("theSuffix");
+    	pn.addText("theText");
     	person.getNames().add(pn);
     	*/
     	
@@ -113,16 +113,15 @@ public class DataTypesTransformerTest{
     	 * Also the test doesn't work since effectiveTimes and texts need their corresponding participants.
     	 */
     	
-    }//end Annotation test
+    }
 
     @SuppressWarnings("deprecation")
 	@Test
-    public void testAD2Address(){
+    public void testAD2Address() {
 
     	// simple instance test
-    	
     	AD ad = DatatypesFactory.eINSTANCE.createAD();
-    	// Visit https://www.hl7.org/fhir/valueset-address-use.html to see valuset of address use
+    	// See https://www.hl7.org/fhir/valueset-address-use.html to see valuset of address use
     	ad.getUses().add(PostalAddressUse.H); // PostalAddressUse.H maps to home
     	ad.getUses().add(PostalAddressUse.PST); // PST maps to postal
     	ad.addText("theText");
@@ -150,7 +149,7 @@ public class DataTypesTransformerTest{
     	Assert.assertEquals("AD.type was not transformed","postal",address.getType());
     	Assert.assertEquals("AD.text was not transformed","theText",address.getText());
     	
-    	/* line array controls */
+    	// line array check
     	int matchingElements = 0;
     	for( StringDt line : address.getLine() ){
     		for( String line2 : lineArray ){
@@ -160,7 +159,6 @@ public class DataTypesTransformerTest{
     		}
     	}
     	Assert.assertTrue("AD.line was not transformed",matchingElements == lineArray.length);
-    	
     	Assert.assertEquals("AD.city was not transformed","theCity",address.getCity());
     	Assert.assertEquals("AD.district was not transformed","theDistrict",address.getDistrict());
     	Assert.assertEquals("AD.state was not transformed","theState",address.getState());
@@ -172,11 +170,9 @@ public class DataTypesTransformerTest{
     	// Notice that Date.getMonth() returns THE_MONTH - 1 (since the months are indexed btw the range 0-11)
     	Assert.assertEquals("AD.period.start.month was not transformed",5-1,address.getPeriod().getStart().getMonth());
     	Assert.assertEquals("AD.period.start.date was not transformed",16,address.getPeriod().getStart().getDate());
-    	
     	Assert.assertEquals("AD.period.end.year was not transformed",2013-1900,address.getPeriod().getEnd().getYear());
     	Assert.assertEquals("AD.period.end.month was not transformed",7-1,address.getPeriod().getEnd().getMonth());
     	Assert.assertEquals("AD.period.end.date was not transformed",21,address.getPeriod().getEnd().getDate());
-    	
     	
     	// instance test: there exists an instance of ED but no setter is called
     	AD ad4 = DatatypesFactory.eINSTANCE.createAD();
@@ -194,11 +190,7 @@ public class DataTypesTransformerTest{
     	
     	// Notice that Date.getYear() returns THE_YEAR - 1900. It returns 116 for 2016 since 2016-1900 = 116.
     	Assert.assertNull("AD.period.start was not transformed",address4.getPeriod().getStart());
-    	
     	Assert.assertNull("AD.period.end was not transformed",address4.getPeriod().getEnd());
-    	
-    	
-    	
     	
     	// null instance test
     	AD ad2 = null;
@@ -220,7 +212,7 @@ public class DataTypesTransformerTest{
     	BooleanDt bool=dtt.tBL2Boolean(bl);
     	Assert.assertEquals("BL.value was not transformed",true, bool.getValue());
     
-    	//null instance test
+    	// null instance test
     	BL bl2=null;
     	BooleanDt bool2=dtt.tBL2Boolean(bl2);
         Assert.assertNull("BL null instance transform failed",bool2);
@@ -228,8 +220,8 @@ public class DataTypesTransformerTest{
     }
     
     @Test
-    public void testCD2CodeableConcept(){
-        
+    public void testCD2CodeableConcept() {
+    	// simple instance test
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         
         cd.setCode("code");
@@ -249,7 +241,7 @@ public class DataTypesTransformerTest{
         CodeableConceptDt codeableConcept2 = dtt.tCD2CodeableConcept( cd2 );
         Assert.assertNull("CD null instance transform failed", codeableConcept2);
         
-      // nullFlavor instance test
+        // nullFlavor instance test
         CD cd3 = DatatypesFactory.eINSTANCE.createCD();
         cd3.setNullFlavor(NullFlavor.NI);
         CodeableConceptDt codeableConcept3 = dtt.tCD2CodeableConcept( cd3 );
@@ -257,7 +249,7 @@ public class DataTypesTransformerTest{
     }
     
     @Test
-    public void testCV2Coding(){
+    public void testCV2Coding() {
     	// simple instance test
     	CV cv = DatatypesFactory.eINSTANCE.createCV();
     	cv.setCodeSystem("theCodeSystem");
@@ -295,9 +287,8 @@ public class DataTypesTransformerTest{
     }
 
     @Test
-    public void testED2Attachment(){
+    public void testED2Attachment() {
     	// simple instance test
-    	
     	ED ed = DatatypesFactory.eINSTANCE.createED();
     	ed.setMediaType("theMediaType");
     	ed.setLanguage("theLanguage");
@@ -306,7 +297,6 @@ public class DataTypesTransformerTest{
     		theTel.setValue("theUrl");
     	ed.setReference(theTel);
     	ed.setIntegrityCheck("theIntegrityCheck".getBytes());	
-    	
     	
     	AttachmentDt attachment = dtt.tED2Attachment(ed);
     	Assert.assertEquals("ED.mediaType was not transformed","theMediaType",attachment.getContentType());
@@ -317,14 +307,12 @@ public class DataTypesTransformerTest{
     	
     	// instance test: there exists an instance of ED but no setter is called
     	ED ed4 = DatatypesFactory.eINSTANCE.createED();	
-    	
     	AttachmentDt attachment4 = dtt.tED2Attachment(ed4);
     	Assert.assertNull("ED.mediaType was not transformed",attachment4.getContentType());
     	Assert.assertNull("ED.language was not transformed",attachment4.getLanguage());
     	Assert.assertNull("ED.data was not transformed",attachment4.getData());
     	Assert.assertNull("ED.reference.literal was not transformed",attachment4.getUrl());
     	Assert.assertNull("ED.integrityCheck was not transformed",attachment4.getHash());
-    	
     	
     	// null instance test
     	ED ed2 = null;
@@ -336,17 +324,13 @@ public class DataTypesTransformerTest{
     	ed3.setNullFlavor(NullFlavor.NI);
     	AttachmentDt attachment3 = dtt.tED2Attachment(ed3);
     	Assert.assertNull("ED.nullFlavor set instance transform failed",attachment3);
-    	
     }
 
     @Test
-    public void testEN2HumanName(){
+    public void testEN2HumanName() {
     	// simple instance test 1
-    	
     	EN en = DatatypesFactory.eINSTANCE.createEN();
-
     	// Notice that EntityNameUse.P maps to NameUseEnum.NICKNAME.
-    	// For further info, visit https://www.hl7.org/fhir/valueset-name-use.html
     	en.getUses().add(EntityNameUse.P);
     	en.addText("theText");
     	en.addFamily("theFamily");
@@ -368,7 +352,6 @@ public class DataTypesTransformerTest{
     	Assert.assertEquals("EN.suffix was not transformed","theSuffix",humanName.getSuffix().get(0).getValue());
     	
     	// EN.period tests for the simple instance test 1
-    	
     	PeriodDt en_period = dtt.tIVL_TS2Period(ivl_ts);
     	Assert.assertEquals("EN.period(low) was not transformed",en_period.getStart(),humanName.getPeriod().getStart());
     	Assert.assertEquals("EN.period(high) was not transformed",en_period.getEnd(),humanName.getPeriod().getEnd());
@@ -397,8 +380,8 @@ public class DataTypesTransformerTest{
     }
     
     @Test
-    public void testII2Identifier(){
-    	//simple instance test
+    public void testII2Identifier() {
+    	// simple instance test
     	II ii = DatatypesFactory.eINSTANCE.createII();
     	ii.setRoot("2.16.840.1.113883.19.5.99999.1");
     	ii.setExtension("myIdentifierExtension");
@@ -407,18 +390,18 @@ public class DataTypesTransformerTest{
     	Assert.assertEquals("II.root was not transformed", "urn:oid:2.16.840.1.113883.19.5.99999.1", identifier.getSystem());
 		Assert.assertEquals("II.extension was not transformed", "myIdentifierExtension", identifier.getValue());
 
-    	//null instance test
+    	// null instance test
     	
     	II ii2=null;
     	IdentifierDt identifier2=dtt.tII2Identifier(ii2);
     	Assert.assertNull("II null instance was not transformed",identifier2);
     	
-    	//nullFlavor instance test
+    	// nullFlavor instance test
     	II ii3=DatatypesFactory.eINSTANCE.createII();
     	ii3.setNullFlavor(NullFlavor.MSK);
     	IdentifierDt identifier3=dtt.tII2Identifier(ii3);
     	Assert.assertNull("II nullFlavor set instance transform failed",identifier3);
-    }//end IdentifierDt (from II) Test
+    }
 
     @Test
     public void testINT2Integer() {
@@ -438,9 +421,8 @@ public class DataTypesTransformerTest{
 
     @SuppressWarnings("deprecation")
 	@Test
-    public void testIVL_TS2Period(){
+    public void testIVL_TS2Period() {
     	// simple instance test 1
-    	
     	IVL_TS ivl_ts = DatatypesFactory.eINSTANCE.createIVL_TS();
     	
     	IVXB_TS ivxb_tsLow = DatatypesFactory.eINSTANCE.createIVXB_TS();
@@ -459,7 +441,6 @@ public class DataTypesTransformerTest{
     	// Notice that Date.getMonth() returns THE_MONTH - 1 (since the months are indexed btw the range 0-11)
     	Assert.assertEquals("IVL_TS.low(month) was not transformed",1-1,period.getStart().getMonth());
     	Assert.assertEquals("IVL_TS.low(date[1-31]) was not transformed",16,period.getStart().getDate());
-    	
     	Assert.assertEquals("IVL_TS.high(year) was not transformed",2015-1900,period.getEnd().getYear());
     	Assert.assertEquals("IVL_TS.high(month) was not transformed",11-1,period.getEnd().getMonth());
     	Assert.assertEquals("IVL_TS.high(date[1-31]) was not transformed",22,period.getEnd().getDate());
@@ -468,11 +449,8 @@ public class DataTypesTransformerTest{
     	// instance test: there exists an instance of ED but no setter is called
     	IVL_TS ivl_ts4 = DatatypesFactory.eINSTANCE.createIVL_TS();
     	PeriodDt period4 = dtt.tIVL_TS2Period(ivl_ts4);
-    	
     	Assert.assertNull("IVL_TS.low was not transformed",period4.getStart());
-    	
     	Assert.assertNull("IVL_TS.high(year) was not transformed",period4.getEnd());
-    	
     	
     	// null instance test
     	IVL_TS ivl_ts2 = null;
@@ -484,13 +462,11 @@ public class DataTypesTransformerTest{
     	ivl_ts3.setNullFlavor(NullFlavor.NI);
     	PeriodDt period3 = dtt.tIVL_TS2Period(ivl_ts3);
     	Assert.assertNull("IVL_TS.nullFlavor set instance transform failed",period3);
-    	
-    	
     }
     
     @Test
-    public void testIVL_PQ2Range(){
-        
+    public void testIVL_PQ2Range() {
+        // simple instance test
         IVL_PQ ivlpq = DatatypesFactory.eINSTANCE.createIVL_PQ();
         IVXB_PQ ivxbpqH = DatatypesFactory.eINSTANCE.createIVXB_PQ();
         ivxbpqH.setValue(0.2);
@@ -502,41 +478,40 @@ public class DataTypesTransformerTest{
         ivlpq.setHigh(ivxbpqH);
         ivlpq.setLow(ivxbpqL); 
         
-        RangeDt range = dtt.tIVL_PQ2Range( ivlpq );
+        RangeDt range = dtt.tIVL_PQ2Range(ivlpq);
         
-        Assert.assertEquals( "IVL_PQ.high.unit was not transformed" ,  ivlpq.getHigh().getUnit()  , range.getHigh().getUnit() );
-        Assert.assertEquals( "IVL_PQ.high.value was not transformed" ,  ivlpq.getHigh().getValue()  , range.getHigh().getValue() );
-        Assert.assertEquals( "IVL_PQ.low.unit was not transformed" ,  ivlpq.getLow().getUnit()  , range.getLow().getUnit() );
-        Assert.assertEquals( "IVL_PQ.low.value was not transformed" ,  ivlpq.getLow().getValue()  , range.getLow().getValue() );
+        Assert.assertEquals("IVL_PQ.high.unit was not transformed", ivlpq.getHigh().getUnit(), range.getHigh().getUnit());
+        Assert.assertEquals("IVL_PQ.high.value was not transformed", ivlpq.getHigh().getValue(), range.getHigh().getValue());
+        Assert.assertEquals("IVL_PQ.low.unit was not transformed", ivlpq.getLow().getUnit(), range.getLow().getUnit());
+        Assert.assertEquals("IVL_PQ.low.value was not transformed", ivlpq.getLow().getValue(), range.getLow().getValue());
         
-      // null instance test
+        // null instance test
         IVL_PQ ivlpq2 = null;
-        RangeDt range2 = dtt.tIVL_PQ2Range( ivlpq2 );
+        RangeDt range2 = dtt.tIVL_PQ2Range(ivlpq2);
         Assert.assertNull("IVL_PQ null instance transform failed", range2);
         
-      // nullFlavor instance test
+        // nullFlavor instance test
         IVL_PQ ivlpq3 = DatatypesFactory.eINSTANCE.createIVL_PQ();
         ivlpq3.setNullFlavor(NullFlavor.NI);
-        RangeDt range3 = dtt.tIVL_PQ2Range( ivlpq3 );
+        RangeDt range3 = dtt.tIVL_PQ2Range(ivlpq3);
         Assert.assertNull("IVL_PQ.nullFlavor set instance transform failed", range3);
         
-
         IVL_PQ ivlpq5 = DatatypesFactory.eINSTANCE.createIVL_PQ();
         IVXB_PQ ivxbpqH_2 = DatatypesFactory.eINSTANCE.createIVXB_PQ();
         ivxbpqH_2.setNullFlavor(NullFlavor.NI);
         ivlpq5.setHigh(ivxbpqH_2);
         
-        RangeDt range5 = dtt.tIVL_PQ2Range( ivlpq5 );
+        RangeDt range5 = dtt.tIVL_PQ2Range(ivlpq5);
         Assert.assertNull("IVL_PQ.nullFlavor set instance transform failed", range5.getHigh().getValue());
         
         
-       //non-null empty instance test
+        // non-null empty instance test
         IVL_PQ ivlpq4 = DatatypesFactory.eINSTANCE.createIVL_PQ();
-        RangeDt range4 = dtt.tIVL_PQ2Range( ivlpq4 );
-        Assert.assertNull("IVL_PQ.high.value transform failed", range4.getHigh().getValue() );
-        Assert.assertNull("IVL_PQ.low.value transform failed", range4.getLow().getValue() );
-        Assert.assertNull("IVL_PQ.high.unit transform failed", range4.getHigh().getUnit() );
-        Assert.assertNull("IVL_PQ.low.unit transform failed", range4.getLow().getUnit() );
+        RangeDt range4 = dtt.tIVL_PQ2Range(ivlpq4);
+        Assert.assertNull("IVL_PQ.high.value transform failed", range4.getHigh().getValue());
+        Assert.assertNull("IVL_PQ.low.value transform failed", range4.getLow().getValue());
+        Assert.assertNull("IVL_PQ.high.unit transform failed", range4.getHigh().getUnit());
+        Assert.assertNull("IVL_PQ.low.unit transform failed", range4.getLow().getUnit());
         
     }
     
@@ -582,15 +557,11 @@ public class DataTypesTransformerTest{
     	System.out.println("123.4 == "+timing1.getRepeat().getPeriod());
     	System.out.println(UnitsOfTimeEnum.H +" == "+timing1.getRepeat().getPeriodUnits());
     	System.out.println("2014-05-23 == "+ ((PeriodDt)timing1.getRepeat().getBounds()).getStart());
-    	System.out.println("2016-12-01 == "+((PeriodDt)timing1.getRepeat().getBounds()).getEnd() );
+    	System.out.println("2016-12-01 == "+((PeriodDt)timing1.getRepeat().getBounds()).getEnd());
 //    	Assert.assertEquals("PIVL_TS.period.value was not transformed",123.4,timing1.getRepeat().getPeriod());
 //    	Assert.assertEquals("PIVL_TS.period.unit was not transformed",UnitsOfTimeEnum.H,timing1.getRepeat().getPeriodUnits());
 //    	Assert.assertEquals("PIVL_TS.phase.low was not transformed","2014-05-23",((PeriodDt)timing1.getRepeat().getBounds()).getStart());
 //    	Assert.assertEquals("PIVL_TS.phase.low was not transformed","2016-12-01",((PeriodDt)timing1.getRepeat().getBounds()).getEnd());
-    		
-    	
-    		
-    	
     }
     
     @Test
@@ -663,26 +634,25 @@ public class DataTypesTransformerTest{
     	rto3.setNullFlavor(NullFlavor.NINF);
     	RatioDt ratio3=dtt.tRTO2Ratio(rto3);
     	Assert.assertNull("RTO nullFlavor instance set was failed",ratio3);
-    }//end Ratio test
+    }
     
     @Test
-    public void testST2String(){
+    public void testST2String() {
     	//simple instance test
     	ST st=DatatypesFactory.eINSTANCE.createST();
-    	st.addText("selam");
+    	st.addText("theText");
     	StringDt string=dtt.tST2String(st);
-        Assert.assertEquals("ST.text was not transformed", "selam", string.getValue());
+        Assert.assertEquals("ST.text was not transformed", "theText", string.getValue());
 
         //null instance test
         ST st2=null;
         StringDt string2=dtt.tST2String(st2);
         Assert.assertNull("ST null instance transform failed",string2);
-
     }
     
     @SuppressWarnings("deprecation")
    	@Test
-    public void testTEL2ContactPoint(){
+    public void testTEL2ContactPoint() {
        	
        	TEL tel = DatatypesFactory.eINSTANCE.createTEL();
        	
@@ -700,38 +670,34 @@ public class DataTypesTransformerTest{
        	
        	ContactPointDt contactPoint = dtt.tTEL2ContactPoint(tel);
     	Assert.assertEquals("Tel.system failed", "phone", contactPoint.getSystem());
-       	Assert.assertEquals("Tel.value failed" , "+1(555)555-1004" , contactPoint.getValue()  );
-       	Assert.assertEquals("Tel.periodStart getYear failed" , 95 , contactPoint.getPeriod().getStart().getYear() );
-       	Assert.assertEquals("Tel.periodStart getMonth failed" , 3 , contactPoint.getPeriod().getStart().getMonth() );
-       	Assert.assertEquals("Tel.periodStart getMonth failed" , 24 , contactPoint.getPeriod().getStart().getDate() );
-       	Assert.assertEquals("Tel.periodEnd getYear failed" , 95 , contactPoint.getPeriod().getEnd().getYear() );
-       	Assert.assertEquals("Tel.periodEnd getMonth failed" , 3 , contactPoint.getPeriod().getEnd().getMonth() );
-       	Assert.assertEquals("Tel.periodEnd getMonth failed" , 27 , contactPoint.getPeriod().getEnd().getDate() );
-       	Assert.assertEquals("Tel.use failed" , "home" , contactPoint.getUse() );
+       	Assert.assertEquals("Tel.value failed" , "+1(555)555-1004", contactPoint.getValue());
+       	Assert.assertEquals("Tel.periodStart getYear failed", 95, contactPoint.getPeriod().getStart().getYear());
+       	Assert.assertEquals("Tel.periodStart getMonth failed", 3, contactPoint.getPeriod().getStart().getMonth());
+       	Assert.assertEquals("Tel.periodStart getMonth failed", 24, contactPoint.getPeriod().getStart().getDate());
+       	Assert.assertEquals("Tel.periodEnd getYear failed", 95, contactPoint.getPeriod().getEnd().getYear());
+       	Assert.assertEquals("Tel.periodEnd getMonth failed", 3, contactPoint.getPeriod().getEnd().getMonth());
+       	Assert.assertEquals("Tel.periodEnd getMonth failed", 27, contactPoint.getPeriod().getEnd().getDate());
+       	Assert.assertEquals("Tel.use failed", "home", contactPoint.getUse());
        	
-       	 // null instance test
-           TEL tel2 = null;
-           ContactPointDt contactPoint2 = dtt.tTEL2ContactPoint( tel2 );
-           Assert.assertNull("TEL null instance transform failed", contactPoint2);
-           
-         // nullFlavor instance test
-           TEL tel3 = DatatypesFactory.eINSTANCE.createTEL();
-           tel3.setNullFlavor(NullFlavor.NI);
-           ContactPointDt contactPoint3 = dtt.tTEL2ContactPoint( tel3 );
-           Assert.assertNull("ContactPointDt.nullFlavor set instance transform failed", contactPoint3);
-       	
-           
-           //instance test: non-null empty instance
-           TEL tel4 = DatatypesFactory.eINSTANCE.createTEL();
-           ContactPointDt contactPoint4 = dtt.tTEL2ContactPoint( tel4 );
-           
-           Assert.assertNull("TEL.value transformation failed", contactPoint4.getValue());
-           Assert.assertNull( "TEL.period.Start transformation failed", contactPoint4.getPeriod().getStart());
-           Assert.assertNull( "TEL.period.End transformation failed", contactPoint4.getPeriod().getEnd());
-          
-          
-       	
-       }
+       	// null instance test
+       	TEL tel2 = null;
+       	ContactPointDt contactPoint2 = dtt.tTEL2ContactPoint(tel2);
+        Assert.assertNull("TEL null instance transform failed", contactPoint2);
+     	
+        // nullFlavor instance test
+        TEL tel3 = DatatypesFactory.eINSTANCE.createTEL();
+        tel3.setNullFlavor(NullFlavor.NI);
+        ContactPointDt contactPoint3 = dtt.tTEL2ContactPoint(tel3);
+        Assert.assertNull("ContactPointDt.nullFlavor set instance transform failed", contactPoint3);
+        
+        //instance test: non-null empty instance
+        TEL tel4 = DatatypesFactory.eINSTANCE.createTEL();
+        ContactPointDt contactPoint4 = dtt.tTEL2ContactPoint(tel4);
+        
+        Assert.assertNull("TEL.value transformation failed", contactPoint4.getValue());
+        Assert.assertNull( "TEL.period.Start transformation failed", contactPoint4.getPeriod().getStart());
+        Assert.assertNull( "TEL.period.End transformation failed", contactPoint4.getPeriod().getEnd());
+    }
     
     // tTS2Instant, tTS2Date and tTS2DateTime are based on tTS2BaseDateTimeDt
     // The most comprehensive test is testTS2Instant
@@ -821,11 +787,10 @@ public class DataTypesTransformerTest{
     	InstantDt instant10= dtt.tTS2Instant(ts10);
     	
     	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19",instant10.getValueAsString());
-    	
     }
     
     @Test
-    public void testTS2Date(){
+    public void testTS2Date() {
     	//simple instance test yyyymmdd
     	TS ts=DatatypesFactory.eINSTANCE.createTS();
     	ts.setValue("20160923");
@@ -870,7 +835,7 @@ public class DataTypesTransformerTest{
     }
     
     @Test
-    public void testTS2DateTime(){
+    public void testTS2DateTime() {
     	// simple instance test,yyyy
     	TS ts=DatatypesFactory.eINSTANCE.createTS();
     	ts.setValue("2016");

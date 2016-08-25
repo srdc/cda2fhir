@@ -36,7 +36,6 @@ import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerTest {
-	// Test one method at a time. Use annotation @Ignore for the remaining methods.
 	
 	// context
 	private static final FhirContext myCtx = FhirContext.forDstu2();
@@ -690,20 +689,19 @@ public class ResourceTransformerTest {
 		}
 		
 		int encounterProceduresCount = 0;
-		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
-			if( test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty() ){
-				System.out.println("**** ENCOUNTERS -> PROCEDURES *****");
-				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures() ){
+		if(test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor()) {
+			if(test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures()) {
 					// traversing procedures
-					System.out.println( "Procedure["+ encounterProceduresCount++ +"]" );
+					System.out.println("Procedure["+ encounterProceduresCount++ +"]");
 					
 					System.out.println("Transformation starting..");
 	
 					ca.uhn.fhir.model.dstu2.resource.Encounter fhirProcedure = null;
 					
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
-					for( Entry entry : fhirProcedureBundle.getEntry() ){
-						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+					for(Entry entry : fhirProcedureBundle.getEntry()) {
+						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
 							fhirProcedure = (Encounter) entry.getResource();
 						}
 					}
@@ -718,12 +716,12 @@ public class ResourceTransformerTest {
 		}
 		
 		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
-			System.out.println( "*** SECTIONS ****" );
+			System.out.println("*** SECTIONS ****");
 			int sectionCount = 0;
 			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
 				if( section.getProcedures() != null && !section.getProcedures().isEmpty() ){
 					int procedureCount2 = 0;
-					for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures() ){
+					for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures()) {
 						// traversing procedures
 						System.out.println("Section["+sectionCount+"]"+" -> Procedure["+ procedureCount2++ +"]");
 	
@@ -732,8 +730,8 @@ public class ResourceTransformerTest {
 						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
 						
 						Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
-						for( Entry entry : fhirProcedureBundle.getEntry() ){
-							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+						for(Entry entry : fhirProcedureBundle.getEntry()) {
+							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
 								fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
 							}
 						}
@@ -970,6 +968,4 @@ public class ResourceTransformerTest {
 			}
 		}
 	}
-	
-	
 }
