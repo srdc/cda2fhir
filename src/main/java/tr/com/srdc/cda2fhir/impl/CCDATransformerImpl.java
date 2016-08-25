@@ -22,6 +22,9 @@ public class CCDATransformerImpl implements CCDATransformer {
     private ResourceTransformer resTransformer;
     private ResourceReferenceDt patientRef;
 
+    /**
+     * Default constructor that initiates with a UUID resource id generator
+     */
     public CCDATransformerImpl() {
         this.counter = 0;
         // The default resource id pattern is UUID
@@ -29,6 +32,10 @@ public class CCDATransformerImpl implements CCDATransformer {
         resTransformer = new ResourceTransformerImpl(this);
     }
 
+    /**
+     * Constructor that initiates with the provided resource id generator
+     * @param idGen The id generator enumeration to be set
+     */
     public CCDATransformerImpl(IdGeneratorEnum idGen) {
         this();
         // Override the default resource id pattern
@@ -166,10 +173,10 @@ public class CCDATransformerImpl implements CCDATransformer {
 
     /**
      * Copies all the entries from the source bundle to the target bundle, and at the same time adds a reference to the Section.Entry for each instance of the specified class
-     * @param sourceBundle
-     * @param targetBundle
-     * @param fhirSec
-     * @param sectionRefCls
+     * @param sourceBundle Source FHIR Bundle to be copied from
+     * @param targetBundle Target FHIR Bundle to be copied into
+     * @param fhirSec FHIR Section where the reference will be added
+     * @param sectionRefCls Specific FHIR Resource Class among the resources in the sourceBundle, whose reference will be added to the FHIR Section
      */
     private void mergeBundles(Bundle sourceBundle, Bundle targetBundle, Composition.Section fhirSec, Class<?> sectionRefCls) {
         for(Entry entry : sourceBundle.getEntry()) {
