@@ -69,7 +69,7 @@ public class ResourceTransformerTest {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
-	@Ignore
+	@Test
 	public void testAllergyProblemAct2AllergyIntolerance() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -88,7 +88,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testAssignedAuthor2Practitioner() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -113,7 +113,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testAssignedEntity2Practitioner() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -149,7 +149,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testEncounterActivity2Encounter(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -194,7 +194,7 @@ public class ResourceTransformerTest {
 //		}
 	}
 
-	@Ignore
+	@Test
 	public void testGuardian2Contact(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -231,7 +231,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testManufacturedProduct2Medication(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -262,7 +262,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testMedicationActivity2MedicationStatement(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -320,7 +320,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testFamilyHistoryOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -343,7 +343,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testObservation2Observation(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -368,7 +368,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testOrganization2Organization(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -390,7 +390,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testPatientRole2Patient(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -638,7 +638,7 @@ public class ResourceTransformerTest {
 		}
     }
 	
-	@Ignore
+	@Test
 	public void testProblemConcernAct2Condition() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -663,7 +663,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testProcedure2Procedure(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -749,7 +749,7 @@ public class ResourceTransformerTest {
 		
 	}
 
-	@Ignore
+	@Test
 	public void testSection2Section(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 	
@@ -781,7 +781,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testImmunizationActivity2Immunization() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -806,7 +806,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testLanguageCommunication2Communication(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -834,7 +834,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testVitalSignObservation2Observation() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -866,7 +866,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testClinicalDocument22Composition() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -885,7 +885,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testResultOrganizer2DiagnosticReport() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -914,7 +914,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testSocialHistory() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -936,7 +936,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testFunctionalStatus2Observation() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		

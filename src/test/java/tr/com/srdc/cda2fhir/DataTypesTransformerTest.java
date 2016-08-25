@@ -88,9 +88,9 @@ public class DataTypesTransformerTest{
     	ed.setLanguage("en");
     	ed.addText("text");
     	TEL tel=DatatypesFactory.eINSTANCE.createTEL();
-    	tel.setValue("www.facebook.com");
+    	tel.setValue("telValue");
     	ed.setReference(tel);
-    	ed.setIntegrityCheck("hello".getBytes());
+    	ed.setIntegrityCheck("integrityCheck".getBytes());
     	act.setText(ed);
     	Participant2 myParticipant = CDAFactory.eINSTANCE.createParticipant2();
     	myParticipant.setTypeCode(ParticipationType.AUT);
