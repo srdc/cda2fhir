@@ -36,7 +36,6 @@ import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerTest {
-	// Test one method at a time. Use annotation @Ignore for the remaining methods.
 	
 	// context
 	private static final FhirContext myCtx = FhirContext.forDstu2();
@@ -70,7 +69,7 @@ public class ResourceTransformerTest {
 	
 	// Most of the test methods just print the transformed object in JSON form.
 	
-	@Ignore
+	@Test
 	public void testAllergyProblemAct2AllergyIntolerance() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -89,7 +88,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testAssignedAuthor2Practitioner() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -114,7 +113,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testAssignedEntity2Practitioner() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -150,7 +149,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testEncounterActivity2Encounter(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -195,7 +194,7 @@ public class ResourceTransformerTest {
 //		}
 	}
 
-	@Ignore
+	@Test
 	public void testGuardian2Contact(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -232,7 +231,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testManufacturedProduct2Medication(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -263,7 +262,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testMedicationActivity2MedicationStatement(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -321,7 +320,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testFamilyHistoryOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -344,7 +343,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testObservation2Observation(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -369,7 +368,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testOrganization2Organization(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -391,7 +390,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testPatientRole2Patient(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -639,7 +638,7 @@ public class ResourceTransformerTest {
 		}
     }
 	
-	@Ignore
+	@Test
 	public void testProblemConcernAct2Condition() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -664,7 +663,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testProcedure2Procedure(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -690,20 +689,19 @@ public class ResourceTransformerTest {
 		}
 		
 		int encounterProceduresCount = 0;
-		if( test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor() ){
-			if( test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty() ){
-				System.out.println("**** ENCOUNTERS -> PROCEDURES *****");
-				for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures() ){
+		if(test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor()) {
+			if(test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures()) {
 					// traversing procedures
-					System.out.println( "Procedure["+ encounterProceduresCount++ +"]" );
+					System.out.println("Procedure["+ encounterProceduresCount++ +"]");
 					
 					System.out.println("Transformation starting..");
 	
 					ca.uhn.fhir.model.dstu2.resource.Encounter fhirProcedure = null;
 					
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
-					for( Entry entry : fhirProcedureBundle.getEntry() ){
-						if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+					for(Entry entry : fhirProcedureBundle.getEntry()) {
+						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
 							fhirProcedure = (Encounter) entry.getResource();
 						}
 					}
@@ -718,12 +716,12 @@ public class ResourceTransformerTest {
 		}
 		
 		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
-			System.out.println( "*** SECTIONS ****" );
+			System.out.println("*** SECTIONS ****");
 			int sectionCount = 0;
 			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
 				if( section.getProcedures() != null && !section.getProcedures().isEmpty() ){
 					int procedureCount2 = 0;
-					for( org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures() ){
+					for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures()) {
 						// traversing procedures
 						System.out.println("Section["+sectionCount+"]"+" -> Procedure["+ procedureCount2++ +"]");
 	
@@ -732,8 +730,8 @@ public class ResourceTransformerTest {
 						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
 						
 						Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
-						for( Entry entry : fhirProcedureBundle.getEntry() ){
-							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure){
+						for(Entry entry : fhirProcedureBundle.getEntry()) {
+							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
 								fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
 							}
 						}
@@ -751,7 +749,7 @@ public class ResourceTransformerTest {
 		
 	}
 
-	@Ignore
+	@Test
 	public void testSection2Section(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 	
@@ -783,7 +781,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testImmunizationActivity2Immunization() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -808,7 +806,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testLanguageCommunication2Communication(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -836,7 +834,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testVitalSignObservation2Observation() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -868,7 +866,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testClinicalDocument22Composition() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 
@@ -887,7 +885,7 @@ public class ResourceTransformerTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testResultOrganizer2DiagnosticReport() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -916,7 +914,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testSocialHistory() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -938,7 +936,7 @@ public class ResourceTransformerTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testFunctionalStatus2Observation() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 		
@@ -970,6 +968,4 @@ public class ResourceTransformerTest {
 			}
 		}
 	}
-	
-	
 }

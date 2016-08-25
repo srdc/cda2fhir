@@ -14,8 +14,12 @@ import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 import ca.uhn.fhir.model.primitive.InstantDt;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap;
@@ -46,7 +50,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         
         AddressDt address = new AddressDt();
         
-        // use
+        // use -> use
         if(ad.getUses() != null && !ad.getUses().isEmpty()) {
         	// We get the address.type and address.use from the list ad.uses
         	for(PostalAddressUse postalAddressUse : ad.getUses()) {
@@ -63,12 +67,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	}
         }       
         
-        // text
+        // text -> text
         if(ad.getText() != null && !ad.getText().isEmpty()) {
         	address.setText(ad.getText());
         }
         
-        // line -> streetAddressLine
+        // streetAddressLine -> line
         if(ad.getStreetAddressLines() != null && !ad.getStreetAddressLines().isEmpty()) {
         	for(ADXP adxp : ad.getStreetAddressLines()){
         		if(adxp != null && !adxp.isSetNullFlavor()) {
@@ -77,7 +81,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
             }
         }
         
-        // line -> deliveryAddressLine
+        // deliveryAddressLine -> line
         if(ad.getDeliveryAddressLines() != null && !ad.getDeliveryAddressLines().isEmpty()) {
         	for(ADXP adxp : ad.getDeliveryAddressLines()) {
         		if(adxp != null && !adxp.isSetNullFlavor()) {
@@ -96,7 +100,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	}
         }
         
-        // district -> countie
+        // countie -> district
         if(ad.getCounties() != null && !ad.getCounties().isEmpty()) {
         	for(ADXP adxp : ad.getCounties()) {
         		// Asserting that at most one countie information exists
@@ -117,7 +121,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
             
         }
         
-        // state
+        // state -> state
         if(ad.getStates() != null && !ad.getStates().isEmpty()) {
         	for(ADXP adxp : ad.getStates()) {
         		if(adxp != null && !adxp.isSetNullFlavor()) {
@@ -126,7 +130,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	}
         }
         
-        // postalCode
+        // postalCode -> postalCode
         if(ad.getPostalCodes() != null && !ad.getPostalCodes().isEmpty()) {
         	for(ADXP adxp : ad.getPostalCodes()) {
         		if(adxp != null && !adxp.isSetNullFlavor()) {
@@ -135,7 +139,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	}
         }
         
-        // useablePeriods
+        // useablePeriods[0] -> start, usablePeriods[1] -> end
         if(ad.getUseablePeriods() != null && !ad.getUseablePeriods().isEmpty()) {
         	PeriodDt period = new PeriodDt();
         	int sxcmCounter = 0;
@@ -152,31 +156,31 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	}
         	address.setPeriod(period);
         }
-        
         return address;
     }
 
 	//TODO: Mustafa: This will be revisited and updated for Act.author; not any participant
 	public AnnotationDt tAct2Annotation(Act act) {
-		if( act == null || act.isSetNullFlavor() ) return null;
-		else{
+		if(act == null || act.isSetNullFlavor())
+			return null;
+		else {
 			AnnotationDt myAnnotationDt = new AnnotationDt();
-			for(Participant2 theParticipant : act.getParticipants()){
+			for(Participant2 theParticipant : act.getParticipants()) {
 				if(theParticipant.getTypeCode() == ParticipationType.AUT){
 					//TODO: Annotation.author[x]
 					// Type	Reference(Practitioner | Patient | RelatedPerson)|string
 					// For now, we are getting the name of the participant as a string
 					if (theParticipant.getRole().getPlayer() instanceof Person) {
 						Person person = (Person)theParticipant.getRole().getPlayer();
-						if( !person.getNames().get(0).getText().isEmpty() ){
-							myAnnotationDt.setAuthor( new StringDt(person.getNames().get(0).getText()) );
+						if(!person.getNames().get(0).getText().isEmpty()) {
+							myAnnotationDt.setAuthor(new StringDt(person.getNames().get(0).getText()));
 						}
 					}
-					myAnnotationDt.setTime( tIVL_TS2Period(act.getEffectiveTime()).getStartElement() );
+					myAnnotationDt.setTime(tIVL_TS2Period(act.getEffectiveTime()).getStartElement());
 					//TODO: While setTime is waiting a parameter as DateTime, act.effectiveTime gives output as IVL_TS (Interval)
 					//In sample XML, it gets the effective time as the low time
 					//Check if it is ok
-					if( !act.getText().isSetNullFlavor() && !act.getText().toString().isEmpty() )
+					if(!act.getText().isSetNullFlavor() && !act.getText().toString().isEmpty())
 						myAnnotationDt.setText(act.getText().toString());
 				}
 			}
@@ -215,25 +219,25 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				CodingDt codingDt = new CodingDt();
            		boolean isEmpty = true;
            		
-           		// codeSystem
+           		// codeSystem -> system
                	if(myCd.getCodeSystem() != null && !myCd.getCodeSystem().isEmpty()) {
                		codingDt.setSystem(vst.tOid2Url(myCd.getCodeSystem()));
                		isEmpty = false;
                	}
                	
-               	// code
+               	// code -> code
                	if(myCd.getCode() !=null && !myCd.getCode().isEmpty()) {
-               		codingDt.setCode( myCd.getCode());
+               		codingDt.setCode(myCd.getCode());
                		isEmpty = false;
                	}
                	
-               	// codeSystemVersion
+               	// codeSystemVersion -> version
                	if(myCd.getCodeSystemVersion() !=null && !myCd.getCodeSystemVersion().isEmpty()) {
-               		codingDt.setVersion( myCd.getCodeSystemVersion());
+               		codingDt.setVersion(myCd.getCodeSystemVersion());
                		isEmpty = false;
                	}
                	
-               	// displayName
+               	// displayName -> display
                	if(myCd.getDisplayName() != null && !myCd.getDisplayName().isEmpty()) {
                		codingDt.setDisplay(myCd.getDisplayName());
                		isEmpty = false;
@@ -257,31 +261,31 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		CodingDt codingDt = new CodingDt();
 		boolean isEmpty = true;
 
-		// codeSystem
+		// codeSystem -> system
 		if(cd.getCodeSystem() != null && !cd.getCodeSystem().isEmpty()){
 			codingDt.setSystem(vst.tOid2Url(cd.getCodeSystem()));
 			isEmpty = false;
 		}
 
-		// code
+		// code -> code
 		if(cd.getCode() !=null && !cd.getCode().isEmpty()) {
 			codingDt.setCode(cd.getCode());
 			isEmpty = false;
 		}
 
-		// codeSystemVersion
+		// codeSystemVersion -> version
 		if(cd.getCodeSystemVersion() !=null && !cd.getCodeSystemVersion().isEmpty()){
 			codingDt.setVersion(cd.getCodeSystemVersion());
 			isEmpty = false;
 		}
 
-		// displayName
+		// displayName -> display
 		if(cd.getDisplayName() != null && !cd.getDisplayName().isEmpty()){
 			codingDt.setDisplay(cd.getDisplayName());
 			isEmpty = false;
 		}
 
-		if (!isEmpty) {
+		if(!isEmpty) {
 			myCodeableConceptDt.addCoding(codingDt);
 			return myCodeableConceptDt;
 		}
@@ -295,12 +299,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     	
 	   	CodingDt codingDt= new CodingDt();
 	   	
-	   	// system -> codeSystem
+	   	// codeSystem -> system
 	   	if(cv.getCodeSystem() != null && !cv.getCodeSystem().isEmpty()) {
 	   		codingDt.setSystem(cv.getCodeSystem());
 	   	}
 	   	
-	   	// version -> codeSystemVersion
+	   	// codeSystemVersion -> version
 	   	if(cv.getCodeSystemVersion() != null && !cv.getCodeSystemVersion().isEmpty()) {
 	   		codingDt.setVersion(cv.getCodeSystemVersion());
 	   	}
@@ -310,7 +314,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	   		codingDt.setCode(cv.getCode());
 	   	}
 	   	
-	   	// display -> displayName
+	   	// displayName -> display
 	   	if(cv.getDisplayName() != null && !cv.getDisplayName().isEmpty()) {
 	   		codingDt.setDisplay(cv.getDisplayName());
 	   	}
@@ -323,7 +327,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		AttachmentDt attachmentDt = new AttachmentDt();
 		
-		// contentType -> mediaType
+		// mediaType -> contentType
 		if(ed.isSetMediaType() && ed.getMediaType()!=null && !ed.getMediaType().isEmpty()) {
 			attachmentDt.setContentType(ed.getMediaType());
 		}
@@ -333,21 +337,21 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			attachmentDt.setLanguage(ed.getLanguage());
 		}
 		
-		// data -> text.bytes
+		// text.bytes -> data
 		if(ed.getText() != null && !ed.getText().isEmpty()) {
 			if(ed.getText().getBytes() != null){
 				attachmentDt.setData(ed.getText().getBytes());	
 			}		
 		}
 		
-		// url -> reference.value
+		// reference.value -> url
 		if(ed.getReference() != null && !ed.getReference().isSetNullFlavor()) {
 			if(ed.getReference().getValue() != null && !ed.getReference().getValue().isEmpty()) {
 				attachmentDt.setUrl(ed.getReference().getValue());
 			}
 		}
 		
-		// hash -> integrityCheck
+		// integrityCheck -> hash
 		if(ed.getIntegrityCheck() != null) {
 			attachmentDt.setHash(ed.getIntegrityCheck());
 		}
@@ -457,19 +461,20 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		PeriodDt periodDt = new PeriodDt();
 		
-		// low
+		// low -> start
 		if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor()) {
 			String date=ivlts.getLow().getValue();
 			periodDt.setStart(tString2DateTime(date));
 		}
 		
-		// high
+		// high -> end
 		if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor()) {
 			String date=ivlts.getHigh().getValue();
 			periodDt.setEnd(tString2DateTime(date));
 		}
 		
 		// low is null, high is null and the value is carrying the low value
+		// value -> low
 		if(ivlts.getLow() == null && ivlts.getHigh() == null && ivlts.getValue() != null && !ivlts.getValue().equals("")) {
 			periodDt.setStart(tString2DateTime(ivlts.getValue()));
 		}
@@ -483,18 +488,19 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		RangeDt rangeDt = new RangeDt();
 		
-		// low
+		// low -> low
 		if(ivlpq.getLow() != null && !ivlpq.getLow().isSetNullFlavor()){
 			rangeDt.setLow(tPQ2SimpleQuantityDt(ivlpq.getLow()));
 			
 		}
 		
-		// high
+		// high -> high
 		if(ivlpq.getHigh() != null && !ivlpq.getHigh().isSetNullFlavor()){
 			rangeDt.setHigh(tPQ2SimpleQuantityDt(ivlpq.getHigh()));
 		}
 		
 		// low is null, high is null and the value is carrying the low value
+		// value -> low
 		if(ivlpq.getLow() == null && ivlpq.getHigh() == null && ivlpq.getValue() != null) {
 			SimpleQuantityDt low = new SimpleQuantityDt();
 			low.setValue(ivlpq.getValue());
@@ -527,13 +533,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			if(pivlts.getPhase() != null && !pivlts.getPhase().isSetNullFlavor()) {
 				repeat.setBounds(tIVL_TS2Period(pivlts.getPhase()));
 			}
-		}
-		
+		}	
 		return timing;
 	}
 
 	public QuantityDt tPQ2Quantity(PQ pq) {
-		if(pq == null || pq.isSetNullFlavor() )
+		if(pq == null || pq.isSetNullFlavor())
 			return null;
 		
 		QuantityDt quantityDt = new QuantityDt();
@@ -551,7 +556,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		// translation -> system & code
 		for(PQR pqr : pq.getTranslations()) {
 			if(pqr != null && !pqr.isSetNullFlavor()) {
-				// system -> codeSystem
+				// codeSystem -> system
 				if(pqr.getCodeSystem() != null && !pqr.getCodeSystem().isEmpty()) {
 					quantityDt.setSystem(pqr.getCodeSystem());
 				}
@@ -562,7 +567,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 				}
 			}
 		}
-		
 		return quantityDt;
 	}
 
@@ -572,21 +576,21 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		
 		SimpleQuantityDt simpleQuantity = new SimpleQuantityDt();
 		
-		// value
+		// value -> value
 		if(pq.getValue() != null) {
 			simpleQuantity.setValue(pq.getValue());
 		}
 		
-		// unit
+		// unit -> unit
 		if(pq.getUnit() != null && !pq.getUnit().isEmpty()) {
 			simpleQuantity.setUnit(pq.getUnit());
 		}
 		
-		// system and code
+		// translation -> system and code
 		if(pq.getTranslations() != null && !pq.getTranslations().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.PQR pqr : pq.getTranslations()) {
 				if(pqr != null && !pqr.isSetNullFlavor()) {
-					// system -> codeSystem
+					// codeSystem -> system
 					if(pqr.getCodeSystem() != null && !pqr.getCodeSystem().isEmpty()) {
 						simpleQuantity.setSystem(vst.tOid2Url(pqr.getCodeSystem()));
 					}
@@ -610,7 +614,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     		return null;
     	RatioDt myRatioDt = new RatioDt();
     	
-    	// numerator
+    	// numerator -> numerator
     	if(rto.getNumerator() != null && !rto.getNumerator().isSetNullFlavor()) {
     		QuantityDt quantity = new QuantityDt();
     		REAL numerator= (REAL)rto.getNumerator();
@@ -620,7 +624,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
     		}
     	}
     	
-    	// denominator
+    	// denominator -> denominator
     	if(!rto.getDenominator().isSetNullFlavor()) {
     		QuantityDt quantity=new QuantityDt();
     		REAL denominator= (REAL) rto.getDenominator();
@@ -673,14 +677,14 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			}
 		}
 		
-		// period -> useablePeriods
+		// useablePeriods -> period
 		if(tel.getUseablePeriods() != null && !tel.getUseablePeriods().isEmpty()) {
 			PeriodDt period = new PeriodDt();
 			int sxcmCounter = 0;
 			for(SXCM_TS sxcmts : tel.getUseablePeriods()) {
 				if(sxcmts != null && !sxcmts.isSetNullFlavor()) {
-					// period.start -> useablePeriods[0]
-					// period.end -> useablePeriods[1]
+					// useablePeriods[0] -> period.start
+					// useablePeriods[1] -> period.end
 					if(sxcmCounter == 0) {
 						if(sxcmts.getValue() != null && !sxcmts.getValue().isEmpty()){
 							period.setStart(tString2DateTime(sxcmts.getValue()));
@@ -894,9 +898,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		return date;
 	}
 	
-	// Following method is a recursive one and will be used as helper for StructDocText2Narrative
-	// Since it calls itself repeatedly and handles with different types of objects, parameter is taken as Object
-	// However, parameters of type StrucDocText should be given by the caller
 	/**
 	 * Transforms A CDA StructDocText instance to a Java String containing the transformed text.
 	 * Since the method is a recursive one and handles with different types of object, parameter is taken as Object. However, parameters of type StructDocText should be given by the caller.
@@ -906,12 +907,12 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	private String tStrucDocText2String(Object param) {
 		if(param instanceof org.openhealthtools.mdht.uml.cda.StrucDocText) {
 			org.openhealthtools.mdht.uml.cda.StrucDocText paramStrucDocText = (org.openhealthtools.mdht.uml.cda.StrucDocText)param;
-			return "<div>" +tStrucDocText2String( paramStrucDocText.getMixed()) + "</div>";
+			return "<div>" +tStrucDocText2String(paramStrucDocText.getMixed()) + "</div>";
 		} 
 		else if(param instanceof BasicFeatureMap) {
 			String returnValue = "";
 			for(Object object : (BasicFeatureMap)param){
-				String pieceOfReturn = tStrucDocText2String(object );
+				String pieceOfReturn = tStrucDocText2String(object);
 				if(pieceOfReturn != null && !pieceOfReturn.isEmpty()) {
 					returnValue = returnValue + pieceOfReturn;
 				}
@@ -923,9 +924,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		} 
 		else if(param instanceof EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry) {
 			EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry = (EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry)param;
-			return "<"+entry.getEStructuralFeature().getName()
-					+ getAttributeHelperStrucDocText2String(entry)
-					+">" + tStrucDocText2String( entry.getValue() ) + "</"+entry.getEStructuralFeature().getName()+">";
+			List<String> tagList = getTagsHelperForTStructDocText2String(entry);
+			return tagList.get(0) + tStrucDocText2String(entry.getValue()) + tagList.get(1);
 		} 
 		else if(param instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) {
 			// since the name and the attributes are taken already, we just send the mixed of anyTypeImpl
@@ -940,33 +940,106 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	
 	// Helper for StrucDocText2String
 	/**
-	 * Extracts the attributes of an HTML element.
+	 * Extracts the tags and the attributes of an HTML element.
+	 * Also, this method transforms the CDA formatted tags to HTML formatted tags.
 	 * This method is the helper for the method tStrucDocText2String.
 	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
-	 * @return A Java String containing the attributes of an HTML element in form: attributeName="attributeValue"
+	 * @return A Java String list containing the start tag and end tag of an HTML element in form: <tagName attribute="attributeValue">. While first element of the list correspons to the start tag, second element of the list corresponds to the end tag.
 	 */
-	private String getAttributeHelperStrucDocText2String(EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry){
-		// This method extracts attributes from AnyTypeImpl
-		// Return example: border="1"
+	private List<String> getTagsHelperForTStructDocText2String(org.eclipse.emf.ecore.impl.EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry) {
+		if(entry == null)
+			return null;
+		String startTag = "";
+		String endTag = "";
+		String tagName = entry.getEStructuralFeature().getName();
+		List<String> attributeList = getAttributesHelperForTStructDocText2String(entry);
+		List<String> tagList = new ArrayList<String>();
+		
+		// case tag.equals("list"). we need to transform it to "ul" or "ol"
+		if(tagName.equals("list")) {
+			// first, think of the situtation no attribute exists about ordered/unordered
+			tagName = "ul";
+			String attributeToRemove = null;
+			for(String attribute : attributeList) {
+				if(attribute.toLowerCase().contains("listtype")) {
+					// notice that the string "unordered" also contains "ordered"
+					// therefore, it is vital to check "unordered" firstly.
+					// if "unordered" is not contained by the attribute, then we may check for "ordered"
+					if(attribute.toLowerCase().contains("unordered")) {
+						tagName = "ul";
+					} else if(attribute.toLowerCase().contains("ordered")) {
+						tagName = "ol";
+					}
+					
+					attributeToRemove = attribute;
+				}
+			}
+			// if we found the "listType" attribute, we assigned it to attributeToRemove
+			// from now on, we have nothing to do with this attribute. let's remove it from the list.
+			if(attributeToRemove != null) {
+				attributeList.remove(attributeToRemove);
+			}
+		} else {
+			switch(tagName.toLowerCase()) {
+				case "paragraph":
+					tagName = "p"; break;
+				case "content":
+					tagName = "span"; break;
+				case "item":
+					tagName = "li"; break;
+				case "linkhtml":
+					tagName = "a"; break;
+				case "renderMultimedia":
+					tagName = "img"; break;
+				case "list":
+					tagName = "ul"; break;
+				default: // do nothing. let the tagName be as it is
+			}
+		}
+		
+		// now, it is time to prepare our tag by using tagName and attributes
+		startTag = "<" + tagName;
+		// adding attributes to the start tag
+		for(String attribute : attributeList) {
+			startTag += " "+attribute;
+		}
+		// closing the start tag
+		startTag += ">";
+		endTag = "</" + tagName + ">";
+		
+		// 1st element of the returning list: startTag
+		tagList.add(startTag);
+		// 2nd element of the returning list: endTag
+		tagList.add(endTag);
+		
+		return tagList;
+	}
+	/**
+	 * Extracts the attributes of an HTML element
+	 * This method is the helper for the method getTags, which is already a helper for tStrucDocText2String.
+	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
+	 * @return A Java String list containing the attributes of an HTML element in form: attributeName="attributeValue". Each element corresponds to distinct attributes for the same tag
+	 */
+	private List<String> getAttributesHelperForTStructDocText2String(EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry) {
+		if(entry == null)
+			return null;
+		
+		List<String> attributeList = new ArrayList<String>();
 		if(entry.getValue() instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) {
-			String returnValue = "";
 			for(FeatureMap.Entry attribute : ((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) entry.getValue()).getAnyAttribute()) {
 				String name = attribute.getEStructuralFeature().getName();
 				String value = attribute.getValue().toString();
-				if( name != null && !name.isEmpty()) {
+				if(name != null && !name.isEmpty()) {
+					String attributeToAdd = "";
 					// we may have attributes which doesn't have any value
-					returnValue = returnValue + " " + name;
+					attributeToAdd = attributeToAdd + name;
 					if(value != null && !value.isEmpty()) {
-						returnValue = returnValue + "=\""+value+"\"";
+						attributeToAdd = attributeToAdd + "=\""+value+"\"";
 					}
+					attributeList.add(attributeToAdd);
 				}
 			}
-			return returnValue;
-		} else {
-			// Undesired situtation
-			// Check the class of entry.getValue()
-			return null;
 		}
+		return attributeList;
 	}
-
 }
