@@ -282,7 +282,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirPractitionerRole.setRole(dtt.tCD2CodeableConcept(cdaAssignedAuthor.getCode()));
 		}
 		
-		// represendtedOrganization -> practitionerRole.managingOrganization
+		// representedOrganization -> practitionerRole.managingOrganization
 		if(cdaAssignedAuthor.getRepresentedOrganization() != null && !cdaAssignedAuthor.getRepresentedOrganization().isSetNullFlavor()) {
 			Organization fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
 			fhirPractitionerRole.setManagingOrganization(new ResourceReferenceDt(fhirOrganization.getId()));
@@ -1577,6 +1577,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+
+		// code -> type
+		// TODO: Requires huge mapping work from HL7 HealthcareServiceLocation value set to http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType
+//		if(cdaParticipantRole.getCode() != null && !cdaParticipantRole.getCode().isSetNullFlavor())
+//			fhirLocation.setType();
 		
 		// playingEntity.name.text -> name
 		if(cdaParticipantRole.getPlayingEntity() != null && !cdaParticipantRole.getPlayingEntity().isSetNullFlavor()) {
@@ -2406,21 +2411,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaSupply == null || cdaSupply.isSetNullFlavor())
 			return null;
 		
-		Device fhirDev = new Device();
-		
-		// id
-		IdDt resourceId = new IdDt("Device", getUniqueId());
-		fhirDev.setId(resourceId);
-		
-		// id -> identifier
-		if(cdaSupply.getIds() != null && !cdaSupply.getIds().isEmpty()) {
-			for(II ii : cdaSupply.getIds()) {
-				if(ii != null && !ii.isSetNullFlavor()) {
-					fhirDev.addIdentifier(dtt.tII2Identifier(ii));
-				}
-			}
-		}
-		
 		ProductInstance productInstance = null;
 		// getting productInstance from cdaSupply.participant.participantRole
 		if(cdaSupply.getParticipants() != null && !cdaSupply.getParticipants().isEmpty()) {
@@ -2435,33 +2425,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// type -> productInstance.playingDevice.code
-		if(productInstance != null) {
-			if(productInstance.getPlayingDevice() != null && !productInstance.getPlayingDevice().isSetNullFlavor()) {
-				if(productInstance.getPlayingDevice().getCode() != null && !productInstance.getPlayingDevice().getCode().isSetNullFlavor()) {
-					fhirDev.setType(dtt.tCD2CodeableConcept(productInstance.getPlayingDevice().getCode()));
-				}
+		if(productInstance == null)
+			return null;
+
+		Device fhirDev = new Device();
+
+		// id
+		IdDt resourceId = new IdDt("Device", getUniqueId());
+		fhirDev.setId(resourceId);
+
+		// productInstance.id -> identifier
+		for(II id : productInstance.getIds()) {
+			if(!id.isSetNullFlavor())
+				fhirDev.addIdentifier(dtt.tII2Identifier(id));
+		}
+
+		// productInstance.playingDevice.code -> type
+		if(productInstance.getPlayingDevice() != null && !productInstance.getPlayingDevice().isSetNullFlavor()) {
+			if(productInstance.getPlayingDevice().getCode() != null && !productInstance.getPlayingDevice().getCode().isSetNullFlavor()) {
+				fhirDev.setType(dtt.tCD2CodeableConcept(productInstance.getPlayingDevice().getCode()));
 			}
 		}
-		
-		// TODO: Check if OK manufacturedDate <-> effectiveTime
-		//effectiveTime(high) -> manufacturedDate
-		if(cdaSupply.getEffectiveTimes() != null && !cdaSupply.getEffectiveTimes().isEmpty()) {
-			for(SXCM_TS sxcmts : cdaSupply.getEffectiveTimes()) {
-				if(sxcmts != null && !sxcmts.isSetNullFlavor()) {
-					if(sxcmts instanceof IVL_TS) {
-						IVXB_TS highTime = ((IVL_TS)sxcmts).getHigh();
-						if(highTime != null && !highTime.isSetNullFlavor()) {
-							if(highTime.getValue() != null && !highTime.getValue().isEmpty()) {
-								fhirDev.setManufactureDate(dtt.tString2DateTime(highTime.getValue()));
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		// quantity?
+
 		return fhirDev;
 	}
 
