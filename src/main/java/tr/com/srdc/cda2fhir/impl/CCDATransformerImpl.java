@@ -4,7 +4,9 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
-import org.openhealthtools.mdht.uml.cda.Section;
+import ca.uhn.fhir.model.dstu2.resource.Observation;
+import ca.uhn.fhir.model.dstu2.resource.Procedure;
+import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
@@ -155,7 +157,21 @@ public class CCDATransformerImpl implements CCDATransformer {
             	}
             }
             else if(cdaSec instanceof SocialHistorySection) {
-
+                SocialHistorySection socialSec = (SocialHistorySection) cdaSec;
+                /**
+                 * The generic observation transformer should be able to transform all the possible entries:
+                 *    Caregiver Characteristics
+                 *    Characteristics of Home Environment
+                 *    Cultural and Religious Observation
+                 *    Pregnancy Observation
+                 *    Smoking Status - Meaningful Use (V2)
+                 *    Social History Observation (V3)
+                 *    Tobacco Use (V2)
+                 */
+                for(org.openhealthtools.mdht.uml.cda.Observation socialObs : socialSec.getObservations()) {
+                    Bundle socialObsBundle = resTransformer.tObservation2Observation(socialObs);
+                    mergeBundles(socialObsBundle, ccdBundle, fhirSec, Observation.class);
+                }
             }
             else if(cdaSec instanceof VitalSignsSection) {
             	VitalSignsSection vitalSec = (VitalSignsSection) cdaSec;
