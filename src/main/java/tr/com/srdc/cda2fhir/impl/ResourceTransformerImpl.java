@@ -649,8 +649,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirEncounterBundle;
 	}
 
-
-
 	// never used
 	public Group tEntity2Group(Entity cdaEntity) {
 		if( cdaEntity == null || cdaEntity.isSetNullFlavor() )
@@ -812,6 +810,100 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirFMH;
 	}
 
+	/*
+	 * Functional Status Section contains:
+	 *   1- Functional Status Observation
+	 *   2- Self-Care Activites
+	 * Both of them have single Observation which needs mapping.
+	 * Therefore, the parameter for the following method(tFunctionalStatus2Observation) chosen to be generic(Observation)
+	 * .. to cover the content of the section.
+	 */
+	public Bundle tFunctionalStatus2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObs) {
+		if(cdaObs == null || cdaObs.isSetNullFlavor()) 
+			return null;
+		
+		Observation fhirObs = new Observation();
+		
+		Bundle fhirObsBundle = new Bundle();
+		fhirObsBundle.addEntry(new Bundle.Entry().setResource(fhirObs));
+		
+		// id
+		IdDt resourceId = new IdDt("Observation", getUniqueId());
+		fhirObs.setId(resourceId);
+		
+		// subject
+		fhirObs.setSubject(getPatientRef());
+		
+		// id -> identifier
+		if(cdaObs.getIds() != null && !cdaObs.getIds().isEmpty()) {
+			for(II ii : cdaObs.getIds()) {
+				if(ii != null && !ii.isSetNullFlavor()) {
+					fhirObs.addIdentifier(dtt.tII2Identifier(ii));
+				}
+			}
+		}
+		
+		// code -> category
+		if(cdaObs.getCode() != null && !cdaObs.isSetNullFlavor()) {
+			fhirObs.setCategory(dtt.tCD2CodeableConcept(cdaObs.getCode()));
+		}
+		
+		// value[@xsi:type='CD'] -> code
+		if(cdaObs.getValues() != null && !cdaObs.getValues().isEmpty()) {
+			for(ANY value : cdaObs.getValues()) {
+				if(value != null && !value.isSetNullFlavor()) {
+					if(value instanceof CD) {
+						fhirObs.setCode(dtt.tCD2CodeableConcept((CD)value));
+					}
+				}
+			}
+		}
+		
+		// author -> performer
+		if(cdaObs.getAuthors() != null && !cdaObs.getAuthors().isEmpty()) {
+			for(org.openhealthtools.mdht.uml.cda.Author author : cdaObs.getAuthors()) {
+				if(author != null && !author.isSetNullFlavor()) {
+					Practitioner fhirPractitioner = null;
+					Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+						
+					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
+						fhirObsBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+						
+						if(entry.getResource() instanceof Practitioner) {
+								fhirPractitioner = (Practitioner)entry.getResource();
+						}
+					}
+					fhirObs.addPerformer().setReference(fhirPractitioner.getId());
+				}
+			}
+		}
+	
+		// effectiveTime -> effective
+		if(cdaObs.getEffectiveTime() != null && !cdaObs.getEffectiveTime().isSetNullFlavor()) {
+			fhirObs.setEffective(dtt.tIVL_TS2Period(cdaObs.getEffectiveTime()));
+		}
+		
+		// non-medicinal supply activity -> device
+		if(cdaObs.getEntryRelationships() != null && !cdaObs.getEntryRelationships().isEmpty()) {
+			for(EntryRelationship entryRelShip : cdaObs.getEntryRelationships()) {
+				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
+					// supply
+					org.openhealthtools.mdht.uml.cda.Supply cdaSupply = entryRelShip.getSupply();
+					if(cdaSupply != null && !cdaSupply.isSetNullFlavor()) {
+						if(cdaSupply instanceof NonMedicinalSupplyActivity) {
+							// Non-Medicinal Supply Activity
+							Device fhirDev = tSupply2Device(cdaSupply);
+							fhirObs.setDevice(new ResourceReferenceDt(fhirDev.getId()));
+							fhirObsBundle.addEntry(new Bundle.Entry().setResource(fhirDev));
+						}
+					}
+				}
+			}
+		}
+
+		return fhirObsBundle;
+	}
+	
 	public Condition tIndication2Condition(Indication indication) {
 		if(indication == null || indication.isSetNullFlavor())
 			return null;
@@ -2305,100 +2397,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirOrganization;
 	}
 
-	/*
-	 * Functional Status Section contains:
-	 *   1- Functional Status Observation
-	 *   2- Self-Care Activites
-	 * Both of them have single Observation which needs mapping.
-	 * Therefore, the parameter for the following method(tFunctionalStatus2Observation) chosen to be generic(Observation)
-	 * .. to cover the content of the section.
-	 */
-	public Bundle tFunctionalStatus2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObs) {
-		if(cdaObs == null || cdaObs.isSetNullFlavor()) 
-			return null;
-		
-		Observation fhirObs = new Observation();
-		
-		Bundle fhirObsBundle = new Bundle();
-		fhirObsBundle.addEntry(new Bundle.Entry().setResource(fhirObs));
-		
-		// id
-		IdDt resourceId = new IdDt("Observation", getUniqueId());
-		fhirObs.setId(resourceId);
-		
-		// subject
-		fhirObs.setSubject(getPatientRef());
-		
-		// id -> identifier
-		if(cdaObs.getIds() != null && !cdaObs.getIds().isEmpty()) {
-			for(II ii : cdaObs.getIds()) {
-				if(ii != null && !ii.isSetNullFlavor()) {
-					fhirObs.addIdentifier(dtt.tII2Identifier(ii));
-				}
-			}
-		}
-		
-		// code -> category
-		if(cdaObs.getCode() != null && !cdaObs.isSetNullFlavor()) {
-			fhirObs.setCategory(dtt.tCD2CodeableConcept(cdaObs.getCode()));
-		}
-		
-		// value[@xsi:type='CD'] -> code
-		if(cdaObs.getValues() != null && !cdaObs.getValues().isEmpty()) {
-			for(ANY value : cdaObs.getValues()) {
-				if(value != null && !value.isSetNullFlavor()) {
-					if(value instanceof CD) {
-						fhirObs.setCode(dtt.tCD2CodeableConcept((CD)value));
-					}
-				}
-			}
-		}
-		
-		// author -> performer
-		if(cdaObs.getAuthors() != null && !cdaObs.getAuthors().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.Author author : cdaObs.getAuthors()) {
-				if(author != null && !author.isSetNullFlavor()) {
-					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
-						
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
-						fhirObsBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-						
-						if(entry.getResource() instanceof Practitioner) {
-								fhirPractitioner = (Practitioner)entry.getResource();
-						}
-					}
-					fhirObs.addPerformer().setReference(fhirPractitioner.getId());
-				}
-			}
-		}
-	
-		// effectiveTime -> effective
-		if(cdaObs.getEffectiveTime() != null && !cdaObs.getEffectiveTime().isSetNullFlavor()) {
-			fhirObs.setEffective(dtt.tIVL_TS2Period(cdaObs.getEffectiveTime()));
-		}
-		
-		// non-medicinal supply activity -> device
-		if(cdaObs.getEntryRelationships() != null && !cdaObs.getEntryRelationships().isEmpty()) {
-			for(EntryRelationship entryRelShip : cdaObs.getEntryRelationships()) {
-				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
-					// supply
-					org.openhealthtools.mdht.uml.cda.Supply cdaSupply = entryRelShip.getSupply();
-					if(cdaSupply != null && !cdaSupply.isSetNullFlavor()) {
-						if(cdaSupply instanceof NonMedicinalSupplyActivity) {
-							// Non-Medicinal Supply Activity
-							Device fhirDev = tSupply2Device(cdaSupply);
-							fhirObs.setDevice(new ResourceReferenceDt(fhirDev.getId()));
-							fhirObsBundle.addEntry(new Bundle.Entry().setResource(fhirDev));
-						}
-					}
-				}
-			}
-		}
-
-		return fhirObsBundle;
-	}
-	
 	public ca.uhn.fhir.model.dstu2.resource.Device tSupply2Device(org.openhealthtools.mdht.uml.cda.Supply cdaSupply) {
 		if(cdaSupply == null || cdaSupply.isSetNullFlavor())
 			return null;

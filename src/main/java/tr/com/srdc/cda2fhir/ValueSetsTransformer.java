@@ -11,51 +11,171 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 
 public interface ValueSetsTransformer {
 	
-	AdministrativeGenderEnum tAdministrativeGenderCode2AdministrativeGenderEnum(String AdministrativeGenderCode);
+	/**
+	* Transforms a CDA AdministrativeGenderCode string to a FHIR AdministrativeGenderEnum.
+	* @param cdaAdministrativeGenderCode A CDA AdministrativeGenderCode string
+	* @return A value from the FHIR valueset AdministrativeGenderEnum
+	*/
+	AdministrativeGenderEnum tAdministrativeGenderCode2AdministrativeGenderEnum(String cdaAdministrativeGenderCode);
 	
-	String tAgeObservationUnit2AgeUnit(String cdaUnit);
+	/**
+	 * Transforms a CDA AgeObservationUnit string to a FHIR AgeUnit string.
+	 * @param cdaAgeObservationUnit A CDA AgeObservationUnit string
+	 * @return A FHIR AgeUnit string
+	 */
+	String tAgeObservationUnit2AgeUnit(String cdaAgeObservationUnit);
 	
-	AllergyIntoleranceCategoryEnum tAllergyCategoryCode2AllergyIntoleranceCategoryEnum(String allergyCategoryCode);
+	/**
+	 * Transforms a CDA AllergyCategoryCode string to a FHIR AllergyIntoleranceCategoryEnum.
+	 * @param cdaAllergyCategoryCode A CDA AllergyCategoryCode string
+	 * @return A value from the FHIR valueset AllergyIntoleranceCategoryEnum
+	 */
+	AllergyIntoleranceCategoryEnum tAllergyCategoryCode2AllergyIntoleranceCategoryEnum(String cdaAllergyCategoryCode);
 	
-	EncounterClassEnum tEncounterCode2EncounterClassEnum(String encounterCode);
+	/**
+	 * Transforms a CDA EncounterCode string to a FHIR EncounterClassEnum.
+	 * @param cdaEncounterCode A CDA EncounterCode string
+	 * @return A value from the FHIR valueset EncounterClassEnum
+	 */
+	EncounterClassEnum tEncounterCode2EncounterClassEnum(String cdaEncounterCode);
 	
-	GroupTypeEnum tEntityClassRoot2GroupTypeEnum(EntityClassRoot entityClassRoot);
+	/**
+	 * Transforms a CDA EntityClassRoot vocable to a value from the FHIR valueset GroupTypeEnum.
+	 * @param cdaEntityClassRoot A CDA EntityClassRoot vocable
+	 * @return A value from the FHIR valueset GroupTypeEnum
+	 */
+	GroupTypeEnum tEntityClassRoot2GroupTypeEnum(EntityClassRoot cdaEntityClassRoot);
 	
-	NameUseEnum tEntityNameUse2NameUseEnum(EntityNameUse entityNameUse);
+	/**
+	 * Transforms a CDA EntityNameUse vocable to a value from the FHIR valueset NameUseEnum.
+	 * @param cdaEntityNameUse A CDA EntityNameUse vocable
+	 * @return A value from the FHIR valueset NameUseEnum
+	 */
+	NameUseEnum tEntityNameUse2NameUseEnum(EntityNameUse cdaEntityNameUse);
 	
-	FamilyHistoryStatusEnum tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String FamilyHistoryOrganizerStatusCode);
+	/**
+	 * Transforms a CDA FamilyHistoryOrganizerStatusCode string to a value from the FHIR valueset FamilyHistoryStatusEnum.
+	 * @param cdaFamilyHistoryOrganizerStatusCode A CDA FamilyHistoryOrganizerStatusCode string
+	 * @return A value from the FHIR valueset FamilyHistoryStatusEnum
+	 */
+	FamilyHistoryStatusEnum tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatusEnum(String cdaFamilyHistoryOrganizerStatusCode);
 	
-	MaritalStatusCodesEnum tMaritalStatusCode2MaritalStatusCodesEnum(String maritalStatusCode);
+	/**
+	 * Transforms a CDA MaritalStatusCode string to a value from the FHIR valueset MaritalStatusCodesEnum.
+	 * @param cdaMaritalStatusCode A CDA MaritalStatusCode string
+	 * @return A value from the FHIR valueset MaritalStatusCodesEnum
+	 */
+	MaritalStatusCodesEnum tMaritalStatusCode2MaritalStatusCodesEnum(String cdaMaritalStatusCode);
 	
-	CodingDt tNullFlavor2DataAbsentReasonCode(NullFlavor nullFlavor);
+	/**
+	 * Transforms a CDA NullFlavor vocable to a FHIR CodingDt composite datatype which includes the code about DataAbsentReason.
+	 * @param cdaNullFlavor A CDA NullFlavor vocable
+	 * @return A FHIR CodingDt composite datatype which includes the code about DataAbsentReason.
+	 */
+	CodingDt tNullFlavor2DataAbsentReasonCode(NullFlavor cdaNullFlavor);
 	
-	ObservationStatusEnum tObservationStatusCode2ObservationStatusEnum(String obsStatusCode);
+	/**
+	 * Transforms a CDA ObservationStatusCode string to a value from the FHIR valueset ObservationStatusEnum.
+	 * @param cdaObservationStatusCode A CDA ObservationStatusCode string
+	 * @return A value from the FHIR valueset ObservationStatusEnum
+	 */
+	ObservationStatusEnum tObservationStatusCode2ObservationStatusEnum(String cdaObservationStatusCode);
 	
+	/**
+	 * Transforms a CodeSystem string to a URL string.
+	 * @param codeSystem a CodeSystem string
+	 * @return A URL string
+	 */
 	String tOid2Url(String codeSystem);
 	
-	CodingDt tParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaPT);
+	/**
+	 * Transforms a CDA ParticipationType vocable to a FHIR CodingDt composite datatype which includes the code about ParticipationType.
+	 * @param cdaParticipationType A CDA ParticipationType vocable
+	 * @return A FHIR CodingDt composite datatype which includes the code about ParticipationType
+	 */
+	CodingDt tParticipationType2ParticipationTypeCode(org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaParticipationType);
 
-	UnitsOfTimeEnum tPeriodUnit2UnitsOfTimeEnum(String periodUnit);
+	/**
+	 * Transforms a CDA PeriodUnit string to a value from the FHIR valueset UnitsOfTimeEnum.
+	 * @param cdaPeriodUnit A CDA PeriodUnit string
+	 * @return A value from the FHIR valueset UnitsOfTimeEnum.
+	 */
+	UnitsOfTimeEnum tPeriodUnit2UnitsOfTimeEnum(String cdaPeriodUnit);
 
-	ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String problemType);
+	/**
+	 * Transforms a CDA ProblemType string to a value from the FHIR valuset ConditionCategoryCodesEnum.
+	 * @param cdaProblemType A CDA ProblemType string
+	 * @return A value from the FHIR valuset ConditionCategoryCodesEnum
+	 */
+	ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String cdaProblemType);
 	
-	AddressTypeEnum tPostalAddressUse2AddressTypeEnum(PostalAddressUse postalAddressUse);
+	/**
+	 * Transforms a CDA PostalAddressUse vocable to a value from the FHIR valueset AddressTypeEnum.
+	 * @param cdaPostalAddressUse A CDA PostalAddressUse vocable
+	 * @return A value from the FHIR valueset AddressTypeEnum
+	 */
+	AddressTypeEnum tPostalAddressUse2AddressTypeEnum(PostalAddressUse cdaPostalAddressUse);
 	
-	AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse postalAddressUse);
+	/**
+	 * Transforms a CDA PostalAddressUse vocable to a value from the FHIR valueset AddressUseEnum.
+	 * @param cdaPostalAddressUse A CDA PostalAddressUse vocable
+	 * @return A value from the FHIR valueset AddressUseEnum
+	 */
+	AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse cdaPostalAddressUse);
 	
-	AllergyIntoleranceSeverityEnum tSeverityCode2AllergyIntoleranceSeverityEnum(String severityCode);
+	/**
+	 * Transforms a CDA SeverityCode string to a value from the FHIR valueset AllergyIntoleranceSeverityEnum.
+	 * @param cdaSeverityCode A CDA SeverityCode string
+	 * @return A value from the FHIR valueset AllergyIntoleranceSeverityEnum.
+	 */
+	AllergyIntoleranceSeverityEnum tSeverityCode2AllergyIntoleranceSeverityEnum(String cdaSeverityCode);
 	
-	AllergyIntoleranceStatusEnum tStatusCode2AllergyIntoleranceStatusEnum(String status);
+	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset AllergyIntoleranceStatusEnum.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR valueset AllergyIntoleranceStatusEnum
+	 */
+	AllergyIntoleranceStatusEnum tStatusCode2AllergyIntoleranceStatusEnum(String cdaStatusCode);
 	
-	EncounterStateEnum tStatusCode2EncounterStatusEnum(String status);
+	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset EncounterStateEnum.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR valueset EncounterStateEnum
+	 */
+	EncounterStateEnum tStatusCode2EncounterStatusEnum(String cdaStatusCode);
 	
-	MedicationDispenseStatusEnum tStatusCode2MedicationDispenseStatusEnum(String status);
+	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset MedicationDispenseStatusEnum.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR valueset MedicationDispenseStatusEnum
+	 */
+	MedicationDispenseStatusEnum tStatusCode2MedicationDispenseStatusEnum(String cdaStatusCode);
 	
-	MedicationStatementStatusEnum tStatusCode2MedicationStatementStatusEnum(String status);
+	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset MedicationStatementStatusEnum.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR valueset MedicationStatementStatusEnum
+	 */
+	MedicationStatementStatusEnum tStatusCode2MedicationStatementStatusEnum(String cdaStatusCode);
 	
-	ProcedureStatusEnum tStatusCode2ProcedureStatusEnum(String statusCodeString);
+	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ProcedureStatusEnum.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR valueset ProcedureStatusEnum
+	 */
+	ProcedureStatusEnum tStatusCode2ProcedureStatusEnum(String cdaStatusCode);
 	
-	ContactPointUseEnum tTelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse telecommunicationAddressUse);
+	/**
+	 * Transforms a CDA TelecommunicationAddressUse vocable to a value from the FHIR valueset ContactPointUseEnum.
+	 * @param cdaTelecommunicationAddressUse A CDA TelecommunicationAddressUse vocable
+	 * @return A value from the FHIR valueset ContactPointUseEnum
+	 */
+	ContactPointUseEnum tTelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse cdaTelecommunicationAddressUse);
 
-	ContactPointSystemEnum tTelValue2ContactPointSystemEnum(String telValue);
+	/**
+	 * Transforms a CDA TelValue string to a value from the FHIR valueset ContactPointSystemEnum.
+	 * @param cdaTelValue A CDA TelValue string
+	 * @return A value from the FHIR valueset ContactPointSystemEnum.
+	 */
+	ContactPointSystemEnum tTelValue2ContactPointSystemEnum(String cdaTelValue);
 }
