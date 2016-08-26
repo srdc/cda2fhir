@@ -167,7 +167,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}
 
 					// searching for reaction observation
-					// NOTE: fhirAllergyIntolerance.reaction.duration doesn't exist although daf wants it mapped
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()) {
 						for(EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()) {
 							if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
@@ -179,7 +178,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 										ReactionObservation cdaReactionObs = (ReactionObservation) entryRelShip.getObservation();
 										Reaction fhirReaction = fhirAllergyIntolerance.addReaction();
 										
-										// reactionObservation.value[@xsi:type='CD'] -> reaction.manifestation
+										// reactionObservation/value[@xsi:type='CD'] -> reaction.manifestation
 										if(cdaReactionObs.getValues() != null && !cdaReactionObs.getValues().isEmpty()) {
 											for(ANY value : cdaReactionObs.getValues()) {
 												if(value != null && !value.isSetNullFlavor()) {
@@ -190,7 +189,14 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 											}
 										}
 
-										// severityObservation.value[@xsi:type='CD'].code -> severity
+										// reactionObservation/low -> reaction.onset
+										if(cdaReactionObs.getEffectiveTime() != null && !cdaReactionObs.getEffectiveTime().isSetNullFlavor()) {
+											if(cdaReactionObs.getEffectiveTime().getLow() != null && !cdaReactionObs.getEffectiveTime().getLow().isSetNullFlavor()) {
+												fhirReaction.setOnset(dtt.tString2DateTime(cdaReactionObs.getEffectiveTime().getLow().getValue()));
+											}
+										}
+
+										// severityObservation/value[@xsi:type='CD'].code -> severity
 										if(cdaReactionObs.getSeverityObservation() != null && !cdaReactionObs.getSeverityObservation().isSetNullFlavor()) {
 											SeverityObservation cdaSeverityObs = cdaReactionObs.getSeverityObservation();
 											if(cdaSeverityObs.getValues() != null && !cdaSeverityObs.getValues().isEmpty()) {
