@@ -33,6 +33,13 @@ public interface ValueSetsTransformer {
 	AllergyIntoleranceCategoryEnum tAllergyCategoryCode2AllergyIntoleranceCategoryEnum(String cdaAllergyCategoryCode);
 	
 	/**
+	 * Transforms a CDA CriticalityObservation's value's code string to a FHIR AllergyIntoleranceCriticalityEnum.
+	 * @param cdaCriticalityObservationValue A CDA CriticalityObservation's value's code string
+	 * @return A value from the FHIR valueset AllergyIntolerancecriticalityEnum
+	 */
+	AllergyIntoleranceCriticalityEnum tCriticalityObservationValue2AllergyIntoleranceCriticalityEnum(String cdaCriticalityObservationValue);
+	
+	/**
 	 * Transforms a CDA EncounterCode string to a FHIR EncounterClassEnum.
 	 * @param cdaEncounterCode A CDA EncounterCode string
 	 * @return A value from the FHIR valueset EncounterClassEnum

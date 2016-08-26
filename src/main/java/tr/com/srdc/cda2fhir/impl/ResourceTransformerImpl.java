@@ -22,8 +22,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
-
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.composite.AgeDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
@@ -79,7 +77,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return null;
 
 		AllergyIntolerance fhirAllergyIntolerance = new AllergyIntolerance();
-		
+
 		Bundle allergyIntoleranceBundle = new Bundle();
 		allergyIntoleranceBundle.addEntry(new Bundle.Entry().setResource(fhirAllergyIntolerance));
 		
@@ -172,13 +170,14 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						}
 					}
 					
-					
-					// searching for reaction observation
+					// searching for reaction observation and criticality observation
 					// NOTE: fhirAllergyIntolerance.reaction.duration doesn't exists although daf wants it mapped
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()) {
 						for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()) {
 							if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
 								if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()) {
+				
+									// reaction observation
 									if(entryRelShip.getObservation() instanceof ReactionObservation) {
 										
 										ReactionObservation cdaReactionObs = (ReactionObservation) entryRelShip.getObservation();
@@ -208,6 +207,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 														}
 													}
 												}
+											}
+										}
+									}
+									
+									// criticality observation. found by checking the templateId
+									// entryRelationship.observation[templateId/@root='2.16.840.1.113883.10.20.22.4.145'].value[CD].code -> criticality
+									if(entryRelShip.getObservation().getTemplateIds() != null && !entryRelShip.getObservation().getTemplateIds().isEmpty()) {
+										for(II templateId : entryRelShip.getObservation().getTemplateIds()) {
+											if(templateId.getRoot() != null && !templateId.getRoot().equals("2.16.840.1.113883.10.20.22.4.145")) {
+												org.openhealthtools.mdht.uml.cda.Observation cdaCriticalityObservation = entryRelShip.getObservation();
+												for(ANY value : cdaCriticalityObservation.getValues()) {
+													if(value != null && !value.isSetNullFlavor()) {
+														if(value instanceof CD) {
+															AllergyIntoleranceCriticalityEnum allergyIntoleranceCriticalityEnum = vst.tCriticalityObservationValue2AllergyIntoleranceCriticalityEnum(((CD)value).getCode());
+															if(allergyIntoleranceCriticalityEnum != null) {
+																fhirAllergyIntolerance.setCriticality(allergyIntoleranceCriticalityEnum);
+															}
+														}
+													}
+												}
+												// since we already found the desired templateId, we may break the searching for templateId to avoid containing duplicate observations
+												break;
 											}
 										}
 									}
@@ -1372,8 +1393,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						fhirObs.setValue(dtt.tRTO2Ratio((RTO)value));
 					} else if(value instanceof ED) {
 						fhirObs.setValue(dtt.tED2Attachment((ED)value));
-					}
-					else if(value instanceof TS) {
+					} else if(value instanceof TS) {
 						fhirObs.setValue(dtt.tTS2DateTime((TS)value));
 					}
 				}

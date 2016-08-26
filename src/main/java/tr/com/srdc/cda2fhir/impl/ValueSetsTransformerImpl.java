@@ -70,6 +70,21 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 	
+	public AllergyIntoleranceCriticalityEnum tCriticalityObservationValue2AllergyIntoleranceCriticalityEnum(String cdaCriticalityObservationValue) {
+		if(cdaCriticalityObservationValue == null || cdaCriticalityObservationValue.isEmpty())
+			return null;
+		switch(cdaCriticalityObservationValue.toLowerCase()) {
+			case "critl": 
+				return AllergyIntoleranceCriticalityEnum.LOW_RISK;
+			case "crith": 
+				return AllergyIntoleranceCriticalityEnum.HIGH_RISK;
+			case "critu": 
+				return AllergyIntoleranceCriticalityEnum.UNABLE_TO_DETERMINE;
+			default: 
+				return null;
+		}
+	}
+	
 	public EncounterClassEnum tEncounterCode2EncounterClassEnum(String cdaEncounterCode) {
 		if(cdaEncounterCode == null)
 			return null;
