@@ -117,6 +117,12 @@ public interface ResourceTransformer {
 	Bundle tMedicationDispense2MedicationDispense(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaMedicationDispense);
 	
 	/**
+	 * Transforms a CDA MedicationInformation instance to a FHIR Medication resource.
+	 * @param cdaMedicationInformation A CDA MedicationInformation instance
+	 * @return A FHIR Bundle that contains the Medication as the first entry, which can also include other referenced resources such as Substance, Organization
+	 */
+	Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation);
+	/**
 	 * Transforms a CDA Observation instance to a FHIR Observation resource.
 	 * @param cdaObservation A CDA Observation instance
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Encounter, Practitioner

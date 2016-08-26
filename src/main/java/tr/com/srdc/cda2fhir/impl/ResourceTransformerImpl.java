@@ -487,23 +487,18 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
-
-		// entryRelationship[@typeCode='RSON'].observation[Indication].value[CD] -> reason
+		
+		// entryRelationship[@typeCode='RSON'].observation[Indication] -> indication
 		if(cdaEncounter.getEntryRelationships() != null && !cdaEncounter.getEntryRelationships().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaEncounter.getEntryRelationships()) {
 				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
 					if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()) {
 						if(entryRelShip.getObservation() instanceof Indication) {
 							Indication cdaIndication = (Indication)entryRelShip.getObservation();
-							if(cdaIndication.getValues() != null && !cdaIndication.getValues().isEmpty()) {
-								for(ANY value : cdaIndication.getValues()) {
-									if(value != null && !value.isSetNullFlavor()) {
-										if(value instanceof CD) {
-											fhirEncounter.addReason(dtt.tCD2CodeableConcept((CD)value));
-										}
-									}
-								}
-							}
+							Condition fhirIndication = tIndication2Condition(cdaIndication);
+							fhirEncounterBundle.addEntry(new Bundle.Entry().setResource(fhirIndication));
+							ResourceReferenceDt indicationRef = fhirEncounter.addIndication();
+							indicationRef.setReference(fhirIndication.getId());
 						}
 					}
 				}
@@ -512,9 +507,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirEncounterBundle;
 	}
 
-	// EncounterActivity2Encounter and Encounter2Encounter are nearly the same methods.
-	// Since EncounterActivity extends Encounter, Encounter2Encounter can be used for both of the them.
 	public Bundle tEncounterActivity2Encounter(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaEncounterActivity) {
+		/*
+		 * EncounterActivity2Encounter and Encounter2Encounter are nearly the same methods.
+		 * Since EncounterActivity class has neater methods, we may think of using EncounterActivity2Encounter instead of Encounter2Encounter in later times
+		 * Also, notice that some of those methods are not working properly, yet.
+		 * Therefore, those of methods that are not working properly but seems to be neater hasn't used in this implementation.
+		 */
 		if(cdaEncounterActivity == null || cdaEncounterActivity.isSetNullFlavor())
 			return null;
 
@@ -649,8 +648,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirEncounterBundle;
 	}
 
-	// never used
 	public Group tEntity2Group(Entity cdaEntity) {
+		// never used
 		if( cdaEntity == null || cdaEntity.isSetNullFlavor() )
 			return null;
 		else if(cdaEntity.getDeterminerCode() != org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer.KIND)
@@ -817,6 +816,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	 * Both of them have single Observation which needs mapping.
 	 * Therefore, the parameter for the following method(tFunctionalStatus2Observation) chosen to be generic(Observation)
 	 * .. to cover the content of the section.
+	 * Also, notice that the transformation of those Observations are different from the generic Observation transformation
 	 */
 	public Bundle tFunctionalStatus2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObservation) {
 		if(cdaObservation == null || cdaObservation.isSetNullFlavor()) 
@@ -968,7 +968,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		return fhirCond;
 	}
-
+	
 	public Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct) {
 		if(cdaManufacturedProduct == null || cdaManufacturedProduct.isSetNullFlavor())
 			return null;
@@ -1135,8 +1135,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaMedicationDispense == null || cdaMedicationDispense.isSetNullFlavor())
 			return null;
 		
-		// TODO: Following mapping doesn't really suit the mapping proposed by daf
-		// Example file and the pdf doesn't explain much
+		// NOTE: Following mapping doesn't really suit the mapping proposed by daf
 		
 		MedicationDispense fhirMediDisp = new MedicationDispense();
 		Bundle fhirMediDispBundle = new Bundle();
@@ -1173,21 +1172,23 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaMedicationDispense.getCode() != null && !cdaMedicationDispense.getCode().isSetNullFlavor()){
 			fhirMediDisp.setType(dtt.tCD2CodeableConcept(cdaMedicationDispense.getCode()));
 		}
-		// TODO: Necip: We may think of using template "Medication information"
-		// product.manufacturedProduct -> medication
+		
+		// product.manufacturedProduct(MedicationInformation) -> medication
 		if(cdaMedicationDispense.getProduct() != null && !cdaMedicationDispense.getProduct().isSetNullFlavor()) {
 			if(cdaMedicationDispense.getProduct().getManufacturedProduct() != null && !cdaMedicationDispense.getProduct().getManufacturedProduct().isSetNullFlavor()) {
-				Medication fhirMedication = null;
-				Bundle fhirMedicationBundle = tManufacturedProduct2Medication(cdaMedicationDispense.getProduct().getManufacturedProduct());
-				
-				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirMedicationBundle.getEntry()) {
-					fhirMediDispBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-					if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Medication){
-						fhirMedication = (ca.uhn.fhir.model.dstu2.resource.Medication)entry.getResource();
+				if(cdaMedicationDispense.getProduct().getManufacturedProduct() instanceof MedicationInformation) {
+					MedicationInformation cdaMedicationInformation = (MedicationInformation) cdaMedicationDispense.getProduct().getManufacturedProduct();
+					Medication fhirMedication = null;
+					Bundle fhirMedicationBundle = tMedicationInformation2Medication(cdaMedicationInformation);
+					
+					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirMedicationBundle.getEntry()) {
+						fhirMediDispBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Medication){
+							fhirMedication = (ca.uhn.fhir.model.dstu2.resource.Medication)entry.getResource();
+						}
 					}
+					fhirMediDisp.setMedication(new ResourceReferenceDt(fhirMedication.getId()));
 				}
-				
-				fhirMediDisp.setMedication(new ResourceReferenceDt(fhirMedication.getId()));
 			}
 		}
 		
@@ -1239,8 +1240,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// Adding dosageInstruction
 		MedicationDispense.DosageInstruction fhirDosageInstruction = fhirMediDisp.addDosageInstruction();
 
-		// TODO: Necip:
-		// The information used for dosageInstruction is used for different fields, too.
+		// TODO: The information used for dosageInstruction is used for different fields, too.
 		// Determine which field the information should fit
 		
 		// effectiveTimes -> dosageInstruction.timing.event
@@ -1269,6 +1269,14 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirMediDispBundle;
 	}
 
+	public Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation) {
+		/*
+		 * Since MedicationInformation is a ManufacturedProduct instance with a specific templateId,
+		 * tManufacturedProduct2Medication should satisfy the required mapping for MedicationInformation
+		 */
+		return tManufacturedProduct2Medication(cdaMedicationInformation);
+	}
+	
 	public Bundle tObservation2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObservation) {
 		if(cdaObservation == null || cdaObservation.isSetNullFlavor())
 			return null;
@@ -1497,59 +1505,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirOrganization;
 	}
 
-	// ServiceDeliveryLocation is also a ParticipantRole with a specific templateId.
-	// Mappings for them are identical
 	public Location tServiceDeliveryLocation2Location(ServiceDeliveryLocation cdaSDLOC) {
-		if(cdaSDLOC == null || cdaSDLOC.isSetNullFlavor())
-			return null;
-
-		Location fhirLocation = new Location();
-
-		// resource id
-		IdDt resourceId = new IdDt("Location", getUniqueId());
-		fhirLocation.setId(resourceId);
-
-		// id -> identifier
-		if(cdaSDLOC.getIds() != null && !cdaSDLOC.getIds().isEmpty()) {
-			for(II ii : cdaSDLOC.getIds()) {
-				if(ii != null && !ii.isSetNullFlavor()) {
-					fhirLocation.addIdentifier(dtt.tII2Identifier(ii));
-				}
-			}
-		}
-
-		// playingEntity.name.text-> name
-		if(cdaSDLOC.getPlayingEntity() != null && !cdaSDLOC.getPlayingEntity().isSetNullFlavor()) {
-			if(cdaSDLOC.getPlayingEntity().getNames() != null && !cdaSDLOC.getPlayingEntity().getNames().isEmpty()) {
-				for(PN pn : cdaSDLOC.getPlayingEntity().getNames()) {
-					// Asserting that at most one name exists
-					if(pn != null && !pn.isSetNullFlavor()) {
-						fhirLocation.setName(pn.getText());
-					}
-				}
-			}
-		}
-
-		// telecom -> telecom
-		if(cdaSDLOC.getTelecoms() != null && !cdaSDLOC.getTelecoms().isEmpty()) {
-			for(TEL tel : cdaSDLOC.getTelecoms()) {
-				if(tel != null && !tel.isSetNullFlavor()) {
-					fhirLocation.addTelecom(dtt.tTEL2ContactPoint(tel));
-				}
-			}
-		}
-
-		// addr -> address
-		if(cdaSDLOC.getAddrs() != null && !cdaSDLOC.getAddrs().isEmpty()) {
-			for(AD ad : cdaSDLOC.getAddrs()) {
-				// Asserting that at most one address exists
-				if(ad != null && !ad.isSetNullFlavor()) {
-					fhirLocation.setAddress(dtt.AD2Address(ad));
-				}
-			}
-		}
-
-		return fhirLocation;
+		/*
+		 * ServiceDeliveryLocation is a ParticipantRole instance with a specific templateId
+		 * Therefore, tParticipantRole2Location should satisfy the necessary mapping
+		 */
+		return tParticipantRole2Location(cdaSDLOC);
 	}
 
 	public Location tParticipantRole2Location(ParticipantRole cdaParticipantRole) {
@@ -1797,8 +1758,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 
-			// TODO: Severity
-			// Couldn't find in the CDA example
+			// NOTE: Although DAF requires the mapping for severity, we couldn't find it in CDA side
 
 			// encounter -> encounter
 			if(cdaProblemConcernAct.getEncounters() != null && !cdaProblemConcernAct.getEncounters().isEmpty()) {
