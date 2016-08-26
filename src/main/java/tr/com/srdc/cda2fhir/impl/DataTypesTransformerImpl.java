@@ -736,7 +736,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 
 	/**
 	 * Transforms a CDA TS instance or a string including the date information in CDA format to a FHIR BaseDateTimeDt primitive datatype instance.
-	 * Since BaseDateTimeDt is an abstract class, the second parameter of this method (Class<?> classOfReturningObject) determines the class that initiates the BaseDateTimeDt object the method is to return.
+	 * Since BaseDateTimeDt is an abstract class, the second parameter of this method (Class&lt;?&gt; classOfReturningObject) determines the class that initiates the BaseDateTimeDt object the method is to return.
 	 * @param tsObject A CDA TS instance or a Java String including the date information in CDA format
 	 * @param classOfReturningObject A FHIR class that determines the initiater for the BaseDateTimeDt object the method is to return. DateDt.class, DateTimeDt.class or InstantDt.class are expected.
 	 * @return A FHIR BaseDateTimeDt primitive datatype instance
@@ -944,7 +944,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	 * Also, this method transforms the CDA formatted tags to HTML formatted tags.
 	 * This method is the helper for the method tStrucDocText2String.
 	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
-	 * @return A Java String list containing the start tag and end tag of an HTML element in form: <tagName attribute="attributeValue">. While first element of the list correspons to the start tag, second element of the list corresponds to the end tag.
+	 * @return A Java String list containing the start tag and end tag of an HTML element in form: &lt;tagName attribute="attributeValue"&gt;. While first element of the list correspons to the start tag, second element of the list corresponds to the end tag.
 	 */
 	private List<String> getTagsHelperForTStructDocText2String(org.eclipse.emf.ecore.impl.EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry) {
 		if(entry == null)

@@ -146,7 +146,7 @@ public class CCDATransformerImpl implements CCDATransformer {
                 ProceduresSection procSec = (ProceduresSection) cdaSec;
                 for(ProcedureActivityProcedure proc : procSec.getConsolProcedureActivityProcedures()) {
                     Bundle procBundle = resTransformer.tProcedure2Procedure(proc);
-                    mergeBundles(procBundle, ccdBundle, fhirSec, ca.uhn.fhir.model.dstu2.resource.Procedure.class);
+                    mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
                 }
             }
             else if(cdaSec instanceof ResultsSection) {
