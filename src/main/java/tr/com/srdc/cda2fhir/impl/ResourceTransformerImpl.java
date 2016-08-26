@@ -23,8 +23,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
-
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Device;
@@ -75,7 +73,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			return null;
 
 		AllergyIntolerance fhirAllergyIntolerance = new AllergyIntolerance();
-		
+
 		Bundle allergyIntoleranceBundle = new Bundle();
 		allergyIntoleranceBundle.addEntry(new Bundle.Entry().setResource(fhirAllergyIntolerance));
 		
@@ -174,6 +172,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						for(EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()) {
 							if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
 								if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()) {
+
+									// reaction observation
 									if(entryRelShip.getObservation() instanceof ReactionObservation) {
 										
 										ReactionObservation cdaReactionObs = (ReactionObservation) entryRelShip.getObservation();
@@ -203,6 +203,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 														}
 													}
 												}
+											}
+										}
+									}
+
+									// criticality observation. found by checking the templateId
+									// entryRelationship.observation[templateId/@root='2.16.840.1.113883.10.20.22.4.145'].value[CD].code -> criticality
+									if(entryRelShip.getObservation().getTemplateIds() != null && !entryRelShip.getObservation().getTemplateIds().isEmpty()) {
+										for(II templateId : entryRelShip.getObservation().getTemplateIds()) {
+											if(templateId.getRoot() != null && !templateId.getRoot().equals("2.16.840.1.113883.10.20.22.4.145")) {
+												org.openhealthtools.mdht.uml.cda.Observation cdaCriticalityObservation = entryRelShip.getObservation();
+												for(ANY value : cdaCriticalityObservation.getValues()) {
+													if(value != null && !value.isSetNullFlavor()) {
+														if(value instanceof CD) {
+															AllergyIntoleranceCriticalityEnum allergyIntoleranceCriticalityEnum = vst.tCriticalityObservationValue2AllergyIntoleranceCriticalityEnum(((CD)value).getCode());
+															if(allergyIntoleranceCriticalityEnum != null) {
+																fhirAllergyIntolerance.setCriticality(allergyIntoleranceCriticalityEnum);
+															}
+														}
+													}
+												}
+												// since we already found the desired templateId, we may break the searching for templateId to avoid containing duplicate observations
+												break;
 											}
 										}
 									}
@@ -1367,8 +1389,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 						fhirObs.setValue(dtt.tRTO2Ratio((RTO)value));
 					} else if(value instanceof ED) {
 						fhirObs.setValue(dtt.tED2Attachment((ED)value));
-					}
-					else if(value instanceof TS) {
+					} else if(value instanceof TS) {
 						fhirObs.setValue(dtt.tTS2DateTime((TS)value));
 					}
 				}
@@ -1969,7 +1990,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaImmunizationActivity.getNegationInd() != null) {
 			fhirImmunization.setWasNotGiven(cdaImmunizationActivity.getNegationInd());
 		}
-		
+
 		// effectiveTime -> date
 		if(cdaImmunizationActivity.getEffectiveTimes() != null && !cdaImmunizationActivity.getEffectiveTimes().isEmpty()) {
 			for(SXCM_TS effectiveTime : cdaImmunizationActivity.getEffectiveTimes()) {
@@ -2149,7 +2170,18 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		// code -> relationship
 		if(cdaGuardian.getCode() != null && !cdaGuardian.getCode().isSetNullFlavor()) {
-			fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
+			// try to use ValueSetsTransformer method tRoleCode2PatientContactRelationshipCode
+			CodingDt relationshipCoding = null;
+			if(cdaGuardian.getCode().getCode() != null && !cdaGuardian.getCode().getCode().isEmpty()) {
+				relationshipCoding = vst.tRoleCode2PatientContactRelationshipCode(cdaGuardian.getCode().getCode());
+			}
+			// if tRoleCode2PatientContactRelationshipCode returns non-null value, add as coding
+			// otherwise, add relationship directly by making code transformation(tCD2CodeableConcept)
+			if(relationshipCoding != null) {
+				fhirContact.addRelationship(new CodeableConceptDt().addCoding(relationshipCoding));
+			} else {
+				fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
+			}
 		}
 		return fhirContact;
 	}

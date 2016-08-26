@@ -27,21 +27,18 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Composition.Section;
+import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.impl.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerTest {
 	
-	// context
-	private static final FhirContext myCtx = FhirContext.forDstu2();
-	
 	ResourceTransformerImpl rt = new ResourceTransformerImpl();
-	DataTypesTransformerTest dtt = new DataTypesTransformerTest();
+	DataTypesTransformerImpl dtt = new DataTypesTransformerImpl();
 	ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
 	private FileInputStream fisCCD;
 	private ContinuityOfCareDocument ccd;
@@ -66,7 +63,7 @@ public class ResourceTransformerTest {
 			e.printStackTrace();
 		}
     }
-	
+
 	// Most of the test methods just print the transformed object in JSON form.
 	
 	@Test
