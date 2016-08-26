@@ -115,7 +115,7 @@ public interface ValueSetsTransformer {
 	 * @return A value from the FHIR valuset ConditionCategoryCodesEnum
 	 */
 	ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String cdaProblemType);
-	
+	 
 	/**
 	 * Transforms a CDA PostalAddressUse vocable to a value from the FHIR valueset AddressTypeEnum.
 	 * @param cdaPostalAddressUse A CDA PostalAddressUse vocable
@@ -129,6 +129,13 @@ public interface ValueSetsTransformer {
 	 * @return A value from the FHIR valueset AddressUseEnum
 	 */
 	AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse cdaPostalAddressUse);
+	
+	/**
+	 * Transforms a CDA RoleCode string to a FHIR CodingDt composite datatype which includes the code about PatientContactRelationship.
+	 * @param cdaRoleCode A CDA RoleCode string
+	 * @return A FHIR CodingDt composite datatype which includes the code about PatientContactRelationship
+	 */
+	CodingDt tRoleCode2PatientContactRelationshipCode(String cdaRoleCode);
 	
 	/**
 	 * Transforms a CDA SeverityCode string to a value from the FHIR valueset AllergyIntoleranceSeverityEnum.

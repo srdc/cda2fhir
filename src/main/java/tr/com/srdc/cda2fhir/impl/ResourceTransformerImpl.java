@@ -2135,7 +2135,18 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		// code -> relationship
 		if(cdaGuardian.getCode() != null && !cdaGuardian.getCode().isSetNullFlavor()) {
-			fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
+			// try to use ValueSetsTransformer method tRoleCode2PatientContactRelationshipCode 
+			CodingDt relationshipCoding = null;
+			if(cdaGuardian.getCode().getCode() != null && !cdaGuardian.getCode().getCode().isEmpty()) {
+				relationshipCoding = vst.tRoleCode2PatientContactRelationshipCode(cdaGuardian.getCode().getCode());
+			}
+			// if tRoleCode2PatientContactRelationshipCode returns non-null value, add as coding
+			// otherwise, add relationship directly by making code transformation(tCD2CodeableConcept)
+			if(relationshipCoding != null) {
+				fhirContact.addRelationship(new CodeableConceptDt().addCoding(relationshipCoding));
+			} else {
+				fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
+			}
 		}
 		return fhirContact;
 	}

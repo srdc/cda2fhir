@@ -520,6 +520,57 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public CodingDt tRoleCode2PatientContactRelationshipCode(String cdaRoleCode) {
+		if(cdaRoleCode == null)
+			return null;
+		
+		CodingDt fhirPatientContactRelationshipCode = new CodingDt();
+		fhirPatientContactRelationshipCode.setSystem("http://hl7.org/fhir/patient-contact-relationship");
+		String code = null;
+		String display = null;
+		
+		switch(cdaRoleCode.toLowerCase()) {
+			case "econ": // emergency contact
+				code="emergency"; display = "Emergency"; break;
+			case "ext": // extended family member
+			case "fammemb": // family member
+				code = "family"; display = "Family"; break;
+			case "guard": // guardian
+				code = "guardian"; display = "Guardian"; break;
+			case "frnd": // friend
+				code = "friend"; display = "Friend"; break;
+			case "sps": // spouse
+			case "dompart": // domestic partner
+			case "husb": // husband
+			case "wife": // wife
+				code = "partner"; display = "Partner"; break;
+			case "work": 
+				code = "work"; display = "Work"; break;
+			case "gt": 
+				code = "guarantor"; display = "Guarantor"; break;
+			case "prn": // parent
+			case "fth": // father
+			case "mth": // mother
+			case "nprn": // natural parent
+			case "nfth": // natural father
+			case "nmth": // natural mother
+			case "prinlaw": // parent in-law
+			case "fthinlaw": // father in-law
+			case "mthinlaw": // mother in-law
+			case "stpprn": // step parent
+			case "stpfth": // stepfather
+			case "stpmth": // stepmother
+				code = "parent"; display = "Parent"; break;
+			case "powatt":
+				code = "agent"; display = "Agent"; break;
+			default:
+				return null;
+		}
+		fhirPatientContactRelationshipCode.setCode(code);
+		fhirPatientContactRelationshipCode.setDisplay(display);
+		return fhirPatientContactRelationshipCode;
+	}
+	
 	public AllergyIntoleranceSeverityEnum tSeverityCode2AllergyIntoleranceSeverityEnum(String cdaSeverityCode) {
 		if(cdaSeverityCode == null)
 			return null;
