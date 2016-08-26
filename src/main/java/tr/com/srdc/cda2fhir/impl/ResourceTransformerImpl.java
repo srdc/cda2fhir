@@ -105,7 +105,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				// Asserting that at most one author exists
 				if(author != null && !author.isSetNullFlavor()) {
 					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
 					
 					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
 						allergyIntoleranceBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
@@ -363,6 +363,16 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		return fhirPractitionerBundle;
 	}
 
+	public Bundle tAuthor2Practitioner(org.openhealthtools.mdht.uml.cda.Author cdaAuthor) {
+		if(cdaAuthor == null || cdaAuthor.isSetNullFlavor()) {
+			return null;
+		} else if(cdaAuthor.getAssignedAuthor() == null || cdaAuthor.getAssignedAuthor().isSetNullFlavor()) {
+			return null;
+		} else {
+			return tAssignedAuthor2Practitioner(cdaAuthor.getAssignedAuthor());
+		}
+	}
+	
 	public Substance tCD2Substance(CD cdaSubstanceCode) {
 		if(cdaSubstanceCode == null || cdaSubstanceCode.isSetNullFlavor())
 			return null;
@@ -864,7 +874,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaObservation.getAuthors()) {
 				if(author != null && !author.isSetNullFlavor()) {
 					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
 						
 					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
 						fhirObsBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
@@ -1051,7 +1061,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// author[0] -> informationSource
 		if(!cdaMedicationActivity.getAuthors().isEmpty()) {
 			if(!cdaMedicationActivity.getAuthors().get(0).isSetNullFlavor()) {
-				Bundle practBundle = tAssignedAuthor2Practitioner(cdaMedicationActivity.getAuthors().get(0).getAssignedAuthor());
+				Bundle practBundle = tAuthor2Practitioner(cdaMedicationActivity.getAuthors().get(0));
 				for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
 					// Add all the resources returned from the bundle to the main bundle
 					medStatementBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
@@ -1398,7 +1408,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaObservation.getAuthors()) {
 				if(author != null && !author.isSetNullFlavor()) {
 					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
 
 					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
 						fhirObsBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
@@ -1782,7 +1792,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				for(org.openhealthtools.mdht.uml.cda.Author author : cdaProblemConcernAct.getAuthors()) {
 					if(author != null && !author.isSetNullFlavor()) {
 						Practitioner fhirPractitioner = null;
-						Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+						Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
 						
 						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
 							fhirConditionBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));	
@@ -2251,7 +2261,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				// Asserting that at most one author exists
 				if(author != null && !author.isSetNullFlavor()) {
 					if(author.getAssignedAuthor() != null && !author.getAssignedAuthor().isSetNullFlavor()) {
-						Bundle practBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+						Bundle practBundle = tAuthor2Practitioner(author);
 						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
 							// Add all the resources returned from the bundle to the main bundle
 							fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
@@ -2453,7 +2463,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				// Asserting that at most one author exists
 				if(author != null && !author.isSetNullFlavor()) {
 					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
 
 					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
 						fhirDiagReportBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));

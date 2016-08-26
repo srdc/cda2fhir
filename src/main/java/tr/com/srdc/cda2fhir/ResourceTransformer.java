@@ -47,6 +47,12 @@ public interface ResourceTransformer {
 	Bundle tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity);
 
 	/**
+	 * Transforms a CDA Author instance to a FHIR Practitioner resource.
+	 * @param cdaAuthor A CDA Author instance
+	 * @return A FHIR Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
+	 */
+	Bundle tAuthor2Practitioner(org.openhealthtools.mdht.uml.cda.Author cdaAuthor);
+	/**
 	 * Transforms a CDA CD instance to a FHIR Substance resource.
 	 * @param cdaSubstanceCode A CDA CD instance
 	 * @return A FHIR Substance resource
