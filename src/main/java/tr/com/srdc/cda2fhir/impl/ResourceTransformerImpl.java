@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir.impl;
 
 import java.util.UUID;
 
+import ca.uhn.fhir.model.dstu2.composite.*;
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Immunization.Explanation;
 import ca.uhn.fhir.model.dstu2.resource.Location;
@@ -25,11 +26,6 @@ import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 
 import ca.uhn.fhir.model.api.ExtensionDt;
-import ca.uhn.fhir.model.dstu2.composite.AgeDt;
-import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.dstu2.composite.TimingDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Device;
 import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
@@ -171,12 +167,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 							}
 						}
 					}
-					
-					
+
 					// searching for reaction observation
-					// NOTE: fhirAllergyIntolerance.reaction.duration doesn't exists although daf wants it mapped
+					// NOTE: fhirAllergyIntolerance.reaction.duration doesn't exist although daf wants it mapped
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()) {
-						for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()) {
+						for(EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()) {
 							if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
 								if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()) {
 									if(entryRelShip.getObservation() instanceof ReactionObservation) {
@@ -218,6 +213,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+
 		return allergyIntoleranceBundle;
 	}
 
@@ -1332,8 +1328,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		// targetSiteCode -> bodySite
 		if(cdaObservation.getTargetSiteCodes() != null && !cdaObservation.getTargetSiteCodes().isEmpty()) {
-			for(CD cd : cdaObservation.getTargetSiteCodes())
-			{
+			for(CD cd : cdaObservation.getTargetSiteCodes()) {
 				if(cd != null && !cd.isSetNullFlavor()) {
 					fhirObs.setBodySite(dtt.tCD2CodeableConcept(cd));
 				}
@@ -1969,6 +1964,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+
+		// negationInd -> wasNotTaken
+		if(cdaImmunizationActivity.getNegationInd() != null) {
+			fhirImmunization.setWasNotGiven(cdaImmunizationActivity.getNegationInd());
+		}
 		
 		// effectiveTime -> date
 		if(cdaImmunizationActivity.getEffectiveTimes() != null && !cdaImmunizationActivity.getEffectiveTimes().isEmpty()) {
@@ -2052,10 +2052,44 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
-		// immunizationRefusalReason.code -> explanation.reasonNotGiven
-		if(cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
-			if(cdaImmunizationActivity.getImmunizationRefusalReason().getCode() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().getCode().isSetNullFlavor()) {
-				fhirImmunization.setExplanation(new Explanation().addReasonNotGiven(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getImmunizationRefusalReason().getCode())));
+		// wasNotGiven == true
+		if(fhirImmunization.getWasNotGiven()) {
+			// immunizationRefusalReason.code -> explanation.reasonNotGiven
+			if (cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
+				if (cdaImmunizationActivity.getImmunizationRefusalReason().getCode() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().getCode().isSetNullFlavor()) {
+					fhirImmunization.setExplanation(new Explanation().addReasonNotGiven(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getImmunizationRefusalReason().getCode())));
+				}
+			}
+		}
+		// wasNotGiven == false
+		else if(!fhirImmunization.getWasNotGiven()) {
+			// indication.value -> explanation.reason
+			if(cdaImmunizationActivity.getIndication() != null && !cdaImmunizationActivity.getIndication().isSetNullFlavor()) {
+				if(!cdaImmunizationActivity.getIndication().getValues().isEmpty() && cdaImmunizationActivity.getIndication().getValues().get(0) != null && !cdaImmunizationActivity.getIndication().getValues().get(0).isSetNullFlavor()) {
+					fhirImmunization.setExplanation(new Explanation().addReason(dtt.tCD2CodeableConcept((CD)cdaImmunizationActivity.getIndication().getValues().get(0))));
+				}
+			}
+		}
+
+		// reaction (i.e. entryRelationship/observation[templateId/@root="2.16.840.1.113883.10.20.22.4.9"] -> reaction
+		if(cdaImmunizationActivity.getReactionObservation() != null && !cdaImmunizationActivity.getReactionObservation().isSetNullFlavor()) {
+			Bundle reactionBundle = tReactionObservation2Observation(cdaImmunizationActivity.getReactionObservation());
+			Observation fhirReactionObservation = null;
+			for(Bundle.Entry entry : reactionBundle.getEntry()) {
+				fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+				if(entry.getResource() instanceof Observation) {
+					fhirReactionObservation = (Observation) entry.getResource();
+				}
+				Immunization.Reaction fhirReaction = fhirImmunization.addReaction();
+				// reaction -> reaction.detail[ref=Observation]
+				fhirReaction.setDetail(new ResourceReferenceDt(fhirReactionObservation.getId()));
+
+				// reaction/effectiveTime/low -> reaction.date
+				if(fhirReactionObservation.getEffective() != null) {
+					PeriodDt reactionDate = (PeriodDt) fhirReactionObservation.getEffective();
+					if(reactionDate.getStart() != null)
+						fhirReaction.setDate(reactionDate.getStartElement());
+				}
 			}
 		}
 
@@ -2406,6 +2440,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 
 		return fhirDev;
+	}
+
+	public Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation) {
+		return tObservation2Observation(cdaReactionObservation);
 	}
 
 	public Bundle tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer) {

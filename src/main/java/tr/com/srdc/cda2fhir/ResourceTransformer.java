@@ -176,6 +176,13 @@ public interface ResourceTransformer {
 	 * @return A FHIR Bundle that contains the Procedure as the first entry, which can also include other referenced resources such as Practitioner
 	 */
 	Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
+
+	/**
+	 * Transforms a CDA ReactionObservation instance to a FHIR Observation resource.
+	 * @param cdaReactionObservation A CDA ReactionObservation instance
+	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Encounter, Practitioner
+     */
+	Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation);
 	
 	/**
 	 * Transforms a CDA ResultObservation instance to a FHIR Observation resource.
