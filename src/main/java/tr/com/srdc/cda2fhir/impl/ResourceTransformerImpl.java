@@ -33,6 +33,7 @@ import ca.uhn.fhir.model.primitive.IdDt;
 import tr.com.srdc.cda2fhir.CCDATransformer;
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
+import tr.com.srdc.cda2fhir.util.Constants;
 
 public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTransformer{
 
@@ -741,11 +742,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		fhirFMH.setPatient(getPatientRef());
 		
 		// id -> identifier
-		if(cdaFHO.getIds() != null && !cdaFHO.getIds().isEmpty()) {
-			for(II id : cdaFHO.getIds()) {
-				if(id != null && !id.isSetNullFlavor()) {
-					fhirFMH.addIdentifier(dtt.tII2Identifier(id));
-				}
+		for(II id : cdaFHO.getIds()) {
+			if(id != null && !id.isSetNullFlavor()) {
+				fhirFMH.addIdentifier(dtt.tII2Identifier(id));
 			}
 		}
 
@@ -764,28 +763,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					FamilyMemberHistory.Condition condition = fhirFMH.addCondition();
 					
 					// familyHistoryObservation.value[@xsi:type='CD'] -> code
-					if(familyHistoryObs.getValues() != null && !familyHistoryObs.getValues().isEmpty()) {
-						for(ANY value : familyHistoryObs.getValues()) {
-							if(value != null && !value.isSetNullFlavor()) {
-								if(value instanceof CD){
-									condition.setCode(dtt.tCD2CodeableConcept((CD)value));
-								}
+					for(ANY value : familyHistoryObs.getValues()) {
+						if(value != null && !value.isSetNullFlavor()) {
+							if(value instanceof CD){
+								condition.setCode(dtt.tCD2CodeableConcept((CD)value));
 							}
 						}
 					}
-					
+
+					// NOTE: An alternative is to use the relatedSubject/subject/sdtc:deceasedInd and relatedSubject/subject/sdtc:deceasedTime values
 					// deceased
 					if(familyHistoryObs.getFamilyHistoryDeathObservation() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().isSetNullFlavor()) {
 						// if deathObservation exists, set fmh.deceased true
 						fhirFMH.setDeceased(new BooleanDt(true));
 						
 						// familyHistoryDeathObservation.value[@xsi:type='CD'] -> condition.outcome
-						if(familyHistoryObs.getFamilyHistoryDeathObservation().getValues() != null && !familyHistoryObs.getFamilyHistoryDeathObservation().getValues().isEmpty()) {
-							for(ANY value : familyHistoryObs.getFamilyHistoryDeathObservation().getValues()) {
-								if(value != null && !value.isSetNullFlavor()) {
-									if(value instanceof CD) {
-										condition.setOutcome(dtt.tCD2CodeableConcept((CD)value));
-									}
+						for(ANY value : familyHistoryObs.getFamilyHistoryDeathObservation().getValues()) {
+							if(value != null && !value.isSetNullFlavor()) {
+								if(value instanceof CD) {
+									condition.setOutcome(dtt.tCD2CodeableConcept((CD)value));
 								}
 							}
 						}
@@ -816,12 +812,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				org.openhealthtools.mdht.uml.cda.SubjectPerson subjectPerson = cdaRelatedSubject.getSubject();
 				
 				// subject.relatedSubject.subject.name.text -> name
-				if(subjectPerson.getNames() != null && !subjectPerson.getNames().isEmpty()) {
-					for(EN en : subjectPerson.getNames()) {
-						if(en != null && !en.isSetNullFlavor()) {
-							if(en.getText() != null) {
-								fhirFMH.setName(en.getText());
-							}
+				for(EN en : subjectPerson.getNames()) {
+					if(en != null && !en.isSetNullFlavor()) {
+						if(en.getText() != null) {
+							fhirFMH.setName(en.getText());
 						}
 					}
 				}
@@ -1624,69 +1618,19 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 		
 		// addr -> address
-		if(cdaPatientRole.getAddrs() != null && !cdaPatientRole.getAddrs().isEmpty()) {
-			for(AD ad : cdaPatientRole.getAddrs()){
-				if(ad != null && !ad.isSetNullFlavor()) {
-					fhirPatient.addAddress(dtt.AD2Address(ad));
-				}
+		for(AD ad : cdaPatientRole.getAddrs()){
+			if(ad != null && !ad.isSetNullFlavor()) {
+				fhirPatient.addAddress(dtt.AD2Address(ad));
 			}
 		}
 		
 		// telecom -> telecom
-		if(cdaPatientRole.getTelecoms() != null && !cdaPatientRole.getTelecoms().isEmpty()) {
-			for(TEL tel : cdaPatientRole.getTelecoms()) {
-				if(tel != null && !tel.isSetNullFlavor()) {
-					fhirPatient.addTelecom(dtt.tTEL2ContactPoint(tel));
-				}
+		for(TEL tel : cdaPatientRole.getTelecoms()) {
+			if(tel != null && !tel.isSetNullFlavor()) {
+				fhirPatient.addTelecom(dtt.tTEL2ContactPoint(tel));
 			}
 		}
 
-		// patient.name -> name
-		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
-				cdaPatientRole.getPatient().getNames() != null && !cdaPatientRole.getPatient().getNames().isEmpty()) {
-			for(PN pn : cdaPatientRole.getPatient().getNames()) {
-				if(pn != null && !pn.isSetNullFlavor()) {
-					fhirPatient.addName(dtt.tEN2HumanName(pn));
-				}
-			}
-		}
-
-		// patient.administrativeGenderCode -> gender
-		boolean administrativeGenderCodeNullCheck = cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor()
-				&& cdaPatientRole.getPatient().getAdministrativeGenderCode() != null 
-				&& !cdaPatientRole.getPatient().getAdministrativeGenderCode().isSetNullFlavor() 
-				&& cdaPatientRole.getPatient().getAdministrativeGenderCode().getCode() != null
-				&& !cdaPatientRole.getPatient().getAdministrativeGenderCode().getCode().isEmpty();
-		if(administrativeGenderCodeNullCheck) {
-			AdministrativeGenderEnum administrativeGender = vst.tAdministrativeGenderCode2AdministrativeGenderEnum(cdaPatientRole.getPatient().getAdministrativeGenderCode().getCode());
-			fhirPatient.setGender(administrativeGender);
-		}
-
-		// patient.birthTime -> birthDate
-		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() 
-				&& cdaPatientRole.getPatient().getBirthTime() != null && !cdaPatientRole.getPatient().getBirthTime().isSetNullFlavor()) {
-			fhirPatient.setBirthDate(dtt.tTS2Date(cdaPatientRole.getPatient().getBirthTime()));
-		}
-
-		// patient.maritalStatusCode -> maritalStatus 
-		if(cdaPatientRole.getPatient().getMaritalStatusCode() != null
-				&& !cdaPatientRole.getPatient().getMaritalStatusCode().isSetNullFlavor()) {
-			if(cdaPatientRole.getPatient().getMaritalStatusCode().getCode() != null && !cdaPatientRole.getPatient().getMaritalStatusCode().getCode().isEmpty()) {
-				fhirPatient.setMaritalStatus(vst.tMaritalStatusCode2MaritalStatusCodesEnum(cdaPatientRole.getPatient().getMaritalStatusCode().getCode()));
-			}
-		}
-
-		// patient.languageCommunication -> communication
-		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
-				cdaPatientRole.getPatient().getLanguageCommunications() != null &&
-				!cdaPatientRole.getPatient().getLanguageCommunications().isEmpty()) {
-
-			for(LanguageCommunication LC : cdaPatientRole.getPatient().getLanguageCommunications()) {
-				if(LC != null && !LC.isSetNullFlavor()) {
-					fhirPatient.addCommunication(tLanguageCommunication2Communication(LC));
-				}
-			}
-		}
 		// providerOrganization -> managingOrganization
 		if(cdaPatientRole.getProviderOrganization() != null && !cdaPatientRole.getProviderOrganization().isSetNullFlavor()) {
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(cdaPatientRole.getProviderOrganization());
@@ -1695,58 +1639,91 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirPatient.setManagingOrganization(organizationReference);
 		}
 
-		// patient.guardian -> contact 
-		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() &&
-				cdaPatientRole.getPatient().getGuardians() != null && !cdaPatientRole.getPatient().getGuardians().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.Guardian guardian : cdaPatientRole.getPatient().getGuardians()) {
-				fhirPatient.addContact(tGuardian2Contact(guardian));
+		org.openhealthtools.mdht.uml.cda.Patient cdaPatient = cdaPatientRole.getPatient();
+		
+		if(cdaPatient != null && !cdaPatient.isSetNullFlavor()) {
+			// patient.name -> name
+			for(PN pn : cdaPatient.getNames()) {
+				if(pn != null && !pn.isSetNullFlavor()) {
+					fhirPatient.addName(dtt.tEN2HumanName(pn));
+				}
 			}
-		}
 
+			// patient.administrativeGenderCode -> gender
+			if(cdaPatient.getAdministrativeGenderCode() != null && !cdaPatient.getAdministrativeGenderCode().isSetNullFlavor()
+					&& cdaPatient.getAdministrativeGenderCode().getCode() != null && !cdaPatient.getAdministrativeGenderCode().getCode().isEmpty()) {
+				AdministrativeGenderEnum administrativeGender = vst.tAdministrativeGenderCode2AdministrativeGenderEnum(cdaPatient.getAdministrativeGenderCode().getCode());
+				fhirPatient.setGender(administrativeGender);
+			}
 
-		// extensions
+			// patient.birthTime -> birthDate
+			if(cdaPatient.getBirthTime() != null && !cdaPatient.getBirthTime().isSetNullFlavor()) {
+				fhirPatient.setBirthDate(dtt.tTS2Date(cdaPatient.getBirthTime()));
+			}
 
-		// patient.raceCode -> extRace
-		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getRaceCode() != null && !cdaPatientRole.getPatient().getRaceCode().isSetNullFlavor()) {
-			ExtensionDt extRace = new ExtensionDt();
-			extRace.setModifier(false);
-			extRace.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-race");
-			CD raceCode = cdaPatientRole.getPatient().getRaceCode();
-			extRace.setValue(dtt.tCD2CodeableConcept(raceCode));
-			fhirPatient.addUndeclaredExtension(extRace);
-		}
+			// patient.maritalStatusCode -> maritalStatus 
+			if(cdaPatient.getMaritalStatusCode() != null && !cdaPatient.getMaritalStatusCode().isSetNullFlavor()) {
+				if(cdaPatient.getMaritalStatusCode().getCode() != null && !cdaPatient.getMaritalStatusCode().getCode().isEmpty()) {
+					fhirPatient.setMaritalStatus(vst.tMaritalStatusCode2MaritalStatusCodesEnum(cdaPatient.getMaritalStatusCode().getCode()));
+				}
+			}
 
-		// patient.ethnicGroupCode -> extEthnicity
-		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getEthnicGroupCode() != null && !cdaPatientRole.getPatient().getEthnicGroupCode().isSetNullFlavor()) {
-			ExtensionDt extEthnicity = new ExtensionDt();
-			extEthnicity.setModifier(false);
-			extEthnicity.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-ethnicity");
-			CD ethnicGroupCode = cdaPatientRole.getPatient().getEthnicGroupCode();
-			extEthnicity.setValue(dtt.tCD2CodeableConcept(ethnicGroupCode));
-			fhirPatient.addUndeclaredExtension(extEthnicity);
-		}
+			// patient.languageCommunication -> communication
+			for(LanguageCommunication LC : cdaPatient.getLanguageCommunications()) {
+				if(LC != null && !LC.isSetNullFlavor()) {
+					fhirPatient.addCommunication(tLanguageCommunication2Communication(LC));
+				}
+			}
 
-		// patient.religiousAffiliationCode -> extReligion
-		if(cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor() && cdaPatientRole.getPatient().getReligiousAffiliationCode() != null && !cdaPatientRole.getPatient().getReligiousAffiliationCode().isSetNullFlavor()) {
-			ExtensionDt extReligion = new ExtensionDt();
-			extReligion.setModifier(false);
-			extReligion.setUrl("http://hl7.org/fhir/StructureDefinition/us-core-religion");
-			CD religiousAffiliationCode = cdaPatientRole.getPatient().getReligiousAffiliationCode();
-			extReligion.setValue(dtt.tCD2CodeableConcept(religiousAffiliationCode));
-			fhirPatient.addUndeclaredExtension(extReligion);
-		}
+			// patient.guardian -> contact 
+			for(org.openhealthtools.mdht.uml.cda.Guardian guardian : cdaPatient.getGuardians()) {
+				if(guardian != null && !guardian.isSetNullFlavor()) {
+					fhirPatient.addContact(tGuardian2Contact(guardian));
+				}
+			}
 
-		// patient.birthplace.place.addr -> extBirthPlace
-		boolean birthplaceExtensionNullCheck = cdaPatientRole.getPatient() != null && !cdaPatientRole.getPatient().isSetNullFlavor()
-				&& cdaPatientRole.getPatient().getBirthplace() != null && !cdaPatientRole.getPatient().getBirthplace().isSetNullFlavor()
-				&& cdaPatientRole.getPatient().getBirthplace().getPlace() != null && !cdaPatientRole.getPatient().getBirthplace().getPlace().isSetNullFlavor()
-				&& cdaPatientRole.getPatient().getBirthplace().getPlace().getAddr() != null && !cdaPatientRole.getPatient().getBirthplace().getPlace().getAddr().isSetNullFlavor();
-		if(birthplaceExtensionNullCheck) {
-			ExtensionDt extBirthPlace = new ExtensionDt();
-			extBirthPlace.setModifier(false);
-			extBirthPlace.setUrl("http://hl7.org/fhir/StructureDefinition/birthPlace");
-			extBirthPlace.setValue(dtt.AD2Address(cdaPatientRole.getPatient().getBirthplace().getPlace().getAddr()));
-			fhirPatient.addUndeclaredExtension(extBirthPlace);
+			// extensions
+
+			// patient.raceCode -> extRace
+			if (cdaPatient.getRaceCode() != null && !cdaPatient.getRaceCode().isSetNullFlavor()) {
+				ExtensionDt extRace = new ExtensionDt();
+				extRace.setModifier(false);
+				extRace.setUrl(Constants.URL_EXTENSION_RACE);
+				CD raceCode = cdaPatient.getRaceCode();
+				extRace.setValue(dtt.tCD2CodeableConcept(raceCode));
+				fhirPatient.addUndeclaredExtension(extRace);
+			}
+
+			// patient.ethnicGroupCode -> extEthnicity
+			if (cdaPatient.getEthnicGroupCode() != null && !cdaPatient.getEthnicGroupCode().isSetNullFlavor()) {
+				ExtensionDt extEthnicity = new ExtensionDt();
+				extEthnicity.setModifier(false);
+				extEthnicity.setUrl(Constants.URL_EXTENSION_ETHNICITY);
+				CD ethnicGroupCode = cdaPatient.getEthnicGroupCode();
+				extEthnicity.setValue(dtt.tCD2CodeableConcept(ethnicGroupCode));
+				fhirPatient.addUndeclaredExtension(extEthnicity);
+			}
+
+			// patient.religiousAffiliationCode -> extReligion
+			if (cdaPatient.getReligiousAffiliationCode() != null && !cdaPatient.getReligiousAffiliationCode().isSetNullFlavor()) {
+				ExtensionDt extReligion = new ExtensionDt();
+				extReligion.setModifier(false);
+				extReligion.setUrl(Constants.URL_EXTENSION_RELIGION);
+				CD religiousAffiliationCode = cdaPatient.getReligiousAffiliationCode();
+				extReligion.setValue(dtt.tCD2CodeableConcept(religiousAffiliationCode));
+				fhirPatient.addUndeclaredExtension(extReligion);
+			}
+
+			// patient.birthplace.place.addr -> extBirthPlace
+			if (cdaPatient.getBirthplace() != null && !cdaPatient.getBirthplace().isSetNullFlavor()
+					&& cdaPatient.getBirthplace().getPlace() != null && !cdaPatient.getBirthplace().getPlace().isSetNullFlavor()
+					&& cdaPatient.getBirthplace().getPlace().getAddr() != null && !cdaPatient.getBirthplace().getPlace().getAddr().isSetNullFlavor()) {
+				ExtensionDt extBirthPlace = new ExtensionDt();
+				extBirthPlace.setModifier(false);
+				extBirthPlace.setUrl(Constants.URL_EXTENSION_BIRTHPLACE);
+				extBirthPlace.setValue(dtt.AD2Address(cdaPatient.getBirthplace().getPlace().getAddr()));
+				fhirPatient.addUndeclaredExtension(extBirthPlace);
+			}
 		}
 			
 		return fhirPatientBundle;
@@ -2056,11 +2033,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 						
 		// approachSiteCode -> site
-		if(cdaImmunizationActivity.getApproachSiteCodes()!=null && !cdaImmunizationActivity.getApproachSiteCodes().isEmpty()) {
-			for(CD cd : cdaImmunizationActivity.getApproachSiteCodes()) {
-				// Asserting that at most one site exists
-				fhirImmunization.setSite(dtt.tCD2CodeableConcept(cd));
-			}
+		for(CD cd : cdaImmunizationActivity.getApproachSiteCodes()) {
+			fhirImmunization.setSite(dtt.tCD2CodeableConcept(cd));
 		}
 		
 		// routeCode -> route
@@ -2174,6 +2148,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+
+		// guardianPerson/name -> name
+		if(cdaGuardian.getGuardianPerson() != null && !cdaGuardian.getGuardianPerson().isSetNullFlavor()) {
+			for(PN pn : cdaGuardian.getGuardianPerson().getNames()) {
+				if(!pn.isSetNullFlavor()) {
+					fhirContact.setName(dtt.tEN2HumanName(pn));
+				}
+			}
+		}
 		
 		// code -> relationship
 		if(cdaGuardian.getCode() != null && !cdaGuardian.getCode().isSetNullFlavor()) {
@@ -2184,11 +2167,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 			// if tRoleCode2PatientContactRelationshipCode returns non-null value, add as coding
 			// otherwise, add relationship directly by making code transformation(tCD2CodeableConcept)
-			if(relationshipCoding != null) {
+			if(relationshipCoding != null)
 				fhirContact.addRelationship(new CodeableConceptDt().addCoding(relationshipCoding));
-			} else {
+			else
 				fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
-			}
+
 		}
 		return fhirContact;
 	}
@@ -2208,8 +2191,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaLanguageCommunication.getPreferenceInd() != null && !cdaLanguageCommunication.getPreferenceInd().isSetNullFlavor()) {
 			fhirCommunication.setPreferred(dtt.tBL2Boolean(cdaLanguageCommunication.getPreferenceInd()));
 		}
+
 		return fhirCommunication;
-		
 	}
 	
 	public Observation.ReferenceRange tReferenceRange2ReferenceRange(org.openhealthtools.mdht.uml.cda.ReferenceRange cdaReferenceRange) {

@@ -100,7 +100,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         	}
         }
         
-        // countie -> district
+        // county -> district
         if(ad.getCounties() != null && !ad.getCounties().isEmpty()) {
         	for(ADXP adxp : ad.getCounties()) {
         		// Asserting that at most one countie information exists
