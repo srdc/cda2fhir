@@ -741,6 +741,18 @@
 											</entryRelationship>
 										</observation>
 									</entryRelationship>
+									<entryRelationship>
+										<observation classCode="OBS" moodCode="EVN">
+											<!-- ** Criticality observation ** -->
+											<templateId root="2.16.840.1.113883.10.20.22.4.145"/>
+											<code code="NEW-LOINC-CRITICALITY" codeSystem="2.16.840.1.113883.6.1" displayName="Criticality"/>
+											<text>
+												<reference value="#criticality"/>
+											</text>
+											<statusCode code="completed"/>
+											<value xsi:type="CD" code="CRITH" displayName="High Criticality" codeSystem="2.16.840.1.113883.5.1063" codeSystemName="ObservationValue"/>
+										</observation>
+									</entryRelationship>
 								</observation>
 							</entryRelationship>
 						</act>

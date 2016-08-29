@@ -82,11 +82,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		fhirAllergyIntolerance.setId(resourceId);
 		
 		// id -> identifier
-		if(cdaAllergyProbAct.getIds() != null && !cdaAllergyProbAct.getIds().isEmpty()) {
-			for(II ii : cdaAllergyProbAct.getIds()){
-				if(ii != null && ii.isSetNullFlavor()){
-					fhirAllergyIntolerance.addIdentifier(dtt.tII2Identifier(ii));
-				}
+		for(II ii : cdaAllergyProbAct.getIds()) {
+			if(!ii.isSetNullFlavor()) {
+				fhirAllergyIntolerance.addIdentifier(dtt.tII2Identifier(ii));
 			}
 		}
 		
@@ -217,7 +215,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 									// entryRelationship.observation[templateId/@root='2.16.840.1.113883.10.20.22.4.145'].value[CD].code -> criticality
 									if(entryRelShip.getObservation().getTemplateIds() != null && !entryRelShip.getObservation().getTemplateIds().isEmpty()) {
 										for(II templateId : entryRelShip.getObservation().getTemplateIds()) {
-											if(templateId.getRoot() != null && !templateId.getRoot().equals("2.16.840.1.113883.10.20.22.4.145")) {
+											if(templateId.getRoot() != null && templateId.getRoot().equals("2.16.840.1.113883.10.20.22.4.145")) {
 												org.openhealthtools.mdht.uml.cda.Observation cdaCriticalityObservation = entryRelShip.getObservation();
 												for(ANY value : cdaCriticalityObservation.getValues()) {
 													if(value != null && !value.isSetNullFlavor()) {
