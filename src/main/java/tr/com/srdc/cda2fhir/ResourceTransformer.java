@@ -164,11 +164,18 @@ public interface ResourceTransformer {
 	Bundle tPerformer22Practitioner(Performer2 cdaPerformer2);
 	
 	/**
-	 * Transforms a CDA ProblemConcernAct instance to a FHIR Condition resource.
+	 * Transforms a CDA ProblemConcernAct instance to FHIR Condition resource(s). A ProblemConcernAct might include several Problem Observations, and each Problem Observation corresponds to a FHIR Condition. Therefore, the returning Bundle can contain several FHIR Conditions.
 	 * @param cdaProblemConcernAct A CDA ProblemConcernAct instance
-	 * @return A FHIR Bundle that contains the Condition as the first entry, which can also include other referenced resources such as Encounter, Practitioner
+	 * @return A FHIR Bundle that contains the corresponding Condition(s), and further referenced resources such as Encounter, Practitioner
 	 */
 	Bundle tProblemConcernAct2Condition(ProblemConcernAct cdaProblemConcernAct);
+
+	/**
+	 * Transforms a CDA ProblemObservation instance to FHIR Condition resource.
+	 * @param cdaProbObs A CDA ProblemObservation instance
+	 * @return A FHIR Bundle that contains the Condition as the first entry, which can also include other referenced resources such as Encounter, Practitioner
+     */
+	Bundle tProblemObservation2Condition(ProblemObservation cdaProbObs);
 
 	/**
 	 * Transforms a CDA Procedure instance to a FHIR Procedure resource.

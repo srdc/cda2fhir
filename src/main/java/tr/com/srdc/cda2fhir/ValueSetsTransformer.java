@@ -150,7 +150,14 @@ public interface ValueSetsTransformer {
 	 * @return A value from the FHIR valueset AllergyIntoleranceStatusEnum
 	 */
 	AllergyIntoleranceStatusEnum tStatusCode2AllergyIntoleranceStatusEnum(String cdaStatusCode);
-	
+
+	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ConditionClinicalStatusCodesEnum.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR valueset ConditionClinicalStatusCodesEnum
+     */
+	ConditionClinicalStatusCodesEnum tStatusCode2ConditionClinicalStatusCodesEnum(String cdaStatusCode);
+
 	/**
 	 * Transforms a CDA StatusCode string to a value from the FHIR valueset EncounterStateEnum.
 	 * @param cdaStatusCode A CDA StatusCode string

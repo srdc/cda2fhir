@@ -614,6 +614,22 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public ConditionClinicalStatusCodesEnum tStatusCode2ConditionClinicalStatusCodesEnum(String cdaStatusCode) {
+		switch (cdaStatusCode.toLowerCase()) {
+			// semantically not the same, but at least outcome-wise it is similar
+			case "aborted":
+				return ConditionClinicalStatusCodesEnum.RESOLVED;
+			case "active":
+				return ConditionClinicalStatusCodesEnum.ACTIVE;
+			case "completed":
+				return ConditionClinicalStatusCodesEnum.RESOLVED;
+			case "suspended":
+				return ConditionClinicalStatusCodesEnum.REMISSION;
+			default:
+				return null;
+		}
+	}
+
 	public EncounterStateEnum tStatusCode2EncounterStatusEnum(String cdaStatusCode) {
 		switch(cdaStatusCode.toLowerCase()) {
 			case "in-progress":

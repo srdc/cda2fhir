@@ -1766,124 +1766,127 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		Bundle fhirConditionBundle = new Bundle();
 
-		for(EntryRelationship entryRelationship : cdaProblemConcernAct.getEntryRelationships()) {
-			
-			Condition fhirCondition = new Condition();
-			
-			fhirConditionBundle.addEntry(new Bundle.Entry().setResource(fhirCondition));
-			
-			// resource id
-			IdDt resourceId = new IdDt("Condition", getUniqueId());
-			fhirCondition.setId(resourceId);
-			
-			// patient
-			fhirCondition.setPatient(getPatientRef());
-			
-			// id -> identifier
-			if(cdaProblemConcernAct.getIds() != null && !cdaProblemConcernAct.getIds().isEmpty()) {
-				for(II ii : cdaProblemConcernAct.getIds()) {
-					if(ii != null && !ii.isSetNullFlavor()) {
-						fhirCondition.addIdentifier(dtt.tII2Identifier(ii));
-					}
-				}
-			}
+		// each problem observation instance -> FHIR Condition instance
+		for(ProblemObservation cdaProbObs : cdaProblemConcernAct.getProblemObservations()) {
+			Bundle fhirProbObsBundle = tProblemObservation2Condition(cdaProbObs);
+			if(fhirProbObsBundle == null)
+				continue;
 
-			// NOTE: Although DAF requires the mapping for severity, we couldn't find it in CDA side
+			for(Bundle.Entry entry : fhirProbObsBundle.getEntry()) {
+				fhirConditionBundle.addEntry(entry);
+				if(entry.getResource() instanceof Condition) {
+					Condition fhirCond = (Condition) entry.getResource();
 
-			// encounter -> encounter
-			if(cdaProblemConcernAct.getEncounters() != null && !cdaProblemConcernAct.getEncounters().isEmpty()) {
-				if(cdaProblemConcernAct.getEncounters().get(0) != null && cdaProblemConcernAct.getEncounters().get(0).isSetNullFlavor()) {
-					ca.uhn.fhir.model.dstu2.resource.Encounter fhirEncounter = null;
-					Bundle fhirEncounterBundle = tEncounter2Encounter(cdaProblemConcernAct.getEncounters().get(0));
-					
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirEncounterBundle.getEntry()) {
-						fhirConditionBundle.addEntry( new Bundle.Entry().setResource(entry.getResource()));
-						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Encounter){
-							fhirEncounter = (ca.uhn.fhir.model.dstu2.resource.Encounter) entry.getResource();
-						}
-					}
-				
-					fhirCondition.setEncounter(new ResourceReferenceDt(fhirEncounter.getId()));
-				}
-			}
-		
-			// author -> asserter
-			if(cdaProblemConcernAct.getAuthors() != null && !cdaProblemConcernAct.getAuthors().isEmpty()) {
-				for(org.openhealthtools.mdht.uml.cda.Author author : cdaProblemConcernAct.getAuthors()) {
-					if(author != null && !author.isSetNullFlavor()) {
-						Practitioner fhirPractitioner = null;
-						Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-						
-						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
-							fhirConditionBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));	
-							if(entry.getResource() instanceof Practitioner) {
-								fhirPractitioner = (Practitioner) entry.getResource();
-							}
-						}
-						fhirCondition.setAsserter(new ResourceReferenceDt(fhirPractitioner.getId()));
-					}
-				}
-			}
-						
-			// getting information from problem observation
-			if(entryRelationship.getObservation() != null && !entryRelationship.getObservation().isSetNullFlavor()) {
-				if(entryRelationship.getObservation() instanceof ProblemObservation){
-					ProblemObservation cdaProbObs = (ProblemObservation)entryRelationship.getObservation();
-					
-					// code -> category
-					if(cdaProbObs.getCode() != null && !cdaProbObs.getCode().isSetNullFlavor()) {
-						if(cdaProbObs.getCode().getCode() != null) {
-							ConditionCategoryCodesEnum conditionCategory = vst.tProblemType2ConditionCategoryCodesEnum(cdaProbObs.getCode().getCode());
-							if(conditionCategory != null) {
-								fhirCondition.setCategory(conditionCategory);
-							}
-						}
-					}
-
-					// value -> code
-					if(cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
-						for(ANY value : cdaProbObs.getValues()) {
-							if(value != null && !value.isSetNullFlavor()) {
-								if(value instanceof CD) {
-									fhirCondition.setCode(dtt.tCD2CodeableConcept((CD)value));
-								}
-							}
-						}
-					}
-
-					// onset and abatement
-					if(cdaProbObs.getEffectiveTime() != null &&  !cdaProbObs.getEffectiveTime().isSetNullFlavor()) {
-
-						IVXB_TS low = cdaProbObs.getEffectiveTime().getLow();
-						IVXB_TS high = cdaProbObs.getEffectiveTime().getHigh();
-
-						// low -> onset (if doesn't exist, checking value)
-						if(low != null && !low.isSetNullFlavor()) {
-							fhirCondition.setOnset(dtt.tTS2DateTime(low));
-						} else if(cdaProbObs.getEffectiveTime().getValue() != null && !cdaProbObs.getEffectiveTime().getValue().isEmpty()) {
-							fhirCondition.setOnset(dtt.tString2DateTime(cdaProbObs.getEffectiveTime().getValue()));
-						}
-
-						// high -> abatement
-						if(high != null && !high.isSetNullFlavor()) {
-							fhirCondition.setAbatement(dtt.tTS2DateTime(high));
-						}
-					}
-
-
-					// author.time -> dateRecorded
-					if(cdaProbObs.getAuthors() != null && !cdaProbObs.getAuthors().isEmpty()) {
-						for(Author author : cdaProbObs.getAuthors()) {
-							if(author != null && !author.isSetNullFlavor()) {
-								if(author.getTime() != null && !author.getTime().isSetNullFlavor()) {
-									fhirCondition.setDateRecorded(dtt.tTS2Date(author.getTime()));
-								}
-							}
-						}
+					// act/statusCode -> Condition.clinicalStatus
+					// NOTE: Problem status template is deprecated in C-CDA Release 2.1; hence status data is not retrieved from this template.
+					if(cdaProblemConcernAct.getStatusCode() != null && !cdaProblemConcernAct.getStatusCode().isSetNullFlavor()) {
+						fhirCond.setClinicalStatus(vst.tStatusCode2ConditionClinicalStatusCodesEnum(cdaProblemConcernAct.getStatusCode().getCode()));
 					}
 				}
 			}
 		}
+
+		return fhirConditionBundle;
+	}
+
+	public Bundle tProblemObservation2Condition(ProblemObservation cdaProbObs) {
+		if(cdaProbObs == null || cdaProbObs.isSetNullFlavor())
+			return null;
+
+		// NOTE: Although DAF requires the mapping for severity, this data is not available on the C-CDA side.
+		// NOTE: Problem status template is deprecated in C-CDA Release 2.1; hence status data is not retrieved from this template.
+
+		Bundle fhirConditionBundle = new Bundle();
+
+		Condition fhirCondition = new Condition();
+		fhirConditionBundle.addEntry(new Bundle.Entry().setResource(fhirCondition));
+
+		// resource id
+		IdDt resourceId = new IdDt("Condition", getUniqueId());
+		fhirCondition.setId(resourceId);
+
+		// patient
+		fhirCondition.setPatient(getPatientRef());
+
+		// id -> identifier
+		for(II id : cdaProbObs.getIds()) {
+			if(!id.isSetNullFlavor()) {
+				fhirCondition.addIdentifier(dtt.tII2Identifier(id));
+			}
+		}
+
+		// code -> category
+		if (cdaProbObs.getCode() != null && !cdaProbObs.getCode().isSetNullFlavor()) {
+			if (cdaProbObs.getCode().getCode() != null) {
+				ConditionCategoryCodesEnum conditionCategory = vst.tProblemType2ConditionCategoryCodesEnum(cdaProbObs.getCode().getCode());
+				if (conditionCategory != null) {
+					fhirCondition.setCategory(conditionCategory);
+				}
+			}
+		}
+
+		// value -> code
+		if (cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
+			for (ANY value : cdaProbObs.getValues()) {
+				if (value != null && !value.isSetNullFlavor()) {
+					if (value instanceof CD) {
+						fhirCondition.setCode(dtt.tCD2CodeableConcept((CD) value));
+					}
+				}
+			}
+		}
+
+		// onset and abatement
+		if (cdaProbObs.getEffectiveTime() != null && !cdaProbObs.getEffectiveTime().isSetNullFlavor()) {
+
+			IVXB_TS low = cdaProbObs.getEffectiveTime().getLow();
+			IVXB_TS high = cdaProbObs.getEffectiveTime().getHigh();
+
+			// low -> onset (if doesn't exist, checking value)
+			if (low != null && !low.isSetNullFlavor()) {
+				fhirCondition.setOnset(dtt.tTS2DateTime(low));
+			} else if (cdaProbObs.getEffectiveTime().getValue() != null && !cdaProbObs.getEffectiveTime().getValue().isEmpty()) {
+				fhirCondition.setOnset(dtt.tString2DateTime(cdaProbObs.getEffectiveTime().getValue()));
+			}
+
+			// high -> abatement
+			if (high != null && !high.isSetNullFlavor()) {
+				fhirCondition.setAbatement(dtt.tTS2DateTime(high));
+			}
+		}
+
+		// author[0] -> asserter
+		if(!cdaProbObs.getAuthors().isEmpty()) {
+			if (cdaProbObs.getAuthors().get(0) != null && !cdaProbObs.getAuthors().get(0).isSetNullFlavor()) {
+				Author author = cdaProbObs.getAuthors().get(0);
+				Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
+				for (Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
+					fhirConditionBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+					if (entry.getResource() instanceof Practitioner) {
+						fhirCondition.setAsserter(new ResourceReferenceDt(entry.getResource().getId()));
+					}
+				}
+
+				// author.time -> dateRecorded
+				if (author.getTime() != null && !author.getTime().isSetNullFlavor()) {
+					fhirCondition.setDateRecorded(dtt.tTS2Date(author.getTime()));
+				}
+			}
+		}
+
+		// encounter -> encounter
+		if (cdaProbObs.getEncounters() != null && !cdaProbObs.getEncounters().isEmpty()) {
+			if (cdaProbObs.getEncounters().get(0) != null && cdaProbObs.getEncounters().get(0).isSetNullFlavor()) {
+				Bundle fhirEncounterBundle = tEncounter2Encounter(cdaProbObs.getEncounters().get(0));
+				for (Bundle.Entry entry : fhirEncounterBundle.getEntry()) {
+					fhirConditionBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+					if (entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Encounter) {
+						fhirCondition.setEncounter(new ResourceReferenceDt(entry.getResource().getId()));
+					}
+				}
+			}
+		}
+
 		return fhirConditionBundle;
 	}
 

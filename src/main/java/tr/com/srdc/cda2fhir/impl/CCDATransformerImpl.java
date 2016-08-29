@@ -197,7 +197,7 @@ public class CCDATransformerImpl implements CCDATransformer {
     private void mergeBundles(Bundle sourceBundle, Bundle targetBundle, Composition.Section fhirSec, Class<?> sectionRefCls) {
         for(Entry entry : sourceBundle.getEntry()) {
             // Add all the resources returned from the source bundle to the target bundle
-            targetBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+            targetBundle.addEntry(entry);
             // Add a reference to the section for each instance of requested class, e.g. Observation, Procedure ...
             if(sectionRefCls.isInstance(entry.getResource())) {
                 ResourceReferenceDt ref = fhirSec.addEntry();

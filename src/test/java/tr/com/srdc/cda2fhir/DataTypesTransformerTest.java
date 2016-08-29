@@ -111,7 +111,7 @@ public class DataTypesTransformerTest{
     			}
     		}
     	}
-		
+
     	Assert.assertTrue("AD.line was not transformed",matchingElements == lineArray.length);
     	Assert.assertEquals("AD.city was not transformed","theCity",address.getCity());
     	Assert.assertEquals("AD.district was not transformed","theDistrict",address.getDistrict());
