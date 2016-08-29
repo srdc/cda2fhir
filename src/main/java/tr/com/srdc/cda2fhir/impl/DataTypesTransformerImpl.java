@@ -158,35 +158,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         }
         return address;
     }
-
-	//TODO: Mustafa: This will be revisited and updated for Act.author; not any participant
-	public AnnotationDt tAct2Annotation(Act act) {
-		if(act == null || act.isSetNullFlavor())
-			return null;
-		else {
-			AnnotationDt myAnnotationDt = new AnnotationDt();
-			for(Participant2 theParticipant : act.getParticipants()) {
-				if(theParticipant.getTypeCode() == ParticipationType.AUT){
-					//TODO: Annotation.author[x]
-					// Type	Reference(Practitioner | Patient | RelatedPerson)|string
-					// For now, we are getting the name of the participant as a string
-					if (theParticipant.getRole().getPlayer() instanceof Person) {
-						Person person = (Person)theParticipant.getRole().getPlayer();
-						if(!person.getNames().get(0).getText().isEmpty()) {
-							myAnnotationDt.setAuthor(new StringDt(person.getNames().get(0).getText()));
-						}
-					}
-					myAnnotationDt.setTime(tIVL_TS2Period(act.getEffectiveTime()).getStartElement());
-					//TODO: While setTime is waiting a parameter as DateTime, act.effectiveTime gives output as IVL_TS (Interval)
-					//In sample XML, it gets the effective time as the low time
-					//Check if it is ok
-					if(!act.getText().isSetNullFlavor() && !act.getText().toString().isEmpty())
-						myAnnotationDt.setText(act.getText().toString());
-				}
-			}
-			return myAnnotationDt;
-		}
-	}
 	
 	public Base64BinaryDt tBIN2Base64Binary(BIN bin) {
 		if(bin == null || bin.isSetNullFlavor())

@@ -68,53 +68,6 @@ public class DataTypesTransformerTest{
 
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
 
-	// TODO: Mustafa: This will be revisited and updated for Act.author; not any participant
-    @Ignore
-    public void testAct2Annotation(){	
-    	//simple instance test
-    	Act act=CDAFactory.eINSTANCE.createAct();
-    	IVL_TS ivl_ts=DatatypesFactory.eINSTANCE.createIVL_TS();
-    	IVXB_TS ivxb_ts=DatatypesFactory.eINSTANCE.createIVXB_TS();
-        ivxb_ts.setValue("20170625");
-        IVXB_TS ivxb_ts2=DatatypesFactory.eINSTANCE.createIVXB_TS();
-        ivxb_ts2.setValue("20180417");
-    	
-        ivl_ts.setLow(ivxb_ts);
-        ivl_ts.setHigh(ivxb_ts2);
-    	act.setEffectiveTime(ivl_ts);
-    	
-    	ED ed=DatatypesFactory.eINSTANCE.createED();
-    	ed.setMediaType("application/xml");
-    	ed.setLanguage("en");
-    	ed.addText("text");
-    	TEL tel=DatatypesFactory.eINSTANCE.createTEL();
-    	tel.setValue("telValue");
-    	ed.setReference(tel);
-    	ed.setIntegrityCheck("integrityCheck".getBytes());
-    	act.setText(ed);
-    	Participant2 myParticipant = CDAFactory.eINSTANCE.createParticipant2();
-    	myParticipant.setTypeCode(ParticipationType.AUT);
-    	
-    	/*PN pn=DatatypesFactory.eINSTANCE.createPN();
-    	pn.addGiven("theGiven");
-    	pn.addFamily("theFamily");
-    	pn.addPrefix("thePrefix");
-    	pn.addSuffix("theSuffix");
-    	pn.addText("theText");
-    	person.getNames().add(pn);
-    	*/
-    	
-        act.getParticipants().add(myParticipant);
-        
-    	AnnotationDt annotation=dtt.tAct2Annotation(act);
-        Assert.assertEquals("Act.EffectiveTime was not transformed","2017-06-25",annotation.getTime());
-
-    	/*TODO:Participants cannot be added since there isn't any convenient method to do that.
-    	 * Also the test doesn't work since effectiveTimes and texts need their corresponding participants.
-    	 */
-    	
-    }
-
     @SuppressWarnings("deprecation")
 	@Test
     public void testAD2Address() {
@@ -151,13 +104,14 @@ public class DataTypesTransformerTest{
     	
     	// line array check
     	int matchingElements = 0;
-    	for( StringDt line : address.getLine() ){
-    		for( String line2 : lineArray ){
+    	for(StringDt line : address.getLine()){
+    		for(String line2 : lineArray){
     			if(line.getValue().equals(line2)){
     				matchingElements++;
     			}
     		}
     	}
+		
     	Assert.assertTrue("AD.line was not transformed",matchingElements == lineArray.length);
     	Assert.assertEquals("AD.city was not transformed","theCity",address.getCity());
     	Assert.assertEquals("AD.district was not transformed","theDistrict",address.getDistrict());

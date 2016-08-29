@@ -11,7 +11,6 @@ import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
 
-import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.StrucDocText;
 import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 
@@ -20,13 +19,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.*;
  */
 public interface DataTypesTransformer {
 
-	/**
-	* Transforms a CDA Act instance to a FHIR AnnotationDt composite datatype instance.
-	* @param act A CDA Act instance
-	* @return An AnnotationDt composite datatype instance
-	*/
-	AnnotationDt tAct2Annotation(Act act);
-	
 	/**
 	* Transforms a CDA AD instance to a FHIR AddressDt composite datatype instance.
 	* @param ad A CDA AD instance
