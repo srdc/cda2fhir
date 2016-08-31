@@ -940,13 +940,16 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Condition", getUniqueId());
 		fhirCond.setId(resourceId);
 
+		// patient
+		fhirCond.setPatient(getPatientRef());
+		
 		// id -> identifier
 		if(cdaIndication.getIds() != null && !cdaIndication.getIds().isEmpty()) {
 			for(II ii : cdaIndication.getIds()) {
 				fhirCond.addIdentifier(dtt.tII2Identifier(ii));
 			}
 		}
-
+		
 		// code -> category
 		if(cdaIndication.getCode() != null && !cdaIndication.getCode().isSetNullFlavor()) {
 			if(cdaIndication.getCode().getCode() != null) {
