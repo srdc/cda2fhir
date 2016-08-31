@@ -31,6 +31,8 @@ import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.IdDt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tr.com.srdc.cda2fhir.CDATransformer;
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
@@ -42,6 +44,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	private ValueSetsTransformer vst;
 	private CDATransformer cdat;
 	private ResourceReferenceDt defaultPatientRef;
+
+	private final Logger logger = LoggerFactory.getLogger(ResourceTransformerImpl.class);
 
 	public ResourceTransformerImpl() {
 		dtt = new DataTypesTransformerImpl();
@@ -1552,8 +1556,10 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 		// code -> type
 		// TODO: Requires huge mapping work from HL7 HealthcareServiceLocation value set to http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType
-//		if(cdaParticipantRole.getCode() != null && !cdaParticipantRole.getCode().isSetNullFlavor())
-//			fhirLocation.setType();
+		if(cdaParticipantRole.getCode() != null && !cdaParticipantRole.getCode().isSetNullFlavor()) {
+			logger.info("Found location.code in the CDA document, which can be mapped to Location.type on the FHIR side. But this is skipped for the moment, as it requires huge mapping work from HL7 HealthcareServiceLocation value set to http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType");
+			//fhirLocation.setType();
+		}
 		
 		// playingEntity.name.text -> name
 		if(cdaParticipantRole.getPlayingEntity() != null && !cdaParticipantRole.getPlayingEntity().isSetNullFlavor()) {

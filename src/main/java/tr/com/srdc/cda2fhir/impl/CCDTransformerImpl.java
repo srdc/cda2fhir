@@ -8,6 +8,8 @@ import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Procedure;
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tr.com.srdc.cda2fhir.CDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -23,6 +25,8 @@ public class CCDTransformerImpl implements CDATransformer {
     private IdGeneratorEnum idGenerator;
     private ResourceTransformer resTransformer;
     private ResourceReferenceDt patientRef;
+
+    private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
 
     /**
      * Default constructor that initiates with a UUID resource id generator
@@ -77,7 +81,7 @@ public class CCDTransformerImpl implements CDATransformer {
         try {
             ccd = (ContinuityOfCareDocument) cda;
         } catch (ClassCastException ex) {
-            ex.printStackTrace();
+            logger.error("ClinicalDocument could not be cast to ContinuityOfCareDocument. Returning null", ex);
             return null;
         }
 
