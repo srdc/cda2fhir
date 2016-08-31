@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import ca.uhn.fhir.model.dstu2.composite.*;
 import ca.uhn.fhir.model.dstu2.resource.*;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Immunization.Explanation;
 import ca.uhn.fhir.model.dstu2.resource.Location;
 import ca.uhn.fhir.model.dstu2.resource.MedicationDispense;
@@ -1350,11 +1351,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 
 		// targetSiteCode -> bodySite
-		if(cdaObservation.getTargetSiteCodes() != null && !cdaObservation.getTargetSiteCodes().isEmpty()) {
-			for(CD cd : cdaObservation.getTargetSiteCodes()) {
-				if(cd != null && !cd.isSetNullFlavor()) {
-					fhirObs.setBodySite(dtt.tCD2CodeableConcept(cd));
-				}
+		for(CD cd : cdaObservation.getTargetSiteCodes()) {
+			if(cd != null && !cd.isSetNullFlavor()) {
+				fhirObs.setBodySite(dtt.tCD2CodeableConcept(cd));
 			}
 		}
 
@@ -1421,32 +1420,23 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		}
 
 		// author -> performer
-		if(cdaObservation.getAuthors() != null && !cdaObservation.getAuthors().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.Author author : cdaObservation.getAuthors()) {
-				if(author != null && !author.isSetNullFlavor()) {
-					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
-						fhirObsBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-						if(entry.getResource() instanceof Practitioner) {
-
-							fhirPractitioner = (Practitioner)entry.getResource();
-						}
+		for(org.openhealthtools.mdht.uml.cda.Author author : cdaObservation.getAuthors()) {
+			if(author != null && !author.isSetNullFlavor()) {
+				Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
+				for(Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
+					fhirObsBundle.addEntry(entry);
+					if(entry.getResource() instanceof Practitioner) {
+						fhirObs.addPerformer().setReference(entry.getResource().getId());
 					}
-
-					fhirObs.addPerformer().setReference(fhirPractitioner.getId());
 				}
 			}
 		}
 
 		// methodCode -> method
-		if(cdaObservation.getMethodCodes() != null && !cdaObservation.getMethodCodes().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.hl7.datatypes.CE method : cdaObservation.getMethodCodes()) {
-				if(method != null && !method.isSetNullFlavor()) {
-					// Asserting that only one method exists
-					fhirObs.setMethod(dtt.tCD2CodeableConcept(method));
-				}
+		for(CE method : cdaObservation.getMethodCodes()) {
+			if(method != null && !method.isSetNullFlavor()) {
+				// Asserting that only one method exists
+				fhirObs.setMethod(dtt.tCD2CodeableConcept(method));
 			}
 		}
 
@@ -1480,10 +1470,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+
 		return fhirObsBundle;
 	}
 
-	public Organization tOrganization2Organization (org.openhealthtools.mdht.uml.cda.Organization cdaOrganization){
+	public Organization tOrganization2Organization(org.openhealthtools.mdht.uml.cda.Organization cdaOrganization){
 		if(cdaOrganization == null || cdaOrganization.isSetNullFlavor())
 			return null;
 		
@@ -1874,54 +1865,52 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaProcedure == null || cdaProcedure.isSetNullFlavor())
 			return null;
 
-		ca.uhn.fhir.model.dstu2.resource.Procedure fhirPr = new ca.uhn.fhir.model.dstu2.resource.Procedure();
-		Bundle fhirPrBundle = new Bundle();
-		fhirPrBundle.addEntry(new Bundle.Entry().setResource(fhirPr));
+		ca.uhn.fhir.model.dstu2.resource.Procedure fhirProc = new ca.uhn.fhir.model.dstu2.resource.Procedure();
+		Bundle fhirProcBundle = new Bundle();
+		fhirProcBundle.addEntry(new Bundle.Entry().setResource(fhirProc));
 
 		// subject
-		fhirPr.setSubject(getPatientRef());
+		fhirProc.setSubject(getPatientRef());
 
 		// resource id
 		IdDt resourceId = new IdDt("Procedure", getUniqueId());
-		fhirPr.setId(resourceId);
+		fhirProc.setId(resourceId);
 
 		// id -> identifier
 		if(cdaProcedure.getIds() != null && !cdaProcedure.getIds().isEmpty()) {
 			for(II id : cdaProcedure.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
-					fhirPr.addIdentifier(dtt.tII2Identifier(id));
+					fhirProc.addIdentifier(dtt.tII2Identifier(id));
 				}
 			}
 		}
 
 		// effectiveTime -> performed
 		if(cdaProcedure.getEffectiveTime() != null && !cdaProcedure.getEffectiveTime().isSetNullFlavor()){
-			fhirPr.setPerformed(dtt.tIVL_TS2Period(cdaProcedure.getEffectiveTime()));
+			fhirProc.setPerformed(dtt.tIVL_TS2Period(cdaProcedure.getEffectiveTime()));
 		}
 
 		// targetSiteCode -> bodySite
 		if(cdaProcedure.getTargetSiteCodes() != null && !cdaProcedure.getTargetSiteCodes().isEmpty()) {
 			for(CD cd : cdaProcedure.getTargetSiteCodes()) {
 				if(cd != null && !cd.isSetNullFlavor()){
-					fhirPr.addBodySite(dtt.tCD2CodeableConcept(cd));
+					fhirProc.addBodySite(dtt.tCD2CodeableConcept(cd));
 				}
 			}
 		}
 
 		// performer -> performer
-		if(cdaProcedure.getPerformers() != null && !cdaProcedure.getPerformers().isEmpty()) {
-			for(Performer2 performer : cdaProcedure.getPerformers()) {
-				if(performer.getAssignedEntity()!= null && !performer.getAssignedEntity().isSetNullFlavor()) {
-					Bundle practBundle = tPerformer22Practitioner(performer);
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
-						// Add all the resources returned from the bundle to the main bundle
-						fhirPrBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-						// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
-						if(entry.getResource() instanceof Practitioner) {
-							Performer fhirPerformer = new Performer();
-							fhirPerformer.setActor(new ResourceReferenceDt(entry.getResource().getId()));
-							fhirPr.addPerformer(fhirPerformer);
-						}
+		for(Performer2 performer : cdaProcedure.getPerformers()) {
+			if(performer.getAssignedEntity()!= null && !performer.getAssignedEntity().isSetNullFlavor()) {
+				Bundle practBundle = tPerformer22Practitioner(performer);
+				for(Bundle.Entry entry : practBundle.getEntry()) {
+					// Add all the resources returned from the bundle to the main bundle
+					fhirProcBundle.addEntry(entry);
+					// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
+					if(entry.getResource() instanceof Practitioner) {
+						Performer fhirPerformer = new Performer();
+						fhirPerformer.setActor(new ResourceReferenceDt(entry.getResource().getId()));
+						fhirProc.addPerformer(fhirPerformer);
 					}
 				}
 			}
@@ -1931,17 +1920,30 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaProcedure.getStatusCode() != null && !cdaProcedure.getStatusCode().isSetNullFlavor() && cdaProcedure.getStatusCode().getCode() != null) {
 			ProcedureStatusEnum status = vst.tStatusCode2ProcedureStatusEnum(cdaProcedure.getStatusCode().getCode());
 			if(status != null) {
-				fhirPr.setStatus(status);
+				fhirProc.setStatus(status);
 			}
 		}
 
 		// code -> code
 		if(cdaProcedure.getCode() != null && !cdaProcedure.getCode().isSetNullFlavor()) {
-			fhirPr.setCode(dtt.tCD2CodeableConcept(cdaProcedure.getCode()));
+			fhirProc.setCode(dtt.tCD2CodeableConcept(cdaProcedure.getCode()));
 		}
 
-		return fhirPrBundle;
+		// encounter[0] -> encounter
+		if(!cdaProcedure.getEncounters().isEmpty()) {
+			org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter = cdaProcedure.getEncounters().get(0);
+			if(cdaEncounter != null && !cdaEncounter.isSetNullFlavor()) {
+				Bundle encBundle = tEncounter2Encounter(cdaEncounter);
+				for(Bundle.Entry entry : encBundle.getEntry()) {
+					fhirProcBundle.addEntry(entry);
+					if(entry.getResource() instanceof Encounter) {
+						fhirProc.setEncounter(new ResourceReferenceDt(entry.getResource().getId()));
+					}
+				}
+			}
+		}
 
+		return fhirProcBundle;
 	}
 
 	public Bundle tResultObservation2Observation(ResultObservation cdaResultObservation) {

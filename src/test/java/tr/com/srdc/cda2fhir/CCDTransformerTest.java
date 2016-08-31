@@ -29,8 +29,8 @@ public class CCDTransformerTest {
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 
         ClinicalDocument cda = CDAUtil.load(fis);
-        CDATransformer CDATransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        Bundle bundle = CDATransformer.transformDocument(cda);
+        CDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
     }
