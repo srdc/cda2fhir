@@ -30,7 +30,7 @@ import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.IdDt;
-import tr.com.srdc.cda2fhir.CCDATransformer;
+import tr.com.srdc.cda2fhir.CDATransformer;
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 import tr.com.srdc.cda2fhir.util.Constants;
@@ -39,32 +39,32 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 
 	private DataTypesTransformer dtt;
 	private ValueSetsTransformer vst;
-	private CCDATransformer cct;
+	private CDATransformer cdat;
 	private ResourceReferenceDt defaultPatientRef;
 
 	public ResourceTransformerImpl() {
 		dtt = new DataTypesTransformerImpl();
 		vst = new ValueSetsTransformerImpl();
-		cct = null;
-		// This is a default patient reference to be used when ResourceTransformer is not initiated with a CCDATransformer
+		cdat = null;
+		// This is a default patient reference to be used when ResourceTransformer is not initiated with a CDATransformer
 		defaultPatientRef = new ResourceReferenceDt(new IdDt("Patient", "0"));
 	}
 
-	public ResourceTransformerImpl(CCDATransformer ccdaTransformer) {
+	public ResourceTransformerImpl(CDATransformer cdaTransformer) {
 		this();
-		cct = ccdaTransformer;
+		cdat = cdaTransformer;
 	}
 
 	protected String getUniqueId() {
-		if(cct != null)
-			return cct.getUniqueId();
+		if(cdat != null)
+			return cdat.getUniqueId();
 		else
 			return UUID.randomUUID().toString();
 	}
 
 	protected ResourceReferenceDt getPatientRef() {
-		if(cct != null)
-			return cct.getPatientRef();
+		if(cdat != null)
+			return cdat.getPatientRef();
 		else
 			return defaultPatientRef;
 	}

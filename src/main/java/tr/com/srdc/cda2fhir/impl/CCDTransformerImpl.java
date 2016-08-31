@@ -8,7 +8,8 @@ import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Procedure;
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.*;
-import tr.com.srdc.cda2fhir.CCDATransformer;
+import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import tr.com.srdc.cda2fhir.CDATransformer;
 import tr.com.srdc.cda2fhir.ResourceTransformer;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
@@ -17,7 +18,7 @@ import java.util.UUID;
 /**
  * Created by mustafa on 8/3/2016.
  */
-public class CCDATransformerImpl implements CCDATransformer {
+public class CCDTransformerImpl implements CDATransformer {
 
     private int counter;
     private IdGeneratorEnum idGenerator;
@@ -27,7 +28,7 @@ public class CCDATransformerImpl implements CCDATransformer {
     /**
      * Default constructor that initiates with a UUID resource id generator
      */
-    public CCDATransformerImpl() {
+    public CCDTransformerImpl() {
         this.counter = 0;
         // The default resource id pattern is UUID
         this.idGenerator = IdGeneratorEnum.UUID;
@@ -38,7 +39,7 @@ public class CCDATransformerImpl implements CCDATransformer {
      * Constructor that initiates with the provided resource id generator
      * @param idGen The id generator enumeration to be set
      */
-    public CCDATransformerImpl(IdGeneratorEnum idGen) {
+    public CCDTransformerImpl(IdGeneratorEnum idGen) {
         this();
         // Override the default resource id pattern
         this.idGenerator = idGen;
@@ -62,9 +63,24 @@ public class CCDATransformerImpl implements CCDATransformer {
         return patientRef;
     }
 
-    public Bundle transformCCD(ContinuityOfCareDocument ccd) {
-        if(ccd == null)
+    /**
+     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
+     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
+     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
+     */
+    public Bundle transformDocument(ClinicalDocument cda) {
+        if(cda == null)
             return null;
+
+        ContinuityOfCareDocument ccd = null;
+
+        // first, cast the ClinicalDocument to ContinuityOfCareDocument
+        try {
+            ccd = (ContinuityOfCareDocument) cda;
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
+            return null;
+        }
 
         // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
         Bundle ccdBundle = resTransformer.tClinicalDocument2Composition(ccd);
