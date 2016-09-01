@@ -973,12 +973,34 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		List<String> attributeList = getAttributesHelperForTStructDocText2String(entry);
 		List<String> tagList = new ArrayList<String>();
 		
+		String attributeToRemove = null;
+		
+		// removing id attribute from the attributeList
+		for(String attribute : attributeList) {
+			if(attribute.toLowerCase().startsWith("id=\"", 0)) {
+				attributeToRemove = attribute;
+			}
+		}
+		
+		if(attributeToRemove != null)
+			attributeList.remove(attributeToRemove);
+		
+		// removing styleCode attribute from the attributeList
+		for(String attribute : attributeList) {
+			if(attribute.toLowerCase().startsWith("stylecode=\"", 0)) {
+				attributeToRemove = attribute;
+			}
+		}
+		if(attributeToRemove != null)
+			attributeList.remove(attributeToRemove);
+		
 		// case tag.equals("list"). we need to transform it to "ul" or "ol"
 		if(tagName.equals("list")) {
 			// first, think of the situtation no attribute exists about ordered/unordered
 			tagName = "ul";
-			String attributeToRemove = null;
+			attributeToRemove = null;
 			for(String attribute : attributeList) {
+				// if the attribute is listType, make the transformation
 				if(attribute.toLowerCase().contains("listtype")) {
 					// notice that the string "unordered" also contains "ordered"
 					// therefore, it is vital to check "unordered" firstly.
@@ -988,7 +1010,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					} else if(attribute.toLowerCase().contains("ordered")) {
 						tagName = "ol";
 					}
-					
 					attributeToRemove = attribute;
 				}
 			}
