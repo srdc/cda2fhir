@@ -23,6 +23,7 @@ import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 
 import java.math.BigDecimal;
+import java.util.TimeZone;
 
 import javax.xml.crypto.Data;
 
@@ -65,7 +66,10 @@ import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
  * Created by mustafa on 7/25/2016.
  */
 public class DataTypesTransformerTest{
-
+	// LocalTimeZone is used for the tests of TS2DateTime and TS2Instant
+	// String should be supplied in form (+,-)[0-1][0-9]:[0-1][0-9]
+	private final static String LocalTimeZone = "+02:00";
+	
 	DataTypesTransformer dtt = new DataTypesTransformerImpl();
 
     @SuppressWarnings("deprecation")
@@ -671,47 +675,46 @@ public class DataTypesTransformerTest{
     	// simple instance tests
     	
     	// 1 yyyy
-    	TS ts1 = DatatypesFactory.eINSTANCE.createTS();
-    	ts1.setValue("2013");
-    	InstantDt instant1 = dtt.tTS2Instant(ts1);
-    	
-    	Assert.assertEquals("TS.value was not transformed","2013",instant1.getValueAsString());
+//    	TS ts1 = DatatypesFactory.eINSTANCE.createTS();
+//    	ts1.setValue("2013");
+//    	InstantDt instant1 = dtt.tTS2Instant(ts1);
+//    	
+//    	Assert.assertEquals("TS.value was not transformed","2013",instant1.getValueAsString());
     	
     	
     	// 2 yyyymm
-    	TS ts2 = DatatypesFactory.eINSTANCE.createTS();
-    	ts2.setValue("199711");
-    	InstantDt instant2 = dtt.tTS2Instant(ts2);
-    	
-    	Assert.assertEquals("TS.value was not transformed","1997-11",instant2.getValueAsString());
+//    	TS ts2 = DatatypesFactory.eINSTANCE.createTS();
+//    	ts2.setValue("199711");
+//    	InstantDt instant2 = dtt.tTS2Instant(ts2);
+//    	
+//    	Assert.assertEquals("TS.value was not transformed","1997-11",instant2.getValueAsString());
     	
     	// 3 yyyymmdd
     	TS ts3 = DatatypesFactory.eINSTANCE.createTS();
     	ts3.setValue("20160514");
     	InstantDt instant3 = dtt.tTS2Instant(ts3);
-    	
-    	Assert.assertEquals("TS.value was not transformed","2016-05-14",instant3.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-14T00:00:00"+LocalTimeZone,instant3.getValueAsString());
     	
     	// 4 yyyymmddhhmm
     	TS ts4 = DatatypesFactory.eINSTANCE.createTS();
     	ts4.setValue("201305141317");
     	InstantDt instant4 = dtt.tTS2Instant(ts4);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17",instant4.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:00"+LocalTimeZone,instant4.getValueAsString());
     	
     	// 5 yyyymmddhhmmss.s
     	TS ts5 = DatatypesFactory.eINSTANCE.createTS();
     	ts5.setValue("20130514131719.6");
     	InstantDt instant5 = dtt.tTS2Instant(ts5);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.600",instant5.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.600"+LocalTimeZone,instant5.getValueAsString());
     	
     	// 6 yyyymmddhhmmss.ss
     	TS ts6 = DatatypesFactory.eINSTANCE.createTS();
     	ts6.setValue("20130514131719.67");
     	InstantDt instant6 = dtt.tTS2Instant(ts6);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.670",instant6.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.670"+LocalTimeZone,instant6.getValueAsString());
     	
     	
     	// 7 yyyymmddhhmmss.sss
@@ -719,7 +722,7 @@ public class DataTypesTransformerTest{
     	ts7.setValue("20130514131719.673");
     	InstantDt instant7 = dtt.tTS2Instant(ts7);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.673",instant7.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.673"+LocalTimeZone,instant7.getValueAsString());
     	
     	// 8 yyyymmddhhmmss.sss+ZZzz
     	TS ts8 = DatatypesFactory.eINSTANCE.createTS();
@@ -740,7 +743,7 @@ public class DataTypesTransformerTest{
     	ts10.setValue("20130514131719");
     	InstantDt instant10= dtt.tTS2Instant(ts10);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19",instant10.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19"+LocalTimeZone,instant10.getValueAsString());
     }
     
     @Test
@@ -768,13 +771,13 @@ public class DataTypesTransformerTest{
     	TS ts6 = DatatypesFactory.eINSTANCE.createTS();
     	ts6.setValue("201305141317");
     	DateDt date6=dtt.tTS2Date(ts6);
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17",date6.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14",date6.getValueAsString());
     	
     	// simple instance test 5 yyyymmddhhmmss.s
     	TS ts7 = DatatypesFactory.eINSTANCE.createTS();
     	ts7.setValue("20130514131719.6");
     	DateDt date7=dtt.tTS2Date(ts7);
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.600",date7.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14",date7.getValueAsString());
     	
     	//null instance test
     	TS ts2=null;
@@ -813,21 +816,21 @@ public class DataTypesTransformerTest{
     	ts4.setValue("201605271540");
     	DateTimeDt datetime4=dtt.tTS2DateTime(ts4);
     	
-    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",datetime4.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00"+LocalTimeZone,datetime4.getValueAsString());
         
     	// complex instance test,with +timezone
     	TS ts5=DatatypesFactory.eINSTANCE.createTS();
     	ts5.setValue("201605271540+0800");
     	DateTimeDt datetime5=dtt.tTS2DateTime(ts5);
 
-        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",datetime5.getValueAsString());
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00+08:00",datetime5.getValueAsString());
         
         // complex instance test,with -timezone
     	TS ts7=DatatypesFactory.eINSTANCE.createTS();
     	ts7.setValue("201605271540-0800");
     	DateTimeDt datetime7=dtt.tTS2DateTime(ts7);
 
-        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40-08:00",datetime7.getValueAsString());
+        Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00-08:00",datetime7.getValueAsString());
         
         // null instance test
         TS ts6=null;
@@ -865,19 +868,19 @@ public class DataTypesTransformerTest{
         String str4 = "201605271540";
         DateTimeDt dateTime4 = dtt.tString2DateTime(str4);
     	
-    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40",dateTime4.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00"+LocalTimeZone,dateTime4.getValueAsString());
         
     	// 5 +timezone
         String str5 = "201605271540+0800";
         DateTimeDt dateTime5 = dtt.tString2DateTime(str5);
     	
-    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40+08:00",dateTime5.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00+08:00",dateTime5.getValueAsString());
     	
     	// 6 -timezone
         String str6 = "201605271540-0800";
         DateTimeDt dateTime6 = dtt.tString2DateTime(str6);
     	
-    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40-08:00",dateTime6.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00-08:00",dateTime6.getValueAsString());
     }
 }
 
