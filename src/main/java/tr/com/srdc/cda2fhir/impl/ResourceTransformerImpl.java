@@ -2110,6 +2110,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				}
 			}
 		}
+		
+		// reported
+		fhirImmunization.setReported(Constants.DEFAULT_IMMUNIZATION_REPORTED);
 
 		return fhirImmunizationBundle;
 		

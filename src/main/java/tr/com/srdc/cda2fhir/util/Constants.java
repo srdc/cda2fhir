@@ -12,6 +12,7 @@ public class Constants {
      */
 	public static final String DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM = "urn:ietf:bcp:47";
     public static final ConditionVerificationStatusEnum DEFAULT_CONDITION_VERIFICATION_STATUS = ConditionVerificationStatusEnum.CONFIRMED;
+    public static final boolean DEFAULT_IMMUNIZATION_REPORTED = false;
     
     public static final String URL_EXTENSION_BIRTHPLACE     = "http://hl7.org/fhir/StructureDefinition/birthPlace";
     public static final String URL_EXTENSION_ETHNICITY      = "http://hl7.org/fhir/StructureDefinition/us-core-ethnicity";
