@@ -2546,6 +2546,25 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
+		// if DiagnosticReport.issued is not set, set the highest value of the effectiveTime to DiagnosticReport.issued
+		// effectiveTime.high, low or value -> issued
+		if(fhirDiagReport.getIssued() == null) {
+			if(cdaResultOrganizer.getEffectiveTime() != null && !cdaResultOrganizer.getEffectiveTime().isSetNullFlavor()) {
+				if(cdaResultOrganizer.getEffectiveTime().getHigh() != null && !cdaResultOrganizer.getEffectiveTime().getHigh().isSetNullFlavor()) {
+					// effectiveTime.high -> issued
+					fhirDiagReport.setIssued(dtt.tTS2Instant(cdaResultOrganizer.getEffectiveTime().getHigh()));
+				} else if(cdaResultOrganizer.getEffectiveTime().getLow() != null && !cdaResultOrganizer.getEffectiveTime().getLow().isSetNullFlavor()) {
+					// effectiveTime.low -> issued
+					fhirDiagReport.setIssued(dtt.tTS2Instant(cdaResultOrganizer.getEffectiveTime().getLow()));
+				} else if(cdaResultOrganizer.getEffectiveTime().getValue() != null) {
+					// effectiveTime.value -> issued
+					TS ts = DatatypesFactory.eINSTANCE.createTS();
+					ts.setValue(cdaResultOrganizer.getEffectiveTime().getValue());
+					fhirDiagReport.setIssued(dtt.tTS2Instant(ts));
+				} 	
+			}
+		}
+		
 		// author -> performer
 		if(cdaResultOrganizer.getAuthors() != null && !cdaResultOrganizer.getAuthors().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaResultOrganizer.getAuthors()) {
