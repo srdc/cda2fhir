@@ -480,7 +480,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				if(cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {
 					ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
 
-					fhirParticipant.addType().addCoding(vst.tParticipationType2ParticipationTypeCode(ParticipationType.PRF));
+					// default encunter participant type code
+					fhirParticipant.addType().addCoding(Constants.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
 
 					Practitioner fhirPractitioner = null;
 					Bundle fhirPractitionerBundle = tPerformer22Practitioner(cdaPerformer);
@@ -615,7 +616,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				if(cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {
 					ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
 
-					fhirParticipant.addType().addCoding(vst.tParticipationType2ParticipationTypeCode(ParticipationType.PRF));
+					// default encounter participant type code
+					fhirParticipant.addType().addCoding(Constants.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
 
 					Practitioner fhirPractitioner = null;
 					Bundle fhirPractitionerBundle = tPerformer22Practitioner(cdaPerformer);
