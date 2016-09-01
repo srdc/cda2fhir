@@ -2201,6 +2201,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// languageCode -> language
 		if(cdaLanguageCommunication.getLanguageCode() != null && !cdaLanguageCommunication.getLanguageCode().isSetNullFlavor()) {
 			fhirCommunication.setLanguage(dtt.tCD2CodeableConcept(cdaLanguageCommunication.getLanguageCode()));
+			// urn:ietf:bcp:47 -> language.codeSystem
+			fhirCommunication.getLanguage().getCodingFirstRep().setSystem(Constants.DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM);
 		}
 		
 		// preferenceInd -> preferred
