@@ -131,6 +131,12 @@ public interface ValueSetsTransformer {
 	AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse cdaPostalAddressUse);
 	
 	/**
+	 * Transforms a CDA ResultOrganizer StatusCode string to a value from the FHIR valueset DiagnosticReportStatusEnum
+	 * @param cdaResultOrganizerStatusCode A CDA ResultOrganizer StatusCode string
+	 * @return A value from the FHIR valueset DiagnosticReportStatusEnum
+	 */
+	DiagnosticReportStatusEnum tResultOrganizerStatusCode2DiagnosticReportStatusEnum(String cdaResultOrganizerStatusCode);
+	/**
 	 * Transforms a CDA RoleCode string to a FHIR CodingDt composite datatype which includes the code about PatientContactRelationship.
 	 * @param cdaRoleCode A CDA RoleCode string
 	 * @return A FHIR CodingDt composite datatype which includes the code about PatientContactRelationship

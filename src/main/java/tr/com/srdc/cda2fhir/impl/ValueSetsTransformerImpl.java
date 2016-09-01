@@ -520,6 +520,28 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public DiagnosticReportStatusEnum tResultOrganizerStatusCode2DiagnosticReportStatusEnum(String cdaResultOrganizerStatusCode) {
+		if(cdaResultOrganizerStatusCode == null)
+			return null;
+		
+		switch(cdaResultOrganizerStatusCode.toLowerCase()) {
+			case "aborted":
+				return DiagnosticReportStatusEnum.CANCELLED;
+			case "active":
+				return DiagnosticReportStatusEnum.PARTIAL;
+			case "cancelled":
+				return DiagnosticReportStatusEnum.CANCELLED;
+			case "completed":
+				return DiagnosticReportStatusEnum.FINAL;
+			case "held":
+				return DiagnosticReportStatusEnum.REGISTERED;
+			case "suspended":
+				return DiagnosticReportStatusEnum.ENTERED_IN_ERROR;
+			default:
+				return null;
+		}
+	}
+	
 	public CodingDt tRoleCode2PatientContactRelationshipCode(String cdaRoleCode) {
 		if(cdaRoleCode == null)
 			return null;

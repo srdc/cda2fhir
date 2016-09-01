@@ -2525,6 +2525,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			fhirDiagReport.setCode(dtt.tCD2CodeableConcept(cdaResultOrganizer.getCode()));
 		}
 		
+		// statusCode -> status
+		if(cdaResultOrganizer.getStatusCode() != null && !cdaResultOrganizer.isSetNullFlavor()) {
+			fhirDiagReport.setStatus(vst.tResultOrganizerStatusCode2DiagnosticReportStatusEnum(cdaResultOrganizer.getStatusCode().getCode()));
+		}
+		
 		// effectiveTime -> effective
 		if(cdaResultOrganizer.getEffectiveTime() != null && !cdaResultOrganizer.getEffectiveTime().isSetNullFlavor()) {
 			fhirDiagReport.setEffective(dtt.tIVL_TS2Period(cdaResultOrganizer.getEffectiveTime()));
