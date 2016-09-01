@@ -14,6 +14,7 @@ public class Constants {
 	public static final String DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM = "urn:ietf:bcp:47";
     public static final ConditionVerificationStatusEnum DEFAULT_CONDITION_VERIFICATION_STATUS = ConditionVerificationStatusEnum.CONFIRMED;
     public static final CodingDt DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE = new CodingDt().setSystem("http://hl7.org/fhir/v3/ParticipationType").setCode("PART").setDisplay("Participation");
+    public static final String DEFAULT_OBSERVATION_INTERPRETATION_CODE_SYSTEM = "http://hl7.org/fhir/v2/0078";
     public static final boolean DEFAULT_IMMUNIZATION_REPORTED = false;
     
     
