@@ -2273,28 +2273,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	public Composition.Section tSection2Section(Section cdaSection) {
 		if(cdaSection == null || cdaSection.isSetNullFlavor()){
 			return null;
-		} else {
-			Composition.Section fhirSec = new Composition.Section();
-			
-			// title -> title.text
-			if(cdaSection.getTitle() != null && !cdaSection.getTitle().isSetNullFlavor()) {
-				if(cdaSection.getTitle().getText() != null && !cdaSection.getTitle().getText().isEmpty()) {
-					fhirSec.setTitle(cdaSection.getTitle().getText());
-				}
-			}
-			
-			// code -> code
-			if(cdaSection.getCode() != null && !cdaSection.getCode().isSetNullFlavor()) {
-				fhirSec.setCode(dtt.tCD2CodeableConcept(cdaSection.getCode()));
-			}
-			
-			// text -> text
-			if(cdaSection.getText() != null) {
-				fhirSec.setText(dtt.tStrucDocText2Narrative(cdaSection.getText()));
-			}
-			
-			return fhirSec;
 		}
+
+		Composition.Section fhirSec = new Composition.Section();
+			
+		// title -> title.text
+		if(cdaSection.getTitle() != null && !cdaSection.getTitle().isSetNullFlavor()) {
+			if(cdaSection.getTitle().getText() != null && !cdaSection.getTitle().getText().isEmpty()) {
+				fhirSec.setTitle(cdaSection.getTitle().getText());
+			}
+		}
+
+		// code -> code
+		if(cdaSection.getCode() != null && !cdaSection.getCode().isSetNullFlavor()) {
+			fhirSec.setCode(dtt.tCD2CodeableConcept(cdaSection.getCode()));
+		}
+
+		// text -> text
+		if(cdaSection.getText() != null) {
+			fhirSec.setText(dtt.tStrucDocText2Narrative(cdaSection.getText()));
+		}
+
+		return fhirSec;
 	}
 
 	public Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument) {
