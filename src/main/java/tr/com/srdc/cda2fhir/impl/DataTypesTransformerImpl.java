@@ -35,6 +35,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
+import tr.com.srdc.cda2fhir.util.Constants;
 import tr.com.srdc.cda2fhir.util.StringUtil;
 
 /**
@@ -645,6 +646,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			// for the values in form +1(555)555-5000
 			else if(systemType.length == 1){
 				contactPointDt.setValue(systemType[0]);
+				// configurable default system value
+				contactPointDt.setSystem(Constants.DEFAULT_CONTACT_POINT_SYSTEM);
 			}
 		}
 		
