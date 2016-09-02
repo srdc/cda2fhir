@@ -678,7 +678,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		if(tel.getUses() != null && !tel.getUses().isEmpty()) {
 			for(TelecommunicationAddressUse telAddressUse : tel.getUses()) {
 				if(telAddressUse != null) {
-					contactPointDt.setUse(vst.tTelecommunicationAddressUse2ContacPointUseEnum(telAddressUse));
+					contactPointDt.setUse(vst.tTelecommunicationAddressUse2ContactPointUseEnum(telAddressUse));
 				}
 			}
 		}
