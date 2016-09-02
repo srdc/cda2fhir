@@ -104,7 +104,7 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
         // county -> district
         if(ad.getCounties() != null && !ad.getCounties().isEmpty()) {
         	for(ADXP adxp : ad.getCounties()) {
-        		// Asserting that at most one countie information exists
+        		// Asserting that at most one county information exists
         		if(adxp != null && !adxp.isSetNullFlavor()) {
         			address.setDistrict(adxp.getText());
         		}

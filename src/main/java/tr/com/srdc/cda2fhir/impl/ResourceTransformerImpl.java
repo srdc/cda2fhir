@@ -2398,9 +2398,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 		
-		// status
-		fhirComp.setStatus(Constants.DEFAULT_COMPOSITION_STATUS);
-		
 		// confidentialityCode -> confidentiality
 		if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {
 			if(cdaClinicalDocument.getConfidentialityCode().getCode() != null && !cdaClinicalDocument.getConfidentialityCode().getCode().isEmpty()) {

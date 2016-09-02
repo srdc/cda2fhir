@@ -208,7 +208,7 @@ public interface ValueSetsTransformer {
 	 * @param cdaTelecommunicationAddressUse A CDA TelecommunicationAddressUse vocable
 	 * @return A value from the FHIR valueset ContactPointUseEnum
 	 */
-	ContactPointUseEnum tTelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse cdaTelecommunicationAddressUse);
+	ContactPointUseEnum tTelecommunicationAddressUse2ContactPointUseEnum(TelecommunicationAddressUse cdaTelecommunicationAddressUse);
 
 	/**
 	 * Transforms a CDA TelValue string to a value from the FHIR valueset ContactPointSystemEnum.

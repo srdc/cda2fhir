@@ -787,7 +787,7 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
-	public ContactPointUseEnum tTelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse cdaTelecommunicationAddressUse) {
+	public ContactPointUseEnum tTelecommunicationAddressUse2ContactPointUseEnum(TelecommunicationAddressUse cdaTelecommunicationAddressUse) {
 		switch(cdaTelecommunicationAddressUse) {
 			case H:
 			case HP:
