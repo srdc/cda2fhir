@@ -941,7 +941,10 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			return returnValue;
 		} 
 		else if(param instanceof EStructuralFeatureImpl.SimpleFeatureMapEntry) {
-			return ((EStructuralFeatureImpl.SimpleFeatureMapEntry)param).getValue().toString();
+			String elementBody = ((EStructuralFeatureImpl.SimpleFeatureMapEntry)param).getValue().toString();
+			// deletion of unnecessary content (\n, \t)
+			elementBody = elementBody.replaceAll("\n", "").replaceAll("\t", "");
+			return elementBody;
 		} 
 		else if(param instanceof EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry) {
 			EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry = (EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry)param;
