@@ -13,6 +13,7 @@ import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 
 import ca.uhn.fhir.model.dstu2.valueset.*;
+
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.Author;
@@ -2584,7 +2585,28 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 					}
 				}
 			}
+		} else {
+			// if there is no information about the performer in CDA side, assign an empty Practitioner resource
+			// which has data absent reason: unknown
+			Practitioner fhirPerformerDataAbsent = new Practitioner();
+			fhirPerformerDataAbsent.setId(new IdDt("Practitioner",getUniqueId()));
+			ExtensionDt extDataAbsentReason = new ExtensionDt();
+			
+			// setting dataAbsentReason extension
+			extDataAbsentReason.setModifier(false);
+			extDataAbsentReason.setUrl(Constants.URL_EXTENSION_DATA_ABSENT_REASON);
+			extDataAbsentReason.setValue(Constants.DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE);
+			
+			// adding dataAbsentReason as undeclaredExtesion to fhirPerformer
+			fhirPerformerDataAbsent.addUndeclaredExtension(extDataAbsentReason);
+			
+			// setting the performer of DiagnosticReport
+			fhirDiagReportBundle.addEntry(new Bundle.Entry().setResource(fhirPerformerDataAbsent));
+			fhirDiagReport.setPerformer(new ResourceReferenceDt(fhirPerformerDataAbsent.getId()));
 		}
+		
+		
+		
 		
 		// observation(s) -> result
 		if(cdaResultOrganizer.getObservations() != null && !cdaResultOrganizer.getObservations().isEmpty()) {
