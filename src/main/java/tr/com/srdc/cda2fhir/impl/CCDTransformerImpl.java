@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.impl;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
+import ca.uhn.fhir.model.dstu2.resource.Device;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Procedure;
@@ -139,7 +140,32 @@ public class CCDTransformerImpl implements CDATransformer {
             	}
             }
             else if(cdaSec instanceof MedicalEquipmentSection) {
-
+                MedicalEquipmentSection equipSec = (MedicalEquipmentSection) cdaSec;
+                // Case 1: Entry is a Non-Medicinal Supply Activity (V2)
+                for(NonMedicinalSupplyActivity supplyActivity : equipSec.getNonMedicinalSupplyActivities()) {
+                    Device fhirDevice = resTransformer.tSupply2Device(supplyActivity);
+                    ResourceReferenceDt ref = fhirSec.addEntry();
+                    ref.setReference(fhirDevice.getId());
+                    ccdBundle.addEntry(new Bundle.Entry().setResource(fhirDevice));
+                }
+                // Case 2: Entry is a Medical Equipment Organizer, which is indeed a collection of Non-Medicinal Supply Activity (V2)
+                for(Organizer organizer : equipSec.getOrganizers()) {
+                    for(Supply supply : organizer.getSupplies()) {
+                        if(supply instanceof NonMedicinalSupplyActivity) {
+                            Device fhirDevice = resTransformer.tSupply2Device(supply);
+                            ResourceReferenceDt ref = fhirSec.addEntry();
+                            ref.setReference(fhirDevice.getId());
+                            ccdBundle.addEntry(new Bundle.Entry().setResource(fhirDevice));
+                        }
+                    }
+                }
+                // Case 3: Entry is a Procedure Activity Procedure (V2)
+                for(org.openhealthtools.mdht.uml.cda.Procedure procedure : equipSec.getProcedures()) {
+                    if(procedure instanceof ProcedureActivityProcedure) {
+                        Bundle procBundle = resTransformer.tProcedure2Procedure(procedure);
+                        mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
+                    }
+                }
             }
             else if(cdaSec instanceof MedicationsSection) {
                 MedicationsSection medSec = (MedicationsSection) cdaSec;
