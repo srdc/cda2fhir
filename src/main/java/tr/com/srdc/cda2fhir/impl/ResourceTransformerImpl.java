@@ -2498,13 +2498,6 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				fhirDev.setType(dtt.tCD2CodeableConcept(productInstance.getPlayingDevice().getCode()));
 			}
 		}
-
-		// TODO: Not sure if it is OK to map statusCode -> status
-		// Needs checking
-		// statusCode -> status
-		if(cdaSupply.getStatusCode() != null && !cdaSupply.getStatusCode().isSetNullFlavor()) {
-			fhirDev.setStatus(vst.tSupplyStatusCode2DeviceStatusEnum(cdaSupply.getStatusCode()));
-		}
 		
 		return fhirDev;
 	}

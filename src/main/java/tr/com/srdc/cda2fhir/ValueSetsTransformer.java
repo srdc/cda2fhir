@@ -204,12 +204,6 @@ public interface ValueSetsTransformer {
 	ProcedureStatusEnum tStatusCode2ProcedureStatusEnum(String cdaStatusCode);
 	
 	/**
-	 * Transforms a CDA Supply status code to a value from the FHIR valueset DeviceStatusEnum.
-	 * @param cdaSupplyStatusCode A CDA Supply status code
-	 * @return A value from the FHIR valueset DeviceStatusEnum
-	 */
-	DeviceStatusEnum tSupplyStatusCode2DeviceStatusEnum(CS cdaSupplyStatusCode);
-	/**
 	 * Transforms a CDA TelecommunicationAddressUse vocable to a value from the FHIR valueset ContactPointUseEnum.
 	 * @param cdaTelecommunicationAddressUse A CDA TelecommunicationAddressUse vocable
 	 * @return A value from the FHIR valueset ContactPointUseEnum
