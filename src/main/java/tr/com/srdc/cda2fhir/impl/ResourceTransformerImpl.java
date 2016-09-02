@@ -449,6 +449,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if(vst.tStatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()) != null) {
 				fhirEncounter.setStatus(vst.tStatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()));
 			}
+		} else {
+			fhirEncounter.setStatus(Constants.DEFAULT_ENCOUNTER_STATUS);
 		}
 
 		// code -> type
@@ -585,6 +587,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			if(vst.tStatusCode2EncounterStatusEnum(cdaEncounterActivity.getStatusCode().getCode()) != null) {
 				fhirEncounter.setStatus(vst.tStatusCode2EncounterStatusEnum(cdaEncounterActivity.getStatusCode().getCode()));
 			}
+		} else {
+			fhirEncounter.setStatus(Constants.DEFAULT_ENCOUNTER_STATUS);
 		}
 
 		// code -> type
@@ -867,6 +871,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		// subject
 		fhirObs.setSubject(getPatientRef());
+		
+		// statusCode -> status
+		if(cdaObservation.getStatusCode() != null && !cdaObservation.getStatusCode().isSetNullFlavor()) {
+			if(cdaObservation.getStatusCode().getCode() != null && !cdaObservation.getStatusCode().getCode().isEmpty()) {
+				fhirObs.setStatus(vst.tObservationStatusCode2ObservationStatusEnum(cdaObservation.getStatusCode().getCode()));
+			}
+		}
 		
 		// id -> identifier
 		if(cdaObservation.getIds() != null && !cdaObservation.getIds().isEmpty()) {
@@ -2318,6 +2329,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 				fhirComp.setTitle(cdaClinicalDocument.getTitle().getText());
 			}
 		}
+		
+		// status
+		fhirComp.setStatus(Constants.DEFAULT_COMPOSITION_STATUS);
 		
 		// confidentialityCode -> confidentiality
 		if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {

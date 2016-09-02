@@ -192,23 +192,23 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case MSK:
 				code = "masked"; display = "Masked"; break;
 			case NA:
-				code = "not-applicable"; display= "Not Applicable"; break;
+				code = "unsupported"; display= "Unsupported"; break;
 			case NASK:
 				code= "not-asked"; display = "Not Asked"; break;
 			case NAV:
 				code = "temp"; display = "Temp"; break;
 			case NI:
-				code = "no-information"; display = "No Information"; break;
+				code = "error"; display = "Error"; break;
 			case NINF:
-				code = "negative-infinity"; display = "Negative Infinity"; break;
+				code = "NaN"; display = "Not a Number"; break;
 			case NP:
-				code = "not-present"; display = "Not Present"; break;
+				code = "unknown"; display = "Unkown"; break;
 			case OTH:
-				code = "other"; display = "other"; break;
+				code = "error"; display = "Error"; break;
 			case PINF:
-				code = "positive-infinity"; display = "positive Infinity"; break;
+				code = "NaN"; display = "Not a Number"; break;
 			case TRC:
-				code = "trace"; display = "trace"; break;
+				code = "NaN"; display = "Not a Number"; break;
 			default:
 				break;
 		}
@@ -222,13 +222,26 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 
 	public ObservationStatusEnum tObservationStatusCode2ObservationStatusEnum(String cdaObservationStatusCode) {
 		switch(cdaObservationStatusCode.toLowerCase()) {
-			case "completed": return ObservationStatusEnum.FINAL;
-			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
-			case "un": return ObservationStatusEnum.UNKNOWN_STATUS;
-			case "cancelled": return ObservationStatusEnum.CANCELLED;
-			case "amended": return ObservationStatusEnum.AMENDED;
+		// TODO: https://www.hl7.org/fhir/valueset-observation-status.html and pdf page 476
+		// Check the following mapping
+			case "new":	
+			case "held":
+				return ObservationStatusEnum.REGISTERED;
+			case "normal":
+			case "active":
+				return ObservationStatusEnum.PRELIMINARY;
+			case "completed":
+				return ObservationStatusEnum.FINAL;
+			case "error":
+				return ObservationStatusEnum.ENTERED_IN_ERROR;
+			case "cancelled":
+			case "aborted":
+			case "nullified":
+			case "suspended":
+				return ObservationStatusEnum.CANCELLED;
+			case "obsolete":
 			default:
-				return null;
+				return ObservationStatusEnum.UNKNOWN_STATUS;
 		}
 	}
 
