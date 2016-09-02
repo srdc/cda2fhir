@@ -88,6 +88,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("AllergyIntolerance", getUniqueId());
 		fhirAllergyIntolerance.setId(resourceId);
 		
+		// meta
+		fhirAllergyIntolerance.getMeta().addProfile(Constants.PROFILE_ALLERGY_INTOLERANCE);
+		
 		// id -> identifier
 		for(II ii : cdaAllergyProbAct.getIds()) {
 			if(!ii.isSetNullFlavor()) {
@@ -264,6 +267,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Practitioner", getUniqueId());
 		fhirPractitioner.setId(resourceId);
 		
+		// meta
+		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_PRACTITIONER);
+		
 		// id -> identifier
 		if(cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty()) {
 			for(II ii : cdaAssignedAuthor.getIds()) {
@@ -334,6 +340,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("Practitioner", getUniqueId());
 		fhirPractitioner.setId(resourceId);
+		
+		// meta
+		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_PRACTITIONER);
 		
 		// id -> identifier
 		if(cdaAssignedEntity.getIds() != null && !cdaAssignedEntity.getIds().isEmpty()) {
@@ -411,6 +420,8 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		fhirSubstance.setId(new IdDt("Substance", getUniqueId()));
 
+		// meta
+		fhirSubstance.getMeta().addProfile(Constants.PROFILE_SUBSTANCE);
 		// code -> code
 		fhirSubstance.setCode(dtt.tCD2CodeableConcept(cdaSubstanceCode));
 
@@ -432,6 +443,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Encounter", getUniqueId());
 		fhirEncounter.setId(resourceId);
 
+		// meta
+		fhirEncounter.getMeta().addProfile(Constants.PROFILE_ENCOUNTER);
+		
 		// patient
 		fhirEncounter.setPatient(getPatientRef());
 
@@ -570,6 +584,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Encounter",getUniqueId());
 		fhirEncounter.setId(resourceId);
 
+		// meta
+		fhirEncounter.getMeta().addProfile(Constants.PROFILE_ENCOUNTER);
+		
 		// patient
 		fhirEncounter.setPatient(getPatientRef());
 
@@ -749,6 +766,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("FamilyMemberHistory", getUniqueId());
 		fhirFMH.setId(resourceId);
+		
+		// meta
+		fhirFMH.getMeta().addProfile(Constants.PROFILE_FAMILY_MEMBER_HISTORY);
 		
 		// patient
 		fhirFMH.setPatient(getPatientRef());
@@ -962,6 +982,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// patient
 		fhirCond.setPatient(getPatientRef());
 		
+		// meta
+		fhirCond.getMeta().addProfile(Constants.PROFILE_CONDITION);
+		
 		// id -> identifier
 		if(cdaIndication.getIds() != null && !cdaIndication.getIds().isEmpty()) {
 			for(II ii : cdaIndication.getIds()) {
@@ -1032,6 +1055,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Medication", getUniqueId());
 		fhirMedication.setId(resourceId);
 
+		// meta
+		fhirMedication.getMeta().addProfile(Constants.PROFILE_MEDICATION);
+		
 		// init Medication.product
 		Medication.Product fhirProduct = new Medication.Product();
 		fhirMedication.setProduct(fhirProduct);
@@ -1077,6 +1103,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("MedicationStatement", getUniqueId());
 		fhirMedSt.setId(resourceId);
+		
+		// meta
+		fhirMedSt.getMeta().addProfile(Constants.PROFILE_MEDICATION_STATEMENT);
 		
 		// patient
 		fhirMedSt.setPatient(getPatientRef());
@@ -1197,6 +1226,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("MedicationDispense", getUniqueId());
 		fhirMediDisp.setId(resourceId);
+		
+		// meta
+		fhirMediDisp.getMeta().addProfile(Constants.PROFILE_MEDICATION_DISPENSE);
 		
 		// id -> identifier
 		if(cdaMedicationDispense.getIds() != null &  !cdaMedicationDispense.getIds().isEmpty()) {
@@ -1500,9 +1532,12 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		Organization fhirOrganization = new Organization();
 		
-		// resource id id
+		// resource id
 		IdDt resourceId = new IdDt("Organization",getUniqueId());
 		fhirOrganization.setId(resourceId);
+		
+		// meta
+		fhirOrganization.getMeta().addProfile(Constants.PROFILE_ORGANIZATION);
 		
 		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
@@ -1560,6 +1595,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("Location", getUniqueId());
 		fhirLocation.setId(resourceId);
+		
+		// meta
+		fhirLocation.getMeta().addProfile(Constants.PROFILE_LOCATION);
 		
 		// id -> identifier
 		if(cdaParticipantRole.getIds() != null && !cdaParticipantRole.getIds().isEmpty()) {
@@ -1624,6 +1662,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Patient", getUniqueId());
 		fhirPatient.setId(resourceId);
 
+		// meta
+		fhirPatient.getMeta().addProfile(Constants.PROFILE_PATIENT);
+		
 		// id -> identifier
 		if(cdaPatientRole.getIds() != null && !cdaPatientRole.getIds().isEmpty()) {
 			for(II id : cdaPatientRole.getIds()) {
@@ -1798,6 +1839,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Condition", getUniqueId());
 		fhirCondition.setId(resourceId);
 
+		// meta
+		fhirCondition.getMeta().addProfile(Constants.PROFILE_CONDITION);
+		
 		// patient
 		fhirCondition.setPatient(getPatientRef());
 
@@ -1894,12 +1938,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		Bundle fhirProcBundle = new Bundle();
 		fhirProcBundle.addEntry(new Bundle.Entry().setResource(fhirProc));
 
-		// subject
-		fhirProc.setSubject(getPatientRef());
-
 		// resource id
 		IdDt resourceId = new IdDt("Procedure", getUniqueId());
 		fhirProc.setId(resourceId);
+
+		// meta
+		fhirProc.getMeta().addProfile(Constants.PROFILE_PROCEDURE);
+		
+		// subject
+		fhirProc.setSubject(getPatientRef());
 
 		// id -> identifier
 		if(cdaProcedure.getIds() != null && !cdaProcedure.getIds().isEmpty()) {
@@ -1972,7 +2019,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}
 
 	public Bundle tResultObservation2Observation(ResultObservation cdaResultObservation) {
-		return tObservation2Observation(cdaResultObservation);
+		Bundle fhirObservationBundle = tObservation2Observation(cdaResultObservation);
+
+		// finding the observation resource and setting its meta.profile to result observation's profile url
+		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
+			if(entry.getResource() instanceof Observation) {
+				((Observation)entry.getResource()).getMeta().addProfile(Constants.PROFILE_RESULT_OBS);
+			}
+		}
+		return fhirObservationBundle;
 	}
 
 	public Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmunizationActivity) {
@@ -1987,6 +2042,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("Immunization", getUniqueId());
 		fhirImmunization.setId(resourceId);
+		
+		// meta
+		fhirImmunization.getMeta().addProfile(Constants.PROFILE_IMMUNIZATION);
 		
 		// patient
 		fhirImmunization.setPatient(getPatientRef());
@@ -2133,7 +2191,15 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 	}	
 	
 	public Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation) {
-		return tObservation2Observation(cdaVitalSignObservation);
+		Bundle fhirObservationBundle = tObservation2Observation(cdaVitalSignObservation);
+
+		// finding the observation resource and setting its meta.profile to result observation's profile url
+		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
+			if(entry.getResource() instanceof Observation) {
+				((Observation)entry.getResource()).getMeta().addProfile(Constants.PROFILE_VITAL_SIGNS);
+			}
+		}
+		return fhirObservationBundle;
 	}
 
 	public AgeDt tAgeObservation2AgeDt(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation) {
@@ -2427,6 +2493,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		IdDt resourceId = new IdDt("Organization", getUniqueId());
 		fhirOrganization.setId(resourceId);
 		
+		// meta
+		fhirOrganization.getMeta().addProfile(Constants.PROFILE_ORGANIZATION);
+		
 		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
 			for(II ii : cdaOrganization.getIds()) {
@@ -2525,6 +2594,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("DiagnosticReport", getUniqueId());
 		fhirDiagReport.setId(resourceId);
+		
+		// meta
+		fhirDiagReport.getMeta().addProfile(Constants.PROFILE_DIAGNOSTIC_REPORT);
 		
 		// subject
 		fhirDiagReport.setSubject(getPatientRef());
