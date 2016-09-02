@@ -2292,6 +2292,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		if(cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
 			fhirComp.setIdentifier(dtt.tII2Identifier(cdaClinicalDocument.getId()));
 		}
+
+		// status
+		fhirComp.setStatus(Constants.DEFAULT_COMPOSITION_STATUS);
 		
 		// effectiveTime -> date
 		if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {

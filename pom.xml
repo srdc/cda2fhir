@@ -12,6 +12,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -53,6 +54,15 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.7</version>
+        </dependency>
+
+        <!-- This is ugly but official FHIR validator by HL7 is not available in any maven repo -->
+        <dependency>
+            <groupId>org.hl7.fhir</groupId>
+            <artifactId>validator</artifactId>
+            <version>1.0.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/org.hl7.fhir.validator.jar</systemPath>
         </dependency>
     </dependencies>
 
