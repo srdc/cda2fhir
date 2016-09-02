@@ -1,12 +1,15 @@
 package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.valueset.*;
+
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 
 public interface ValueSetsTransformer {
@@ -80,6 +83,13 @@ public interface ValueSetsTransformer {
 	 * @return A FHIR CodingDt composite datatype which includes the code about DataAbsentReason.
 	 */
 	CodingDt tNullFlavor2DataAbsentReasonCode(NullFlavor cdaNullFlavor);
+	
+	/**
+	 * Transforms a CDA Observation Interpretation Code to a FHIR CodeableConceptDt composite datatype which includes the code about Observation Interpretation.
+	 * @param cdaObservationInterpretationCode A CDA Observation Interpretation Code
+	 * @return A FHIR CodeableConceptDt composite datatype which includes the code about Observation Interpretation
+	 */
+	CodeableConceptDt ObservationInterpretationCode2ObservationInterpretationCode(CD cdaObservationInterpretationCode);
 	
 	/**
 	 * Transforms a CDA ObservationStatusCode string to a value from the FHIR valueset ObservationStatusEnum.

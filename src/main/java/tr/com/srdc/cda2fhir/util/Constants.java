@@ -21,7 +21,6 @@ public class Constants {
     public static final CodingDt DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE = new CodingDt().setSystem("http://hl7.org/fhir/v3/ParticipationType").setCode("PART").setDisplay("Participation");
     public static final EncounterStateEnum DEFAULT_ENCOUNTER_STATUS = EncounterStateEnum.FINISHED;
     public static final CodingDt DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE = new CodingDt().setSystem("http://hl7.org/fhir/data-absent-reason").setCode("unknown").setDisplay("Unknown");
-    public static final String DEFAULT_OBSERVATION_INTERPRETATION_CODE_SYSTEM = "http://hl7.org/fhir/v2/0078";
     public static final boolean DEFAULT_IMMUNIZATION_REPORTED = false;
 
     public static final String URL_EXTENSION_BIRTHPLACE     = "http://hl7.org/fhir/StructureDefinition/birthPlace";

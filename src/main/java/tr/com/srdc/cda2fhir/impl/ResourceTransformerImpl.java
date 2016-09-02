@@ -1477,8 +1477,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.CE cdaInterprCode : cdaObservation.getInterpretationCodes()) {
 				if(cdaInterprCode != null && !cdaInterprCode.isSetNullFlavor()) {
 					// Asserting that only one interpretation code exists
-					fhirObs.setInterpretation(dtt.tCD2CodeableConcept(cdaInterprCode));
-					fhirObs.getInterpretation().getCodingFirstRep().setSystem(Constants.DEFAULT_OBSERVATION_INTERPRETATION_CODE_SYSTEM);
+					fhirObs.setInterpretation(vst.ObservationInterpretationCode2ObservationInterpretationCode(cdaInterprCode));
 				}
 			}
 		}
