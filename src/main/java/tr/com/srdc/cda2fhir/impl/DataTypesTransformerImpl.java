@@ -35,6 +35,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 import tr.com.srdc.cda2fhir.DataTypesTransformer;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
+import tr.com.srdc.cda2fhir.util.Constants;
 import tr.com.srdc.cda2fhir.util.StringUtil;
 
 /**
@@ -645,6 +646,8 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 			// for the values in form +1(555)555-5000
 			else if(systemType.length == 1){
 				contactPointDt.setValue(systemType[0]);
+				// configurable default system value
+				contactPointDt.setSystem(Constants.DEFAULT_CONTACT_POINT_SYSTEM);
 			}
 		}
 		
@@ -684,19 +687,66 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 	}
 
 	public DateTimeDt tString2DateTime(String date) {
-		return (DateTimeDt) tTS2BaseDateTime(date,DateTimeDt.class);
+		TS ts = DatatypesFactory.eINSTANCE.createTS();
+		ts.setValue(date);
+		return tTS2DateTime(ts);
 	}
 	
 	public DateDt tTS2Date(TS ts){
-		return (DateDt) tTS2BaseDateTime(ts,DateDt.class);
+		DateDt date = (DateDt) tTS2BaseDateTime(ts,DateDt.class);
+		if(date == null)
+			return null;
+		
+		// TimeZone is NOT permitted
+		if(date.getTimeZone() != null) {
+			date.setTimeZone(null);
+		}
+		
+		// precision should be YEAR, MONTH or DAY. otherwise, set it to DAY
+		if(date.getPrecision() != TemporalPrecisionEnum.YEAR && date.getPrecision() != TemporalPrecisionEnum.MONTH && date.getPrecision() != TemporalPrecisionEnum.DAY) {
+			date.setPrecision(TemporalPrecisionEnum.DAY);
+		}
+		
+		return date;
 	}
 	
 	public DateTimeDt tTS2DateTime(TS ts) {
-		return (DateTimeDt) tTS2BaseDateTime(ts,DateTimeDt.class);
+		DateTimeDt dateTime = (DateTimeDt) tTS2BaseDateTime(ts,DateTimeDt.class);
+		
+		if(dateTime == null)
+			return null;
+		
+		// if the precision is not YEAR or MONTH, TimeZone SHALL be populated
+		if(dateTime.getPrecision() != TemporalPrecisionEnum.YEAR && dateTime.getPrecision() != TemporalPrecisionEnum.MONTH) {
+			if(dateTime.getTimeZone() == null) {
+				dateTime.setTimeZone(TimeZone.getDefault());
+			}
+		}
+		
+		// if the precision is MINUTE, seconds SHALL be populated
+		if(dateTime.getPrecision() == TemporalPrecisionEnum.MINUTE) {
+			dateTime.setPrecision(TemporalPrecisionEnum.SECOND);
+			dateTime.setSecond(0);
+		}
+		
+		return dateTime;
 	}
 	
 	public InstantDt tTS2Instant(TS ts) {
-		return (InstantDt) tTS2BaseDateTime(ts,InstantDt.class);
+		InstantDt instant = (InstantDt) tTS2BaseDateTime(ts,InstantDt.class);
+		if(instant == null)
+			return null;
+		
+		// if the precision is not SECOND or MILLI, convert its precision to SECOND
+		if(instant.getPrecision() != TemporalPrecisionEnum.SECOND && instant.getPrecision() != TemporalPrecisionEnum.MILLI) {
+			instant.setPrecision(TemporalPrecisionEnum.SECOND);
+		}
+		
+		// if it doesn't include a timezone, add the local timezone
+		if(instant.getTimeZone() == null) {
+			instant.setTimeZone(TimeZone.getDefault());
+		}
+		return instant;
 	}
 	
 	public UriDt tURL2Uri(URL url){
@@ -926,12 +976,34 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 		List<String> attributeList = getAttributesHelperForTStructDocText2String(entry);
 		List<String> tagList = new ArrayList<String>();
 		
+		String attributeToRemove = null;
+		
+		// removing id attribute from the attributeList
+		for(String attribute : attributeList) {
+			if(attribute.toLowerCase().startsWith("id=\"", 0)) {
+				attributeToRemove = attribute;
+			}
+		}
+		
+		if(attributeToRemove != null)
+			attributeList.remove(attributeToRemove);
+		
+		// removing styleCode attribute from the attributeList
+		for(String attribute : attributeList) {
+			if(attribute.toLowerCase().startsWith("stylecode=\"", 0)) {
+				attributeToRemove = attribute;
+			}
+		}
+		if(attributeToRemove != null)
+			attributeList.remove(attributeToRemove);
+		
 		// case tag.equals("list"). we need to transform it to "ul" or "ol"
 		if(tagName.equals("list")) {
 			// first, think of the situtation no attribute exists about ordered/unordered
 			tagName = "ul";
-			String attributeToRemove = null;
+			attributeToRemove = null;
 			for(String attribute : attributeList) {
+				// if the attribute is listType, make the transformation
 				if(attribute.toLowerCase().contains("listtype")) {
 					// notice that the string "unordered" also contains "ordered"
 					// therefore, it is vital to check "unordered" firstly.
@@ -941,7 +1013,6 @@ public class DataTypesTransformerImpl implements DataTypesTransformer {
 					} else if(attribute.toLowerCase().contains("ordered")) {
 						tagName = "ol";
 					}
-					
 					attributeToRemove = attribute;
 				}
 			}

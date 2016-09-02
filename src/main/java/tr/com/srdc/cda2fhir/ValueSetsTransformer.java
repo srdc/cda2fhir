@@ -1,12 +1,16 @@
 package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.valueset.*;
+
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 
 public interface ValueSetsTransformer {
@@ -82,6 +86,13 @@ public interface ValueSetsTransformer {
 	CodingDt tNullFlavor2DataAbsentReasonCode(NullFlavor cdaNullFlavor);
 	
 	/**
+	 * Transforms a CDA Observation Interpretation Code to a FHIR CodeableConceptDt composite datatype which includes the code about Observation Interpretation.
+	 * @param cdaObservationInterpretationCode A CDA Observation Interpretation Code
+	 * @return A FHIR CodeableConceptDt composite datatype which includes the code about Observation Interpretation
+	 */
+	CodeableConceptDt ObservationInterpretationCode2ObservationInterpretationCode(CD cdaObservationInterpretationCode);
+	
+	/**
 	 * Transforms a CDA ObservationStatusCode string to a value from the FHIR valueset ObservationStatusEnum.
 	 * @param cdaObservationStatusCode A CDA ObservationStatusCode string
 	 * @return A value from the FHIR valueset ObservationStatusEnum
@@ -130,6 +141,12 @@ public interface ValueSetsTransformer {
 	 */
 	AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse cdaPostalAddressUse);
 	
+	/**
+	 * Transforms a CDA ResultOrganizer StatusCode string to a value from the FHIR valueset DiagnosticReportStatusEnum
+	 * @param cdaResultOrganizerStatusCode A CDA ResultOrganizer StatusCode string
+	 * @return A value from the FHIR valueset DiagnosticReportStatusEnum
+	 */
+	DiagnosticReportStatusEnum tResultOrganizerStatusCode2DiagnosticReportStatusEnum(String cdaResultOrganizerStatusCode);
 	/**
 	 * Transforms a CDA RoleCode string to a FHIR CodingDt composite datatype which includes the code about PatientContactRelationship.
 	 * @param cdaRoleCode A CDA RoleCode string

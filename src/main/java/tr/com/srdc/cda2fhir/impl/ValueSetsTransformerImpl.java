@@ -1,12 +1,16 @@
 package tr.com.srdc.cda2fhir.impl;
 
 import ca.uhn.fhir.model.dstu2.valueset.*;
+
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
@@ -192,23 +196,23 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 			case MSK:
 				code = "masked"; display = "Masked"; break;
 			case NA:
-				code = "not-applicable"; display= "Not Applicable"; break;
+				code = "unsupported"; display= "Unsupported"; break;
 			case NASK:
 				code= "not-asked"; display = "Not Asked"; break;
 			case NAV:
 				code = "temp"; display = "Temp"; break;
 			case NI:
-				code = "no-information"; display = "No Information"; break;
+				code = "error"; display = "Error"; break;
 			case NINF:
-				code = "negative-infinity"; display = "Negative Infinity"; break;
+				code = "NaN"; display = "Not a Number"; break;
 			case NP:
-				code = "not-present"; display = "Not Present"; break;
+				code = "unknown"; display = "Unkown"; break;
 			case OTH:
-				code = "other"; display = "other"; break;
+				code = "error"; display = "Error"; break;
 			case PINF:
-				code = "positive-infinity"; display = "positive Infinity"; break;
+				code = "NaN"; display = "Not a Number"; break;
 			case TRC:
-				code = "trace"; display = "trace"; break;
+				code = "NaN"; display = "Not a Number"; break;
 			default:
 				break;
 		}
@@ -220,15 +224,71 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		return DataAbsentReasonCode;
 	}
 
+	public CodeableConceptDt ObservationInterpretationCode2ObservationInterpretationCode(CD cdaObservationInterpretationCode) {
+		if(cdaObservationInterpretationCode == null)
+			return null;
+		CodingDt obsIntCode = new CodingDt();
+		obsIntCode.setSystem("http://hl7.org/fhir/v2/0078");
+		
+		String code = null, display = null;
+		
+		// init code and display with the CDA incomings
+		if(cdaObservationInterpretationCode.getCode() != null) 
+			code = cdaObservationInterpretationCode.getCode();
+		if(cdaObservationInterpretationCode.getDisplayName() != null)
+			display = cdaObservationInterpretationCode.getDisplayName();
+		
+		// if a different code is found, change it
+		switch(cdaObservationInterpretationCode.getCode().toUpperCase()) {
+			case "AC":
+				code = "IE"; display = "Insufficient evidence"; break;
+			case "EX":
+				code = "IND"; display = "Indeterminate"; break;
+			case "HX":
+				code = "H"; display = "High"; break;
+			case "LX":
+				code = "L"; display = "Low"; break;
+			case "QCF":
+				code = "IND"; display = "Indeterminate"; break;
+			case "TOX":
+				code = "IND"; display = "Indeterminate"; break;
+			case "CAR":
+				code = "DET"; display = "Detected"; break;
+			case "H>":
+				code = "HU"; display = "Very high"; break;
+			case "L<":
+				code = "LU"; display = "Very low"; break;
+			default:
+				break;
+		}
+		
+		obsIntCode.setCode(code);
+		obsIntCode.setDisplay(display);
+		return new CodeableConceptDt().addCoding(obsIntCode);
+	}
+	
 	public ObservationStatusEnum tObservationStatusCode2ObservationStatusEnum(String cdaObservationStatusCode) {
 		switch(cdaObservationStatusCode.toLowerCase()) {
-			case "completed": return ObservationStatusEnum.FINAL;
-			case "error": return ObservationStatusEnum.ENTERED_IN_ERROR;
-			case "un": return ObservationStatusEnum.UNKNOWN_STATUS;
-			case "cancelled": return ObservationStatusEnum.CANCELLED;
-			case "amended": return ObservationStatusEnum.AMENDED;
+		// TODO: https://www.hl7.org/fhir/valueset-observation-status.html and pdf page 476
+		// Check the following mapping
+			case "new":	
+			case "held":
+				return ObservationStatusEnum.REGISTERED;
+			case "normal":
+			case "active":
+				return ObservationStatusEnum.PRELIMINARY;
+			case "completed":
+				return ObservationStatusEnum.FINAL;
+			case "error":
+				return ObservationStatusEnum.ENTERED_IN_ERROR;
+			case "cancelled":
+			case "aborted":
+			case "nullified":
+			case "suspended":
+				return ObservationStatusEnum.CANCELLED;
+			case "obsolete":
 			default:
-				return null;
+				return ObservationStatusEnum.UNKNOWN_STATUS;
 		}
 	}
 
@@ -520,6 +580,28 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public DiagnosticReportStatusEnum tResultOrganizerStatusCode2DiagnosticReportStatusEnum(String cdaResultOrganizerStatusCode) {
+		if(cdaResultOrganizerStatusCode == null)
+			return null;
+		
+		switch(cdaResultOrganizerStatusCode.toLowerCase()) {
+			case "aborted":
+				return DiagnosticReportStatusEnum.CANCELLED;
+			case "active":
+				return DiagnosticReportStatusEnum.PARTIAL;
+			case "cancelled":
+				return DiagnosticReportStatusEnum.CANCELLED;
+			case "completed":
+				return DiagnosticReportStatusEnum.FINAL;
+			case "held":
+				return DiagnosticReportStatusEnum.REGISTERED;
+			case "suspended":
+				return DiagnosticReportStatusEnum.ENTERED_IN_ERROR;
+			default:
+				return null;
+		}
+	}
+	
 	public CodingDt tRoleCode2PatientContactRelationshipCode(String cdaRoleCode) {
 		if(cdaRoleCode == null)
 			return null;
