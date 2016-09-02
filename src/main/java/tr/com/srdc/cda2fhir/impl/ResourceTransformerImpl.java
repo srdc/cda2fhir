@@ -2458,7 +2458,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		return fhirOrganization;
 	}
-
+	
 	public ca.uhn.fhir.model.dstu2.resource.Device tSupply2Device(org.openhealthtools.mdht.uml.cda.Supply cdaSupply) {
 		if(cdaSupply == null || cdaSupply.isSetNullFlavor())
 			return null;
@@ -2499,6 +2499,13 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 			}
 		}
 
+		// TODO: Not sure if it is OK to map statusCode -> status
+		// Needs checking
+		// statusCode -> status
+		if(cdaSupply.getStatusCode() != null && !cdaSupply.getStatusCode().isSetNullFlavor()) {
+			fhirDev.setStatus(vst.tSupplyStatusCode2DeviceStatusEnum(cdaSupply.getStatusCode()));
+		}
+		
 		return fhirDev;
 	}
 

@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.impl;
 import ca.uhn.fhir.model.dstu2.valueset.*;
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
@@ -786,6 +787,27 @@ public class ValueSetsTransformerImpl implements ValueSetsTransformer {
 		}
 	}
 
+	public DeviceStatusEnum tSupplyStatusCode2DeviceStatusEnum(CS cdaSupplyStatusCode) {
+		if(cdaSupplyStatusCode == null || cdaSupplyStatusCode.isSetNullFlavor() || cdaSupplyStatusCode.getCode() == null)
+			return null;
+		switch(cdaSupplyStatusCode.getCode().toLowerCase()) {
+			case "normal":
+			case "completed":
+			case "active":
+			case "new": 
+				return DeviceStatusEnum.AVAILABLE;
+			case "aborted":
+			case "cancelled":
+			case "held":
+			case "suspended":
+			case "nullified":
+			case "obsolete": 
+				return DeviceStatusEnum.NOT_AVAILABLE;
+			default: 
+				return null;
+		}
+	}
+	
 	public ContactPointUseEnum tTelecommunicationAddressUse2ContacPointUseEnum(TelecommunicationAddressUse cdaTelecommunicationAddressUse) {
 		switch(cdaTelecommunicationAddressUse) {
 			case H:

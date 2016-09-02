@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir;
 import ca.uhn.fhir.model.dstu2.valueset.*;
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
@@ -202,6 +203,12 @@ public interface ValueSetsTransformer {
 	 */
 	ProcedureStatusEnum tStatusCode2ProcedureStatusEnum(String cdaStatusCode);
 	
+	/**
+	 * Transforms a CDA Supply status code to a value from the FHIR valueset DeviceStatusEnum.
+	 * @param cdaSupplyStatusCode A CDA Supply status code
+	 * @return A value from the FHIR valueset DeviceStatusEnum
+	 */
+	DeviceStatusEnum tSupplyStatusCode2DeviceStatusEnum(CS cdaSupplyStatusCode);
 	/**
 	 * Transforms a CDA TelecommunicationAddressUse vocable to a value from the FHIR valueset ContactPointUseEnum.
 	 * @param cdaTelecommunicationAddressUse A CDA TelecommunicationAddressUse vocable
