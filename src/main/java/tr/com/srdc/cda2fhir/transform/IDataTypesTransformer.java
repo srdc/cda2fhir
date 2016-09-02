@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir;
+package tr.com.srdc.cda2fhir.transform;
 
 import ca.uhn.fhir.model.dstu2.composite.*;
 import ca.uhn.fhir.model.primitive.Base64BinaryDt;
@@ -17,7 +17,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 /**
  * Created by mustafa on 7/21/2016.
  */
-public interface DataTypesTransformer {
+public interface IDataTypesTransformer {
 
 	/**
 	* Transforms a CDA AD instance to a FHIR AddressDt composite datatype instance.

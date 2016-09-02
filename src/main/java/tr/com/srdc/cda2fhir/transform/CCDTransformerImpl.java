@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.impl;
+package tr.com.srdc.cda2fhir.transform;
 
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.*;
@@ -11,8 +11,6 @@ import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tr.com.srdc.cda2fhir.CDATransformer;
-import tr.com.srdc.cda2fhir.ResourceTransformer;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 import java.util.UUID;
@@ -20,11 +18,11 @@ import java.util.UUID;
 /**
  * Created by mustafa on 8/3/2016.
  */
-public class CCDTransformerImpl implements CDATransformer {
+public class CCDTransformerImpl implements ICDATransformer {
 
     private int counter;
     private IdGeneratorEnum idGenerator;
-    private ResourceTransformer resTransformer;
+    private IResourceTransformer resTransformer;
     private ResourceReferenceDt patientRef;
 
     private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);

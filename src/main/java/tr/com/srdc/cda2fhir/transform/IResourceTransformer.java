@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir;
+package tr.com.srdc.cda2fhir.transform;
 
 import ca.uhn.fhir.model.dstu2.composite.AgeDt;
 import ca.uhn.fhir.model.dstu2.resource.*;
@@ -16,7 +16,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 /**
  * Created by mustafa on 7/28/2016.
  */
-public interface ResourceTransformer {
+public interface IResourceTransformer {
 	
 	/**
 	 * Transforms a CDA AgeObservation instance to a FHIR AgeDt composite datatype instance

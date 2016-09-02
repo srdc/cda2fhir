@@ -5,7 +5,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import tr.com.srdc.cda2fhir.impl.CCDTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
@@ -29,7 +30,7 @@ public class CCDTransformerTest {
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 
         ClinicalDocument cda = CDAUtil.load(fis);
-        CDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");

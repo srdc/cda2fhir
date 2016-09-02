@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.impl;
+package tr.com.srdc.cda2fhir.transform;
 
 import java.util.UUID;
 
@@ -34,16 +34,13 @@ import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tr.com.srdc.cda2fhir.CDATransformer;
-import tr.com.srdc.cda2fhir.DataTypesTransformer;
-import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 import tr.com.srdc.cda2fhir.util.Constants;
 
-public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTransformer{
+public class ResourceTransformerImpl implements IResourceTransformer {
 
-	private DataTypesTransformer dtt;
-	private ValueSetsTransformer vst;
-	private CDATransformer cdat;
+	private IDataTypesTransformer dtt;
+	private IValueSetsTransformer vst;
+	private ICDATransformer cdat;
 	private ResourceReferenceDt defaultPatientRef;
 
 	private final Logger logger = LoggerFactory.getLogger(ResourceTransformerImpl.class);
@@ -52,11 +49,11 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		dtt = new DataTypesTransformerImpl();
 		vst = new ValueSetsTransformerImpl();
 		cdat = null;
-		// This is a default patient reference to be used when ResourceTransformer is not initiated with a CDATransformer
+		// This is a default patient reference to be used when IResourceTransformer is not initiated with a ICDATransformer
 		defaultPatientRef = new ResourceReferenceDt(new IdDt("Patient", "0"));
 	}
 
-	public ResourceTransformerImpl(CDATransformer cdaTransformer) {
+	public ResourceTransformerImpl(ICDATransformer cdaTransformer) {
 		this();
 		cdat = cdaTransformer;
 	}
@@ -2259,7 +2256,7 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		
 		// code -> relationship
 		if(cdaGuardian.getCode() != null && !cdaGuardian.getCode().isSetNullFlavor()) {
-			// try to use ValueSetsTransformer method tRoleCode2PatientContactRelationshipCode
+			// try to use IValueSetsTransformer method tRoleCode2PatientContactRelationshipCode
 			CodingDt relationshipCoding = null;
 			if(cdaGuardian.getCode().getCode() != null && !cdaGuardian.getCode().getCode().isEmpty()) {
 				relationshipCoding = vst.tRoleCode2PatientContactRelationshipCode(cdaGuardian.getCode().getCode());

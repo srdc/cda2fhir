@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir;
+package tr.com.srdc.cda2fhir.transform;
 
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
@@ -8,7 +8,7 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 /**
  * Created by mustafa on 8/3/2016.
  */
-public interface CDATransformer {
+public interface ICDATransformer {
 
     /**
      * Sets the resource id generator format, which is either an incremental COUNTER or UUID

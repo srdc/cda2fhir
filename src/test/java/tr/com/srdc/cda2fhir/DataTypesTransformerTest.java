@@ -1,7 +1,6 @@
 package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
@@ -22,17 +21,8 @@ import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 
-import java.math.BigDecimal;
-import java.util.TimeZone;
-
-import javax.xml.crypto.Data;
-
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.Act;
-import org.openhealthtools.mdht.uml.cda.CDAFactory;
-import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
@@ -56,11 +46,11 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
-import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
-import tr.com.srdc.cda2fhir.impl.DataTypesTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.IDataTypesTransformer;
+import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 
 /**
  * Created by mustafa on 7/25/2016.
@@ -70,7 +60,7 @@ public class DataTypesTransformerTest{
 	// String should be supplied in form (+,-)[0-1][0-9]:[0-1][0-9]
 	private final static String LocalTimeZone = "+02:00";
 	
-	DataTypesTransformer dtt = new DataTypesTransformerImpl();
+	IDataTypesTransformer dtt = new DataTypesTransformerImpl();
 
     @SuppressWarnings("deprecation")
 	@Test

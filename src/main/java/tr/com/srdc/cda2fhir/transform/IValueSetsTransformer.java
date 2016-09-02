@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir;
+package tr.com.srdc.cda2fhir.transform;
 
 import ca.uhn.fhir.model.dstu2.valueset.*;
 
@@ -13,7 +13,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 
-public interface ValueSetsTransformer {
+public interface IValueSetsTransformer {
 	
 	/**
 	* Transforms a CDA AdministrativeGenderCode string to a FHIR AdministrativeGenderEnum.

@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.impl;
+package tr.com.srdc.cda2fhir.transform;
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.model.dstu2.composite.*;
@@ -19,31 +19,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap;
-import org.openhealthtools.mdht.uml.cda.Act;
-import org.openhealthtools.mdht.uml.cda.Participant2;
-import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.cda.StrucDocText;
 import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
-import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
-import tr.com.srdc.cda2fhir.DataTypesTransformer;
-import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 import tr.com.srdc.cda2fhir.util.Constants;
 import tr.com.srdc.cda2fhir.util.StringUtil;
 
 /**
  * Created by mustafa on 7/21/2016.
  */
-public class DataTypesTransformerImpl implements DataTypesTransformer {
+public class DataTypesTransformerImpl implements IDataTypesTransformer {
 
-	private ValueSetsTransformer vst = new ValueSetsTransformerImpl();
+	private IValueSetsTransformer vst = new ValueSetsTransformerImpl();
 
 	public AddressDt AD2Address(AD ad) {
 	    if(ad == null || ad.isSetNullFlavor())

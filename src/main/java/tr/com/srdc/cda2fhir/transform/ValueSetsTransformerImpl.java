@@ -1,9 +1,8 @@
-package tr.com.srdc.cda2fhir.impl;
+package tr.com.srdc.cda2fhir.transform;
 
 import ca.uhn.fhir.model.dstu2.valueset.*;
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
@@ -12,9 +11,8 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-import tr.com.srdc.cda2fhir.ValueSetsTransformer;
 
-public class ValueSetsTransformerImpl implements ValueSetsTransformer {
+public class ValueSetsTransformerImpl implements IValueSetsTransformer {
 
 	public AdministrativeGenderEnum tAdministrativeGenderCode2AdministrativeGenderEnum(String cdaAdministrativeGenderCode) {
 		switch (cdaAdministrativeGenderCode.toLowerCase()) {
