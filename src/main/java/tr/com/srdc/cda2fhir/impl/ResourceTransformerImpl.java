@@ -2485,6 +2485,9 @@ public class ResourceTransformerImpl implements tr.com.srdc.cda2fhir.ResourceTra
 		// resource id
 		IdDt resourceId = new IdDt("Device", getUniqueId());
 		fhirDev.setId(resourceId);
+		
+		// patient
+		fhirDev.setPatient(getPatientRef());
 
 		// productInstance.id -> identifier
 		for(II id : productInstance.getIds()) {
