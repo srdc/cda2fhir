@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -27,7 +28,7 @@ public class ValidatorTest {
 	}
 
 	@Test
-	public void testValidate() throws Exception {
+	public void testBundleWithProfile() throws Exception {
 		IValidator validator = new ValidatorImpl();
 		java.io.ByteArrayOutputStream os = null;
 		
@@ -40,16 +41,46 @@ public class ValidatorTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null) {
 			// print the bundle for checking against validation results
-			FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-forvalidation.json");
+			FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-for-profile-validation.json");
 			os = (java.io.ByteArrayOutputStream) validator.validateBundle(bundle, true);
 		}
         
         if(os != null) {
-        	java.io.File validationFileDir = new java.io.File("src/test/validation/");
+        	java.io.File validationFileDir = new java.io.File("src/test/resources/output/");
         	if(!validationFileDir.exists())
         		validationFileDir.mkdirs();
 
-			FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result.html"));
+			FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result-profile.html"));
+			os.writeTo(fos);
+			os.close();
+			fos.close();
+        }
+	}
+	
+	@Test
+	public void testBundleWithoutProfile() throws Exception {
+		IValidator validator = new ValidatorImpl();
+		java.io.ByteArrayOutputStream os = null;
+		
+		// file to be transformed
+		FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+        ClinicalDocument cda = CDAUtil.load(fis);
+        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        
+        // make the transformation
+        Bundle bundle = ccdTransformer.transformDocument(cda);
+        if(bundle != null) {
+			// print the bundle for checking against validation results
+			FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-for-nonprofile-validation.json");
+			os = (java.io.ByteArrayOutputStream) validator.validateBundle(bundle, false);
+		}
+        
+        if(os != null) {
+        	java.io.File validationFileDir = new java.io.File("src/test/resources/output/");
+        	if(!validationFileDir.exists())
+        		validationFileDir.mkdirs();
+
+			FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result-nonprofile.html"));
 			os.writeTo(fos);
 			os.close();
 			fos.close();

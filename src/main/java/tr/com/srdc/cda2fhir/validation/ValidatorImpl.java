@@ -1,5 +1,26 @@
 package tr.com.srdc.cda2fhir.validation;
 
+/*
+ * #%L
+ * CDA to FHIR Transformer Library
+ * %%
+ * Copyright (C) 2016 SRDC Yazilim Arastirma ve Gelistirme ve Danismanlik Tic. A.S.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
@@ -26,6 +47,9 @@ public class ValidatorImpl implements IValidator {
 	private final org.hl7.fhir.dstu2.validation.ValidationEngine validationEngine = new org.hl7.fhir.dstu2.validation.ValidationEngine();
 	private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
 	
+	/**
+	 * Constructs a validator using the default configuration.
+	 */
 	public ValidatorImpl() {
 		tServerURL = Constants.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL;
 		try {
@@ -53,6 +77,11 @@ public class ValidatorImpl implements IValidator {
 		}
 	}
 
+	/**
+	 * Transforms a FHIR IResource instance to a byte array. 
+	 * @param paramResource a FHIR IResource instance
+	 * @return A byte array
+	 */
 	private byte[] tIResource2ByteArray(IResource paramResource) {
 		return FHIRUtil.getXML(paramResource).getBytes();
 	}
@@ -68,12 +97,17 @@ public class ValidatorImpl implements IValidator {
 			return null;
 		}
 		
+		logger.info("Validating the resource "+resource.getId());
+		// initialize profile with null
+		this.validationEngine.setProfile(null);
+		
 		// if validateProfile == true, profile <- resource.meta.profile[0]
 		if(validateProfile) {
 			if(resource.getMeta() != null && resource.getMeta().getProfile() != null && !resource.getMeta().getProfile().isEmpty()) {
 				if(resource.getMeta().getProfile().get(0) != null && resource.getMeta().getProfile().get(0).getValue() != null) {
 					try {
 						this.validationEngine.loadProfile(resource.getMeta().getProfile().get(0).getValue());
+						logger.info("Profile "+resource.getMeta().getProfile().get(0).getValue()+" is found and set for the validation of the resource.");
 					} catch (DefinitionException e) {
 						logger.error("DefinitionException occured while trying to load the profile of a FHIR resource altough the profile was defined."
 								+ "Validation will continue without using any profile for the resource.",e);
@@ -84,18 +118,29 @@ public class ValidatorImpl implements IValidator {
 				}
 			}
 		}
+		
 		// set resource
 		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
+		
 		// validate!
 		try {
 			this.validationEngine.process();
 		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
-			logger.error("Exception occured while trying to validate the FHIR resource. Returning null",e);
-			return null;
+			logger.error("Exception occured while trying to validate the FHIR resource. Returning exception message",e);
+			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occured while validating this resource:<br>"
+					+ e.getMessage()+"<hr>";
+			try {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				outputStream.write(exceptionAsHtml.getBytes());
+				return outputStream;
+			} catch (IOException e1) {
+				logger.error("Exception occured while trying to write the exception outcome to the output stream. Ignoring ");
+			}
 		}
 		
 		// direct outcome string to an output stream
 		java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+		
 		// notice that html tag is not included in the outcome string
 		try {
 			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
@@ -105,7 +150,7 @@ public class ValidatorImpl implements IValidator {
 			logger.error("Exception occured while trying to write the validation outcome to the output stream. Returning null", e);
 			return null;
 		}
-		// TODO: Notice that the output stream is not closed. Determine if it should be closed
+		
 		return outputStream;
 	}
 	
@@ -114,20 +159,26 @@ public class ValidatorImpl implements IValidator {
 			logger.warn("The bundle validator was running on was found null. Returning null");
 			return null;
 		}
-		java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+		
+		logger.info("Validating the bundle containing "+bundle.getEntry().size()+" entries");
+		
+		// create an output stream to return
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		
+		// traverse the entries of the bundle
 		for(Bundle.Entry entry : bundle.getEntry()) {
 			if(entry != null && entry.getResource() != null) {	
 				try {
-					java.io.ByteArrayOutputStream byteArrayOutputStream = (java.io.ByteArrayOutputStream)this.validateResource(entry.getResource(), validateProfile);
+					// validate the resource contained in the entry
+					ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream)this.validateResource(entry.getResource(), validateProfile);
+					
 					if(byteArrayOutputStream != null) {
 						byte[] byteArray = byteArrayOutputStream.toByteArray();
 						if(byteArray != null)
 							outputStream.write(byteArray);
 					}
 				} catch (IOException e) {
-					// TODO: This exception handler will be modified later.
-					// Because of the exception caused by condition.onsetDateTime, validation doesn't continue
-					logger.error("Exception occured while trying to write the validation outcome to the output stream. Ignoring the outcome",e);
+					logger.error("Exception occured while trying to write the validation outcome to the output stream. Ignoring",e);
 				}	
 			} else {
 				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry");

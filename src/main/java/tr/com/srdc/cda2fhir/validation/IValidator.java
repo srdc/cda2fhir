@@ -29,9 +29,27 @@ import org.hl7.fhir.exceptions.DefinitionException;
 
 public interface IValidator {
 
+	/**
+	 * Sets the terminology server of the validator object and make the connection to the given server.
+	 * @param tServerURL A terminology server URL String
+	 */
     void setTerminologyServer(String tServerURL);
 
-    OutputStream validateResource(IResource resource, boolean validateProfile) throws DefinitionException, Exception;
+    /**
+     * Validates a FHIR IResource instance by using the validation engine supplied by hl7.org
+     * @param resource A FHIR IResource instance
+     * @param validateProfile A boolean indicating that the validation will be done using profile.
+     * If it is chosen to be true, validation is done by using the profile given in the resource's meta data.
+     * @return An output stream containing the validation result. The validation result is contained in div element.
+     */
+    OutputStream validateResource(IResource resource, boolean validateProfile);
 
+    /**
+     * Validates the FHIR resource(s) contained in the FHIR Bundle by using the validation engine supplied by hl7.org
+     * @param bundle A FHIR Bundle instance containing the FHIR resource(s) to be validated
+     * @param validateProfile A boolean indicating that the validation will be done using daf profile
+     * If it is chosen to be true, validation is done by using the profile given in the resource's meta data.
+     * @return An output stream containing the validation result(s). The validation results are contained in separete div elements.
+     */
     OutputStream validateBundle(Bundle bundle, boolean validateProfile);
 }
