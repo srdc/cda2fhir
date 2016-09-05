@@ -25,11 +25,13 @@ import ca.uhn.fhir.model.dstu2.resource.Bundle;
 
 import java.io.OutputStream;
 
+import org.hl7.fhir.exceptions.DefinitionException;
+
 public interface IValidator {
 
     void setTerminologyServer(String tServerURL);
 
-    OutputStream validateResource(IResource resource, boolean validateProfile);
+    OutputStream validateResource(IResource resource, boolean validateProfile) throws DefinitionException, Exception;
 
     OutputStream validateBundle(Bundle bundle, boolean validateProfile);
 }

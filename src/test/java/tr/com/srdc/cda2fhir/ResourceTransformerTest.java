@@ -22,10 +22,11 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
 import ca.uhn.fhir.model.dstu2.resource.*;
+
 import org.junit.Assert;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
@@ -53,6 +54,8 @@ import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
+import tr.com.srdc.cda2fhir.validation.IValidator;
+import tr.com.srdc.cda2fhir.validation.ValidatorImpl;
 
 public class ResourceTransformerTest {
 	
@@ -85,7 +88,7 @@ public class ResourceTransformerTest {
 
 	// Most of the test methods just print the transformed object in JSON form.
 	
-	@Ignore
+	@Test
 	public void testAllergyProblemAct2AllergyIntolerance() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
 

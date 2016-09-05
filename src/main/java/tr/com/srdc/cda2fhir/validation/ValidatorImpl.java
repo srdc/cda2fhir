@@ -1,131 +1,139 @@
 package tr.com.srdc.cda2fhir.validation;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.hl7.fhir.exceptions.DefinitionException;
 import org.hl7.fhir.exceptions.FHIRException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
+import tr.com.srdc.cda2fhir.util.Constants;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ValidatorImpl implements IValidator {
-	
-	private String tsServer = null;
-	private String definitions = null;
-	private String resourcePath = null;
-	private IResource resource = null;
-	private Bundle resourceBundle = null;
-	private org.hl7.fhir.dstu2.validation.ValidationEngine validationEngine = null;
+
+	private String tServerURL = null;
+	private static final String definitionsPath = "src/main/resources/validation-min.xml.zip";
+	private final org.hl7.fhir.dstu2.validation.ValidationEngine validationEngine = new org.hl7.fhir.dstu2.validation.ValidationEngine();
+	private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
 	
 	public ValidatorImpl() {
-		this.tsServer = "http://fhir2.healthintersections.com.au/open";
-		this.validationEngine = new org.hl7.fhir.dstu2.validation.ValidationEngine();
-	}
-	
-	public void setTsServer(String tsServerUrl) {
-		this.tsServer = tsServerUrl;
-	}
-	
-	public String getTsServer() {
-		return this.tsServer;
-	}
-	
-	public void setDefinitions(String definitionPath) {
-		this.definitions = definitionPath;
-	}
-	
-	public String getDefinitions() {
-		return this.definitions;
-	}
-	
-	public void setResource(IResource paramResource) {
-		this.resourcePath = null;
-		this.resourceBundle = null;
-		this.resource = paramResource;
-	}
-	
-	public void setResource(Bundle paramResourceBundle) {
-		this.resourcePath = null;
-		this.resource = null;
-		this.resourceBundle = paramResourceBundle;
-	}
-	
-	public void setResource(String paramResourcePath) {
-		this.resource = null;
-		this.resourceBundle = null;
-		this.resourcePath = paramResourcePath;
-	}
-	
-	public String getResource() {
-		return this.resourcePath;
-	}
-
-	private byte[] loadSourceFromFile(String paramResourcePath) throws IOException {
-		byte[] arrayOfByte;
-		// loading from file
-		if(new java.io.File(paramResourcePath).exists()) {
-			java.io.FileInputStream localFileInputStream = new java.io.FileInputStream(this.resourcePath);
-		    arrayOfByte = new byte[localFileInputStream.available()];
-		    localFileInputStream.read(arrayOfByte);
-		    localFileInputStream.close();
-		} else {
-			arrayOfByte = paramResourcePath.getBytes();
+		tServerURL = Constants.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL;
+		try {
+			validationEngine.readDefinitions(definitionsPath);
+		} catch (IOException e) {
+			logger.error("IOException occured while trying to read the definitions for the validatior",e);
+		} catch (SAXException e) {
+			logger.error("Improper definition for the validator",e);
+		} catch (FHIRException e) {
+			logger.error("FHIRException occured while trying to read the definitions for the validator",e);
 		}
-		return arrayOfByte;
+		try {
+			validationEngine.connectToTSServer(tServerURL);
+		} catch (URISyntaxException ex) {
+			logger.error("Terminology server URL string could not be parsed as a URI reference", ex);
+		}
 	}
 	
-	private byte[] loadSourceFromIResource(IResource resource) throws IOException {
-		// setting source 
-		java.io.ByteArrayOutputStream byteArrayOutputStream = new java.io.ByteArrayOutputStream();
-		java.io.ObjectOutput objectOutput = new java.io.ObjectOutputStream(byteArrayOutputStream);
-		objectOutput.writeObject(this.resource);
-		return byteArrayOutputStream.toByteArray();
+	public void setTerminologyServer(String paramTServerURL) {
+		this.tServerURL = paramTServerURL;
+		try {
+			validationEngine.connectToTSServer(tServerURL);
+		} catch (URISyntaxException ex) {
+			logger.error("Terminology server URL string could not be parsed as a URI reference", ex);
+		}
+	}
 
+	private byte[] tIResource2ByteArray(IResource paramResource) {
+		return FHIRUtil.getXML(paramResource).getBytes();
 	}
 	
-	public String getOutcome() throws IOException {
-		java.io.ByteArrayOutputStream localByteArrayOutputStream = new java.io.ByteArrayOutputStream();
-	    new org.hl7.fhir.dstu2.formats.XmlParser().compose(localByteArrayOutputStream, this.validationEngine.getOutcome(), true);
-	    localByteArrayOutputStream.close();
-	    return localByteArrayOutputStream.toString();
-	}
-	
-	/*
-	 * recursive method
-	 */
-	public void process() throws IOException, SAXException, FHIRException, URISyntaxException, ParserConfigurationException, TransformerException {
-		// commons: setting definitions and tsServer
-		this.validationEngine.readDefinitions(this.definitions);
-		this.validationEngine.connectToTSServer(this.tsServer == null ? "http://fhir2.healthintersections.com.au/open": this.tsServer);
+	public OutputStream validateResource(IResource resource, boolean validateProfile) {
+		if(resource == null) {
+			logger.warn("The resource validator was running on was found null. Returning null");
+			return null;
+		}
 		
-		if(this.resourcePath != null) {
-			this.validationEngine.setSource(loadSourceFromFile(this.resourcePath));
-			this.validationEngine.process();
-		} else if(this.resource != null) {
-			this.validationEngine.setSource(loadSourceFromIResource(resource));
-			// load profile if present
-			if(this.resource.getMeta() != null && this.resource.getMeta().getProfile() != null && !this.resource.getMeta().getProfile().isEmpty()) {
-				this.validationEngine.setProfileURI(this.resource.getMeta().getProfile().get(0).getValue());
-			}
-			this.validationEngine.process();
-		} else if(this.resourceBundle != null) {
-			// validating the bundle
-			this.validationEngine.setSource(loadSourceFromIResource(resourceBundle));
-			this.validationEngine.process();
-			// validating the entries of the bundle
-			// since we will assign this.resourceBundle to null, let's keep the bundle information in another variable
-			Bundle tempBundle = this.resourceBundle;
-			for(Bundle.Entry entry : tempBundle.getEntry()) {
-				if(entry != null && entry.getResource() != null) {
-					setResource(entry.getResource());
-					this.validationEngine.process();
+		if(resource instanceof Bundle) {
+			logger.error("Bundle is not a proper parameter for the method Validator.validateResource. Use Validator.validateBundle instead.");
+			return null;
+		}
+		
+		// if validateProfile == true, profile <- resource.meta.profile[0]
+		if(validateProfile) {
+			if(resource.getMeta() != null && resource.getMeta().getProfile() != null && !resource.getMeta().getProfile().isEmpty()) {
+				if(resource.getMeta().getProfile().get(0) != null && resource.getMeta().getProfile().get(0).getValue() != null) {
+					try {
+						this.validationEngine.loadProfile(resource.getMeta().getProfile().get(0).getValue());
+					} catch (DefinitionException e) {
+						logger.error("DefinitionException occured while trying to load the profile of a FHIR resource altough the profile was defined."
+								+ "Validation will continue without using any profile for the resource.",e);
+					} catch (Exception e) {
+						logger.error("Exception occured while trying to load the profile of a FHIR resource altough the profile was defined."
+								+ "Validation will continue without using any profile for the resource.",e);
+					}
 				}
 			}
 		}
+		// set resource
+		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
+		// validate!
+		try {
+			this.validationEngine.process();
+		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
+			logger.error("Exception occured while trying to validate the FHIR resource. Returning null",e);
+			return null;
+		}
 		
+		// direct outcome string to an output stream
+		java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+		// notice that html tag is not included in the outcome string
+		try {
+			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
+			outcomeText = "<h2>"+resource.getId() +"</h2>"+outcomeText + "<hr>";
+			outputStream.write(outcomeText.getBytes());
+		} catch (IOException e) {
+			logger.error("Exception occured while trying to write the validation outcome to the output stream. Returning null",e);
+			return null;
+		}
+		// TODO: Notice that the output stream is not closed. Determine if it should be closed
+		return outputStream;
+	}
+	
+	public OutputStream validateBundle(Bundle bundle, boolean validateProfile) {
+		if(bundle == null) {
+			logger.warn("The bundle validator was running on was found null. Returning null");
+			return null;
+		}
+		java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+		for(Bundle.Entry entry : bundle.getEntry()) {
+			if(entry != null && entry.getResource() != null) {	
+				try {
+					java.io.ByteArrayOutputStream byteArrayOutputStream = (java.io.ByteArrayOutputStream)this.validateResource(entry.getResource(), validateProfile);
+					if(byteArrayOutputStream != null) {
+						byte[] byteArray = byteArrayOutputStream.toByteArray();
+						if(byteArray != null)
+							outputStream.write(byteArray);
+					}
+				} catch (IOException e) {
+					// TODO: This exception handler will be modified later.
+					// Because of the exception caused by condition.onsetDateTime, validation doesn't continue
+					logger.error("Exception occured while trying to write the validation outcome to the output stream. Ignoring the outcome",e);
+				}	
+			} else {
+				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry");
+			}
+		}
+		
+		return outputStream;
 	}
 }

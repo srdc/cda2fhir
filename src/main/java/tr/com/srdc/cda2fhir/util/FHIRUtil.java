@@ -58,6 +58,12 @@ public class FHIRUtil {
     public static void printXML(IResource res) {
         System.out.println(xmlParser.encodeResourceToString(res));
     }
+    
+    // start: added by necip
+    public static String getXML(IResource res) {
+    	return xmlParser.encodeResourceToString(res);
+    }
+    // end: added by necip
 
     public static void printXML(IResource res, String filePath) {
         File f = new File(filePath);

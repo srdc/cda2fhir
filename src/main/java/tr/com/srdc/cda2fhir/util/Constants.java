@@ -42,7 +42,7 @@ public class Constants {
     public static final EncounterStateEnum DEFAULT_ENCOUNTER_STATUS = EncounterStateEnum.FINISHED;
     public static final CodingDt DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE = new CodingDt().setSystem("http://hl7.org/fhir/data-absent-reason").setCode("unknown").setDisplay("Unknown");
     public static final boolean DEFAULT_IMMUNIZATION_REPORTED = false;
-
+    public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://fhir2.healthintersections.com.au/open";
     // Extension URLs
     public static final String URL_EXTENSION_BIRTHPLACE         = "http://hl7.org/fhir/StructureDefinition/birthPlace";
     public static final String URL_EXTENSION_DATA_ABSENT_REASON = "http://hl7.org/fhir/StructureDefinition/data-absent-reason";
