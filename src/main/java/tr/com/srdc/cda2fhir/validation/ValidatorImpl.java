@@ -102,7 +102,7 @@ public class ValidatorImpl implements IValidator {
 			outcomeText = "<h3>"+resource.getId() +"</h3>"+outcomeText + "<hr>";
 			outputStream.write(outcomeText.getBytes());
 		} catch (IOException e) {
-			logger.error("Exception occured while trying to write the validation outcome to the output stream. Returning null",e);
+			logger.error("Exception occured while trying to write the validation outcome to the output stream. Returning null", e);
 			return null;
 		}
 		// TODO: Notice that the output stream is not closed. Determine if it should be closed

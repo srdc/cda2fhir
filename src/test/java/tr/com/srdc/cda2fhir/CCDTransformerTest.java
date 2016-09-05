@@ -29,8 +29,6 @@ import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
-import tr.com.srdc.cda2fhir.validation.IValidator;
-import tr.com.srdc.cda2fhir.validation.ValidatorImpl;
 
 import java.io.FileInputStream;
 
@@ -56,24 +54,5 @@ public class CCDTransformerTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
-        
-        
-        // validator
-        IValidator validator = new ValidatorImpl();
-		java.io.ByteArrayOutputStream os = null;
-        if(bundle != null)
-            os = (java.io.ByteArrayOutputStream)validator.validateBundle(bundle, true);
-        
-        if(os != null) {
-        	java.io.File validationFileDir = new java.io.File("src/test/validation/");
-        	if(!validationFileDir.exists())
-        		validationFileDir.mkdirs();
-        	
-        	java.io.File validationFile = new java.io.File("src/test/validation/validation-result.html");
-        	java.io.FileWriter validationFileWriter = new java.io.FileWriter(validationFile);
-        	validationFileWriter.write(os.toString());
-        	validationFileWriter.close();
-        	os.close();
-        }
     }
 }
