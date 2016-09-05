@@ -1041,6 +1041,21 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
+		// effectiveTime info -> clinicalStatus
+		if(cdaIndication.getEffectiveTime() != null && !cdaIndication.getEffectiveTime().isSetNullFlavor()) {
+			// high & low is present -> resolved
+			if(cdaIndication.getEffectiveTime().getLow() != null && !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()
+					&& cdaIndication.getEffectiveTime().getHigh() != null && !cdaIndication.getEffectiveTime().getHigh().isSetNullFlavor()) {
+				fhirCond.setClinicalStatus(ConditionClinicalStatusCodesEnum.RESOLVED)
+			} else if(cdaIndication.getEffectiveTime().getLow() != null && !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()) {
+				// low is present, high is not present -> active
+				fhirCond.setClinicalStatus(ConditionClinicalStatusCodesEnum.ACTIVE);
+			} else if(cdaIndication.getEffectiveTime().getValue() != null) {
+				// value is present, low&high is not present -> active
+				fhirCond.setClinicalStatus(ConditionClinicalStatusCodesEnum.ACTIVE);
+			}
+		} 
 
 		// value[CD] -> code
 		if(cdaIndication.getValues() != null && !cdaIndication.getValues().isEmpty()) {
