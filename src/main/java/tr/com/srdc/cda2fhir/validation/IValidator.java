@@ -20,8 +20,16 @@ package tr.com.srdc.cda2fhir.validation;
  * #L%
  */
 
+import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
+
+import java.io.OutputStream;
 
 public interface IValidator {
 
+    void setTerminologyServer(String tServerURL);
+
+    OutputStream validateResource(IResource resource, boolean validateProfile);
+
+    OutputStream validateBundle(Bundle bundle, boolean validateProfile);
 }
