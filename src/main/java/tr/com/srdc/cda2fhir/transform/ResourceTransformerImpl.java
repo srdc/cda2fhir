@@ -1047,7 +1047,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			// high & low is present -> resolved
 			if(cdaIndication.getEffectiveTime().getLow() != null && !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()
 					&& cdaIndication.getEffectiveTime().getHigh() != null && !cdaIndication.getEffectiveTime().getHigh().isSetNullFlavor()) {
-				fhirCond.setClinicalStatus(ConditionClinicalStatusCodesEnum.RESOLVED)
+				fhirCond.setClinicalStatus(ConditionClinicalStatusCodesEnum.RESOLVED);
 			} else if(cdaIndication.getEffectiveTime().getLow() != null && !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()) {
 				// low is present, high is not present -> active
 				fhirCond.setClinicalStatus(ConditionClinicalStatusCodesEnum.ACTIVE);
