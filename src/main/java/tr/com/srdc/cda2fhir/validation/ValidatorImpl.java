@@ -99,7 +99,7 @@ public class ValidatorImpl implements IValidator {
 		// notice that html tag is not included in the outcome string
 		try {
 			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
-			outcomeText = "<h2>"+resource.getId() +"</h2>"+outcomeText + "<hr>";
+			outcomeText = "<h3>"+resource.getId() +"</h3>"+outcomeText + "<hr>";
 			outputStream.write(outcomeText.getBytes());
 		} catch (IOException e) {
 			logger.error("Exception occured while trying to write the validation outcome to the output stream. Returning null",e);
