@@ -833,6 +833,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer {
 			case "tel":
 				return ContactPointSystemEnum.PHONE;
 			case "email":
+			case "mailto":
 				return ContactPointSystemEnum.EMAIL;
 			case "fax":
 				return ContactPointSystemEnum.FAX;

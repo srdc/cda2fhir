@@ -649,6 +649,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 				// system
 				if(contactPointSystem != null) {
 					contactPointDt.setSystem(contactPointSystem);
+				} else {
+					contactPointDt.setSystem(Constants.DEFAULT_CONTACT_POINT_SYSTEM);
 				}
 				// value
 				contactPointDt.setValue(systemType[1]);
