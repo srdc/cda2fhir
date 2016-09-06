@@ -625,7 +625,16 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 	public NarrativeDt tStrucDocText2Narrative(StrucDocText sdt) {
 		if(sdt != null) {
 			NarrativeDt narrative = new NarrativeDt();
-			narrative.setDiv(tStrucDocText2String(sdt));
+			String narrativeDivString = tStrucDocText2String(sdt);
+			
+			// removing undesired characters
+			narrativeDivString = narrativeDivString.replaceAll("&", "&amp;");
+			
+			// if there was a well-formed char sequence "&amp;", after replacement it will transform to &amp;amp;
+			// the following line of code will remove these type of typos
+			narrativeDivString = narrativeDivString.replaceAll("&amp;amp;", "&amp;");
+			
+			narrative.setDiv(narrativeDivString);
 			narrative.setStatus(NarrativeStatusEnum.ADDITIONAL);
 			return narrative;
 		}
