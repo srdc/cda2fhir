@@ -628,12 +628,6 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 			NarrativeDt narrative = new NarrativeDt();
 			String narrativeDivString = tStrucDocText2String(sdt);
 			
-			// removing undesired characters
-			narrativeDivString = narrativeDivString.replaceAll("&", "&amp;");
-			
-			// if there was a well-formed char sequence "&amp;", after replacement it will transform to &amp;amp;
-			// the following line of code will remove these type of typos
-			narrativeDivString = narrativeDivString.replaceAll("&amp;amp;", "&amp;");
 			try {
 				narrative.setDiv(narrativeDivString); 
 			} catch(DataFormatException e) {
@@ -969,6 +963,13 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 			String elementBody = ((EStructuralFeatureImpl.SimpleFeatureMapEntry)param).getValue().toString();
 			// deletion of unnecessary content (\n, \t)
 			elementBody = elementBody.replaceAll("\n", "").replaceAll("\t", "");
+			
+			// replacement of special characters
+			elementBody = elementBody.replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll("&", "&amp;");
+			// if there was a well-formed char sequence "&amp;", after replacement it will transform to &amp;amp;
+			// the following line of code will remove these type of typos
+			elementBody = elementBody.replaceAll("&amp;amp;", "&amp;");
+			
 			return elementBody;
 		} 
 		else if(param instanceof EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry) {
@@ -1001,6 +1002,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 		String startTag = "";
 		String endTag = "";
 		String tagName = entry.getEStructuralFeature().getName();
+		if(tagName == null || tagName.equals(""))
+			return null;
 		List<String> attributeList = getAttributesHelperForTStructDocText2String(entry);
 		List<String> tagList = new ArrayList<String>();
 		
