@@ -47,7 +47,7 @@ public class ValidatorTest {
 		CDAUtil.loadPackages();
 	}
 
-	@Test
+	@Ignore
 	public void testBundleWithProfile() throws Exception {
 		IValidator validator = new ValidatorImpl();
 		java.io.ByteArrayOutputStream os = null;
@@ -78,7 +78,7 @@ public class ValidatorTest {
         }
 	}
 	
-	@Test
+	@Ignore
 	public void testBundleWithoutProfile() throws Exception {
 		IValidator validator = new ValidatorImpl();
 		java.io.ByteArrayOutputStream os = null;
@@ -112,7 +112,7 @@ public class ValidatorTest {
 	
 	
 	
-	@Test
+	@Ignore
 	public void testViteraBundleWithProfile() throws Exception {
 		IValidator validator = new ValidatorImpl();
 		java.io.ByteArrayOutputStream os = null;
@@ -143,7 +143,7 @@ public class ValidatorTest {
         }
 	}
 	
-	@Test
+	@Ignore
 	public void testViteraBundleWithoutProfile() throws Exception {
 		IValidator validator = new ValidatorImpl();
 		java.io.ByteArrayOutputStream os = null;
@@ -173,4 +173,5 @@ public class ValidatorTest {
 			fos.close();
         }
 	}
+
 }

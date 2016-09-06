@@ -1145,7 +1145,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// id -> identifier
 		if(cdaMedicationActivity.getIds() != null && !cdaMedicationActivity.getIds().isEmpty()) {
 			for(II ii : cdaMedicationActivity.getIds()) {
-				fhirMedSt.addIdentifier(dtt.tII2Identifier(ii));
+				if(ii != null && !ii.isSetNullFlavor()) {
+					fhirMedSt.addIdentifier(dtt.tII2Identifier(ii));
+				}
 			}
 		}
 
