@@ -257,7 +257,8 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer {
 			display = cdaObservationInterpretationCode.getDisplayName();
 		
 		// if a different code is found, change it
-		switch(cdaObservationInterpretationCode.getCode().toUpperCase()) {
+		if(cdaObservationInterpretationCode.getCode() != null) {
+			switch(cdaObservationInterpretationCode.getCode().toUpperCase()) {
 			case "AC":
 				code = "IE"; display = "Insufficient evidence"; break;
 			case "EX":
@@ -279,7 +280,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer {
 			default:
 				break;
 		}
-		
+	}
 		obsIntCode.setCode(code);
 		obsIntCode.setDisplay(display);
 		return new CodeableConceptDt().addCoding(obsIntCode);

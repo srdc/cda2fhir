@@ -1,1 +1,0 @@
-The files in this folder came from an Allscripts EHR product.

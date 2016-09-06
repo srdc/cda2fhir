@@ -33,6 +33,7 @@ import ca.uhn.fhir.model.primitive.DecimalDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.primitive.UriDt;
+import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.model.primitive.InstantDt;
 
 import java.util.ArrayList;
@@ -633,8 +634,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 			// if there was a well-formed char sequence "&amp;", after replacement it will transform to &amp;amp;
 			// the following line of code will remove these type of typos
 			narrativeDivString = narrativeDivString.replaceAll("&amp;amp;", "&amp;");
-			
-			narrative.setDiv(narrativeDivString);
+			try {
+				narrative.setDiv(narrativeDivString); 
+			} catch(DataFormatException e) {
+				return null;
+			}
 			narrative.setStatus(NarrativeStatusEnum.ADDITIONAL);
 			return narrative;
 		}

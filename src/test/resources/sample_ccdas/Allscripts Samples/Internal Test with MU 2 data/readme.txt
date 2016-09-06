@@ -1,1 +1,0 @@
-The files in this folder came from an internal testing tool generating documents using MU 2 test data.

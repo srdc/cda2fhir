@@ -2391,7 +2391,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 
 		// text -> text
 		if(cdaSection.getText() != null) {
-			fhirSec.setText(dtt.tStrucDocText2Narrative(cdaSection.getText()));
+			NarrativeDt fhirText = dtt.tStrucDocText2Narrative(cdaSection.getText());
+			if(fhirText != null)
+				fhirSec.setText(fhirText);
 		}
 
 		return fhirSec;

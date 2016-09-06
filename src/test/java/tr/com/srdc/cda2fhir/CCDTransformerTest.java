@@ -75,6 +75,79 @@ public class CCDTransformerTest {
     // Traversing all the resources in src/test/resources/sample_ccdas/*,
     //  .. transforming and writing the result to src/test/resources/output/*
     
+    // Allscripts/Enterprise_EHR
+    @Test
+    public void testAllscriptsEnterpriseEHR() throws Exception {
+    	File allscriptsEnterpriseEHRDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Enterprise_EHR");
+    	for(File allscriptsEnterpriseEHRExample : allscriptsEnterpriseEHRDir.listFiles()) {
+    		System.out.println("Transforming "+allscriptsEnterpriseEHRExample.getPath());
+    		FileInputStream fis = new FileInputStream(allscriptsEnterpriseEHRExample);
+
+            ClinicalDocument cda = CDAUtil.load(fis);
+            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+            Bundle bundle = ccdTransformer.transformDocument(cda);
+            if(bundle != null) {
+            	FHIRUtil.printJSON(bundle, "src/test/resources/output/Allscripts_Samples/Enterprise_EHR/"+allscriptsEnterpriseEHRExample.getName().replaceAll(".xml", "")+".json");
+            	System.out.println("Result was written");
+            }     
+    	}
+    }
+    
+    // Allscripts/Internal_Test_with_MU_2_data
+    @Test
+    public void testAllscriptsMU2Data() throws Exception {
+    	File allscriptsMU2DataDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Internal_Test_with_MU_2_data");
+    	for(File allscriptsMU2DataExample : allscriptsMU2DataDir.listFiles()) {
+    		System.out.println("Transforming "+allscriptsMU2DataExample.getPath());
+    		FileInputStream fis = new FileInputStream(allscriptsMU2DataExample);
+
+            ClinicalDocument cda = CDAUtil.load(fis);
+            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+            Bundle bundle = ccdTransformer.transformDocument(cda);
+            if(bundle != null) {
+            	FHIRUtil.printJSON(bundle, "src/test/resources/output/Allscripts_Samples/Internal_Test_with_MU_2_data/"+allscriptsMU2DataExample.getName().replaceAll(".xml", "")+".json");
+            	System.out.println("Result was written");
+            }     
+    	}
+    }
+    
+    // Allscripts/Professional_EHR
+    @Test
+    public void testAllscriptsProfessionalEHR() throws Exception {
+    	File allscriptsProfessionalEHRDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Professional_EHR");
+    	for(File allscriptsProfessionalEHRExample : allscriptsProfessionalEHRDir.listFiles()) {
+    		System.out.println("Transforming "+allscriptsProfessionalEHRExample.getPath());
+    		FileInputStream fis = new FileInputStream(allscriptsProfessionalEHRExample);
+
+            ClinicalDocument cda = CDAUtil.load(fis);
+            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+            Bundle bundle = ccdTransformer.transformDocument(cda);
+            if(bundle != null) {
+            	FHIRUtil.printJSON(bundle, "src/test/resources/output/Allscripts_Samples/Professional_EHR/"+allscriptsProfessionalEHRExample.getName().replaceAll(".xml", "")+".json");
+            	System.out.println("Result was written");
+            }     
+    	}
+    }
+    
+    // Allscripts/Sunrise_Clinical_Manager
+    @Test
+    public void testAllscriptsSunriseClinicalManager() throws Exception {
+    	File allscriptsSunriseClinicalManagerDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Sunrise_Clinical_Manager");
+    	for(File allscriptsSunriseClinicalManagerExample : allscriptsSunriseClinicalManagerDir.listFiles()) {
+    		System.out.println("Transforming "+allscriptsSunriseClinicalManagerExample.getPath());
+    		FileInputStream fis = new FileInputStream(allscriptsSunriseClinicalManagerExample);
+
+            ClinicalDocument cda = CDAUtil.load(fis);
+            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+            Bundle bundle = ccdTransformer.transformDocument(cda);
+            if(bundle != null) {
+            	FHIRUtil.printJSON(bundle, "src/test/resources/output/Allscripts_Samples/Sunrise_Clinical_Manager/"+allscriptsSunriseClinicalManagerExample.getName().replaceAll(".xml", "")+".json");
+            	System.out.println("Result was written");
+            }     
+    	}
+    }
+    
+    
     // Cerner
     @Test
     public void testCerner() throws Exception {
