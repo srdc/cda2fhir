@@ -255,14 +255,18 @@ public class CCDTransformerImpl implements ICDATransformer {
      * @param sectionRefCls Specific FHIR Resource Class among the resources in the sourceBundle, whose reference will be added to the FHIR Section
      */
     private void mergeBundles(Bundle sourceBundle, Bundle targetBundle, Composition.Section fhirSec, Class<?> sectionRefCls) {
-        for(Entry entry : sourceBundle.getEntry()) {
-            // Add all the resources returned from the source bundle to the target bundle
-            targetBundle.addEntry(entry);
-            // Add a reference to the section for each instance of requested class, e.g. Observation, Procedure ...
-            if(sectionRefCls.isInstance(entry.getResource())) {
-                ResourceReferenceDt ref = fhirSec.addEntry();
-                ref.setReference(entry.getResource().getId());
+    	if(sourceBundle != null) {
+    		for(Entry entry : sourceBundle.getEntry()) {
+    			if(entry != null) {
+    				// Add all the resources returned from the source bundle to the target bundle
+                    targetBundle.addEntry(entry);
+                    // Add a reference to the section for each instance of requested class, e.g. Observation, Procedure ...
+                    if(sectionRefCls.isInstance(entry.getResource())) {
+                        ResourceReferenceDt ref = fhirSec.addEntry();
+                        ref.setReference(entry.getResource().getId());
+                    }
+    			}
             }
-        }
+    	}
     }
 }
