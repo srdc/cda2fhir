@@ -111,7 +111,10 @@ public class CCDTransformerImpl implements ICDATransformer {
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
             Composition.Section fhirSec = resTransformer.tSection2Section(cdaSec);
-            ccdComposition.addSection(fhirSec);
+            
+            if(fhirSec == null)
+            	continue;
+            
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
             }
