@@ -55,7 +55,12 @@
             <artifactId>logback-classic</artifactId>
             <version>1.1.7</version>
         </dependency>
-
+		<!--  Thymeleaf dependency for narrative generation -->
+		<dependency>
+			<groupId>org.thymeleaf</groupId>
+			<artifactId>thymeleaf</artifactId>
+			<version>3.0.0.RELEASE</version>
+		</dependency>
         <!-- This is ugly but official FHIR validator by HL7 is not available in any maven repo -->
         <dependency>
             <groupId>org.hl7.fhir</groupId>
