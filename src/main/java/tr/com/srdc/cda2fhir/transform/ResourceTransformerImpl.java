@@ -45,6 +45,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
+
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Device;
@@ -52,9 +54,13 @@ import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.IdDt;
+import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import tr.com.srdc.cda2fhir.util.Constants;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerImpl implements IResourceTransformer {
 
@@ -62,7 +68,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 	private IValueSetsTransformer vst;
 	private ICDATransformer cdat;
 	private ResourceReferenceDt defaultPatientRef;
-
+	private static final FhirContext ctx = FhirContext.forDstu2(); // context for narrative generator
+	private static final DefaultThymeleafNarrativeGenerator narrativeGenerator = new DefaultThymeleafNarrativeGenerator(); // narrative generator
+	
 	private final Logger logger = LoggerFactory.getLogger(ResourceTransformerImpl.class);
 
 	public ResourceTransformerImpl() {
@@ -1816,6 +1824,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirPatient.addUndeclaredExtension(extBirthPlace);
 			}
 		}
+		
+		// TODO: Handle the narrative generating issue. This is the first example of narrative generator
+		narrativeGenerator.generateNarrative(ctx, fhirPatient, fhirPatient.getText());
 			
 		return fhirPatientBundle;
 	}

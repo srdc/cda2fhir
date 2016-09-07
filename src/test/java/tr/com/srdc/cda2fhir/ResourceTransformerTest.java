@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import ca.uhn.fhir.model.dstu2.resource.*;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Organizer;
@@ -50,6 +51,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Composition.Section;
+import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;

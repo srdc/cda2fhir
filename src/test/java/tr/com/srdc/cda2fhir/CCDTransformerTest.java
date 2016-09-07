@@ -47,7 +47,7 @@ public class CCDTransformerTest {
     }
 
     // C-CDA_R2-1_CCD.xml
-    @Ignore
+    @Test
     public void testReferenceCCDInstance() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 
@@ -72,7 +72,7 @@ public class CCDTransformerTest {
     }
     
     // Gold Sample r2.1
-    @Test
+    @Ignore
     public void testGoldSample() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_gold_sample2_v1.xml");
 
