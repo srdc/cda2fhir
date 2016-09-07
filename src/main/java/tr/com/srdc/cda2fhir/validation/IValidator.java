@@ -25,8 +25,6 @@ import ca.uhn.fhir.model.dstu2.resource.Bundle;
 
 import java.io.OutputStream;
 
-import org.hl7.fhir.exceptions.DefinitionException;
-
 public interface IValidator {
 
 	/**

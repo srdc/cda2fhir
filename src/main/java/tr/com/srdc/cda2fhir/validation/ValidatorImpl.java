@@ -55,11 +55,11 @@ public class ValidatorImpl implements IValidator {
 		try {
 			validationEngine.readDefinitions(definitionsPath);
 		} catch (IOException e) {
-			logger.error("IOException occured while trying to read the definitions for the validatior",e);
+			logger.error("IOException occurred while trying to read the definitions for the validatior",e);
 		} catch (SAXException e) {
 			logger.error("Improper definition for the validator",e);
 		} catch (FHIRException e) {
-			logger.error("FHIRException occured while trying to read the definitions for the validator",e);
+			logger.error("FHIRException occurred while trying to read the definitions for the validator",e);
 		}
 		try {
 			validationEngine.connectToTSServer(tServerURL);
@@ -97,7 +97,7 @@ public class ValidatorImpl implements IValidator {
 			return null;
 		}
 		
-		logger.info("Validating the resource "+resource.getId());
+		logger.info("Validating resource "+resource.getId());
 		// initialize profile with null
 		this.validationEngine.setProfile(null);
 		
@@ -109,10 +109,10 @@ public class ValidatorImpl implements IValidator {
 						this.validationEngine.loadProfile(resource.getMeta().getProfile().get(0).getValue());
 						logger.info("Profile "+resource.getMeta().getProfile().get(0).getValue()+" is found and set for the validation of the resource.");
 					} catch (DefinitionException e) {
-						logger.error("DefinitionException occured while trying to load the profile of a FHIR resource altough the profile was defined."
+						logger.error("DefinitionException occurred while trying to load the profile of a FHIR resource altough the profile was defined."
 								+ "Validation will continue without using any profile for the resource.",e);
 					} catch (Exception e) {
-						logger.error("Exception occured while trying to load the profile of a FHIR resource altough the profile was defined."
+						logger.error("Exception occurred while trying to load the profile of a FHIR resource altough the profile was defined."
 								+ "Validation will continue without using any profile for the resource.",e);
 					}
 				}
@@ -126,7 +126,7 @@ public class ValidatorImpl implements IValidator {
 		try {
 			this.validationEngine.process();
 		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
-			logger.error("Exception occured while trying to validate the FHIR resource. Returning exception message",e);
+			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message",e);
 			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occured while validating this resource:<br>"
 					+ e.getMessage()+"<hr>";
 			try {
@@ -134,7 +134,7 @@ public class ValidatorImpl implements IValidator {
 				outputStream.write(exceptionAsHtml.getBytes());
 				return outputStream;
 			} catch (IOException e1) {
-				logger.error("Exception occured while trying to write the exception outcome to the output stream. Ignoring ");
+				logger.error("Exception occurred while trying to write the exception outcome to the output stream. Ignoring ");
 			}
 		}
 		
@@ -147,7 +147,7 @@ public class ValidatorImpl implements IValidator {
 			outcomeText = "<h3>"+resource.getId() +"</h3>"+outcomeText + "<hr>";
 			outputStream.write(outcomeText.getBytes());
 		} catch (IOException e) {
-			logger.error("Exception occured while trying to write the validation outcome to the output stream. Returning null", e);
+			logger.error("Exception occurred while trying to write the validation outcome to the output stream. Returning null", e);
 			return null;
 		}
 		
@@ -178,7 +178,7 @@ public class ValidatorImpl implements IValidator {
 							outputStream.write(byteArray);
 					}
 				} catch (IOException e) {
-					logger.error("Exception occured while trying to write the validation outcome to the output stream. Ignoring",e);
+					logger.error("Exception occurred while trying to write the validation outcome to the output stream. Ignoring",e);
 				}	
 			} else {
 				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry");
