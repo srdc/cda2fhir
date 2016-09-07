@@ -2226,11 +2226,13 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 	
 	public Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation) {
 		Bundle fhirObservationBundle = tObservation2Observation(cdaVitalSignObservation);
+		if(fhirObservationBundle == null)
+			return null;
 
 		// finding the observation resource and setting its meta.profile to result observation's profile url
 		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
 			if(entry.getResource() instanceof Observation) {
-				((Observation)entry.getResource()).getMeta().addProfile(Constants.PROFILE_VITAL_SIGNS);
+				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_VITAL_SIGNS);
 			}
 		}
 		return fhirObservationBundle;
