@@ -47,7 +47,7 @@ public class CCDTransformerTest {
     }
 
     // C-CDA_R2-1_CCD.xml
-    @Test
+    @Ignore
     public void testReferenceCCDInstance() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 
@@ -60,7 +60,7 @@ public class CCDTransformerTest {
     
     
     // Vitera
-    @Test
+    @Ignore
     public void testVitera() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 
@@ -71,12 +71,24 @@ public class CCDTransformerTest {
             FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample.json");
     }
     
-   
+    // Gold Sample r2.1
+    @Test
+    public void testGoldSample() throws Exception {
+        FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_gold_sample2_v1.xml");
+
+        ClinicalDocument cda = CDAUtil.load(fis);
+        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Bundle bundle = ccdTransformer.transformDocument(cda);
+        if(bundle != null)
+            FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
+    }
+    
+    
     // Traversing all the resources in src/test/resources/sample_ccdas/*,
     //  .. transforming and writing the result to src/test/resources/output/*
     
     // Allscripts/Enterprise_EHR
-    @Test
+    @Ignore
     public void testAllscriptsEnterpriseEHR() throws Exception {
     	File allscriptsEnterpriseEHRDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Enterprise_EHR");
     	for(File allscriptsEnterpriseEHRExample : allscriptsEnterpriseEHRDir.listFiles()) {
@@ -94,7 +106,7 @@ public class CCDTransformerTest {
     }
     
     // Allscripts/Internal_Test_with_MU_2_data
-    @Test
+    @Ignore
     public void testAllscriptsMU2Data() throws Exception {
     	File allscriptsMU2DataDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Internal_Test_with_MU_2_data");
     	for(File allscriptsMU2DataExample : allscriptsMU2DataDir.listFiles()) {
@@ -112,7 +124,7 @@ public class CCDTransformerTest {
     }
     
     // Allscripts/Professional_EHR
-    @Test
+    @Ignore
     public void testAllscriptsProfessionalEHR() throws Exception {
     	File allscriptsProfessionalEHRDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Professional_EHR");
     	for(File allscriptsProfessionalEHRExample : allscriptsProfessionalEHRDir.listFiles()) {
@@ -130,7 +142,7 @@ public class CCDTransformerTest {
     }
     
     // Allscripts/Sunrise_Clinical_Manager
-    @Test
+    @Ignore
     public void testAllscriptsSunriseClinicalManager() throws Exception {
     	File allscriptsSunriseClinicalManagerDir = new File("src/test/resources/sample_ccdas/Allscripts_Samples/Sunrise_Clinical_Manager");
     	for(File allscriptsSunriseClinicalManagerExample : allscriptsSunriseClinicalManagerDir.listFiles()) {
@@ -149,7 +161,7 @@ public class CCDTransformerTest {
     
     
     // Cerner
-    @Test
+    @Ignore
     public void testCerner() throws Exception {
     	File cernerDir = new File("src/test/resources/sample_ccdas/Cerner/");
     	for(File cernerExample : cernerDir.listFiles()) {
@@ -169,7 +181,7 @@ public class CCDTransformerTest {
     // Notice that the following test may use resources that cause errors while transforming the includings of text attributes
     // Therefore, you may want to make dtt.tStrucDocText2Narrative method return null before using the following test method
     // EMERGE
-    @Test
+    @Ignore
     public void testEMERGE() throws Exception {
     	File emergeDir = new File("src/test/resources/sample_ccdas/EMERGE/");
     	for(File emergeExample : emergeDir.listFiles()) {
@@ -189,7 +201,7 @@ public class CCDTransformerTest {
     // Notice that the following test may use resources that cause errors while transforming the includings of text attributes
     // Therefore, you may want to make dtt.tStrucDocText2Narrative method return null before using the following test method
     // Greenway
-    @Test
+    @Ignore
     public void testGreenway() throws Exception {
     	File greenwayDir = new File("src/test/resources/sample_ccdas/Greenway/");
     	for(File greenwayExample : greenwayDir.listFiles()) {
@@ -206,7 +218,7 @@ public class CCDTransformerTest {
     }
     
     // HL7
-    @Test
+    @Ignore
     public void testHL7() throws Exception {
     	File hl7Dir = new File("src/test/resources/sample_ccdas/HL7/");
     	for(File hl7Example : hl7Dir.listFiles()) {
@@ -223,7 +235,7 @@ public class CCDTransformerTest {
     }
     
     // Kareo
-    @Test
+    @Ignore
     public void testKareo() throws Exception {
     	File kareoDir = new File("src/test/resources/sample_ccdas/Kareo/");
     	for(File kareoExample : kareoDir.listFiles()) {
@@ -240,7 +252,7 @@ public class CCDTransformerTest {
     }
     
     // Kinsights
-    @Test
+    @Ignore
     public void testKinsights() throws Exception {
     	File kinsightsDir = new File("src/test/resources/sample_ccdas/Kinsights/");
     	for(File kinsightsExample : kinsightsDir.listFiles()) {
@@ -257,7 +269,7 @@ public class CCDTransformerTest {
     }
     
     // mTuitive_OpNote
-    @Test
+    @Ignore
     public void testmTuitive_OpNote() throws Exception {
     	File mTuitive_OpNoteDir = new File("src/test/resources/sample_ccdas/mTuitive_OpNote/");
     	for(File mTuitive_OpNoteExample : mTuitive_OpNoteDir.listFiles()) {
@@ -274,7 +286,7 @@ public class CCDTransformerTest {
     }
     
     // NextGen
-    @Test
+    @Ignore
     public void testNextGen() throws Exception {
     	File nextGenDir = new File("src/test/resources/sample_ccdas/NextGen/");
     	for(File nextGenExample : nextGenDir.listFiles()) {
@@ -291,7 +303,7 @@ public class CCDTransformerTest {
     }
     
     // NIST
-    @Test
+    @Ignore
     public void testNIST() throws Exception {
     	File NISTDir = new File("src/test/resources/sample_ccdas/NIST/");
     	for(File NISTExample : NISTDir.listFiles()) {
@@ -310,7 +322,7 @@ public class CCDTransformerTest {
     // Notice that the following test may use resources that cause errors while transforming the includings of text attributes
     // Therefore, you may want to make dtt.tStrucDocText2Narrative method return null before using the following test method
     // Partners_HealthCare
-    @Test
+    @Ignore
     public void testPartners() throws Exception {
     	File partnersDir = new File("src/test/resources/sample_ccdas/Partners_HealthCare/");
     	for(File partnersExample : partnersDir.listFiles()) {
@@ -327,7 +339,7 @@ public class CCDTransformerTest {
     }
     
     // PracticeFusion
-    @Test
+    @Ignore
     public void testPracticeFusion() throws Exception {
     	File practiceFusionDir = new File("src/test/resources/sample_ccdas/PracticeFusion/");
     	for(File practiceFusionExample : practiceFusionDir.listFiles()) {
@@ -344,7 +356,7 @@ public class CCDTransformerTest {
     }
     
     // Transitions_of_Care
-    @Test
+    @Ignore
     public void testTransitions_of_Care() throws Exception {
     	File transitionsOfCareDir = new File("src/test/resources/sample_ccdas/Transitions_of_Care/");
     	for(File transitionsOfCareExample : transitionsOfCareDir.listFiles()) {
