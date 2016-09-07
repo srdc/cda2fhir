@@ -56,11 +56,6 @@
             <version>1.1.7</version>
         </dependency>
 		<!--  Thymeleaf dependency for narrative generation -->
-		<dependency>
-			<groupId>org.thymeleaf</groupId>
-			<artifactId>thymeleaf</artifactId>
-			<version>3.0.0.RELEASE</version>
-		</dependency>
         <!-- This is ugly but official FHIR validator by HL7 is not available in any maven repo -->
         <dependency>
             <groupId>org.hl7.fhir</groupId>
@@ -68,6 +63,11 @@
             <version>1.0.2</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/org.hl7.fhir.validator.jar</systemPath>
+        </dependency>
+        <dependency>
+        	<groupId>org.thymeleaf</groupId>
+        	<artifactId>thymeleaf</artifactId>
+        	<version>3.0.1.RELEASE</version>
         </dependency>
     </dependencies>
 
