@@ -22,6 +22,7 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import org.junit.BeforeClass;
@@ -47,109 +48,80 @@ public class ValidatorTest {
 		CDAUtil.loadPackages();
 	}
 
+	// C-CDA_R2-1_CCD.xml with profile
 	@Ignore
 	public void testBundleWithProfile() throws Exception {
-		IValidator validator = new ValidatorImpl();
-		java.io.ByteArrayOutputStream os = null;
-		
-		// file to be transformed
-		FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-		
-        ClinicalDocument cda = CDAUtil.load(fis);
-        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        
-        // make the transformation
-        Bundle bundle = ccdTransformer.transformDocument(cda);
-        if(bundle != null) {
-			// print the bundle for checking against validation results
-			FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-for-profile-validation.json");
-			os = (java.io.ByteArrayOutputStream) validator.validateBundle(bundle, true);
-		}
-        
-        if(os != null) {
-        	java.io.File validationFileDir = new java.io.File("src/test/resources/output/");
-        	if(!validationFileDir.exists())
-        		validationFileDir.mkdirs();
-
-			FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result-profile-for-C-CDA_R2-1_CCD.html"));
-			os.writeTo(fos);
-			os.close();
-			fos.close();
-        }
+		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-for-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-profile-for-C-CDA_R2-1_CCD.html";
+		boolean validateProfile = true;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, validateProfile);
 	}
 	
+	// C-CDA_R2-1_CCD.xml without profile
 	@Ignore
 	public void testBundleWithoutProfile() throws Exception {
-		IValidator validator = new ValidatorImpl();
-		java.io.ByteArrayOutputStream os = null;
-		
-		// file to be transformed
-		FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-        ClinicalDocument cda = CDAUtil.load(fis);
-        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        
-        // make the transformation
-        Bundle bundle = ccdTransformer.transformDocument(cda);
-        if(bundle != null) {
-			// print the bundle for checking against validation results
-			FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-for-nonprofile-validation.json");
-			os = (java.io.ByteArrayOutputStream) validator.validateBundle(bundle, false);
-		}
-        
-        if(os != null) {
-        	java.io.File validationFileDir = new java.io.File("src/test/resources/output/");
-        	if(!validationFileDir.exists())
-        		validationFileDir.mkdirs();
-
-			FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result-nonprofile-for-C-CDA_R2-1_CCD.html"));
-			os.writeTo(fos);
-			os.close();
-			fos.close();
-        }
+		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-for-nonprofile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-nonprofile-for-C-CDA_R2-1_CCD.html";
+		boolean validateProfile = false;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, validateProfile);
 	}
 	
-	
-	
-	
-	
+	// Vitera_CCDA_SMART_Sample.xml with profile
 	@Ignore
 	public void testViteraBundleWithProfile() throws Exception {
-		IValidator validator = new ValidatorImpl();
-		java.io.ByteArrayOutputStream os = null;
-		
-		// file to be transformed
-		FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
-		
-        ClinicalDocument cda = CDAUtil.load(fis);
-        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        
-        // make the transformation
-        Bundle bundle = ccdTransformer.transformDocument(cda);
-        if(bundle != null) {
-			// print the bundle for checking against validation results
-			FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-profile-validation.json");
-			os = (java.io.ByteArrayOutputStream) validator.validateBundle(bundle, true);
-		}
-        
-        if(os != null) {
-        	java.io.File validationFileDir = new java.io.File("src/test/resources/output/");
-        	if(!validationFileDir.exists())
-        		validationFileDir.mkdirs();
-
-			FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result-profile-for-Vitera_CCDA_SMART_Sample.html"));
-			os.writeTo(fos);
-			os.close();
-			fos.close();
-        }
+		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-profile-for-Vitera_CCDA_SMART_Sample.html";
+		boolean validateProfile = true;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, validateProfile);
 	}
 	
-	@Ignore
-	public void testViteraBundleWithoutProfile() throws Exception {
+	// Vitera_CCDA_SMART_Sample.xml without profile
+	@Test
+	public void testViteraBundleWithoutProfile() throws Exception {	
+		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-nonprofile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-nonprofile-for-Vitera_CCDA_SMART_Sample.html";
+		boolean validateProfile = false;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, validateProfile);
+	}
+	
+	// 170.315_b1_toc_gold_sample2_v1.xml with profile
+	@Test
+	public void testGoldSampleBundleWithProfile() throws Exception {	
+		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-for-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-profile-for-170.315_b1_toc_gold_sample2_v1.html";
+		boolean validateProfile = true;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, validateProfile);
+	}
+	
+	// 170.315_b1_toc_gold_sample2_v1.xml without profile
+	@Test
+	public void testGoldSampleBundleWithoutProfile() throws Exception {	
+		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-for-nonprofile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-nonprofile-for-170.315_b1_toc_gold_sample2_v1.html";
+		boolean validateProfile = false;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, validateProfile);
+	}
+	
+	/**
+	 * Transforms a CDA resource to a FHIR resource, validates the FHIR resource and prints the validation result to the target path.
+	 * @param cdaResourcePath A file path of the CDA resource that is to be transformed
+	 * @param targetPathForFHIRResource A file path where the FHIR resource is to be created
+	 * @param targetPathForResultFile A file path where the validation result file is to be created
+	 * @param validateProfile A boolean indicating that the validation will be done using daf profile
+	 * @throws Exception
+	 */
+	private void transformAndValidate(String cdaResourcePath, String targetPathForFHIRResource, String targetPathForResultFile, boolean validateProfile) throws Exception {
 		IValidator validator = new ValidatorImpl();
 		java.io.ByteArrayOutputStream os = null;
 		
 		// file to be transformed
-		FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
+		FileInputStream fis = new FileInputStream(cdaResourcePath);
 
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
@@ -158,16 +130,16 @@ public class ValidatorTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null) {
 			// print the bundle for checking against validation results
-			FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-nonprofile-validation.json");
+			FHIRUtil.printJSON(bundle, targetPathForFHIRResource);
 			os = (java.io.ByteArrayOutputStream) validator.validateBundle(bundle, false);
 		}
         
         if(os != null) {
-        	java.io.File validationFileDir = new java.io.File("src/test/resources/output/");
-        	if(!validationFileDir.exists())
-        		validationFileDir.mkdirs();
+        	java.io.File validationFile = new java.io.File(targetPathForResultFile);
+        	if(!validationFile.getParentFile().exists())
+        		validationFile.getParentFile().mkdirs();
 
-			FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result-nonprofile-for-Vitera_CCDA_SMART_Sample.html"));
+			FileOutputStream fos = new FileOutputStream(new File(targetPathForResultFile));
 			os.writeTo(fos);
 			os.close();
 			fos.close();
