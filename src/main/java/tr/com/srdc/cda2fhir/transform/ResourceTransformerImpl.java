@@ -274,6 +274,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirAllergyIntolerance, fhirAllergyIntolerance.getText());
 
 		return allergyIntoleranceBundle;
 	}
@@ -349,6 +352,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			fhirPractitionerBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
 		}
 		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
+		
 		return fhirPractitionerBundle;
 	}
 
@@ -422,6 +428,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirPractitionerBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
 
 		return fhirPractitionerBundle;
 	}
@@ -447,8 +456,12 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 
 		// meta
 		fhirSubstance.getMeta().addProfile(Constants.PROFILE_SUBSTANCE);
+		
 		// code -> code
 		fhirSubstance.setCode(dtt.tCD2CodeableConcept(cdaSubstanceCode));
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirSubstance, fhirSubstance.getText());
 
 		return fhirSubstance;
 	}
@@ -585,6 +598,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
+		
 		return fhirEncounterBundle;
 	}
 
@@ -732,6 +749,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
+		
 		return fhirEncounterBundle;
 	}
 
@@ -778,6 +798,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		if(cdaEntity.getCode() != null && !cdaEntity.getCode().isSetNullFlavor()) {
 			fhirGroup.setCode(dtt.tCD2CodeableConcept(cdaEntity.getCode()));
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirGroup, fhirGroup.getText());
 		
 		return fhirGroup;
 	}
@@ -889,6 +912,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirFMH, fhirFMH.getText());
+		
 		return fhirFMH;
 	}
 
@@ -991,6 +1018,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
+
 		return fhirObsBundle;
 	}
 	
@@ -1079,6 +1109,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// NOTE: A default value is assigned to verificationStatus attribute, as it is mandatory but cannot be mapped from the CDA side
 		fhirCond.setVerificationStatus(Constants.DEFAULT_CONDITION_VERIFICATION_STATUS);
 
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirCond, fhirCond.getText());
+		
 		return fhirCond;
 	}
 	
@@ -1125,6 +1158,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			fhirMedication.setManufacturer(new ResourceReferenceDt(org.getId()));
 			fhirMedicationBundle.addEntry(new Bundle.Entry().setResource(org));
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirMedication, fhirMedication.getText());
 		
 		return fhirMedicationBundle;
 	}
@@ -1248,6 +1284,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			medStatementBundle.addEntry(new Bundle.Entry().setResource(cond));
 			fhirMedSt.setReasonForUse(new ResourceReferenceDt(cond.getId()));
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirMedSt, fhirMedSt.getText());
 
 		return medStatementBundle;	
 	}
@@ -1390,6 +1429,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		if(cdaMedicationDispense.getQuantity() != null && !cdaMedicationDispense.getQuantity().isSetNullFlavor()) {
 			fhirDosageInstruction.setDose(dtt.tPQ2SimpleQuantityDt(cdaMedicationDispense.getQuantity()));
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirMediDisp, fhirMediDisp.getText());
+		
 		return fhirMediDispBundle;
 	}
 
@@ -1565,6 +1608,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
+		
 		return fhirObsBundle;
 	}
 
@@ -1616,6 +1662,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
 		
 		return fhirOrganization;
 	}
@@ -1688,6 +1737,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}			
 
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirLocation, fhirLocation.getText());
+		
 		return fhirLocation;
 	}
 	
@@ -1825,7 +1877,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 		
-		// TODO: Handle the narrative generating issue. This is the first example of narrative generator
+		// text
 		narrativeGenerator.generateNarrative(ctx, fhirPatient, fhirPatient.getText());
 			
 		return fhirPatientBundle;
@@ -1972,6 +2024,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// NOTE: A default value is assigned to verificationStatus attribute, as it is mandatory but cannot be mapped from the CDA side
 		fhirCondition.setVerificationStatus(Constants.DEFAULT_CONDITION_VERIFICATION_STATUS);
 
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirCondition, fhirCondition.getText());
+		
 		return fhirConditionBundle;
 	}
 
@@ -2059,6 +2114,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirProc, fhirProc.getText());
 
 		return fhirProcBundle;
 	}
@@ -2231,6 +2289,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// reported
 		fhirImmunization.setReported(Constants.DEFAULT_IMMUNIZATION_REPORTED);
 
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirImmunization, fhirImmunization.getText());
+		
 		return fhirImmunizationBundle;
 		
 	}	
@@ -2317,7 +2378,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirContact.addRelationship(new CodeableConceptDt().addCoding(relationshipCoding));
 			else
 				fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
-
 		}
 		return fhirContact;
 	}
@@ -2339,7 +2399,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		if(cdaLanguageCommunication.getPreferenceInd() != null && !cdaLanguageCommunication.getPreferenceInd().isSetNullFlavor()) {
 			fhirCommunication.setPreferred(dtt.tBL2Boolean(cdaLanguageCommunication.getPreferenceInd()));
 		}
-
+		
 		return fhirCommunication;
 	}
 	
@@ -2380,6 +2440,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
 		return fhirRefRange;
 	}
 	
@@ -2525,7 +2586,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-
+		// TODO Check if it was set already
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirComp, fhirComp.getText());
+		
 		return fhirCompBundle;
 	}
 	
@@ -2574,6 +2638,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
+		
 		return fhirOrganization;
 	}
 	
@@ -2619,6 +2686,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirDev.setType(dtt.tCD2CodeableConcept(productInstance.getPlayingDevice().getCode()));
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirDev, fhirDev.getText());
 		
 		return fhirDev;
 	}
@@ -2742,9 +2812,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			fhirDiagReport.setPerformer(new ResourceReferenceDt(fhirPerformerDataAbsent.getId()));
 		}
 		
-		
-		
-		
 		// observation(s) -> result
 		if(cdaResultOrganizer.getObservations() != null && !cdaResultOrganizer.getObservations().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : cdaResultOrganizer.getObservations()) {
@@ -2763,6 +2830,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
+		
+		// text
+		narrativeGenerator.generateNarrative(ctx, fhirDiagReport, fhirDiagReport.getText());
 		
  		return fhirDiagReportBundle;
 	}
