@@ -56,7 +56,7 @@ public class CCDTransformerTest {
     }
 
     // Gold Sample r2.1
-    @Ignore
+    @Test
     public void testGoldSample() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_gold_sample2_v1.xml");
 
@@ -68,7 +68,7 @@ public class CCDTransformerTest {
     }
 
     // Vitera
-    @Ignore
+    @Test
     public void testViteraSample() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 

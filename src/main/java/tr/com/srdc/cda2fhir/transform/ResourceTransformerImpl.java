@@ -272,7 +272,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
+
 		// text
 		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
 			fhirAllergyIntolerance.setText(new NarrativeDt());
