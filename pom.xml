@@ -6,7 +6,7 @@
 
     <groupId>tr.com.srdc</groupId>
     <artifactId>cda2fhir</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <build>
         <plugins>
             <plugin>
@@ -30,33 +30,42 @@
     </properties>
 
     <dependencies>
+        <!-- MDHT: CDA manipulation -->
         <dependency>
             <groupId>org.openehealth.ipf.modules</groupId>
             <artifactId>ipf-modules-cda-mdht</artifactId>
             <version>3.1.1</version>
         </dependency>
+        <!-- HAPI: FHIR manipulation -->
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
-            <version>1.6</version>
+            <version>2.0</version>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-structures-dstu2</artifactId>
-            <version>1.6</version>
+            <version>2.0</version>
         </dependency>
+        <!-- FHIR narrative generation -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>3.0.0.RELEASE</version>
+        </dependency>
+        <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
         </dependency>
+        <!-- Logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.7</version>
         </dependency>
-		<!--  Thymeleaf dependency for narrative generation -->
-        <!-- This is ugly but official FHIR validator by HL7 is not available in any maven repo -->
+        <!-- Official HL7 FHIR Validator. This is ugly but it is not available in any maven repo -->
         <dependency>
             <groupId>org.hl7.fhir</groupId>
             <artifactId>validator</artifactId>
@@ -64,11 +73,5 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/org.hl7.fhir.validator.jar</systemPath>
         </dependency>
-        <dependency>
-        	<groupId>org.thymeleaf</groupId>
-        	<artifactId>thymeleaf</artifactId>
-        	<version>2.1.5.RELEASE</version>
-        </dependency>
     </dependencies>
-
 </project>

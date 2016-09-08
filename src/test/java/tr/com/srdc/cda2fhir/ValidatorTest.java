@@ -68,7 +68,7 @@ public class ValidatorTest {
 	}
 	
 	// Vitera_CCDA_SMART_Sample.xml with profile
-	@Test
+	@Ignore
 	public void testViteraBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-profile-validation.json";
@@ -78,7 +78,7 @@ public class ValidatorTest {
 	}
 	
 	// Vitera_CCDA_SMART_Sample.xml without profile
-	@Test
+	@Ignore
 	public void testViteraBundleWithoutProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-nonprofile-validation.json";
@@ -108,8 +108,8 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Test
-	public void testSampleBundleWithoutProfile() throws Exception {	
+	@Ignore
+	public void testInpSampleBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-for-nonprofile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-nonprofile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
@@ -118,8 +118,8 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Test
-	public void testSampleBundleWithProfile() throws Exception {	
+	@Ignore
+	public void testInpSampleBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-for-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
