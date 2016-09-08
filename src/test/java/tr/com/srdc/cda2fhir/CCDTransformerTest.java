@@ -54,7 +54,7 @@ public class CCDTransformerTest {
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
     }
-    
+
     // Gold Sample r2.1
     @Test
     public void testGoldSample() throws Exception {
@@ -78,8 +78,8 @@ public class CCDTransformerTest {
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample.json");
     }
-    
-    
+
+
     // Traversing all the resources in src/test/resources/sample_ccdas/*,
     //  .. transforming and writing the result to src/test/resources/output/*
     // These instances are removed for the time being, as they are a bit old (i.e. not C-CDA 2.1)
@@ -100,7 +100,7 @@ public class CCDTransformerTest {
             }
     	}
     }
-    
+
     // NIST
     @Ignore
     public void testNIST() throws Exception {
