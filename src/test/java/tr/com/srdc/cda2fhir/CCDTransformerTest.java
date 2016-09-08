@@ -69,7 +69,7 @@ public class CCDTransformerTest {
 
     // Vitera
     @Ignore
-    public void testVitera() throws Exception {
+    public void testViteraSample() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 
         ClinicalDocument cda = CDAUtil.load(fis);
@@ -77,45 +77,6 @@ public class CCDTransformerTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample.json");
-    }
-
-
-    // Traversing all the resources in src/test/resources/sample_ccdas/*,
-    //  .. transforming and writing the result to src/test/resources/output/*
-    // These instances are removed for the time being, as they are a bit old (i.e. not C-CDA 2.1)
-
-    // HL7
-    @Ignore
-    public void testHL7() throws Exception {
-    	File hl7Dir = new File("src/test/resources/sample_ccdas/HL7/");
-    	for(File hl7Example : hl7Dir.listFiles()) {
-    		System.out.println("Transforming "+hl7Example.getPath());
-    		FileInputStream fis = new FileInputStream(hl7Example);
-    		ClinicalDocument cda = CDAUtil.load(fis);
-            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-            Bundle bundle = ccdTransformer.transformDocument(cda);
-            if(bundle != null) {
-            	FHIRUtil.printJSON(bundle, "src/test/resources/output/HL7/"+hl7Example.getName().replaceAll(".xml", "")+".json");
-            	System.out.println("Result was written");
-            }
-    	}
-    }
-
-    // NIST
-    @Ignore
-    public void testNIST() throws Exception {
-    	File NISTDir = new File("src/test/resources/sample_ccdas/NIST/");
-    	for(File NISTExample : NISTDir.listFiles()) {
-    		System.out.println("Transforming "+NISTExample.getPath());
-    		FileInputStream fis = new FileInputStream(NISTExample);
-    		ClinicalDocument cda = CDAUtil.load(fis);
-            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-            Bundle bundle = ccdTransformer.transformDocument(cda);
-            if(bundle != null) {
-            	FHIRUtil.printJSON(bundle, "src/test/resources/output/NIST/"+NISTExample.getName().replaceAll(".xml", "")+".json");
-            	System.out.println("Result was written");
-            }
-    	}
     }
 
 }

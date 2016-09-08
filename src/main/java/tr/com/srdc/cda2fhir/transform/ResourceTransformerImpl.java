@@ -2179,13 +2179,16 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 
 	public Bundle tResultObservation2Observation(ResultObservation cdaResultObservation) {
 		Bundle fhirObservationBundle = tObservation2Observation(cdaResultObservation);
+		if(fhirObservationBundle == null)
+			return null;
 
 		// finding the observation resource and setting its meta.profile to result observation's profile url
 		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
 			if(entry.getResource() instanceof Observation) {
-				((Observation)entry.getResource()).getMeta().addProfile(Constants.PROFILE_RESULT_OBS);
+				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_RESULT_OBS);
 			}
 		}
+
 		return fhirObservationBundle;
 	}
 
@@ -2846,33 +2849,32 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaResultOrganizer.getAuthors()) {
 				// Asserting that at most one author exists
 				if(author != null && !author.isSetNullFlavor()) {
-					Practitioner fhirPractitioner = null;
 					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
-						fhirDiagReportBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+					for(Bundle.Entry entry : fhirPractitionerBundle.getEntry()) {
+						fhirDiagReportBundle.addEntry(entry);
 						if(entry.getResource() instanceof Practitioner) {
-							fhirPractitioner = (Practitioner)entry.getResource();
+							fhirDiagReport.setPerformer(new ResourceReferenceDt(entry.getResource().getId()));
 						}
-					}
-					if(fhirPractitioner != null) {
-						fhirDiagReport.setPerformer(new ResourceReferenceDt(fhirPractitioner.getId()));
 					}
 				}
 			}
-		} else {
+		}
+		else {
 			// if there is no information about the performer in CDA side, assign an empty Practitioner resource
 			// which has data absent reason: unknown
 			Practitioner fhirPerformerDataAbsent = new Practitioner();
-			fhirPerformerDataAbsent.setId(new IdDt("Practitioner",getUniqueId()));
+			fhirPerformerDataAbsent.setId(new IdDt("Practitioner", getUniqueId()));
 			ExtensionDt extDataAbsentReason = new ExtensionDt();
+
+			// add daf profile
+			fhirPerformerDataAbsent.getMeta().addProfile(Constants.PROFILE_PRACTITIONER);
 			
 			// setting dataAbsentReason extension
 			extDataAbsentReason.setModifier(false);
 			extDataAbsentReason.setUrl(Constants.URL_EXTENSION_DATA_ABSENT_REASON);
 			extDataAbsentReason.setValue(Constants.DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE);
 			
-			// adding dataAbsentReason as undeclaredExtesion to fhirPerformer
+			// adding dataAbsentReason as undeclaredExtension to fhirPerformer
 			fhirPerformerDataAbsent.addUndeclaredExtension(extDataAbsentReason);
 			
 			// setting the performer of DiagnosticReport
@@ -2880,20 +2882,14 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			fhirDiagReport.setPerformer(new ResourceReferenceDt(fhirPerformerDataAbsent.getId()));
 		}
 		
-		// observation(s) -> result
-		if(cdaResultOrganizer.getObservations() != null && !cdaResultOrganizer.getObservations().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : cdaResultOrganizer.getObservations()) {
-				if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
-					Observation fhirObs = null;
-					Bundle fhirObsBundle = tObservation2Observation(cdaObs);
-					for(Bundle.Entry entry : fhirObsBundle.getEntry()) {
-						fhirDiagReportBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-						if(entry.getResource() instanceof Observation) {
-							fhirObs = (Observation)entry.getResource();
-						}
-					}
-					if(fhirObs != null) {
-						fhirDiagReport.addResult().setReference(fhirObs.getId());
+		// ResultObservation -> result
+		for(ResultObservation cdaResultObs : cdaResultOrganizer.getResultObservations()) {
+			if(!cdaResultObs.isSetNullFlavor()) {
+				Bundle fhirObsBundle = tResultObservation2Observation(cdaResultObs);
+				for(Bundle.Entry entry : fhirObsBundle.getEntry()) {
+					fhirDiagReportBundle.addEntry(entry);
+					if(entry.getResource() instanceof Observation) {
+						fhirDiagReport.addResult().setReference(entry.getResource().getId());
 					}
 				}
 			}
