@@ -109,8 +109,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("AllergyIntolerance", getUniqueId());
 		fhirAllergyIntolerance.setId(resourceId);
 		
-		// meta
-		fhirAllergyIntolerance.getMeta().addProfile(Constants.PROFILE_DAF_ALLERGY_INTOLERANCE);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirAllergyIntolerance.getMeta().addProfile(Constants.PROFILE_DAF_ALLERGY_INTOLERANCE);
 		
 		// id -> identifier
 		for(II ii : cdaAllergyProbAct.getIds()) {
@@ -287,8 +288,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Practitioner", getUniqueId());
 		fhirPractitioner.setId(resourceId);
 		
-		// meta
-		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 		
 		// id -> identifier
 		if(cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty()) {
@@ -361,8 +363,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Practitioner", getUniqueId());
 		fhirPractitioner.setId(resourceId);
 		
-		// meta
-		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 		
 		// id -> identifier
 		if(cdaAssignedEntity.getIds() != null && !cdaAssignedEntity.getIds().isEmpty()) {
@@ -440,8 +443,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		fhirSubstance.setId(new IdDt("Substance", getUniqueId()));
 
-		// meta
-		fhirSubstance.getMeta().addProfile(Constants.PROFILE_DAF_SUBSTANCE);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirSubstance.getMeta().addProfile(Constants.PROFILE_DAF_SUBSTANCE);
 		
 		// code -> code
 		fhirSubstance.setCode(dtt.tCD2CodeableConcept(cdaSubstanceCode));
@@ -464,8 +468,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Encounter", getUniqueId());
 		fhirEncounter.setId(resourceId);
 
-		// meta
-		fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
 		// patient
 		fhirEncounter.setPatient(getPatientRef());
@@ -606,8 +611,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Encounter",getUniqueId());
 		fhirEncounter.setId(resourceId);
 
-		// meta
-		fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
 		// patient
 		fhirEncounter.setPatient(getPatientRef());
@@ -788,9 +794,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("FamilyMemberHistory", getUniqueId());
 		fhirFMH.setId(resourceId);
-		
-		// meta
-		fhirFMH.getMeta().addProfile(Constants.PROFILE_DAF_FAMILY_MEMBER_HISTORY);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirFMH.getMeta().addProfile(Constants.PROFILE_DAF_FAMILY_MEMBER_HISTORY);
 		
 		// patient
 		fhirFMH.setPatient(getPatientRef());
@@ -1005,8 +1012,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// patient
 		fhirCond.setPatient(getPatientRef());
 		
-		// meta
-		fhirCond.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirCond.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
 		
 		// id -> identifier
 		if(cdaIndication.getIds() != null && !cdaIndication.getIds().isEmpty()) {
@@ -1093,8 +1101,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Medication", getUniqueId());
 		fhirMedication.setId(resourceId);
 
-		// meta
-		fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
 		
 		// init Medication.product
 		Medication.Product fhirProduct = new Medication.Product();
@@ -1141,9 +1150,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("MedicationStatement", getUniqueId());
 		fhirMedSt.setId(resourceId);
-		
-		// meta
-		fhirMedSt.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION_STATEMENT);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirMedSt.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION_STATEMENT);
 		
 		// patient
 		fhirMedSt.setPatient(getPatientRef());
@@ -1266,9 +1276,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("MedicationDispense", getUniqueId());
 		fhirMediDisp.setId(resourceId);
-		
-		// meta
-		fhirMediDisp.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION_DISPENSE);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirMediDisp.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION_DISPENSE);
 		
 		// id -> identifier
 		if(cdaMedicationDispense.getIds() != null &  !cdaMedicationDispense.getIds().isEmpty()) {
@@ -1576,9 +1587,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("Organization",getUniqueId());
 		fhirOrganization.setId(resourceId);
-		
-		// meta
-		fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
 		
 		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
@@ -1636,9 +1648,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("Location", getUniqueId());
 		fhirLocation.setId(resourceId);
-		
-		// meta
-		fhirLocation.getMeta().addProfile(Constants.PROFILE_DAF_LOCATION);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirLocation.getMeta().addProfile(Constants.PROFILE_DAF_LOCATION);
 		
 		// id -> identifier
 		if(cdaParticipantRole.getIds() != null && !cdaParticipantRole.getIds().isEmpty()) {
@@ -1703,8 +1716,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Patient", getUniqueId());
 		fhirPatient.setId(resourceId);
 
-		// meta
-		fhirPatient.getMeta().addProfile(Constants.PROFILE_DAF_PATIENT);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirPatient.getMeta().addProfile(Constants.PROFILE_DAF_PATIENT);
 		
 		// id -> identifier
 		if(cdaPatientRole.getIds() != null && !cdaPatientRole.getIds().isEmpty()) {
@@ -1880,8 +1894,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Condition", getUniqueId());
 		fhirCondition.setId(resourceId);
 
-		// meta
-		fhirCondition.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirCondition.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
 		
 		// patient
 		fhirCondition.setPatient(getPatientRef());
@@ -1983,8 +1998,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		IdDt resourceId = new IdDt("Procedure", getUniqueId());
 		fhirProc.setId(resourceId);
 
-		// meta
-		fhirProc.getMeta().addProfile(Constants.PROFILE_DAF_PROCEDURE);
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirProc.getMeta().addProfile(Constants.PROFILE_DAF_PROCEDURE);
 		
 		// subject
 		fhirProc.setSubject(getPatientRef());
@@ -2065,9 +2081,11 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			return null;
 
 		// finding the observation resource and setting its meta.profile to result observation's profile url
-		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
-			if(entry.getResource() instanceof Observation) {
-				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_RESULT_OBS);
+		if(Config.isGenerateDafProfileMetadata()) {
+			for (Bundle.Entry entry : fhirObservationBundle.getEntry()) {
+				if (entry.getResource() instanceof Observation) {
+					(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_RESULT_OBS);
+				}
 			}
 		}
 
@@ -2086,9 +2104,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("Immunization", getUniqueId());
 		fhirImmunization.setId(resourceId);
-		
-		// meta
-		fhirImmunization.getMeta().addProfile(Constants.PROFILE_DAF_IMMUNIZATION);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirImmunization.getMeta().addProfile(Constants.PROFILE_DAF_IMMUNIZATION);
 		
 		// patient
 		fhirImmunization.setPatient(getPatientRef());
@@ -2240,11 +2259,14 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			return null;
 
 		// finding the observation resource and setting its meta.profile to result observation's profile url
-		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
-			if(entry.getResource() instanceof Observation) {
-				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_VITAL_SIGNS);
+		if(Config.isGenerateDafProfileMetadata()) {
+			for (Bundle.Entry entry : fhirObservationBundle.getEntry()) {
+				if (entry.getResource() instanceof Observation) {
+					(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_VITAL_SIGNS);
+				}
 			}
 		}
+
 		return fhirObservationBundle;
 	}
 
@@ -2537,9 +2559,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("Organization", getUniqueId());
 		fhirOrganization.setId(resourceId);
-		
-		// meta
-		fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
 		
 		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
@@ -2639,9 +2662,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("DiagnosticReport", getUniqueId());
 		fhirDiagReport.setId(resourceId);
-		
-		// meta
-		fhirDiagReport.getMeta().addProfile(Constants.PROFILE_DAF_DIAGNOSTIC_REPORT);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirDiagReport.getMeta().addProfile(Constants.PROFILE_DAF_DIAGNOSTIC_REPORT);
 		
 		// subject
 		fhirDiagReport.setSubject(getPatientRef());
@@ -2724,8 +2748,9 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			fhirPerformerDataAbsent.setId(new IdDt("Practitioner", getUniqueId()));
 			ExtensionDt extDataAbsentReason = new ExtensionDt();
 
-			// add daf profile
-			fhirPerformerDataAbsent.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
+			// meta.profile
+			if(Config.isGenerateDafProfileMetadata())
+				fhirPerformerDataAbsent.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 			
 			// setting dataAbsentReason extension
 			extDataAbsentReason.setModifier(false);

@@ -49,6 +49,8 @@ public class Config {
     private static boolean generateNarrative = true;
     private static INarrativeGenerator narrativeGenerator;
 
+    private static boolean generateDafProfileMetadata = true;
+
     static {
         fhirCtx = FhirContext.forDstu2();
         narrativeGenerator = new DefaultThymeleafNarrativeGenerator();
@@ -60,12 +62,20 @@ public class Config {
         return fhirCtx;
     }
 
-    public void setGenerateNarrative(boolean generateNarrative) {
-        this.setGenerateNarrative(generateNarrative);
+    public static void setGenerateNarrative(boolean generateNar) {
+        generateNarrative = generateNar;
         if(generateNarrative)
             fhirCtx.setNarrativeGenerator(narrativeGenerator);
         else
             fhirCtx.setNarrativeGenerator(null);
+    }
+
+    public static void setGenerateDafProfileMetadata(boolean generateDafProfileMeta) {
+        generateDafProfileMetadata = generateDafProfileMeta;
+    }
+
+    public static boolean isGenerateDafProfileMetadata() {
+        return generateDafProfileMetadata;
     }
 
 }

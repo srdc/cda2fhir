@@ -20,6 +20,7 @@ package tr.com.srdc.cda2fhir;
  * #L%
  */
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,6 +32,7 @@ import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -51,7 +53,7 @@ public class ValidatorTest {
 	@Test
 	public void testReferenceCCDBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-for-profile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-C-CDA_R2-1_CCD.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -61,7 +63,7 @@ public class ValidatorTest {
 	@Test
 	public void testReferenceCCDBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-for-nonprofile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-wo-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-C-CDA_R2-1_CCD.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -71,7 +73,7 @@ public class ValidatorTest {
 	@Ignore
 	public void testViteraBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-profile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-w-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-Vitera_CCDA_SMART_Sample.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -81,7 +83,7 @@ public class ValidatorTest {
 	@Ignore
 	public void testViteraBundleWithoutProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-for-nonprofile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-wo-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-Vitera_CCDA_SMART_Sample.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -91,7 +93,7 @@ public class ValidatorTest {
 	@Ignore
 	public void testGoldSampleBundleWithProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-for-profile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-w-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_gold_sample2_v1.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -101,7 +103,7 @@ public class ValidatorTest {
 	@Ignore
 	public void testGoldSampleBundleWithoutProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-for-nonprofile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-wo-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_gold_sample2_v1.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -111,7 +113,7 @@ public class ValidatorTest {
 	@Ignore
 	public void testInpSampleBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-for-profile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-w-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -121,7 +123,7 @@ public class ValidatorTest {
 	@Ignore
 	public void testInpSampleBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-for-nonprofile-validation.json";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-wo-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
@@ -137,24 +139,27 @@ public class ValidatorTest {
 	 */
 	private void transformAndValidate(String cdaResourcePath, String targetPathForFHIRResource, String targetPathForResultFile, boolean generateDAFProfileMetadata) throws Exception {
 		IValidator validator = new ValidatorImpl();
-		java.io.ByteArrayOutputStream os = null;
+		ByteArrayOutputStream os = null;
 		
 		// file to be transformed
 		FileInputStream fis = new FileInputStream(cdaResourcePath);
 
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        
-        // make the transformation
+
+		// set whether DAF Profile URLs will be created in meta.profile of relevant resources
+		Config.setGenerateDafProfileMetadata(generateDAFProfileMetadata);
+
+		// make the transformation
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null) {
 			// print the bundle for checking against validation results
 			FHIRUtil.printJSON(bundle, targetPathForFHIRResource);
-			os = (java.io.ByteArrayOutputStream) validator.validateBundle(bundle);
+			os = (ByteArrayOutputStream) validator.validateBundle(bundle);
 		}
         
         if(os != null) {
-        	java.io.File validationFile = new java.io.File(targetPathForResultFile);
+        	File validationFile = new File(targetPathForResultFile);
         	if(!validationFile.getParentFile().exists())
         		validationFile.getParentFile().mkdirs();
 
