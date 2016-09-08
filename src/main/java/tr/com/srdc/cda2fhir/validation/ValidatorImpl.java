@@ -117,6 +117,13 @@ public class ValidatorImpl implements IValidator {
 					}
 				}
 			}
+		} else {
+			try {
+				this.validationEngine.loadProfile(null);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		// set resource
