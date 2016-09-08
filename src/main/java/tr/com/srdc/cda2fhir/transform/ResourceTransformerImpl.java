@@ -54,6 +54,7 @@ import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.IdDt;
+import ca.uhn.fhir.narrative.CustomThymeleafNarrativeGenerator;
 import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
 
 import org.slf4j.Logger;
@@ -69,7 +70,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 	private ICDATransformer cdat;
 	private ResourceReferenceDt defaultPatientRef;
 	private static final FhirContext ctx = FhirContext.forDstu2(); // context for narrative generator
-	private static final DefaultThymeleafNarrativeGenerator narrativeGenerator = new DefaultThymeleafNarrativeGenerator(); // narrative generator
+	private static final CustomThymeleafNarrativeGenerator narrativeGenerator = new CustomThymeleafNarrativeGenerator(Constants.NARRATIVE_PROPERTIES_FILE_PATH);
 	
 	private final Logger logger = LoggerFactory.getLogger(ResourceTransformerImpl.class);
 
@@ -276,7 +277,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirAllergyIntolerance, fhirAllergyIntolerance.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirAllergyIntolerance, fhirAllergyIntolerance.getText());
 
 		return allergyIntoleranceBundle;
 	}
@@ -353,7 +355,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
 		
 		return fhirPractitionerBundle;
 	}
@@ -430,7 +433,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
 
 		return fhirPractitionerBundle;
 	}
@@ -461,7 +465,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirSubstance.setCode(dtt.tCD2CodeableConcept(cdaSubstanceCode));
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirSubstance, fhirSubstance.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirSubstance, fhirSubstance.getText());
 
 		return fhirSubstance;
 	}
@@ -600,7 +605,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
 		
 		return fhirEncounterBundle;
 	}
@@ -750,7 +756,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
 		
 		return fhirEncounterBundle;
 	}
@@ -800,7 +807,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirGroup, fhirGroup.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirGroup, fhirGroup.getText());
 		
 		return fhirGroup;
 	}
@@ -914,7 +922,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirFMH, fhirFMH.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirFMH, fhirFMH.getText());
 		
 		return fhirFMH;
 	}
@@ -1019,7 +1028,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
 
 		return fhirObsBundle;
 	}
@@ -1110,7 +1120,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirCond.setVerificationStatus(Constants.DEFAULT_CONDITION_VERIFICATION_STATUS);
 
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirCond, fhirCond.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirCond, fhirCond.getText());
 		
 		return fhirCond;
 	}
@@ -1160,7 +1171,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirMedication, fhirMedication.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirMedication, fhirMedication.getText());
 		
 		return fhirMedicationBundle;
 	}
@@ -1286,7 +1298,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirMedSt, fhirMedSt.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirMedSt, fhirMedSt.getText());
 
 		return medStatementBundle;	
 	}
@@ -1431,7 +1444,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirMediDisp, fhirMediDisp.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirMediDisp, fhirMediDisp.getText());
 		
 		return fhirMediDispBundle;
 	}
@@ -1609,7 +1623,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
 		
 		return fhirObsBundle;
 	}
@@ -1664,7 +1679,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
 		
 		return fhirOrganization;
 	}
@@ -1738,7 +1754,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}			
 
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirLocation, fhirLocation.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirLocation, fhirLocation.getText());
 		
 		return fhirLocation;
 	}
@@ -1878,7 +1895,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirPatient, fhirPatient.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirPatient, fhirPatient.getText());
 			
 		return fhirPatientBundle;
 	}
@@ -2025,7 +2043,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirCondition.setVerificationStatus(Constants.DEFAULT_CONDITION_VERIFICATION_STATUS);
 
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirCondition, fhirCondition.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirCondition, fhirCondition.getText());
 		
 		return fhirConditionBundle;
 	}
@@ -2116,7 +2135,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirProc, fhirProc.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirProc, fhirProc.getText());
 
 		return fhirProcBundle;
 	}
@@ -2290,7 +2310,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirImmunization.setReported(Constants.DEFAULT_IMMUNIZATION_REPORTED);
 
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirImmunization, fhirImmunization.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirImmunization, fhirImmunization.getText());
 		
 		return fhirImmunizationBundle;
 		
@@ -2586,9 +2607,10 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		// TODO Check if it was set already
+		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirComp, fhirComp.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirComp, fhirComp.getText());
 		
 		return fhirCompBundle;
 	}
@@ -2639,7 +2661,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
 		
 		return fhirOrganization;
 	}
@@ -2688,7 +2711,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirDev, fhirDev.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirDev, fhirDev.getText());
 		
 		return fhirDev;
 	}
@@ -2832,7 +2856,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// text
-		narrativeGenerator.generateNarrative(ctx, fhirDiagReport, fhirDiagReport.getText());
+		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR)
+			narrativeGenerator.generateNarrative(ctx, fhirDiagReport, fhirDiagReport.getText());
 		
  		return fhirDiagReportBundle;
 	}
