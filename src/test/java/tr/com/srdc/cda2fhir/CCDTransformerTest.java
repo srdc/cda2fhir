@@ -51,12 +51,12 @@ public class CCDTransformerTest {
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
         Bundle bundle = ccdTransformer.transformDocument(cda);
-        if(bundle != null)
-            FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
+        if(bundle != null) 
+        	FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
     }
 
     // Gold Sample r2.1
-    @Test
+    @Ignore
     public void testGoldSample() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_gold_sample2_v1.xml");
 
@@ -77,45 +77,6 @@ public class CCDTransformerTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample.json");
-    }
-
-
-    // Traversing all the resources in src/test/resources/sample_ccdas/*,
-    //  .. transforming and writing the result to src/test/resources/output/*
-    // These instances are removed for the time being, as they are a bit old (i.e. not C-CDA 2.1)
-
-    // HL7
-    @Ignore
-    public void testHL7Samples() throws Exception {
-    	File hl7Dir = new File("src/test/resources/sample_ccdas/HL7/");
-    	for(File hl7Example : hl7Dir.listFiles()) {
-    		System.out.println("Transforming "+hl7Example.getPath());
-    		FileInputStream fis = new FileInputStream(hl7Example);
-    		ClinicalDocument cda = CDAUtil.load(fis);
-            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-            Bundle bundle = ccdTransformer.transformDocument(cda);
-            if(bundle != null) {
-            	FHIRUtil.printJSON(bundle, "src/test/resources/output/HL7/"+hl7Example.getName().replaceAll(".xml", "")+".json");
-            	System.out.println("Result was written");
-            }
-    	}
-    }
-
-    // NIST
-    @Ignore
-    public void testNISTSamples() throws Exception {
-    	File NISTDir = new File("src/test/resources/sample_ccdas/NIST/");
-    	for(File NISTExample : NISTDir.listFiles()) {
-    		System.out.println("Transforming "+NISTExample.getPath());
-    		FileInputStream fis = new FileInputStream(NISTExample);
-    		ClinicalDocument cda = CDAUtil.load(fis);
-            ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-            Bundle bundle = ccdTransformer.transformDocument(cda);
-            if(bundle != null) {
-            	FHIRUtil.printJSON(bundle, "src/test/resources/output/NIST/"+NISTExample.getName().replaceAll(".xml", "")+".json");
-            	System.out.println("Result was written");
-            }
-    	}
     }
 
 }
