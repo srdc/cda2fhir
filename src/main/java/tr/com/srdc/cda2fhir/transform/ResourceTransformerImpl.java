@@ -270,7 +270,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-
 		return allergyIntoleranceBundle;
 	}
 
