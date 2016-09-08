@@ -88,7 +88,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_gold_sample2_v1.xml with profile
-	@Test
+	@Ignore
 	public void testGoldSampleBundleWithProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-for-profile-validation.json";
@@ -98,7 +98,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_gold_sample2_v1.xml without profile
-	@Test
+	@Ignore
 	public void testGoldSampleBundleWithoutProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-for-nonprofile-validation.json";

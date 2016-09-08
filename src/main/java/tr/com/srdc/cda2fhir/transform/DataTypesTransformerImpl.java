@@ -49,6 +49,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.util.Constants;
 import tr.com.srdc.cda2fhir.util.StringUtil;
 
@@ -657,7 +658,7 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 				if(contactPointSystem != null) {
 					contactPointDt.setSystem(contactPointSystem);
 				} else {
-					contactPointDt.setSystem(Constants.DEFAULT_CONTACT_POINT_SYSTEM);
+					contactPointDt.setSystem(Config.DEFAULT_CONTACT_POINT_SYSTEM);
 				}
 				// value
 				contactPointDt.setValue(systemType[1]);
@@ -666,7 +667,7 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 			else if(systemType.length == 1){
 				contactPointDt.setValue(systemType[0]);
 				// configurable default system value
-				contactPointDt.setSystem(Constants.DEFAULT_CONTACT_POINT_SYSTEM);
+				contactPointDt.setSystem(Config.DEFAULT_CONTACT_POINT_SYSTEM);
 			}
 		}
 		

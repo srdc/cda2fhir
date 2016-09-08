@@ -36,8 +36,8 @@ import org.xml.sax.SAXException;
 
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
-import tr.com.srdc.cda2fhir.util.Constants;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ValidatorImpl implements IValidator {
@@ -51,7 +51,7 @@ public class ValidatorImpl implements IValidator {
 	 * Constructs a validator using the default configuration.
 	 */
 	public ValidatorImpl() {
-		tServerURL = Constants.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL;
+		tServerURL = Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL;
 		try {
 			validationEngine.readDefinitions(definitionsPath);
 		} catch (IOException e) {

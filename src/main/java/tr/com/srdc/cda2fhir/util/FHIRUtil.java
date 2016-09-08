@@ -20,11 +20,11 @@ package tr.com.srdc.cda2fhir.util;
  * #L%
  */
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.parser.IParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tr.com.srdc.cda2fhir.conf.Config;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -32,13 +32,14 @@ import java.io.IOException;
 
 public class FHIRUtil {
 
-    private static final FhirContext myCtx = FhirContext.forDstu2();
-    private static IParser jsonParser = myCtx.newJsonParser();
-    private static IParser xmlParser = myCtx.newXmlParser();
+    private static IParser jsonParser;
+    private static IParser xmlParser;
 
     private final static Logger logger = LoggerFactory.getLogger(FHIRUtil.class);
 
     static {
+        jsonParser = Config.getFhirContext().newJsonParser();
+        xmlParser = Config.getFhirContext().newXmlParser();
         jsonParser.setPrettyPrint(true);
         xmlParser.setPrettyPrint(true);
     }

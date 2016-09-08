@@ -46,7 +46,6 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.resource.AllergyIntolerance.Reaction;
 import ca.uhn.fhir.model.dstu2.resource.Device;
@@ -54,10 +53,11 @@ import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.IdDt;
-import ca.uhn.fhir.narrative.CustomThymeleafNarrativeGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.util.Constants;
 
 public class ResourceTransformerImpl implements IResourceTransformer {
@@ -66,9 +66,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 	private IValueSetsTransformer vst;
 	private ICDATransformer cdat;
 	private ResourceReferenceDt defaultPatientRef;
-	private static final FhirContext ctx = FhirContext.forDstu2(); // context for narrative generator
-	private static final CustomThymeleafNarrativeGenerator narrativeGenerator = new CustomThymeleafNarrativeGenerator(Constants.NARRATIVE_PROPERTIES_FILE_PATH);
-	
+
 	private final Logger logger = LoggerFactory.getLogger(ResourceTransformerImpl.class);
 
 	public ResourceTransformerImpl() {
@@ -112,7 +110,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirAllergyIntolerance.setId(resourceId);
 		
 		// meta
-		fhirAllergyIntolerance.getMeta().addProfile(Constants.PROFILE_ALLERGY_INTOLERANCE);
+		fhirAllergyIntolerance.getMeta().addProfile(Constants.PROFILE_DAF_ALLERGY_INTOLERANCE);
 		
 		// id -> identifier
 		for(II ii : cdaAllergyProbAct.getIds()) {
@@ -272,13 +270,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirAllergyIntolerance.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirAllergyIntolerance, fhirAllergyIntolerance.getText());
-		}
-		
 		return allergyIntoleranceBundle;
 	}
 
@@ -297,7 +288,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirPractitioner.setId(resourceId);
 		
 		// meta
-		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_PRACTITIONER);
+		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 		
 		// id -> identifier
 		if(cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty()) {
@@ -352,13 +343,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			fhirPractitionerRole.setManagingOrganization(new ResourceReferenceDt(fhirOrganization.getId()));
 			fhirPractitionerBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirPractitioner.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
-		}	
-		
+
 		return fhirPractitionerBundle;
 	}
 
@@ -377,7 +362,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirPractitioner.setId(resourceId);
 		
 		// meta
-		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_PRACTITIONER);
+		fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 		
 		// id -> identifier
 		if(cdaAssignedEntity.getIds() != null && !cdaAssignedEntity.getIds().isEmpty()) {
@@ -432,12 +417,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirPractitionerBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirPractitioner.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirPractitioner, fhirPractitioner.getText());
-		}
 
 		return fhirPractitionerBundle;
 	}
@@ -462,17 +441,11 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirSubstance.setId(new IdDt("Substance", getUniqueId()));
 
 		// meta
-		fhirSubstance.getMeta().addProfile(Constants.PROFILE_SUBSTANCE);
+		fhirSubstance.getMeta().addProfile(Constants.PROFILE_DAF_SUBSTANCE);
 		
 		// code -> code
 		fhirSubstance.setCode(dtt.tCD2CodeableConcept(cdaSubstanceCode));
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirSubstance.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirSubstance, fhirSubstance.getText());
-		}
-		
+
 		return fhirSubstance;
 	}
 
@@ -492,7 +465,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirEncounter.setId(resourceId);
 
 		// meta
-		fhirEncounter.getMeta().addProfile(Constants.PROFILE_ENCOUNTER);
+		fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
 		// patient
 		fhirEncounter.setPatient(getPatientRef());
@@ -512,7 +485,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirEncounter.setStatus(vst.tStatusCode2EncounterStatusEnum(cdaEncounter.getStatusCode().getCode()));
 			}
 		} else {
-			fhirEncounter.setStatus(Constants.DEFAULT_ENCOUNTER_STATUS);
+			fhirEncounter.setStatus(Config.DEFAULT_ENCOUNTER_STATUS);
 		}
 
 		// code -> type
@@ -546,7 +519,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 					ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
 
 					// default encunter participant type code
-					fhirParticipant.addType().addCoding(Constants.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
+					fhirParticipant.addType().addCoding(Config.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
 
 					Practitioner fhirPractitioner = null;
 					Bundle fhirPractitionerBundle = tPerformer22Practitioner(cdaPerformer);
@@ -608,13 +581,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirEncounter.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
-		}
-		
+
 		return fhirEncounterBundle;
 	}
 
@@ -640,7 +607,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirEncounter.setId(resourceId);
 
 		// meta
-		fhirEncounter.getMeta().addProfile(Constants.PROFILE_ENCOUNTER);
+		fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
 		// patient
 		fhirEncounter.setPatient(getPatientRef());
@@ -660,7 +627,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirEncounter.setStatus(vst.tStatusCode2EncounterStatusEnum(cdaEncounterActivity.getStatusCode().getCode()));
 			}
 		} else {
-			fhirEncounter.setStatus(Constants.DEFAULT_ENCOUNTER_STATUS);
+			fhirEncounter.setStatus(Config.DEFAULT_ENCOUNTER_STATUS);
 		}
 
 		// code -> type
@@ -694,7 +661,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 					ca.uhn.fhir.model.dstu2.resource.Encounter.Participant fhirParticipant = new ca.uhn.fhir.model.dstu2.resource.Encounter.Participant();
 
 					// default encounter participant type code
-					fhirParticipant.addType().addCoding(Constants.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
+					fhirParticipant.addType().addCoding(Config.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
 
 					Practitioner fhirPractitioner = null;
 					Bundle fhirPractitionerBundle = tPerformer22Practitioner(cdaPerformer);
@@ -762,12 +729,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirEncounter.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirEncounter, fhirEncounter.getText());
-		}
-		
 		return fhirEncounterBundle;
 	}
 
@@ -814,12 +775,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		if(cdaEntity.getCode() != null && !cdaEntity.getCode().isSetNullFlavor()) {
 			fhirGroup.setCode(dtt.tCD2CodeableConcept(cdaEntity.getCode()));
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirGroup.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirGroup, fhirGroup.getText());
-		}
+
 		return fhirGroup;
 	}
 
@@ -834,7 +790,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirFMH.setId(resourceId);
 		
 		// meta
-		fhirFMH.getMeta().addProfile(Constants.PROFILE_FAMILY_MEMBER_HISTORY);
+		fhirFMH.getMeta().addProfile(Constants.PROFILE_DAF_FAMILY_MEMBER_HISTORY);
 		
 		// patient
 		fhirFMH.setPatient(getPatientRef());
@@ -930,13 +886,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirFMH.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirFMH, fhirFMH.getText());
-		}
-		
+
 		return fhirFMH;
 	}
 
@@ -1039,12 +989,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirObs.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
-		}
-
 		return fhirObsBundle;
 	}
 	
@@ -1062,7 +1006,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirCond.setPatient(getPatientRef());
 		
 		// meta
-		fhirCond.getMeta().addProfile(Constants.PROFILE_CONDITION);
+		fhirCond.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
 		
 		// id -> identifier
 		if(cdaIndication.getIds() != null && !cdaIndication.getIds().isEmpty()) {
@@ -1131,14 +1075,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 
 		// NOTE: A default value is assigned to verificationStatus attribute, as it is mandatory but cannot be mapped from the CDA side
-		fhirCond.setVerificationStatus(Constants.DEFAULT_CONDITION_VERIFICATION_STATUS);
+		fhirCond.setVerificationStatus(Config.DEFAULT_CONDITION_VERIFICATION_STATUS);
 
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirCond.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirCond, fhirCond.getText());
-		}
-		
 		return fhirCond;
 	}
 	
@@ -1156,7 +1094,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirMedication.setId(resourceId);
 
 		// meta
-		fhirMedication.getMeta().addProfile(Constants.PROFILE_MEDICATION);
+		fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
 		
 		// init Medication.product
 		Medication.Product fhirProduct = new Medication.Product();
@@ -1185,13 +1123,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			fhirMedication.setManufacturer(new ResourceReferenceDt(org.getId()));
 			fhirMedicationBundle.addEntry(new Bundle.Entry().setResource(org));
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirMedication.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirMedication, fhirMedication.getText());
-		}
-		
+
 		return fhirMedicationBundle;
 	}
 
@@ -1211,7 +1143,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirMedSt.setId(resourceId);
 		
 		// meta
-		fhirMedSt.getMeta().addProfile(Constants.PROFILE_MEDICATION_STATEMENT);
+		fhirMedSt.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION_STATEMENT);
 		
 		// patient
 		fhirMedSt.setPatient(getPatientRef());
@@ -1314,13 +1246,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			medStatementBundle.addEntry(new Bundle.Entry().setResource(cond));
 			fhirMedSt.setReasonForUse(new ResourceReferenceDt(cond.getId()));
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirMedSt.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirMedSt, fhirMedSt.getText());
-		}
-			
 
 		return medStatementBundle;	
 	}
@@ -1343,7 +1268,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirMediDisp.setId(resourceId);
 		
 		// meta
-		fhirMediDisp.getMeta().addProfile(Constants.PROFILE_MEDICATION_DISPENSE);
+		fhirMediDisp.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION_DISPENSE);
 		
 		// id -> identifier
 		if(cdaMedicationDispense.getIds() != null &  !cdaMedicationDispense.getIds().isEmpty()) {
@@ -1463,14 +1388,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		if(cdaMedicationDispense.getQuantity() != null && !cdaMedicationDispense.getQuantity().isSetNullFlavor()) {
 			fhirDosageInstruction.setDose(dtt.tPQ2SimpleQuantityDt(cdaMedicationDispense.getQuantity()));
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirMediDisp.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirMediDisp, fhirMediDisp.getText());
-		}
-			
-		
+
 		return fhirMediDispBundle;
 	}
 
@@ -1646,12 +1564,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}
 
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirObs.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirObs, fhirObs.getText());
-		}
-		
 		return fhirObsBundle;
 	}
 
@@ -1666,7 +1578,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirOrganization.setId(resourceId);
 		
 		// meta
-		fhirOrganization.getMeta().addProfile(Constants.PROFILE_ORGANIZATION);
+		fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
 		
 		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
@@ -1703,13 +1615,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirOrganization.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
-		}
-		
+
 		return fhirOrganization;
 	}
 
@@ -1732,7 +1638,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirLocation.setId(resourceId);
 		
 		// meta
-		fhirLocation.getMeta().addProfile(Constants.PROFILE_LOCATION);
+		fhirLocation.getMeta().addProfile(Constants.PROFILE_DAF_LOCATION);
 		
 		// id -> identifier
 		if(cdaParticipantRole.getIds() != null && !cdaParticipantRole.getIds().isEmpty()) {
@@ -1781,12 +1687,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			}
 		}			
 
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirLocation.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirLocation, fhirLocation.getText());
-		}
-		
 		return fhirLocation;
 	}
 	
@@ -1804,7 +1704,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirPatient.setId(resourceId);
 
 		// meta
-		fhirPatient.getMeta().addProfile(Constants.PROFILE_PATIENT);
+		fhirPatient.getMeta().addProfile(Constants.PROFILE_DAF_PATIENT);
 		
 		// id -> identifier
 		if(cdaPatientRole.getIds() != null && !cdaPatientRole.getIds().isEmpty()) {
@@ -1923,13 +1823,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirPatient.addUndeclaredExtension(extBirthPlace);
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirPatient.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirPatient, fhirPatient.getText());
-		}
-		
+
 		return fhirPatientBundle;
 	}
 	
@@ -1987,7 +1881,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirCondition.setId(resourceId);
 
 		// meta
-		fhirCondition.getMeta().addProfile(Constants.PROFILE_CONDITION);
+		fhirCondition.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
 		
 		// patient
 		fhirCondition.setPatient(getPatientRef());
@@ -2072,14 +1966,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 
 		// NOTE: A default value is assigned to verificationStatus attribute, as it is mandatory but cannot be mapped from the CDA side
-		fhirCondition.setVerificationStatus(Constants.DEFAULT_CONDITION_VERIFICATION_STATUS);
+		fhirCondition.setVerificationStatus(Config.DEFAULT_CONDITION_VERIFICATION_STATUS);
 
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirCondition.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirCondition, fhirCondition.getText());
-		}
-		
 		return fhirConditionBundle;
 	}
 
@@ -2096,7 +1984,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirProc.setId(resourceId);
 
 		// meta
-		fhirProc.getMeta().addProfile(Constants.PROFILE_PROCEDURE);
+		fhirProc.getMeta().addProfile(Constants.PROFILE_DAF_PROCEDURE);
 		
 		// subject
 		fhirProc.setSubject(getPatientRef());
@@ -2167,12 +2055,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirProc.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirProc, fhirProc.getText());
-		}
 
 		return fhirProcBundle;
 	}
@@ -2185,7 +2067,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// finding the observation resource and setting its meta.profile to result observation's profile url
 		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
 			if(entry.getResource() instanceof Observation) {
-				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_RESULT_OBS);
+				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_RESULT_OBS);
 			}
 		}
 
@@ -2206,7 +2088,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirImmunization.setId(resourceId);
 		
 		// meta
-		fhirImmunization.getMeta().addProfile(Constants.PROFILE_IMMUNIZATION);
+		fhirImmunization.getMeta().addProfile(Constants.PROFILE_DAF_IMMUNIZATION);
 		
 		// patient
 		fhirImmunization.setPatient(getPatientRef());
@@ -2346,14 +2228,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 		
 		// reported
-		fhirImmunization.setReported(Constants.DEFAULT_IMMUNIZATION_REPORTED);
+		fhirImmunization.setReported(Config.DEFAULT_IMMUNIZATION_REPORTED);
 
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirImmunization.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirImmunization, fhirImmunization.getText());
-		}
-		
 		return fhirImmunizationBundle;
 		
 	}	
@@ -2366,7 +2242,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// finding the observation resource and setting its meta.profile to result observation's profile url
 		for(Bundle.Entry entry : fhirObservationBundle.getEntry()) {
 			if(entry.getResource() instanceof Observation) {
-				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_VITAL_SIGNS);
+				(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_VITAL_SIGNS);
 			}
 		}
 		return fhirObservationBundle;
@@ -2454,7 +2330,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		if(cdaLanguageCommunication.getLanguageCode() != null && !cdaLanguageCommunication.getLanguageCode().isSetNullFlavor()) {
 			fhirCommunication.setLanguage(dtt.tCD2CodeableConcept(cdaLanguageCommunication.getLanguageCode()));
 			// urn:ietf:bcp:47 -> language.codeSystem
-			fhirCommunication.getLanguage().getCodingFirstRep().setSystem(Constants.DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM);
+			fhirCommunication.getLanguage().getCodingFirstRep().setSystem(Config.DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM);
 		}
 		
 		// preferenceInd -> preferred
@@ -2551,7 +2427,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 
 		// status
-		fhirComp.setStatus(Constants.DEFAULT_COMPOSITION_STATUS);
+		fhirComp.setStatus(Config.DEFAULT_COMPOSITION_STATUS);
 		
 		// effectiveTime -> date
 		if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {
@@ -2648,13 +2524,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirComp.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirComp, fhirComp.getText());
-		}
-		
+
 		return fhirCompBundle;
 	}
 	
@@ -2669,7 +2539,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirOrganization.setId(resourceId);
 		
 		// meta
-		fhirOrganization.getMeta().addProfile(Constants.PROFILE_ORGANIZATION);
+		fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
 		
 		// id -> identifier
 		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
@@ -2702,13 +2572,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirOrganization.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirOrganization, fhirOrganization.getText());
-		}
-		
+
 		return fhirOrganization;
 	}
 	
@@ -2754,13 +2618,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				fhirDev.setType(dtt.tCD2CodeableConcept(productInstance.getPlayingDevice().getCode()));
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirDev.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirDev, fhirDev.getText());
-		}
-		
+
 		return fhirDev;
 	}
 
@@ -2783,7 +2641,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirDiagReport.setId(resourceId);
 		
 		// meta
-		fhirDiagReport.getMeta().addProfile(Constants.PROFILE_DIAGNOSTIC_REPORT);
+		fhirDiagReport.getMeta().addProfile(Constants.PROFILE_DAF_DIAGNOSTIC_REPORT);
 		
 		// subject
 		fhirDiagReport.setSubject(getPatientRef());
@@ -2867,12 +2725,12 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			ExtensionDt extDataAbsentReason = new ExtensionDt();
 
 			// add daf profile
-			fhirPerformerDataAbsent.getMeta().addProfile(Constants.PROFILE_PRACTITIONER);
+			fhirPerformerDataAbsent.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 			
 			// setting dataAbsentReason extension
 			extDataAbsentReason.setModifier(false);
 			extDataAbsentReason.setUrl(Constants.URL_EXTENSION_DATA_ABSENT_REASON);
-			extDataAbsentReason.setValue(Constants.DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE);
+			extDataAbsentReason.setValue(Config.DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE);
 			
 			// adding dataAbsentReason as undeclaredExtension to fhirPerformer
 			fhirPerformerDataAbsent.addUndeclaredExtension(extDataAbsentReason);
@@ -2894,13 +2752,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 				}
 			}
 		}
-		
-		// text
-		if(Constants.DEFAULT_NARRATIVE_GENERATOR_INDICATOR) {
-			fhirDiagReport.setText(new NarrativeDt());
-			narrativeGenerator.generateNarrative(ctx, fhirDiagReport, fhirDiagReport.getText());
-		}
-		
+
  		return fhirDiagReportBundle;
 	}
 }
