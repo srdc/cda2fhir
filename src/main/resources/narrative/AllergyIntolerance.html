@@ -1,0 +1,25 @@
+<!--/* 
+This top section is not exported as a part of the Narrative,
+it is only present so that this template can be viewed in 
+a browser. 
+-->
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="narrative.css"/>
+	</head>
+	<body>
+<!--*/-->
+
+<div>
+	<th:block th:if="${resource.status != null}">
+		<div class="hapiHeaderText" th:narrative="${resource.status}"/>
+	</th:block>
+	<th:block th:if="${not resource.patient.empty}">
+		<div class="hapiHeaderText" th:narrative="${resource.patient}"/>
+	</th:block>
+</div>
+
+<!--/*-->
+	</body>
+</html>
+<!--*/-->
