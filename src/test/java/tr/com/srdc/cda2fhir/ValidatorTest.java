@@ -22,7 +22,6 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import org.junit.BeforeClass;
@@ -48,9 +47,9 @@ public class ValidatorTest {
 		CDAUtil.loadPackages();
 	}
 
-	// C-CDA_R2-1_CCD.xml with profile
-	@Ignore
-	public void testBundleWithProfile() throws Exception {
+	// C-CDA_R2-1_CCD.xml with DAF profile
+	@Test
+	public void testReferenceCCDBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-for-profile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-profile-for-C-CDA_R2-1_CCD.html";
@@ -58,9 +57,9 @@ public class ValidatorTest {
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, validateProfile);
 	}
 	
-	// C-CDA_R2-1_CCD.xml without profile
-	@Ignore
-	public void testBundleWithoutProfile() throws Exception {
+	// C-CDA_R2-1_CCD.xml without DAF profile
+	@Test
+	public void testReferenceCCDBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-for-nonprofile-validation.json";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-nonprofile-for-C-CDA_R2-1_CCD.html";
@@ -109,7 +108,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Test
+	@Ignore
 	public void testSampleBundleWithoutProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-for-nonprofile-validation.json";
@@ -119,7 +118,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Test
+	@Ignore
 	public void testSampleBundleWithProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-for-profile-validation.json";

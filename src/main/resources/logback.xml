@@ -40,4 +40,5 @@
     <!-- Suppress the repeating and annoying DEBUG level logs by these classes -->
     <logger name="ca.uhn.fhir.context.ModelScanner" level="WARN"/>
     <logger name="org.apache.http" level="WARN"/>
+    <logger name="org.thymeleaf" level="WARN"/>
 </configuration>

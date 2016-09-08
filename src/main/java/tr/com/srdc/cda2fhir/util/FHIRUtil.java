@@ -23,6 +23,8 @@ package tr.com.srdc.cda2fhir.util;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.parser.IParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,15 +32,19 @@ import java.io.IOException;
 
 public class FHIRUtil {
 
-
-
     private static final FhirContext myCtx = FhirContext.forDstu2();
     private static IParser jsonParser = myCtx.newJsonParser();
     private static IParser xmlParser = myCtx.newXmlParser();
 
+    private final static Logger logger = LoggerFactory.getLogger(FHIRUtil.class);
+
     static {
         jsonParser.setPrettyPrint(true);
         xmlParser.setPrettyPrint(true);
+    }
+
+    public static String getXML(IResource res) {
+        return xmlParser.encodeResourceToString(res);
     }
 
     public static void printJSON(IResource res) {
@@ -51,16 +57,12 @@ public class FHIRUtil {
         try {
             jsonParser.encodeResourceToWriter(res, new FileWriter(f));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Could not print FHIR JSON to file", e);
         }
     }
 
     public static void printXML(IResource res) {
         System.out.println(xmlParser.encodeResourceToString(res));
-    }
-    
-    public static String getXML(IResource res) {
-    	return xmlParser.encodeResourceToString(res);
     }
 
     public static void printXML(IResource res, String filePath) {
@@ -69,7 +71,7 @@ public class FHIRUtil {
         try {
             xmlParser.encodeResourceToWriter(res, new FileWriter(f));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Could not print FHIR XML to file", e);
         }
     }
 

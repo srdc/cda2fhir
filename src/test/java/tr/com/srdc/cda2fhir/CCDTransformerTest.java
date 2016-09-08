@@ -69,7 +69,7 @@ public class CCDTransformerTest {
 
     // Vitera
     @Ignore
-    public void testVitera() throws Exception {
+    public void testViteraSample() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 
         ClinicalDocument cda = CDAUtil.load(fis);
@@ -86,7 +86,7 @@ public class CCDTransformerTest {
 
     // HL7
     @Ignore
-    public void testHL7() throws Exception {
+    public void testHL7Samples() throws Exception {
     	File hl7Dir = new File("src/test/resources/sample_ccdas/HL7/");
     	for(File hl7Example : hl7Dir.listFiles()) {
     		System.out.println("Transforming "+hl7Example.getPath());
@@ -103,7 +103,7 @@ public class CCDTransformerTest {
 
     // NIST
     @Ignore
-    public void testNIST() throws Exception {
+    public void testNISTSamples() throws Exception {
     	File NISTDir = new File("src/test/resources/sample_ccdas/NIST/");
     	for(File NISTExample : NISTDir.listFiles()) {
     		System.out.println("Transforming "+NISTExample.getPath());
