@@ -114,6 +114,8 @@ public class CCDTransformerImpl implements ICDATransformer {
             
             if(fhirSec == null)
             	continue;
+            else
+                ccdComposition.addSection(fhirSec);
             
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
