@@ -86,7 +86,7 @@ public class ValidatorImpl implements IValidator {
 		return FHIRUtil.getXML(paramResource).getBytes();
 	}
 	
-	public OutputStream validateResource(IResource resource, boolean validateProfile) {
+	public OutputStream validateResource(IResource resource) {
 		if(resource == null) {
 			logger.warn("The resource validator was running on was found null. Returning null");
 			return null;
@@ -98,26 +98,6 @@ public class ValidatorImpl implements IValidator {
 		}
 		
 		logger.info("Validating resource "+resource.getId());
-		// initialize profile with null
-		this.validationEngine.setProfile(null);
-		
-		// if validateProfile == true, profile <- resource.meta.profile[0]
-		if(validateProfile) {
-			if(resource.getMeta() != null && resource.getMeta().getProfile() != null && !resource.getMeta().getProfile().isEmpty()) {
-				if(resource.getMeta().getProfile().get(0) != null && resource.getMeta().getProfile().get(0).getValue() != null) {
-					try {
-						this.validationEngine.loadProfile(resource.getMeta().getProfile().get(0).getValue());
-						logger.info("Profile "+resource.getMeta().getProfile().get(0).getValue()+" is found and set for the validation of the resource.");
-					} catch (DefinitionException e) {
-						logger.error("DefinitionException occurred while trying to load the profile of a FHIR resource altough the profile was defined."
-								+ "Validation will continue without using any profile for the resource.",e);
-					} catch (Exception e) {
-						logger.error("Exception occurred while trying to load the profile of a FHIR resource altough the profile was defined."
-								+ "Validation will continue without using any profile for the resource.",e);
-					}
-				}
-			}
-		}
 		
 		// set resource
 		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
@@ -144,7 +124,7 @@ public class ValidatorImpl implements IValidator {
 		// notice that html tag is not included in the outcome string
 		try {
 			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
-			outcomeText = "<h3>"+resource.getId() +"</h3>"+outcomeText + "<hr>";
+			outcomeText = "<h3>" + resource.getId() + "</h3>" + outcomeText + "<hr>";
 			outputStream.write(outcomeText.getBytes());
 		} catch (IOException e) {
 			logger.error("Exception occurred while trying to write the validation outcome to the output stream. Returning null", e);
@@ -154,7 +134,7 @@ public class ValidatorImpl implements IValidator {
 		return outputStream;
 	}
 	
-	public OutputStream validateBundle(Bundle bundle, boolean validateProfile) {
+	public OutputStream validateBundle(Bundle bundle) {
 		if(bundle == null) {
 			logger.warn("The bundle validator was running on was found null. Returning null");
 			return null;
@@ -170,7 +150,7 @@ public class ValidatorImpl implements IValidator {
 			if(entry != null && entry.getResource() != null) {	
 				try {
 					// validate the resource contained in the entry
-					ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream)this.validateResource(entry.getResource(), validateProfile);
+					ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream) validateResource(entry.getResource());
 					
 					if(byteArrayOutputStream != null) {
 						byte[] byteArray = byteArrayOutputStream.toByteArray();

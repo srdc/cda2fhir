@@ -53,7 +53,7 @@ public class Config {
         fhirCtx = FhirContext.forDstu2();
         narrativeGenerator = new DefaultThymeleafNarrativeGenerator();
         if(generateNarrative)
-            fhirCtx.setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());
+            fhirCtx.setNarrativeGenerator(narrativeGenerator);
     }
 
     public static FhirContext getFhirContext() {
