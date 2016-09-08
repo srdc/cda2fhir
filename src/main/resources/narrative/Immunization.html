@@ -1,0 +1,30 @@
+<!--/* 
+This top section is not exported as a part of the Narrative,
+it is only present so that this template can be viewed in 
+a browser. 
+-->
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="narrative.css"/>
+	</head>
+	<body>
+<!--*/-->
+
+<div>
+	<th:block th:if="${resource.vaccineCode}">
+		<div class="hapiHeaderText" th:narrative="${resource.vaccineCode}"/>
+	</th:block>
+	<table class="hapiPropertyTable">
+		<tbody>
+			<tr th:if="${not resource.identifier.empty}">
+				<td>Identifier</td>
+				<td th:narrative="${resource.identifier[0]}"></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<!--/*-->
+	</body>
+</html>
+<!--*/-->
