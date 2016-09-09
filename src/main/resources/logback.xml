@@ -41,4 +41,6 @@
     <logger name="ca.uhn.fhir.context.ModelScanner" level="WARN"/>
     <logger name="org.apache.http" level="WARN"/>
     <logger name="org.thymeleaf" level="WARN"/>
+    <logger name="ca.uhn.fhir.narrative.BaseThymeleafNarrativeGenerator" level="WARN"/>
+    
 </configuration>
