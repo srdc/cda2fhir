@@ -31,7 +31,8 @@ In order to make a clean install run the following:
 
 	$ cda2fhir> mvn clean install
 
-These will build the Ontmalizer and also run a number of test cases, which will transform some XML Schemas (e.g. HL7 CDA R2, SALUS Common Information Model) and corresponding XML instances to RDF/OWL.
+These will build the cda2fhir library and also run a number of test cases, which will transform some C-CDA Continuity of Care Document (CCD) instances,
+and some manually crafted CDA artifacts (e.g. entry class instances) and datatype instances to corresponding FHIR resources, wherever possible using the DAF profile.
 
 ## Transforming a CDA document to a Bundle of corresponding FHIR resources
 
