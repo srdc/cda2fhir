@@ -79,17 +79,50 @@ Config.setGenerateNarrative(true);
 // the Composition corresponding to the ClinicalDocument, and further entries are the ones referenced
 // from the Composition.
 Bundle bundle = ccdTransformer.transformDocument(cda);
+
+// Through HAPI library, the Bundle can easily be printed in JSON or XML format.
 if(bundle != null)
     FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
 ```
 
-Further examples can be found in CCDTransformerTest class.
+Further examples can be found in [CCDTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/CCDTransformerTest.java) class.
 
 ## Transforming a CDA artifact (e.g. an entry class) to the corresponding FHIR resource(s)
 
+```java
+// Init an object of ResourceTransformerImpl class, which implements the generic IResourceTransformer
+// interface. When instantiated separately from the CDATransformer context, FHIR resources are
+// generated with UUID ids, and a default patient reference is added as "Patient/0"
+IResourceTransformer resTransformer = new ResourceTransformerImpl();
 
-Further examples can be found in ResourceTransformerTest class.
+// Assume we already have a CCD instance in the ccd object below (skipping CDA artifact creation from scratch)
+// Traverse all the sections of the CCD instance
+for(Section cdaSec: ccd.getSections()) {
+    // Transform a CDA section to a FHIR Composition.Section backbone resource
+    Composition.Section fhirSec = resTransformer.tSection2Section(cdaSec);
+
+    // if a CDA section is instance of a Family History Section (as identified through its templateId)
+    if(cdaSec instanceof FamilyHistorySection) {
+        // cast the section to FamilyHistorySection
+        FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
+        // traverse the Family History Organizers within the Family History Section
+        for(FamilyHistoryOrganizer fhOrganizer : famSec.getFamilyHistories()) {
+            // Transform each C-CDA FamilyHistoryOrganizer instance to FHIR (DAF) FamilyMemberHistory instance
+            FamilyMemberHistory fmh = resTransformer.tFamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
+        }
+    }
+}
+
+// Again, any FHIR resource can be printed through FHIRUtil methods.
+FHIRUtil.printXML(fmh, "src/test/resources/output/family-member-history.xml");
+```
+
+It should be noted that most of the time, IResourceTransformer methods return a FHIR Bundle composed of a few FHIR resources,
+instead of a single FHIR resource as in the example above. For example, tProblemObservation2Condition method returns a Bundle
+that contains the corresponding Condition as the first entry, which can also include other referenced resources such as Encounter, Practitioner.
+
+Further examples can be found in [ResourceTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ResourceTransformerTest.java) class.
 
 ## Validating generated FHIR resources
 
-Further examples can be found in ValidatorTest class.
+Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class.
