@@ -23,7 +23,6 @@ package tr.com.srdc.cda2fhir.transform;
 import ca.uhn.fhir.model.dstu2.valueset.*;
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
@@ -110,7 +109,7 @@ public interface IValueSetsTransformer {
 	 * @param cdaObservationInterpretationCode A CDA Observation Interpretation Code
 	 * @return A FHIR CodeableConceptDt composite datatype which includes the code about Observation Interpretation
 	 */
-	CodeableConceptDt ObservationInterpretationCode2ObservationInterpretationCode(CD cdaObservationInterpretationCode);
+	CodeableConceptDt tObservationInterpretationCode2ObservationInterpretationCode(CD cdaObservationInterpretationCode);
 	
 	/**
 	 * Transforms a CDA ObservationStatusCode string to a value from the FHIR valueset ObservationStatusEnum.
@@ -141,13 +140,6 @@ public interface IValueSetsTransformer {
 	UnitsOfTimeEnum tPeriodUnit2UnitsOfTimeEnum(String cdaPeriodUnit);
 
 	/**
-	 * Transforms a CDA ProblemType string to a value from the FHIR valuset ConditionCategoryCodesEnum.
-	 * @param cdaProblemType A CDA ProblemType string
-	 * @return A value from the FHIR valuset ConditionCategoryCodesEnum
-	 */
-	ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String cdaProblemType);
-	 
-	/**
 	 * Transforms a CDA PostalAddressUse vocable to a value from the FHIR valueset AddressTypeEnum.
 	 * @param cdaPostalAddressUse A CDA PostalAddressUse vocable
 	 * @return A value from the FHIR valueset AddressTypeEnum
@@ -160,6 +152,13 @@ public interface IValueSetsTransformer {
 	 * @return A value from the FHIR valueset AddressUseEnum
 	 */
 	AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse cdaPostalAddressUse);
+	
+	/**
+	 * Transforms a CDA ProblemType string to a value from the FHIR valuset ConditionCategoryCodesEnum.
+	 * @param cdaProblemType A CDA ProblemType string
+	 * @return A value from the FHIR valuset ConditionCategoryCodesEnum
+	 */
+	ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String cdaProblemType);
 	
 	/**
 	 * Transforms a CDA ResultOrganizer StatusCode string to a value from the FHIR valueset DiagnosticReportStatusEnum

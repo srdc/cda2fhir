@@ -1981,7 +1981,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.CE cdaInterprCode : cdaObservation.getInterpretationCodes()) {
 				if(cdaInterprCode != null && !cdaInterprCode.isSetNullFlavor()) {
 					// Asserting that only one interpretation code exists
-					fhirObs.setInterpretation(vst.ObservationInterpretationCode2ObservationInterpretationCode(cdaInterprCode));
+					fhirObs.setInterpretation(vst.tObservationInterpretationCode2ObservationInterpretationCode(cdaInterprCode));
 				}
 			}
 		}
