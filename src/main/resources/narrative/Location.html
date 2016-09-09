@@ -17,13 +17,9 @@ a browser.
 				<td>Identifier</td>
 				<td th:narrative="${resource.identifier[0]}"></td>
 			</tr>
-			<tr th:if="${resource.period} and ${resource.period.start}">
-				<td>Start</td>
-				<td th:narrative="${resource.period.startElement}"></td>
-			</tr>
-			<tr th:if="${resource.period} and ${resource.period.end}">
-				<td>End</td>
-				<td th:narrative="${resource.period.endElement}"></td>
+			<tr th:if="${not resource.name.empty}">
+				<td>Name</td>
+				<td th:narrative="${resource.nameElement}"></td>
 			</tr>
 		</tbody>
 	</table>

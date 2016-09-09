@@ -11,7 +11,18 @@ a browser.
 <!--*/-->
 
 <div>
-	<!-- TODO -->
+	<table class="hapiPropertyTable">
+		<tbody>
+			<tr th:if="${not resource.identifier.empty}">
+				<td>Identifier</td>
+				<td th:narrative="${resource.identifier[0]}"></td>
+			</tr>
+			<tr th:if="${resource.substance}">
+				<td>Substance</td>
+				<td th:narrative="${resource.substance}"></td>
+			</tr>
+		</tbody>
+	</table>
 </div>
 
 <!--/*-->

@@ -17,13 +17,9 @@ a browser.
 				<td>Identifier</td>
 				<td th:narrative="${resource.identifier[0]}"></td>
 			</tr>
-			<tr th:if="${resource.period} and ${resource.period.start}">
-				<td>Start</td>
-				<td th:narrative="${resource.period.startElement}"></td>
-			</tr>
-			<tr th:if="${resource.period} and ${resource.period.end}">
-				<td>End</td>
-				<td th:narrative="${resource.period.endElement}"></td>
+			<tr th:if="${not resource.clinicalStatus}">
+				<td>Clinical Status</td>
+				<td th:narrative="${resource.clinicalStatusElement}"></td>
 			</tr>
 		</tbody>
 	</table>
