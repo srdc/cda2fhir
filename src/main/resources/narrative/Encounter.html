@@ -13,9 +13,9 @@ a browser.
 <div>
 	<table class="hapiPropertyTable">
 		<tbody>
-			<tr th:if="${not resource.identifier.empty}">
-				<td>Identifier</td>
-				<td th:narrative="${resource.identifier[0]}"></td>
+			<tr th:if="${resource.reason}">
+				<td>Reason</td>
+				<td th:narrative="${resource.reason}"></td>
 			</tr>
 			<tr th:if="${resource.period} and ${resource.period.start}">
 				<td>Start</td>
