@@ -17,9 +17,17 @@ a browser.
 				<td>Identifier</td>
 				<td th:narrative="${resource.identifier[0]}"></td>
 			</tr>
-			<tr th:if="${resource.name}">
-				<td>Name</td>
-				<td th:narrative="${resource.name}"></td>
+			<tr th:if="${resource.category}">
+				<td>Category</td>
+				<td th:narrative="${resource.category}"></td>
+			</tr>
+			<tr th:if="${resource.code}">
+				<td>Code</td>
+				<td th:narrative="${resource.code}"></td>
+			</tr>
+			<tr th:if="${resource.effective}">
+				<td>Date/Period</td>
+				<td th:narrative="${resource.effective}"></td>
 			</tr>
 		</tbody>
 	</table>
