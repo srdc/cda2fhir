@@ -1889,7 +1889,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 
 		Condition fhirCondition = new Condition();
 		fhirConditionBundle.addEntry(new Bundle.Entry().setResource(fhirCondition));
-
+		
 		// resource id
 		IdDt resourceId = new IdDt("Condition", getUniqueId());
 		fhirCondition.setId(resourceId);
@@ -1997,7 +1997,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		// resource id
 		IdDt resourceId = new IdDt("Procedure", getUniqueId());
 		fhirProc.setId(resourceId);
-
+		
 		// meta.profile
 		if(Config.isGenerateDafProfileMetadata())
 			fhirProc.getMeta().addProfile(Constants.PROFILE_DAF_PROCEDURE);
