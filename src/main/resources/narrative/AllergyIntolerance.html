@@ -13,13 +13,19 @@ a browser.
 <div>
 	<table class="hapiPropertyTable">
 		<tbody>
-			<tr th:if="${not resource.identifier.empty}">
-				<td>Identifier</td>
-				<td th:narrative="${resource.identifier[0]}"></td>
-			</tr>
 			<tr th:if="${resource.substance}">
 				<td>Substance</td>
 				<td th:narrative="${resource.substance}"></td>
+			</tr>
+			<tr th:if="${resource.onset}">
+				<td>Onset</td>
+				<td th:narrative="${resource.onsetElement}"></td>
+			</tr>
+			<tr th:if="${resource.reaction} and ${not resource.reaction.empty}" th:each="reaction : ${resource.reaction}">
+				<td>Reaction</td>
+				<td th:each="mani : ${reaction.manifestation}">
+				<span th:narrative="${mani}"/>
+				</td>
 			</tr>
 		</tbody>
 	</table>
