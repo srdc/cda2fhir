@@ -26,12 +26,11 @@ import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public interface ICDATransformer {
-
     /**
-     * Sets the resource id generator format, which is either an incremental COUNTER or UUID
-     * @param idGen The id generator enumeration to be set
+     * Returns a ResourceReferenceDt for the patient of the CDA document
+     * @return A ResourceReferenceDt that references the patient (i.e. recordTarget/patientRole) of the document
      */
-    void setIdGenerator(IdGeneratorEnum idGen);
+    ResourceReferenceDt getPatientRef();
 
     /**
      * A consistent unique resource id generator
@@ -40,10 +39,10 @@ public interface ICDATransformer {
     String getUniqueId();
 
     /**
-     * Returns a ResourceReferenceDt for the patient of the CDA document
-     * @return A ResourceReferenceDt that references the patient (i.e. recordTarget/patientRole) of the document
+     * Sets the resource id generator format, which is either an incremental COUNTER or UUID
+     * @param idGen The id generator enumeration to be set
      */
-    ResourceReferenceDt getPatientRef();
+    void setIdGenerator(IdGeneratorEnum idGen);
 
     /**
      * Transforms a Clinical Document Architecture (CDA) instance to a Bundle of corresponding FHIR resources

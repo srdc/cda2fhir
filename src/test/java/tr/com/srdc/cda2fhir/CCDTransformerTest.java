@@ -42,6 +42,20 @@ public class CCDTransformerTest {
         // This has to be called before loading the document; otherwise will have no effect.
         CDAUtil.loadPackages();
     }
+    
+    // Gold Sample r2.1
+    @Test
+    public void testGoldSample() throws Exception {
+        FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_gold_sample2_v1.xml");
+
+        ClinicalDocument cda = CDAUtil.load(fis);
+        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Config.setGenerateDafProfileMetadata(true);
+        Config.setGenerateNarrative(true);
+        Bundle bundle = ccdTransformer.transformDocument(cda);
+        if(bundle != null)
+            FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
+    }
 
     // C-CDA_R2-1_CCD.xml - with DAF profile in meta.profile
     @Test
@@ -83,20 +97,6 @@ public class CCDTransformerTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-wo-daf-narrative.json");
-    }
-
-    // Gold Sample r2.1
-    @Test
-    public void testGoldSample() throws Exception {
-        FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_gold_sample2_v1.xml");
-
-        ClinicalDocument cda = CDAUtil.load(fis);
-        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        Config.setGenerateDafProfileMetadata(true);
-        Config.setGenerateNarrative(true);
-        Bundle bundle = ccdTransformer.transformDocument(cda);
-        if(bundle != null)
-            FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
     }
 
     // Vitera

@@ -48,13 +48,43 @@ public class ValidatorTest {
 		// This has to be called before loading the document; otherwise will have no effect.
 		CDAUtil.loadPackages();
 	}
-
-	// C-CDA_R2-1_CCD.xml with DAF profile
+	
+	// 170.315_b1_toc_gold_sample2_v1.xml without profile
 	@Test
-	public void testReferenceCCDBundleWithProfile() throws Exception {
-		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-profile-validation.json";
-		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-C-CDA_R2-1_CCD.html";
+	public void testGoldSampleBundleWithoutProfile() throws Exception {	
+		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-wo-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_gold_sample2_v1.html";
+		boolean generateDAFProfileMetadata = false;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
+	}
+	
+	// 170.315_b1_toc_gold_sample2_v1.xml with profile
+	@Test
+	public void testGoldSampleBundleWithProfile() throws Exception {	
+		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-w-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_gold_sample2_v1.html";
+		boolean generateDAFProfileMetadata = true;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
+	}
+	
+	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
+	@Test
+	public void testInpSampleBundleWithoutProfile() throws Exception {
+		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-wo-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
+		boolean generateDAFProfileMetadata = false;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
+	}
+	
+	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
+	@Test
+	public void testInpSampleBundleWithProfile() throws Exception {
+		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-w-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
 	}
@@ -69,18 +99,18 @@ public class ValidatorTest {
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
 	}
 	
-	// Vitera_CCDA_SMART_Sample.xml with profile
-	@Ignore
-	public void testViteraBundleWithProfile() throws Exception {
-		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-w-profile-validation.json";
-		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-Vitera_CCDA_SMART_Sample.html";
+	// C-CDA_R2-1_CCD.xml with DAF profile
+	@Test
+	public void testReferenceCCDBundleWithProfile() throws Exception {
+		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-C-CDA_R2-1_CCD.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
 	}
 	
 	// Vitera_CCDA_SMART_Sample.xml without profile
-	@Ignore
+	@Test
 	public void testViteraBundleWithoutProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-wo-profile-validation.json";
@@ -89,43 +119,13 @@ public class ValidatorTest {
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
 	}
 	
-	// 170.315_b1_toc_gold_sample2_v1.xml with profile
-	@Ignore
-	public void testGoldSampleBundleWithProfile() throws Exception {	
-		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-w-profile-validation.json";
-		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_gold_sample2_v1.html";
+	// Vitera_CCDA_SMART_Sample.xml with profile
+	@Test
+	public void testViteraBundleWithProfile() throws Exception {
+		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-w-profile-validation.json";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-Vitera_CCDA_SMART_Sample.html";
 		boolean generateDAFProfileMetadata = true;
-		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
-	}
-	
-	// 170.315_b1_toc_gold_sample2_v1.xml without profile
-	@Ignore
-	public void testGoldSampleBundleWithoutProfile() throws Exception {	
-		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-wo-profile-validation.json";
-		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_gold_sample2_v1.html";
-		boolean generateDAFProfileMetadata = false;
-		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
-	}
-
-	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Ignore
-	public void testInpSampleBundleWithProfile() throws Exception {
-		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-w-profile-validation.json";
-		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
-		boolean generateDAFProfileMetadata = true;
-		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
-	}
-	
-	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Ignore
-	public void testInpSampleBundleWithoutProfile() throws Exception {
-		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-wo-profile-validation.json";
-		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
-		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
 	}
 	
