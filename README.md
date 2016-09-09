@@ -155,3 +155,8 @@ fos.close();
 
 Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class. Some of the tests
 in this class are ignored, as validating takes some time, especially due to external Terminology Server access dependency. But they do work, users can enable them.
+
+## Acknowledgement
+
+This research has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 689181,
+[C3-Cloud Project](http://www.c3-cloud.eu/) (A Federated Collaborative Care Cure Cloud Architecture for Addressing the Needs of Multi-morbidity and Managing Poly-pharmacy).
