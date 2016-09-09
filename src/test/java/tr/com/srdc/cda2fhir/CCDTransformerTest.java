@@ -26,12 +26,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
-import java.io.File;
 import java.io.FileInputStream;
 
 public class CCDTransformerTest {
@@ -43,16 +43,30 @@ public class CCDTransformerTest {
         CDAUtil.loadPackages();
     }
 
-    // C-CDA_R2-1_CCD.xml
+    // C-CDA_R2-1_CCD.xml - with DAF profile in meta.profile
     @Test
     public void testReferenceCCDInstance() throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Config.setGenerateDafProfileMetadata(true);
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null) 
-        	FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
+        	FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
+    }
+
+    // C-CDA_R2-1_CCD.xml - without DAF profile in meta.profile
+    @Test
+    public void testReferenceCCDInstanceWithoutDAF() throws Exception {
+        FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+
+        ClinicalDocument cda = CDAUtil.load(fis);
+        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Config.setGenerateDafProfileMetadata(false);
+        Bundle bundle = ccdTransformer.transformDocument(cda);
+        if(bundle != null)
+            FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-wo-daf.json");
     }
 
     // Gold Sample r2.1
@@ -62,6 +76,7 @@ public class CCDTransformerTest {
 
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Config.setGenerateDafProfileMetadata(true);
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
@@ -74,6 +89,7 @@ public class CCDTransformerTest {
 
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Config.setGenerateDafProfileMetadata(true);
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null)
             FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample.json");
