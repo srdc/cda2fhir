@@ -439,33 +439,6 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
     	return (myInt == null || myInt.isSetNullFlavor() || myInt.getValue() == null) ? null : new IntegerDt(myInt.getValue().toString());
     }
 	
-	public PeriodDt tIVL_TS2Period(IVL_TS ivlts) {
-		if(ivlts == null || ivlts.isSetNullFlavor()) 
-			return null;
-		
-		PeriodDt periodDt = new PeriodDt();
-		
-		// low -> start
-		if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor()) {
-			String date=ivlts.getLow().getValue();
-			periodDt.setStart(tString2DateTime(date));
-		}
-		
-		// high -> end
-		if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor()) {
-			String date=ivlts.getHigh().getValue();
-			periodDt.setEnd(tString2DateTime(date));
-		}
-		
-		// low is null, high is null and the value is carrying the low value
-		// value -> low
-		if(ivlts.getLow() == null && ivlts.getHigh() == null && ivlts.getValue() != null && !ivlts.getValue().equals("")) {
-			periodDt.setStart(tString2DateTime(ivlts.getValue()));
-		}
-		
-		return periodDt;
-	}
-	
 	public RangeDt tIVL_PQ2Range(IVL_PQ ivlpq){
 		if(ivlpq == null || ivlpq.isSetNullFlavor()) 
 			return null;
@@ -492,6 +465,33 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 		}
 		
 		return rangeDt;
+	}
+	
+	public PeriodDt tIVL_TS2Period(IVL_TS ivlts) {
+		if(ivlts == null || ivlts.isSetNullFlavor()) 
+			return null;
+		
+		PeriodDt periodDt = new PeriodDt();
+		
+		// low -> start
+		if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor()) {
+			String date=ivlts.getLow().getValue();
+			periodDt.setStart(tString2DateTime(date));
+		}
+		
+		// high -> end
+		if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor()) {
+			String date=ivlts.getHigh().getValue();
+			periodDt.setEnd(tString2DateTime(date));
+		}
+		
+		// low is null, high is null and the value is carrying the low value
+		// value -> low
+		if(ivlts.getLow() == null && ivlts.getHigh() == null && ivlts.getValue() != null && !ivlts.getValue().equals("")) {
+			periodDt.setStart(tString2DateTime(ivlts.getValue()));
+		}
+		
+		return periodDt;
 	}
 	
 	public TimingDt tPIVL_TS2Timing(PIVL_TS pivlts) {
@@ -624,6 +624,12 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
     	return (st == null || st.isSetNullFlavor() || st.getText() == null) ? null : new StringDt(st.getText());
     }
 
+	public DateTimeDt tString2DateTime(String date) {
+		TS ts = DatatypesFactory.eINSTANCE.createTS();
+		ts.setValue(date);
+		return tTS2DateTime(ts);
+	}
+	
 	public NarrativeDt tStrucDocText2Narrative(StrucDocText sdt) {
 		if(sdt != null) {
 			NarrativeDt narrative = new NarrativeDt();
@@ -705,12 +711,6 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 		
 		return contactPointDt;
 	}
-
-	public DateTimeDt tString2DateTime(String date) {
-		TS ts = DatatypesFactory.eINSTANCE.createTS();
-		ts.setValue(date);
-		return tTS2DateTime(ts);
-	}
 	
 	public DateDt tTS2Date(TS ts){
 		DateDt date = (DateDt) tTS2BaseDateTime(ts,DateDt.class);
@@ -774,7 +774,184 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
     }
 	
 	// Helper Methods
-
+	/**
+	 * Extracts the attributes of an HTML element
+	 * This method is the helper for the method getTags, which is already a helper for tStrucDocText2String.
+	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
+	 * @return A Java String list containing the attributes of an HTML element in form: attributeName="attributeValue". Each element corresponds to distinct attributes for the same tag
+	 */
+	private List<String> getAttributesHelperForTStructDocText2String(EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry) {
+		if(entry == null)
+			return null;
+		
+		List<String> attributeList = new ArrayList<String>();
+		if(entry.getValue() instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) {
+			for(FeatureMap.Entry attribute : ((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) entry.getValue()).getAnyAttribute()) {
+				String name = attribute.getEStructuralFeature().getName();
+				String value = attribute.getValue().toString();
+				if(name != null && !name.isEmpty()) {
+					String attributeToAdd = "";
+					// we may have attributes which doesn't have any value
+					attributeToAdd = attributeToAdd + name;
+					if(value != null && !value.isEmpty()) {
+						attributeToAdd = attributeToAdd + "=\""+value+"\"";
+					}
+					attributeList.add(attributeToAdd);
+				}
+			}
+		}
+		return attributeList;
+	}
+	
+	/**
+	 * Extracts the tags and the attributes of an HTML element.
+	 * Also, this method transforms the CDA formatted tags to HTML formatted tags.
+	 * This method is the helper for the method tStrucDocText2String.
+	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
+	 * @return A Java String list containing the start tag and end tag of an HTML element in form: &lt;tagName attribute="attributeValue"&gt;. While first element of the list correspons to the start tag, second element of the list corresponds to the end tag.
+	 */
+	private List<String> getTagsHelperForTStructDocText2String(org.eclipse.emf.ecore.impl.EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry) {
+		if(entry == null)
+			return null;
+		String startTag = "";
+		String endTag = "";
+		String tagName = entry.getEStructuralFeature().getName();
+		if(tagName == null || tagName.equals(""))
+			return null;
+		List<String> attributeList = getAttributesHelperForTStructDocText2String(entry);
+		List<String> tagList = new ArrayList<String>();
+		
+		String attributeToRemove = null;
+		
+		// removing id attribute from the attributeList
+		for(String attribute : attributeList) {
+			if(attribute.toLowerCase().startsWith("id=\"", 0)) {
+				attributeToRemove = attribute;
+			}
+		}
+		
+		if(attributeToRemove != null)
+			attributeList.remove(attributeToRemove);
+		
+		// removing styleCode attribute from the attributeList
+		for(String attribute : attributeList) {
+			if(attribute.toLowerCase().startsWith("stylecode=\"", 0)) {
+				attributeToRemove = attribute;
+			}
+		}
+		if(attributeToRemove != null)
+			attributeList.remove(attributeToRemove);
+		
+		// case tag.equals("list"). we need to transform it to "ul" or "ol"
+		if(tagName.equals("list")) {
+			// first, think of the situtation no attribute exists about ordered/unordered
+			tagName = "ul";
+			attributeToRemove = null;
+			for(String attribute : attributeList) {
+				// if the attribute is listType, make the transformation
+				if(attribute.toLowerCase().contains("listtype")) {
+					// notice that the string "unordered" also contains "ordered"
+					// therefore, it is vital to check "unordered" firstly.
+					// if "unordered" is not contained by the attribute, then we may check for "ordered"
+					if(attribute.toLowerCase().contains("unordered")) {
+						tagName = "ul";
+					} else if(attribute.toLowerCase().contains("ordered")) {
+						tagName = "ol";
+					}
+					attributeToRemove = attribute;
+				}
+			}
+			// if we found the "listType" attribute, we assigned it to attributeToRemove
+			// from now on, we have nothing to do with this attribute. let's remove it from the list.
+			if(attributeToRemove != null) {
+				attributeList.remove(attributeToRemove);
+			}
+		} else {
+			switch(tagName.toLowerCase()) {
+				case "paragraph":
+					tagName = "p"; break;
+				case "content":
+					tagName = "span"; break;
+				case "item":
+					tagName = "li"; break;
+				case "linkhtml":
+					tagName = "a"; break;
+				case "renderMultimedia":
+					tagName = "img"; break;
+				case "list":
+					tagName = "ul"; break;
+				default: // do nothing. let the tagName be as it is
+			}
+		}
+		
+		// now, it is time to prepare our tag by using tagName and attributes
+		startTag = "<" + tagName;
+		// adding attributes to the start tag
+		for(String attribute : attributeList) {
+			startTag += " "+attribute;
+		}
+		// closing the start tag
+		startTag += ">";
+		endTag = "</" + tagName + ">";
+		
+		// 1st element of the returning list: startTag
+		tagList.add(startTag);
+		// 2nd element of the returning list: endTag
+		tagList.add(endTag);
+		
+		return tagList;
+	}
+	
+	/**
+	 * Transforms A CDA StructDocText instance to a Java String containing the transformed text.
+	 * Since the method is a recursive one and handles with different types of object, parameter is taken as Object. However, parameters of type StructDocText should be given by the caller.
+	 * @param param A CDA StructDocText instance
+	 * @return A Java String containing the transformed text
+	 */
+	private String tStrucDocText2String(Object param) {
+		if(param instanceof org.openhealthtools.mdht.uml.cda.StrucDocText) {
+			org.openhealthtools.mdht.uml.cda.StrucDocText paramStrucDocText = (org.openhealthtools.mdht.uml.cda.StrucDocText)param;
+			return "<div>" +tStrucDocText2String(paramStrucDocText.getMixed()) + "</div>";
+		} 
+		else if(param instanceof BasicFeatureMap) {
+			String returnValue = "";
+			for(Object object : (BasicFeatureMap)param){
+				String pieceOfReturn = tStrucDocText2String(object);
+				if(pieceOfReturn != null && !pieceOfReturn.isEmpty()) {
+					returnValue = returnValue + pieceOfReturn;
+				}
+			}
+			return returnValue;
+		} 
+		else if(param instanceof EStructuralFeatureImpl.SimpleFeatureMapEntry) {
+			String elementBody = ((EStructuralFeatureImpl.SimpleFeatureMapEntry)param).getValue().toString();
+			// deletion of unnecessary content (\n, \t)
+			elementBody = elementBody.replaceAll("\n", "").replaceAll("\t", "");
+			
+			// replacement of special characters
+			elementBody = elementBody.replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll("&", "&amp;");
+			// if there was a well-formed char sequence "&amp;", after replacement it will transform to &amp;amp;
+			// the following line of code will remove these type of typos
+			elementBody = elementBody.replaceAll("&amp;amp;", "&amp;");
+			
+			return elementBody;
+		} 
+		else if(param instanceof EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry) {
+			EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry = (EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry)param;
+			List<String> tagList = getTagsHelperForTStructDocText2String(entry);
+			return tagList.get(0) + tStrucDocText2String(entry.getValue()) + tagList.get(1);
+		} 
+		else if(param instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) {
+			// since the name and the attributes are taken already, we just send the mixed of anyTypeImpl
+			return tStrucDocText2String(((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl)param).getMixed());
+		} 
+		else{
+			// Undesired situtation
+			// Check the class of param
+			return null;
+		}
+	}
+	
 	/**
 	 * Transforms a CDA TS instance or a string including the date information in CDA format to a FHIR BaseDateTimeDt primitive datatype instance.
 	 * Since BaseDateTimeDt is an abstract class, the second parameter of this method (Class&lt;?&gt; classOfReturningObject) determines the class that initiates the BaseDateTimeDt object the method is to return.
@@ -937,183 +1114,5 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 			}
 		}
 		return date;
-	}
-	
-	/**
-	 * Transforms A CDA StructDocText instance to a Java String containing the transformed text.
-	 * Since the method is a recursive one and handles with different types of object, parameter is taken as Object. However, parameters of type StructDocText should be given by the caller.
-	 * @param param A CDA StructDocText instance
-	 * @return A Java String containing the transformed text
-	 */
-	private String tStrucDocText2String(Object param) {
-		if(param instanceof org.openhealthtools.mdht.uml.cda.StrucDocText) {
-			org.openhealthtools.mdht.uml.cda.StrucDocText paramStrucDocText = (org.openhealthtools.mdht.uml.cda.StrucDocText)param;
-			return "<div>" +tStrucDocText2String(paramStrucDocText.getMixed()) + "</div>";
-		} 
-		else if(param instanceof BasicFeatureMap) {
-			String returnValue = "";
-			for(Object object : (BasicFeatureMap)param){
-				String pieceOfReturn = tStrucDocText2String(object);
-				if(pieceOfReturn != null && !pieceOfReturn.isEmpty()) {
-					returnValue = returnValue + pieceOfReturn;
-				}
-			}
-			return returnValue;
-		} 
-		else if(param instanceof EStructuralFeatureImpl.SimpleFeatureMapEntry) {
-			String elementBody = ((EStructuralFeatureImpl.SimpleFeatureMapEntry)param).getValue().toString();
-			// deletion of unnecessary content (\n, \t)
-			elementBody = elementBody.replaceAll("\n", "").replaceAll("\t", "");
-			
-			// replacement of special characters
-			elementBody = elementBody.replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll("&", "&amp;");
-			// if there was a well-formed char sequence "&amp;", after replacement it will transform to &amp;amp;
-			// the following line of code will remove these type of typos
-			elementBody = elementBody.replaceAll("&amp;amp;", "&amp;");
-			
-			return elementBody;
-		} 
-		else if(param instanceof EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry) {
-			EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry = (EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry)param;
-			List<String> tagList = getTagsHelperForTStructDocText2String(entry);
-			return tagList.get(0) + tStrucDocText2String(entry.getValue()) + tagList.get(1);
-		} 
-		else if(param instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) {
-			// since the name and the attributes are taken already, we just send the mixed of anyTypeImpl
-			return tStrucDocText2String(((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl)param).getMixed());
-		} 
-		else{
-			// Undesired situtation
-			// Check the class of param
-			return null;
-		}
-	}
-	
-	// Helper for StrucDocText2String
-	/**
-	 * Extracts the tags and the attributes of an HTML element.
-	 * Also, this method transforms the CDA formatted tags to HTML formatted tags.
-	 * This method is the helper for the method tStrucDocText2String.
-	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
-	 * @return A Java String list containing the start tag and end tag of an HTML element in form: &lt;tagName attribute="attributeValue"&gt;. While first element of the list correspons to the start tag, second element of the list corresponds to the end tag.
-	 */
-	private List<String> getTagsHelperForTStructDocText2String(org.eclipse.emf.ecore.impl.EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry) {
-		if(entry == null)
-			return null;
-		String startTag = "";
-		String endTag = "";
-		String tagName = entry.getEStructuralFeature().getName();
-		if(tagName == null || tagName.equals(""))
-			return null;
-		List<String> attributeList = getAttributesHelperForTStructDocText2String(entry);
-		List<String> tagList = new ArrayList<String>();
-		
-		String attributeToRemove = null;
-		
-		// removing id attribute from the attributeList
-		for(String attribute : attributeList) {
-			if(attribute.toLowerCase().startsWith("id=\"", 0)) {
-				attributeToRemove = attribute;
-			}
-		}
-		
-		if(attributeToRemove != null)
-			attributeList.remove(attributeToRemove);
-		
-		// removing styleCode attribute from the attributeList
-		for(String attribute : attributeList) {
-			if(attribute.toLowerCase().startsWith("stylecode=\"", 0)) {
-				attributeToRemove = attribute;
-			}
-		}
-		if(attributeToRemove != null)
-			attributeList.remove(attributeToRemove);
-		
-		// case tag.equals("list"). we need to transform it to "ul" or "ol"
-		if(tagName.equals("list")) {
-			// first, think of the situtation no attribute exists about ordered/unordered
-			tagName = "ul";
-			attributeToRemove = null;
-			for(String attribute : attributeList) {
-				// if the attribute is listType, make the transformation
-				if(attribute.toLowerCase().contains("listtype")) {
-					// notice that the string "unordered" also contains "ordered"
-					// therefore, it is vital to check "unordered" firstly.
-					// if "unordered" is not contained by the attribute, then we may check for "ordered"
-					if(attribute.toLowerCase().contains("unordered")) {
-						tagName = "ul";
-					} else if(attribute.toLowerCase().contains("ordered")) {
-						tagName = "ol";
-					}
-					attributeToRemove = attribute;
-				}
-			}
-			// if we found the "listType" attribute, we assigned it to attributeToRemove
-			// from now on, we have nothing to do with this attribute. let's remove it from the list.
-			if(attributeToRemove != null) {
-				attributeList.remove(attributeToRemove);
-			}
-		} else {
-			switch(tagName.toLowerCase()) {
-				case "paragraph":
-					tagName = "p"; break;
-				case "content":
-					tagName = "span"; break;
-				case "item":
-					tagName = "li"; break;
-				case "linkhtml":
-					tagName = "a"; break;
-				case "renderMultimedia":
-					tagName = "img"; break;
-				case "list":
-					tagName = "ul"; break;
-				default: // do nothing. let the tagName be as it is
-			}
-		}
-		
-		// now, it is time to prepare our tag by using tagName and attributes
-		startTag = "<" + tagName;
-		// adding attributes to the start tag
-		for(String attribute : attributeList) {
-			startTag += " "+attribute;
-		}
-		// closing the start tag
-		startTag += ">";
-		endTag = "</" + tagName + ">";
-		
-		// 1st element of the returning list: startTag
-		tagList.add(startTag);
-		// 2nd element of the returning list: endTag
-		tagList.add(endTag);
-		
-		return tagList;
-	}
-	/**
-	 * Extracts the attributes of an HTML element
-	 * This method is the helper for the method getTags, which is already a helper for tStrucDocText2String.
-	 * @param entry A EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry instance
-	 * @return A Java String list containing the attributes of an HTML element in form: attributeName="attributeValue". Each element corresponds to distinct attributes for the same tag
-	 */
-	private List<String> getAttributesHelperForTStructDocText2String(EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry) {
-		if(entry == null)
-			return null;
-		
-		List<String> attributeList = new ArrayList<String>();
-		if(entry.getValue() instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) {
-			for(FeatureMap.Entry attribute : ((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) entry.getValue()).getAnyAttribute()) {
-				String name = attribute.getEStructuralFeature().getName();
-				String value = attribute.getValue().toString();
-				if(name != null && !name.isEmpty()) {
-					String attributeToAdd = "";
-					// we may have attributes which doesn't have any value
-					attributeToAdd = attributeToAdd + name;
-					if(value != null && !value.isEmpty()) {
-						attributeToAdd = attributeToAdd + "=\""+value+"\"";
-					}
-					attributeList.add(attributeToAdd);
-				}
-			}
-		}
-		return attributeList;
 	}
 }
