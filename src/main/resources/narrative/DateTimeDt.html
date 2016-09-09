@@ -11,14 +11,7 @@ a browser.
 <!--*/-->
 
 <div>
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${resource.code}">
-				<td>Substance</td>
-				<td th:narrative="${resource.code}"></td>
-			</tr>
-		</tbody>
-	</table>
+<th:block th:text="${resource.value}"></th:block>
 </div>
 
 <!--/*-->

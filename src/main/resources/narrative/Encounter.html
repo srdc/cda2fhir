@@ -13,9 +13,13 @@ a browser.
 <div>
 	<table class="hapiPropertyTable">
 		<tbody>
-			<tr th:if="${resource.reason}">
+			<tr th:if="${resource.type} and ${not resource.type.empty}" th:each="type: ${resource.type}">
+				<td>Type</td>
+				<td th:narrative="${type}"></td>
+			</tr>
+			<tr th:if="${resource.reason} and ${not resource.reason.empty}" th:each="reason: ${resource.reason}">
 				<td>Reason</td>
-				<td th:narrative="${resource.reason}"></td>
+				<td th:narrative="${reason}"></td>
 			</tr>
 			<tr th:if="${resource.period} and ${resource.period.start}">
 				<td>Start</td>

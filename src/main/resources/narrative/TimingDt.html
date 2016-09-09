@@ -10,15 +10,8 @@ a browser.
 	<body>
 <!--*/-->
 
-<div>
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${resource.code}">
-				<td>Substance</td>
-				<td th:narrative="${resource.code}"></td>
-			</tr>
-		</tbody>
-	</table>
+<div th:if="${resource.repeat} and ${resource.repeat.period} and ${resource.repeat.periodUnits}">
+<th:block th:text="${resource.repeat.period} + '/' + ${resource.repeat.periodUnits}"></th:block>
 </div>
 
 <!--/*-->

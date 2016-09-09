@@ -13,13 +13,25 @@ a browser.
 <div>
 	<table class="hapiPropertyTable">
 		<tbody>
-			<tr th:if="${not resource.identifier.empty}">
-				<td>Identifier</td>
-				<td th:narrative="${resource.identifier[0]}"></td>
-			</tr>
 			<tr th:if="${resource.vaccineCode}">
 				<td>Vaccine Code</td>
 				<td th:narrative="${resource.vaccineCode}"></td>
+			</tr>
+			<tr th:if="${resource.date}">
+				<td>Date (Vaccine Administered)</td>
+				<td th:text="${resource.date.toString()}"></td>
+			</tr>
+			<tr th:if="${resource.wasNotGiven}">
+				<td>Not Given</td>
+				<td>True</td>
+			</tr>
+			<tr th:if="${resource.route}">
+				<td>Route</td>
+				<td th:narrative="${resource.route}"></td>
+			</tr>
+			<tr th:if="${resource.doseQuantity}">
+				<td>Dose</td>
+				<td th:narrative="${resource.doseQuantity}"></td>
 			</tr>
 		</tbody>
 	</table>

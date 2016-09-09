@@ -11,15 +11,22 @@ a browser.
 <!--*/-->
 
 <div>
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${not resource.identifier.empty}">
-				<td>Identifier</td>
-				<td th:narrative="${resource.identifier[0]}"></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+<table class="hapiPropertyTable" th:each="dosage: ${resource.dosageInstruction}">
+	<tbody>
+		<tr>
+			<th th:text="Dosage Instruction"></th>
+		</tr>
+		<tr th:if="${dosage.timing}">
+			<td>Timing</td>
+			<td th:narrative="${dosage.timing}"></td>
+		</tr>
+		<tr th:if="${dosage.dose}">
+			<td>Dose</td>
+			<td th:narrative="${dosage.timing}"></td>
+		</tr>
+	</tbody>
+</table>
+	</div>
 
 <!--/*-->
 	</body>
