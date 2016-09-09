@@ -121,7 +121,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA Observation instance that is included in Functional Status Section to a FHIR Observation resource.
 	 * @param cdaObservation A CDA Observation instance that is included in Functional Status Section
-	 * @return A FHIR Observation resource
+	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Practitioner
 	 */
 	Bundle tFunctionalStatus2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObservation);
 
@@ -192,7 +192,7 @@ public interface IResourceTransformer {
 	 * @param cdaOrganization A CDA Organization instance
 	 * @return A FHIR Organization resource
 	 */
-	Organization tOrganization2Organization (org.openhealthtools.mdht.uml.cda.Organization cdaOrganization);
+	Organization tOrganization2Organization(org.openhealthtools.mdht.uml.cda.Organization cdaOrganization);
 	
 	/**
 	 * Transforms a CDA ParticipantRole instance to a FHIR Location resource.

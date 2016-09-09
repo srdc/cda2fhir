@@ -71,16 +71,12 @@ public class ResourceTransformerTest {
         CDAUtil.loadPackages();
         try {
 	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-//	        fisCCD = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
 		} catch (FileNotFoundException ex) {
 	        ex.printStackTrace();
 	    }
         
         try {
         	if(fisCCD != null) {
-        		// To validate the file, use the following two lines instead of the third line
-//        		ValidationResult result = new ValidationResult();
-//        		ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD,result);
         		ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD);
         	}
 		} catch (Exception e) {

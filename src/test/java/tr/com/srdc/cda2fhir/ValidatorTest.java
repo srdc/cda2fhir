@@ -160,10 +160,9 @@ public class ValidatorTest {
         
         if(os != null) {
         	File validationFile = new File(targetPathForResultFile);
-        	if(!validationFile.getParentFile().exists())
-        		validationFile.getParentFile().mkdirs();
+        	validationFile.getParentFile().mkdirs();
 
-			FileOutputStream fos = new FileOutputStream(new File(targetPathForResultFile));
+			FileOutputStream fos = new FileOutputStream(validationFile);
 			os.writeTo(fos);
 			os.close();
 			fos.close();
