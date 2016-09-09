@@ -77,6 +77,20 @@ public interface IResourceTransformer {
 	Substance tCD2Substance(CD cdaSubstanceCode);
 	
 	/**
+	 * Transforms a CDA ClicinalDocument instance to a FHIR Composition resource.
+	 * @param cdaClinicalDocument A CDA ClicinalDocument instance
+	 * @return A FHIR Bundle that contains the Composition as the first entry, which can also include other referenced resources such as Patient, Practitioner, Organization
+	 */
+	Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument);
+	
+	/**
+	 * Transforms a CDA CustodianOrganization instance to a FHIR Organization resource.
+	 * @param cdaCustodianOrganization A CDA CustodianOrganization instance
+	 * @return A FHIR Organization resource
+	 */
+	Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaCustodianOrganization);
+	
+	/**
 	 * Transforms a CDA Encounter instance to a FHIR Encounter resource.
 	 * @param cdaEncounter A CDA Encounter instance
 	 * @return A FHIR Bundle that contains the Encounter as the first entry, which can also include other referenced resources such as Practitioner, Location
@@ -111,12 +125,33 @@ public interface IResourceTransformer {
 	 */
 	Bundle tFunctionalStatus2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObservation);
 
+    /**
+     * Transforms a CDA Guardian instance to a FHIR Patient.Contact resource.
+     * @param cdaGuardian A CDA Guardian instance
+     * @return A FHIR Patient.Contact resource
+     */
+    ca.uhn.fhir.model.dstu2.resource.Patient.Contact tGuardian2Contact(org.openhealthtools.mdht.uml.cda.Guardian cdaGuardian);
+    
+	/**
+	 * Transforms a CDA ImmunizationActivity instance to a FHIR Immunization resource.
+	 * @param cdaImmunizationActivity A CDA ImmunizationActivity instance
+	 * @return A FHIR Bundle that contains the Immunization as the first entry, which can also include other referenced resources such as Organization, Practitioner
+	 */
+	Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmunizationActivity);
+    
 	/**
 	 * Transforms a CDA Indication instance to a FHIR Condition resource.
 	 * @param cdaIndication A CDA Indication instance
 	 * @return A FHIR Condition resource
 	 */
 	Condition tIndication2Condition(Indication cdaIndication);
+	
+    /**
+     * Transforms a CDA LanguageCommunication instance to a FHIR Communication resource.
+     * @param cdaLanguageCommunication A CDA LanguageCommunication instance
+     * @return A FHIR Communication resource
+     */
+    Communication tLanguageCommunication2Communication(LanguageCommunication cdaLanguageCommunication);
 	
 	/**
 	 * Transforms a CDA ManufacturedProduct instance to a FHIR Medication resource.
@@ -208,6 +243,13 @@ public interface IResourceTransformer {
      */
 	Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation);
 	
+    /**
+     * Transforms a CDA ReferenceRange instance to a FHIR Observation.ReferenceRange resource.
+     * @param cdaReferenceRange A CDA ReferenceRange instance
+     * @return A FHIR Observation.ReferenceRange resource
+     */
+	Observation.ReferenceRange tReferenceRange2ReferenceRange(org.openhealthtools.mdht.uml.cda.ReferenceRange cdaReferenceRange);
+    
 	/**
 	 * Transforms a CDA ResultObservation instance to a FHIR Observation resource.
 	 * @param cdaResultObservation A CDA ResultObservation instance
@@ -222,41 +264,6 @@ public interface IResourceTransformer {
 	 */
 	Bundle tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer);
 	
-	/**
-	 * Transforms a CDA ImmunizationActivity instance to a FHIR Immunization resource.
-	 * @param cdaImmunizationActivity A CDA ImmunizationActivity instance
-	 * @return A FHIR Bundle that contains the Immunization as the first entry, which can also include other referenced resources such as Organization, Practitioner
-	 */
-	Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmunizationActivity);
-    
-	/**
-	 * Transforms a CDA VitalSignObservation to a FHIR Observation resource.
-	 * @param cdaVitalSignObservation A CDA VitalSignObservation instance
-	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Encounter, Practitioner
-	 */
-    Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation);
-    
-    /**
-     * Transforms a CDA Guardian instance to a FHIR Patient.Contact resource.
-     * @param cdaGuardian A CDA Guardian instance
-     * @return A FHIR Patient.Contact resource
-     */
-    ca.uhn.fhir.model.dstu2.resource.Patient.Contact tGuardian2Contact(org.openhealthtools.mdht.uml.cda.Guardian cdaGuardian);
-    
-    /**
-     * Transforms a CDA LanguageCommunication instance to a FHIR Communication resource.
-     * @param cdaLanguageCommunication A CDA LanguageCommunication instance
-     * @return A FHIR Communication resource
-     */
-    Communication tLanguageCommunication2Communication(LanguageCommunication cdaLanguageCommunication);
-	
-    /**
-     * Transforms a CDA ReferenceRange instance to a FHIR Observation.ReferenceRange resource.
-     * @param cdaReferenceRange A CDA ReferenceRange instance
-     * @return A FHIR Observation.ReferenceRange resource
-     */
-	Observation.ReferenceRange tReferenceRange2ReferenceRange(org.openhealthtools.mdht.uml.cda.ReferenceRange cdaReferenceRange);
-    
 	/**
 	 * Transforms a CDA Section instance to a FHIR Composition.Section resource.
 	 * @param cdaSection A CDA Section instance
@@ -277,19 +284,11 @@ public interface IResourceTransformer {
 	 * @return A FHIR Device resource
 	 */
 	ca.uhn.fhir.model.dstu2.resource.Device tSupply2Device(org.openhealthtools.mdht.uml.cda.Supply cdaSupply);
-	
+
 	/**
-	 * Transforms a CDA ClicinalDocument instance to a FHIR Composition resource.
-	 * @param cdaClinicalDocument A CDA ClicinalDocument instance
-	 * @return A FHIR Bundle that contains the Composition as the first entry, which can also include other referenced resources such as Patient, Practitioner, Organization
+	 * Transforms a CDA VitalSignObservation to a FHIR Observation resource.
+	 * @param cdaVitalSignObservation A CDA VitalSignObservation instance
+	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Encounter, Practitioner
 	 */
-	Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument);
-	
-	/**
-	 * Transforms a CDA CustodianOrganization instance to a FHIR Organization resource.
-	 * @param cdaCustodianOrganization A CDA CustodianOrganization instance
-	 * @return A FHIR Organization resource
-	 */
-	Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaCustodianOrganization);
-	
+    Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation);
 }

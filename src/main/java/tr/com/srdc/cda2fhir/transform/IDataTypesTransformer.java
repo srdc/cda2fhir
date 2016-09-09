@@ -107,19 +107,19 @@ public interface IDataTypesTransformer {
 	IntegerDt tINT2Integer(INT myInt);
     
 	/**
-	* Transforms a CDA IVL_TS instance to a FHIR PeriodDt composite datatype instance.
-	* @param ivlts A CDA IVL_TS instance
-	* @return A PeriodDt composite datatype instance
-	*/
-	PeriodDt tIVL_TS2Period(IVL_TS ivlts);
-    
-	/**
 	* Transforms a CDA IVL_PQ instance to a FHIR RangeDt composite datatype instance.
 	* @param ivlpq A CDA IVL_PQ instance
 	* @return A RangeDt composite datatype instance
 	*/
 	RangeDt tIVL_PQ2Range(IVL_PQ ivlpq);
 
+	/**
+	* Transforms a CDA IVL_TS instance to a FHIR PeriodDt composite datatype instance.
+	* @param ivlts A CDA IVL_TS instance
+	* @return A PeriodDt composite datatype instance
+	*/
+	PeriodDt tIVL_TS2Period(IVL_TS ivlts);
+    
 	/**
 	* Transforms a CDA PIVL_TS instance to a FHIR TimingDt composite datatype instance.
 	* @param pivlts A CDA PIVL_TS instance
@@ -128,19 +128,19 @@ public interface IDataTypesTransformer {
 	TimingDt tPIVL_TS2Timing(PIVL_TS pivlts);
 	
 	/**
-	* Transforms a CDA PQ instance to a FHIR SimpleQuantityDt composite datatype instance.
-	* @param pq A CDA PQ instance
-	* @return A SimpleQuantityDt composite datatype instance
-	*/
-	SimpleQuantityDt tPQ2SimpleQuantityDt(PQ pq);
-	
-	/**
 	* Transforms a CDA PQ instance to a FHIR QuantityDt composite datatype instance.
 	* @param pq A CDA PQ instance
 	* @return A QuantityDt composite datatype instance
 	*/
 	QuantityDt tPQ2Quantity(PQ pq);
     
+	/**
+	* Transforms a CDA PQ instance to a FHIR SimpleQuantityDt composite datatype instance.
+	* @param pq A CDA PQ instance
+	* @return A SimpleQuantityDt composite datatype instance
+	*/
+	SimpleQuantityDt tPQ2SimpleQuantityDt(PQ pq);
+	
 	/**
 	* Transforms a CDA REAL instance to a FHIR DecimalDt primitive datatype instance.
 	* @param real A CDA REAL instance

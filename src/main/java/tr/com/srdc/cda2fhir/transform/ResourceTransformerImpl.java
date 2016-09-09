@@ -96,6 +96,32 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			return defaultPatientRef;
 	}
 
+	public AgeDt tAgeObservation2AgeDt(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation) {
+		if(cdaAgeObservation == null || cdaAgeObservation.isSetNullFlavor())
+			return null;
+
+		AgeDt fhirAge = new AgeDt();
+
+		// value-> age
+		if(cdaAgeObservation != null && !cdaAgeObservation.getValues().isEmpty()) {
+			for(ANY value : cdaAgeObservation.getValues()) {
+				if(value != null && !value.isSetNullFlavor()) {
+					if(value instanceof PQ) {
+						if(((PQ)value).getValue() != null) {
+							// value.value -> value
+							fhirAge.setValue(((PQ)value).getValue());
+							// value.unit -> unit
+							fhirAge.setUnit(((PQ)value).getUnit());
+							fhirAge.setSystem("http://unitsofmeasure.org");
+						}
+					}
+				}
+			}
+		}
+
+		return fhirAge;
+	}
+	
 	public Bundle tAllergyProblemAct2AllergyIntolerance(AllergyProblemAct cdaAllergyProbAct) {
 		if(cdaAllergyProbAct==null || cdaAllergyProbAct.isSetNullFlavor()) 
 			return null;
@@ -452,7 +478,173 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 
 		return fhirSubstance;
 	}
+	
+	public Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument) {
+		if(cdaClinicalDocument == null || cdaClinicalDocument.isSetNullFlavor())
+			return null;
 
+		// create and init the global bundle and the composition resources
+		Bundle fhirCompBundle = new Bundle();
+		Composition fhirComp = new Composition();
+		fhirComp.setId(new IdDt("Composition", getUniqueId()));
+		fhirCompBundle.addEntry(new Bundle.Entry().setResource(fhirComp));
+		
+		// id -> identifier
+		if(cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
+			fhirComp.setIdentifier(dtt.tII2Identifier(cdaClinicalDocument.getId()));
+		}
+
+		// status
+		fhirComp.setStatus(Config.DEFAULT_COMPOSITION_STATUS);
+		
+		// effectiveTime -> date
+		if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {
+			fhirComp.setDate(dtt.tTS2DateTime(cdaClinicalDocument.getEffectiveTime()));
+		}
+		
+		// code -> type
+		if(cdaClinicalDocument.getCode() != null && !cdaClinicalDocument.getCode().isSetNullFlavor()) {
+			fhirComp.setType(dtt.tCD2CodeableConcept(cdaClinicalDocument.getCode()));
+		}
+
+		// title.text -> title
+		if(cdaClinicalDocument.getTitle() != null && !cdaClinicalDocument.getTitle().isSetNullFlavor()) {
+			if(cdaClinicalDocument.getTitle().getText() != null && !cdaClinicalDocument.getTitle().getText().isEmpty()) {
+				fhirComp.setTitle(cdaClinicalDocument.getTitle().getText());
+			}
+		}
+		
+		// confidentialityCode -> confidentiality
+		if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {
+			if(cdaClinicalDocument.getConfidentialityCode().getCode() != null && !cdaClinicalDocument.getConfidentialityCode().getCode().isEmpty()) {
+				fhirComp.setConfidentiality(cdaClinicalDocument.getConfidentialityCode().getCode());
+			}
+		}
+
+		// transform the patient data and assign it to Composition.subject.
+		// patient might refer to additional resources such as organization; hence the method returns a bundle.
+		Bundle subjectBundle = tPatientRole2Patient(cdaClinicalDocument.getRecordTargets().get(0).getPatientRole());
+		for(Bundle.Entry entry : subjectBundle.getEntry()){
+			fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+			if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Patient){
+				fhirComp.setSubject(new ResourceReferenceDt(entry.getResource().getId()));
+			}
+		}
+		
+		// author.assignedAuthor -> author
+		if(cdaClinicalDocument.getAuthors() != null && !cdaClinicalDocument.getAuthors().isEmpty()) {
+			for(Author author : cdaClinicalDocument.getAuthors()) {
+				// Asserting that at most one author exists
+				if(author != null && !author.isSetNullFlavor()) {
+					if(author.getAssignedAuthor() != null && !author.getAssignedAuthor().isSetNullFlavor()) {
+						Bundle practBundle = tAuthor2Practitioner(author);
+						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+							// Add all the resources returned from the bundle to the main bundle
+							fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+							if(entry.getResource() instanceof Practitioner) {
+								fhirComp.addAuthor().setReference((entry.getResource()).getId());
+							}
+						}	
+					}
+				}
+			}
+		}
+		
+		// legalAuthenticator -> attester[mode = legal]
+		if(cdaClinicalDocument.getLegalAuthenticator() != null && !cdaClinicalDocument.getLegalAuthenticator().isSetNullFlavor()) {
+			Composition.Attester attester = fhirComp.addAttester();
+			attester.setMode(CompositionAttestationModeEnum.LEGAL);
+			attester.setTime(dtt.tTS2DateTime(cdaClinicalDocument.getLegalAuthenticator().getTime()));
+			Bundle practBundle = tAssignedEntity2Practitioner(cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity());
+			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+				// Add all the resources returned from the bundle to the main bundle
+				fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+				if(entry.getResource() instanceof Practitioner) {
+					attester.setParty(new ResourceReferenceDt((entry.getResource()).getId()));
+				}
+			}
+		}
+
+		// authenticator -> attester[mode = professional]
+		for(org.openhealthtools.mdht.uml.cda.Authenticator authenticator : cdaClinicalDocument.getAuthenticators()) {
+			if(!authenticator.isSetNullFlavor()) {
+				Composition.Attester attester = fhirComp.addAttester();
+				attester.setMode(CompositionAttestationModeEnum.PROFESSIONAL);
+				attester.setTime(dtt.tTS2DateTime(authenticator.getTime()));
+				Bundle practBundle = tAssignedEntity2Practitioner(authenticator.getAssignedEntity());
+				for (ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+					// Add all the resources returned from the bundle to the main bundle
+					fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+					if (entry.getResource() instanceof Practitioner) {
+						attester.setParty(new ResourceReferenceDt((entry.getResource()).getId()));
+					}
+				}
+			}
+		}
+		
+		// custodian.assignedCustodian.representedCustodianOrganization -> custodian
+		if(cdaClinicalDocument.getCustodian() != null && !cdaClinicalDocument.getCustodian().isSetNullFlavor()) {
+			if(cdaClinicalDocument.getCustodian().getAssignedCustodian() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().isSetNullFlavor()) {
+				if(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().isSetNullFlavor()) {
+					Organization fhirOrganization = tCustodianOrganization2Organization(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization());
+					fhirComp.setCustodian(new ResourceReferenceDt(fhirOrganization.getId()));
+					fhirCompBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
+				}
+			}
+		}
+
+		return fhirCompBundle;
+	}
+
+	public Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaOrganization) {
+		if(cdaOrganization == null || cdaOrganization.isSetNullFlavor())
+			return null;
+		
+		Organization fhirOrganization = new Organization();
+		
+		// resource id
+		IdDt resourceId = new IdDt("Organization", getUniqueId());
+		fhirOrganization.setId(resourceId);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
+		
+		// id -> identifier
+		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
+			for(II ii : cdaOrganization.getIds()) {
+				if(ii != null && !ii.isSetNullFlavor()) {
+					fhirOrganization.addIdentifier(dtt.tII2Identifier(ii));
+				}
+			}
+		}
+		
+		// name.text -> name
+		if(cdaOrganization.getName() != null && !cdaOrganization.getName().isSetNullFlavor()) {
+			fhirOrganization.setName(cdaOrganization.getName().getText());
+		}
+		
+		// telecom -> telecom
+		if(cdaOrganization.getTelecoms() != null && !cdaOrganization.getTelecoms().isEmpty()) {
+			for(TEL tel : cdaOrganization.getTelecoms()) {
+				if(tel != null && !tel.isSetNullFlavor()) {
+					fhirOrganization.addTelecom(dtt.tTEL2ContactPoint(tel));
+				}
+			}
+		}
+		
+		// addr -> address
+		if(cdaOrganization.getAddrs() != null && !cdaOrganization.getAddrs().isEmpty()) {
+			for(AD ad : cdaOrganization.getAddrs()) {
+				if(ad != null && !ad.isSetNullFlavor()) {
+					fhirOrganization.addAddress(dtt.AD2Address(ad));
+				}
+			}
+		}
+
+		return fhirOrganization;
+	}
+	
 	public Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter) {
 		if(cdaEncounter == null || cdaEncounter.isSetNullFlavor())
 			return null;
@@ -999,6 +1191,213 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		return fhirObsBundle;
 	}
 	
+	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact tGuardian2Contact(Guardian cdaGuardian) {
+		if(cdaGuardian == null || cdaGuardian.isSetNullFlavor())
+			return null;
+	
+		ca.uhn.fhir.model.dstu2.resource.Patient.Contact fhirContact = new ca.uhn.fhir.model.dstu2.resource.Patient.Contact();
+		
+		// addr -> address
+		if(cdaGuardian.getAddrs() != null && !cdaGuardian.getAddrs().isEmpty()) {
+			fhirContact.setAddress(dtt.AD2Address(cdaGuardian.getAddrs().get(0)));
+		} 
+		
+		// telecom -> telecom
+		if(cdaGuardian.getTelecoms() != null && !cdaGuardian.getTelecoms().isEmpty()) {
+			for(TEL tel : cdaGuardian.getTelecoms()) {
+				if(tel != null && !tel.isSetNullFlavor()) {
+					fhirContact.addTelecom(dtt.tTEL2ContactPoint(tel));
+				}
+			}
+		}
+
+		// guardianPerson/name -> name
+		if(cdaGuardian.getGuardianPerson() != null && !cdaGuardian.getGuardianPerson().isSetNullFlavor()) {
+			for(PN pn : cdaGuardian.getGuardianPerson().getNames()) {
+				if(!pn.isSetNullFlavor()) {
+					fhirContact.setName(dtt.tEN2HumanName(pn));
+				}
+			}
+		}
+		
+		// code -> relationship
+		if(cdaGuardian.getCode() != null && !cdaGuardian.getCode().isSetNullFlavor()) {
+			// try to use IValueSetsTransformer method tRoleCode2PatientContactRelationshipCode
+			CodingDt relationshipCoding = null;
+			if(cdaGuardian.getCode().getCode() != null && !cdaGuardian.getCode().getCode().isEmpty()) {
+				relationshipCoding = vst.tRoleCode2PatientContactRelationshipCode(cdaGuardian.getCode().getCode());
+			}
+			// if tRoleCode2PatientContactRelationshipCode returns non-null value, add as coding
+			// otherwise, add relationship directly by making code transformation(tCD2CodeableConcept)
+			if(relationshipCoding != null)
+				fhirContact.addRelationship(new CodeableConceptDt().addCoding(relationshipCoding));
+			else
+				fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
+		}
+		return fhirContact;
+	}
+	
+	public Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmunizationActivity) {
+		if(cdaImmunizationActivity == null || cdaImmunizationActivity.isSetNullFlavor())
+			return null;
+		
+		Immunization fhirImmunization = new Immunization();
+		
+		Bundle fhirImmunizationBundle = new Bundle();
+		fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(fhirImmunization));
+		
+		// resource id
+		IdDt resourceId = new IdDt("Immunization", getUniqueId());
+		fhirImmunization.setId(resourceId);
+
+		// meta.profile
+		if(Config.isGenerateDafProfileMetadata())
+			fhirImmunization.getMeta().addProfile(Constants.PROFILE_DAF_IMMUNIZATION);
+		
+		// patient
+		fhirImmunization.setPatient(getPatientRef());
+		
+		// id -> identifier
+		if(cdaImmunizationActivity.getIds()!=null && !cdaImmunizationActivity.getIds().isEmpty()) {
+			for(II ii : cdaImmunizationActivity.getIds()) {
+				if(ii != null && !ii.isSetNullFlavor()) {
+					fhirImmunization.addIdentifier(dtt.tII2Identifier(ii));
+				}
+			}
+		}
+
+		// negationInd -> wasNotTaken
+		if(cdaImmunizationActivity.getNegationInd() != null) {
+			fhirImmunization.setWasNotGiven(cdaImmunizationActivity.getNegationInd());
+		}
+
+		// effectiveTime -> date
+		if(cdaImmunizationActivity.getEffectiveTimes() != null && !cdaImmunizationActivity.getEffectiveTimes().isEmpty()) {
+			for(SXCM_TS effectiveTime : cdaImmunizationActivity.getEffectiveTimes()) {
+				if(effectiveTime != null && !effectiveTime.isSetNullFlavor()) {
+					// Asserting that at most one effective time exists
+					fhirImmunization.setDate(dtt.tTS2DateTime(effectiveTime));
+				}
+			}
+		}
+		
+		// lotNumber, vaccineCode, organization
+		if(cdaImmunizationActivity.getConsumable()!=null && !cdaImmunizationActivity.getConsumable().isSetNullFlavor()) {
+			if(cdaImmunizationActivity.getConsumable().getManufacturedProduct()!=null && !cdaImmunizationActivity.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
+				ManufacturedProduct manufacturedProduct=cdaImmunizationActivity.getConsumable().getManufacturedProduct();
+				
+				if(manufacturedProduct.getManufacturedMaterial()!=null && !manufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
+					Material manufacturedMaterial=manufacturedProduct.getManufacturedMaterial();
+					
+					// consumable.manufacturedProduct.manufacturedMaterial.code -> vaccineCode
+					if(manufacturedProduct.getManufacturedMaterial().getCode() != null && !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor()) {
+						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode()));
+					}
+					
+					// consumable.manufacturedProduct.manufacturedMaterial.lotNumberText -> lotNumber
+					if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor()) {
+						fhirImmunization.setLotNumber(dtt.tST2String(manufacturedMaterial.getLotNumberText()));
+					}
+				}
+				
+				// consumable.manufacturedProduct.manufacturerOrganization -> manufacturer
+				if(manufacturedProduct.getManufacturerOrganization()!=null && !manufacturedProduct.getManufacturerOrganization().isSetNullFlavor()) {
+					
+					ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(manufacturedProduct.getManufacturerOrganization());
+					
+					fhirImmunization.setManufacturer(new ResourceReferenceDt(fhirOrganization.getId()));
+					fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
+				}
+			}
+		}
+		
+		// performer -> performer
+		if(cdaImmunizationActivity.getPerformers() != null && !cdaImmunizationActivity.getPerformers().isEmpty()) {
+			for(Performer2 performer : cdaImmunizationActivity.getPerformers()) {
+				if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
+					Bundle practBundle = tPerformer22Practitioner(performer);
+					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
+						// Add all the resources returned from the bundle to the main bundle
+						fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+						// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
+						if(entry.getResource() instanceof Practitioner) {
+							fhirImmunization.setPerformer(new ResourceReferenceDt(entry.getResource().getId()));
+						}
+					}
+				}
+			}
+		}
+						
+		// approachSiteCode -> site
+		for(CD cd : cdaImmunizationActivity.getApproachSiteCodes()) {
+			fhirImmunization.setSite(dtt.tCD2CodeableConcept(cd));
+		}
+		
+		// routeCode -> route
+		if(cdaImmunizationActivity.getRouteCode()!=null && !cdaImmunizationActivity.getRouteCode().isSetNullFlavor()) {
+			fhirImmunization.setRoute(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getRouteCode()));
+		}
+		
+		// doseQuantity -> doseQuantity
+		if(cdaImmunizationActivity.getDoseQuantity()!=null && !cdaImmunizationActivity.getDoseQuantity().isSetNullFlavor()) {
+			fhirImmunization.setDoseQuantity(dtt.tPQ2SimpleQuantityDt(cdaImmunizationActivity.getDoseQuantity()));
+		}
+		
+		// statusCode -> status
+		if(cdaImmunizationActivity.getStatusCode()!=null && !cdaImmunizationActivity.getStatusCode().isSetNullFlavor()) {
+			if(cdaImmunizationActivity.getStatusCode().getCode() != null && !cdaImmunizationActivity.getStatusCode().getCode().isEmpty()) {
+				fhirImmunization.setStatus(cdaImmunizationActivity.getStatusCode().getCode());
+			}
+		}
+
+		// wasNotGiven == true
+		if(fhirImmunization.getWasNotGiven()) {
+			// immunizationRefusalReason.code -> explanation.reasonNotGiven
+			if (cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
+				if (cdaImmunizationActivity.getImmunizationRefusalReason().getCode() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().getCode().isSetNullFlavor()) {
+					fhirImmunization.setExplanation(new Explanation().addReasonNotGiven(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getImmunizationRefusalReason().getCode())));
+				}
+			}
+		}
+		// wasNotGiven == false
+		else if(!fhirImmunization.getWasNotGiven()) {
+			// indication.value -> explanation.reason
+			if(cdaImmunizationActivity.getIndication() != null && !cdaImmunizationActivity.getIndication().isSetNullFlavor()) {
+				if(!cdaImmunizationActivity.getIndication().getValues().isEmpty() && cdaImmunizationActivity.getIndication().getValues().get(0) != null && !cdaImmunizationActivity.getIndication().getValues().get(0).isSetNullFlavor()) {
+					fhirImmunization.setExplanation(new Explanation().addReason(dtt.tCD2CodeableConcept((CD)cdaImmunizationActivity.getIndication().getValues().get(0))));
+				}
+			}
+		}
+
+		// reaction (i.e. entryRelationship/observation[templateId/@root="2.16.840.1.113883.10.20.22.4.9"] -> reaction
+		if(cdaImmunizationActivity.getReactionObservation() != null && !cdaImmunizationActivity.getReactionObservation().isSetNullFlavor()) {
+			Bundle reactionBundle = tReactionObservation2Observation(cdaImmunizationActivity.getReactionObservation());
+			Observation fhirReactionObservation = null;
+			for(Bundle.Entry entry : reactionBundle.getEntry()) {
+				fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
+				if(entry.getResource() instanceof Observation) {
+					fhirReactionObservation = (Observation) entry.getResource();
+				}
+				Immunization.Reaction fhirReaction = fhirImmunization.addReaction();
+				// reaction -> reaction.detail[ref=Observation]
+				fhirReaction.setDetail(new ResourceReferenceDt(fhirReactionObservation.getId()));
+
+				// reaction/effectiveTime/low -> reaction.date
+				if(fhirReactionObservation.getEffective() != null) {
+					PeriodDt reactionDate = (PeriodDt) fhirReactionObservation.getEffective();
+					if(reactionDate.getStart() != null)
+						fhirReaction.setDate(reactionDate.getStartElement());
+				}
+			}
+		}
+		
+		// reported
+		fhirImmunization.setReported(Config.DEFAULT_IMMUNIZATION_REPORTED);
+
+		return fhirImmunizationBundle;
+		
+	}	
+	
 	public Condition tIndication2Condition(Indication cdaIndication) {
 		if(cdaIndication == null || cdaIndication.isSetNullFlavor())
 			return null;
@@ -1086,6 +1485,27 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		fhirCond.setVerificationStatus(Config.DEFAULT_CONDITION_VERIFICATION_STATUS);
 
 		return fhirCond;
+	}
+	
+	public Communication tLanguageCommunication2Communication(LanguageCommunication cdaLanguageCommunication) {
+		if(cdaLanguageCommunication == null || cdaLanguageCommunication.isSetNullFlavor())
+			return null;
+		
+		Communication fhirCommunication = new Communication();
+		
+		// languageCode -> language
+		if(cdaLanguageCommunication.getLanguageCode() != null && !cdaLanguageCommunication.getLanguageCode().isSetNullFlavor()) {
+			fhirCommunication.setLanguage(dtt.tCD2CodeableConcept(cdaLanguageCommunication.getLanguageCode()));
+			// urn:ietf:bcp:47 -> language.codeSystem
+			fhirCommunication.getLanguage().getCodingFirstRep().setSystem(Config.DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM);
+		}
+		
+		// preferenceInd -> preferred
+		if(cdaLanguageCommunication.getPreferenceInd() != null && !cdaLanguageCommunication.getPreferenceInd().isSetNullFlavor()) {
+			fhirCommunication.setPreferred(dtt.tBL2Boolean(cdaLanguageCommunication.getPreferenceInd()));
+		}
+		
+		return fhirCommunication;
 	}
 	
 	public Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct) {
@@ -1561,7 +1981,7 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 			for(org.openhealthtools.mdht.uml.hl7.datatypes.CE cdaInterprCode : cdaObservation.getInterpretationCodes()) {
 				if(cdaInterprCode != null && !cdaInterprCode.isSetNullFlavor()) {
 					// Asserting that only one interpretation code exists
-					fhirObs.setInterpretation(vst.ObservationInterpretationCode2ObservationInterpretationCode(cdaInterprCode));
+					fhirObs.setInterpretation(vst.tObservationInterpretationCode2ObservationInterpretationCode(cdaInterprCode));
 				}
 			}
 		}
@@ -1629,14 +2049,6 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		}
 
 		return fhirOrganization;
-	}
-
-	public Location tServiceDeliveryLocation2Location(ServiceDeliveryLocation cdaSDLOC) {
-		/*
-		 * ServiceDeliveryLocation is a ParticipantRole instance with a specific templateId
-		 * Therefore, tParticipantRole2Location should satisfy the necessary mapping
-		 */
-		return tParticipantRole2Location(cdaSDLOC);
 	}
 
 	public Location tParticipantRole2Location(ParticipantRole cdaParticipantRole) {
@@ -2075,292 +2487,8 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		return fhirProcBundle;
 	}
 
-	public Bundle tResultObservation2Observation(ResultObservation cdaResultObservation) {
-		Bundle fhirObservationBundle = tObservation2Observation(cdaResultObservation);
-		if(fhirObservationBundle == null)
-			return null;
-
-		// finding the observation resource and setting its meta.profile to result observation's profile url
-		if(Config.isGenerateDafProfileMetadata()) {
-			for (Bundle.Entry entry : fhirObservationBundle.getEntry()) {
-				if (entry.getResource() instanceof Observation) {
-					(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_RESULT_OBS);
-				}
-			}
-		}
-
-		return fhirObservationBundle;
-	}
-
-	public Bundle tImmunizationActivity2Immunization(ImmunizationActivity cdaImmunizationActivity) {
-		if(cdaImmunizationActivity == null || cdaImmunizationActivity.isSetNullFlavor())
-			return null;
-		
-		Immunization fhirImmunization = new Immunization();
-		
-		Bundle fhirImmunizationBundle = new Bundle();
-		fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(fhirImmunization));
-		
-		// resource id
-		IdDt resourceId = new IdDt("Immunization", getUniqueId());
-		fhirImmunization.setId(resourceId);
-
-		// meta.profile
-		if(Config.isGenerateDafProfileMetadata())
-			fhirImmunization.getMeta().addProfile(Constants.PROFILE_DAF_IMMUNIZATION);
-		
-		// patient
-		fhirImmunization.setPatient(getPatientRef());
-		
-		// id -> identifier
-		if(cdaImmunizationActivity.getIds()!=null && !cdaImmunizationActivity.getIds().isEmpty()) {
-			for(II ii : cdaImmunizationActivity.getIds()) {
-				if(ii != null && !ii.isSetNullFlavor()) {
-					fhirImmunization.addIdentifier(dtt.tII2Identifier(ii));
-				}
-			}
-		}
-
-		// negationInd -> wasNotTaken
-		if(cdaImmunizationActivity.getNegationInd() != null) {
-			fhirImmunization.setWasNotGiven(cdaImmunizationActivity.getNegationInd());
-		}
-
-		// effectiveTime -> date
-		if(cdaImmunizationActivity.getEffectiveTimes() != null && !cdaImmunizationActivity.getEffectiveTimes().isEmpty()) {
-			for(SXCM_TS effectiveTime : cdaImmunizationActivity.getEffectiveTimes()) {
-				if(effectiveTime != null && !effectiveTime.isSetNullFlavor()) {
-					// Asserting that at most one effective time exists
-					fhirImmunization.setDate(dtt.tTS2DateTime(effectiveTime));
-				}
-			}
-		}
-		
-		// lotNumber, vaccineCode, organization
-		if(cdaImmunizationActivity.getConsumable()!=null && !cdaImmunizationActivity.getConsumable().isSetNullFlavor()) {
-			if(cdaImmunizationActivity.getConsumable().getManufacturedProduct()!=null && !cdaImmunizationActivity.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
-				ManufacturedProduct manufacturedProduct=cdaImmunizationActivity.getConsumable().getManufacturedProduct();
-				
-				if(manufacturedProduct.getManufacturedMaterial()!=null && !manufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
-					Material manufacturedMaterial=manufacturedProduct.getManufacturedMaterial();
-					
-					// consumable.manufacturedProduct.manufacturedMaterial.code -> vaccineCode
-					if(manufacturedProduct.getManufacturedMaterial().getCode() != null && !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor()) {
-						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode()));
-					}
-					
-					// consumable.manufacturedProduct.manufacturedMaterial.lotNumberText -> lotNumber
-					if(manufacturedMaterial.getLotNumberText()!=null && !manufacturedMaterial.getLotNumberText().isSetNullFlavor()) {
-						fhirImmunization.setLotNumber(dtt.tST2String(manufacturedMaterial.getLotNumberText()));
-					}
-				}
-				
-				// consumable.manufacturedProduct.manufacturerOrganization -> manufacturer
-				if(manufacturedProduct.getManufacturerOrganization()!=null && !manufacturedProduct.getManufacturerOrganization().isSetNullFlavor()) {
-					
-					ca.uhn.fhir.model.dstu2.resource.Organization fhirOrganization = tOrganization2Organization(manufacturedProduct.getManufacturerOrganization());
-					
-					fhirImmunization.setManufacturer(new ResourceReferenceDt(fhirOrganization.getId()));
-					fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
-				}
-			}
-		}
-		
-		// performer -> performer
-		if(cdaImmunizationActivity.getPerformers() != null && !cdaImmunizationActivity.getPerformers().isEmpty()) {
-			for(Performer2 performer : cdaImmunizationActivity.getPerformers()) {
-				if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
-					Bundle practBundle = tPerformer22Practitioner(performer);
-					for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
-						// Add all the resources returned from the bundle to the main bundle
-						fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-						// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
-						if(entry.getResource() instanceof Practitioner) {
-							fhirImmunization.setPerformer(new ResourceReferenceDt(entry.getResource().getId()));
-						}
-					}
-				}
-			}
-		}
-						
-		// approachSiteCode -> site
-		for(CD cd : cdaImmunizationActivity.getApproachSiteCodes()) {
-			fhirImmunization.setSite(dtt.tCD2CodeableConcept(cd));
-		}
-		
-		// routeCode -> route
-		if(cdaImmunizationActivity.getRouteCode()!=null && !cdaImmunizationActivity.getRouteCode().isSetNullFlavor()) {
-			fhirImmunization.setRoute(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getRouteCode()));
-		}
-		
-		// doseQuantity -> doseQuantity
-		if(cdaImmunizationActivity.getDoseQuantity()!=null && !cdaImmunizationActivity.getDoseQuantity().isSetNullFlavor()) {
-			fhirImmunization.setDoseQuantity(dtt.tPQ2SimpleQuantityDt(cdaImmunizationActivity.getDoseQuantity()));
-		}
-		
-		// statusCode -> status
-		if(cdaImmunizationActivity.getStatusCode()!=null && !cdaImmunizationActivity.getStatusCode().isSetNullFlavor()) {
-			if(cdaImmunizationActivity.getStatusCode().getCode() != null && !cdaImmunizationActivity.getStatusCode().getCode().isEmpty()) {
-				fhirImmunization.setStatus(cdaImmunizationActivity.getStatusCode().getCode());
-			}
-		}
-
-		// wasNotGiven == true
-		if(fhirImmunization.getWasNotGiven()) {
-			// immunizationRefusalReason.code -> explanation.reasonNotGiven
-			if (cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
-				if (cdaImmunizationActivity.getImmunizationRefusalReason().getCode() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().getCode().isSetNullFlavor()) {
-					fhirImmunization.setExplanation(new Explanation().addReasonNotGiven(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getImmunizationRefusalReason().getCode())));
-				}
-			}
-		}
-		// wasNotGiven == false
-		else if(!fhirImmunization.getWasNotGiven()) {
-			// indication.value -> explanation.reason
-			if(cdaImmunizationActivity.getIndication() != null && !cdaImmunizationActivity.getIndication().isSetNullFlavor()) {
-				if(!cdaImmunizationActivity.getIndication().getValues().isEmpty() && cdaImmunizationActivity.getIndication().getValues().get(0) != null && !cdaImmunizationActivity.getIndication().getValues().get(0).isSetNullFlavor()) {
-					fhirImmunization.setExplanation(new Explanation().addReason(dtt.tCD2CodeableConcept((CD)cdaImmunizationActivity.getIndication().getValues().get(0))));
-				}
-			}
-		}
-
-		// reaction (i.e. entryRelationship/observation[templateId/@root="2.16.840.1.113883.10.20.22.4.9"] -> reaction
-		if(cdaImmunizationActivity.getReactionObservation() != null && !cdaImmunizationActivity.getReactionObservation().isSetNullFlavor()) {
-			Bundle reactionBundle = tReactionObservation2Observation(cdaImmunizationActivity.getReactionObservation());
-			Observation fhirReactionObservation = null;
-			for(Bundle.Entry entry : reactionBundle.getEntry()) {
-				fhirImmunizationBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-				if(entry.getResource() instanceof Observation) {
-					fhirReactionObservation = (Observation) entry.getResource();
-				}
-				Immunization.Reaction fhirReaction = fhirImmunization.addReaction();
-				// reaction -> reaction.detail[ref=Observation]
-				fhirReaction.setDetail(new ResourceReferenceDt(fhirReactionObservation.getId()));
-
-				// reaction/effectiveTime/low -> reaction.date
-				if(fhirReactionObservation.getEffective() != null) {
-					PeriodDt reactionDate = (PeriodDt) fhirReactionObservation.getEffective();
-					if(reactionDate.getStart() != null)
-						fhirReaction.setDate(reactionDate.getStartElement());
-				}
-			}
-		}
-		
-		// reported
-		fhirImmunization.setReported(Config.DEFAULT_IMMUNIZATION_REPORTED);
-
-		return fhirImmunizationBundle;
-		
-	}	
-	
-	public Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation) {
-		Bundle fhirObservationBundle = tObservation2Observation(cdaVitalSignObservation);
-		if(fhirObservationBundle == null)
-			return null;
-
-		// finding the observation resource and setting its meta.profile to result observation's profile url
-		if(Config.isGenerateDafProfileMetadata()) {
-			for (Bundle.Entry entry : fhirObservationBundle.getEntry()) {
-				if (entry.getResource() instanceof Observation) {
-					(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_VITAL_SIGNS);
-				}
-			}
-		}
-
-		return fhirObservationBundle;
-	}
-
-	public AgeDt tAgeObservation2AgeDt(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation) {
-		if(cdaAgeObservation == null || cdaAgeObservation.isSetNullFlavor())
-			return null;
-
-		AgeDt fhirAge = new AgeDt();
-
-		// value-> age
-		if(cdaAgeObservation != null && !cdaAgeObservation.getValues().isEmpty()) {
-			for(ANY value : cdaAgeObservation.getValues()) {
-				if(value != null && !value.isSetNullFlavor()) {
-					if(value instanceof PQ) {
-						if(((PQ)value).getValue() != null) {
-							// value.value -> value
-							fhirAge.setValue(((PQ)value).getValue());
-							// value.unit -> unit
-							fhirAge.setUnit(((PQ)value).getUnit());
-							fhirAge.setSystem("http://unitsofmeasure.org");
-						}
-					}
-				}
-			}
-		}
-
-		return fhirAge;
-	}
-	
-	public ca.uhn.fhir.model.dstu2.resource.Patient.Contact tGuardian2Contact(Guardian cdaGuardian) {
-		if(cdaGuardian == null || cdaGuardian.isSetNullFlavor())
-			return null;
-	
-		ca.uhn.fhir.model.dstu2.resource.Patient.Contact fhirContact = new ca.uhn.fhir.model.dstu2.resource.Patient.Contact();
-		
-		// addr -> address
-		if(cdaGuardian.getAddrs() != null && !cdaGuardian.getAddrs().isEmpty()) {
-			fhirContact.setAddress(dtt.AD2Address(cdaGuardian.getAddrs().get(0)));
-		} 
-		
-		// telecom -> telecom
-		if(cdaGuardian.getTelecoms() != null && !cdaGuardian.getTelecoms().isEmpty()) {
-			for(TEL tel : cdaGuardian.getTelecoms()) {
-				if(tel != null && !tel.isSetNullFlavor()) {
-					fhirContact.addTelecom(dtt.tTEL2ContactPoint(tel));
-				}
-			}
-		}
-
-		// guardianPerson/name -> name
-		if(cdaGuardian.getGuardianPerson() != null && !cdaGuardian.getGuardianPerson().isSetNullFlavor()) {
-			for(PN pn : cdaGuardian.getGuardianPerson().getNames()) {
-				if(!pn.isSetNullFlavor()) {
-					fhirContact.setName(dtt.tEN2HumanName(pn));
-				}
-			}
-		}
-		
-		// code -> relationship
-		if(cdaGuardian.getCode() != null && !cdaGuardian.getCode().isSetNullFlavor()) {
-			// try to use IValueSetsTransformer method tRoleCode2PatientContactRelationshipCode
-			CodingDt relationshipCoding = null;
-			if(cdaGuardian.getCode().getCode() != null && !cdaGuardian.getCode().getCode().isEmpty()) {
-				relationshipCoding = vst.tRoleCode2PatientContactRelationshipCode(cdaGuardian.getCode().getCode());
-			}
-			// if tRoleCode2PatientContactRelationshipCode returns non-null value, add as coding
-			// otherwise, add relationship directly by making code transformation(tCD2CodeableConcept)
-			if(relationshipCoding != null)
-				fhirContact.addRelationship(new CodeableConceptDt().addCoding(relationshipCoding));
-			else
-				fhirContact.addRelationship(dtt.tCD2CodeableConcept(cdaGuardian.getCode()));
-		}
-		return fhirContact;
-	}
-
-	public Communication tLanguageCommunication2Communication(LanguageCommunication cdaLanguageCommunication) {
-		if(cdaLanguageCommunication == null || cdaLanguageCommunication.isSetNullFlavor())
-			return null;
-		
-		Communication fhirCommunication = new Communication();
-		
-		// languageCode -> language
-		if(cdaLanguageCommunication.getLanguageCode() != null && !cdaLanguageCommunication.getLanguageCode().isSetNullFlavor()) {
-			fhirCommunication.setLanguage(dtt.tCD2CodeableConcept(cdaLanguageCommunication.getLanguageCode()));
-			// urn:ietf:bcp:47 -> language.codeSystem
-			fhirCommunication.getLanguage().getCodingFirstRep().setSystem(Config.DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM);
-		}
-		
-		// preferenceInd -> preferred
-		if(cdaLanguageCommunication.getPreferenceInd() != null && !cdaLanguageCommunication.getPreferenceInd().isSetNullFlavor()) {
-			fhirCommunication.setPreferred(dtt.tBL2Boolean(cdaLanguageCommunication.getPreferenceInd()));
-		}
-		
-		return fhirCommunication;
+	public Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation) {
+		return tObservation2Observation(cdaReactionObservation);
 	}
 	
 	public Observation.ReferenceRange tReferenceRange2ReferenceRange(org.openhealthtools.mdht.uml.cda.ReferenceRange cdaReferenceRange) {
@@ -2404,251 +2532,23 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 		return fhirRefRange;
 	}
 	
-	public Composition.Section tSection2Section(Section cdaSection) {
-		if(cdaSection == null || cdaSection.isSetNullFlavor()){
-			return null;
-		}
-
-		Composition.Section fhirSec = new Composition.Section();
-			
-		// title -> title.text
-		if(cdaSection.getTitle() != null && !cdaSection.getTitle().isSetNullFlavor()) {
-			if(cdaSection.getTitle().getText() != null && !cdaSection.getTitle().getText().isEmpty()) {
-				fhirSec.setTitle(cdaSection.getTitle().getText());
-			}
-		}
-
-		// code -> code
-		if(cdaSection.getCode() != null && !cdaSection.getCode().isSetNullFlavor()) {
-			fhirSec.setCode(dtt.tCD2CodeableConcept(cdaSection.getCode()));
-		}
-
-		// text -> text
-		if(cdaSection.getText() != null) {
-			NarrativeDt fhirText = dtt.tStrucDocText2Narrative(cdaSection.getText());
-			if(fhirText != null)
-				fhirSec.setText(fhirText);
-		}
-
-		return fhirSec;
-	}
-
-	public Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument) {
-		if(cdaClinicalDocument == null || cdaClinicalDocument.isSetNullFlavor())
+	public Bundle tResultObservation2Observation(ResultObservation cdaResultObservation) {
+		Bundle fhirObservationBundle = tObservation2Observation(cdaResultObservation);
+		if(fhirObservationBundle == null)
 			return null;
 
-		// create and init the global bundle and the composition resources
-		Bundle fhirCompBundle = new Bundle();
-		Composition fhirComp = new Composition();
-		fhirComp.setId(new IdDt("Composition", getUniqueId()));
-		fhirCompBundle.addEntry(new Bundle.Entry().setResource(fhirComp));
-		
-		// id -> identifier
-		if(cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
-			fhirComp.setIdentifier(dtt.tII2Identifier(cdaClinicalDocument.getId()));
-		}
-
-		// status
-		fhirComp.setStatus(Config.DEFAULT_COMPOSITION_STATUS);
-		
-		// effectiveTime -> date
-		if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {
-			fhirComp.setDate(dtt.tTS2DateTime(cdaClinicalDocument.getEffectiveTime()));
-		}
-		
-		// code -> type
-		if(cdaClinicalDocument.getCode() != null && !cdaClinicalDocument.getCode().isSetNullFlavor()) {
-			fhirComp.setType(dtt.tCD2CodeableConcept(cdaClinicalDocument.getCode()));
-		}
-
-		// title.text -> title
-		if(cdaClinicalDocument.getTitle() != null && !cdaClinicalDocument.getTitle().isSetNullFlavor()) {
-			if(cdaClinicalDocument.getTitle().getText() != null && !cdaClinicalDocument.getTitle().getText().isEmpty()) {
-				fhirComp.setTitle(cdaClinicalDocument.getTitle().getText());
-			}
-		}
-		
-		// confidentialityCode -> confidentiality
-		if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {
-			if(cdaClinicalDocument.getConfidentialityCode().getCode() != null && !cdaClinicalDocument.getConfidentialityCode().getCode().isEmpty()) {
-				fhirComp.setConfidentiality(cdaClinicalDocument.getConfidentialityCode().getCode());
-			}
-		}
-
-		// transform the patient data and assign it to Composition.subject.
-		// patient might refer to additional resources such as organization; hence the method returns a bundle.
-		Bundle subjectBundle = tPatientRole2Patient(cdaClinicalDocument.getRecordTargets().get(0).getPatientRole());
-		for(Bundle.Entry entry : subjectBundle.getEntry()){
-			fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-			if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Patient){
-				fhirComp.setSubject(new ResourceReferenceDt(entry.getResource().getId()));
-			}
-		}
-		
-		// author.assignedAuthor -> author
-		if(cdaClinicalDocument.getAuthors() != null && !cdaClinicalDocument.getAuthors().isEmpty()) {
-			for(Author author : cdaClinicalDocument.getAuthors()) {
-				// Asserting that at most one author exists
-				if(author != null && !author.isSetNullFlavor()) {
-					if(author.getAssignedAuthor() != null && !author.getAssignedAuthor().isSetNullFlavor()) {
-						Bundle practBundle = tAuthor2Practitioner(author);
-						for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
-							// Add all the resources returned from the bundle to the main bundle
-							fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-							if(entry.getResource() instanceof Practitioner) {
-								fhirComp.addAuthor().setReference((entry.getResource()).getId());
-							}
-						}	
-					}
-				}
-			}
-		}
-		
-		// legalAuthenticator -> attester[mode = legal]
-		if(cdaClinicalDocument.getLegalAuthenticator() != null && !cdaClinicalDocument.getLegalAuthenticator().isSetNullFlavor()) {
-			Composition.Attester attester = fhirComp.addAttester();
-			attester.setMode(CompositionAttestationModeEnum.LEGAL);
-			attester.setTime(dtt.tTS2DateTime(cdaClinicalDocument.getLegalAuthenticator().getTime()));
-			Bundle practBundle = tAssignedEntity2Practitioner(cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity());
-			for(ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
-				// Add all the resources returned from the bundle to the main bundle
-				fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-				if(entry.getResource() instanceof Practitioner) {
-					attester.setParty(new ResourceReferenceDt((entry.getResource()).getId()));
+		// finding the observation resource and setting its meta.profile to result observation's profile url
+		if(Config.isGenerateDafProfileMetadata()) {
+			for (Bundle.Entry entry : fhirObservationBundle.getEntry()) {
+				if (entry.getResource() instanceof Observation) {
+					(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_RESULT_OBS);
 				}
 			}
 		}
 
-		// authenticator -> attester[mode = professional]
-		for(org.openhealthtools.mdht.uml.cda.Authenticator authenticator : cdaClinicalDocument.getAuthenticators()) {
-			if(!authenticator.isSetNullFlavor()) {
-				Composition.Attester attester = fhirComp.addAttester();
-				attester.setMode(CompositionAttestationModeEnum.PROFESSIONAL);
-				attester.setTime(dtt.tTS2DateTime(authenticator.getTime()));
-				Bundle practBundle = tAssignedEntity2Practitioner(authenticator.getAssignedEntity());
-				for (ca.uhn.fhir.model.dstu2.resource.Bundle.Entry entry : practBundle.getEntry()) {
-					// Add all the resources returned from the bundle to the main bundle
-					fhirCompBundle.addEntry(new Bundle.Entry().setResource(entry.getResource()));
-					if (entry.getResource() instanceof Practitioner) {
-						attester.setParty(new ResourceReferenceDt((entry.getResource()).getId()));
-					}
-				}
-			}
-		}
-		
-		// custodian.assignedCustodian.representedCustodianOrganization -> custodian
-		if(cdaClinicalDocument.getCustodian() != null && !cdaClinicalDocument.getCustodian().isSetNullFlavor()) {
-			if(cdaClinicalDocument.getCustodian().getAssignedCustodian() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().isSetNullFlavor()) {
-				if(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().isSetNullFlavor()) {
-					Organization fhirOrganization = tCustodianOrganization2Organization(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization());
-					fhirComp.setCustodian(new ResourceReferenceDt(fhirOrganization.getId()));
-					fhirCompBundle.addEntry(new Bundle.Entry().setResource(fhirOrganization));
-				}
-			}
-		}
-
-		return fhirCompBundle;
+		return fhirObservationBundle;
 	}
 	
-	public Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaOrganization) {
-		if(cdaOrganization == null || cdaOrganization.isSetNullFlavor())
-			return null;
-		
-		Organization fhirOrganization = new Organization();
-		
-		// resource id
-		IdDt resourceId = new IdDt("Organization", getUniqueId());
-		fhirOrganization.setId(resourceId);
-
-		// meta.profile
-		if(Config.isGenerateDafProfileMetadata())
-			fhirOrganization.getMeta().addProfile(Constants.PROFILE_DAF_ORGANIZATION);
-		
-		// id -> identifier
-		if(cdaOrganization.getIds() != null && !cdaOrganization.getIds().isEmpty()) {
-			for(II ii : cdaOrganization.getIds()) {
-				if(ii != null && !ii.isSetNullFlavor()) {
-					fhirOrganization.addIdentifier(dtt.tII2Identifier(ii));
-				}
-			}
-		}
-		
-		// name.text -> name
-		if(cdaOrganization.getName() != null && !cdaOrganization.getName().isSetNullFlavor()) {
-			fhirOrganization.setName(cdaOrganization.getName().getText());
-		}
-		
-		// telecom -> telecom
-		if(cdaOrganization.getTelecoms() != null && !cdaOrganization.getTelecoms().isEmpty()) {
-			for(TEL tel : cdaOrganization.getTelecoms()) {
-				if(tel != null && !tel.isSetNullFlavor()) {
-					fhirOrganization.addTelecom(dtt.tTEL2ContactPoint(tel));
-				}
-			}
-		}
-		
-		// addr -> address
-		if(cdaOrganization.getAddrs() != null && !cdaOrganization.getAddrs().isEmpty()) {
-			for(AD ad : cdaOrganization.getAddrs()) {
-				if(ad != null && !ad.isSetNullFlavor()) {
-					fhirOrganization.addAddress(dtt.AD2Address(ad));
-				}
-			}
-		}
-
-		return fhirOrganization;
-	}
-	
-	public ca.uhn.fhir.model.dstu2.resource.Device tSupply2Device(org.openhealthtools.mdht.uml.cda.Supply cdaSupply) {
-		if(cdaSupply == null || cdaSupply.isSetNullFlavor())
-			return null;
-		
-		ProductInstance productInstance = null;
-		// getting productInstance from cdaSupply.participant.participantRole
-		if(cdaSupply.getParticipants() != null && !cdaSupply.getParticipants().isEmpty()) {
-			for(Participant2 participant : cdaSupply.getParticipants()) {
-				if(participant != null && !participant.isSetNullFlavor()) {
-					if(participant.getParticipantRole() != null && !participant.getParticipantRole().isSetNullFlavor()) {
-						if(participant.getParticipantRole() instanceof ProductInstance) {
-							productInstance = (ProductInstance)participant.getParticipantRole();
-						}
-					}
-				}
-			}
-		}
-
-		if(productInstance == null)
-			return null;
-
-		Device fhirDev = new Device();
-
-		// resource id
-		IdDt resourceId = new IdDt("Device", getUniqueId());
-		fhirDev.setId(resourceId);
-		
-		// patient
-		fhirDev.setPatient(getPatientRef());
-
-		// productInstance.id -> identifier
-		for(II id : productInstance.getIds()) {
-			if(!id.isSetNullFlavor())
-				fhirDev.addIdentifier(dtt.tII2Identifier(id));
-		}
-
-		// productInstance.playingDevice.code -> type
-		if(productInstance.getPlayingDevice() != null && !productInstance.getPlayingDevice().isSetNullFlavor()) {
-			if(productInstance.getPlayingDevice().getCode() != null && !productInstance.getPlayingDevice().getCode().isSetNullFlavor()) {
-				fhirDev.setType(dtt.tCD2CodeableConcept(productInstance.getPlayingDevice().getCode()));
-			}
-		}
-
-		return fhirDev;
-	}
-
-	public Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation) {
-		return tObservation2Observation(cdaReactionObservation);
-	}
-
 	public Bundle tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer) {
 		if(cdaResultOrganizer == null || cdaResultOrganizer.isSetNullFlavor())
 			return null;
@@ -2780,4 +2680,106 @@ public class ResourceTransformerImpl implements IResourceTransformer {
 
  		return fhirDiagReportBundle;
 	}
+	
+	public Composition.Section tSection2Section(Section cdaSection) {
+		if(cdaSection == null || cdaSection.isSetNullFlavor()){
+			return null;
+		}
+
+		Composition.Section fhirSec = new Composition.Section();
+			
+		// title -> title.text
+		if(cdaSection.getTitle() != null && !cdaSection.getTitle().isSetNullFlavor()) {
+			if(cdaSection.getTitle().getText() != null && !cdaSection.getTitle().getText().isEmpty()) {
+				fhirSec.setTitle(cdaSection.getTitle().getText());
+			}
+		}
+
+		// code -> code
+		if(cdaSection.getCode() != null && !cdaSection.getCode().isSetNullFlavor()) {
+			fhirSec.setCode(dtt.tCD2CodeableConcept(cdaSection.getCode()));
+		}
+
+		// text -> text
+		if(cdaSection.getText() != null) {
+			NarrativeDt fhirText = dtt.tStrucDocText2Narrative(cdaSection.getText());
+			if(fhirText != null)
+				fhirSec.setText(fhirText);
+		}
+
+		return fhirSec;
+	}
+	
+	public Location tServiceDeliveryLocation2Location(ServiceDeliveryLocation cdaSDLOC) {
+		/*
+		 * ServiceDeliveryLocation is a ParticipantRole instance with a specific templateId
+		 * Therefore, tParticipantRole2Location should satisfy the necessary mapping
+		 */
+		return tParticipantRole2Location(cdaSDLOC);
+	}
+	
+	public ca.uhn.fhir.model.dstu2.resource.Device tSupply2Device(org.openhealthtools.mdht.uml.cda.Supply cdaSupply) {
+		if(cdaSupply == null || cdaSupply.isSetNullFlavor())
+			return null;
+		
+		ProductInstance productInstance = null;
+		// getting productInstance from cdaSupply.participant.participantRole
+		if(cdaSupply.getParticipants() != null && !cdaSupply.getParticipants().isEmpty()) {
+			for(Participant2 participant : cdaSupply.getParticipants()) {
+				if(participant != null && !participant.isSetNullFlavor()) {
+					if(participant.getParticipantRole() != null && !participant.getParticipantRole().isSetNullFlavor()) {
+						if(participant.getParticipantRole() instanceof ProductInstance) {
+							productInstance = (ProductInstance)participant.getParticipantRole();
+						}
+					}
+				}
+			}
+		}
+
+		if(productInstance == null)
+			return null;
+
+		Device fhirDev = new Device();
+
+		// resource id
+		IdDt resourceId = new IdDt("Device", getUniqueId());
+		fhirDev.setId(resourceId);
+		
+		// patient
+		fhirDev.setPatient(getPatientRef());
+
+		// productInstance.id -> identifier
+		for(II id : productInstance.getIds()) {
+			if(!id.isSetNullFlavor())
+				fhirDev.addIdentifier(dtt.tII2Identifier(id));
+		}
+
+		// productInstance.playingDevice.code -> type
+		if(productInstance.getPlayingDevice() != null && !productInstance.getPlayingDevice().isSetNullFlavor()) {
+			if(productInstance.getPlayingDevice().getCode() != null && !productInstance.getPlayingDevice().getCode().isSetNullFlavor()) {
+				fhirDev.setType(dtt.tCD2CodeableConcept(productInstance.getPlayingDevice().getCode()));
+			}
+		}
+
+		return fhirDev;
+	}
+
+	public Bundle tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation) {
+		Bundle fhirObservationBundle = tObservation2Observation(cdaVitalSignObservation);
+		if(fhirObservationBundle == null)
+			return null;
+
+		// finding the observation resource and setting its meta.profile to result observation's profile url
+		if(Config.isGenerateDafProfileMetadata()) {
+			for (Bundle.Entry entry : fhirObservationBundle.getEntry()) {
+				if (entry.getResource() instanceof Observation) {
+					(entry.getResource()).getMeta().addProfile(Constants.PROFILE_DAF_VITAL_SIGNS);
+				}
+			}
+		}
+
+		return fhirObservationBundle;
+	}
+
+
 }

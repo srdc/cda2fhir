@@ -242,7 +242,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer {
 		return DataAbsentReasonCode;
 	}
 
-	public CodeableConceptDt ObservationInterpretationCode2ObservationInterpretationCode(CD cdaObservationInterpretationCode) {
+	public CodeableConceptDt tObservationInterpretationCode2ObservationInterpretationCode(CD cdaObservationInterpretationCode) {
 		if(cdaObservationInterpretationCode == null)
 			return null;
 		CodingDt obsIntCode = new CodingDt();
@@ -538,6 +538,33 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer {
 				return null;
 		}
 	}
+	
+	public AddressTypeEnum tPostalAddressUse2AddressTypeEnum(PostalAddressUse cdaPostalAddressUse) {
+		switch(cdaPostalAddressUse) {
+			case PHYS:
+				return AddressTypeEnum.PHYSICAL;
+			case PST:
+				return AddressTypeEnum.POSTAL;
+			default:
+				return null;
+		}
+	}
+
+	public AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse cdaPostalAddressUse) {
+		switch(cdaPostalAddressUse) {
+			case HP:
+			case H:
+				return AddressUseEnum.HOME;
+			case WP:
+				return AddressUseEnum.WORK;
+			case TMP:
+				return AddressUseEnum.TEMPORARY;
+			case BAD:
+				return AddressUseEnum.OLD___INCORRECT;
+			default:
+				return AddressUseEnum.TEMPORARY;
+		}
+	}
 
 	public ConditionCategoryCodesEnum tProblemType2ConditionCategoryCodesEnum(String cdaProblemType) {
 		if(cdaProblemType == null)
@@ -572,33 +599,6 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer {
 		}
 	}
 	
-	public AddressTypeEnum tPostalAddressUse2AddressTypeEnum(PostalAddressUse cdaPostalAddressUse) {
-		switch(cdaPostalAddressUse) {
-			case PHYS:
-				return AddressTypeEnum.PHYSICAL;
-			case PST:
-				return AddressTypeEnum.POSTAL;
-			default:
-				return null;
-		}
-	}
-
-	public AddressUseEnum tPostalAdressUse2AddressUseEnum(PostalAddressUse cdaPostalAddressUse) {
-		switch(cdaPostalAddressUse) {
-			case HP:
-			case H:
-				return AddressUseEnum.HOME;
-			case WP:
-				return AddressUseEnum.WORK;
-			case TMP:
-				return AddressUseEnum.TEMPORARY;
-			case BAD:
-				return AddressUseEnum.OLD___INCORRECT;
-			default:
-				return AddressUseEnum.TEMPORARY;
-		}
-	}
-
 	public DiagnosticReportStatusEnum tResultOrganizerStatusCode2DiagnosticReportStatusEnum(String cdaResultOrganizerStatusCode) {
 		if(cdaResultOrganizerStatusCode == null)
 			return null;
