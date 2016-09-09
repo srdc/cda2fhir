@@ -136,15 +136,25 @@ public class ValidatorImpl implements IValidator {
 	
 	public OutputStream validateBundle(Bundle bundle) {
 		if(bundle == null) {
-			logger.warn("The bundle validator was running on was found null. Returning null");
+			logger.warn("The bundle to be validated is null. Returning null.");
+			return null;
+		}
+		if(bundle.getEntry().isEmpty()) {
+			logger.warn("The bundle to be validated is empty. Returning null");
 			return null;
 		}
 		
-		logger.info("Validating the bundle containing "+bundle.getEntry().size()+" entries");
+		logger.info("Validating the bundle containing " + bundle.getEntry().size() + " entries");
 		
 		// create an output stream to return
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		
+		// init the html output
+		try {
+			outputStream.write("<html>\n\t<body>".getBytes());
+		} catch (IOException e) {
+			logger.error("Could not write to the output stream.", e);
+		}
+
 		// traverse the entries of the bundle
 		for(Bundle.Entry entry : bundle.getEntry()) {
 			if(entry != null && entry.getResource() != null) {	
@@ -158,11 +168,18 @@ public class ValidatorImpl implements IValidator {
 							outputStream.write(byteArray);
 					}
 				} catch (IOException e) {
-					logger.error("Exception occurred while trying to write the validation outcome to the output stream. Ignoring",e);
+					logger.error("Exception occurred while trying to write the validation outcome to the output stream. Ignoring", e);
 				}	
 			} else {
-				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry");
+				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry.");
 			}
+		}
+
+		// last touch to the html output
+		try {
+			outputStream.write("\n\t</body>\n</html>".getBytes());
+		} catch (IOException e) {
+			logger.error("Could not write to the output stream.", e);
 		}
 		
 		return outputStream;

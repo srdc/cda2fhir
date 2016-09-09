@@ -50,7 +50,7 @@ public class ValidatorTest {
 	}
 
 	// C-CDA_R2-1_CCD.xml with DAF profile
-	@Test
+	@Ignore
 	public void testReferenceCCDBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-profile-validation.json";
