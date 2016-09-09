@@ -86,54 +86,6 @@ public class ValidatorImpl implements IValidator {
 		return FHIRUtil.getXML(paramResource).getBytes();
 	}
 	
-	public OutputStream validateResource(IResource resource) {
-		if(resource == null) {
-			logger.warn("The resource validator was running on was found null. Returning null");
-			return null;
-		}
-		
-		if(resource instanceof Bundle) {
-			logger.error("Bundle is not a proper parameter for the method Validator.validateResource. Use Validator.validateBundle instead.");
-			return null;
-		}
-		
-		logger.info("Validating resource "+resource.getId());
-		
-		// set resource
-		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
-		
-		// validate!
-		try {
-			this.validationEngine.process();
-		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
-			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message",e);
-			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occured while validating this resource:<br>"
-					+ e.getMessage()+"<hr>";
-			try {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				outputStream.write(exceptionAsHtml.getBytes());
-				return outputStream;
-			} catch (IOException e1) {
-				logger.error("Exception occurred while trying to write the exception outcome to the output stream. Ignoring ");
-			}
-		}
-		
-		// direct outcome string to an output stream
-		java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
-		
-		// notice that html tag is not included in the outcome string
-		try {
-			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
-			outcomeText = "<h3>" + resource.getId() + "</h3>" + outcomeText + "<hr>";
-			outputStream.write(outcomeText.getBytes());
-		} catch (IOException e) {
-			logger.error("Exception occurred while trying to write the validation outcome to the output stream. Returning null", e);
-			return null;
-		}
-		
-		return outputStream;
-	}
-	
 	public OutputStream validateBundle(Bundle bundle) {
 		if(bundle == null) {
 			logger.warn("The bundle to be validated is null. Returning null.");
@@ -180,6 +132,54 @@ public class ValidatorImpl implements IValidator {
 			outputStream.write("\n\t</body>\n</html>".getBytes());
 		} catch (IOException e) {
 			logger.error("Could not write to the output stream.", e);
+		}
+		
+		return outputStream;
+	}
+	
+	public OutputStream validateResource(IResource resource) {
+		if(resource == null) {
+			logger.warn("The resource validator was running on was found null. Returning null");
+			return null;
+		}
+		
+		if(resource instanceof Bundle) {
+			logger.error("Bundle is not a proper parameter for the method Validator.validateResource. Use Validator.validateBundle instead.");
+			return null;
+		}
+		
+		logger.info("Validating resource "+resource.getId());
+		
+		// set resource
+		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
+		
+		// validate!
+		try {
+			this.validationEngine.process();
+		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
+			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message",e);
+			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occured while validating this resource:<br>"
+					+ e.getMessage()+"<hr>";
+			try {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				outputStream.write(exceptionAsHtml.getBytes());
+				return outputStream;
+			} catch (IOException e1) {
+				logger.error("Exception occurred while trying to write the exception outcome to the output stream. Ignoring ");
+			}
+		}
+		
+		// direct outcome string to an output stream
+		java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+		
+		// notice that html tag is not included in the outcome string
+		try {
+			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
+			outcomeText = "<h3>" + resource.getId() + "</h3>" + outcomeText + "<hr>";
+			outputStream.write(outcomeText.getBytes());
+		} catch (IOException e) {
+			logger.error("Exception occurred while trying to write the validation outcome to the output stream. Returning null", e);
+			return null;
 		}
 		
 		return outputStream;

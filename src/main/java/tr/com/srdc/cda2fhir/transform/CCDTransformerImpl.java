@@ -64,10 +64,10 @@ public class CCDTransformerImpl implements ICDATransformer {
         this.idGenerator = idGen;
     }
 
-    public void setIdGenerator(IdGeneratorEnum idGen) {
-        this.idGenerator = idGen;
+    public ResourceReferenceDt getPatientRef() {
+        return patientRef;
     }
-
+    
     public synchronized String getUniqueId() {
         switch (this.idGenerator) {
             case COUNTER:
@@ -78,8 +78,8 @@ public class CCDTransformerImpl implements ICDATransformer {
         }
     }
 
-    public ResourceReferenceDt getPatientRef() {
-        return patientRef;
+    public void setIdGenerator(IdGeneratorEnum idGen) {
+        this.idGenerator = idGen;
     }
 
     /**
