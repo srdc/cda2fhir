@@ -44,7 +44,7 @@ public class ValidatorImpl implements IValidator {
 	private String tServerURL = null;
 	private static final String definitionsPath = "src/main/resources/validation-min.xml.zip";
 	private final org.hl7.fhir.dstu2.validation.ValidationEngine validationEngine = new org.hl7.fhir.dstu2.validation.ValidationEngine();
-	private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(ValidatorImpl.class);
 	
 	/**
 	 * Constructs a validator using the default configuration.
