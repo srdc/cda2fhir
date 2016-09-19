@@ -20,8 +20,13 @@ package tr.com.srdc.cda2fhir;
  * #L%
  */
 
+import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import ca.uhn.fhir.model.dstu2.resource.*;
 
 import org.junit.Assert;
@@ -56,8 +61,6 @@ import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
-import tr.com.srdc.cda2fhir.validation.IValidator;
-import tr.com.srdc.cda2fhir.validation.ValidatorImpl;
 
 public class ResourceTransformerTest {
 	
@@ -66,9 +69,25 @@ public class ResourceTransformerTest {
 	ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
 	private FileInputStream fisCCD;
 	private ContinuityOfCareDocument ccd;
+	private static final File resultFile = new File("src/test/resources/output/ResourceTransformerTest.txt");
+	private FileOutputStream resultFileOutputStream;
+	private static final String transformationStartMsg = "\n# TRANSFORMATION STARTING..\n";
+	private static final String transformationEndMsg = "# END OF TRANSFORMATION.\n";
+	private static final String endOfTestMsg = "\n## END OF TEST\n";
 	
 	public ResourceTransformerTest() {
         CDAUtil.loadPackages();
+        
+        // about writing output to the file
+        if(!resultFile.exists())
+        	resultFile.getParentFile().mkdirs();
+        try {
+			resultFileOutputStream = new FileOutputStream(resultFile,true);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        
         try {
 	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
 		} catch (FileNotFoundException ex) {
@@ -89,7 +108,7 @@ public class ResourceTransformerTest {
 	@Test
 	public void testAllergyProblemAct2AllergyIntolerance() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		appendToResultFile("## TEST: AllergyProblemAct2AllergyIntolerance\n");
 		// null instance test
 		AllergyProblemAct cdaNull = null;
 		Bundle fhirNull = rt.tAllergyProblemAct2AllergyIntolerance(cdaNull);
@@ -97,18 +116,19 @@ public class ResourceTransformerTest {
 
 		// instances from file
 		for(AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs()) {
-			System.out.println("Transformation starting..");
+			appendToResultFile(transformationStartMsg);
 			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA);
-			System.out.println("End of transformation. Printing..");
-			FHIRUtil.printJSON(allergyBundle);
-			System.out.println("End of print\n***");
+			appendToResultFile(transformationEndMsg);
+			appendToResultFile(FHIRUtil.getJSON(allergyBundle));
+				
 		}
+		appendToResultFile(endOfTestMsg);
 	}
-
+	
 	@Test
 	public void testAssignedAuthor2Practitioner() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: AssignedAuthor2Practitioner\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.AssignedAuthor cdaNull = null;
 		Bundle fhirNull = rt.tAssignedAuthor2Practitioner(cdaNull);
@@ -119,57 +139,50 @@ public class ResourceTransformerTest {
 			for(org.openhealthtools.mdht.uml.cda.Author author : test.ccd.getAuthors()) {
 				// traversing authors
 				if(author != null && author.getAssignedAuthor() != null) {
-
-					System.out.println("Transformation starting..");
+					appendToResultFile(transformationStartMsg);
 					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner(author.getAssignedAuthor());
-					System.out.println("End of transformation. Printing the resource as JSON object..");
-					FHIRUtil.printJSON(practitionerBundle);
-					System.out.println("End of print.");
+					appendToResultFile(transformationEndMsg);
+					appendToResultFile(FHIRUtil.getJSON(practitionerBundle));
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testAssignedEntity2Practitioner() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		appendToResultFile("## TEST: AssignedEntity2Practitioner\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.AssignedEntity cdaNull = null;
 		Bundle fhirNull = rt.tAssignedEntity2Practitioner(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		int procedureCount = 0;
 		if(test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor()) {
 			if(test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Procedure procedure : test.ccd.getProceduresSection().getProcedures()) {
 					// traversing procedures
-					System.out.print("Procedure["+ procedureCount++ +"]");
-					int performerCount = 0;
 					if(procedure.getPerformers() != null && !procedure.getPerformers().isEmpty()) {
 						for(org.openhealthtools.mdht.uml.cda.Performer2 performer : procedure.getPerformers()) {
-							System.out.print("-> Performer["+ performerCount++ +"]");
 							if(performer.getAssignedEntity() != null && !performer.getAssignedEntity().isSetNullFlavor()) {
-									System.out.println("-> AssignedEntity");
-									System.out.println("Transformation starting..");
-									Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity());
-									System.out.println("End of transformation. Printing the resource as JSON object..");
-									FHIRUtil.printJSON(fhirPractitionerBundle);
-									System.out.println("End of print.");
+								appendToResultFile(transformationStartMsg);
+								Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity());
+								appendToResultFile(transformationEndMsg);
+								appendToResultFile(FHIRUtil.getJSON(fhirPractitionerBundle));
 							}
 						}
 					}
-					System.out.print("\n***\n"); // to visualize
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 
 	@Test
 	public void testClinicalDocument2Composition() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		appendToResultFile("## TEST: ClinicalDocument2Composition\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument cdaNull = null;
 		Bundle fhirNull = rt.tClinicalDocument2Composition(cdaNull);
@@ -177,18 +190,18 @@ public class ResourceTransformerTest {
 
 		// instance from file
 		if(test.ccd != null && !test.ccd.isSetNullFlavor()) {
-			System.out.println("Transformation starting...");
+			appendToResultFile(transformationStartMsg);
 			Bundle fhirComp = rt.tClinicalDocument2Composition(test.ccd);
-			System.out.println("End of transformation. Printing the resource as JSON object..");
-			FHIRUtil.printJSON(fhirComp);
-			System.out.println("End of print.");
+			appendToResultFile(transformationEndMsg);
+			appendToResultFile(FHIRUtil.getJSON(fhirComp));
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testEncounterActivity2Encounter(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		appendToResultFile("## TEST: EncounterActivity2Encounter\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaNull = null;
 		Bundle fhirNull = rt.tEncounterActivity2Encounter(cdaNull);
@@ -199,41 +212,21 @@ public class ResourceTransformerTest {
 			if(test.ccd.getEncountersSection().getEncounterActivitiess() != null && !test.ccd.getEncountersSection().getEncounterActivitiess().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities encounterActivity : test.ccd.getEncountersSection().getEncounterActivitiess()) {
 					if(encounterActivity != null && !encounterActivity.isSetNullFlavor()) {
-						System.out.println("Transformation starting..");
+						appendToResultFile(transformationStartMsg);
 						Bundle fhirEncounterBundle = rt.tEncounterActivity2Encounter(encounterActivity);
-						System.out.println("End of transformation. Printing the resource as JSON object..");
-						FHIRUtil.printJSON( fhirEncounterBundle );
-						System.out.println("End of print.\n***\n");
+						appendToResultFile(transformationEndMsg);
+						appendToResultFile(FHIRUtil.getJSON(fhirEncounterBundle));
 					}
 				}
 			}
 		}
-		
-		
-//		int encounterCount = 0;
-//		if(test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty()) {
-//			for(org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections()) {
-//				if(section != null && !section.isSetNullFlavor()) {
-//					for(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter : section.getEncounters()) {
-//						if(cdaEncounter != null && !cdaEncounter.isSetNullFlavor()) {
-//							System.out.println("Encounter["+encounterCount+"]");
-//							System.out.println("Transformation starting..");
-//							Bundle fhirEncounterBundle = rt.tEncounter2Encounter(cdaEncounter);
-//							System.out.println("End of transformation. Printing the resource as JSON object..");
-//							FHIRUtil.printJSON( fhirEncounterBundle );
-//							System.out.println("End of print.\n***\n");
-//						}
-//						encounterCount++;
-//					}
-//				}
-//			}
-//		}
+		appendToResultFile(endOfTestMsg);
 	}
 
 	@Test
 	public void testFamilyHistoryOrganizer2FamilyMemberHistory(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: FamilyHistoryOrganizer2FamilyMemberHistory\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer cdaNull = null;
 		FamilyMemberHistory fhirNull = rt.tFamilyHistoryOrganizer2FamilyMemberHistory(cdaNull);
@@ -243,20 +236,20 @@ public class ResourceTransformerTest {
 		if(test.ccd.getFamilyHistorySection() != null && test.ccd.getFamilyHistorySection().getFamilyHistories() != null) {
 			for(org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : test.ccd.getFamilyHistorySection().getFamilyHistories()) {
 				if(familyHistoryOrganizer != null) {
-					System.out.println("Transformation starting..");
+					appendToResultFile(transformationStartMsg);
 					FamilyMemberHistory fmHistory = rt.tFamilyHistoryOrganizer2FamilyMemberHistory(familyHistoryOrganizer);
-					System.out.println("End of transformation. Printing the resource as JSON object..");
-					FHIRUtil.printJSON(fmHistory);
-					System.out.println("End of print.");
+					appendToResultFile(transformationEndMsg);
+					appendToResultFile(FHIRUtil.getJSON(fmHistory));
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testFunctionalStatus2Observation() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: FunctionalStatus2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Observation cdaNull = null;
 		Bundle fhirNull = rt.tFunctionalStatus2Observation(cdaNull);
@@ -272,11 +265,10 @@ public class ResourceTransformerTest {
 						if(funcStatOrg instanceof FunctionalStatusResultOrganizer) {
 							if(((FunctionalStatusResultOrganizer)funcStatOrg).getObservations() != null && !((FunctionalStatusResultOrganizer)funcStatOrg).getObservations().isEmpty()) {
 								for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : ((FunctionalStatusResultOrganizer)funcStatOrg).getObservations()) {
-									System.out.println("Transformation starting...");
+									appendToResultFile(transformationStartMsg);
 									Bundle fhirObs = rt.tFunctionalStatus2Observation(cdaObs);
-									System.out.println("End of transformation. Printing the resource as JSON object..");
-									FHIRUtil.printJSON(fhirObs);
-									System.out.println("End of print.");
+									appendToResultFile(transformationEndMsg);
+									appendToResultFile(FHIRUtil.getJSON(fhirObs));
 								}
 							}
 						}
@@ -284,49 +276,42 @@ public class ResourceTransformerTest {
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testGuardian2Contact(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: Guardian2Contact\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Guardian cdaNull = null;
 		Patient.Contact fhirNull = rt.tGuardian2Contact(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		int patientRoleCount = 0;
 		if(test.ccd.getPatientRoles() != null && !test.ccd.getPatientRoles().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.PatientRole patientRole : test.ccd.getPatientRoles()) {
 				if(patientRole != null && !patientRole.isSetNullFlavor() && patientRole.getPatient() != null
 						&& !patientRole.getPatient().isSetNullFlavor()) {
-					int guardianCount = 0;
 					for(org.openhealthtools.mdht.uml.cda.Guardian guardian : patientRole.getPatient().getGuardians()) {
 						if(guardian != null && !guardian.isSetNullFlavor()) {
-							System.out.println("PatientRole["+patientRoleCount+"], Guardian["+guardianCount+"]");
-							
-							System.out.println("Transformation starting..");
+							appendToResultFile(transformationStartMsg);
 							ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = rt.tGuardian2Contact(guardian);
-							
-							System.out.println("End of transformation. Printing the resource as JSON object..");
-							
+							appendToResultFile(transformationEndMsg);
 							ca.uhn.fhir.model.dstu2.resource.Patient patient = new Patient().addContact(contact);
-							FHIRUtil.printJSON(patient);
-							System.out.println("End of print.\n***\n");
+							appendToResultFile(FHIRUtil.getJSON(patient));
 						}
-						guardianCount++;
 					}
 				}
-				patientRoleCount++;
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testImmunizationActivity2Immunization() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: ImmunizationActivity2Immunization\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity cdaNull = null;
 		Bundle fhirNull = rt.tImmunizationActivity2Immunization(cdaNull);
@@ -338,48 +323,43 @@ public class ResourceTransformerTest {
 		if(immSec != null && !immSec.isSetNullFlavor()) {
 			for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
 				if(immAct != null && !immAct.isSetNullFlavor()) {
-					System.out.println("Transformating starting...");
+					appendToResultFile(transformationStartMsg);
 					Bundle fhirImm = rt.tImmunizationActivity2Immunization(immAct);
-					System.out.println("End of transformation. Printing the resource as JSON object..");
-					FHIRUtil.printJSON(fhirImm);
-					System.out.println("End of print.");
+					appendToResultFile(transformationEndMsg);
+					appendToResultFile(FHIRUtil.getJSON(fhirImm));
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testLanguageCommunication2Communication(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		appendToResultFile("## TEST: LanguageCommunication2Communication\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.LanguageCommunication cdaNull = null;
 		ca.uhn.fhir.model.dstu2.resource.Patient.Communication fhirNull = rt.tLanguageCommunication2Communication(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		int patientCount = 0;
 		for(org.openhealthtools.mdht.uml.cda.Patient patient : test.ccd.getPatients()) {
-			System.out.print("Patient["+patientCount++ +"].");
-			int lcCount = 0;
 			for(org.openhealthtools.mdht.uml.cda.LanguageCommunication LC : patient.getLanguageCommunications()) {
-				System.out.print("LC["+ lcCount++ +"]\n");
-				System.out.println("Transformating starting...");
+				appendToResultFile(transformationStartMsg);
 				ca.uhn.fhir.model.dstu2.resource.Patient.Communication fhirCommunication = rt.tLanguageCommunication2Communication(LC);
-				System.out.println("End of transformation. Building a patient resource..");
+				appendToResultFile(transformationEndMsg);
 				ca.uhn.fhir.model.dstu2.resource.Patient fhirPatient = new ca.uhn.fhir.model.dstu2.resource.Patient();
 				fhirPatient.addCommunication(fhirCommunication);
-				System.out.println("End of build. Printing the resource as JSON object..");
-				FHIRUtil.printJSON(fhirPatient);
-				System.out.println("End of print.");
+				appendToResultFile(FHIRUtil.getJSON(fhirPatient));
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 
 	@Test
 	public void testManufacturedProduct2Medication(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: ManufacturedProduct2Medication\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.ManufacturedProduct cdaNull = null;
 		Bundle fhirNull = rt.tManufacturedProduct2Medication(cdaNull);
@@ -394,23 +374,23 @@ public class ResourceTransformerTest {
 						if(immAct.getConsumable() != null && !immAct.getConsumable().isSetNullFlavor()) {
 							if(immAct.getConsumable().getManufacturedProduct() != null && !immAct.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
 								// immAct.immSection.immAct.consumable.manuProd
-								System.out.println("Transformation starting..");
+								appendToResultFile(transformationStartMsg);
 								Bundle fhirMed = rt.tManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
-								System.out.println("End of transformation. Printing the resource as JSON object..");
-								FHIRUtil.printJSON(fhirMed);
-								System.out.println("End of print."+"\n***\n");
+								appendToResultFile(transformationEndMsg);
+								appendToResultFile(FHIRUtil.getJSON(fhirMed));
 							}
 						}
 					}
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testMedicationActivity2MedicationStatement(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: MedicationActivity2MedicationStatement\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.MedicationActivity cdaNull = null;
 		Bundle fhirNull = rt.tMedicationActivity2MedicationStatement(cdaNull);
@@ -421,21 +401,21 @@ public class ResourceTransformerTest {
 			if(test.ccd.getMedicationsSection().getMedicationActivities() != null && !test.ccd.getMedicationsSection().getMedicationActivities().isEmpty()) {
 				for(MedicationActivity cdaMedAct : test.ccd.getMedicationsSection().getMedicationActivities()) {
 					if(cdaMedAct != null && !cdaMedAct.isSetNullFlavor()) {
-						System.out.println("Transformation starting..");
+						appendToResultFile(transformationStartMsg);
 						Bundle fhirMedStBundle = rt.tMedicationActivity2MedicationStatement(cdaMedAct);
-						System.out.println("End of transformation. Printing the resource as JSON object..");
-						FHIRUtil.printJSON(fhirMedStBundle);
-						System.out.println("End of print.");
+						appendToResultFile(transformationEndMsg);
+						appendToResultFile(FHIRUtil.getJSON(fhirMedStBundle));
 					}
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testMedicationDispense2MedicationDispense(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: MedicationDispense2MedicationDispense\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaNull = null;
 		Bundle fhirNull = rt.tMedicationDispense2MedicationDispense(cdaNull);
@@ -451,11 +431,10 @@ public class ResourceTransformerTest {
 						if(medAct.getMedicationDispenses() != null && !medAct.getMedicationDispenses().isEmpty()) {
 							for(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense medDisp : medAct.getMedicationDispenses()) {
 								if(medDisp != null && !medDisp.isSetNullFlavor()) {
-									System.out.println("Transformation starting..");
+									appendToResultFile(transformationStartMsg);
 									Bundle fhirMedDispBundle = rt.tMedicationDispense2MedicationDispense(medDisp);
-									System.out.println("End of transformation. Printing the resource as JSON object..");
-									FHIRUtil.printJSON(fhirMedDispBundle);
-									System.out.println("End of print.");
+									appendToResultFile(transformationEndMsg);
+									appendToResultFile(FHIRUtil.getJSON(fhirMedDispBundle));
 								}
 							}
 						}
@@ -463,12 +442,13 @@ public class ResourceTransformerTest {
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testObservation2Observation(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		appendToResultFile("## TEST: Observation2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Observation cdaNull = null;
 		Bundle fhirNull = rt.tObservation2Observation(cdaNull);
@@ -479,43 +459,41 @@ public class ResourceTransformerTest {
 			if(test.ccd.getSocialHistorySection().getObservations() != null && !test.ccd.getSocialHistorySection().getObservations().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : test.ccd.getSocialHistorySection().getObservations()) {
 					if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
-						System.out.println("Transformation starting..");
+						appendToResultFile(transformationStartMsg);
 						Bundle obsBundle = rt.tObservation2Observation(cdaObs);
-						System.out.println("End of transformation. Printing..");
-						FHIRUtil.printJSON(obsBundle);
-						System.out.println("End of print.\n***");
+						appendToResultFile(transformationEndMsg);
+						appendToResultFile(FHIRUtil.getJSON(obsBundle));
 					}
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 
 	@Test
 	public void testOrganization2Organization(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: Organization2Organization\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Organization cdaNull = null;
 		Organization fhirNull = rt.tOrganization2Organization(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		int patientCount = 0;
 		for(org.openhealthtools.mdht.uml.cda.PatientRole patRole : test.ccd.getPatientRoles()) {
-			System.out.print("PatientRole["+patientCount++ +"].");
 			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
-			System.out.println("Transformation starting...");
+			appendToResultFile(transformationStartMsg);
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
-			System.out.println("End of transformation. Printing the resource as JSON object..");
-			FHIRUtil.printJSON(fhirOrg);
-			System.out.println("End of print."+"\n***");
+			appendToResultFile(transformationEndMsg);
+			appendToResultFile(FHIRUtil.getJSON(fhirOrg));
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 
 	@Test
 	public void testPatientRole2Patient(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-
+		appendToResultFile("## TEST: PatientRole2Patient\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.PatientRole cdaNull = null;
 		Bundle fhirNull = rt.tPatientRole2Patient(cdaNull);
@@ -528,17 +506,16 @@ public class ResourceTransformerTest {
 
 			Patient patient = null;
 
+			appendToResultFile(transformationStartMsg);
 			Bundle patientBundle = rt.tPatientRole2Patient(pr);
+			appendToResultFile(transformationEndMsg);
+			appendToResultFile(FHIRUtil.getJSON(patientBundle));
+			
 			for(Entry entry : patientBundle.getEntry()) {
 				if(entry.getResource() instanceof Patient) {
 					patient = (Patient)entry.getResource();
 				}
 			}
-
-			// printer
-			System.out.println("Printing the resource as JSON object..");
-			FHIRUtil.printJSON(patientBundle);
-			System.out.println("End of print");
 
 
 			// patient.identifier
@@ -624,26 +601,7 @@ public class ResourceTransformerTest {
 				if(pn.getValidTime() == null || pn.getValidTime().isSetNullFlavor()) {
 					// It can return null or an empty list
 					Assert.assertTrue(patient.getName().get(nameCount).getPeriod() == null || patient.getName().get(nameCount).getPeriod().isEmpty());
-				} else { // start of non-null period test
-
-					if(pn.getValidTime().getLow() == null || pn.getValidTime().getLow().isSetNullFlavor()) {
-
-						Assert.assertTrue(patient.getName().get(nameCount).getPeriod().getStart() == null);
-					} else {
-						System.out.println("Following lines should contain identical non-null dates:");
-						System.out.println("[FHIR] " + patient.getName().get(nameCount).getPeriod().getStart());
-						System.out.println("[CDA] "+ pn.getValidTime().getLow());
-					}
-
-					if(pn.getValidTime().getHigh() == null || pn.getValidTime().getHigh().isSetNullFlavor()) {
-						Assert.assertTrue(patient.getName().get(nameCount).getPeriod().getEnd() == null);
-					} else {
-						System.out.println("Following lines should contain identical non-null dates:");
-						System.out.println("[FHIR] " + patient.getName().get(nameCount).getPeriod().getEnd());
-						System.out.println("[CDA] "+ pn.getValidTime().getHigh());
-					}
 				}
-				nameCount++;
 			}
 
 
@@ -662,20 +620,12 @@ public class ResourceTransformerTest {
 			// Following test aims to test that ValueSetTransformer method.
 			if(pr.getPatient().getAdministrativeGenderCode() == null || pr.getPatient().getAdministrativeGenderCode().isSetNullFlavor()) {
 				Assert.assertTrue(patient.getGender() == null || patient.getGender().isEmpty());
-			} else {
-				System.out.println("Following lines should contain two lines of non-null gender information which are relevant(male,female,unknown):");
-				System.out.println("  [FHIR]: " + patient.getGender() );
-				System.out.println("  [CDA]: " + pr.getPatient().getAdministrativeGenderCode().getCode());
 			}
 
 			// patient.birthDate
 			// Notice that patient.birthDate is fullfilled by the method dtt.TS2Date
 			if(pr.getPatient().getBirthTime() == null || pr.getPatient().getBirthTime().isSetNullFlavor()) {
 				Assert.assertTrue(patient.getBirthDate() == null);
-			} else {
-				System.out.println("Following lines should contain two lines of non-null, equivalent birthdate information:");
-				System.out.println("  [FHIR]: " + patient.getBirthDate());
-				System.out.println("  [CDA]: "+ pr.getPatient().getBirthTime().getValue());
 			}
 
 			// patient.address
@@ -693,10 +643,7 @@ public class ResourceTransformerTest {
 			if(pr.getPatient().getMaritalStatusCode() == null || pr.getPatient().getMaritalStatusCode().isSetNullFlavor()) {
 				Assert.assertTrue(patient.getMaritalStatus() == null || patient.getMaritalStatus().isEmpty());
 			} else {
-				System.out.println("Following lines should contain two lines of non-null, equivalent marital status information:");
-				System.out.println("  [FHIR]: " + patient.getMaritalStatus().getCoding().get(0).getCode());
-				System.out.println("  [CDA]: "+ pr.getPatient().getMaritalStatusCode().getCode());
-
+				Assert.assertTrue(patient.getMaritalStatus().getCoding().get(0).getCode().toLowerCase().charAt(0) == pr.getPatient().getMaritalStatusCode().getCode().toLowerCase().charAt(0));
 			}
 
 
@@ -736,8 +683,6 @@ public class ResourceTransformerTest {
 				if(pr.getProviderOrganization().getNames() == null) {
 					Assert.assertTrue(patient.getManagingOrganization().getDisplay() == null);
 				}
-				System.out.println("[FHIR] Reference for managing organization: "+  patient.getManagingOrganization().getReference());
-
 			}
 
 			// guardian
@@ -754,16 +699,15 @@ public class ResourceTransformerTest {
 			for(ExtensionDt extension : patient.getUndeclaredExtensions()) {
 				Assert.assertTrue(extension.getUrl() != null);
 				Assert.assertTrue(extension.getValue() != null);
-				System.out.println("[FHIR] Extension["+extCount+"] url: "+extension.getUrl());
-				System.out.println("[FHIR] Extension["+ extCount++ +"] value: "+extension.getValue());
 			}
 		}
+		appendToResultFile(endOfTestMsg);
     }
 	
 	@Test
 	public void testProblemConcernAct2Condition() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: ProblemConcernAct2Condition\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct cdaNull = null;
 		Bundle fhirNull = rt.tProblemConcernAct2Condition(cdaNull);
@@ -774,107 +718,71 @@ public class ResourceTransformerTest {
 			if(test.ccd.getProblemSection().getProblemConcerns() != null && !test.ccd.getProblemSection().getProblemConcerns().isEmpty()) {
 				for(ProblemConcernAct problemConcernAct : test.ccd.getProblemSection().getProblemConcerns()) {
 					if(problemConcernAct != null && !problemConcernAct.isSetNullFlavor()) {
-						System.out.println("Transformation starting..");
+						appendToResultFile(transformationStartMsg);
 						Bundle fhirConditionBundle = rt.tProblemConcernAct2Condition(problemConcernAct);
-						System.out.println("End of transformation. Printing the resource as JSON object..");
-						FHIRUtil.printJSON(fhirConditionBundle);
-						System.out.println("End of print.");
+						appendToResultFile(transformationEndMsg);
+						appendToResultFile(FHIRUtil.getJSON(fhirConditionBundle));
 					}
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testProcedure2Procedure(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: Procedure2Procedure\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Procedure cdaNull = null;
 		Bundle fhirNull = rt.tProcedure2Procedure(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		int procedureCount = 0;
 		if(test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor()) {
 			if(test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getProceduresSection().getProcedures()) {
 					// traversing procedures
-					System.out.println("Procedure["+ procedureCount++ +"]");
-					System.out.println("Transformation starting..");
+					appendToResultFile(transformationStartMsg);
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
-					System.out.println("End of transformation. Printing the resource as JSON object..");
-					FHIRUtil.printJSON(fhirProcedureBundle);
-					System.out.println("End of print."+"\n***");
+					appendToResultFile(transformationEndMsg);
+					appendToResultFile(FHIRUtil.getJSON(fhirProcedureBundle));
 				}
 			}
 		}
 		
-		int encounterProceduresCount = 0;
 		if(test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor()) {
 			if(test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures()) {
-					// traversing procedures
-					System.out.println("Procedure["+ encounterProceduresCount++ +"]");
-					
-					System.out.println("Transformation starting..");
-	
-					ca.uhn.fhir.model.dstu2.resource.Encounter fhirProcedure = null;
-					
+					// traversing procedures					
+					appendToResultFile(transformationStartMsg);
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
-					for(Entry entry : fhirProcedureBundle.getEntry()) {
-						if(entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
-							fhirProcedure = (Encounter) entry.getResource();
-						}
-					}
-					
-					System.out.println("End of transformation. Printing the resource as JSON object..");
-					FHIRUtil.printJSON( fhirProcedure );
-					System.out.println("End of print.");
-					System.out.print("\n***\n"); // to visualize
+					appendToResultFile(transformationEndMsg);
+					appendToResultFile(FHIRUtil.getJSON(fhirProcedureBundle));
 				}
-				
 			}
 		}
 		
-		if( test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty() ){
-			System.out.println("*** SECTIONS ****");
-			int sectionCount = 0;
-			for( org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections() ){
-				if( section.getProcedures() != null && !section.getProcedures().isEmpty() ){
-					int procedureCount2 = 0;
+		if(test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty()) {
+			for(org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections()) {
+				if(section.getProcedures() != null && !section.getProcedures().isEmpty()) {
 					for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures()) {
 						// traversing procedures
-						System.out.println("Section["+sectionCount+"]"+" -> Procedure["+ procedureCount2++ +"]");
-	
-						System.out.println("Transformation starting..");
-	
-						ca.uhn.fhir.model.dstu2.resource.Procedure fhirProcedure = null;
-						
+						appendToResultFile(transformationStartMsg);
 						Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
-						for(Entry entry : fhirProcedureBundle.getEntry()) {
-							if( entry.getResource() instanceof ca.uhn.fhir.model.dstu2.resource.Procedure) {
-								fhirProcedure = (ca.uhn.fhir.model.dstu2.resource.Procedure) entry.getResource();
-							}
-						}
-						
-						System.out.println("End of transformation. Printing the resource as JSON object..");
-						FHIRUtil.printJSON( fhirProcedure );
-						System.out.println("End of print.");
-						System.out.println("\n***\n"); // to visualize
+						appendToResultFile(transformationEndMsg);
+						appendToResultFile(FHIRUtil.getJSON(fhirProcedureBundle));
 					}
-					
 				}
-				sectionCount++;
 			}
 		}
-		
+		appendToResultFile(endOfTestMsg);
 	}
 
 	@Test
 	public void testResultOrganizer2DiagnosticReport() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: ResultOrganizer2DiagnosticReport\n");
 		// null instance test
 		ResultOrganizer cdaNull = null;
 		Bundle fhirNull = rt.tResultOrganizer2DiagnosticReport(cdaNull);
@@ -888,22 +796,22 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.Organizer cdaOrganizer : resultsSec.getOrganizers()) {
 					if(cdaOrganizer != null && !cdaOrganizer.isSetNullFlavor()) {
 						if(cdaOrganizer instanceof ResultOrganizer) {
-							System.out.println( "Transformation starting..." );
+							appendToResultFile(transformationStartMsg);
 							Bundle fhirDiagReport = rt.tResultOrganizer2DiagnosticReport((ResultOrganizer)cdaOrganizer);
-							System.out.println("End of transformation. Printing the resource as JSON object..");
-							FHIRUtil.printJSON(fhirDiagReport);
-							System.out.println("End of print.");
+							appendToResultFile(transformationEndMsg);
+							appendToResultFile(FHIRUtil.getJSON(fhirDiagReport));
 						}
 					}
 				}
 			}	
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testSection2Section(){
 		ResourceTransformerTest test = new ResourceTransformerTest();
-	
+		appendToResultFile("## TEST: Section2Section\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Section cdaNull = null;
 		Section fhirNull = rt.tSection2Section(cdaNull);
@@ -921,43 +829,41 @@ public class ResourceTransformerTest {
 			}
 		}
 		if(sampleSection != null) {
-			System.out.println("Transformating..");
-			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.tSection2Section(sampleSection);
-			System.out.println("End of transformation. Printing the JSON Object..");
-			// We need to embed fhirSection to fhirCompositon to use the method printJSON
 			ca.uhn.fhir.model.dstu2.resource.Composition fhirComposition = new ca.uhn.fhir.model.dstu2.resource.Composition();
+			appendToResultFile(transformationStartMsg);
+			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.tSection2Section(sampleSection);
+			appendToResultFile(transformationEndMsg);
 			fhirComposition.addSection(fhirSection);
-			FHIRUtil.printJSON(fhirComposition);
-			System.out.println("End of print."+"\n***");
+			appendToResultFile(FHIRUtil.getJSON(fhirComposition));
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 
 	@Test
 	public void testSocialHistory() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: SocialHistory\n");
 		SocialHistorySection socialHistSec = test.ccd.getSocialHistorySection();
 		
 		if(socialHistSec != null && !socialHistSec.isSetNullFlavor()) {
 			if(socialHistSec.getObservations() != null && !socialHistSec.getObservations().isEmpty()) {
 				for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : socialHistSec.getObservations()) {
 					if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
-						System.out.println("Class: "+cdaObs.getClass().getSimpleName());
-						System.out.println( "Transformation starting..." );
+						appendToResultFile(transformationStartMsg);
 						Bundle fhirObs = rt.tObservation2Observation(cdaObs);
-						System.out.println("End of transformation. Printing the resource as JSON object..");
-						FHIRUtil.printJSON(fhirObs);
-						System.out.println("End of print.");
+						appendToResultFile(transformationEndMsg);
+						appendToResultFile(FHIRUtil.getJSON(fhirObs));
 					}
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 	
 	@Test
 	public void testVitalSignObservation2Observation() {
 		ResourceTransformerTest test = new ResourceTransformerTest();
-		
+		appendToResultFile("## TEST: VitalSignObservation2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation cdaNull = null;
 		Bundle fhirNull = rt.tVitalSignObservation2Observation(cdaNull);
@@ -972,11 +878,10 @@ public class ResourceTransformerTest {
 						if(vitalSignOrganizer.getVitalSignObservations() != null && !vitalSignOrganizer.getVitalSignObservations().isEmpty()) {
 							for(VitalSignObservation vitalSignObservation : vitalSignOrganizer.getVitalSignObservations()) {
 								if(vitalSignObservation != null && !vitalSignObservation.isSetNullFlavor()) {
-									System.out.println("Transformation starting...");
+									appendToResultFile(transformationStartMsg);
 									Bundle fhirObservation = rt.tVitalSignObservation2Observation((VitalSignObservation)vitalSignObservation);
-									System.out.println("End of transformation. Printing the resource as JSON object..");
-									FHIRUtil.printJSON(fhirObservation);
-									System.out.println("End of print.");
+									appendToResultFile(transformationEndMsg);
+									appendToResultFile(FHIRUtil.getJSON(fhirObservation));
 								}
 							}
 						}
@@ -984,6 +889,16 @@ public class ResourceTransformerTest {
 				}
 			}
 		}
+		appendToResultFile(endOfTestMsg);
 	}
 
+	private boolean appendToResultFile(String param) {
+		try {
+			resultFileOutputStream.write(param.getBytes());
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
