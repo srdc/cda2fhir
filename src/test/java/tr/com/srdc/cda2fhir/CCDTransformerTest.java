@@ -22,7 +22,6 @@ package tr.com.srdc.cda2fhir;
 
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
