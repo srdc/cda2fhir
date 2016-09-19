@@ -41,8 +41,12 @@ import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 
+import java.util.TimeZone;
+
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.ihe.operations.GenitaliaSectionOperations;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
@@ -73,16 +77,11 @@ import tr.com.srdc.cda2fhir.transform.IDataTypesTransformer;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 
 public class DataTypesTransformerTest{
-	// LocalTimeZone is used for the tests of TS2DateTime and TS2Instant
-	// String should be supplied in form (+,-)[0-1][0-9]:[0-1][0-9]
-	private final static String LocalTimeZone = "+02:00";
-	
 	IDataTypesTransformer dtt = new DataTypesTransformerImpl();
 
     @SuppressWarnings("deprecation")
 	@Test
     public void testAD2Address() {
-
     	// simple instance test
     	AD ad = DatatypesFactory.eINSTANCE.createAD();
     	// See https://www.hl7.org/fhir/valueset-address-use.html to see valuset of address use
@@ -645,7 +644,7 @@ public class DataTypesTransformerTest{
         String str4 = "201605271540";
         DateTimeDt dateTime4 = dtt.tString2DateTime(str4);
     	
-    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00"+LocalTimeZone,dateTime4.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00"+getLocalTimeZoneString(),dateTime4.getValueAsString());
         
     	// 5 +timezone
         String str5 = "201605271540+0800";
@@ -779,7 +778,7 @@ public class DataTypesTransformerTest{
     	ts4.setValue("201605271540");
     	DateTimeDt datetime4=dtt.tTS2DateTime(ts4);
     	
-    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00"+LocalTimeZone,datetime4.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-27T15:40:00"+getLocalTimeZoneString(),datetime4.getValueAsString());
         
     	// complex instance test,with +timezone
     	TS ts5=DatatypesFactory.eINSTANCE.createTS();
@@ -837,28 +836,28 @@ public class DataTypesTransformerTest{
     	TS ts3 = DatatypesFactory.eINSTANCE.createTS();
     	ts3.setValue("20160514");
     	InstantDt instant3 = dtt.tTS2Instant(ts3);
-    	Assert.assertEquals("TS.value was not transformed","2016-05-14T00:00:00"+LocalTimeZone,instant3.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2016-05-14T00:00:00"+getLocalTimeZoneString(),instant3.getValueAsString());
     	
     	// 4 yyyymmddhhmm
     	TS ts4 = DatatypesFactory.eINSTANCE.createTS();
     	ts4.setValue("201305141317");
     	InstantDt instant4 = dtt.tTS2Instant(ts4);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:00"+LocalTimeZone,instant4.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:00"+getLocalTimeZoneString(),instant4.getValueAsString());
     	
     	// 5 yyyymmddhhmmss.s
     	TS ts5 = DatatypesFactory.eINSTANCE.createTS();
     	ts5.setValue("20130514131719.6");
     	InstantDt instant5 = dtt.tTS2Instant(ts5);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.600"+LocalTimeZone,instant5.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.600"+getLocalTimeZoneString(),instant5.getValueAsString());
     	
     	// 6 yyyymmddhhmmss.ss
     	TS ts6 = DatatypesFactory.eINSTANCE.createTS();
     	ts6.setValue("20130514131719.67");
     	InstantDt instant6 = dtt.tTS2Instant(ts6);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.670"+LocalTimeZone,instant6.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.670"+getLocalTimeZoneString(),instant6.getValueAsString());
     	
     	
     	// 7 yyyymmddhhmmss.sss
@@ -866,7 +865,7 @@ public class DataTypesTransformerTest{
     	ts7.setValue("20130514131719.673");
     	InstantDt instant7 = dtt.tTS2Instant(ts7);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.673"+LocalTimeZone,instant7.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19.673"+getLocalTimeZoneString(),instant7.getValueAsString());
     	
     	// 8 yyyymmddhhmmss.sss+ZZzz
     	TS ts8 = DatatypesFactory.eINSTANCE.createTS();
@@ -887,8 +886,30 @@ public class DataTypesTransformerTest{
     	ts10.setValue("20130514131719");
     	InstantDt instant10= dtt.tTS2Instant(ts10);
     	
-    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19"+LocalTimeZone,instant10.getValueAsString());
+    	Assert.assertEquals("TS.value was not transformed","2013-05-14T13:17:19"+getLocalTimeZoneString(),instant10.getValueAsString());
     }
     
+	// LocalTimeZone is used for the tests of TS2DateTime and TS2Instant
+	private String getLocalTimeZoneString() {
+		int timeZoneOffset = TimeZone.getDefault().getRawOffset();
+		int hour = 0, min = 0;
+		String hourString, minString;
+		String sign = "+";
+		
+		timeZoneOffset /= (1000 * 60); // millisec to minutes
+		min = timeZoneOffset % 60;
+		hour = timeZoneOffset / 60;
+		
+		if(timeZoneOffset < 0) {
+			hour *= -1;
+			min *= -1;
+			sign = "-";
+		}
+		
+		hourString = hour > 9 ? "" + hour : "0" + hour; // transform "h" to "0h"
+		minString = min > 9 ? "" + min : "0" + min; // transform "m" to "0m"
+		
+		return sign + hourString + ":" + minString;
+	}
 }
 
