@@ -156,7 +156,7 @@ public class ValidatorImpl implements IValidator {
 		try {
 			this.validationEngine.process();
 		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
-			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message",e);
+			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message", e);
 			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occurred while validating this resource:<br>"
 					+ e.getMessage()+"<hr>";
 			try {
