@@ -10,7 +10,7 @@ a browser.
 	<body>
 <!--*/-->
 
-<div>
+<div th:if="${resource.type} and ${not resource.type.empty} or ${resource.reason} and ${not resource.reason.empty} or ${resource.period} and ${resource.period.start} or ${resource.period} and ${resource.period.end}">
 	<table class="hapiPropertyTable">
 		<tbody>
 			<tr th:if="${resource.type} and ${not resource.type.empty}" th:each="type: ${resource.type}">
