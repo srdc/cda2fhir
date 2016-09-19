@@ -43,7 +43,11 @@ public class FHIRUtil {
         jsonParser.setPrettyPrint(true);
         xmlParser.setPrettyPrint(true);
     }
-
+    
+    public static String getJSON(IResource res) {
+    	return jsonParser.encodeResourceToString(res);
+    }
+    
     public static String getXML(IResource res) {
         return xmlParser.encodeResourceToString(res);
     }
