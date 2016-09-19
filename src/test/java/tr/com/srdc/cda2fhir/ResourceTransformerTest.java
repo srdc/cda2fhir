@@ -58,10 +58,10 @@ import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerTest {
-	
-	ResourceTransformerImpl rt = new ResourceTransformerImpl();
-	DataTypesTransformerImpl dtt = new DataTypesTransformerImpl();
-	ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
+
+	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
+	private static final DataTypesTransformerImpl dtt = new DataTypesTransformerImpl();
+	private static final ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
 	private static FileInputStream fisCCD;
 	private static FileWriter resultFW;
 	private static ContinuityOfCareDocument ccd;
@@ -90,7 +90,6 @@ public class ResourceTransformerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@AfterClass
