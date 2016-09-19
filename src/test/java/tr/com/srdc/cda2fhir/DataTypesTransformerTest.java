@@ -32,7 +32,6 @@ import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.RangeDt;
 import ca.uhn.fhir.model.dstu2.composite.RatioDt;
 import ca.uhn.fhir.model.dstu2.composite.TimingDt;
-import ca.uhn.fhir.model.dstu2.valueset.UnitsOfTimeEnum;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
@@ -42,13 +41,10 @@ import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.TimeZone;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.ihe.operations.GenitaliaSectionOperations;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
