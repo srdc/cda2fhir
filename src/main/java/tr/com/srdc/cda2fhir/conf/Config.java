@@ -28,6 +28,11 @@ import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.narrative.CustomThymeleafNarrativeGenerator;
 import ca.uhn.fhir.narrative.INarrativeGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+
+import java.nio.charset.Charset;
 
 public class Config {
 
@@ -51,11 +56,15 @@ public class Config {
 
     private static boolean generateDafProfileMetadata = true;
 
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
+
     static {
         fhirCtx = FhirContext.forDstu2();
         narrativeGenerator = new CustomThymeleafNarrativeGenerator(NARRATIVE_PROPERTIES_FILE_PATH);
         if(generateNarrative)
             fhirCtx.setNarrativeGenerator(narrativeGenerator);
+
+        logger.info("System file encoding is: " + Charset.defaultCharset().displayName());
     }
 
     public static FhirContext getFhirContext() {

@@ -56,6 +56,20 @@ public class CCDTransformerTest {
             FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
     }
 
+    // Inp Sample r2.1
+    @Test
+    public void testInpSample() throws Exception {
+        FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml");
+
+        ClinicalDocument cda = CDAUtil.load(fis);
+        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Config.setGenerateDafProfileMetadata(true);
+        Config.setGenerateNarrative(true);
+        Bundle bundle = ccdTransformer.transformDocument(cda);
+        if(bundle != null)
+            FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5.json");
+    }
+
     // C-CDA_R2-1_CCD.xml - with DAF profile in meta.profile
     @Test
     public void testReferenceCCDInstance() throws Exception {

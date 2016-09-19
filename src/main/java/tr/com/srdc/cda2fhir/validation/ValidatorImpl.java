@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir.validation;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,7 +37,6 @@ import org.xml.sax.SAXException;
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ValidatorImpl implements IValidator {
@@ -82,7 +82,13 @@ public class ValidatorImpl implements IValidator {
 	 * @return A byte array
 	 */
 	private byte[] tIResource2ByteArray(IResource paramResource) {
-		return FHIRUtil.encodeToXML(paramResource).getBytes();
+		try {
+			return FHIRUtil.encodeToXML(paramResource).getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Could not encode resource {} in UTF-8 encoding", paramResource.getId(), e);
+		}
+
+		return null;
 	}
 	
 	public OutputStream validateBundle(Bundle bundle) {
@@ -101,7 +107,7 @@ public class ValidatorImpl implements IValidator {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		// init the html output
 		try {
-			outputStream.write("<html>\n\t<body>".getBytes());
+			outputStream.write("<html>\n\t<body>".getBytes("UTF-8"));
 		} catch (IOException e) {
 			logger.error("Could not write to the output stream.", e);
 		}
@@ -128,7 +134,7 @@ public class ValidatorImpl implements IValidator {
 
 		// last touch to the html output
 		try {
-			outputStream.write("\n\t</body>\n</html>".getBytes());
+			outputStream.write("\n\t</body>\n</html>".getBytes("UTF-8"));
 		} catch (IOException e) {
 			logger.error("Could not write to the output stream.", e);
 		}
@@ -138,7 +144,7 @@ public class ValidatorImpl implements IValidator {
 	
 	public OutputStream validateResource(IResource resource) {
 		if(resource == null) {
-			logger.warn("The resource validator was running on was found null. Returning null");
+			logger.warn("The resource to be validated is null. Returning null");
 			return null;
 		}
 		
@@ -147,7 +153,7 @@ public class ValidatorImpl implements IValidator {
 			return null;
 		}
 		
-		logger.info("Validating resource "+resource.getId());
+		logger.info("Validating resource " + resource.getId());
 		
 		// set resource
 		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
@@ -161,7 +167,7 @@ public class ValidatorImpl implements IValidator {
 					+ e.getMessage()+"<hr>";
 			try {
 				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				outputStream.write(exceptionAsHtml.getBytes());
+				outputStream.write(exceptionAsHtml.getBytes("UTF-8"));
 				return outputStream;
 			} catch (IOException e1) {
 				logger.error("Exception occurred while trying to write the exception outcome to the output stream. Ignoring ");
@@ -175,7 +181,7 @@ public class ValidatorImpl implements IValidator {
 		try {
 			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
 			outcomeText = "<h3>" + resource.getId() + "</h3>" + outcomeText + "<hr>";
-			outputStream.write(outcomeText.getBytes());
+			outputStream.write(outcomeText.getBytes("UTF-8"));
 		} catch (IOException e) {
 			logger.error("Exception occurred while trying to write the validation outcome to the output stream. Returning null", e);
 			return null;
