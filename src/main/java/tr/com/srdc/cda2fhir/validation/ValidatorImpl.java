@@ -54,7 +54,7 @@ public class ValidatorImpl implements IValidator {
 		try {
 			validationEngine.readDefinitions(definitionsPath);
 		} catch (IOException e) {
-			logger.error("IOException occurred while trying to read the definitions for the validatior",e);
+			logger.error("IOException occurred while trying to read the definitions for the validator",e);
 		} catch (SAXException e) {
 			logger.error("Improper definition for the validator",e);
 		} catch (FHIRException e) {
@@ -157,7 +157,7 @@ public class ValidatorImpl implements IValidator {
 			this.validationEngine.process();
 		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
 			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message",e);
-			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occured while validating this resource:<br>"
+			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occurred while validating this resource:<br>"
 					+ e.getMessage()+"<hr>";
 			try {
 				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

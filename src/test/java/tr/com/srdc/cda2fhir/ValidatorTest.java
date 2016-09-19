@@ -154,7 +154,8 @@ public class ValidatorTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         if(bundle != null) {
 			// print the bundle for checking against validation results
-			FHIRUtil.printJSON(bundle, targetPathForFHIRResource);
+			// printed as XML, because HL7 FHIR Validator works with XML encoded resources
+			FHIRUtil.printXML(bundle, targetPathForFHIRResource);
 			os = (ByteArrayOutputStream) validator.validateBundle(bundle);
 		}
         
