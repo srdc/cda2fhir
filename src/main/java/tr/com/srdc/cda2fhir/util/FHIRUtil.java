@@ -29,6 +29,7 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 public class FHIRUtil {
 
@@ -44,16 +45,20 @@ public class FHIRUtil {
         xmlParser.setPrettyPrint(true);
     }
     
-    public static String getJSON(IResource res) {
+    public static String encodeToJSON(IResource res) {
     	return jsonParser.encodeResourceToString(res);
     }
     
-    public static String getXML(IResource res) {
+    public static String encodeToXML(IResource res) {
         return xmlParser.encodeResourceToString(res);
     }
 
     public static void printJSON(IResource res) {
         System.out.println(jsonParser.encodeResourceToString(res));
+    }
+
+    public static void printXML(IResource res) {
+        System.out.println(xmlParser.encodeResourceToString(res));
     }
 
     public static void printJSON(IResource res, String filePath) {
@@ -66,10 +71,6 @@ public class FHIRUtil {
         }
     }
 
-    public static void printXML(IResource res) {
-        System.out.println(xmlParser.encodeResourceToString(res));
-    }
-
     public static void printXML(IResource res, String filePath) {
         File f = new File(filePath);
         f.getParentFile().mkdirs();
@@ -77,6 +78,22 @@ public class FHIRUtil {
             xmlParser.encodeResourceToWriter(res, new FileWriter(f));
         } catch (IOException e) {
             logger.error("Could not print FHIR XML to file", e);
+        }
+    }
+
+    public static void printJSON(IResource res, Writer writer) {
+        try {
+            jsonParser.encodeResourceToWriter(res, writer);
+        } catch (IOException e) {
+            logger.error("Could not print FHIR JSON to writer", e);
+        }
+    }
+
+    public static void printXML(IResource res, Writer writer) {
+        try {
+            xmlParser.encodeResourceToWriter(res, writer);
+        } catch (IOException e) {
+            logger.error("Could not print FHIR XML to writer", e);
         }
     }
 

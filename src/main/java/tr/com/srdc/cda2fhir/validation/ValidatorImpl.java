@@ -82,7 +82,7 @@ public class ValidatorImpl implements IValidator {
 	 * @return A byte array
 	 */
 	private byte[] tIResource2ByteArray(IResource paramResource) {
-		return FHIRUtil.getXML(paramResource).getBytes();
+		return FHIRUtil.encodeToXML(paramResource).getBytes();
 	}
 	
 	public OutputStream validateBundle(Bundle bundle) {

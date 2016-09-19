@@ -20,16 +20,14 @@ package tr.com.srdc.cda2fhir;
  * #L%
  */
 
-import java.io.File;
+import java.io.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
+import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.resource.*;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
@@ -64,40 +62,45 @@ public class ResourceTransformerTest {
 	ResourceTransformerImpl rt = new ResourceTransformerImpl();
 	DataTypesTransformerImpl dtt = new DataTypesTransformerImpl();
 	ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
-	private FileInputStream fisCCD;
-	private ContinuityOfCareDocument ccd;
-	private static final File resultFile = new File("src/test/resources/output/ResourceTransformerTest.txt");
-	private FileOutputStream resultFileOutputStream;
+	private static FileInputStream fisCCD;
+	private static FileWriter resultFW;
+	private static ContinuityOfCareDocument ccd;
+	private static final String resultFilePath = "src/test/resources/output/ResourceTransformerTest.txt";
 	private static final String transformationStartMsg = "\n# TRANSFORMATION STARTING..\n";
 	private static final String transformationEndMsg = "# END OF TRANSFORMATION.\n";
 	private static final String endOfTestMsg = "\n## END OF TEST\n";
-	
-	public ResourceTransformerTest() {
-        CDAUtil.loadPackages();
-        
-        // about writing output to the file
-        if(!resultFile.exists())
-        	resultFile.getParentFile().mkdirs();
-        try {
-			resultFileOutputStream = new FileOutputStream(resultFile,true);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
+
+	@BeforeClass
+	public static void init() {
+		CDAUtil.loadPackages();
+
+		// read the input test file
+		try {
+			fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+			ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD);
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-        
-        try {
-	        fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-		} catch (FileNotFoundException ex) {
-	        ex.printStackTrace();
-	    }
-        
-        try {
-        	if(fisCCD != null) {
-        		ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD);
-        	}
-		} catch (Exception e) {
+
+		// init the output file writer
+		File resultFile = new File(resultFilePath);
+		resultFile.getParentFile().mkdirs();
+		try {
+			resultFW = new FileWriter(resultFile);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-    }
+
+	}
+
+	@AfterClass
+	public static void finalise() {
+		try {
+			resultFW.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	// Most of the test methods just print the transformed object in JSON form.
 	
@@ -115,8 +118,7 @@ public class ResourceTransformerTest {
 			appendToResultFile(transformationStartMsg);
 			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA);
 			appendToResultFile(transformationEndMsg);
-			appendToResultFile(FHIRUtil.getJSON(allergyBundle));
-				
+			appendToResultFile(allergyBundle);
 		}
 		appendToResultFile(endOfTestMsg);
 	}
@@ -138,7 +140,7 @@ public class ResourceTransformerTest {
 					appendToResultFile(transformationStartMsg);
 					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner(author.getAssignedAuthor());
 					appendToResultFile(transformationEndMsg);
-					appendToResultFile(FHIRUtil.getJSON(practitionerBundle));
+					appendToResultFile(practitionerBundle);
 				}
 			}
 		}
@@ -165,7 +167,7 @@ public class ResourceTransformerTest {
 								appendToResultFile(transformationStartMsg);
 								Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity());
 								appendToResultFile(transformationEndMsg);
-								appendToResultFile(FHIRUtil.getJSON(fhirPractitionerBundle));
+								appendToResultFile(fhirPractitionerBundle);
 							}
 						}
 					}
@@ -189,7 +191,7 @@ public class ResourceTransformerTest {
 			appendToResultFile(transformationStartMsg);
 			Bundle fhirComp = rt.tClinicalDocument2Composition(test.ccd);
 			appendToResultFile(transformationEndMsg);
-			appendToResultFile(FHIRUtil.getJSON(fhirComp));
+			appendToResultFile(fhirComp);
 		}
 		appendToResultFile(endOfTestMsg);
 	}
@@ -211,7 +213,7 @@ public class ResourceTransformerTest {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirEncounterBundle = rt.tEncounterActivity2Encounter(encounterActivity);
 						appendToResultFile(transformationEndMsg);
-						appendToResultFile(FHIRUtil.getJSON(fhirEncounterBundle));
+						appendToResultFile(fhirEncounterBundle);
 					}
 				}
 			}
@@ -235,7 +237,7 @@ public class ResourceTransformerTest {
 					appendToResultFile(transformationStartMsg);
 					FamilyMemberHistory fmHistory = rt.tFamilyHistoryOrganizer2FamilyMemberHistory(familyHistoryOrganizer);
 					appendToResultFile(transformationEndMsg);
-					appendToResultFile(FHIRUtil.getJSON(fmHistory));
+					appendToResultFile(fmHistory);
 				}
 			}
 		}
@@ -264,7 +266,7 @@ public class ResourceTransformerTest {
 									appendToResultFile(transformationStartMsg);
 									Bundle fhirObs = rt.tFunctionalStatus2Observation(cdaObs);
 									appendToResultFile(transformationEndMsg);
-									appendToResultFile(FHIRUtil.getJSON(fhirObs));
+									appendToResultFile(fhirObs);
 								}
 							}
 						}
@@ -295,7 +297,7 @@ public class ResourceTransformerTest {
 							ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = rt.tGuardian2Contact(guardian);
 							appendToResultFile(transformationEndMsg);
 							ca.uhn.fhir.model.dstu2.resource.Patient patient = new Patient().addContact(contact);
-							appendToResultFile(FHIRUtil.getJSON(patient));
+							appendToResultFile(patient);
 						}
 					}
 				}
@@ -322,7 +324,7 @@ public class ResourceTransformerTest {
 					appendToResultFile(transformationStartMsg);
 					Bundle fhirImm = rt.tImmunizationActivity2Immunization(immAct);
 					appendToResultFile(transformationEndMsg);
-					appendToResultFile(FHIRUtil.getJSON(fhirImm));
+					appendToResultFile(fhirImm);
 				}
 			}
 		}
@@ -346,7 +348,7 @@ public class ResourceTransformerTest {
 				appendToResultFile(transformationEndMsg);
 				ca.uhn.fhir.model.dstu2.resource.Patient fhirPatient = new ca.uhn.fhir.model.dstu2.resource.Patient();
 				fhirPatient.addCommunication(fhirCommunication);
-				appendToResultFile(FHIRUtil.getJSON(fhirPatient));
+				appendToResultFile(fhirPatient);
 			}
 		}
 		appendToResultFile(endOfTestMsg);
@@ -373,7 +375,7 @@ public class ResourceTransformerTest {
 								appendToResultFile(transformationStartMsg);
 								Bundle fhirMed = rt.tManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
 								appendToResultFile(transformationEndMsg);
-								appendToResultFile(FHIRUtil.getJSON(fhirMed));
+								appendToResultFile(fhirMed);
 							}
 						}
 					}
@@ -400,7 +402,7 @@ public class ResourceTransformerTest {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirMedStBundle = rt.tMedicationActivity2MedicationStatement(cdaMedAct);
 						appendToResultFile(transformationEndMsg);
-						appendToResultFile(FHIRUtil.getJSON(fhirMedStBundle));
+						appendToResultFile(fhirMedStBundle);
 					}
 				}
 			}
@@ -430,7 +432,7 @@ public class ResourceTransformerTest {
 									appendToResultFile(transformationStartMsg);
 									Bundle fhirMedDispBundle = rt.tMedicationDispense2MedicationDispense(medDisp);
 									appendToResultFile(transformationEndMsg);
-									appendToResultFile(FHIRUtil.getJSON(fhirMedDispBundle));
+									appendToResultFile(fhirMedDispBundle);
 								}
 							}
 						}
@@ -458,7 +460,7 @@ public class ResourceTransformerTest {
 						appendToResultFile(transformationStartMsg);
 						Bundle obsBundle = rt.tObservation2Observation(cdaObs);
 						appendToResultFile(transformationEndMsg);
-						appendToResultFile(FHIRUtil.getJSON(obsBundle));
+						appendToResultFile(obsBundle);
 					}
 				}
 			}
@@ -481,7 +483,7 @@ public class ResourceTransformerTest {
 			appendToResultFile(transformationStartMsg);
 			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
 			appendToResultFile(transformationEndMsg);
-			appendToResultFile(FHIRUtil.getJSON(fhirOrg));
+			appendToResultFile(fhirOrg);
 		}
 		appendToResultFile(endOfTestMsg);
 	}
@@ -505,7 +507,7 @@ public class ResourceTransformerTest {
 			appendToResultFile(transformationStartMsg);
 			Bundle patientBundle = rt.tPatientRole2Patient(pr);
 			appendToResultFile(transformationEndMsg);
-			appendToResultFile(FHIRUtil.getJSON(patientBundle));
+			appendToResultFile(patientBundle);
 			
 			for(Entry entry : patientBundle.getEntry()) {
 				if(entry.getResource() instanceof Patient) {
@@ -716,7 +718,7 @@ public class ResourceTransformerTest {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirConditionBundle = rt.tProblemConcernAct2Condition(problemConcernAct);
 						appendToResultFile(transformationEndMsg);
-						appendToResultFile(FHIRUtil.getJSON(fhirConditionBundle));
+						appendToResultFile(fhirConditionBundle);
 					}
 				}
 			}
@@ -741,7 +743,7 @@ public class ResourceTransformerTest {
 					appendToResultFile(transformationStartMsg);
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
 					appendToResultFile(transformationEndMsg);
-					appendToResultFile(FHIRUtil.getJSON(fhirProcedureBundle));
+					appendToResultFile(fhirProcedureBundle);
 				}
 			}
 		}
@@ -753,7 +755,7 @@ public class ResourceTransformerTest {
 					appendToResultFile(transformationStartMsg);
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
 					appendToResultFile(transformationEndMsg);
-					appendToResultFile(FHIRUtil.getJSON(fhirProcedureBundle));
+					appendToResultFile(fhirProcedureBundle);
 				}
 			}
 		}
@@ -766,7 +768,7 @@ public class ResourceTransformerTest {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
 						appendToResultFile(transformationEndMsg);
-						appendToResultFile(FHIRUtil.getJSON(fhirProcedureBundle));
+						appendToResultFile(fhirProcedureBundle);
 					}
 				}
 			}
@@ -794,7 +796,7 @@ public class ResourceTransformerTest {
 							appendToResultFile(transformationStartMsg);
 							Bundle fhirDiagReport = rt.tResultOrganizer2DiagnosticReport((ResultOrganizer)cdaOrganizer);
 							appendToResultFile(transformationEndMsg);
-							appendToResultFile(FHIRUtil.getJSON(fhirDiagReport));
+							appendToResultFile(fhirDiagReport);
 						}
 					}
 				}
@@ -829,7 +831,7 @@ public class ResourceTransformerTest {
 			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.tSection2Section(sampleSection);
 			appendToResultFile(transformationEndMsg);
 			fhirComposition.addSection(fhirSection);
-			appendToResultFile(FHIRUtil.getJSON(fhirComposition));
+			appendToResultFile(fhirComposition);
 		}
 		appendToResultFile(endOfTestMsg);
 	}
@@ -847,7 +849,7 @@ public class ResourceTransformerTest {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirObs = rt.tObservation2Observation(cdaObs);
 						appendToResultFile(transformationEndMsg);
-						appendToResultFile(FHIRUtil.getJSON(fhirObs));
+						appendToResultFile(fhirObs);
 					}
 				}
 			}
@@ -876,7 +878,7 @@ public class ResourceTransformerTest {
 									appendToResultFile(transformationStartMsg);
 									Bundle fhirObservation = rt.tVitalSignObservation2Observation((VitalSignObservation)vitalSignObservation);
 									appendToResultFile(transformationEndMsg);
-									appendToResultFile(FHIRUtil.getJSON(fhirObservation));
+									appendToResultFile(fhirObservation);
 								}
 							}
 						}
@@ -887,13 +889,16 @@ public class ResourceTransformerTest {
 		appendToResultFile(endOfTestMsg);
 	}
 
-	private boolean appendToResultFile(String param) {
+	private void appendToResultFile(Object param) {
 		try {
-			resultFileOutputStream.write(param.getBytes());
-			return true;
+			if(param instanceof String) {
+				resultFW.append((String)param);
+			}
+			else if(param instanceof IResource) {
+				FHIRUtil.printJSON((IResource)param, resultFW);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
 		}
 	}
 }
