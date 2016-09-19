@@ -48,6 +48,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.util.StringUtil;
@@ -56,6 +58,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 
 	private IValueSetsTransformer vst = new ValueSetsTransformerImpl();
 
+	private final Logger logger = LoggerFactory.getLogger(DataTypesTransformerImpl.class);
+	
 	public AddressDt AD2Address(AD ad) {
 	    if(ad == null || ad.isSetNullFlavor())
 	    	return null;
@@ -933,7 +937,16 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 			// the following line of code will remove these type of typos
 			elementBody = elementBody.replaceAll("&amp;amp;", "&amp;");
 			
-			return elementBody;
+			String typeName = ((EStructuralFeatureImpl.SimpleFeatureMapEntry) param).getEStructuralFeature().getName();
+			typeName = typeName.toLowerCase();
+			if(typeName.equals("comment")) {
+				return "<!-- "+elementBody +" -->";
+			} else if(typeName.equals("text")){
+				return elementBody;
+			} else {
+				logger.warn("Unknown element type was found while transforming a StrucDocText instance to Narrative. Returning the value of the element");
+				return elementBody;
+			}
 		} 
 		else if(param instanceof EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry) {
 			EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry entry = (EStructuralFeatureImpl.ContainmentUpdatingFeatureMapEntry)param;
@@ -943,10 +956,9 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer {
 		else if(param instanceof org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl) {
 			// since the name and the attributes are taken already, we just send the mixed of anyTypeImpl
 			return tStrucDocText2String(((org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl)param).getMixed());
-		} 
-		else{
-			// Undesired situtation
-			// Check the class of param
+		}
+		else {
+			logger.warn("Parameter for the method tStrucDocText2String is unknown. Returning null", param.getClass());
 			return null;
 		}
 	}

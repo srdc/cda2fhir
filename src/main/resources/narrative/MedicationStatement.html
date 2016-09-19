@@ -12,7 +12,7 @@ a browser.
 
 <div>
 <span th:if="${resource.wasNotTaken}" th:text="'Medication was not taken'"></span>
-	<table class="hapiPropertyTable">
+	<table class="hapiPropertyTable" th:if="${resource.wasNotTaken} and ${not resource.reasonNotTaken.empty} or ${resource.effective}">
 		<tbody>	
 			<tr th:if="${resource.wasNotTaken} and ${not resource.reasonNotTaken.empty}">
 				<td>Reason Not Taken</td>
