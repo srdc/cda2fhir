@@ -90,10 +90,15 @@ Further examples can be found in [CCDTransformerTest](https://github.com/srdc/cd
 ## Transforming a CDA artifact (e.g. an entry class) to the corresponding FHIR resource(s)
 
 ```java
-// Init an object of ResourceTransformerImpl class, which implements the generic IResourceTransformer
+// Init an object of ResourceTransformerImpl class, which implements the IResourceTransformer
 // interface. When instantiated separately from the CDATransformer context, FHIR resources are
 // generated with UUID ids, and a default patient reference is added as "Patient/0"
 IResourceTransformer resTransformer = new ResourceTransformerImpl();
+
+// Configuration of DAF profile URL creation in meta.profile and narrative generation in text.div is
+// again configurable through the statically managed Config class.
+Config.setGenerateDafProfileMetadata(true);
+Config.setGenerateNarrative(false);
 
 // Assume we already have a CCD instance in the ccd object below (skipping CDA artifact creation from scratch)
 // Traverse all the sections of the CCD instance
@@ -121,8 +126,37 @@ It should be noted that most of the time, IResourceTransformer methods return a 
 instead of a single FHIR resource as in the example above. For example, tProblemObservation2Condition method returns a Bundle
 that contains the corresponding Condition as the first entry, which can also include other referenced resources such as Encounter, Practitioner.
 
-Further examples can be found in [ResourceTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ResourceTransformerTest.java) class.
+Further examples can be found in [ResourceTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ResourceTransformerTest.java) class
+and [CCDTransformerImpl](https://github.com/srdc/cda2fhir/blob/master/src/main/java/tr/com/srdc/cda2fhir/transform/CCDTransformerImpl.java) class.
 
 ## Validating generated FHIR resources
 
-Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class.
+We have also integrated the official [HL7 FHIR Validator](https://www.hl7.org/fhir/validation.html#jar), although in a bit ugly way since this validator is not available in any
+Maven repo. We have implemented a wrapper interface and a class on top of this validator: IValidator and ValidatorImpl. A resource can be validated individually, or a Bundle
+containing several resources as in the case of CDA transformation outcome can be validated at once. When (DAF) profile metadata is provided within the resources' meta.profile
+attribute, validation takes into account this profile as well. Validation outcome is provided as HTML within an OutputStream.
+
+```java
+// Init an object of ValidatorImpl class, which implements the IValidator interface.
+IValidator validator = new ValidatorImpl();
+
+// Assume we already have a Bundle object to be validated at hand. Call the validateBundle method
+// of the validator and get the validation outcome as HTML in a ByteArrayOutputStream.
+ByteArrayOutputStream valOutcomeOs = (ByteArrayOutputStream) validator.validateBundle(bundle);
+
+// The HTML can be printed to a file.
+FileOutputStream fos = new FileOutputStream(new File("src/test/resources/output/validation-result-w-profile-for-C-CDA_R2-1_CCD.html"));
+valOutcomeOs.writeTo(fos);
+
+// Close the streams
+valOutcomeOs.close();
+fos.close();
+```
+
+Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class. Some of the tests
+in this class are ignored, as validating takes some time, especially due to external Terminology Server access dependency. But they do work, users can enable them.
+
+## Acknowledgement
+
+This research has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 689181,
+[C3-Cloud Project](http://www.c3-cloud.eu/) (A Federated Collaborative Care Cure Cloud Architecture for Addressing the Needs of Multi-morbidity and Managing Poly-pharmacy).
