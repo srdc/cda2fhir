@@ -41,6 +41,8 @@ import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.TimeZone;
 
 import org.junit.Assert;
@@ -479,7 +481,8 @@ public class DataTypesTransformerTest{
      	Assert.assertNull("IVL_TS.nullFlavor set instance transform failed",period3);
      }
     
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void testPIVL_TS2Timing() {
     	// null instance test
     	PIVL_TS pivlNull = null;
@@ -516,16 +519,18 @@ public class DataTypesTransformerTest{
     	
     	TimingDt timing1 = dtt.tPIVL_TS2Timing(pivl1);
     	
-    	// Since there are type caused problems when comparing the values, let's check them by eye
-    	System.out.println("Please check the followings:");
-    	System.out.println("123.4 == "+timing1.getRepeat().getPeriod());
-    	System.out.println(UnitsOfTimeEnum.H +" == "+timing1.getRepeat().getPeriodUnits());
-    	System.out.println("2014-05-23 == "+ ((PeriodDt)timing1.getRepeat().getBounds()).getStart());
-    	System.out.println("2016-12-01 == "+((PeriodDt)timing1.getRepeat().getBounds()).getEnd());
-//    	Assert.assertEquals("PIVL_TS.period.value was not transformed",123.4,timing1.getRepeat().getPeriod());
-//    	Assert.assertEquals("PIVL_TS.period.unit was not transformed",UnitsOfTimeEnum.H,timing1.getRepeat().getPeriodUnits());
-//    	Assert.assertEquals("PIVL_TS.phase.low was not transformed","2014-05-23",((PeriodDt)timing1.getRepeat().getBounds()).getStart());
-//    	Assert.assertEquals("PIVL_TS.phase.low was not transformed","2016-12-01",((PeriodDt)timing1.getRepeat().getBounds()).getEnd());
+    	BigDecimal bigDecimal = new BigDecimal(123.4);
+    	Assert.assertTrue("PIVL_TS.period.value was not transformed", 123 == bigDecimal.longValue());
+    	PeriodDt period = (PeriodDt)timing1.getRepeat().getBounds();
+    	// Notice that Date.getYear() returns THE_YEAR - 1900. It returns 116 for 2016 since 2016-1900 = 116.
+    	Assert.assertEquals("PIVL_TS.phase.low.year was not transformed",2014-1900,period.getStart().getYear());
+    	// Notice that Date.getMonth() returns THE_MONTH - 1 (since the months are indexed btw the range 0-11)
+    	Assert.assertEquals("PIVL_TS.phase.low.month was not transformed",5-1,period.getStart().getMonth());
+    	Assert.assertEquals("PIVL_TS.phase.low.date was not transformed",23,period.getStart().getDate());
+    	
+    	Assert.assertEquals("PIVL_TS.phase.high.year was not transformed",2016-1900,period.getEnd().getYear());
+    	Assert.assertEquals("PIVL_TS.phase.high.month was not transformed",12-1,period.getEnd().getMonth());
+    	Assert.assertEquals("PIVL_TS.phase.high.date was not transformed",1,period.getEnd().getDate());
     }
     
     @Test
