@@ -30,8 +30,6 @@ import java.io.IOException;
 import ca.uhn.fhir.model.dstu2.resource.*;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
@@ -56,7 +54,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
 import ca.uhn.fhir.model.dstu2.resource.Composition.Section;
-import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
@@ -84,7 +81,6 @@ public class ResourceTransformerTest {
         try {
 			resultFileOutputStream = new FileOutputStream(resultFile,true);
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
         
@@ -695,7 +691,6 @@ public class ResourceTransformerTest {
 			}
 
 			// extensions
-			int extCount = 0;
 			for(ExtensionDt extension : patient.getUndeclaredExtensions()) {
 				Assert.assertTrue(extension.getUrl() != null);
 				Assert.assertTrue(extension.getValue() != null);
