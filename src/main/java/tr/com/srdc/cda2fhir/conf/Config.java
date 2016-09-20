@@ -48,7 +48,9 @@ public class Config {
     public static final CodingDt DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE = new CodingDt().setSystem("http://hl7.org/fhir/data-absent-reason").setCode("unknown").setDisplay("Unknown");
     public static final boolean DEFAULT_IMMUNIZATION_REPORTED = false;
 
-    public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://fhir2.healthintersections.com.au/open";
+    // You may think of using the alternative terminology server: http://fhir2.healthintersections.com.au/open
+    public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://fhir.i2b2.org/open/";
+    
     public static final String NARRATIVE_PROPERTIES_FILE_PATH = "file:src/main/resources/narrative/customnarrative.properties";
 
     private static boolean generateNarrative = true;
