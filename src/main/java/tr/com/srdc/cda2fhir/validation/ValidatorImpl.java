@@ -64,7 +64,7 @@ public class ValidatorImpl implements IValidator {
 				logger.info("Terminology server is successfully set as: {}", tServerURLString);
 				break;
 			} else {
-				logger.warn("Could not reach terminology server at {} . Tyring the next alternative ...", tServerURLString);
+				logger.warn("Could not reach terminology server at {} . Trying the next alternative ...", tServerURLString);
 				continue;
 			}
 		}
