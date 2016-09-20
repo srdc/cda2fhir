@@ -24,11 +24,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.hl7.fhir.dstu2.utils.client.EFhirClientException;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +53,24 @@ public class ValidatorImpl implements IValidator {
 	 * Constructs a validator using the default configuration.
 	 */
 	public ValidatorImpl() {
-		tServerURL = Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL;
+		// searching for an available terminology server
+		for(String tServerURLString : Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URLS) {
+			/*
+			 *  if the request is successful,  set tServerURL with that available terminology server and break the loop.
+			 *   .. otherwise, catch the exception and continue with the next terminology server URL string contained in the config.
+			 */
+			boolean checkResult = checkServer(tServerURLString);
+			if(checkResult) {
+				this.tServerURL = tServerURLString;
+				logger.info("Terminology server was set successfully");
+				break;
+			} else {
+				logger.info("Trying the next terminology server URL if exists");
+				continue;
+			}	
+		}
+		
+		// reading definitions
 		try {
 			validationEngine.readDefinitions(definitionsPath);
 		} catch (IOException e) {
@@ -60,11 +80,23 @@ public class ValidatorImpl implements IValidator {
 		} catch (FHIRException e) {
 			logger.error("FHIRException occurred while trying to read the definitions for the validator",e);
 		}
+		
+		// connecting to terminology server
 		try {
-			validationEngine.connectToTSServer(tServerURL);
+			if(tServerURL != null) {
+				validationEngine.connectToTSServer(tServerURL);
+			} else {
+				logger.warn("An available terminology server couldn't be found. Validation will continue using the default terminology server");
+				boolean checkResult = checkServer(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL);
+				if(checkResult) {
+					validationEngine.connectToTSServer(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL);
+				}
+			}
+			logger.info("A connection with the terminology server has been established");
 		} catch (URISyntaxException ex) {
 			logger.error("Terminology server URL string could not be parsed as a URI reference", ex);
 		}
+		
 	}
 	
 	public void setTerminologyServer(String paramTServerURL) {
@@ -76,21 +108,6 @@ public class ValidatorImpl implements IValidator {
 		}
 	}
 
-	/**
-	 * Transforms a FHIR IResource instance to a byte array. 
-	 * @param paramResource a FHIR IResource instance
-	 * @return A byte array
-	 */
-	private byte[] tIResource2ByteArray(IResource paramResource) {
-		try {
-			return FHIRUtil.encodeToXML(paramResource).getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.error("Could not encode resource {} in UTF-8 encoding", paramResource.getId(), e);
-		}
-
-		return null;
-	}
-	
 	public OutputStream validateBundle(Bundle bundle) {
 		if(bundle == null) {
 			logger.warn("The bundle to be validated is null. Returning null.");
@@ -161,7 +178,7 @@ public class ValidatorImpl implements IValidator {
 		// validate!
 		try {
 			this.validationEngine.process();
-		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException e) {
+		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException | EFhirClientException e) {
 			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message", e);
 			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occurred while validating this resource:<br>"
 					+ e.getMessage()+"<hr>";
@@ -189,4 +206,38 @@ public class ValidatorImpl implements IValidator {
 		
 		return outputStream;
 	}
+	
+	/**
+	 * Sends an HTTP GET request to a server to check if the server is available
+	 * @param serverURLString A string that contains the URL of the server
+	 * @return A boolean indicating if the server is available
+	 */
+	private boolean checkServer(String serverURLString) {
+		try {
+			URL url = new URL(serverURLString);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con.setRequestMethod("GET");
+			con.setConnectTimeout(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_CHECK_TIMEOUT);
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			return true;
+		} catch(Exception e) {
+			logger.error("Exception occured while trying to reach the server",e);
+			return false;
+		}
+	}
+	
+	/**
+	 * Transforms a FHIR IResource instance to a byte array. 
+	 * @param paramResource A FHIR IResource instance
+	 * @return A byte array
+	 */
+	private byte[] tIResource2ByteArray(IResource paramResource) {
+		try {
+			return FHIRUtil.encodeToXML(paramResource).getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Could not encode resource {} in UTF-8 encoding", paramResource.getId(), e);
+		}
+		return null;
+	}
+	
 }
