@@ -27,7 +27,7 @@ documents/entries, it has been tested as well with several older document instan
 [HL7 FHIR Validator](https://www.hl7.org/fhir/validation.html#jar) is also integrated for automated validation of the generated FHIR resources.
 
 All the mappings implemented between CDA artifacts and FHIR resources, data types and value sets are documented in this sheet:
-https://docs.google.com/spreadsheets/d/15Kv6PFyPh91sH1JMYwLH7D2yjh4HOTy5pjETjQNRyaU/edit?usp=sharing
+[C-CDA CCD to FHIR DAF Mapping](https://docs.google.com/spreadsheets/d/15Kv6PFyPh91sH1JMYwLH7D2yjh4HOTy5pjETjQNRyaU/edit?usp=sharing)
 
 [Model Driven Health Tools (MDHT)](https://www.projects.openhealthtools.org/sf/projects/mdht/) is used for CDA manipulation and
 [HAPI](http://hapifhir.io/) is used for FHIR manipulation. The current implementation produces DSTU2 resources.

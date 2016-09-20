@@ -49,6 +49,7 @@ public class Config {
     public static final boolean DEFAULT_IMMUNIZATION_REPORTED = false;
 
     public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://fhir2.healthintersections.com.au/open";
+    //public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://fhir.i2b2.org/open/";
     public static final String NARRATIVE_PROPERTIES_FILE_PATH = "file:src/main/resources/narrative/customnarrative.properties";
 
     private static boolean generateNarrative = true;
