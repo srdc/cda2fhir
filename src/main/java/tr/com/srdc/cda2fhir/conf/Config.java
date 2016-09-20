@@ -45,11 +45,12 @@ public class Config {
     public static final EncounterStateEnum DEFAULT_ENCOUNTER_STATUS = EncounterStateEnum.FINISHED;
     public static final CodingDt DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE = new CodingDt().setSystem("http://hl7.org/fhir/data-absent-reason").setCode("unknown").setDisplay("Unknown");
     public static final boolean DEFAULT_IMMUNIZATION_REPORTED = false;
-    
-    public static final int DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_CHECK_TIMEOUT = 5000; // in milliseconds, > 0
-    // if the array containing URLs doesn't give an available URL, this URL will be used
-    public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://fhir2.healthintersections.com.au/open"; 
-    public static final String[] DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URLS = { 
+
+    public static final String VALIDATION_DEFINITON_PATH = "src/main/resources/validation-min.xml.zip";
+    public static final int DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_CHECK_TIMEOUT = 10000; // in milliseconds, > 0
+    // if the array containing URLs doesn't give an accessible URL, this URL will be used
+    public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://fhir2.healthintersections.com.au/open";
+    public static final String[] VALIDATOR_TERMINOLOGY_SERVER_URLS = {
     		"http://fhir2.healthintersections.com.au/open",
     		"http://fhir.i2b2.org/open/"
     		};

@@ -45,7 +45,6 @@ import tr.com.srdc.cda2fhir.util.FHIRUtil;
 public class ValidatorImpl implements IValidator {
 
 	private String tServerURL = null;
-	private static final String definitionsPath = "src/main/resources/validation-min.xml.zip";
 	private final org.hl7.fhir.dstu2.validation.ValidationEngine validationEngine = new org.hl7.fhir.dstu2.validation.ValidationEngine();
 	private final Logger logger = LoggerFactory.getLogger(ValidatorImpl.class);
 	
@@ -54,7 +53,7 @@ public class ValidatorImpl implements IValidator {
 	 */
 	public ValidatorImpl() {
 		// searching for an available terminology server
-		for(String tServerURLString : Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URLS) {
+		for(String tServerURLString : Config.VALIDATOR_TERMINOLOGY_SERVER_URLS) {
 			/*
 			 *  if the request is successful,  set tServerURL with that available terminology server and break the loop.
 			 *   .. otherwise, catch the exception and continue with the next terminology server URL string contained in the config.
@@ -62,41 +61,34 @@ public class ValidatorImpl implements IValidator {
 			boolean checkResult = checkServer(tServerURLString);
 			if(checkResult) {
 				this.tServerURL = tServerURLString;
-				logger.info("Terminology server was set successfully");
+				logger.info("Terminology server is successfully set as: {}", tServerURLString);
 				break;
 			} else {
-				logger.info("Trying the next terminology server URL if exists");
+				logger.warn("Could not reach terminology server at {} . Tyring the next alternative ...", tServerURLString);
 				continue;
-			}	
+			}
+		}
+
+		// if the set of terminology servers did not work, proceed with the fallback option even if it is not reachable
+		// because the HL7 validation engine mandates setting a terminology server
+		if(this.tServerURL == null) {
+			this.tServerURL = Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL;
+			logger.warn("None of the terminology server alternatives was reachable. Proceeding with the fallback option {}", this.tServerURL);
 		}
 		
 		// reading definitions
 		try {
-			validationEngine.readDefinitions(definitionsPath);
+			validationEngine.readDefinitions(Config.VALIDATION_DEFINITON_PATH);
 		} catch (IOException e) {
-			logger.error("IOException occurred while trying to read the definitions for the validator",e);
+			logger.error("IOException occurred while trying to read the definitions for the validator", e);
 		} catch (SAXException e) {
-			logger.error("Improper definition for the validator",e);
+			logger.error("Improper definition for the validator", e);
 		} catch (FHIRException e) {
-			logger.error("FHIRException occurred while trying to read the definitions for the validator",e);
+			logger.error("FHIRException occurred while trying to read the definitions for the validator", e);
 		}
 		
-		// connecting to terminology server
-		try {
-			if(tServerURL != null) {
-				validationEngine.connectToTSServer(tServerURL);
-			} else {
-				logger.warn("An available terminology server couldn't be found. Validation will continue using the default terminology server");
-				boolean checkResult = checkServer(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL);
-				if(checkResult) {
-					validationEngine.connectToTSServer(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL);
-				}
-			}
-			logger.info("A connection with the terminology server has been established");
-		} catch (URISyntaxException ex) {
-			logger.error("Terminology server URL string could not be parsed as a URI reference", ex);
-		}
-		
+		// calling the validation engine's connect method for terminology service
+		setTerminologyServer(this.tServerURL);
 	}
 	
 	public void setTerminologyServer(String paramTServerURL) {
@@ -192,7 +184,7 @@ public class ValidatorImpl implements IValidator {
 		}
 		
 		// direct outcome string to an output stream
-		java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+		ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
 		
 		// notice that html tag is not included in the outcome string
 		try {
@@ -218,10 +210,10 @@ public class ValidatorImpl implements IValidator {
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_CHECK_TIMEOUT);
-			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.connect();
 			return true;
 		} catch(Exception e) {
-			logger.error("Exception occured while trying to reach the server",e);
+			logger.error("Exception occurred while trying to reach the server", e);
 			return false;
 		}
 	}

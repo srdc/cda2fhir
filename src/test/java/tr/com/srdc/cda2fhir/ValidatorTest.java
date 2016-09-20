@@ -49,7 +49,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_gold_sample2_v1.xml without profile
-	@Test
+	@Ignore
 	public void testGoldSampleBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-wo-profile-validation.xml";
@@ -59,7 +59,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_gold_sample2_v1.xml with profile
-	@Test
+	@Ignore
 	public void testGoldSampleBundleWithProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-w-profile-validation.xml";
@@ -69,7 +69,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Test
+	@Ignore
 	public void testInpSampleBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-wo-profile-validation.xml";
@@ -79,7 +79,7 @@ public class ValidatorTest {
 	}
 	
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
-	@Test
+	@Ignore
 	public void testInpSampleBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5-w-profile-validation.xml";
@@ -109,7 +109,7 @@ public class ValidatorTest {
 	}
 	
 	// Vitera_CCDA_SMART_Sample.xml without profile
-	@Test
+	@Ignore
 	public void testViteraBundleWithoutProfile() throws Exception {	
 		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-wo-profile-validation.xml";
@@ -119,7 +119,7 @@ public class ValidatorTest {
 	}
 	
 	// Vitera_CCDA_SMART_Sample.xml with profile
-	@Test
+	@Ignore
 	public void testViteraBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/Vitera_CCDA_SMART_Sample.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Vitera_CCDA_SMART_Sample-w-profile-validation.xml";
