@@ -81,11 +81,11 @@ Config.setGenerateNarrative(true);
 Bundle bundle = ccdTransformer.transformDocument(cda);
 
 // Through HAPI library, the Bundle can easily be printed in JSON or XML format.
-if(bundle != null)
-    FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
+FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
 ```
 
-Further examples can be found in [CCDTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/CCDTransformerTest.java) class.
+Further code examples can be found in [CCDTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/CCDTransformerTest.java) class.
+The outcome of the above transformation operation for the CCD instance available in the C-CDA 2.1 specification is available here: https://github.com/srdc/cda2fhir/blob/master/src/test/resources/C-CDA_R2-1_CCD-w-daf.json
 
 ## Transforming a CDA artifact (e.g. an entry class) to the corresponding FHIR resource(s)
 
