@@ -160,3 +160,6 @@ in this class are ignored, as validating takes some time, especially due to exte
 
 This research has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 689181,
 [C3-Cloud Project](http://www.c3-cloud.eu/) (A Federated Collaborative Care Cure Cloud Architecture for Addressing the Needs of Multi-morbidity and Managing Poly-pharmacy).
+
+This research has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 689444,
+[POWER2DM Project](http://www.power2dm.eu/) (Predictive model-based decision support for diabetes patient empowerment).
