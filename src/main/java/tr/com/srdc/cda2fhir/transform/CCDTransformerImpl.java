@@ -27,15 +27,19 @@ import ca.uhn.fhir.model.dstu2.resource.Device;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Procedure;
+import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;
+import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;
 import org.openhealthtools.mdht.uml.cda.*;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
+import java.io.Serializable;
+import java.util.Map;
 import java.util.UUID;
 
-public class CCDTransformerImpl implements ICDATransformer {
+public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
     private int counter;
     private IdGeneratorEnum idGenerator;
@@ -52,6 +56,7 @@ public class CCDTransformerImpl implements ICDATransformer {
         // The default resource id pattern is UUID
         this.idGenerator = IdGeneratorEnum.UUID;
         resTransformer = new ResourceTransformerImpl(this);
+        this.patientRef = null;
     }
 
     /**
@@ -83,6 +88,53 @@ public class CCDTransformerImpl implements ICDATransformer {
     }
 
     /**
+     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
+     * @param bundleType Desired type of the FHIR Bundle to be returned
+     * @param patientRef Patient Reference of the given CDA Document
+     * @param resourceProfileMap The mappings of default resource profiles to desired resource profiles. Used to set profile URI's of bundle entries or omit unwanted entries.
+     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources but Patient that are referenced within the Composition.
+     */
+    public Bundle transformDocument(ClinicalDocument cda, BundleTypeEnum bundleType, String patientRef, Map<String, String> resourceProfileMap) {
+        // The default transformer will use this patient reference if it is set.
+        this.patientRef = new ResourceReferenceDt("Patient/" + patientRef);
+
+        Bundle documentBundle =  transformDocument(cda);
+        if (documentBundle == null) return null;
+
+        Bundle resultBundle = new Bundle();
+        resultBundle.setType(bundleType);
+
+        switch (bundleType) {
+            case TRANSACTION:
+                for(Entry entry : documentBundle.getEntry()) {
+                    // Patient resource will not be added
+                    if (entry != null && !entry.getResource().getResourceName().equals("Patient")) {
+                        // Add request and fullUrl fields to entries
+                        addRequestToEntry(entry);
+                        addFullUrlToEntry(entry);
+                        // if resourceProfileMap is specified omit the resources with no profiles given
+                        // Empty profileUri means add with no change
+                        if (resourceProfileMap != null) {
+                            String profileUri = resourceProfileMap.get(entry.getResource().getResourceName());
+                            if (profileUri != null) {
+                                if (!profileUri.isEmpty()) {
+                                    entry.getResource().getMeta().addProfile(profileUri);
+                                }
+                                resultBundle.addEntry(entry);
+                            }
+                        } else {
+                            resultBundle.addEntry(entry);
+                        }
+                    }
+                }
+                break;
+            default:
+                return documentBundle;
+        }
+        return resultBundle;
+    }
+
+    /**
      * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
      * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
      * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
@@ -105,8 +157,11 @@ public class CCDTransformerImpl implements ICDATransformer {
         Bundle ccdBundle = resTransformer.tClinicalDocument2Composition(ccd);
         // the first bundle entry is always the composition
         Composition ccdComposition = (Composition)ccdBundle.getEntry().get(0).getResource();
-        // init the patient id reference. the patient is always the 2nd bundle entry
-        patientRef = new ResourceReferenceDt(ccdBundle.getEntry().get(1).getResource().getId());
+        // init the patient id reference if it is not given externally. the patient is always the 2nd bundle entry
+        if (patientRef == null)
+            patientRef = new ResourceReferenceDt(ccdBundle.getEntry().get(1).getResource().getId());
+        else // Correct the subject at composition with given patient reference.
+            ccdComposition.setSubject(patientRef);
 
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
@@ -273,5 +328,24 @@ public class CCDTransformerImpl implements ICDATransformer {
     			}
             }
     	}
+    }
+
+    /**
+     * Adds fullUrl field to the entry using it's resource id.
+     * @param entry Entry which fullUrl field to be added.
+     */
+    private void addFullUrlToEntry(Entry entry) {
+        entry.setFullUrl("urn:uuid:" + entry.getResource().getId().getIdPart());
+    }
+
+    /**
+     * Adds request field to the entry, method is POST, url is resource type.
+     * @param entry Entry which request field to be added.
+     */
+    private void addRequestToEntry(Entry entry) {
+        Bundle.EntryRequest request = new Bundle.EntryRequest();
+        request.setMethod(HTTPVerbEnum.POST);
+        request.setUrl(entry.getResource().getResourceName());
+        entry.setRequest(request);
     }
 }

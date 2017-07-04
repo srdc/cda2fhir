@@ -36,6 +36,7 @@ import ca.uhn.fhir.model.primitive.UriDt;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.model.primitive.InstantDt;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.util.StringUtil;
 
-public class DataTypesTransformerImpl implements IDataTypesTransformer {
+public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializable {
 
 	private IValueSetsTransformer vst = new ValueSetsTransformerImpl();
 

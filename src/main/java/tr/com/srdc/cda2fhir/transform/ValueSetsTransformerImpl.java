@@ -32,7 +32,9 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 
-public class ValueSetsTransformerImpl implements IValueSetsTransformer {
+import java.io.Serializable;
+
+public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializable {
 
 	public AdministrativeGenderEnum tAdministrativeGenderCode2AdministrativeGenderEnum(String cdaAdministrativeGenderCode) {
 		switch (cdaAdministrativeGenderCode.toLowerCase()) {
