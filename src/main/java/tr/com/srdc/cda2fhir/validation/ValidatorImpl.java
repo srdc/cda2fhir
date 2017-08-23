@@ -216,7 +216,7 @@ public class ValidatorImpl implements IValidator {
 			else
 				return false;
 		} catch(Exception e) {
-			logger.error("Exception occurred while trying to reach the server", e);
+			logger.error("Exception occurred while trying to reach the server at {}", serverURLString, e);
 			return false;
 		}
 	}

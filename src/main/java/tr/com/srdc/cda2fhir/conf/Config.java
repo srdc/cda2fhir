@@ -49,8 +49,9 @@ public class Config {
     public static final String VALIDATION_DEFINITION_PATH = "src/main/resources/validation-min.xml.zip";
     public static final int DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_CHECK_TIMEOUT = 10000; // in milliseconds, > 0
     // if the array containing URLs doesn't give an accessible URL, this URL will be used
-    public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://test.fhir.org/r2";
+    public static final String DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL = "http://tx.fhir.org/r2";
     public static final String[] VALIDATOR_TERMINOLOGY_SERVER_URLS = {
+            "http://tx.fhir.org/r2",
             "http://test.fhir.org/r2",
             "http://fhir.i2b2.org/srv-dstu2-0.2/api/open"
     		};
