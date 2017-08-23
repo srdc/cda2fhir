@@ -20,6 +20,7 @@ package tr.com.srdc.cda2fhir.transform;
  * #L%
  */
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import ca.uhn.fhir.model.dstu2.composite.*;
@@ -60,7 +61,7 @@ import org.slf4j.LoggerFactory;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.util.Constants;
 
-public class ResourceTransformerImpl implements IResourceTransformer {
+public class ResourceTransformerImpl implements IResourceTransformer, Serializable {
 
 	private IDataTypesTransformer dtt;
 	private IValueSetsTransformer vst;
