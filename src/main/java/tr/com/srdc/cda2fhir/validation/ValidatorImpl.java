@@ -78,7 +78,7 @@ public class ValidatorImpl implements IValidator {
 		
 		// reading definitions
 		try {
-			validationEngine.readDefinitions(Config.VALIDATION_DEFINITON_PATH);
+			validationEngine.readDefinitions(Config.VALIDATION_DEFINITION_PATH);
 		} catch (IOException e) {
 			logger.error("IOException occurred while trying to read the definitions for the validator", e);
 		} catch (SAXException e) {
@@ -211,7 +211,10 @@ public class ValidatorImpl implements IValidator {
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_CHECK_TIMEOUT);
 			con.connect();
-			return true;
+			if (con.getResponseCode() < 300)
+				return true;
+			else
+				return false;
 		} catch(Exception e) {
 			logger.error("Exception occurred while trying to reach the server", e);
 			return false;

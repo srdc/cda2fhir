@@ -156,6 +156,11 @@ fos.close();
 Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class. Some of the tests
 in this class are ignored, as validating takes some time, especially due to external Terminology Server access dependency. But they do work, users can enable them.
 
+Unfortunately it is not easy to find up and running DSTU2 terminology servers all the time, hence this test can fail when none of the terminology servers configured in
+[Config](https://github.com/srdc/cda2fhir/blob/master/src/main/java/tr/com/srdc/cda2fhir/conf/Config.java) is accessible. In this case, if you happen to know an accessible
+DSTU2 terminology server, you can either update Config or set via the setTerminologyServer method of the validator. If you cannot find a running terminology server, then
+ you can just ignore the validator tests.
+
 ## Acknowledgement
 
 This research has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 689181,
