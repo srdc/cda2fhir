@@ -20,10 +20,10 @@ package tr.com.srdc.cda2fhir.validation;
  * #L%
  */
 
-import ca.uhn.fhir.model.api.IResource;
-import ca.uhn.fhir.model.dstu2.resource.Bundle;
-
 import java.io.OutputStream;
+
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 
 public interface IValidator {
 
@@ -41,9 +41,9 @@ public interface IValidator {
     OutputStream validateBundle(Bundle bundle);
     
     /**
-     * Validates a FHIR IResource instance by using the validation engine supplied by hl7.org
-     * @param resource A FHIR IResource instance. If the (DAF) profile is supplied in meta.profile attribute, then (DAF) profile validation is enable automatically.
+     * Validates a FHIR IBaseResource instance by using the validation engine supplied by hl7.org
+     * @param resource A FHIR IBaseResource instance. If the (DAF) profile is supplied in meta.profile attribute, then (DAF) profile validation is enable automatically.
      * @return An output stream containing the validation result. The validation result is contained in div element.
      */
-    OutputStream validateResource(IResource resource);
+    OutputStream validateResource(IBaseResource resource);
 }

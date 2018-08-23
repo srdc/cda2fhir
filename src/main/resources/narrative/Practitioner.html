@@ -17,9 +17,9 @@ a browser.
 				<td>Identifier</td>
 				<td th:narrative="${resource.identifier[0]}"></td>
 			</tr>
-			<tr th:if="${resource.name}">
+			<tr th:if="${not resource.name.empty}">
 				<td>Name</td>
-				<td th:narrative="${resource.name}"></td>
+				<td th:narrative="${resource.name[0]}"></td>
 			</tr>
 		</tbody>
 	</table>

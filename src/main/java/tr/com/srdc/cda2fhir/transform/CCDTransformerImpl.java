@@ -20,31 +20,70 @@ package tr.com.srdc.cda2fhir.transform;
  * #L%
  */
 
-import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.dstu2.resource.*;
-import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
-import ca.uhn.fhir.model.dstu2.resource.Device;
-import ca.uhn.fhir.model.dstu2.resource.Encounter;
-import ca.uhn.fhir.model.dstu2.resource.Observation;
-import ca.uhn.fhir.model.dstu2.resource.Procedure;
-import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;
-import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;
-import org.openhealthtools.mdht.uml.cda.*;
-import org.openhealthtools.mdht.uml.cda.consol.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
+
+import org.hl7.fhir.dstu3.model.AllergyIntolerance;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
+import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
+import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.MedicationStatement;
+import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Reference;
+import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.Observation;
+import org.openhealthtools.mdht.uml.cda.Organizer;
+import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.Supply;
+import org.openhealthtools.mdht.uml.cda.consol.AdvanceDirectivesSection;
+import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
+import org.openhealthtools.mdht.uml.cda.consol.EncountersSection;
+import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.FamilyHistorySection;
+import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusResultOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusSection;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
+import org.openhealthtools.mdht.uml.cda.consol.MedicalEquipmentSection;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
+import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
+import org.openhealthtools.mdht.uml.cda.consol.PayersSection;
+import org.openhealthtools.mdht.uml.cda.consol.PlanOfCareSection;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
+import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
+import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection;
+import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
+import org.openhealthtools.mdht.uml.cda.consol.SocialHistorySection;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
     private int counter;
     private IdGeneratorEnum idGenerator;
     private IResourceTransformer resTransformer;
-    private ResourceReferenceDt patientRef;
+    private Reference patientRef;
 
     private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
 
@@ -69,7 +108,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         this.idGenerator = idGen;
     }
 
-    public ResourceReferenceDt getPatientRef() {
+    public Reference getPatientRef() {
         return patientRef;
     }
     
@@ -94,9 +133,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @param resourceProfileMap The mappings of default resource profiles to desired resource profiles. Used to set profile URI's of bundle entries or omit unwanted entries.
      * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources but Patient that are referenced within the Composition.
      */
-    public Bundle transformDocument(ClinicalDocument cda, BundleTypeEnum bundleType, String patientRef, Map<String, String> resourceProfileMap) {
+    public Bundle transformDocument(ClinicalDocument cda, BundleType bundleType, String patientRef, Map<String, String> resourceProfileMap) {
         // The default transformer will use this patient reference if it is set.
-        this.patientRef = new ResourceReferenceDt("Patient/" + patientRef);
+        this.patientRef = new Reference("Patient/" + patientRef);
 
         Bundle documentBundle =  transformDocument(cda);
         if (documentBundle == null) return null;
@@ -106,16 +145,16 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
         switch (bundleType) {
             case TRANSACTION:
-                for(Entry entry : documentBundle.getEntry()) {
+                for(BundleEntryComponent entry : documentBundle.getEntry()) {
                     // Patient resource will not be added
-                    if (entry != null && !entry.getResource().getResourceName().equals("Patient")) {
+                    if (entry != null && !entry.getResource().getResourceType().name().equals("Patient")) {
                         // Add request and fullUrl fields to entries
                         addRequestToEntry(entry);
                         addFullUrlToEntry(entry);
                         // if resourceProfileMap is specified omit the resources with no profiles given
                         // Empty profileUri means add with no change
                         if (resourceProfileMap != null) {
-                            String profileUri = resourceProfileMap.get(entry.getResource().getResourceName());
+                            String profileUri = resourceProfileMap.get(entry.getResource().getResourceType().name());
                             if (profileUri != null) {
                                 if (!profileUri.isEmpty()) {
                                     entry.getResource().getMeta().addProfile(profileUri);
@@ -159,13 +198,13 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         Composition ccdComposition = (Composition)ccdBundle.getEntry().get(0).getResource();
         // init the patient id reference if it is not given externally. the patient is always the 2nd bundle entry
         if (patientRef == null)
-            patientRef = new ResourceReferenceDt(ccdBundle.getEntry().get(1).getResource().getId());
+            patientRef = new Reference(ccdBundle.getEntry().get(1).getResource().getId());
         else // Correct the subject at composition with given patient reference.
             ccdComposition.setSubject(patientRef);
 
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
-            Composition.Section fhirSec = resTransformer.tSection2Section(cdaSec);
+            SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
             
             if(fhirSec == null)
             	continue;
@@ -193,9 +232,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                 FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
                 for(FamilyHistoryOrganizer fhOrganizer : famSec.getFamilyHistories()) {
                     FamilyMemberHistory fmh = resTransformer.tFamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
-                    ResourceReferenceDt ref = fhirSec.addEntry();
+                    Reference ref = fhirSec.addEntry();
                     ref.setReference(fmh.getId());
-                    ccdBundle.addEntry(new Bundle.Entry().setResource(fmh));
+                    ccdBundle.addEntry().setResource(fmh);
                 }
             }
             else if(cdaSec instanceof FunctionalStatusSection) {
@@ -218,19 +257,19 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                 MedicalEquipmentSection equipSec = (MedicalEquipmentSection) cdaSec;
                 // Case 1: Entry is a Non-Medicinal Supply Activity (V2)
                 for(NonMedicinalSupplyActivity supplyActivity : equipSec.getNonMedicinalSupplyActivities()) {
-                    Device fhirDevice = resTransformer.tSupply2Device(supplyActivity);
-                    ResourceReferenceDt ref = fhirSec.addEntry();
+                	org.hl7.fhir.dstu3.model.Device fhirDevice = resTransformer.tSupply2Device(supplyActivity);
+                    Reference ref = fhirSec.addEntry();
                     ref.setReference(fhirDevice.getId());
-                    ccdBundle.addEntry(new Bundle.Entry().setResource(fhirDevice));
+                    ccdBundle.addEntry().setResource(fhirDevice);
                 }
                 // Case 2: Entry is a Medical Equipment Organizer, which is indeed a collection of Non-Medicinal Supply Activity (V2)
                 for(Organizer organizer : equipSec.getOrganizers()) {
                     for(Supply supply : organizer.getSupplies()) {
                         if(supply instanceof NonMedicinalSupplyActivity) {
-                            Device fhirDevice = resTransformer.tSupply2Device(supply);
-                            ResourceReferenceDt ref = fhirSec.addEntry();
+                            org.hl7.fhir.dstu3.model.Device fhirDevice = resTransformer.tSupply2Device(supply);
+                            Reference ref = fhirSec.addEntry();
                             ref.setReference(fhirDevice.getId());
-                            ccdBundle.addEntry(new Bundle.Entry().setResource(fhirDevice));
+                            ccdBundle.addEntry().setResource(fhirDevice);
                         }
                     }
                 }
@@ -314,15 +353,15 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @param fhirSec FHIR Section where the reference will be added
      * @param sectionRefCls Specific FHIR Resource Class among the resources in the sourceBundle, whose reference will be added to the FHIR Section
      */
-    private void mergeBundles(Bundle sourceBundle, Bundle targetBundle, Composition.Section fhirSec, Class<?> sectionRefCls) {
+    private void mergeBundles(Bundle sourceBundle, Bundle targetBundle, SectionComponent fhirSec, Class<?> sectionRefCls) {
     	if(sourceBundle != null) {
-    		for(Entry entry : sourceBundle.getEntry()) {
+    		for(BundleEntryComponent entry : sourceBundle.getEntry()) {
     			if(entry != null) {
     				// Add all the resources returned from the source bundle to the target bundle
                     targetBundle.addEntry(entry);
                     // Add a reference to the section for each instance of requested class, e.g. Observation, Procedure ...
                     if(sectionRefCls.isInstance(entry.getResource())) {
-                        ResourceReferenceDt ref = fhirSec.addEntry();
+                        Reference ref = fhirSec.addEntry();
                         ref.setReference(entry.getResource().getId());
                     }
     			}
@@ -334,18 +373,20 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * Adds fullUrl field to the entry using it's resource id.
      * @param entry Entry which fullUrl field to be added.
      */
-    private void addFullUrlToEntry(Entry entry) {
-        entry.setFullUrl("urn:uuid:" + entry.getResource().getId().getIdPart());
+    private void addFullUrlToEntry(BundleEntryComponent entry) {
+        //entry.setFullUrl("urn:uuid:" + entry.getResource().getId().getIdPart());
+        entry.setFullUrl("urn:uuid:" + entry.getResource().getIdElement().getIdPart());
     }
 
     /**
      * Adds request field to the entry, method is POST, url is resource type.
      * @param entry Entry which request field to be added.
      */
-    private void addRequestToEntry(Entry entry) {
-        Bundle.EntryRequest request = new Bundle.EntryRequest();
-        request.setMethod(HTTPVerbEnum.POST);
-        request.setUrl(entry.getResource().getResourceName());
+    private void addRequestToEntry(BundleEntryComponent entry) {
+        BundleEntryRequestComponent request = new BundleEntryRequestComponent();
+        request.setMethod(HTTPVerb.POST);
+        //request.setUrl(entry.getResource().getResourceName());
+        request.setUrl(entry.getResource().getResourceType().name());
         entry.setRequest(request);
     }
 }

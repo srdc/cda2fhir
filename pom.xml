@@ -47,14 +47,16 @@
             <version>3.5.2</version>
         </dependency>
         <!-- HAPI: FHIR manipulation -->
+        <!--
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
             <version>${hapifhir.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-structures-dstu2</artifactId>
+            <artifactId>hapi-fhir-structures-dstu3</artifactId>
             <version>${hapifhir.version}</version>
         </dependency>
         <!-- FHIR narrative generation -->

@@ -20,18 +20,19 @@ package tr.com.srdc.cda2fhir;
  * #L%
  */
 
-import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import java.io.FileInputStream;
+
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
-
-import java.io.FileInputStream;
 
 public class CCDTransformerTest {
 

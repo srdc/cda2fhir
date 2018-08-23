@@ -20,22 +20,6 @@ package tr.com.srdc.cda2fhir.transform;
  * #L%
  */
 
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import ca.uhn.fhir.model.dstu2.composite.*;
-import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
-import ca.uhn.fhir.model.dstu2.valueset.NarrativeStatusEnum;
-import ca.uhn.fhir.model.primitive.Base64BinaryDt;
-import ca.uhn.fhir.model.primitive.BaseDateTimeDt;
-import ca.uhn.fhir.model.primitive.BooleanDt;
-import ca.uhn.fhir.model.primitive.DateDt;
-import ca.uhn.fhir.model.primitive.DateTimeDt;
-import ca.uhn.fhir.model.primitive.DecimalDt;
-import ca.uhn.fhir.model.primitive.IntegerDt;
-import ca.uhn.fhir.model.primitive.StringDt;
-import ca.uhn.fhir.model.primitive.UriDt;
-import ca.uhn.fhir.parser.DataFormatException;
-import ca.uhn.fhir.model.primitive.InstantDt;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +28,66 @@ import java.util.TimeZone;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap;
+import org.hl7.fhir.dstu3.model.Address;
+import org.hl7.fhir.dstu3.model.Attachment;
+import org.hl7.fhir.dstu3.model.Base64BinaryType;
+import org.hl7.fhir.dstu3.model.BaseDateTimeType;
+import org.hl7.fhir.dstu3.model.BooleanType;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.ContactPoint;
+import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
+import org.hl7.fhir.dstu3.model.DateTimeType;
+import org.hl7.fhir.dstu3.model.DateType;
+import org.hl7.fhir.dstu3.model.DecimalType;
+import org.hl7.fhir.dstu3.model.HumanName;
+import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.InstantType;
+import org.hl7.fhir.dstu3.model.IntegerType;
+import org.hl7.fhir.dstu3.model.Narrative;
+import org.hl7.fhir.dstu3.model.Narrative.NarrativeStatus;
+import org.hl7.fhir.dstu3.model.Period;
+import org.hl7.fhir.dstu3.model.Quantity;
+import org.hl7.fhir.dstu3.model.Range;
+import org.hl7.fhir.dstu3.model.Ratio;
+import org.hl7.fhir.dstu3.model.SimpleQuantity;
+import org.hl7.fhir.dstu3.model.StringType;
+import org.hl7.fhir.dstu3.model.Timing;
+import org.hl7.fhir.dstu3.model.Timing.TimingRepeatComponent;
+import org.hl7.fhir.dstu3.model.UriType;
 import org.openhealthtools.mdht.uml.cda.StrucDocText;
-import org.openhealthtools.mdht.uml.hl7.datatypes.*;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ADXP;
+import org.openhealthtools.mdht.uml.hl7.datatypes.BIN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CV;
+import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
+import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.INT;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PIVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PQR;
+import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
+import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import ca.uhn.fhir.parser.DataFormatException;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.util.StringUtil;
 
@@ -61,11 +97,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 
 	private final Logger logger = LoggerFactory.getLogger(DataTypesTransformerImpl.class);
 	
-	public AddressDt AD2Address(AD ad) {
+	public Address AD2Address(AD ad) {
 	    if(ad == null || ad.isSetNullFlavor())
 	    	return null;
         
-        AddressDt address = new AddressDt();
+        Address address = new Address();
         
         // use -> use
         if(ad.getUses() != null && !ad.getUses().isEmpty()) {
@@ -73,13 +109,13 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
         	for(PostalAddressUse postalAddressUse : ad.getUses()) {
         		// If we catch a valid value for type or use, we assign it
         		if(postalAddressUse == PostalAddressUse.PHYS || postalAddressUse == PostalAddressUse.PST) {
-        			address.setType(vst.tPostalAddressUse2AddressTypeEnum(postalAddressUse));
+        			address.setType(vst.tPostalAddressUse2AddressType(postalAddressUse));
         		} else if(postalAddressUse == PostalAddressUse.H ||
         				postalAddressUse == PostalAddressUse.HP ||
         				postalAddressUse == PostalAddressUse.WP ||
         				postalAddressUse == PostalAddressUse.TMP ||
         				postalAddressUse == PostalAddressUse.BAD) {
-        			address.setUse(vst.tPostalAdressUse2AddressUseEnum(postalAddressUse));
+        			address.setUse(vst.tPostalAdressUse2AddressUse(postalAddressUse));
         		}
         	}
         }       
@@ -158,15 +194,15 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
         
         // useablePeriods[0] -> start, usablePeriods[1] -> end
         if(ad.getUseablePeriods() != null && !ad.getUseablePeriods().isEmpty()) {
-        	PeriodDt period = new PeriodDt();
+        	Period period = new Period();
         	int sxcmCounter = 0;
         	for(SXCM_TS sxcmts : ad.getUseablePeriods()) {
         		if(sxcmts != null && !sxcmts.isSetNullFlavor()) {
         			if(sxcmCounter == 0) {
-        				period.setStart(tString2DateTime(sxcmts.getValue()));
+        				period.setStartElement(tString2DateTime(sxcmts.getValue()));
         				sxcmCounter++;
         			} else if(sxcmCounter == 1) {
-        				period.setEnd(tString2DateTime(sxcmts.getValue()));
+        				period.setEndElement(tString2DateTime(sxcmts.getValue()));
         				sxcmCounter++;
         			}
         		}
@@ -176,12 +212,12 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
         return address;
     }
 	
-	public Base64BinaryDt tBIN2Base64Binary(BIN bin) {
+	public Base64BinaryType tBIN2Base64Binary(BIN bin) {
 		if(bin == null || bin.isSetNullFlavor())
 			return null;
     	if(bin.getRepresentation().getLiteral()!=null) {
     		// TODO: It doesn't seem convenient. There should be a way to get the value of BIN.
-    		Base64BinaryDt base64BinaryDt = new Base64BinaryDt();
+    		Base64BinaryType base64BinaryDt = new Base64BinaryType();
         	base64BinaryDt.setValue(bin.getRepresentation().getLiteral().getBytes());
         	return base64BinaryDt;
     	}
@@ -191,20 +227,20 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
     	
     }
 	
-	public BooleanDt tBL2Boolean(BL bl) {
-	     return (bl == null || bl.isSetNullFlavor()) ? null : new BooleanDt(bl.getValue());
+	public BooleanType tBL2Boolean(BL bl) {
+	     return (bl == null || bl.isSetNullFlavor()) ? null : new BooleanType(bl.getValue());
 	}
 	
-	public CodeableConceptDt tCD2CodeableConcept(CD cd) {
-       	CodeableConceptDt myCodeableConceptDt = tCD2CodeableConceptExcludingTranslations(cd);
+	public CodeableConcept tCD2CodeableConcept(CD cd) {
+       	CodeableConcept myCodeableConcept = tCD2CodeableConceptExcludingTranslations(cd);
 
-		if(myCodeableConceptDt == null)
+		if(myCodeableConcept == null)
 			return null;
        	
        	// translation
        	if(cd.getTranslations() != null && !cd.getTranslations().isEmpty()) {
        		for(CD myCd : cd.getTranslations()) {
-				CodingDt codingDt = new CodingDt();
+				Coding codingDt = new Coding();
            		boolean isEmpty = true;
            		
            		// codeSystem -> system
@@ -232,21 +268,21 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
                	}
 
                	if(isEmpty == false)
-               		myCodeableConceptDt.addCoding(codingDt);
+               		myCodeableConcept.addCoding(codingDt);
            	}
        	}
 
-       	return myCodeableConceptDt;
+       	return myCodeableConcept;
     }
 
-	public CodeableConceptDt tCD2CodeableConceptExcludingTranslations(CD cd) {
+	public CodeableConcept tCD2CodeableConceptExcludingTranslations(CD cd) {
 		if(cd == null || cd.isSetNullFlavor())
 			return null;
 
-		CodeableConceptDt myCodeableConceptDt = new CodeableConceptDt();
+		CodeableConcept myCodeableConcept = new CodeableConcept();
 
 		// .
-		CodingDt codingDt = new CodingDt();
+		Coding codingDt = new Coding();
 		boolean isEmpty = true;
 
 		// codeSystem -> system
@@ -274,18 +310,18 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		}
 
 		if(!isEmpty) {
-			myCodeableConceptDt.addCoding(codingDt);
-			return myCodeableConceptDt;
+			myCodeableConcept.addCoding(codingDt);
+			return myCodeableConcept;
 		}
 		else
 			return null;
 	}
 	
-	public CodingDt tCV2Coding(CV cv) {
+	public Coding tCV2Coding(CV cv) {
     	if(cv == null || cv.isSetNullFlavor())
     		return null;
     	
-	   	CodingDt codingDt= new CodingDt();
+	   	Coding codingDt= new Coding();
 	   	
 	   	// codeSystem -> system
 	   	if(cv.getCodeSystem() != null && !cv.getCodeSystem().isEmpty()) {
@@ -309,11 +345,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	    return codingDt;
     }
 	
-	public AttachmentDt tED2Attachment(ED ed) {
+	public Attachment tED2Attachment(ED ed) {
 		if(ed==null || ed.isSetNullFlavor())
 			return null;
 		
-		AttachmentDt attachmentDt = new AttachmentDt();
+		Attachment attachmentDt = new Attachment();
 		
 		// mediaType -> contentType
 		if(ed.isSetMediaType() && ed.getMediaType()!=null && !ed.getMediaType().isEmpty()) {
@@ -347,11 +383,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return attachmentDt;
 	}
 	
-	public HumanNameDt tEN2HumanName(EN en) {
+	public HumanName tEN2HumanName(EN en) {
 		if(en == null || en.isSetNullFlavor())
 			return null;
 
-		HumanNameDt myHumanName = new HumanNameDt();
+		HumanName myHumanName = new HumanName();
 		
 		// text -> text
 		if(en.getText() != null && !en.getText().isEmpty()) {
@@ -362,15 +398,24 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		if(en.getUses() != null && !en.getUses().isEmpty()) {
 			for(EntityNameUse entityNameUse : en.getUses()) {
 				if(entityNameUse != null) {
-					myHumanName.setUse(vst.tEntityNameUse2NameUseEnum(entityNameUse));
+					myHumanName.setUse(vst.tEntityNameUse2NameUse(entityNameUse));
 				}
 			}
 		}
 		
 		// family -> family
+		// TODO: FHIR DSTU2 supported multiple family names but STU3 only supports
+		// one. Figure out how to handle this. For now, error out if there's multiple
+		// family names from source
 		if(en.getFamilies() != null && !en.getFamilies().isEmpty()) {
+			boolean alreadySet = false;
 			for(ENXP family: en.getFamilies()) {
-				myHumanName.addFamily(family.getText());
+				if(alreadySet) {
+					throw new IllegalArgumentException("multiple family names found!");
+				}
+				//myHumanName.addFamily(family.getText());
+				myHumanName.setFamily(family.getText());
+				alreadySet = true;
 			}
 		}
 		
@@ -404,11 +449,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	
 	}
 	
-	public IdentifierDt tII2Identifier(II ii) {
+	public Identifier tII2Identifier(II ii) {
 		if(ii == null || ii.isSetNullFlavor())
 			return null;
 		
-		IdentifierDt identifierDt = new IdentifierDt();
+		Identifier identifierDt = new Identifier();
 
 		// if both root and extension are present, then
 		// root -> system
@@ -439,31 +484,31 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 
 	}
 	
-	public IntegerDt tINT2Integer(INT myInt){
-    	return (myInt == null || myInt.isSetNullFlavor() || myInt.getValue() == null) ? null : new IntegerDt(myInt.getValue().toString());
+	public IntegerType tINT2Integer(INT myInt){
+    	return (myInt == null || myInt.isSetNullFlavor() || myInt.getValue() == null) ? null : new IntegerType(myInt.getValue().toString());
     }
 	
-	public RangeDt tIVL_PQ2Range(IVL_PQ ivlpq){
+	public Range tIVL_PQ2Range(IVL_PQ ivlpq){
 		if(ivlpq == null || ivlpq.isSetNullFlavor()) 
 			return null;
 		
-		RangeDt rangeDt = new RangeDt();
+		Range rangeDt = new Range();
 		
 		// low -> low
 		if(ivlpq.getLow() != null && !ivlpq.getLow().isSetNullFlavor()){
-			rangeDt.setLow(tPQ2SimpleQuantityDt(ivlpq.getLow()));
+			rangeDt.setLow(tPQ2SimpleQuantity(ivlpq.getLow()));
 			
 		}
 		
 		// high -> high
 		if(ivlpq.getHigh() != null && !ivlpq.getHigh().isSetNullFlavor()){
-			rangeDt.setHigh(tPQ2SimpleQuantityDt(ivlpq.getHigh()));
+			rangeDt.setHigh(tPQ2SimpleQuantity(ivlpq.getHigh()));
 		}
 		
 		// low is null, high is null and the value is carrying the low value
 		// value -> low
 		if(ivlpq.getLow() == null && ivlpq.getHigh() == null && ivlpq.getValue() != null) {
-			SimpleQuantityDt low = new SimpleQuantityDt();
+			SimpleQuantity low = new SimpleQuantity();
 			low.setValue(ivlpq.getValue());
 			rangeDt.setLow(low);
 		}
@@ -471,51 +516,52 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return rangeDt;
 	}
 	
-	public PeriodDt tIVL_TS2Period(IVL_TS ivlts) {
+	public Period tIVL_TS2Period(IVL_TS ivlts) {
 		if(ivlts == null || ivlts.isSetNullFlavor()) 
 			return null;
 		
-		PeriodDt periodDt = new PeriodDt();
+		Period periodDt = new Period();
 		
 		// low -> start
 		if(ivlts.getLow() != null && !ivlts.getLow().isSetNullFlavor()) {
 			String date=ivlts.getLow().getValue();
-			periodDt.setStart(tString2DateTime(date));
+			periodDt.setStartElement(tString2DateTime(date));
 		}
 		
 		// high -> end
 		if(ivlts.getHigh() != null && !ivlts.getHigh().isSetNullFlavor()) {
 			String date=ivlts.getHigh().getValue();
-			periodDt.setEnd(tString2DateTime(date));
+			periodDt.setEndElement(tString2DateTime(date));
 		}
 		
 		// low is null, high is null and the value is carrying the low value
 		// value -> low
 		if(ivlts.getLow() == null && ivlts.getHigh() == null && ivlts.getValue() != null && !ivlts.getValue().equals("")) {
-			periodDt.setStart(tString2DateTime(ivlts.getValue()));
+			periodDt.setStartElement(tString2DateTime(ivlts.getValue()));
 		}
 		
 		return periodDt;
 	}
 	
-	public TimingDt tPIVL_TS2Timing(PIVL_TS pivlts) {
+	public Timing tPIVL_TS2Timing(PIVL_TS pivlts) {
 		// http://wiki.hl7.org/images/c/ca/Medication_Frequencies_in_CDA.pdf
 		// http://www.cdapro.com/know/24997
 		if(pivlts == null || pivlts.isSetNullFlavor())
 			return null;
 
-		TimingDt timing = new TimingDt();
+		Timing timing = new Timing();
 
 		// period -> period
 		if(pivlts.getPeriod() != null && !pivlts.getPeriod().isSetNullFlavor()) {
-			TimingDt.Repeat repeat = new TimingDt.Repeat();
+			TimingRepeatComponent repeat = new TimingRepeatComponent();
 			timing.setRepeat(repeat);
 			// period.value -> repeat.period
 			if(pivlts.getPeriod().getValue() != null)
 				repeat.setPeriod(pivlts.getPeriod().getValue());
 			// period.unit -> repeat.periodUnits
 			if(pivlts.getPeriod().getUnit() != null)
-				repeat.setPeriodUnits(vst.tPeriodUnit2UnitsOfTimeEnum(pivlts.getPeriod().getUnit()));
+				//repeat.setPeriodUnits(vst.tPeriodUnit2UnitsOfTimeEnum(pivlts.getPeriod().getUnit()));
+				repeat.setPeriodUnit(vst.tPeriodUnit2UnitsOfTime(pivlts.getPeriod().getUnit()));
 			
 			// phase -> repeat.bounds
 			if(pivlts.getPhase() != null && !pivlts.getPhase().isSetNullFlavor()) {
@@ -525,11 +571,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return timing;
 	}
 
-	public QuantityDt tPQ2Quantity(PQ pq) {
+	public Quantity tPQ2Quantity(PQ pq) {
 		if(pq == null || pq.isSetNullFlavor())
 			return null;
 		
-		QuantityDt quantityDt = new QuantityDt();
+		Quantity quantityDt = new Quantity();
 
 		// value -> value
 		if(pq.getValue() != null) {
@@ -558,11 +604,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return quantityDt;
 	}
 
-	public SimpleQuantityDt tPQ2SimpleQuantityDt(PQ pq) {
+	public SimpleQuantity tPQ2SimpleQuantity(PQ pq) {
 		if(pq == null || pq.isSetNullFlavor())
 			return null;
 		
-		SimpleQuantityDt simpleQuantity = new SimpleQuantityDt();
+		SimpleQuantity simpleQuantity = new SimpleQuantity();
 		
 		// value -> value
 		if(pq.getValue() != null) {
@@ -593,68 +639,68 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return simpleQuantity;
 	}
 	
-	public DecimalDt tREAL2Decimal(REAL real){
-    	return (real == null || real.isSetNullFlavor() || real.getValue() == null) ? null : new DecimalDt(real.getValue());
+	public DecimalType tREAL2DecimalType(REAL real){
+    	return (real == null || real.isSetNullFlavor() || real.getValue() == null) ? null : new DecimalType(real.getValue());
     }
 	
-	public RatioDt tRTO2Ratio(RTO rto){
+	public Ratio tRTO2Ratio(RTO rto){
     	if(rto == null || rto.isSetNullFlavor())
     		return null;
-    	RatioDt myRatioDt = new RatioDt();
+    	Ratio myRatio = new Ratio();
     	
     	// numerator -> numerator
     	if(rto.getNumerator() != null && !rto.getNumerator().isSetNullFlavor()) {
-    		QuantityDt quantity = new QuantityDt();
+    		Quantity quantity = new Quantity();
     		REAL numerator= (REAL)rto.getNumerator();
     		if(numerator.getValue() != null) {
     			quantity.setValue(numerator.getValue().doubleValue());
-    			myRatioDt.setNumerator(quantity);
+    			myRatio.setNumerator(quantity);
     		}
     	}
     	
     	// denominator -> denominator
     	if(!rto.getDenominator().isSetNullFlavor()) {
-    		QuantityDt quantity=new QuantityDt();
+    		Quantity quantity=new Quantity();
     		REAL denominator= (REAL) rto.getDenominator();
     		if(denominator.getValue() != null) {
     			quantity.setValue(denominator.getValue().doubleValue());
-        		myRatioDt.setDenominator(quantity);
+        		myRatio.setDenominator(quantity);
     		}
     	}
-    	return myRatioDt;
+    	return myRatio;
     }
     
-	public StringDt tST2String(ST st){
-    	return (st == null || st.isSetNullFlavor() || st.getText() == null) ? null : new StringDt(st.getText());
+	public StringType tST2String(ST st){
+    	return (st == null || st.isSetNullFlavor() || st.getText() == null) ? null : new StringType(st.getText());
     }
 
-	public DateTimeDt tString2DateTime(String date) {
+	public DateTimeType tString2DateTime(String date) {
 		TS ts = DatatypesFactory.eINSTANCE.createTS();
 		ts.setValue(date);
 		return tTS2DateTime(ts);
 	}
 	
-	public NarrativeDt tStrucDocText2Narrative(StrucDocText sdt) {
+	public Narrative tStrucDocText2Narrative(StrucDocText sdt) {
 		if(sdt != null) {
-			NarrativeDt narrative = new NarrativeDt();
+			Narrative narrative = new Narrative();
 			String narrativeDivString = tStrucDocText2String(sdt);
 			
 			try {
-				narrative.setDiv(narrativeDivString); 
+				narrative.setDivAsString(narrativeDivString); 
 			} catch(DataFormatException e) {
 				return null;
 			}
-			narrative.setStatus(NarrativeStatusEnum.ADDITIONAL);
+			narrative.setStatus(NarrativeStatus.ADDITIONAL);
 			return narrative;
 		}
 		return null;
 	}
 
-	public ContactPointDt tTEL2ContactPoint(TEL tel) {
+	public ContactPoint tTEL2ContactPoint(TEL tel) {
 		if(tel == null || tel.isSetNullFlavor())
 			return null;
 		
-		ContactPointDt contactPointDt = new ContactPointDt();
+		ContactPoint contactPointDt = new ContactPoint();
 		
 		// value and system -> value
 		if(tel.getValue() != null && !tel.getValue().isEmpty()) {
@@ -663,7 +709,7 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 			
 			// for the values in form tel:+1(555)555-1000
 			if(systemType.length > 1){
-				ContactPointSystemEnum contactPointSystem = vst.tTelValue2ContactPointSystemEnum(systemType[0]);
+				ContactPointSystem contactPointSystem = vst.tTelValue2ContactPointSystem(systemType[0]);
 				// system
 				if(contactPointSystem != null) {
 					contactPointDt.setSystem(contactPointSystem);
@@ -683,7 +729,7 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		
 		// useablePeriods -> period
 		if(tel.getUseablePeriods() != null && !tel.getUseablePeriods().isEmpty()) {
-			PeriodDt period = new PeriodDt();
+			Period period = new Period();
 			int sxcmCounter = 0;
 			for(SXCM_TS sxcmts : tel.getUseablePeriods()) {
 				if(sxcmts != null && !sxcmts.isSetNullFlavor()) {
@@ -691,11 +737,11 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 					// useablePeriods[1] -> period.end
 					if(sxcmCounter == 0) {
 						if(sxcmts.getValue() != null && !sxcmts.getValue().isEmpty()){
-							period.setStart(tString2DateTime(sxcmts.getValue()));
+							period.setStartElement(tString2DateTime(sxcmts.getValue()));
 						}
 					} else if(sxcmCounter == 1) {
 						if(sxcmts.getValue() != null && !sxcmts.getValue().isEmpty()) {
-							period.setEnd(tString2DateTime(sxcmts.getValue()));
+							period.setEndElement(tString2DateTime(sxcmts.getValue()));
 						}
 					}
 					sxcmCounter++;
@@ -708,7 +754,7 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		if(tel.getUses() != null && !tel.getUses().isEmpty()) {
 			for(TelecommunicationAddressUse telAddressUse : tel.getUses()) {
 				if(telAddressUse != null) {
-					contactPointDt.setUse(vst.tTelecommunicationAddressUse2ContactPointUseEnum(telAddressUse));
+					contactPointDt.setUse(vst.tTelecommunicationAddressUse2ContactPointUse(telAddressUse));
 				}
 			}
 		}
@@ -716,8 +762,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return contactPointDt;
 	}
 	
-	public DateDt tTS2Date(TS ts){
-		DateDt date = (DateDt) tTS2BaseDateTime(ts,DateDt.class);
+	public DateType tTS2Date(TS ts){
+		DateType date = (DateType) tTS2BaseDateTime(ts,DateType.class);
 		if(date == null)
 			return null;
 		
@@ -734,8 +780,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return date;
 	}
 	
-	public DateTimeDt tTS2DateTime(TS ts) {
-		DateTimeDt dateTime = (DateTimeDt) tTS2BaseDateTime(ts,DateTimeDt.class);
+	public DateTimeType tTS2DateTime(TS ts) {
+		DateTimeType dateTime = (DateTimeType) tTS2BaseDateTime(ts,DateTimeType.class);
 		
 		if(dateTime == null)
 			return null;
@@ -756,8 +802,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return dateTime;
 	}
 	
-	public InstantDt tTS2Instant(TS ts) {
-		InstantDt instant = (InstantDt) tTS2BaseDateTime(ts,InstantDt.class);
+	public InstantType tTS2Instant(TS ts) {
+		InstantType instant = (InstantType) tTS2BaseDateTime(ts,InstantType.class);
 		if(instant == null)
 			return null;
 		
@@ -773,8 +819,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		return instant;
 	}
 	
-	public UriDt tURL2Uri(URL url){
-    	return (url == null || url.isSetNullFlavor() || url.getValue() == null) ? null : new UriDt(url.getValue());
+	public UriType tURL2Uri(URL url){
+    	return (url == null || url.isSetNullFlavor() || url.getValue() == null) ? null : new UriType(url.getValue());
     }
 	
 	// Helper Methods
@@ -965,13 +1011,13 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	}
 	
 	/**
-	 * Transforms a CDA TS instance or a string including the date information in CDA format to a FHIR BaseDateTimeDt primitive datatype instance.
-	 * Since BaseDateTimeDt is an abstract class, the second parameter of this method (Class&lt;?&gt; classOfReturningObject) determines the class that initiates the BaseDateTimeDt object the method is to return.
+	 * Transforms a CDA TS instance or a string including the date information in CDA format to a FHIR BaseDateTimeType primitive datatype instance.
+	 * Since BaseDateTimeType is an abstract class, the second parameter of this method (Class&lt;?&gt; classOfReturningObject) determines the class that initiates the BaseDateTimeType object the method is to return.
 	 * @param tsObject A CDA TS instance or a Java String including the date information in CDA format
-	 * @param classOfReturningObject A FHIR class that determines the initiater for the BaseDateTimeDt object the method is to return. DateDt.class, DateTimeDt.class or InstantDt.class are expected.
-	 * @return A FHIR BaseDateTimeDt primitive datatype instance
+	 * @param classOfReturningObject A FHIR class that determines the initiater for the BaseDateTimeType object the method is to return. DateType.class, DateTimeType.class or InstantType.class are expected.
+	 * @return A FHIR BaseDateTimeType primitive datatype instance
 	 */
-	private BaseDateTimeDt tTS2BaseDateTime(Object tsObject, Class<?> classOfReturningObject) {
+	private BaseDateTimeType tTS2BaseDateTime(Object tsObject, Class<?> classOfReturningObject) {
 		if(tsObject == null)
 			return null;
 		
@@ -992,19 +1038,19 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 			return null;
 		}
 		
-		BaseDateTimeDt date;
+		BaseDateTimeType date;
 		// initializing date
-		if(classOfReturningObject == DateDt.class) {
-			date = new DateDt();
-		} else if(classOfReturningObject == DateTimeDt.class) {
-			date = new DateTimeDt();
-		} else if(classOfReturningObject == InstantDt.class) {
-			date = new InstantDt();
+		if(classOfReturningObject == DateType.class) {
+			date = new DateType();
+		} else if(classOfReturningObject == DateTimeType.class) {
+			date = new DateTimeType();
+		} else if(classOfReturningObject == InstantType.class) {
+			date = new InstantType();
 		} else {
 			// unexpected situtation
-			// caller of this method must have a need of DateDt, DateTimeDt or InstantDt
-			// otherwise, the returning object will be of type DateDt
-			date = new DateDt();
+			// caller of this method must have a need of DateType, DateTimeType or InstantType
+			// otherwise, the returning object will be of type DateType
+			date = new DateType();
 		}
 		
 		/*

@@ -19,18 +19,32 @@ package tr.com.srdc.cda2fhir;
  * limitations under the License.
  * #L%
  */
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 
-import java.io.*;
-
-import ca.uhn.fhir.model.api.IResource;
-import ca.uhn.fhir.model.dstu2.resource.*;
-
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Extension;
+import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
+import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusResultOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusSection;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
@@ -39,19 +53,12 @@ import org.openhealthtools.mdht.uml.cda.consol.SocialHistorySection;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSectionEntriesOptional;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
-import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusResultOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusSection;
-import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
-import ca.uhn.fhir.model.api.ExtensionDt;
-import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
-import ca.uhn.fhir.model.dstu2.resource.Composition.Section;
+
+import ca.uhn.fhir.model.api.IResource;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
@@ -282,7 +289,7 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: Guardian2Contact\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Guardian cdaNull = null;
-		Patient.Contact fhirNull = rt.tGuardian2Contact(cdaNull);
+		ContactComponent fhirNull = rt.tGuardian2Contact(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -293,9 +300,9 @@ public class ResourceTransformerTest {
 					for(org.openhealthtools.mdht.uml.cda.Guardian guardian : patientRole.getPatient().getGuardians()) {
 						if(guardian != null && !guardian.isSetNullFlavor()) {
 							appendToResultFile(transformationStartMsg);
-							ca.uhn.fhir.model.dstu2.resource.Patient.Contact contact = rt.tGuardian2Contact(guardian);
+							ContactComponent contact = rt.tGuardian2Contact(guardian);
 							appendToResultFile(transformationEndMsg);
-							ca.uhn.fhir.model.dstu2.resource.Patient patient = new Patient().addContact(contact);
+							org.hl7.fhir.dstu3.model.Patient patient = new Patient().addContact(contact);
 							appendToResultFile(patient);
 						}
 					}
@@ -336,16 +343,16 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: LanguageCommunication2Communication\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.LanguageCommunication cdaNull = null;
-		ca.uhn.fhir.model.dstu2.resource.Patient.Communication fhirNull = rt.tLanguageCommunication2Communication(cdaNull);
+		PatientCommunicationComponent fhirNull = rt.tLanguageCommunication2Communication(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
 		for(org.openhealthtools.mdht.uml.cda.Patient patient : test.ccd.getPatients()) {
 			for(org.openhealthtools.mdht.uml.cda.LanguageCommunication LC : patient.getLanguageCommunications()) {
 				appendToResultFile(transformationStartMsg);
-				ca.uhn.fhir.model.dstu2.resource.Patient.Communication fhirCommunication = rt.tLanguageCommunication2Communication(LC);
+				PatientCommunicationComponent fhirCommunication = rt.tLanguageCommunication2Communication(LC);
 				appendToResultFile(transformationEndMsg);
-				ca.uhn.fhir.model.dstu2.resource.Patient fhirPatient = new ca.uhn.fhir.model.dstu2.resource.Patient();
+				org.hl7.fhir.dstu3.model.Patient fhirPatient = new org.hl7.fhir.dstu3.model.Patient();
 				fhirPatient.addCommunication(fhirCommunication);
 				appendToResultFile(fhirPatient);
 			}
@@ -480,7 +487,7 @@ public class ResourceTransformerTest {
 		for(org.openhealthtools.mdht.uml.cda.PatientRole patRole : test.ccd.getPatientRoles()) {
 			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
 			appendToResultFile(transformationStartMsg);
-			ca.uhn.fhir.model.dstu2.resource.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
+			org.hl7.fhir.dstu3.model.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(fhirOrg);
 		}
@@ -508,7 +515,7 @@ public class ResourceTransformerTest {
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(patientBundle);
 			
-			for(Entry entry : patientBundle.getEntry()) {
+			for(BundleEntryComponent entry : patientBundle.getEntry()) {
 				if(entry.getResource() instanceof Patient) {
 					patient = (Patient)entry.getResource();
 				}
@@ -540,7 +547,7 @@ public class ResourceTransformerTest {
 				if(pn.getUses() == null || pn.getUses().isEmpty()) {
 					Assert.assertNull(patient.getName().get(nameCount).getUse());
 				} else {
-					Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.tEntityNameUse2NameUseEnum(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse());
+					Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.tEntityNameUse2NameUse(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse());
 				}
 
 				// patient.name.text
@@ -551,9 +558,9 @@ public class ResourceTransformerTest {
 				for(ENXP family : pn.getFamilies()) {
 					if(family == null || family.isSetNullFlavor()) {
 						// It can return null or an empty list
-						Assert.assertTrue(patient.getName().get(nameCount).getFamily() == null || patient.getName().get(nameCount).getFamily().size() == 0);
+						Assert.assertTrue(patient.getName().get(nameCount).getFamily() == null || !patient.getName().get(nameCount).hasFamily()/*patient.getName().get(nameCount).getFamily().size() == 0*/);
 					} else {
-						Assert.assertEquals("pr.patient.name["+nameCount+"].family was not transformed", family.getText(),patient.getName().get(nameCount).getFamily().get(familyCount).getValue());
+						Assert.assertEquals("pr.patient.name["+nameCount+"].family was not transformed", family.getText(),patient.getName().get(nameCount).getFamily()/*.get(familyCount).getValue()*/);
 					}
 					familyCount++;
 				}
@@ -616,7 +623,7 @@ public class ResourceTransformerTest {
 			// vst.AdministrativeGenderCode2AdministrativeGenderEnum is used in this transformation.
 			// Following test aims to test that ValueSetTransformer method.
 			if(pr.getPatient().getAdministrativeGenderCode() == null || pr.getPatient().getAdministrativeGenderCode().isSetNullFlavor()) {
-				Assert.assertTrue(patient.getGender() == null || patient.getGender().isEmpty());
+				Assert.assertTrue(patient.getGender() == null || !patient.getGenderElement().hasValue());
 			}
 
 			// patient.birthDate
@@ -664,7 +671,8 @@ public class ResourceTransformerTest {
 					// preference
 					if(pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd() == null ||
 							pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd().isSetNullFlavor()) {
-						Assert.assertTrue(patient.getCommunication().get(sizeCommunication - 1).getPreferred() == null);
+						//Assert.assertTrue(patient.getCommunication().get(sizeCommunication - 1).getPreferred() == null);
+						Assert.assertTrue(!patient.getCommunication().get(sizeCommunication - 1).hasPreferred());
 					} else {
 						Assert.assertEquals(pr.getPatient().getLanguageCommunications().get(sizeCommunication - 1).getPreferenceInd().getValue(), patient.getCommunication().get(sizeCommunication - 1).getPreferred());
 					}
@@ -692,7 +700,7 @@ public class ResourceTransformerTest {
 			}
 
 			// extensions
-			for(ExtensionDt extension : patient.getUndeclaredExtensions()) {
+			for(Extension extension : patient.getExtension()) {
 				Assert.assertTrue(extension.getUrl() != null);
 				Assert.assertTrue(extension.getValue() != null);
 			}
@@ -810,7 +818,7 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: Section2Section\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Section cdaNull = null;
-		Section fhirNull = rt.tSection2Section(cdaNull);
+		SectionComponent fhirNull = rt.tSection2Section(cdaNull);
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -825,9 +833,9 @@ public class ResourceTransformerTest {
 			}
 		}
 		if(sampleSection != null) {
-			ca.uhn.fhir.model.dstu2.resource.Composition fhirComposition = new ca.uhn.fhir.model.dstu2.resource.Composition();
+			org.hl7.fhir.dstu3.model.Composition fhirComposition = new org.hl7.fhir.dstu3.model.Composition();
 			appendToResultFile(transformationStartMsg);
-			ca.uhn.fhir.model.dstu2.resource.Composition.Section fhirSection = rt.tSection2Section(sampleSection);
+			SectionComponent fhirSection = rt.tSection2Section(sampleSection);
 			appendToResultFile(transformationEndMsg);
 			fhirComposition.addSection(fhirSection);
 			appendToResultFile(fhirComposition);

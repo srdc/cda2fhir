@@ -20,16 +20,17 @@ package tr.com.srdc.cda2fhir.util;
  * #L%
  */
 
-import ca.uhn.fhir.model.api.IResource;
-import ca.uhn.fhir.parser.IParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import tr.com.srdc.cda2fhir.conf.Config;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ca.uhn.fhir.parser.IParser;
+import tr.com.srdc.cda2fhir.conf.Config;
 
 public class FHIRUtil {
 
@@ -45,23 +46,23 @@ public class FHIRUtil {
         xmlParser.setPrettyPrint(true);
     }
     
-    public static String encodeToJSON(IResource res) {
+    public static String encodeToJSON(IBaseResource res) {
     	return jsonParser.encodeResourceToString(res);
     }
     
-    public static String encodeToXML(IResource res) {
+    public static String encodeToXML(IBaseResource res) {
         return xmlParser.encodeResourceToString(res);
     }
 
-    public static void printJSON(IResource res) {
+    public static void printJSON(IBaseResource res) {
         System.out.println(jsonParser.encodeResourceToString(res));
     }
 
-    public static void printXML(IResource res) {
+    public static void printXML(IBaseResource res) {
         System.out.println(xmlParser.encodeResourceToString(res));
     }
 
-    public static void printJSON(IResource res, String filePath) {
+    public static void printJSON(IBaseResource res, String filePath) {
         File f = new File(filePath);
         f.getParentFile().mkdirs();
         try {
@@ -71,7 +72,7 @@ public class FHIRUtil {
         }
     }
 
-    public static void printXML(IResource res, String filePath) {
+    public static void printXML(IBaseResource res, String filePath) {
         File f = new File(filePath);
         f.getParentFile().mkdirs();
         try {
@@ -81,7 +82,7 @@ public class FHIRUtil {
         }
     }
 
-    public static void printJSON(IResource res, Writer writer) {
+    public static void printJSON(IBaseResource res, Writer writer) {
         try {
             jsonParser.encodeResourceToWriter(res, writer);
         } catch (IOException e) {
@@ -89,7 +90,7 @@ public class FHIRUtil {
         }
     }
 
-    public static void printXML(IResource res, Writer writer) {
+    public static void printXML(IBaseResource res, Writer writer) {
         try {
             xmlParser.encodeResourceToWriter(res, writer);
         } catch (IOException e) {
