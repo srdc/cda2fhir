@@ -29,7 +29,7 @@ documents/entries, it has been tested as well with several older document instan
 All the mappings implemented between CDA artifacts and FHIR resources, data types and value sets are documented in this sheet:
 [C-CDA CCD to FHIR DAF Mapping](https://docs.google.com/spreadsheets/d/15Kv6PFyPh91sH1JMYwLH7D2yjh4HOTy5pjETjQNRyaU/edit?usp=sharing)
 
-[Model Driven Health Tools (MDHT)](https://projects.eclipse.org/proposals/model-driven-health-tools) is used for CDA manipulation and
+[Model Driven Health Tools (MDHT)](https://projects.eclipse.org/projects/modeling.mdht) is used for CDA manipulation and
 [HAPI](http://hapifhir.io/) is used for FHIR manipulation. The current implementation produces DSTU2 resources.
 We are planning to cover STU3 resources as well, after the specification becomes official.
 
