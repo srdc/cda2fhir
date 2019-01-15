@@ -15,7 +15,7 @@ a browser.
 		<tbody>
 			<tr th:if="${resource.category} and ${not resource.category.empty}">
 				<td>Category</td>
-				<td th:narrative="${resource.category}"></td>
+				<td th:narrative="${resource.category[0]}"></td>
 			</tr>
 			<tr th:if="${resource.code} and ${not resource.code.empty}">
 				<td>Code</td>

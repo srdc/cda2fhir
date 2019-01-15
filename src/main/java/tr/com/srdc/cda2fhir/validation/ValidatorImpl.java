@@ -32,13 +32,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.hl7.fhir.dstu2.utils.client.EFhirClientException;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import ca.uhn.fhir.model.api.IResource;
-import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
@@ -122,7 +123,7 @@ public class ValidatorImpl implements IValidator {
 		}
 
 		// traverse the entries of the bundle
-		for(Bundle.Entry entry : bundle.getEntry()) {
+		for(BundleEntryComponent entry : bundle.getEntry()) {
 			if(entry != null && entry.getResource() != null) {	
 				try {
 					// validate the resource contained in the entry
@@ -151,7 +152,7 @@ public class ValidatorImpl implements IValidator {
 		return outputStream;
 	}
 	
-	public OutputStream validateResource(IResource resource) {
+	public OutputStream validateResource(IBaseResource resource) {
 		if(resource == null) {
 			logger.warn("The resource to be validated is null. Returning null");
 			return null;
@@ -162,7 +163,7 @@ public class ValidatorImpl implements IValidator {
 			return null;
 		}
 		
-		logger.info("Validating resource " + resource.getId());
+		logger.info("Validating resource " + resource.getIdElement());
 		
 		// set resource
 		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
@@ -172,7 +173,7 @@ public class ValidatorImpl implements IValidator {
 			this.validationEngine.process();
 		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException | EFhirClientException e) {
 			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message", e);
-			String exceptionAsHtml = "<h3>" + resource.getId() + "</h3>" + "Exception occurred while validating this resource:<br>"
+			String exceptionAsHtml = "<h3>" + resource.getIdElement() + "</h3>" + "Exception occurred while validating this resource:<br>"
 					+ e.getMessage()+"<hr>";
 			try {
 				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -189,7 +190,7 @@ public class ValidatorImpl implements IValidator {
 		// notice that html tag is not included in the outcome string
 		try {
 			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
-			outcomeText = "<h3>" + resource.getId() + "</h3>" + outcomeText + "<hr>";
+			outcomeText = "<h3>" + resource.getIdElement() + "</h3>" + outcomeText + "<hr>";
 			outputStream.write(outcomeText.getBytes("UTF-8"));
 		} catch (IOException e) {
 			logger.error("Exception occurred while trying to write the validation outcome to the output stream. Returning null", e);
@@ -226,11 +227,11 @@ public class ValidatorImpl implements IValidator {
 	 * @param paramResource A FHIR IResource instance
 	 * @return A byte array
 	 */
-	private byte[] tIResource2ByteArray(IResource paramResource) {
+	private byte[] tIResource2ByteArray(IBaseResource paramResource) {
 		try {
 			return FHIRUtil.encodeToXML(paramResource).getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			logger.error("Could not encode resource {} in UTF-8 encoding", paramResource.getId(), e);
+			logger.error("Could not encode resource {} in UTF-8 encoding", paramResource.getIdElement(), e);
 		}
 		return null;
 	}

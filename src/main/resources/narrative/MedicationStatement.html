@@ -11,10 +11,10 @@ a browser.
 <!--*/-->
 
 <div>
-<span th:if="${resource.wasNotTaken}" th:text="'Medication was not taken'"></span>
-	<table class="hapiPropertyTable" th:if="${resource.wasNotTaken} and ${not resource.reasonNotTaken.empty} or ${resource.effective}">
+<span th:if="${resource.taken}" th:text="'Medication was not taken'"></span>
+	<table class="hapiPropertyTable" th:if="${resource.taken} and ${not resource.reasonNotTaken.empty} or ${resource.effective}">
 		<tbody>	
-			<tr th:if="${resource.wasNotTaken} and ${not resource.reasonNotTaken.empty}">
+			<tr th:if="${resource.taken} and ${not resource.reasonNotTaken.empty}">
 				<td>Reason Not Taken</td>
 				<td th:text="${resource.reasonNotTaken}"></td>
 			</tr>
@@ -42,9 +42,9 @@ a browser.
 				<td>Route</td>
 				<td th:narrative="${dosage.route}"></td>
 			</tr>
-			<tr th:if="${dosage.quantity}">
+			<tr th:if="${dosage.dose}">
 				<td>Quantity</td>
-				<td th:narrative="${dosage.quantity}"></td>
+				<td th:narrative="${dosage.dose}"></td>
 			</tr>
 			<tr th:if="${dosage.rate}">
 				<td>Rate</td>

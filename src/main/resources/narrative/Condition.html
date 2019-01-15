@@ -17,13 +17,13 @@ a browser.
 				<td>Code</td>
 				<td th:narrative="${resource.code}"></td>
 			</tr>
-			<tr th:if="${resource.dateRecorded}">
-				<td>Date Recorded</td>
-				<td th:text="${resource.dateRecorded.toString()}"></td>
+			<tr th:if="${resource.assertedDate}">
+				<td>Asserted Date</td>
+				<td th:text="${resource.assertedDate.toString()}"></td>
 			</tr>
 			<tr th:if="${resource.category}">
 				<td>Category</td>
-				<td th:narrative="${resource.category}"></td>
+				<td th:narrative="${resource.category[0]}"></td>
 			</tr>
 			<tr th:if="${resource.clinicalStatus}">
 				<td>Clinical Status</td>

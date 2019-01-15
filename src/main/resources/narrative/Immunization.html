@@ -21,7 +21,7 @@ a browser.
 				<td>Date (Vaccine Administered)</td>
 				<td th:text="${resource.date.toString()}"></td>
 			</tr>
-			<tr th:if="${resource.wasNotGiven}">
+			<tr th:if="${resource.notGiven}">
 				<td>Not Given</td>
 				<td>True</td>
 			</tr>

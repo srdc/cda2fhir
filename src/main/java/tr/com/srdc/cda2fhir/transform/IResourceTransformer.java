@@ -20,27 +20,48 @@ package tr.com.srdc.cda2fhir.transform;
  * #L%
  */
 
-import ca.uhn.fhir.model.dstu2.composite.AgeDt;
-import ca.uhn.fhir.model.dstu2.resource.*;
-import ca.uhn.fhir.model.dstu2.resource.Location;
-import ca.uhn.fhir.model.dstu2.resource.Observation;
-import ca.uhn.fhir.model.dstu2.resource.Organization;
-import ca.uhn.fhir.model.dstu2.resource.Patient.Communication;
-import org.openhealthtools.mdht.uml.cda.*;
+import org.hl7.fhir.dstu3.model.Age;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.Group;
+import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
+import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
+import org.hl7.fhir.dstu3.model.Substance;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
+import org.openhealthtools.mdht.uml.cda.AssignedEntity;
+import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.Entity;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
+import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
-import org.openhealthtools.mdht.uml.cda.consol.*;
+import org.openhealthtools.mdht.uml.cda.Performer2;
+import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.Indication;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.ServiceDeliveryLocation;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
 public interface IResourceTransformer {
 	
 	/**
-	 * Transforms a CDA AgeObservation instance to a FHIR AgeDt composite datatype instance
+	 * Transforms a CDA AgeObservation instance to a FHIR Age composite datatype instance
 	 * @param cdaAgeObservation A CDA AgeObservation instance
-	 * @return A FHIR AgeDt composite datatype instance
+	 * @return A FHIR Age composite datatype instance
 	 */
-	AgeDt tAgeObservation2AgeDt(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation);
+	Age tAgeObservation2Age(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation);
 
 	/**
 	 * Transforms a CDA AllergyProblemAct instance to a FHIR AllergyIntolerance resource.
@@ -88,7 +109,7 @@ public interface IResourceTransformer {
 	 * @param cdaCustodianOrganization A CDA CustodianOrganization instance
 	 * @return A FHIR Organization resource
 	 */
-	Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaCustodianOrganization);
+	org.hl7.fhir.dstu3.model.Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaCustodianOrganization);
 	
 	/**
 	 * Transforms a CDA Encounter instance to a FHIR Encounter resource.
@@ -130,7 +151,7 @@ public interface IResourceTransformer {
      * @param cdaGuardian A CDA Guardian instance
      * @return A FHIR Patient.Contact resource
      */
-    ca.uhn.fhir.model.dstu2.resource.Patient.Contact tGuardian2Contact(org.openhealthtools.mdht.uml.cda.Guardian cdaGuardian);
+    org.hl7.fhir.dstu3.model.Patient.ContactComponent tGuardian2Contact(org.openhealthtools.mdht.uml.cda.Guardian cdaGuardian);
     
 	/**
 	 * Transforms a CDA ImmunizationActivity instance to a FHIR Immunization resource.
@@ -151,7 +172,7 @@ public interface IResourceTransformer {
      * @param cdaLanguageCommunication A CDA LanguageCommunication instance
      * @return A FHIR Communication resource
      */
-    Communication tLanguageCommunication2Communication(LanguageCommunication cdaLanguageCommunication);
+	PatientCommunicationComponent tLanguageCommunication2Communication(LanguageCommunication cdaLanguageCommunication);
 	
 	/**
 	 * Transforms a CDA ManufacturedProduct instance to a FHIR Medication resource.
@@ -185,21 +206,21 @@ public interface IResourceTransformer {
 	 * @param cdaObservation A CDA Observation instance
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Encounter, Practitioner
 	 */
-	Bundle tObservation2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObservation);
+	org.hl7.fhir.dstu3.model.Bundle tObservation2Observation(org.openhealthtools.mdht.uml.cda.Observation cdaObservation);
 	
 	/**
 	 * Transforms a CDA Organization instance to a FHIR Organization resource.
 	 * @param cdaOrganization A CDA Organization instance
 	 * @return A FHIR Organization resource
 	 */
-	Organization tOrganization2Organization(org.openhealthtools.mdht.uml.cda.Organization cdaOrganization);
+	org.hl7.fhir.dstu3.model.Organization tOrganization2Organization(org.openhealthtools.mdht.uml.cda.Organization cdaOrganization);
 	
 	/**
 	 * Transforms a CDA ParticipantRole instance to a FHIR Location resource.
 	 * @param cdaParticipantRole A CDA ParticipantRole instance
 	 * @return A FHIR Location Resource
 	 */
-	Location tParticipantRole2Location(ParticipantRole cdaParticipantRole);
+	org.hl7.fhir.dstu3.model.Location tParticipantRole2Location(ParticipantRole cdaParticipantRole);
 	
 	/**
 	 * Transforms a CDA PatientRole instance to a FHIR Patient resource.
@@ -244,11 +265,11 @@ public interface IResourceTransformer {
 	Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation);
 	
     /**
-     * Transforms a CDA ReferenceRange instance to a FHIR Observation.ReferenceRange resource.
+     * Transforms a CDA ReferenceRange instance to a FHIR ObservationReferenceRangeComponent resource.
      * @param cdaReferenceRange A CDA ReferenceRange instance
-     * @return A FHIR Observation.ReferenceRange resource
+     * @return A FHIR ObservationReferenceRangeComponent resource
      */
-	Observation.ReferenceRange tReferenceRange2ReferenceRange(org.openhealthtools.mdht.uml.cda.ReferenceRange cdaReferenceRange);
+	ObservationReferenceRangeComponent tReferenceRange2ReferenceRange(org.openhealthtools.mdht.uml.cda.ReferenceRange cdaReferenceRange);
     
 	/**
 	 * Transforms a CDA ResultObservation instance to a FHIR Observation resource.
@@ -265,25 +286,25 @@ public interface IResourceTransformer {
 	Bundle tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer);
 	
 	/**
-	 * Transforms a CDA Section instance to a FHIR Composition.Section resource.
+	 * Transforms a CDA Section instance to a FHIR SectionComponent resource.
 	 * @param cdaSection A CDA Section instance
-	 * @return A FHIR Composition.Section resource
+	 * @return A FHIR SectionComponent resource
 	 */
-	Composition.Section tSection2Section(Section cdaSection);
+	SectionComponent tSection2Section(Section cdaSection);
     
 	/**
 	 * Transforms a CDA ServiceDeliveryLocation instance to a FHIR Location resource.
 	 * @param cdaSDLOC A CDA ServiceDeliveryLocation instance
 	 * @return A FHIR Location resource
 	 */
-	Location tServiceDeliveryLocation2Location(ServiceDeliveryLocation cdaSDLOC);
+	org.hl7.fhir.dstu3.model.Location tServiceDeliveryLocation2Location(ServiceDeliveryLocation cdaSDLOC);
 	
 	/**
 	 * Transforms a CDA Supply instance to a FHIR Device resource.
 	 * @param cdaSupply A CDA Supply instance
 	 * @return A FHIR Device resource
 	 */
-	ca.uhn.fhir.model.dstu2.resource.Device tSupply2Device(org.openhealthtools.mdht.uml.cda.Supply cdaSupply);
+	org.hl7.fhir.dstu3.model.Device tSupply2Device(org.openhealthtools.mdht.uml.cda.Supply cdaSupply);
 
 	/**
 	 * Transforms a CDA VitalSignObservation to a FHIR Observation resource.
