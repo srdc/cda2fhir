@@ -93,6 +93,11 @@ import tr.com.srdc.cda2fhir.util.StringUtil;
 
 public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private IValueSetsTransformer vst = new ValueSetsTransformerImpl();
 
 	private final Logger logger = LoggerFactory.getLogger(DataTypesTransformerImpl.class);

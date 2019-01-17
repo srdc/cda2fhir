@@ -138,6 +138,10 @@ import tr.com.srdc.cda2fhir.util.Constants;
 
 public class ResourceTransformerImpl implements IResourceTransformer, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private IDataTypesTransformer dtt;
 	private IValueSetsTransformer vst;
 	private ICDATransformer cdat;
