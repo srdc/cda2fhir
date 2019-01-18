@@ -545,9 +545,9 @@ public class ResourceTransformerTest {
 
 				// patient.name.use
 				if(pn.getUses() == null || pn.getUses().isEmpty()) {
-					Assert.assertNull(patient.getName().get(nameCount).getUse());
+					Assert.assertNull(patient.getName().get(nameCount).getUse().toCode());
 				} else {
-					Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.tEntityNameUse2NameUse(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse());
+					Assert.assertEquals("pr.patient.name["+nameCount+"]"+".use was not transformed", vsti.tEntityNameUse2NameUse(pn.getUses().get(0)).toString().toLowerCase(), patient.getName().get(nameCount).getUse().toCode());
 				}
 
 				// patient.name.text

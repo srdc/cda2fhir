@@ -105,8 +105,8 @@ public class DataTypesTransformerTest{
     	
     	Address address = dtt.AD2Address(ad);
     	
-    	Assert.assertEquals("AD.use was not transformed","home",address.getUse());
-    	Assert.assertEquals("AD.type was not transformed","postal",address.getType());
+    	Assert.assertEquals("AD.use was not transformed","home",address.getUse().toCode());
+    	Assert.assertEquals("AD.type was not transformed","postal",address.getType().toCode());
     	Assert.assertEquals("AD.text was not transformed","theText",address.getText());
     	
     	// line array check
@@ -304,8 +304,8 @@ public class DataTypesTransformerTest{
     	en.setValidTime(ivl_ts);
     	
     	HumanName humanName = dtt.tEN2HumanName(en);
-    	
-    	Assert.assertEquals("EN.use was not transformed","nickname",humanName.getUse());
+
+    	Assert.assertEquals("EN.use was not transformed","nickname",humanName.getUse().toCode());
     	Assert.assertEquals("EN.text was not transformed","theText",humanName.getText());
     	Assert.assertEquals("EN.family was not transformed","theFamily",humanName.getFamily());
     	Assert.assertEquals("EN.given was not transformed","theGiven",humanName.getGiven().get(0).getValue());
@@ -678,7 +678,7 @@ public class DataTypesTransformerTest{
        	tel.getUses().add(TelecommunicationAddressUse.H);
        	
        	ContactPoint contactPoint = dtt.tTEL2ContactPoint(tel);
-    	Assert.assertEquals("Tel.system failed", "phone", contactPoint.getSystem());
+    	Assert.assertEquals("Tel.system failed", "phone", contactPoint.getSystem().toCode());
        	Assert.assertEquals("Tel.value failed" , "+1(555)555-1004", contactPoint.getValue());
        	Assert.assertEquals("Tel.periodStart getYear failed", 95, contactPoint.getPeriod().getStart().getYear());
        	Assert.assertEquals("Tel.periodStart getMonth failed", 3, contactPoint.getPeriod().getStart().getMonth());
@@ -686,7 +686,7 @@ public class DataTypesTransformerTest{
        	Assert.assertEquals("Tel.periodEnd getYear failed", 95, contactPoint.getPeriod().getEnd().getYear());
        	Assert.assertEquals("Tel.periodEnd getMonth failed", 3, contactPoint.getPeriod().getEnd().getMonth());
        	Assert.assertEquals("Tel.periodEnd getMonth failed", 27, contactPoint.getPeriod().getEnd().getDate());
-       	Assert.assertEquals("Tel.use failed", "home", contactPoint.getUse());
+       	Assert.assertEquals("Tel.use failed", "home", contactPoint.getUse().toCode());
        	
        	// null instance test
        	TEL tel2 = null;
