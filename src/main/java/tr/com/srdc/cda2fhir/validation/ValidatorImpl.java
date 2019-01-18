@@ -23,25 +23,35 @@ package tr.com.srdc.cda2fhir.validation;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+
+import java.util.List;
+
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.hl7.fhir.dstu2.utils.client.EFhirClientException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.dstu3.model.OperationOutcome;
+
+import ca.uhn.fhir.context.FhirContext;
+
+import ca.uhn.fhir.validation.FhirValidator;
+import ca.uhn.fhir.validation.IValidatorModule;
+import ca.uhn.fhir.validation.SchemaBaseValidator;
+import ca.uhn.fhir.validation.ValidationResult;
+import ca.uhn.fhir.validation.SingleValidationMessage;
+
+import ca.uhn.fhir.validation.schematron.SchematronBaseValidator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.xml.sax.SAXException;
 
 import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ValidatorImpl implements IValidator {
 
@@ -165,31 +175,37 @@ public class ValidatorImpl implements IValidator {
 		
 		logger.info("Validating resource " + resource.getIdElement());
 		
-		// set resource
-		this.validationEngine.setSource(this.tIResource2ByteArray(resource));
+		FhirContext ctx = FhirContext.forDstu3();
+		FhirValidator validator = ctx.newValidator();
+	
+		IValidatorModule schemaModule = new SchemaBaseValidator(ctx);
+		IValidatorModule schematronModule = new SchematronBaseValidator(ctx);
+		validator.registerValidatorModule(schemaModule);
+		validator.registerValidatorModule(schematronModule);
 		
-		// validate!
-		try {
-			this.validationEngine.process();
-		} catch (FHIRException | ParserConfigurationException | TransformerException | SAXException | IOException | EFhirClientException e) {
-			logger.error("Exception occurred while trying to validate the FHIR resource. Returning exception message", e);
-			String exceptionAsHtml = "<h3>" + resource.getIdElement() + "</h3>" + "Exception occurred while validating this resource:<br>"
-					+ e.getMessage()+"<hr>";
-			try {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				outputStream.write(exceptionAsHtml.getBytes("UTF-8"));
-				return outputStream;
-			} catch (IOException e1) {
-				logger.error("Exception occurred while trying to write the exception outcome to the output stream. Ignoring ");
-			}
+		ValidationResult result = validator.validateWithResult(resource);
+		
+		if (result.isSuccessful()) {
+			logger.info("Validation of resource passed.");
+		} else {
+			logger.info("Validation of resource failed.");
 		}
 		
+		List<SingleValidationMessage> messages = result.getMessages();
+		for (SingleValidationMessage message : messages) {
+		   logger.info("Validation Message:");
+		   logger.info(" * Location: " + message.getLocationString());
+		   logger.info(" * Severity: " + message.getSeverity());
+		   logger.info(" * Message : " + message.getMessage());
+		}
+				
 		// direct outcome string to an output stream
 		ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
 		
 		// notice that html tag is not included in the outcome string
 		try {
-			String outcomeText = this.validationEngine.getOutcome().getText().getDivAsString();
+			OperationOutcome operationOutcome = (OperationOutcome) result.toOperationOutcome();
+			String outcomeText = operationOutcome.getText().getDivAsString();
 			outcomeText = "<h3>" + resource.getIdElement() + "</h3>" + outcomeText + "<hr>";
 			outputStream.write(outcomeText.getBytes("UTF-8"));
 		} catch (IOException e) {
@@ -221,19 +237,4 @@ public class ValidatorImpl implements IValidator {
 			return false;
 		}
 	}
-	
-	/**
-	 * Transforms a FHIR IResource instance to a byte array. 
-	 * @param paramResource A FHIR IResource instance
-	 * @return A byte array
-	 */
-	private byte[] tIResource2ByteArray(IBaseResource paramResource) {
-		try {
-			return FHIRUtil.encodeToXML(paramResource).getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.error("Could not encode resource {} in UTF-8 encoding", paramResource.getIdElement(), e);
-		}
-		return null;
-	}
-	
 }

@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <hapifhir.version>3.4.0</hapifhir.version>
+        <hapifhir.version>3.6.0</hapifhir.version>
     </properties>
 
     <dependencies>
@@ -64,6 +64,17 @@
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
             <version>3.0.9.RELEASE</version>
+        </dependency>
+        <!-- FHIR validation -->
+		<dependency>
+  			<groupId>com.helger</groupId>
+  			<artifactId>ph-schematron</artifactId>
+  			<version>5.0.8</version>
+		</dependency>                
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-validation-resources-dstu3</artifactId>
+            <version>${hapifhir.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>
