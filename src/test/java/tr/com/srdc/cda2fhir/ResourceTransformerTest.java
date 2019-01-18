@@ -59,7 +59,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ENXP;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import ca.uhn.fhir.model.api.IResource;
-import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -67,7 +66,6 @@ import tr.com.srdc.cda2fhir.util.FHIRUtil;
 public class ResourceTransformerTest {
 
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
-	private static final DataTypesTransformerImpl dtt = new DataTypesTransformerImpl();
 	private static final ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
 	private static FileInputStream fisCCD;
 	private static FileWriter resultFW;
@@ -112,7 +110,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testAllergyProblemAct2AllergyIntolerance() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: AllergyProblemAct2AllergyIntolerance\n");
 		// null instance test
 		AllergyProblemAct cdaNull = null;
@@ -120,7 +117,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		for(AllergyProblemAct cdaAPA : test.ccd.getAllergiesSection().getAllergyProblemActs()) {
+		for(AllergyProblemAct cdaAPA : ResourceTransformerTest.ccd.getAllergiesSection().getAllergyProblemActs()) {
 			appendToResultFile(transformationStartMsg);
 			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA);
 			appendToResultFile(transformationEndMsg);
@@ -131,7 +128,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testAssignedAuthor2Practitioner() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: AssignedAuthor2Practitioner\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.AssignedAuthor cdaNull = null;
@@ -139,8 +135,8 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getAuthors() != null) {
-			for(org.openhealthtools.mdht.uml.cda.Author author : test.ccd.getAuthors()) {
+		if(ResourceTransformerTest.ccd.getAuthors() != null) {
+			for(org.openhealthtools.mdht.uml.cda.Author author : ResourceTransformerTest.ccd.getAuthors()) {
 				// traversing authors
 				if(author != null && author.getAssignedAuthor() != null) {
 					appendToResultFile(transformationStartMsg);
@@ -155,7 +151,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testAssignedEntity2Practitioner() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: AssignedEntity2Practitioner\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.AssignedEntity cdaNull = null;
@@ -163,9 +158,9 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor()) {
-			if(test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty()) {
-				for(org.openhealthtools.mdht.uml.cda.Procedure procedure : test.ccd.getProceduresSection().getProcedures()) {
+		if(ResourceTransformerTest.ccd.getProceduresSection() != null && !ResourceTransformerTest.ccd.getProceduresSection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getProceduresSection().getProcedures() != null && !ResourceTransformerTest.ccd.getProceduresSection().getProcedures().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Procedure procedure : ResourceTransformerTest.ccd.getProceduresSection().getProcedures()) {
 					// traversing procedures
 					if(procedure.getPerformers() != null && !procedure.getPerformers().isEmpty()) {
 						for(org.openhealthtools.mdht.uml.cda.Performer2 performer : procedure.getPerformers()) {
@@ -185,7 +180,6 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testClinicalDocument2Composition() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: ClinicalDocument2Composition\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument cdaNull = null;
@@ -193,9 +187,9 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instance from file
-		if(test.ccd != null && !test.ccd.isSetNullFlavor()) {
+		if(ResourceTransformerTest.ccd != null && !ResourceTransformerTest.ccd.isSetNullFlavor()) {
 			appendToResultFile(transformationStartMsg);
-			Bundle fhirComp = rt.tClinicalDocument2Composition(test.ccd);
+			Bundle fhirComp = rt.tClinicalDocument2Composition(ResourceTransformerTest.ccd);
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(fhirComp);
 		}
@@ -204,7 +198,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testEncounterActivity2Encounter(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: EncounterActivity2Encounter\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaNull = null;
@@ -212,9 +205,9 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor()) {
-			if(test.ccd.getEncountersSection().getEncounterActivitiess() != null && !test.ccd.getEncountersSection().getEncounterActivitiess().isEmpty()) {
-				for(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities encounterActivity : test.ccd.getEncountersSection().getEncounterActivitiess()) {
+		if(ResourceTransformerTest.ccd.getEncountersSection() != null && !ResourceTransformerTest.ccd.getEncountersSection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getEncountersSection().getEncounterActivitiess() != null && !ResourceTransformerTest.ccd.getEncountersSection().getEncounterActivitiess().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities encounterActivity : ResourceTransformerTest.ccd.getEncountersSection().getEncounterActivitiess()) {
 					if(encounterActivity != null && !encounterActivity.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirEncounterBundle = rt.tEncounterActivity2Encounter(encounterActivity);
@@ -229,7 +222,6 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testFamilyHistoryOrganizer2FamilyMemberHistory(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: FamilyHistoryOrganizer2FamilyMemberHistory\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer cdaNull = null;
@@ -237,8 +229,8 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getFamilyHistorySection() != null && test.ccd.getFamilyHistorySection().getFamilyHistories() != null) {
-			for(org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : test.ccd.getFamilyHistorySection().getFamilyHistories()) {
+		if(ResourceTransformerTest.ccd.getFamilyHistorySection() != null && ResourceTransformerTest.ccd.getFamilyHistorySection().getFamilyHistories() != null) {
+			for(org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer familyHistoryOrganizer : ResourceTransformerTest.ccd.getFamilyHistorySection().getFamilyHistories()) {
 				if(familyHistoryOrganizer != null) {
 					appendToResultFile(transformationStartMsg);
 					FamilyMemberHistory fmHistory = rt.tFamilyHistoryOrganizer2FamilyMemberHistory(familyHistoryOrganizer);
@@ -252,7 +244,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testFunctionalStatus2Observation() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: FunctionalStatus2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Observation cdaNull = null;
@@ -260,7 +251,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instance from file
-		FunctionalStatusSection funcStatSec = test.ccd.getFunctionalStatusSection();
+		FunctionalStatusSection funcStatSec = ResourceTransformerTest.ccd.getFunctionalStatusSection();
 
 		if(funcStatSec != null && !funcStatSec.isSetNullFlavor()) {
 			if(funcStatSec.getOrganizers() != null && !funcStatSec.getOrganizers().isEmpty()) {
@@ -285,7 +276,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testGuardian2Contact(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: Guardian2Contact\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Guardian cdaNull = null;
@@ -293,8 +283,8 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getPatientRoles() != null && !test.ccd.getPatientRoles().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.PatientRole patientRole : test.ccd.getPatientRoles()) {
+		if(ResourceTransformerTest.ccd.getPatientRoles() != null && !ResourceTransformerTest.ccd.getPatientRoles().isEmpty()) {
+			for(org.openhealthtools.mdht.uml.cda.PatientRole patientRole : ResourceTransformerTest.ccd.getPatientRoles()) {
 				if(patientRole != null && !patientRole.isSetNullFlavor() && patientRole.getPatient() != null
 						&& !patientRole.getPatient().isSetNullFlavor()) {
 					for(org.openhealthtools.mdht.uml.cda.Guardian guardian : patientRole.getPatient().getGuardians()) {
@@ -314,7 +304,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testImmunizationActivity2Immunization() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: ImmunizationActivity2Immunization\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity cdaNull = null;
@@ -322,7 +311,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		ImmunizationsSectionEntriesOptional immSec = test.ccd.getImmunizationsSectionEntriesOptional();
+		ImmunizationsSectionEntriesOptional immSec = ResourceTransformerTest.ccd.getImmunizationsSectionEntriesOptional();
 		
 		if(immSec != null && !immSec.isSetNullFlavor()) {
 			for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
@@ -339,7 +328,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testLanguageCommunication2Communication(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: LanguageCommunication2Communication\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.LanguageCommunication cdaNull = null;
@@ -347,7 +335,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		for(org.openhealthtools.mdht.uml.cda.Patient patient : test.ccd.getPatients()) {
+		for(org.openhealthtools.mdht.uml.cda.Patient patient : ResourceTransformerTest.ccd.getPatients()) {
 			for(org.openhealthtools.mdht.uml.cda.LanguageCommunication LC : patient.getLanguageCommunications()) {
 				appendToResultFile(transformationStartMsg);
 				PatientCommunicationComponent fhirCommunication = rt.tLanguageCommunication2Communication(LC);
@@ -362,7 +350,6 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testManufacturedProduct2Medication(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: ManufacturedProduct2Medication\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.ManufacturedProduct cdaNull = null;
@@ -370,7 +357,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		ImmunizationsSectionEntriesOptional immSection = test.ccd.getImmunizationsSectionEntriesOptional();
+		ImmunizationsSectionEntriesOptional immSection = ResourceTransformerTest.ccd.getImmunizationsSectionEntriesOptional();
 		if(immSection != null && !immSection.isSetNullFlavor()) {
 			if(immSection.getImmunizationActivities() != null && !immSection.getImmunizationActivities().isEmpty()) {
 				for(ImmunizationActivity immAct : immSection.getImmunizationActivities()) {
@@ -393,7 +380,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testMedicationActivity2MedicationStatement(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: MedicationActivity2MedicationStatement\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.MedicationActivity cdaNull = null;
@@ -401,9 +387,9 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getMedicationsSection() != null && !test.ccd.getMedicationsSection().isSetNullFlavor()) {
-			if(test.ccd.getMedicationsSection().getMedicationActivities() != null && !test.ccd.getMedicationsSection().getMedicationActivities().isEmpty()) {
-				for(MedicationActivity cdaMedAct : test.ccd.getMedicationsSection().getMedicationActivities()) {
+		if(ResourceTransformerTest.ccd.getMedicationsSection() != null && !ResourceTransformerTest.ccd.getMedicationsSection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getMedicationsSection().getMedicationActivities() != null && !ResourceTransformerTest.ccd.getMedicationsSection().getMedicationActivities().isEmpty()) {
+				for(MedicationActivity cdaMedAct : ResourceTransformerTest.ccd.getMedicationsSection().getMedicationActivities()) {
 					if(cdaMedAct != null && !cdaMedAct.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirMedStBundle = rt.tMedicationActivity2MedicationStatement(cdaMedAct);
@@ -418,7 +404,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testMedicationDispense2MedicationDispense(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: MedicationDispense2MedicationDispense\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaNull = null;
@@ -427,8 +412,8 @@ public class ResourceTransformerTest {
 
 		// instances from file
 		// medicationsSection.medicationActivities.medicationDispense
-		if(test.ccd.getMedicationsSection() != null && !test.ccd.getMedicationsSection().isSetNullFlavor()) {
-			org.openhealthtools.mdht.uml.cda.consol.MedicationsSection medSec = test.ccd.getMedicationsSection();
+		if(ResourceTransformerTest.ccd.getMedicationsSection() != null && !ResourceTransformerTest.ccd.getMedicationsSection().isSetNullFlavor()) {
+			org.openhealthtools.mdht.uml.cda.consol.MedicationsSection medSec = ResourceTransformerTest.ccd.getMedicationsSection();
 			if(medSec.getMedicationActivities() != null && !medSec.getMedicationActivities().isEmpty()) {
 				for(MedicationActivity medAct : medSec.getMedicationActivities()) {
 					if(medAct != null && !medAct.isSetNullFlavor()) {
@@ -451,7 +436,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testObservation2Observation(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: Observation2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Observation cdaNull = null;
@@ -459,9 +443,9 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getSocialHistorySection() != null && !test.ccd.getSocialHistorySection().isSetNullFlavor()) {
-			if(test.ccd.getSocialHistorySection().getObservations() != null && !test.ccd.getSocialHistorySection().getObservations().isEmpty()) {
-				for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : test.ccd.getSocialHistorySection().getObservations()) {
+		if(ResourceTransformerTest.ccd.getSocialHistorySection() != null && !ResourceTransformerTest.ccd.getSocialHistorySection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getSocialHistorySection().getObservations() != null && !ResourceTransformerTest.ccd.getSocialHistorySection().getObservations().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : ResourceTransformerTest.ccd.getSocialHistorySection().getObservations()) {
 					if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
 						Bundle obsBundle = rt.tObservation2Observation(cdaObs);
@@ -476,7 +460,6 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testOrganization2Organization(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: Organization2Organization\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Organization cdaNull = null;
@@ -484,7 +467,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		for(org.openhealthtools.mdht.uml.cda.PatientRole patRole : test.ccd.getPatientRoles()) {
+		for(org.openhealthtools.mdht.uml.cda.PatientRole patRole : ResourceTransformerTest.ccd.getPatientRoles()) {
 			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
 			appendToResultFile(transformationStartMsg);
 			org.hl7.fhir.dstu3.model.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
@@ -496,7 +479,6 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testPatientRole2Patient(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: PatientRole2Patient\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.PatientRole cdaNull = null;
@@ -504,7 +486,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		for(PatientRole pr : test.ccd.getPatientRoles()) {
+		for(PatientRole pr : ResourceTransformerTest.ccd.getPatientRoles()) {
 
 			// here we do the transformation by calling the method rt.PatientRole2Patient
 
@@ -554,7 +536,6 @@ public class ResourceTransformerTest {
 				Assert.assertEquals("pr.patient.name["+nameCount+"].text was not transformed", pn.getText(),patient.getName().get(nameCount).getText());
 
 				// patient.name.family
-				int familyCount = 0;
 				for(ENXP family : pn.getFamilies()) {
 					if(family == null || family.isSetNullFlavor()) {
 						// It can return null or an empty list
@@ -562,7 +543,6 @@ public class ResourceTransformerTest {
 					} else {
 						Assert.assertEquals("pr.patient.name["+nameCount+"].family was not transformed", family.getText(),patient.getName().get(nameCount).getFamily()/*.get(familyCount).getValue()*/);
 					}
-					familyCount++;
 				}
 
 				// patient.name.given
@@ -710,7 +690,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testProblemConcernAct2Condition() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: ProblemConcernAct2Condition\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct cdaNull = null;
@@ -718,9 +697,9 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getProblemSection() != null && !test.ccd.getProblemSection().isSetNullFlavor()) {
-			if(test.ccd.getProblemSection().getProblemConcerns() != null && !test.ccd.getProblemSection().getProblemConcerns().isEmpty()) {
-				for(ProblemConcernAct problemConcernAct : test.ccd.getProblemSection().getProblemConcerns()) {
+		if(ResourceTransformerTest.ccd.getProblemSection() != null && !ResourceTransformerTest.ccd.getProblemSection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getProblemSection().getProblemConcerns() != null && !ResourceTransformerTest.ccd.getProblemSection().getProblemConcerns().isEmpty()) {
+				for(ProblemConcernAct problemConcernAct : ResourceTransformerTest.ccd.getProblemSection().getProblemConcerns()) {
 					if(problemConcernAct != null && !problemConcernAct.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
 						Bundle fhirConditionBundle = rt.tProblemConcernAct2Condition(problemConcernAct);
@@ -735,7 +714,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testProcedure2Procedure(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: Procedure2Procedure\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Procedure cdaNull = null;
@@ -743,9 +721,9 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		if(test.ccd.getProceduresSection() != null && !test.ccd.getProceduresSection().isSetNullFlavor()) {
-			if(test.ccd.getProceduresSection().getProcedures() != null && !test.ccd.getProceduresSection().getProcedures().isEmpty()) {
-				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getProceduresSection().getProcedures()) {
+		if(ResourceTransformerTest.ccd.getProceduresSection() != null && !ResourceTransformerTest.ccd.getProceduresSection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getProceduresSection().getProcedures() != null && !ResourceTransformerTest.ccd.getProceduresSection().getProcedures().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : ResourceTransformerTest.ccd.getProceduresSection().getProcedures()) {
 					// traversing procedures
 					appendToResultFile(transformationStartMsg);
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
@@ -755,9 +733,9 @@ public class ResourceTransformerTest {
 			}
 		}
 		
-		if(test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor()) {
-			if(test.ccd.getEncountersSection().getProcedures() != null && !test.ccd.getEncountersSection().getProcedures().isEmpty()) {
-				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : test.ccd.getEncountersSection().getProcedures()) {
+		if(ResourceTransformerTest.ccd.getEncountersSection() != null && !ResourceTransformerTest.ccd.getEncountersSection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getEncountersSection().getProcedures() != null && !ResourceTransformerTest.ccd.getEncountersSection().getProcedures().isEmpty()) {
+				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : ResourceTransformerTest.ccd.getEncountersSection().getProcedures()) {
 					// traversing procedures					
 					appendToResultFile(transformationStartMsg);
 					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
@@ -767,8 +745,8 @@ public class ResourceTransformerTest {
 			}
 		}
 		
-		if(test.ccd.getAllSections() != null && !test.ccd.getAllSections().isEmpty()) {
-			for(org.openhealthtools.mdht.uml.cda.Section section : test.ccd.getAllSections()) {
+		if(ResourceTransformerTest.ccd.getAllSections() != null && !ResourceTransformerTest.ccd.getAllSections().isEmpty()) {
+			for(org.openhealthtools.mdht.uml.cda.Section section : ResourceTransformerTest.ccd.getAllSections()) {
 				if(section.getProcedures() != null && !section.getProcedures().isEmpty()) {
 					for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures()) {
 						// traversing procedures
@@ -785,7 +763,6 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testResultOrganizer2DiagnosticReport() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: ResultOrganizer2DiagnosticReport\n");
 		// null instance test
 		ResultOrganizer cdaNull = null;
@@ -793,7 +770,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instance from file
-		ResultsSection resultsSec = test.ccd.getResultsSection();
+		ResultsSection resultsSec = ResourceTransformerTest.ccd.getResultsSection();
 		
 		if(resultsSec != null && !resultsSec.isSetNullFlavor()) {
 			if(resultsSec.getOrganizers() != null && !resultsSec.getOrganizers().isEmpty()) {
@@ -814,7 +791,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testSection2Section(){
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: Section2Section\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Section cdaNull = null;
@@ -825,10 +801,10 @@ public class ResourceTransformerTest {
 		org.openhealthtools.mdht.uml.cda.Section sampleSection = null;
 		
 		// assigning sampleSection to one sample section
-		if(test.ccd.getEncountersSection() != null && !test.ccd.getEncountersSection().isSetNullFlavor()) {
-			if(test.ccd.getEncountersSection().getAllSections() != null && !test.ccd.getEncountersSection().getAllSections().isEmpty()) {
-				if(test.ccd.getEncountersSection().getAllSections().get(0) != null && !test.ccd.getEncountersSection().getAllSections().get(0).isSetNullFlavor()) {
-					sampleSection = test.ccd.getEncountersSection().getAllSections().get(0);
+		if(ResourceTransformerTest.ccd.getEncountersSection() != null && !ResourceTransformerTest.ccd.getEncountersSection().isSetNullFlavor()) {
+			if(ResourceTransformerTest.ccd.getEncountersSection().getAllSections() != null && !ResourceTransformerTest.ccd.getEncountersSection().getAllSections().isEmpty()) {
+				if(ResourceTransformerTest.ccd.getEncountersSection().getAllSections().get(0) != null && !ResourceTransformerTest.ccd.getEncountersSection().getAllSections().get(0).isSetNullFlavor()) {
+					sampleSection = ResourceTransformerTest.ccd.getEncountersSection().getAllSections().get(0);
 				}
 			}
 		}
@@ -845,9 +821,8 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testSocialHistory() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: SocialHistory\n");
-		SocialHistorySection socialHistSec = test.ccd.getSocialHistorySection();
+		SocialHistorySection socialHistSec = ResourceTransformerTest.ccd.getSocialHistorySection();
 		
 		if(socialHistSec != null && !socialHistSec.isSetNullFlavor()) {
 			if(socialHistSec.getObservations() != null && !socialHistSec.getObservations().isEmpty()) {
@@ -866,7 +841,6 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testVitalSignObservation2Observation() {
-		ResourceTransformerTest test = new ResourceTransformerTest();
 		appendToResultFile("## TEST: VitalSignObservation2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation cdaNull = null;
@@ -874,7 +848,7 @@ public class ResourceTransformerTest {
 		Assert.assertNull(fhirNull);
 
 		// instances from file
-		VitalSignsSectionEntriesOptional vitalSignsSec = test.ccd.getVitalSignsSectionEntriesOptional();
+		VitalSignsSectionEntriesOptional vitalSignsSec = ResourceTransformerTest.ccd.getVitalSignsSectionEntriesOptional();
 		if(vitalSignsSec != null && !vitalSignsSec.isSetNullFlavor()) {
 			if(vitalSignsSec.getVitalSignsOrganizers() != null && !vitalSignsSec.getVitalSignsOrganizers().isEmpty()) {
 				for(VitalSignsOrganizer vitalSignOrganizer : vitalSignsSec.getVitalSignsOrganizers()) {
