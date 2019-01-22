@@ -21,6 +21,8 @@ package tr.com.srdc.cda2fhir.validation;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -30,6 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.commons.io.IOUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -162,6 +165,23 @@ public class ValidatorImpl implements IValidator {
 		return outputStream;
 	}
 	
+	private void logValidationResult(ValidationResult result) {
+    	if (logger.isDebugEnabled()) {
+    		if (result.isSuccessful()) {
+    			logger.info("Validation of resource passed.");
+    		} else {
+    			logger.info("Validation of resource failed.");
+    		}    		
+    		List<SingleValidationMessage> messages = result.getMessages();
+    		for (SingleValidationMessage message : messages) {
+    		   logger.debug("Validation Message:");
+    		   logger.debug(" * Location: " + message.getLocationString());
+    		   logger.debug(" * Severity: " + message.getSeverity());
+    		   logger.debug(" * Message : " + message.getMessage());
+    		}    		
+    	}		
+	}
+	
 	public OutputStream validateResource(IBaseResource resource) {
 		if(resource == null) {
 			logger.warn("The resource to be validated is null. Returning null");
@@ -184,20 +204,7 @@ public class ValidatorImpl implements IValidator {
 		validator.registerValidatorModule(schematronModule);
 		
 		ValidationResult result = validator.validateWithResult(resource);
-		
-		if (result.isSuccessful()) {
-			logger.info("Validation of resource passed.");
-		} else {
-			logger.info("Validation of resource failed.");
-		}
-		
-		List<SingleValidationMessage> messages = result.getMessages();
-		for (SingleValidationMessage message : messages) {
-		   logger.info("Validation Message:");
-		   logger.info(" * Location: " + message.getLocationString());
-		   logger.info(" * Severity: " + message.getSeverity());
-		   logger.info(" * Message : " + message.getMessage());
-		}
+    	logValidationResult(result);
 				
 		// direct outcome string to an output stream
 		ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
@@ -237,4 +244,17 @@ public class ValidatorImpl implements IValidator {
 			return false;
 		}
 	}
+
+    public ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException {
+		FhirContext ctx = FhirContext.forDstu3();
+		FhirValidator validator = ctx.newValidator();
+		validator.setValidateAgainstStandardSchema(true);
+		validator.setValidateAgainstStandardSchematron(true);
+		
+		String content = IOUtils.toString(new FileReader(filepath));
+    	IBaseResource resource = ctx.newXmlParser().parseResource(content);
+    	ValidationResult result = validator.validateWithResult(resource);
+    	logValidationResult(result);
+    	return result;
+    }
 }

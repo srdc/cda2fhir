@@ -26,12 +26,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
+import ca.uhn.fhir.validation.ValidationResult;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ICDATransformer;
@@ -152,13 +154,17 @@ public class ValidatorTest {
 
 		// make the transformation
         Bundle bundle = ccdTransformer.transformDocument(cda);
-        if(bundle != null) {
-			// print the bundle for checking against validation results
-			// printed as XML, because HL7 FHIR Validator works with XML encoded resources
-			FHIRUtil.printXML(bundle, targetPathForFHIRResource);
-			os = (ByteArrayOutputStream) validator.validateBundle(bundle);
-		}
-        
+        Assert.assertNotNull(bundle);
+                
+		// print the bundle for checking against validation results
+		// printed as XML, because HL7 FHIR Validator works with XML encoded resources
+		FHIRUtil.printXML(bundle, targetPathForFHIRResource);
+		os = (ByteArrayOutputStream) validator.validateBundle(bundle);
+		
+		ValidationResult fileResult = validator.validateFile(targetPathForFHIRResource);
+        Assert.assertNotNull(fileResult);
+		// Assert.assertTrue(fileResult.isSuccessful()); TODO: Investigate and fix why this is failing
+                
         if(os != null) {
         	File validationFile = new File(targetPathForResultFile);
         	validationFile.getParentFile().mkdirs();
