@@ -80,7 +80,11 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
-    private int counter;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private int counter;
     private IdGeneratorEnum idGenerator;
     private IResourceTransformer resTransformer;
     private Reference patientRef;

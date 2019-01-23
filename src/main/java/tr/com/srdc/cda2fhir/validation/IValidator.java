@@ -1,5 +1,8 @@
 package tr.com.srdc.cda2fhir.validation;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 /*
  * #%L
  * CDA to FHIR Transformer Library
@@ -25,6 +28,8 @@ import java.io.OutputStream;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 
+import ca.uhn.fhir.validation.ValidationResult;
+
 public interface IValidator {
 
 	/**
@@ -46,4 +51,11 @@ public interface IValidator {
      * @return An output stream containing the validation result. The validation result is contained in div element.
      */
     OutputStream validateResource(IBaseResource resource);
+
+    /**
+     * Validates a FHIR File
+     * @param filepath The path of the file.
+     * @return An output object that contains validation results.
+     */
+    ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException;
 }

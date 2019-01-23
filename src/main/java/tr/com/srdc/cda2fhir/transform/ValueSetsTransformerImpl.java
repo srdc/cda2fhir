@@ -56,6 +56,10 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
 public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ValueSetsTransformerImpl.class);
 	
 	public AdministrativeGender tAdministrativeGenderCode2AdministrativeGender(String cdaAdministrativeGenderCode) {
