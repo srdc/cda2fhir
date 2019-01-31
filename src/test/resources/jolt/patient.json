@@ -1,0 +1,12 @@
+[{
+	"operation": "shift",
+	"spec": {
+		"patientRole": {
+			"patient": {
+				"name": {
+					"family": "name.family"
+				}
+			}
+		}
+	}
+}]

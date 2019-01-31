@@ -1,7 +1,11 @@
 package tr.com.srdc.cda2fhir;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,8 +13,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.Patient;
+import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,6 +30,9 @@ import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
+
+import com.bazaarvoice.jolt.Chainr;
+import com.bazaarvoice.jolt.JsonUtils;
 
 public class PatientResourceTest {
     @BeforeClass
@@ -69,8 +79,27 @@ public class PatientResourceTest {
     }
     
     // Cerner/Person-RAKIA_TEST_DOC00001 (1).XML
+    // @Test
+    // public void testGoldSample() throws Exception {
+    // 	runGoldTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+    //}
+    
     @Test
-    public void testGoldSample() throws Exception {
-    	runGoldTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+    public void testGoldSampleJolt() throws Exception {
+    	String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
+    	File file = new File("src/test/resources/" + sourceName);
+    	String content = FileUtils.readFileToString(file, Charset.defaultCharset());    	
+    	JSONObject recordTargetJson = XML.toJSONObject(content)
+    						.getJSONObject("ClinicalDocument")
+    						.getJSONObject("recordTarget");
+    	String outputFile = "src/test/resources/output/" + "Cerner/Person-RAKIA_TEST_DOC00001 (1) - jolt.json";
+    	FileUtils.writeStringToFile(new File(outputFile), recordTargetJson.toString(4), Charset.defaultCharset());    	
+    	
+        List<Object> chainrSpecJSON = JsonUtils.filepathToList("src/test/resources/jolt/patient.json");
+        Chainr chainr = Chainr.fromSpec( chainrSpecJSON );
+        Object inputJSON = JsonUtils.filepathToObject(outputFile);
+        Object transformedOutput = chainr.transform(inputJSON);
+        System.out.println(JsonUtils.toJsonString(transformedOutput));    	
+    	//Assert.assertNotNull(xml);
     }
 }
