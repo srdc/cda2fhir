@@ -2,9 +2,7 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,10 +77,10 @@ public class PatientResourceTest {
     }
     
     // Cerner/Person-RAKIA_TEST_DOC00001 (1).XML
-    // @Test
-    // public void testGoldSample() throws Exception {
-    // 	runGoldTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
-    //}
+    @Test
+    public void testGoldSample() throws Exception {
+    	runGoldTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+    }
     
     @Test
     public void testGoldSampleJolt() throws Exception {
@@ -100,6 +98,5 @@ public class PatientResourceTest {
         Object inputJSON = JsonUtils.filepathToObject(outputFile);
         Object transformedOutput = chainr.transform(inputJSON);
         System.out.println(JsonUtils.toJsonString(transformedOutput));    	
-    	//Assert.assertNotNull(xml);
     }
 }

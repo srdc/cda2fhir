@@ -1,11 +1,39 @@
 [{
+	"operation": "cardinality",
+	"spec": {
+		"patientRole": {
+			"patient": {
+				"name": {
+					"given": "MANY"
+				}
+			}
+		}
+	}
+}, {
+	"operation": "modify-overwrite-beta",
+	"spec": {
+		"patientRole": {
+			"telecom": {
+				"value": "=split(':', @0)"
+			}
+		}
+	}
+}, {
 	"operation": "shift",
 	"spec": {
 		"patientRole": {
 			"patient": {
 				"name": {
-					"family": "name.family"
+					"family": "name.family",
+					"given": "name.given"
 				}
+			},
+			"telecom": {
+				"value": {
+					"0": "telecom.system",
+					"1": "telecom.value"
+				},
+				"use": "telecom.use"
 			}
 		}
 	}
