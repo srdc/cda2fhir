@@ -30,3 +30,5 @@ src/test/resources/output/
 src/test/resources/Cerner
 src/test/resources/gold/Cerner
 bin
+src/test/resources/output
+HannahBanana_EpicCCD.xml
