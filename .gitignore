@@ -26,4 +26,5 @@ buildNumber.properties
 
 ### General ###
 logs/
-src/test/resources/output/
+src/test/resources/output
+HannahBanana_EpicCCD.xml
