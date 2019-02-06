@@ -28,7 +28,7 @@ public class ValueSetTransform implements Transform, SpecDriven {
 		LinkedHashMap<String, Object> casted = (LinkedHashMap<String, Object>) input;
 		String key = (String) casted.get(this.property);
 		String value = (String) this.map.get(key);
-		casted.put(key, value);
+		casted.put(this.property, value);
 		return casted;
 	}
 }
