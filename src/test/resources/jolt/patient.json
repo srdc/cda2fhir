@@ -26,6 +26,9 @@
 				"name": {
 					"family": "name.family",
 					"given": "name.given"
+				},
+				"administrativeGenderCode": {
+					"code": "gender"
 				}
 			},
 			"telecom": {
@@ -36,5 +39,11 @@
 				"use": "telecom.use"
 			}
 		}
+	}
+}, {
+	"operation": "tr.com.srdc.cda2fhir.jolt.ValueSetTransform",
+	"spec" : {
+		"name": "gender.json",
+		"path": "gender"
 	}
 }]

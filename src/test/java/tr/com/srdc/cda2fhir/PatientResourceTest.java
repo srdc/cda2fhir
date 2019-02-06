@@ -94,6 +94,7 @@ public class PatientResourceTest {
     	FileUtils.writeStringToFile(new File(outputFile), recordTargetJson.toString(4), Charset.defaultCharset());    	
     	
         List<Object> chainrSpecJSON = JsonUtils.filepathToList("src/test/resources/jolt/patient.json");
+        
         Chainr chainr = Chainr.fromSpec( chainrSpecJSON );
         Object inputJSON = JsonUtils.filepathToObject(outputFile);
         Object transformedOutput = chainr.transform(inputJSON);
