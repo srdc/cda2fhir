@@ -685,7 +685,6 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 	
-	
 	public Coding tRoleCode2PatientContactRelationshipCode(String cdaRoleCode) {
 		if(cdaRoleCode == null)
 			return null;
@@ -725,7 +724,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 				code = "N"; display = "Next-of-Kin"; break;
 			default:
 				code = "O"; display = "Other"; break;
-	}
+		 }
 		
 		
 		fhirPatientContactRelationshipCode.setCode(code);
