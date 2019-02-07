@@ -715,15 +715,13 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			case "stpprn": // step parent
 			case "stpfth": // stepfather
 			case "stpmth": // stepmother
-				code="C"; display = "Emergency Contact"; break;
+				code="C"; display = "Emergency Contact"; break; // emergency contact
 			case "work": 
-				code = "E"; display = "Employer"; break;
-			case "gt": 
-				code = "BP"; display = "Billing contact person"; break;
+				code = "E"; display = "Employer"; break; // employer
 			case "fammemb":
-				code = "N"; display = "Next-of-Kin"; break;
+				code = "N"; display = "Next-of-Kin"; break; // family
 			default:
-				code = "O"; display = "Other"; break;
+				code = "O"; display = "Other"; break; // other
 		 }
 		
 		

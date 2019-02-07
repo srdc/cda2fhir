@@ -65,8 +65,8 @@ public class FHIR3Tests {
 		Assert.assertEquals("C", vst.tRoleCode2PatientContactRelationshipCode("stpfth").getCode());
 		Assert.assertEquals("Emergency Contact", vst.tRoleCode2PatientContactRelationshipCode("stpmth").getDisplay());
 		Assert.assertEquals("C", vst.tRoleCode2PatientContactRelationshipCode("stpmth").getCode());
-		Assert.assertEquals("Billing contact person", vst.tRoleCode2PatientContactRelationshipCode("gt").getDisplay());
-		Assert.assertEquals("BP", vst.tRoleCode2PatientContactRelationshipCode("gt").getCode());
+		Assert.assertEquals("Other", vst.tRoleCode2PatientContactRelationshipCode("gt").getDisplay());
+		Assert.assertEquals("O", vst.tRoleCode2PatientContactRelationshipCode("gt").getCode());
 		Assert.assertEquals("Employer", vst.tRoleCode2PatientContactRelationshipCode("work").getDisplay());
 		Assert.assertEquals("E", vst.tRoleCode2PatientContactRelationshipCode("work").getCode());
 		Assert.assertEquals("Next-of-Kin", vst.tRoleCode2PatientContactRelationshipCode("fammemb").getDisplay());
