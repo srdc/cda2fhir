@@ -38,7 +38,14 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <hapifhir.version>3.6.0</hapifhir.version>
     </properties>
-
+    
+    <repositories>
+	    <repository>
+			<id>palantir</id>
+			<name>palatir</name>
+			<url>https://dl.bintray.com/palantir/releases/</url>
+	    </repository>
+ 	</repositories>
     <dependencies>
         <!-- MDHT: CDA manipulation -->
         <dependency>
@@ -122,6 +129,13 @@
     		<groupId>com.bazaarvoice.jolt</groupId>
     		<artifactId>json-utils</artifactId>
     		<version>0.1.1</version>
-		</dependency>									                
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.palantir.docker.compose/docker-compose-rule-junit4 -->
+		<dependency>
+		    <groupId>com.palantir.docker.compose</groupId>
+		    <artifactId>docker-compose-rule-junit4</artifactId>
+		    <version>0.34.0</version>
+		</dependency>
+
     </dependencies>
 </project>

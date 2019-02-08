@@ -14,10 +14,16 @@ import org.hl7.fhir.dstu3.model.Patient;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+//import org.testng.annotations.DataProvider;
+
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.skyscreamer.jsonassert.JSONAssert;
+
+import com.palantir.docker.compose.DockerComposeRule;
+import com.palantir.docker.compose.connection.waiting.HealthChecks;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.MethodOutcome;
@@ -29,12 +35,21 @@ import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class IntegrationTest{
+	static String hapiURL = "http://localhost:8080";
 	@BeforeClass
-    public static void init() {
+    public static void init() throws IOException {
+//		Process p = Runtime.getRuntime().exec("export PATH = ${}docker run -d -p 8080:8080 --name=hapi-fhir amidatech/amida-hapi-fhir-jpaserver-example:latest");
+
         // Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
         // This has to be called before loading the document; otherwise will have no effect.
         CDAUtil.loadPackages();
     }
+	
+	@ClassRule
+    public static DockerComposeRule docker = DockerComposeRule.builder()
+            .file("src/test/resources/docker-compose.yaml")
+            .waitingForService("hapi", HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat(hapiURL)))
+            .build();
 	
 	 private static Bundle generateBundle(String sourceName) throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
@@ -50,8 +65,8 @@ public class IntegrationTest{
     @Test
 	public void patientIntegration() throws Exception {
     	FhirContext ctx = FhirContext.forDstu3();
-    	String serverBase = "http://localhost:8080/baseDstu3";
-    	Bundle bundle = generateBundle("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML"); 
+    	String serverBase = hapiURL + "/baseDstu3";
+    	Bundle bundle = generateBundle("Cerner/Person-RAKslaIA_TEST_DOC00001 (1).XML"); 
     	List<Patient> patients = bundle.getEntry().stream()
 				.map(r -> r.getResource())
 				.filter(r -> (r instanceof Patient))
@@ -65,6 +80,21 @@ public class IntegrationTest{
     			   .prettyPrint()
     			   .encodedJson()
     			   .execute();
-    	System.out.println(outcome.toString());
+    	Assert.assertTrue(outcome.getCreated());
+//    	
+//    	// Perform a search
+//    	Bundle results = client
+//    	      .search()
+//    	      .forResource(Patient.class)
+//    	      .where(Patient.FAMILY.matches().value("duck"))
+//    	      .returnBundle(ca.uhn.fhir.model.dstu2.resource.Bundle.class)
+//    	      .execute();
 	}
+    
+    
+    
+    @Test
+    public void patientIntegration2(){
+    	
+    }
 }
