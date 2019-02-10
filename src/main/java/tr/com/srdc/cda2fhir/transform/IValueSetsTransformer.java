@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir.transform;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
@@ -252,4 +253,12 @@ public interface IValueSetsTransformer {
 	 * @return A value from the FHIR valueset ContactPointSystem.
 	 */
 	ContactPointSystem tTelValue2ContactPointSystem(String cdaTelValue);
+	
+	/**
+	 * Transforms a CDA ProblemStatus code to a AllergyIntoleranceClinicalStatus
+	 * @param code ProblemStatus code
+	 * @return A value from the FHIR AllergyIntoleranceClinicalStatus 
+	 */
+	AllergyIntoleranceClinicalStatus tProblemStatus2AllergyIntoleranceClinicalStatus(String code);
+
 }

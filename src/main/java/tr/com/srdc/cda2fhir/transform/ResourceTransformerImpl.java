@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import org.hl7.fhir.dstu3.model.Age;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
@@ -92,6 +93,7 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyStatusObservation;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
@@ -273,6 +275,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaAllergyProbAct.getAllergyObservations() != null && !cdaAllergyProbAct.getAllergyObservations().isEmpty()) {
 			for(AllergyObservation cdaAllergyObs : cdaAllergyProbAct.getAllergyObservations()) {
 				if(cdaAllergyObs != null && !cdaAllergyObs.isSetNullFlavor()) {
+
 					
 					// allergyObservation.participant.participantRole.playingEntity.code -> substance
 					if(cdaAllergyObs.getParticipants() != null && !cdaAllergyObs.getParticipants().isEmpty()) {
@@ -307,7 +310,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						for(EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()) {
 							if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
 								if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()) {
-
+									Observation observation = entryRelShip.getObservation();
+									
+									// status observation
+									if(observation != null && observation instanceof AllergyStatusObservation) {
+										observation.getValues().stream().filter(value -> value instanceof CE)
+												.map(value -> (CE) value)
+												.map(ce -> ce.getCode())
+												.forEach(code -> {
+													AllergyIntoleranceClinicalStatus status = vst.tProblemStatus2AllergyIntoleranceClinicalStatus(code);
+													fhirAllergyIntolerance.setClinicalStatus(status);
+												});
+									}
+									
 									// reaction observation
 									if(entryRelShip.getObservation() instanceof ReactionObservation) {
 										

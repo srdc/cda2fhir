@@ -25,6 +25,7 @@ import java.io.Serializable;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
@@ -900,6 +901,22 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 				return ContactPointSystem.URL;
 			default:
 				return null;
+		}
+	}
+	
+	public AllergyIntoleranceClinicalStatus tProblemStatus2AllergyIntoleranceClinicalStatus(String code) {
+		if(code == null) {
+			return AllergyIntoleranceClinicalStatus.NULL;
+		}
+		switch(code) {
+			case "55561003":
+				return AllergyIntoleranceClinicalStatus.ACTIVE;
+			case "73425007":
+				return AllergyIntoleranceClinicalStatus.INACTIVE;
+			case "413322009":
+				return AllergyIntoleranceClinicalStatus.RESOLVED;
+			default:
+				return AllergyIntoleranceClinicalStatus.NULL;
 		}
 	}
 }
