@@ -20,61 +20,30 @@ package tr.com.srdc.cda2fhir;
  * #L%
  */
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.eclipse.emf.common.util.BasicDiagnostic;
-import org.eclipse.emf.common.util.DiagnosticChain;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
-import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
-import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
-import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyObservationImpl;
-import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyProblemActImpl;
-import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyStatusObservationImpl;
-import org.openhealthtools.mdht.uml.cda.impl.AuthorImpl;
 import org.openhealthtools.mdht.uml.cda.impl.OrganizationImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
-import org.openhealthtools.mdht.uml.cda.impl.EntryRelationshipImpl;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
-
-import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-
-
 
 public class entitiesTest {
 
     private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
-	private static ConsolFactoryImpl cdaObjFactory;
 	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
     @BeforeClass
 	public static void init() {
-		CDAUtil.loadPackages();
-		
-		cdaObjFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
+		CDAUtil.loadPackages();	
 		cdaTypeFactory = DatatypesFactoryImpl.init();		
-		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
-		
+		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();		
     }
  
 
@@ -102,7 +71,6 @@ public class entitiesTest {
         Assert.assertEquals("Organization name was set",orgStringOne,fhirOrganization.getName());
         Assert.assertEquals("Organization alias was set",orgStringTwo,fhirOrganization.getAlias().get(0).asStringValue());
         Assert.assertEquals("Only one organization alias",1,fhirOrganization.getAlias().size());
-
     }
 
 
