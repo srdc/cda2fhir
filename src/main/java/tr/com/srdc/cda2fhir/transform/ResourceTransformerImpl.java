@@ -2158,11 +2158,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		
 		// name -> name
 		if(cdaOrganization.getNames() != null && !cdaOrganization.isSetNullFlavor()) {
-			for(ON name:cdaOrganization.getNames()) {
+	
+			int namesLength = cdaOrganization.getNames().size();
+			
+			for (int iter=0; iter<namesLength; ++ iter) {
+				ON name = cdaOrganization.getNames().get(iter);
 				if(name != null && !name.isSetNullFlavor() && name.getText() != null && !name.getText().isEmpty()) {
-					fhirOrganization.setName(name.getText());
-				}
+					if(iter == 0) {
+						fhirOrganization.setName(name.getText());
+					} else {
+						fhirOrganization.addAlias(name.getText());
+					}			
+				}	
 			}
+			
 		}
 		
 		// telecom -> telecom
