@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Enumeration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,7 +43,10 @@ public class AllergyConcernActTest {
 	private static CDAFactoryImpl cdaFactory;
 	
 	private static Map<String, String> cdaProblemStatusCodeToName = new HashMap<String, String>();
+	private static Map<String, String> cdaAllergyIntolaranceTypeCodeToName = new HashMap<String, String>();
 	
+	private static Map<String, Object> clinicalStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceClinicalStatus.json");
+		
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
@@ -66,47 +70,94 @@ public class AllergyConcernActTest {
     	return allergyResources.get(0);	
 	}
 	
-	static private void verifyAllergyIntoleranceVerificationStatus(AllergyProblemAct act, String expected) throws Exception {
+	static private void verifyAllergyIntoleranceCategory(AllergyProblemAct act, String expected) throws Exception {
 		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
-		
-    	AllergyIntoleranceVerificationStatus verificationStatus = allergyIntolerance.getVerificationStatus();
-    	String actual = verificationStatus == null ? null : verificationStatus.toCode();
+
+    	Enumeration<AllergyIntolerance.AllergyIntoleranceCategory> category = allergyIntolerance.getCategory().get(0);
+    	String actual = category == null ? null : category.asStringValue();
 		Assert.assertEquals(expected, actual);		
 	}
 	
+	static private AllergyStatusObservationImpl createAllergyStatusObservation(String cdaProblemStatusCode) {
+		AllergyStatusObservationImpl allergyStatus = (AllergyStatusObservationImpl) cdaObjFactory.createAllergyStatusObservation();
+		
+		II templateId = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.28");
+		allergyStatus.getTemplateIds().add(templateId);
+
+		CD code = cdaTypeFactory.createCD("33999-4", "2.16.840.1.113883.6.1", null, null);
+		allergyStatus.setCode(code);
+
+		CS cs = cdaTypeFactory.createCS("completed");
+		allergyStatus.setStatusCode(cs);
+		if (cdaProblemStatusCode == null) {
+			cdaProblemStatusCode = clinicalStatusMap.entrySet().stream().findFirst().get().getKey();
+		}
+		String cdaProblemStatusName = cdaProblemStatusCodeToName.get(cdaProblemStatusCode);	
+		CE ce = cdaTypeFactory.createCE (cdaProblemStatusCode, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaProblemStatusName);
+		allergyStatus.getValues().add(ce);
+		
+		return allergyStatus;
+	}
+	
+	
+	@Test
+	public void testAllergyAndIntoleranceType() throws Exception {
+		AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
+		verifyAllergyIntoleranceVerificationStatus(act, null);
+		
+		AllergyObservationImpl observationTop = (AllergyObservationImpl) cdaObjFactory.createAllergyObservation();
+		II templateIdTop = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.7", "2014-06-09");
+		observationTop.getTemplateIds().add(templateIdTop);
+		act.addObservation(observationTop);
+		act.getEntryRelationships().stream()
+			.filter(r -> (r.getObservation() == observationTop))
+			.forEach(r -> r.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ));
+		EntryRelationshipImpl entryRelationship = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();			
+		observationTop.getEntryRelationships().add(entryRelationship);
+		AllergyStatusObservationImpl allergyStatus = createAllergyStatusObservation(null);
+		entryRelationship.setObservation(allergyStatus);
+		
+		observationTop.getEntryRelationships().clear();
+		observationTop.getEntryRelationships().add(entryRelationship);
+			
+		Map<String, Object> map = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			String cdaType = entry.getKey();
+			String fhirCategory = (String) entry.getValue();
+			String cdaTypeName = cdaAllergyIntolaranceTypeCodeToName.get(cdaType);
+
+			CE ce = cdaTypeFactory.createCE (cdaType, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaTypeName);
+
+			observationTop.getValues().clear();
+			observationTop.getValues().add(ce);
+			
+			DiagnosticChain dxChain = new BasicDiagnostic();
+			Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+			Assert.assertTrue(validation);
+			
+			verifyAllergyIntoleranceCategory(act, fhirCategory);
+		}
+	}
+
 	@Test
 	public void testStatusObservation() throws Exception {
-		Map<String, Object> map = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceClinicalStatus.json");
-		for (Map.Entry<String, Object> entry : map.entrySet()) {
+		for (Map.Entry<String, Object> entry : clinicalStatusMap.entrySet()) {
 			String cdaProblemStatusCode = entry.getKey();
 			String fhirClinicalStatus = (String) entry.getValue();
-			String cdaProblemStatusName = cdaProblemStatusCodeToName.get(cdaProblemStatusCode);
 		
 			AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
 			
 			AllergyObservationImpl observationTop = (AllergyObservationImpl) cdaObjFactory.createAllergyObservation();
 			II templateIdTop = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.7", "2014-06-09");
 			observationTop.getTemplateIds().add(templateIdTop);
-		
-			
-			AllergyStatusObservationImpl allergyStatus = (AllergyStatusObservationImpl) cdaObjFactory.createAllergyStatusObservation();
-			
-			II templateId = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.28");
-			allergyStatus.getTemplateIds().add(templateId);
-			CD code = cdaTypeFactory.createCD("33999-4", "2.16.840.1.113883.6.1", null, null);
-			allergyStatus.setCode(code);
-			CS cs = cdaTypeFactory.createCS("completed");
-			allergyStatus.setStatusCode(cs);
-			CE ce = cdaTypeFactory.createCE (cdaProblemStatusCode, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaProblemStatusName);		
-			allergyStatus.getValues().add(ce);
-	
+					
+			AllergyStatusObservationImpl allergyStatus = createAllergyStatusObservation(cdaProblemStatusCode);	
 			EntryRelationshipImpl entryRelationship = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();
 			entryRelationship.setObservation(allergyStatus);
 			
 			observationTop.getEntryRelationships().add(entryRelationship);
-					
-			
+							
 			act.addObservation(observationTop);
 			act.getEntryRelationships().stream()
 				.filter(r -> (r.getObservation() == observationTop))
@@ -122,6 +173,15 @@ public class AllergyConcernActTest {
 			String actual = clinicalStatus.toCode();
 			Assert.assertEquals(fhirClinicalStatus, actual);
 		}
+	}
+	
+	static private void verifyAllergyIntoleranceVerificationStatus(AllergyProblemAct act, String expected) throws Exception {
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		
+    	AllergyIntoleranceVerificationStatus verificationStatus = allergyIntolerance.getVerificationStatus();
+    	String actual = verificationStatus == null ? null : verificationStatus.toCode();
+		Assert.assertEquals(expected, actual);		
 	}
 	
 	@Test

@@ -312,7 +312,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 								if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()) {
 									Observation observation = entryRelShip.getObservation();
 									
-									// status observation
+									// status observation -> clinical status
 									if(observation != null && observation instanceof AllergyStatusObservation) {
 										observation.getValues().stream().filter(value -> value instanceof CE)
 												.map(value -> (CE) value)

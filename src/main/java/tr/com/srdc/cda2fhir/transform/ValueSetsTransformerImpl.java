@@ -111,15 +111,12 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			case "418471000":
 				return AllergyIntoleranceCategory.FOOD;
 			case "232347008":
-				return AllergyIntoleranceCategory.ENVIRONMENT;
 			case "420134006":
 			case "418038007":
 			case "419199007": 
-				// TODO: what is correct mapping?
-				//return AllergyIntoleranceCategory.OTHER;
-				//throw new IllegalArgumentException("Unmapped " + cdaAllergyCategoryCode);
-				LOGGER.error("Unmapped {}", cdaAllergyCategoryCode);
+				return AllergyIntoleranceCategory.ENVIRONMENT;
 			default:
+				LOGGER.error("Unmapped allergy category code: {}", cdaAllergyCategoryCode);
 				return null;
 		}
 	}
