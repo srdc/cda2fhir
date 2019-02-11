@@ -11,10 +11,13 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Enumeration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyObservationImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyProblemActImpl;
@@ -23,12 +26,17 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.impl.EntryRelationshipImpl;
+import org.openhealthtools.mdht.uml.cda.impl.Participant2Impl;
+import org.openhealthtools.mdht.uml.cda.impl.PlayingEntityImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
+import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
+import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
+import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
@@ -100,27 +108,74 @@ public class AllergyConcernActTest {
 		return allergyStatus;
 	}
 	
-	
-	@Test
-	public void testAllergyAndIntoleranceType() throws Exception {
-		AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
-		verifyAllergyIntoleranceVerificationStatus(act, null);
+	static private AllergyObservationImpl createAllergyObservation() {
+		AllergyObservationImpl observation = (AllergyObservationImpl) cdaObjFactory.createAllergyObservation();
 		
-		AllergyObservationImpl observationTop = (AllergyObservationImpl) cdaObjFactory.createAllergyObservation();
-		II templateIdTop = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.7", "2014-06-09");
-		observationTop.getTemplateIds().add(templateIdTop);
-		act.addObservation(observationTop);
-		act.getEntryRelationships().stream()
-			.filter(r -> (r.getObservation() == observationTop))
-			.forEach(r -> r.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ));
+		II templateId = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.7", "2014-06-09");
+		observation.getTemplateIds().add(templateId);
+
 		EntryRelationshipImpl entryRelationship = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();			
-		observationTop.getEntryRelationships().add(entryRelationship);
+		observation.getEntryRelationships().add(entryRelationship);
 		AllergyStatusObservationImpl allergyStatus = createAllergyStatusObservation(null);
 		entryRelationship.setObservation(allergyStatus);
 		
-		observationTop.getEntryRelationships().clear();
-		observationTop.getEntryRelationships().add(entryRelationship);
-			
+		observation.getEntryRelationships().clear();
+		observation.getEntryRelationships().add(entryRelationship);
+		
+		return observation;
+	}
+	
+	static private AllergyProblemActImpl createAllergyConcernAct() {
+		AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
+		
+		AllergyObservationImpl observation = createAllergyObservation();
+				
+		act.addObservation(observation);
+		act.getEntryRelationships().stream()
+			.filter(r -> (r.getObservation() == observation))
+			.forEach(r -> r.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ));
+
+		return act;
+	}
+		
+	@Test
+	public void TestSubstanceReactantForIntolerance() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
+		
+		Participant2Impl participant = (Participant2Impl) cdaFactory.createParticipant2();
+		participant.setTypeCode(ParticipationType.CSM);
+		observation.getParticipants().add(participant);
+		
+		ParticipantRole role = cdaFactory.createParticipantRole();
+		role.setClassCode(RoleClassRoot.MANU);
+		participant.setParticipantRole(role);
+		
+		PlayingEntityImpl entity = (PlayingEntityImpl) cdaFactory.createPlayingEntity();
+		entity.setClassCode(EntityClassRoot.MMAT);
+		CE ce = cdaTypeFactory.createCE("2670", "2.16.840.1.113883.6.88", "RxNorm", "Codeine");
+		entity.setCode(ce);
+		role.setPlayingEntity(entity);
+	
+		DiagnosticChain dxChain = new BasicDiagnostic();
+		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+		Assert.assertTrue(validation);
+
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		CodeableConcept cc = allergyIntolerance.getCode();
+		Coding coding = cc.getCoding().get(0);
+		
+		Assert.assertEquals("2670", coding.getCode());
+		Assert.assertEquals("Codeine", coding.getDisplay());
+	}
+		
+	@Test
+	public void testAllergyAndIntoleranceType() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
+		verifyAllergyIntoleranceVerificationStatus(act, null);
+
 		Map<String, Object> map = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			String cdaType = entry.getKey();
@@ -142,27 +197,21 @@ public class AllergyConcernActTest {
 
 	@Test
 	public void testStatusObservation() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
+		
 		for (Map.Entry<String, Object> entry : clinicalStatusMap.entrySet()) {
 			String cdaProblemStatusCode = entry.getKey();
 			String fhirClinicalStatus = (String) entry.getValue();
-		
-			AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
-			
-			AllergyObservationImpl observationTop = (AllergyObservationImpl) cdaObjFactory.createAllergyObservation();
-			II templateIdTop = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.7", "2014-06-09");
-			observationTop.getTemplateIds().add(templateIdTop);
+					
 					
 			AllergyStatusObservationImpl allergyStatus = createAllergyStatusObservation(cdaProblemStatusCode);	
 			EntryRelationshipImpl entryRelationship = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();
 			entryRelationship.setObservation(allergyStatus);
 			
+			observationTop.getEntryRelationships().clear();
 			observationTop.getEntryRelationships().add(entryRelationship);
-							
-			act.addObservation(observationTop);
-			act.getEntryRelationships().stream()
-				.filter(r -> (r.getObservation() == observationTop))
-				.forEach(r -> r.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ));
-			
+										
 			DiagnosticChain dxChain = new BasicDiagnostic();
 			Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
 			Assert.assertTrue(validation);

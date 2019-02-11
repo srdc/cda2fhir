@@ -277,7 +277,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				if(cdaAllergyObs != null && !cdaAllergyObs.isSetNullFlavor()) {
 
 					
-					// allergyObservation.participant.participantRole.playingEntity.code -> substance
+					// allergyObservation.participant.participantRole.playingEntity.code -> code
 					if(cdaAllergyObs.getParticipants() != null && !cdaAllergyObs.getParticipants().isEmpty()) {
 						for(Participant2 participant : cdaAllergyObs.getParticipants()) {
 							if(participant != null && !participant.isSetNullFlavor()) {
