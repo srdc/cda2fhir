@@ -6,4 +6,4 @@
 
 #### Background/Context:
 
-#### New JIRA tickets for clinical required?
+#### New JIRA tickets for clinical review required?
