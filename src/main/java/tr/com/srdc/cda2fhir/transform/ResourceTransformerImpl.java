@@ -1653,8 +1653,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// languageCode -> language
 		if(cdaLanguageCommunication.getLanguageCode() != null && !cdaLanguageCommunication.getLanguageCode().isSetNullFlavor()) {
 			fhirCommunication.setLanguage(dtt.tCD2CodeableConcept(cdaLanguageCommunication.getLanguageCode()));
-			// urn:ietf:bcp:47 -> language.codeSystem
-			fhirCommunication.getLanguage().getCodingFirstRep().setSystem(Config.DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM);
+			// http://hl7.org/fhir/ValueSet/languages -> language.codeSystem
+			fhirCommunication.getLanguage().getCodingFirstRep().setSystem("http://hl7.org/fhir/ValueSet/languages");
 		}
 		
 		// preferenceInd -> preferred
