@@ -25,6 +25,7 @@ import java.io.Serializable;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
@@ -758,27 +759,15 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 	}
 	
 	public AllergyIntoleranceVerificationStatus tStatusCode2AllergyIntoleranceVerificationStatus(String cdaStatusCode) {
-		// TODO: handle the unmapped; maybe they should be mapped to
-		// AllergyIntoleranceClinicalStatus? In DSTU2 these were under a single enum
-		// but in STU3 they were split
 		switch(cdaStatusCode.toLowerCase()) {
-			case "nullified":
-			case "error":
-				return AllergyIntoleranceVerificationStatus.ENTEREDINERROR;
-			case "confirmed":
-				return AllergyIntoleranceVerificationStatus.CONFIRMED;
-			case "unconfirmed":
-				return AllergyIntoleranceVerificationStatus.UNCONFIRMED;
-			case "refuted":
+			case "completed":
 				return AllergyIntoleranceVerificationStatus.REFUTED;
 			case "active":
-				//return AllergyIntoleranceStatusEnum.ACTIVE;
-			case "inactive":
-				//return AllergyIntoleranceStatusEnum.INACTIVE;
-			case "resolved":
-				//return AllergyIntoleranceVerificationStatus.RESOLVED;
-				//throw new IllegalArgumentException("Unmapped status " + cdaStatusCode.toLowerCase());
-				LOGGER.error("Unmapped status {}", cdaStatusCode.toLowerCase());
+				return AllergyIntoleranceVerificationStatus.CONFIRMED;
+			case "suspended":
+				return AllergyIntoleranceVerificationStatus.UNCONFIRMED;
+			case "aborted":
+				return AllergyIntoleranceVerificationStatus.ENTEREDINERROR;
 			default:
 				return null;
 		}
@@ -912,6 +901,22 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 				return ContactPointSystem.URL;
 			default:
 				return null;
+		}
+	}
+	
+	public AllergyIntoleranceClinicalStatus tProblemStatus2AllergyIntoleranceClinicalStatus(String code) {
+		if(code == null) {
+			return AllergyIntoleranceClinicalStatus.NULL;
+		}
+		switch(code) {
+			case "55561003":
+				return AllergyIntoleranceClinicalStatus.ACTIVE;
+			case "73425007":
+				return AllergyIntoleranceClinicalStatus.INACTIVE;
+			case "413322009":
+				return AllergyIntoleranceClinicalStatus.RESOLVED;
+			default:
+				return AllergyIntoleranceClinicalStatus.NULL;
 		}
 	}
 }

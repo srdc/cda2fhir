@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.openehealth.ipf.modules</groupId>
             <artifactId>ipf-modules-cda-mdht</artifactId>
-            <version>3.5.2</version>
+            <version>3.6-20190124</version>
         </dependency>
         <!-- HAPI: FHIR manipulation -->
         <!--
@@ -96,5 +96,15 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/org.hl7.fhir.validator.jar</systemPath>
         </dependency>
+		<dependency>
+    		<groupId>com.bazaarvoice.jolt</groupId>
+    		<artifactId>jolt-core</artifactId>
+    		<version>0.1.1</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.bazaarvoice.jolt</groupId>
+    		<artifactId>json-utils</artifactId>
+    		<version>0.1.1</version>
+		</dependency>									                
     </dependencies>
 </project>
