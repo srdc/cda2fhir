@@ -374,9 +374,12 @@ public class AllergyConcernActTest {
 		AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
 		verifyAllergyIntoleranceVerificationStatus(act, null);
 		
-		act.setStatusCode(cdaTypeFactory.createCS("invalid"));
-		Assert.assertFalse(act.validateAllergyProblemActStatusCode(null, null));
+		act.setStatusCode(null);
+		verifyAllergyIntoleranceVerificationStatus(act, null);
 				
+		act.setStatusCode(cdaTypeFactory.createCS("invalid"));
+		Assert.assertFalse("Unexpected Valid Allergy Problem Act in Test", act.validateAllergyProblemActStatusCode(null, null));		
+		
 		for (Map.Entry<String, Object> entry : verificationStatusMap.entrySet()) {
 			String cdaStatusCode = entry.getKey();
 			String fhirStatus = (String) entry.getValue();
