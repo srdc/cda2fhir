@@ -55,7 +55,7 @@ public class AllergyConcernActTest {
 	private static CDAFactoryImpl cdaFactory;
 	
 	private static Map<String, String> cdaProblemStatusCodeToName = new HashMap<String, String>();
-	private static Map<String, String> cdaAllergyIntolaranceTypeCodeToName = new HashMap<String, String>();
+	private static Map<String, String> cdaAllergyIntoleranceTypeCodeToName = new HashMap<String, String>();
 	
 	private static Map<String, Object> clinicalStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceClinicalStatus.json");
 	private static Map<String, Object> verificationStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceVerificationStatus.json");
@@ -73,16 +73,16 @@ public class AllergyConcernActTest {
 		cdaProblemStatusCodeToName.put("73425007", "Inactive");
 		cdaProblemStatusCodeToName.put("413322009", "Resolved");
 		
-		cdaAllergyIntolaranceTypeCodeToName.put("419199007", "Allergy to substance (disorder)");
-		cdaAllergyIntolaranceTypeCodeToName.put("416098002", "Drug allergy (disorder)");
-		cdaAllergyIntolaranceTypeCodeToName.put("59037007", "Drug intolerance (disorder)");		 
-		cdaAllergyIntolaranceTypeCodeToName.put("414285001", "Food allergy (disorder)");
-		cdaAllergyIntolaranceTypeCodeToName.put("235719002", "Food intolerance (disorder)");
-		cdaAllergyIntolaranceTypeCodeToName.put("420134006", "Propensity to adverse reactions (disorder)");
-		cdaAllergyIntolaranceTypeCodeToName.put("419511003", "Propensity to adverse reactions to drug (disorder)");		 
-		cdaAllergyIntolaranceTypeCodeToName.put("418471000", "Propensity to adverse reactions to food (disorder)");
-		cdaAllergyIntolaranceTypeCodeToName.put("418038007", "Propensity to adverse reactions to substance (disorder)");
-		cdaAllergyIntolaranceTypeCodeToName.put("232347008", "Dander (animal) allergy");		
+		cdaAllergyIntoleranceTypeCodeToName.put("419199007", "Allergy to substance (disorder)");
+		cdaAllergyIntoleranceTypeCodeToName.put("416098002", "Drug allergy (disorder)");
+		cdaAllergyIntoleranceTypeCodeToName.put("59037007", "Drug intolerance (disorder)");		 
+		cdaAllergyIntoleranceTypeCodeToName.put("414285001", "Food allergy (disorder)");
+		cdaAllergyIntoleranceTypeCodeToName.put("235719002", "Food intolerance (disorder)");
+		cdaAllergyIntoleranceTypeCodeToName.put("420134006", "Propensity to adverse reactions (disorder)");
+		cdaAllergyIntoleranceTypeCodeToName.put("419511003", "Propensity to adverse reactions to drug (disorder)");		 
+		cdaAllergyIntoleranceTypeCodeToName.put("418471000", "Propensity to adverse reactions to food (disorder)");
+		cdaAllergyIntoleranceTypeCodeToName.put("418038007", "Propensity to adverse reactions to substance (disorder)");
+		cdaAllergyIntoleranceTypeCodeToName.put("232347008", "Dander (animal) allergy");		
 	}
 
 	static private AllergyIntolerance findOneResource(Bundle bundle) throws Exception {
@@ -91,7 +91,7 @@ public class AllergyConcernActTest {
     			.filter(r -> (r instanceof AllergyIntolerance))
     			.map(r -> (AllergyIntolerance) r)
 				.collect(Collectors.toList());
-    	Assert.assertEquals(1, allergyResources.size());
+    	Assert.assertEquals("Multiple AllergyIntolerance resources in the bundle",  1, allergyResources.size());
     	return allergyResources.get(0);	
 	}
 	
@@ -101,7 +101,7 @@ public class AllergyConcernActTest {
 
     	Enumeration<AllergyIntolerance.AllergyIntoleranceCategory> category = allergyIntolerance.getCategory().get(0);
     	String actual = category == null ? null : category.asStringValue();
-		Assert.assertEquals(expected, actual);		
+		Assert.assertEquals("Unexpected AllergyIntolerance category", expected, actual);		
 	}
 	
 	static private AllergyStatusObservationImpl createAllergyStatusObservation(String cdaProblemStatusCode) {
@@ -170,12 +170,12 @@ public class AllergyConcernActTest {
 		
 		DiagnosticChain dxChain = new BasicDiagnostic();
 		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
-		Assert.assertTrue(validation);
+		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 
 		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
 		String actual1 = allergyIntolerance1.getOnsetDateTimeType().getValueAsString();
-		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));
+		Assert.assertEquals("Unexpected AllergyIntolerance OnSet", expected1, actual1.replaceAll("-", ""));
 
 		String expected2 = "20161103";
 		IVL_TS ivlTs2 = cdaTypeFactory.createIVL_TS();
@@ -185,7 +185,7 @@ public class AllergyConcernActTest {
 		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
 		String actual2 = allergyIntolerance2.getOnsetDateTimeType().getValueAsString();
-		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));	
+		Assert.assertEquals("Unexpected AllergyIntolerance OnSet", expected2, actual2.replaceAll("-", ""));	
 	}
 	
 	@Test
@@ -209,15 +209,15 @@ public class AllergyConcernActTest {
 	
 		DiagnosticChain dxChain = new BasicDiagnostic();
 		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
-		Assert.assertTrue(validation);
+		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 
 		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		CodeableConcept cc = allergyIntolerance.getCode();
 		Coding coding = cc.getCoding().get(0);
 		
-		Assert.assertEquals("2670", coding.getCode());
-		Assert.assertEquals("Codeine", coding.getDisplay());
+		Assert.assertEquals("Unexpected AllergyIntolerance code value", "2670", coding.getCode());
+		Assert.assertEquals("Unexpected AllergyIntolerance code display value", "Codeine", coding.getDisplay());
 	}
 		
 	@Test
@@ -229,7 +229,7 @@ public class AllergyConcernActTest {
 		for (Map.Entry<String, Object> entry : categoryMap.entrySet()) {
 			String cdaType = entry.getKey();
 			String fhirCategory = (String) entry.getValue();
-			String cdaTypeName = cdaAllergyIntolaranceTypeCodeToName.get(cdaType);
+			String cdaTypeName = cdaAllergyIntoleranceTypeCodeToName.get(cdaType);
 
 			CE ce = cdaTypeFactory.createCE (cdaType, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaTypeName);
 
@@ -238,7 +238,7 @@ public class AllergyConcernActTest {
 			
 			DiagnosticChain dxChain = new BasicDiagnostic();
 			Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
-			Assert.assertTrue(validation);
+			Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 			
 			verifyAllergyIntoleranceCategory(act, fhirCategory);
 		}
@@ -262,13 +262,13 @@ public class AllergyConcernActTest {
 										
 			DiagnosticChain dxChain = new BasicDiagnostic();
 			Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
-			Assert.assertTrue(validation);
+			Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 	
 			Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
 			AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 			AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
 			String actual = clinicalStatus.toCode();
-			Assert.assertEquals(fhirClinicalStatus, actual);
+			Assert.assertEquals("Unexpected AllergtIntolerance Clinical Status", fhirClinicalStatus, actual);
 		}
 	}
 
@@ -311,7 +311,7 @@ public class AllergyConcernActTest {
 		
 		DiagnosticChain dxChain = new BasicDiagnostic();
 		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
-		Assert.assertTrue(validation);		
+		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);		
 
 		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
@@ -323,11 +323,11 @@ public class AllergyConcernActTest {
 		String actual1 = reaction1.getOnsetElement().getValueAsString();
 		String actual2 = reaction2.getOnsetElement().getValueAsString();
 	
-		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));	
-		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));
+		Assert.assertEquals("Unexpected AllergyIntolerance Reaction Onset value (1):", expected1, actual1.replaceAll("-", ""));	
+		Assert.assertEquals("Unexpected AllergyIntolerance Reaction Onset value (2):", expected2, actual2.replaceAll("-", ""));
 		
 		String lastActual = allergyIntolerance.getLastOccurrenceElement().getValueAsString();
-		Assert.assertEquals(expected2, lastActual.replaceAll("-", ""));
+		Assert.assertEquals("Unexpected AllergyIntolerance Last Occurence:", expected2, lastActual.replaceAll("-", ""));
 	}
 
 	@Test
@@ -340,24 +340,24 @@ public class AllergyConcernActTest {
 		act.setEffectiveTime(ivlTs1);
 		
 		Boolean validation1 = act.validateAllergyProblemActEffectiveTime(dxChain, null);
-		Assert.assertTrue(validation1);
+		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation1);
 
 		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
 		String actual1 = allergyIntolerance1.getAssertedDateElement().getValueAsString();
-		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));
+		Assert.assertEquals("Unexpected AllergyIntolerance Asserted Date (1)", expected1, actual1.replaceAll("-", ""));
 
 		String expected2 = "20161103";
 		IVL_TS ivlTs2 = createEffectiveTimeValue(expected2);
 		act.setEffectiveTime(ivlTs2);
 
 		Boolean validation2 = act.validateAllergyProblemActEffectiveTime(dxChain, null);
-		Assert.assertTrue(validation2);
+		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation2);
 				
 		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
 		String actual2 = allergyIntolerance2.getAssertedDateElement().getValueAsString();
-		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));	
+		Assert.assertEquals("Unexpected AllergyIntolerance Asserted Date (2)", expected2, actual2.replaceAll("-", ""));	
 	}
 		
 	static private void verifyAllergyIntoleranceVerificationStatus(AllergyProblemAct act, String expected) throws Exception {
@@ -383,7 +383,7 @@ public class AllergyConcernActTest {
 			
 			CS cs = cdaTypeFactory.createCS(cdaStatusCode);
 			act.setStatusCode(cs);
-			Assert.assertTrue(act.validateAllergyProblemActStatusCode(null, null));
+			Assert.assertTrue("Invalid Allergy Problem Act in Test", act.validateAllergyProblemActStatusCode(null, null));
 
 			verifyAllergyIntoleranceVerificationStatus(act, fhirStatus);
 		}
