@@ -2,7 +2,7 @@ package tr.com.srdc.cda2fhir;
 
 
 import org.hl7.fhir.dstu3.model.Coding;
-
+import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 
@@ -10,18 +10,24 @@ import tr.com.srdc.cda2fhir.transform.IValueSetsTransformer;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import org.openhealthtools.mdht.uml.cda.Guardian;
-
+import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
+import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
+import org.openhealthtools.mdht.uml.cda.impl.LanguageCommunicationImpl;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.junit.BeforeClass;
 import org.junit.Assert;
 
 import org.junit.Test;
 public class FHIR3Tests {
-
-	
+	static CDAFactoryImpl cdaFactory;
+	static DatatypesFactoryImpl dataTypesFactory;
 	@BeforeClass
     public static void init() {
         // Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
         // This has to be called before loading the document; otherwise will have no effect.
+		cdaFactory = new CDAFactoryImpl();
+		dataTypesFactory = new DatatypesFactoryImpl();
         CDAUtil.loadPackages();
     }
     
@@ -73,4 +79,21 @@ public class FHIR3Tests {
 		Assert.assertEquals("N", vst.tRoleCode2PatientContactRelationshipCode("fammemb").getCode());
 	}	
 	
+	
+	@Test
+	public void patientLanguageCommunicationTest() {
+		String languageCode = "fr-BE";
+		String system = "http://hl7.org/fhir/ValueSet/languages";
+		String display = "French (Belgium)";
+		LanguageCommunication cdaLanguageCommunication = cdaFactory.createLanguageCommunication();
+		CS frenchBelgian = dataTypesFactory.createCS();
+		frenchBelgian.setDisplayName(display);
+		frenchBelgian.setCode(languageCode);
+		cdaLanguageCommunication.setLanguageCode(frenchBelgian);
+		ResourceTransformerImpl impl = new ResourceTransformerImpl();
+		PatientCommunicationComponent comm = impl.tLanguageCommunication2Communication(cdaLanguageCommunication);		
+		Assert.assertEquals(comm.getLanguage().getCodingFirstRep().getCode(), languageCode);
+		Assert.assertEquals(comm.getLanguage().getCodingFirstRep().getSystem(), system);
+		Assert.assertEquals(comm.getLanguage().getCodingFirstRep().getDisplay(), display);
+	}
 }
