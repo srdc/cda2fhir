@@ -1,8 +1,9 @@
 package tr.com.srdc.cda2fhir;
 
 
+
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
-import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
@@ -10,6 +11,9 @@ import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
+
+import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+
 import org.junit.BeforeClass;
 import org.junit.Assert;
 
