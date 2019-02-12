@@ -688,29 +688,19 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			return null;
 		
 		Coding fhirPatientContactRelationshipCode = new Coding();
-		fhirPatientContactRelationshipCode.setSystem("http://hl7.org/fhir/patient-contact-relationship");
+		fhirPatientContactRelationshipCode.setSystem("http://hl7.org/fhir/v2/0131");
 		String code = null;
 		String display = null;
 		
 		switch(cdaRoleCode.toLowerCase()) {
 			case "econ": // emergency contact
-				code="emergency"; display = "Emergency"; break;
 			case "ext": // extended family member
-			case "fammemb": // family member
-				code = "family"; display = "Family"; break;
 			case "guard": // guardian
-				code = "guardian"; display = "Guardian"; break;
 			case "frnd": // friend
-				code = "friend"; display = "Friend"; break;
 			case "sps": // spouse
 			case "dompart": // domestic partner
 			case "husb": // husband
 			case "wife": // wife
-				code = "partner"; display = "Partner"; break;
-			case "work": 
-				code = "work"; display = "Work"; break;
-			case "gt": 
-				code = "guarantor"; display = "Guarantor"; break;
 			case "prn": // parent
 			case "fth": // father
 			case "mth": // mother
@@ -723,12 +713,16 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			case "stpprn": // step parent
 			case "stpfth": // stepfather
 			case "stpmth": // stepmother
-				code = "parent"; display = "Parent"; break;
-			case "powatt":
-				code = "agent"; display = "Agent"; break;
+				code="C"; display = "Emergency Contact"; break; // emergency contact
+			case "work": 
+				code = "E"; display = "Employer"; break; // employer
+			case "fammemb":
+				code = "N"; display = "Next-of-Kin"; break; // family
 			default:
-				return null;
-		}
+				code = "O"; display = "Other"; break; // other
+		 }
+		
+		
 		fhirPatientContactRelationshipCode.setCode(code);
 		fhirPatientContactRelationshipCode.setDisplay(display);
 		return fhirPatientContactRelationshipCode;
