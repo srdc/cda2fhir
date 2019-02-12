@@ -1,15 +1,10 @@
 package tr.com.srdc.cda2fhir;
 
 
-import org.hl7.fhir.dstu3.model.Coding;
 
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.cda.PatientRole;
 
-import tr.com.srdc.cda2fhir.transform.IValueSetsTransformer;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
-import org.openhealthtools.mdht.uml.cda.Guardian;
 
 import org.junit.BeforeClass;
 import org.junit.Assert;
