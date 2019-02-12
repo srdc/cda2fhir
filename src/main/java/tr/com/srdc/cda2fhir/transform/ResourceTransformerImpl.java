@@ -260,14 +260,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// effectiveTime -> onset
+		// effectiveTime -> asserted
 		if(cdaAllergyProbAct.getEffectiveTime() != null && !cdaAllergyProbAct.getEffectiveTime().isSetNullFlavor()) {
 
-			// low(if not exists, value) -> onset
+			// low(if not exists, value) -> asserted
 			if(cdaAllergyProbAct.getEffectiveTime().getLow() != null && !cdaAllergyProbAct.getEffectiveTime().getLow().isSetNullFlavor()) {
-				fhirAllergyIntolerance.setOnset(dtt.tTS2DateTime(cdaAllergyProbAct.getEffectiveTime().getLow()));
+				fhirAllergyIntolerance.setAssertedDateElement(dtt.tTS2DateTime(cdaAllergyProbAct.getEffectiveTime().getLow()));
 			} else if(cdaAllergyProbAct.getEffectiveTime().getValue() != null && !cdaAllergyProbAct.getEffectiveTime().getValue().isEmpty()) {
-				fhirAllergyIntolerance.setOnset(dtt.tString2DateTime(cdaAllergyProbAct.getEffectiveTime().getValue()));
+				fhirAllergyIntolerance.setAssertedDateElement(dtt.tString2DateTime(cdaAllergyProbAct.getEffectiveTime().getValue()));
 			}
 		}
 		
@@ -302,6 +302,17 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 									}
 								}
 							}
+						}
+					}
+
+					// effectiveTime -> onset
+					if(cdaAllergyObs.getEffectiveTime() != null && !cdaAllergyObs.getEffectiveTime().isSetNullFlavor()) {
+
+						// low(if not exists, value) -> onset
+						if(cdaAllergyObs.getEffectiveTime().getLow() != null && !cdaAllergyObs.getEffectiveTime().getLow().isSetNullFlavor()) {
+							fhirAllergyIntolerance.setOnset(dtt.tTS2DateTime(cdaAllergyObs.getEffectiveTime().getLow()));
+						} else if(cdaAllergyObs.getEffectiveTime().getValue() != null && !cdaAllergyObs.getEffectiveTime().getValue().isEmpty()) {
+							fhirAllergyIntolerance.setOnset(dtt.tString2DateTime(cdaAllergyObs.getEffectiveTime().getValue()));
 						}
 					}
 

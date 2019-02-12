@@ -33,6 +33,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
@@ -137,9 +139,42 @@ public class AllergyConcernActTest {
 
 		return act;
 	}
-		
+
 	@Test
-	public void TestSubstanceReactantForIntolerance() throws Exception {
+	public void testAllergyIntoleranceObservationEffectiveTime() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
+
+		String expected1 = "20171002";
+		
+		IVL_TS ivlTs1 = cdaTypeFactory.createIVL_TS();
+		IVXB_TS ivxb1 = cdaTypeFactory.createIVXB_TS();
+		ivxb1.setValue(expected1);
+		ivlTs1.setLow(ivxb1);
+		observation.setEffectiveTime(ivlTs1);
+		
+		DiagnosticChain dxChain = new BasicDiagnostic();
+		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+		Assert.assertTrue(validation);
+
+		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
+		String actual1 = allergyIntolerance1.getOnsetDateTimeType().getValueAsString();
+		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));
+
+		String expected2 = "20161103";
+		IVL_TS ivlTs2 = cdaTypeFactory.createIVL_TS();
+		ivlTs2.setValue(expected2);
+		observation.setEffectiveTime(ivlTs2);
+		
+		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
+		String actual2 = allergyIntolerance2.getOnsetDateTimeType().getValueAsString();
+		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));	
+	}
+	
+	@Test
+	public void testSubstanceReactantForIntolerance() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
 		
@@ -233,6 +268,38 @@ public class AllergyConcernActTest {
 		Assert.assertEquals(expected, actual);		
 	}
 	
+	@Test
+	public void testEffectiveTime() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+
+		String expected1 = "20171002";
+		
+		IVL_TS ivlTs1 = cdaTypeFactory.createIVL_TS();
+		IVXB_TS ivxb1 = cdaTypeFactory.createIVXB_TS();
+		ivxb1.setValue(expected1);
+		ivlTs1.setLow(ivxb1);
+		act.setEffectiveTime(ivlTs1);
+		
+		DiagnosticChain dxChain = new BasicDiagnostic();
+		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+		Assert.assertTrue(validation);
+
+		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
+		String actual1 = allergyIntolerance1.getAssertedDateElement().getValueAsString();
+		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));
+
+		String expected2 = "20161103";
+		IVL_TS ivlTs2 = cdaTypeFactory.createIVL_TS();
+		ivlTs2.setValue(expected2);
+		act.setEffectiveTime(ivlTs2);
+		
+		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
+		String actual2 = allergyIntolerance2.getAssertedDateElement().getValueAsString();
+		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));	
+	}
+		
 	@Test
 	public void testAllergyIntoleranceStatusCode() throws Exception {
 		AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
