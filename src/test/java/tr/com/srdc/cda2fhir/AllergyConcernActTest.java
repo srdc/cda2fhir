@@ -9,6 +9,7 @@ import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
@@ -24,6 +25,7 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyProblemActImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyStatusObservationImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
+import org.openhealthtools.mdht.uml.cda.consol.impl.ReactionObservationImpl;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.impl.EntryRelationshipImpl;
 import org.openhealthtools.mdht.uml.cda.impl.Participant2Impl;
@@ -238,8 +240,7 @@ public class AllergyConcernActTest {
 		for (Map.Entry<String, Object> entry : clinicalStatusMap.entrySet()) {
 			String cdaProblemStatusCode = entry.getKey();
 			String fhirClinicalStatus = (String) entry.getValue();
-					
-					
+										
 			AllergyStatusObservationImpl allergyStatus = createAllergyStatusObservation(cdaProblemStatusCode);	
 			EntryRelationshipImpl entryRelationship = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();
 			entryRelationship.setObservation(allergyStatus);
@@ -258,6 +259,59 @@ public class AllergyConcernActTest {
 			Assert.assertEquals(fhirClinicalStatus, actual);
 		}
 	}
+
+	static private IVL_TS createEffectiveTimeLow(String value) {
+		IVL_TS ivlTs = cdaTypeFactory.createIVL_TS();
+		IVXB_TS ivxb = cdaTypeFactory.createIVXB_TS();
+		ivxb.setValue(value);
+		ivlTs.setLow(ivxb);
+		return ivlTs;
+	}
+	
+	@Test
+	public void testReactionObservationEffectiveTime() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
+	
+		String expected1 = "20171102";		
+		ReactionObservationImpl reactionObservation1 = (ReactionObservationImpl) cdaObjFactory.createReactionObservation();	
+		IVL_TS ivlTs1 = createEffectiveTimeLow(expected1);
+		reactionObservation1.setEffectiveTime(ivlTs1);
+
+		EntryRelationshipImpl entryRelationship1 = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();
+		entryRelationship1.setObservation(reactionObservation1);
+		observation.getEntryRelationships().add(entryRelationship1);
+		
+		String expected2 = "20171202";		
+		ReactionObservationImpl reactionObservation2 = (ReactionObservationImpl) cdaObjFactory.createReactionObservation();	
+		IVL_TS ivlTs2 = createEffectiveTimeLow(expected2);
+		reactionObservation2.setEffectiveTime(ivlTs2);
+
+		EntryRelationshipImpl entryRelationship2 = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();
+		entryRelationship2.setObservation(reactionObservation2);
+		observation.getEntryRelationships().add(entryRelationship2);
+		
+		DiagnosticChain dxChain = new BasicDiagnostic();
+		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+		Assert.assertTrue(validation);		
+
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		List<AllergyIntoleranceReactionComponent> reactions = allergyIntolerance.getReaction();
+		
+		AllergyIntoleranceReactionComponent reaction1 = reactions.get(0);
+		AllergyIntoleranceReactionComponent reaction2 = reactions.get(1);
+		
+		String actual1 = reaction1.getOnsetElement().getValueAsString();
+		String actual2 = reaction2.getOnsetElement().getValueAsString();
+	
+		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));	
+		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));
+		
+		String lastActual = allergyIntolerance.getLastOccurrenceElement().getValueAsString();
+		Assert.assertEquals(expected2, lastActual.replaceAll("-", ""));
+	}
+	
 	
 	static private void verifyAllergyIntoleranceVerificationStatus(AllergyProblemAct act, String expected) throws Exception {
 		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
@@ -272,12 +326,8 @@ public class AllergyConcernActTest {
 	public void testEffectiveTime() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 
-		String expected1 = "20171002";
-		
-		IVL_TS ivlTs1 = cdaTypeFactory.createIVL_TS();
-		IVXB_TS ivxb1 = cdaTypeFactory.createIVXB_TS();
-		ivxb1.setValue(expected1);
-		ivlTs1.setLow(ivxb1);
+		String expected1 = "20171002";		
+		IVL_TS ivlTs1 = createEffectiveTimeLow(expected1);
 		act.setEffectiveTime(ivlTs1);
 		
 		DiagnosticChain dxChain = new BasicDiagnostic();

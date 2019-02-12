@@ -21,6 +21,9 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import java.io.Serializable;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.hl7.fhir.dstu3.model.Age;
@@ -41,6 +44,7 @@ import org.hl7.fhir.dstu3.model.Composition.DocumentConfidentiality;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
+import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
@@ -401,6 +405,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						}
 					}
 				}
+			}
+		}
+
+		List<AllergyIntoleranceReactionComponent> reactions = fhirAllergyIntolerance.getReaction();
+		if(reactions != null) {
+			Optional<String> lastOccurance = reactions.stream()
+				.map(r -> r.getOnsetElement())
+				.filter(r -> r != null)
+				.map(r -> r.getValueAsString())
+				.filter(r -> r != null)
+				.max(Comparator.comparing(String::valueOf));
+			if (lastOccurance.isPresent()) {
+				DateTimeType value = new DateTimeType(lastOccurance.get());
+				fhirAllergyIntolerance.setLastOccurrenceElement(value);
 			}
 		}
 		return allergyIntoleranceBundle;
