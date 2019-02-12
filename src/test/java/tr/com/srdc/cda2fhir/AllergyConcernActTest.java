@@ -58,6 +58,8 @@ public class AllergyConcernActTest {
 	private static Map<String, String> cdaAllergyIntolaranceTypeCodeToName = new HashMap<String, String>();
 	
 	private static Map<String, Object> clinicalStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceClinicalStatus.json");
+	private static Map<String, Object> verificationStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceVerificationStatus.json");
+	private static Map<String, Object> categoryMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
 		
 	@BeforeClass
 	public static void init() {
@@ -70,6 +72,17 @@ public class AllergyConcernActTest {
 		cdaProblemStatusCodeToName.put("55561003", "Active");
 		cdaProblemStatusCodeToName.put("73425007", "Inactive");
 		cdaProblemStatusCodeToName.put("413322009", "Resolved");
+		
+		cdaAllergyIntolaranceTypeCodeToName.put("419199007", "Allergy to substance (disorder)");
+		cdaAllergyIntolaranceTypeCodeToName.put("416098002", "Drug allergy (disorder)");
+		cdaAllergyIntolaranceTypeCodeToName.put("59037007", "Drug intolerance (disorder)");		 
+		cdaAllergyIntolaranceTypeCodeToName.put("414285001", "Food allergy (disorder)");
+		cdaAllergyIntolaranceTypeCodeToName.put("235719002", "Food intolerance (disorder)");
+		cdaAllergyIntolaranceTypeCodeToName.put("420134006", "Propensity to adverse reactions (disorder)");
+		cdaAllergyIntolaranceTypeCodeToName.put("419511003", "Propensity to adverse reactions to drug (disorder)");		 
+		cdaAllergyIntolaranceTypeCodeToName.put("418471000", "Propensity to adverse reactions to food (disorder)");
+		cdaAllergyIntolaranceTypeCodeToName.put("418038007", "Propensity to adverse reactions to substance (disorder)");
+		cdaAllergyIntolaranceTypeCodeToName.put("232347008", "Dander (animal) allergy");		
 	}
 
 	static private AllergyIntolerance findOneResource(Bundle bundle) throws Exception {
@@ -213,8 +226,7 @@ public class AllergyConcernActTest {
 		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
 		verifyAllergyIntoleranceVerificationStatus(act, null);
 
-		Map<String, Object> map = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
-		for (Map.Entry<String, Object> entry : map.entrySet()) {
+		for (Map.Entry<String, Object> entry : categoryMap.entrySet()) {
 			String cdaType = entry.getKey();
 			String fhirCategory = (String) entry.getValue();
 			String cdaTypeName = cdaAllergyIntolaranceTypeCodeToName.get(cdaType);
@@ -358,8 +370,7 @@ public class AllergyConcernActTest {
 		act.setStatusCode(cdaTypeFactory.createCS("invalid"));
 		Assert.assertFalse(act.validateAllergyProblemActStatusCode(null, null));
 				
-		Map<String, Object> map = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceVerificationStatus.json");
-		for (Map.Entry<String, Object> entry : map.entrySet()) {
+		for (Map.Entry<String, Object> entry : verificationStatusMap.entrySet()) {
 			String cdaStatusCode = entry.getKey();
 			String fhirStatus = (String) entry.getValue();
 			
