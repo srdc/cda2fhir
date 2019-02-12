@@ -279,6 +279,12 @@ public class AllergyConcernActTest {
 		ivlTs.setLow(ivxb);
 		return ivlTs;
 	}
+
+	static private IVL_TS createEffectiveTimeValue(String value) {
+		IVL_TS ivlTs = cdaTypeFactory.createIVL_TS();
+		ivlTs.setValue(value);
+		return ivlTs; 
+	}
 	
 	@Test
 	public void testReactionObservationEffectiveTime() throws Exception {
@@ -323,8 +329,37 @@ public class AllergyConcernActTest {
 		String lastActual = allergyIntolerance.getLastOccurrenceElement().getValueAsString();
 		Assert.assertEquals(expected2, lastActual.replaceAll("-", ""));
 	}
-	
-	
+
+	@Test
+	public void testEffectiveTime() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		DiagnosticChain dxChain = new BasicDiagnostic();
+
+		String expected1 = "20171002";		
+		IVL_TS ivlTs1 = createEffectiveTimeLow(expected1);
+		act.setEffectiveTime(ivlTs1);
+		
+		Boolean validation1 = act.validateAllergyProblemActEffectiveTime(dxChain, null);
+		Assert.assertTrue(validation1);
+
+		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
+		String actual1 = allergyIntolerance1.getAssertedDateElement().getValueAsString();
+		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));
+
+		String expected2 = "20161103";
+		IVL_TS ivlTs2 = createEffectiveTimeValue(expected2);
+		act.setEffectiveTime(ivlTs2);
+
+		Boolean validation2 = act.validateAllergyProblemActEffectiveTime(dxChain, null);
+		Assert.assertTrue(validation2);
+				
+		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
+		String actual2 = allergyIntolerance2.getAssertedDateElement().getValueAsString();
+		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));	
+	}
+		
 	static private void verifyAllergyIntoleranceVerificationStatus(AllergyProblemAct act, String expected) throws Exception {
 		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
@@ -334,34 +369,6 @@ public class AllergyConcernActTest {
 		Assert.assertEquals(expected, actual);		
 	}
 	
-	@Test
-	public void testEffectiveTime() throws Exception {
-		AllergyProblemActImpl act = createAllergyConcernAct();
-
-		String expected1 = "20171002";		
-		IVL_TS ivlTs1 = createEffectiveTimeLow(expected1);
-		act.setEffectiveTime(ivlTs1);
-		
-		DiagnosticChain dxChain = new BasicDiagnostic();
-		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
-		Assert.assertTrue(validation);
-
-		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
-		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
-		String actual1 = allergyIntolerance1.getAssertedDateElement().getValueAsString();
-		Assert.assertEquals(expected1, actual1.replaceAll("-", ""));
-
-		String expected2 = "20161103";
-		IVL_TS ivlTs2 = cdaTypeFactory.createIVL_TS();
-		ivlTs2.setValue(expected2);
-		act.setEffectiveTime(ivlTs2);
-		
-		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
-		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
-		String actual2 = allergyIntolerance2.getAssertedDateElement().getValueAsString();
-		Assert.assertEquals(expected2, actual2.replaceAll("-", ""));	
-	}
-		
 	@Test
 	public void testAllergyIntoleranceStatusCode() throws Exception {
 		AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
