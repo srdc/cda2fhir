@@ -19,7 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Assert;
 
 import org.junit.Test;
-public class FHIR3Tests {
+public class PatientTests {
 	static CDAFactoryImpl cdaFactory;
 	static DatatypesFactoryImpl dataTypesFactory;
 	@BeforeClass
