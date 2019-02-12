@@ -21,6 +21,9 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import java.io.Serializable;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.hl7.fhir.dstu3.model.Age;
@@ -41,6 +44,7 @@ import org.hl7.fhir.dstu3.model.Composition.DocumentConfidentiality;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
+import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
@@ -260,14 +264,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// effectiveTime -> onset
+		// effectiveTime -> asserted
 		if(cdaAllergyProbAct.getEffectiveTime() != null && !cdaAllergyProbAct.getEffectiveTime().isSetNullFlavor()) {
 
-			// low(if not exists, value) -> onset
+			// low(if not exists, value) -> asserted
 			if(cdaAllergyProbAct.getEffectiveTime().getLow() != null && !cdaAllergyProbAct.getEffectiveTime().getLow().isSetNullFlavor()) {
-				fhirAllergyIntolerance.setOnset(dtt.tTS2DateTime(cdaAllergyProbAct.getEffectiveTime().getLow()));
+				fhirAllergyIntolerance.setAssertedDateElement(dtt.tTS2DateTime(cdaAllergyProbAct.getEffectiveTime().getLow()));
 			} else if(cdaAllergyProbAct.getEffectiveTime().getValue() != null && !cdaAllergyProbAct.getEffectiveTime().getValue().isEmpty()) {
-				fhirAllergyIntolerance.setOnset(dtt.tString2DateTime(cdaAllergyProbAct.getEffectiveTime().getValue()));
+				fhirAllergyIntolerance.setAssertedDateElement(dtt.tString2DateTime(cdaAllergyProbAct.getEffectiveTime().getValue()));
 			}
 		}
 		
@@ -277,7 +281,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				if(cdaAllergyObs != null && !cdaAllergyObs.isSetNullFlavor()) {
 
 					
-					// allergyObservation.participant.participantRole.playingEntity.code -> substance
+					// allergyObservation.participant.participantRole.playingEntity.code -> code
 					if(cdaAllergyObs.getParticipants() != null && !cdaAllergyObs.getParticipants().isEmpty()) {
 						for(Participant2 participant : cdaAllergyObs.getParticipants()) {
 							if(participant != null && !participant.isSetNullFlavor()) {
@@ -305,6 +309,17 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						}
 					}
 
+					// effectiveTime -> onset
+					if(cdaAllergyObs.getEffectiveTime() != null && !cdaAllergyObs.getEffectiveTime().isSetNullFlavor()) {
+
+						// low(if not exists, value) -> onset
+						if(cdaAllergyObs.getEffectiveTime().getLow() != null && !cdaAllergyObs.getEffectiveTime().getLow().isSetNullFlavor()) {
+							fhirAllergyIntolerance.setOnset(dtt.tTS2DateTime(cdaAllergyObs.getEffectiveTime().getLow()));
+						} else if(cdaAllergyObs.getEffectiveTime().getValue() != null && !cdaAllergyObs.getEffectiveTime().getValue().isEmpty()) {
+							fhirAllergyIntolerance.setOnset(dtt.tString2DateTime(cdaAllergyObs.getEffectiveTime().getValue()));
+						}
+					}
+
 					// searching for reaction observation
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()) {
 						for(EntryRelationship entryRelShip : cdaAllergyObs.getEntryRelationships()) {
@@ -312,7 +327,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 								if(entryRelShip.getObservation() != null && !entryRelShip.isSetNullFlavor()) {
 									Observation observation = entryRelShip.getObservation();
 									
-									// status observation
+									// status observation -> clinical status
 									if(observation != null && observation instanceof AllergyStatusObservation) {
 										observation.getValues().stream().filter(value -> value instanceof CE)
 												.map(value -> (CE) value)
@@ -390,6 +405,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						}
 					}
 				}
+			}
+		}
+
+		List<AllergyIntoleranceReactionComponent> reactions = fhirAllergyIntolerance.getReaction();
+		if(reactions != null) {
+			Optional<String> lastOccurance = reactions.stream()
+				.map(r -> r.getOnsetElement())
+				.filter(r -> r != null)
+				.map(r -> r.getValueAsString())
+				.filter(r -> r != null)
+				.max(Comparator.comparing(String::valueOf));
+			if (lastOccurance.isPresent()) {
+				DateTimeType value = new DateTimeType(lastOccurance.get());
+				fhirAllergyIntolerance.setLastOccurrenceElement(value);
 			}
 		}
 		return allergyIntoleranceBundle;
