@@ -32,6 +32,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificatio
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
+import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
 import org.hl7.fhir.dstu3.model.DiagnosticReport.DiagnosticReportStatus;
@@ -764,6 +765,24 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	public ConditionVerificationStatus tStatusCode2ConditionVerificationStatus(String cdaStatusCode) {
+		if (cdaStatusCode == null) {
+			return ConditionVerificationStatus.UNKNOWN;
+		}
+		switch(cdaStatusCode.toLowerCase()) {
+			case "completed":
+				return ConditionVerificationStatus.REFUTED;
+			case "active":
+				return ConditionVerificationStatus.CONFIRMED;
+			case "suspended":
+				return ConditionVerificationStatus.PROVISIONAL;
+			case "aborted":
+				return ConditionVerificationStatus.ENTEREDINERROR;
+			default:
+				return ConditionVerificationStatus.UNKNOWN;
+		}
+	}
+
 	public ConditionClinicalStatus tStatusCode2ConditionClinicalStatus(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
 			// semantically not the same, but at least outcome-wise it is similar
@@ -908,6 +927,22 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 				return AllergyIntoleranceClinicalStatus.RESOLVED;
 			default:
 				return AllergyIntoleranceClinicalStatus.NULL;
+		}
+	}
+
+	public ConditionClinicalStatus tProblemStatus2ConditionClinicalStatus(String code) {
+		if(code == null) {
+			return ConditionClinicalStatus.NULL;
+		}
+		switch(code) {
+			case "55561003":
+				return ConditionClinicalStatus.ACTIVE;
+			case "73425007":
+				return ConditionClinicalStatus.INACTIVE;
+			case "413322009":
+				return ConditionClinicalStatus.RESOLVED;
+			default:
+				return ConditionClinicalStatus.NULL;
 		}
 	}
 }
