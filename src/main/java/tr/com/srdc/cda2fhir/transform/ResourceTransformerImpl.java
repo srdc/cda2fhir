@@ -456,7 +456,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if(cdaAssignedAuthor.getAssignedPerson().getNames() != null && !cdaAssignedAuthor.getAssignedPerson().getNames().isEmpty()) {
 				for(PN pn : cdaAssignedAuthor.getAssignedPerson().getNames()) {
 					if(pn != null && !pn.isSetNullFlavor()) {
-						// TODO: Asserting that at most one name exists
 						fhirPractitioner.addName(dtt.tEN2HumanName(pn));
 					}
 				}
@@ -534,7 +533,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaAssignedEntity.getAssignedPerson() != null && !cdaAssignedEntity.getAssignedPerson().isSetNullFlavor()) {
 			for(PN pn : cdaAssignedEntity.getAssignedPerson().getNames()) {
 				if(pn != null && !pn.isSetNullFlavor()) {
-					// TODO: asserting that at most one name exists
 					fhirPractitioner.addName(dtt.tEN2HumanName(pn));
 				}
 			}
