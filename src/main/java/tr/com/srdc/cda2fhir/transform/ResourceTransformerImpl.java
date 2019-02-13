@@ -2717,14 +2717,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					}
 				}
 
-				// author.time -> dateRecorded
+				// author.time -> assertedDate
 				if (author.getTime() != null && !author.getTime().isSetNullFlavor()) {
 					fhirCondition.setAssertedDateElement(dtt.tTS2DateTime(author.getTime()));
 				}
 			}
 		}
 
-		// encounter -> encounter
+		// encounter -> context
 		if (cdaProbObs.getEncounters() != null && !cdaProbObs.getEncounters().isEmpty()) {
 			if (cdaProbObs.getEncounters().get(0) != null && cdaProbObs.getEncounters().get(0).isSetNullFlavor()) {
 				Bundle fhirEncounterBundle = tEncounter2Encounter(cdaProbObs.getEncounters().get(0));
