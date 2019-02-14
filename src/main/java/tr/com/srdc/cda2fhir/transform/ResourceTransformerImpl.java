@@ -1455,7 +1455,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// performer -> performer
+		
+		// performer -> practitioner
 		if(cdaImmunizationActivity.getPerformers() != null && !cdaImmunizationActivity.getPerformers().isEmpty()) {
 			for(Performer2 performer : cdaImmunizationActivity.getPerformers()) {
 				if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
@@ -1471,6 +1472,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							ImmunizationPractitionerComponent perf = fhirImmunization.addPractitioner();
 							perf.getRole().addCoding().setSystem("http://hl7.org/fhir/v2/0443").setCode("AP").setDisplay("Administering Provider");
 							perf.setActor(new Reference(entry.getResource().getId()));
+							fhirImmunization.setPrimarySource(true);
 						}
 					}
 				}
