@@ -1507,7 +1507,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// wasNotGiven == true
+		// notGiven == true
 		if(fhirImmunization.getNotGiven()) {
 			// immunizationRefusalReason.code -> explanation.reasonNotGiven
 			if (cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
@@ -1517,7 +1517,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-		// wasNotGiven == false
+		// notGiven == false
 		else if(!fhirImmunization.getNotGiven()) {
 			// indication.value -> explanation.reason
 			if(cdaImmunizationActivity.getIndication() != null && !cdaImmunizationActivity.getIndication().isSetNullFlavor()) {
@@ -1549,6 +1549,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
+		
 		
 		// TODO: in STU3 this property at this level was removed. Figure out how
 		// to map this to STU3
