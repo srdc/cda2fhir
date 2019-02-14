@@ -39,7 +39,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
-public class entitiesTest {
+public class EntitiesTest {
 
     private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
