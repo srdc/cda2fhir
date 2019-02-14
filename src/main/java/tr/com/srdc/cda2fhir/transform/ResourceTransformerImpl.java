@@ -1681,17 +1681,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// meta.profile
 		if(Config.isGenerateDafProfileMetadata())
 			fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
-		
-		// init Medication.product
-		//Medication.Product fhirProduct = new Medication.Product();
-		//fhirMedication.setProduct(fhirProduct);
 
 		// manufacturedMaterial -> code and ingredient
 		if(cdaManufacturedProduct.getManufacturedMaterial() != null && !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 			if(cdaManufacturedProduct.getManufacturedMaterial().getCode() != null && !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 				// manufacturedMaterial.code -> code
-				fhirMedication.setCode(dtt.tCD2CodeableConceptExcludingTranslations(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
+				fhirMedication.setCode(dtt.tCD2CodeableConcept(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
+				//fhirMedication.setCode(dtt.tCD2CodeableConceptExcludingTranslations(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
 				// translation -> ingredient
+				/*
 				for(CD translation : cdaManufacturedProduct.getManufacturedMaterial().getCode().getTranslations()) {
 					if(!translation.isSetNullFlavor()) {
 						MedicationIngredientComponent fhirIngredient = fhirMedication.addIngredient();
@@ -1699,7 +1697,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						fhirIngredient.setItem(new Reference(fhirSubstance.getId()));
 						fhirMedicationBundle.addEntry(new BundleEntryComponent().setResource(fhirSubstance));
 					}
-				}
+				}*/
 			}
 		}
 		
