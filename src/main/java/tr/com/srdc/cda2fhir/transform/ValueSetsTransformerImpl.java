@@ -783,22 +783,6 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
-	public ConditionClinicalStatus tStatusCode2ConditionClinicalStatus(String cdaStatusCode) {
-		switch (cdaStatusCode.toLowerCase()) {
-			// semantically not the same, but at least outcome-wise it is similar
-			case "aborted":
-				return ConditionClinicalStatus.RESOLVED;
-			case "active":
-				return ConditionClinicalStatus.ACTIVE;
-			case "completed":
-				return ConditionClinicalStatus.RESOLVED;
-			case "suspended":
-				return ConditionClinicalStatus.REMISSION;
-			default:
-				return null;
-		}
-	}
-
 	public EncounterStatus tStatusCode2EncounterStatusEnum(String cdaStatusCode) {
 		switch(cdaStatusCode.toLowerCase()) {
 			case "in-progress":

@@ -207,13 +207,6 @@ public interface IValueSetsTransformer {
 	AllergyIntoleranceVerificationStatus tStatusCode2AllergyIntoleranceVerificationStatus(String cdaStatusCode);
 
 	/**
-	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ConditionClinicalStatus.
-	 * @param cdaStatusCode A CDA StatusCode string
-	 * @return A value from the FHIR valueset ConditionClinicalStatus
-     */
-	ConditionClinicalStatus tStatusCode2ConditionClinicalStatus(String cdaStatusCode);
-
-	/**
 	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ConditionVerificationStatus.
 	 * @param cdaStatusCode A CDA StatusCode string
 	 * @return A value from the FHIR valueset ConditionVerificationStatus
