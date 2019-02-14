@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.eclipse.emf.common.util.EList;
 import org.hl7.fhir.dstu3.model.Age;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
@@ -106,6 +107,7 @@ import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemStatus;
 import org.openhealthtools.mdht.uml.cda.consol.ProductInstance;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
@@ -117,6 +119,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
@@ -2451,11 +2454,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				if(entry.getResource() instanceof Condition) {
 					Condition fhirCond = (Condition) entry.getResource();
 
-					// act/statusCode -> Condition.clinicalStatus
-					// NOTE: Problem status template is deprecated in C-CDA Release 2.1; hence status data is not retrieved from this template.
-					if(cdaProblemConcernAct.getStatusCode() != null && !cdaProblemConcernAct.getStatusCode().isSetNullFlavor()) {
-						fhirCond.setClinicalStatus(vst.tStatusCode2ConditionClinicalStatus(cdaProblemConcernAct.getStatusCode().getCode()));
-					}
+					CS statusCode = cdaProblemConcernAct.getStatusCode();
+					String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null : statusCode.getCode();
+					fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));	
 				}
 			}
 		}
@@ -2494,13 +2495,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> category
-		if (cdaProbObs.getCode() != null && !cdaProbObs.getCode().isSetNullFlavor()) {
-			if (cdaProbObs.getCode().getCode() != null) {
-				Coding conditionCategory = vst.tProblemType2ConditionCategoryCodes(cdaProbObs.getCode().getCode());
-				if (conditionCategory != null) {
-					fhirCondition.addCategory().addCoding(conditionCategory);
-				}
-			}
+		CodeableConcept conditionCategory = dtt.tCD2CodeableConcept(cdaProbObs.getCode());
+		if (conditionCategory != null) {
+			fhirCondition.addCategory(conditionCategory);
 		}
 
 		// value -> code
@@ -2545,14 +2542,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					}
 				}
 
-				// author.time -> dateRecorded
+				// author.time -> assertedDate
 				if (author.getTime() != null && !author.getTime().isSetNullFlavor()) {
 					fhirCondition.setAssertedDateElement(dtt.tTS2DateTime(author.getTime()));
 				}
 			}
 		}
 
-		// encounter -> encounter
+		// encounter -> context
 		if (cdaProbObs.getEncounters() != null && !cdaProbObs.getEncounters().isEmpty()) {
 			if (cdaProbObs.getEncounters().get(0) != null && cdaProbObs.getEncounters().get(0).isSetNullFlavor()) {
 				Bundle fhirEncounterBundle = tEncounter2Encounter(cdaProbObs.getEncounters().get(0));
@@ -2565,9 +2562,28 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// NOTE: A default value is assigned to verificationStatus attribute, as it is mandatory but cannot be mapped from the CDA side
-		fhirCondition.setVerificationStatus(Config.DEFAULT_CONDITION_VERIFICATION_STATUS);
-
+		EList<EntryRelationship> entryRels = cdaProbObs.getEntryRelationships();
+		
+		if(entryRels != null && !entryRels.isEmpty()) {
+			for(EntryRelationship entryRelShip : entryRels) {
+				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
+					Observation observation = entryRelShip.getObservation();
+					if(observation != null && !observation.isSetNullFlavor()) {
+						// problem status  -> clinical status
+						if(observation != null && observation instanceof ProblemStatus) {
+							observation.getValues().stream().filter(value -> value instanceof CE)
+									.map(value -> (CE) value)
+									.map(ce -> ce.getCode())
+									.forEach(code -> {
+										ConditionClinicalStatus status = vst.tProblemStatus2ConditionClinicalStatus(code);
+										fhirCondition.setClinicalStatus(status);
+									});
+						}
+					}
+				}
+			}
+		}
+		
 		return fhirConditionBundle;
 	}
 
