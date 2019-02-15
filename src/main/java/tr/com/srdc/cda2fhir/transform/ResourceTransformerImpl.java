@@ -68,6 +68,7 @@ import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
+import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
@@ -2634,15 +2635,39 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		for(Performer2 performer : cdaProcedure.getPerformers()) {
 			if(performer.getAssignedEntity()!= null && !performer.getAssignedEntity().isSetNullFlavor()) {
 				Bundle practBundle = tPerformer22Practitioner(performer);
+				ProcedurePerformerComponent fhirPerformer = null; // share across resources
 				for(BundleEntryComponent entry : practBundle.getEntry()) {
 					// Add all the resources returned from the bundle to the main bundle
 					fhirProcBundle.addEntry(entry);
+					
 					// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
 					if(entry.getResource() instanceof Practitioner) {
-						ProcedurePerformerComponent fhirPerformer = new ProcedurePerformerComponent();
+						if (fhirPerformer == null) {
+							fhirPerformer = new ProcedurePerformerComponent();
+							fhirProc.addPerformer(fhirPerformer);							
+						}
 						fhirPerformer.setActor(new Reference(entry.getResource().getId()));
-						fhirProc.addPerformer(fhirPerformer);
 					}
+
+					// performer.assignedEntity.representedOrganization -> performer.onBehalfOf
+					if(entry.getResource() instanceof Organization) {
+						if (fhirPerformer == null) {
+							fhirPerformer = new ProcedurePerformerComponent();
+							fhirProc.addPerformer(fhirPerformer);							
+						}
+						Reference reference = new Reference(entry.getResource().getIdElement());						
+						fhirPerformer.setOnBehalfOf(reference);
+					}
+					
+					// performer.assignedEntity.code -> performer.role
+					if (entry.getResource() instanceof PractitionerRole) {
+						if (fhirPerformer == null) {
+							fhirPerformer = new ProcedurePerformerComponent();
+							fhirProc.addPerformer(fhirPerformer);							
+						}
+						PractitionerRole role = (PractitionerRole) entry.getResource();
+						fhirPerformer.setRole(role.getCodeFirstRep());
+					}					
 				}
 			}
 		}
@@ -2660,7 +2685,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirProc.setCode(dtt.tCD2CodeableConcept(cdaProcedure.getCode()));
 		}
 
-		// encounter[0] -> encounter
+		// encounter[0] -> context
 		if(!cdaProcedure.getEncounters().isEmpty()) {
 			org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter = cdaProcedure.getEncounters().get(0);
 			if(cdaEncounter != null && !cdaEncounter.isSetNullFlavor()) {

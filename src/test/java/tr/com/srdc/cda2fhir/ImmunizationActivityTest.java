@@ -10,36 +10,32 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationActivityImpl;
-import org.openhealthtools.mdht.uml.cda.impl.AssignedEntityImpl;
-import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
-import org.openhealthtools.mdht.uml.cda.impl.Performer2Impl;
-import org.openhealthtools.mdht.uml.cda.impl.PersonImpl;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
-import org.openhealthtools.mdht.uml.hl7.datatypes.impl.PNImpl;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
 public class ImmunizationActivityTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
+	private static CDAFactories factories;
+	
 	private static ConsolFactoryImpl cdaObjFactory;
-	private static DatatypesFactory cdaTypeFactory;
-	private static CDAFactoryImpl cdaFactory;
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 
-		cdaObjFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
-		cdaTypeFactory = DatatypesFactoryImpl.init();
-		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
+		factories = CDAFactories.init();
+		
+		cdaObjFactory = factories.consol;
 	}
-
+	
 	@Test
 	public void testPerformer() throws Exception {
 		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
@@ -50,20 +46,10 @@ public class ImmunizationActivityTest {
 				
 		String lastName = "Doe";
 		String firstName = "Joe";
-
-		PNImpl pn = (PNImpl) cdaTypeFactory.createPN();
-		pn.addFamily(lastName);
-		pn.addGiven(firstName);
-
-		PersonImpl person = (PersonImpl) cdaFactory.createPerson();
-		person.getNames().add(pn);
-
-		AssignedEntityImpl entity = (AssignedEntityImpl) cdaFactory.createAssignedEntity();
-		entity.setAssignedPerson(person);
-		
-		Performer2Impl performer = (Performer2Impl) cdaFactory.createPerformer2(); 
-		performer.setAssignedEntity(entity);
-		
+		PerformerGenerator performerGenerator = new PerformerGenerator();
+		performerGenerator.setFamilyName(lastName);
+		performerGenerator.addGivenName(firstName);
+		Performer2 performer = performerGenerator.generate(factories);
 		act.getPerformers().add(performer);
 
 		Bundle bundle1 = rt.tImmunizationActivity2Immunization(act);
