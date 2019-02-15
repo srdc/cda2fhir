@@ -1452,7 +1452,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// performer -> performer
+		
+		// performer -> practitioner
 		if(cdaImmunizationActivity.getPerformers() != null && !cdaImmunizationActivity.getPerformers().isEmpty()) {
 			for(Performer2 performer : cdaImmunizationActivity.getPerformers()) {
 				if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
@@ -1468,6 +1469,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							ImmunizationPractitionerComponent perf = fhirImmunization.addPractitioner();
 							perf.getRole().addCoding().setSystem("http://hl7.org/fhir/v2/0443").setCode("AP").setDisplay("Administering Provider");
 							perf.setActor(new Reference(entry.getResource().getId()));
+							fhirImmunization.setPrimarySource(true);
 						}
 					}
 				}
@@ -1492,11 +1494,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// statusCode -> status
 		if(cdaImmunizationActivity.getStatusCode()!=null && !cdaImmunizationActivity.getStatusCode().isSetNullFlavor()) {
 			if(cdaImmunizationActivity.getStatusCode().getCode() != null && !cdaImmunizationActivity.getStatusCode().getCode().isEmpty()) {
-				// TODO: We need a mapping from immunizationActivity to Immunization resource status
-				String status = cdaImmunizationActivity.getStatusCode().getCode();
-				if (status != null && (status.equals("completed") || status.equals("entered-in-error"))) {
+				
+				ImmunizationStatus status = vst.tStatusCode2ImmunizationStatus(cdaImmunizationActivity.getStatusCode().getCode());
+				if (status != null) {
 					try {
-						fhirImmunization.setStatus(ImmunizationStatus.fromCode(cdaImmunizationActivity.getStatusCode().getCode()));
+						fhirImmunization.setStatus(status);
 					} catch (FHIRException e) {
 						throw new IllegalArgumentException(e);
 					}
@@ -1504,7 +1506,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// wasNotGiven == true
+		// notGiven == true
 		if(fhirImmunization.getNotGiven()) {
 			// immunizationRefusalReason.code -> explanation.reasonNotGiven
 			if (cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
@@ -1514,7 +1516,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-		// wasNotGiven == false
+		// notGiven == false
 		else if(!fhirImmunization.getNotGiven()) {
 			// indication.value -> explanation.reason
 			if(cdaImmunizationActivity.getIndication() != null && !cdaImmunizationActivity.getIndication().isSetNullFlavor()) {
@@ -1546,6 +1548,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
+		
 		
 		// TODO: in STU3 this property at this level was removed. Figure out how
 		// to map this to STU3
