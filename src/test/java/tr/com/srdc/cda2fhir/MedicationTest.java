@@ -80,15 +80,16 @@ public class MedicationTest {
         // Transform from CDA to FHIR.
         org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product);
         org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
-        //List<Base> fhirNames = fhirResource.getNamedProperty("name").getValues();
         List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
         List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
+
         
         // Make assertions.
         Assert.assertEquals("Two Codes on FHIR Object",2,fhirCodings.size());
         Assert.assertEquals("Medication Code One set on FHIR Object",codeOne.getDisplayName(),fhirCodings.get(0).getNamedProperty("display").getValues().get(0).toString());
         Assert.assertEquals("Medication Code Two set on FHIR Object",codeTwo.getDisplayName(),fhirCodings.get(1).getNamedProperty("display").getValues().get(0).toString());
-        Assert.assertNull("No ingredient present", fhirResource.getNamedProperty("ingredient").getValues().get(0));
+        Assert.assertTrue("No ingredient present", fhirResource.getNamedProperty("ingredient").getValues().isEmpty());
+        
     }
 
 
