@@ -14,6 +14,7 @@ import org.hl7.fhir.dstu3.model.Enumeration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.Author;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyStatusObservationImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
@@ -85,8 +86,9 @@ public class MedicationStatementTest {
 		II templateId2 = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.16");
 		II id = cdaTypeFactory.createII("cdbd33f0-6cde-11db-9fe1-0801200c9a66");
 		
-		
 		CS cs = cdaTypeFactory.createCS("nullified"); 
+		
+		Author author = cdaFactory.createAuthor();
 		return medAct;
 		
 
