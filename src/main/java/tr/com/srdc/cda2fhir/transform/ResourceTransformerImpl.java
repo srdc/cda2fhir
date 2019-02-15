@@ -1495,11 +1495,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// statusCode -> status
 		if(cdaImmunizationActivity.getStatusCode()!=null && !cdaImmunizationActivity.getStatusCode().isSetNullFlavor()) {
 			if(cdaImmunizationActivity.getStatusCode().getCode() != null && !cdaImmunizationActivity.getStatusCode().getCode().isEmpty()) {
-				// TODO: We need a mapping from immunizationActivity to Immunization resource status
-				String status = cdaImmunizationActivity.getStatusCode().getCode();
-				if (status != null && (status.equals("completed") || status.equals("entered-in-error"))) {
+				
+				ImmunizationStatus status = vst.tStatusCode2ImmunizationStatus(cdaImmunizationActivity.getStatusCode().getCode());
+				if (status != null) {
 					try {
-						fhirImmunization.setStatus(ImmunizationStatus.fromCode(cdaImmunizationActivity.getStatusCode().getCode()));
+						fhirImmunization.setStatus(status);
 					} catch (FHIRException e) {
 						throw new IllegalArgumentException(e);
 					}
