@@ -15,7 +15,6 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.BundleTypeEnumFactory;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -24,7 +23,6 @@ import org.junit.Test;
 
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
@@ -65,7 +63,7 @@ public class IntegrationTest{
         ClinicalDocument cda = CDAUtil.load(fis);
 
         CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        BundleType bt = bundleTypeEnumFactory.fromCode("batch");
+        BundleType bt = bundleTypeEnumFactory.fromCode("transaction");
         Bundle bundle = ccdTransformer.transformDocument(cda, bt, null, new HashMap<String, String>());
         
         bundle.setType(bt);
@@ -77,15 +75,14 @@ public class IntegrationTest{
 	 
     @Test
 	public void patientIntegration() throws Exception {
-    	IParser outputParser;
+//    	IParser outputParser;
     	FhirContext ctx = FhirContext.forDstu3();
-    	JsonParser jp = new JsonParser(ctx, null);
-    	String serverBase = hapiURL + "/baseDstu3";
+     	String serverBase = hapiURL + "/baseDstu3";
     	Bundle bundle = generateBundle("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML"); 
-    	outputParser = (IParser) ctx.newJsonParser();
+//    	outputParser = (IParser) ctx.newJsonParser();
     	FhirValidator validator = new FhirValidator(ctx);
-//    	ValidationResult result = validator.validateWithResult(bundle);
-//    	Assert.assertTrue(result.isSuccessful());
+    	ValidationResult result = validator.validateWithResult(bundle);
+    	Assert.assertTrue(result.isSuccessful());
     	IGenericClient client = ctx.newRestfulGenericClient(serverBase);
     	
     	Bundle outcome = client.transaction().withBundle(bundle).execute();  	
