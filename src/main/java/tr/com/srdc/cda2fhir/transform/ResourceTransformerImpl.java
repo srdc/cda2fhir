@@ -2698,7 +2698,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-
+		
+		List<EntryRelationship> relationships = cdaProcedure.getEntryRelationships();
+		if (relationships != null) {
+			relationships.stream()
+				.map(r -> r.getObservation())
+				.filter(o -> o != null && o instanceof Indication)
+				.forEach(r -> {
+					CodeableConcept cc = dtt.tCD2CodeableConcept(r.getCode());
+					if (cc != null) {
+						fhirProc.addReasonCode(cc);
+					}
+				});
+		}		
+				
 		return fhirProcBundle;
 	}
 
