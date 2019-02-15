@@ -41,6 +41,7 @@ import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyHistoryStatus;
 import org.hl7.fhir.dstu3.model.Group.GroupType;
 import org.hl7.fhir.dstu3.model.HumanName.NameUse;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
@@ -837,6 +838,38 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 				return MedicationStatementStatus.COMPLETED;
 			case "nullified":
 				return MedicationStatementStatus.ENTEREDINERROR;
+			default:
+				return null;
+		}
+	}
+
+	public ImmunizationStatus tStatusCode2ImmunizationStatus(String cdaStatusCode) {
+		if (cdaStatusCode == null) {
+			return null;
+		}
+		
+		switch(cdaStatusCode.toLowerCase()) {
+			case "active":
+				return ImmunizationStatus.COMPLETED;
+			case "completed":
+				return ImmunizationStatus.COMPLETED;
+			case "nullified":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "normal":
+				return ImmunizationStatus.COMPLETED;
+			case "new":
+				return ImmunizationStatus.COMPLETED;
+			case "aborted":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "suspended":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "cancelled":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "held":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "obselete":
+				return ImmunizationStatus.ENTEREDINERROR;
+
 			default:
 				return null;
 		}

@@ -1,10 +1,13 @@
 package tr.com.srdc.cda2fhir;
 
+import java.util.Map;
+
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,6 +17,10 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationActivityImpl;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+
+import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -26,6 +33,8 @@ public class ImmunizationActivityTest {
 	private static CDAFactories factories;
 	
 	private static ConsolFactoryImpl cdaObjFactory;
+
+	private static Map<String, Object> statusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/ImmunizationStatus.json");
 
 	@BeforeClass
 	public static void init() {
@@ -82,5 +91,48 @@ public class ImmunizationActivityTest {
 		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
 		verifyNotGiven(act, true);
 		verifyNotGiven(act, false);
+	}
+
+
+	static private void verifyImmunizationStatus(ImmunizationActivityImpl act, String expected) throws Exception {
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
+		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
+		
+    	ImmunizationStatus status = immunization.getStatus();
+    	String actual = status == null ? null : status.toCode();
+		Assert.assertEquals("Expect the correct immunization status", expected, actual);		
+	}
+		
+	@Test
+	public void testStatusCode() throws Exception {
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
+		DiagnosticChain dxChain = new BasicDiagnostic();		
+		verifyImmunizationStatus(act, null);
+	
+		act.setStatusCode(null);
+		verifyImmunizationStatus(act, null);
+						
+		act.setStatusCode(factories.datatype.createCS("invalid"));
+		// Boolean invalidation = act.validateImmunizationActivityStatusCode(dxChain, null);
+		// Assert.assertFalse("Expect status code validation failure", invalidation) ;	Maybe CDA implementation error??	
+		
+		CS csNullFlavor = factories.datatype.createCS();
+		csNullFlavor.setNullFlavor(NullFlavor.UNK);
+		act.setStatusCode(csNullFlavor);
+		Boolean validationNF = act.validateImmunizationActivityStatusCode(dxChain, null);
+		Assert.assertTrue("Expect null flavor status code validation success", validationNF);
+		verifyImmunizationStatus(act, null);
+			
+		for (Map.Entry<String, Object> entry : statusMap.entrySet()) {
+			String cdaStatusCode = entry.getKey();
+			String fhirStatus = (String) entry.getValue();
+			
+			CS cs = factories.datatype.createCS(cdaStatusCode);
+			act.setStatusCode(cs);
+			Boolean validation = act.validateImmunizationActivityStatusCode(dxChain, null);
+			Assert.assertTrue("Expect status code validation success for valid status code", validation);
+
+			verifyImmunizationStatus(act, fhirStatus);
+		}
 	}
 }
