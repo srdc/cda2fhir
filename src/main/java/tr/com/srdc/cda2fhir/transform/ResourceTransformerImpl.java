@@ -61,7 +61,6 @@ import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Medication;
-import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
@@ -1682,25 +1681,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// meta.profile
 		if(Config.isGenerateDafProfileMetadata())
 			fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
-		
-		// init Medication.product
-		//Medication.Product fhirProduct = new Medication.Product();
-		//fhirMedication.setProduct(fhirProduct);
 
 		// manufacturedMaterial -> code and ingredient
 		if(cdaManufacturedProduct.getManufacturedMaterial() != null && !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 			if(cdaManufacturedProduct.getManufacturedMaterial().getCode() != null && !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 				// manufacturedMaterial.code -> code
-				fhirMedication.setCode(dtt.tCD2CodeableConceptExcludingTranslations(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
-				// translation -> ingredient
-				for(CD translation : cdaManufacturedProduct.getManufacturedMaterial().getCode().getTranslations()) {
-					if(!translation.isSetNullFlavor()) {
-						MedicationIngredientComponent fhirIngredient = fhirMedication.addIngredient();
-						Substance fhirSubstance = tCD2Substance(translation);
-						fhirIngredient.setItem(new Reference(fhirSubstance.getId()));
-						fhirMedicationBundle.addEntry(new BundleEntryComponent().setResource(fhirSubstance));
-					}
-				}
+				fhirMedication.setCode(dtt.tCD2CodeableConcept(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
 			}
 		}
 		
