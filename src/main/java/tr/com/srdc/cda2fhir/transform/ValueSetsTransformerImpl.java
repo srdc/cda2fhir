@@ -882,12 +882,11 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			case "completed":
 				return ProcedureStatus.COMPLETED;
 			case "aborted":
-			case "aboted":
 				return ProcedureStatus.ABORTED;
-			case "error":
-				return ProcedureStatus.ENTEREDINERROR;
+			case "cancelled":
+				return ProcedureStatus.SUSPENDED;
 			default:
-				return null;
+				return ProcedureStatus.UNKNOWN;
 		}
 	}
 
