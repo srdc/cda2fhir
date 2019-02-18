@@ -69,12 +69,15 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection;
+import org.openhealthtools.mdht.uml.cda.consol.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
 import org.openhealthtools.mdht.uml.cda.consol.SocialHistorySection;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
+import org.openhealthtools.mdht.uml.cda.impl.RecordTargetImpl;
+import org.openhealthtools.mdht.uml.cda.impl.ClinicalDocumentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,21 +213,18 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
+        	System.out.println(cdaSec.getClass());
             SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
-            
+           
             if(fhirSec == null)
             	continue;
             else
                 ccdComposition.addSection(fhirSec);
-            
+        
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
             }
-            else if (cdaSec instanceof PatientRole) {
-            	PatientRole patientRole = (PatientRole) cdaSec;
-            	Bundle patBundle = resTransformer.tPatientRole2Patient(patientRole);
-            	mergeBundles(patBundle, ccdBundle, fhirSec, Patient.class);
-            }
+            
             else if(cdaSec instanceof AllergiesSection) {
             	AllergiesSection allSec = (AllergiesSection) cdaSec;
             	for(AllergyProblemAct probAct : allSec.getAllergyProblemActs()) {
