@@ -8,7 +8,7 @@
 .classpath
 .project
 .settings/
-
+.metadata/
 ### Java ###
 *.class
 *.log

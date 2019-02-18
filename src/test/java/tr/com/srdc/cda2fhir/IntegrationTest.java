@@ -65,7 +65,6 @@ public class IntegrationTest{
         CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
         BundleType bt = bundleTypeEnumFactory.fromCode("transaction");
         Bundle bundle = ccdTransformer.transformDocument(cda, bt, null, new HashMap<String, String>());
-        
         bundle.setType(bt);
        
         return bundle;
