@@ -1,97 +1,74 @@
 package tr.com.srdc.cda2fhir;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+/*
+ * #%L
+ * CDA to FHIR Transformer Library
+ * %%
+ * Copyright (C) 2019 Amida Technology Solutions, Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 
-import org.hl7.fhir.dstu3.model.AllergyIntolerance;
-import org.hl7.fhir.dstu3.model.MedicationStatement;
-import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Enumeration;
+import java.util.List;
+
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.openhealthtools.mdht.uml.cda.Author;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyStatusObservationImpl;
-import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
+import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationActivityImpl;
-import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
+import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
+import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
-
+import org.hl7.fhir.dstu3.model.Base;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
 public class MedicationStatementTest {
-	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
-	
-	private static ConsolFactoryImpl cdaObjFactory;
+
+    private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
+
 	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
-	
-	private static List<String> iiUUIDs;
-	private static List<String> iiOIDs;
-	private static Map<String, String> statusCodes;
-	
-	@BeforeClass
+	private static ConsolFactoryImpl consolFactory;
+
+    @BeforeClass
 	public static void init() {
-		CDAUtil.loadPackages();
-		
-		cdaObjFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
+		CDAUtil.loadPackages();	
 		cdaTypeFactory = DatatypesFactoryImpl.init();		
 		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
-		
-		iiUUIDs = new ArrayList<String>(Arrays.asList("cdbd33f0-6cde-11db-9fe1-0801200c9a66", "6c844c75-aa34-412c-b7bd-5e4a9f206f42"));
-		iiOIDs = new ArrayList<String>(Arrays.asList("2.16.840.1.113883.10.20.22.4.16"));
-		statusCodes = new HashMap<String, String>();
-		statusCodes.put("active", "active");
-		statusCodes.put("intended", "intended");
-		statusCodes.put("completed", "completed");
-		statusCodes.put("nullified", "entered-in-error");
-		
-	}
-	
-	
-	static private MedicationStatement findOneResource(Bundle bundle) throws Exception {
-    	List<MedicationStatement> medicationStatements = bundle.getEntry().stream()
-    			.map(r -> r.getResource())
-    			.filter(r -> (r instanceof MedicationStatement))
-    			.map(r -> (MedicationStatement) r)
-				.collect(Collectors.toList());
-    	Assert.assertEquals("Multiple MedicationStatement resources in the bundle",  1, medicationStatements.size());
-    	return medicationStatements.get(0);	
-	}
-	
-	
-	static private void verifyMedicationStatement(MedicationActivity medAct, String expected) throws Exception {
-		Bundle bundle = rt.tMedicationActivity2MedicationStatement(medAct);
-		MedicationStatement medStatement = findOneResource(bundle);
-		
-	}
-	
-	
-	
-	static private MedicationActivity createMedicationActivity(String activity) {
-		MedicationActivity medAct = cdaObjFactory.createMedicationActivity();
-		II templateId1 = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.16");
-		templateId1.setExtension("2014-06-09");
-		II templateId2 = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.16");
-		II id = cdaTypeFactory.createII("cdbd33f0-6cde-11db-9fe1-0801200c9a66");
-		
-		CS cs = cdaTypeFactory.createCS("nullified"); 
-		
-		Author author =  cdaFactory.createAuthor();
-		return medAct;
-		
+		consolFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
+    }
+ 
 
-	}
-	
+    @Test
+    public void testMedicationStatus() throws Exception {
+      
+    	// Make a medication activity.
+    	MedicationActivityImpl medAct = (MedicationActivityImpl) consolFactory.createMedicationActivity();
+    	
+        // Transform from CDA to FHIR.
+        org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tMedicationActivity2MedicationStatement(medAct);
+       
+        org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+        List<Base> takenCodes = fhirResource.getNamedProperty("taken").getValues();
+        
+        // Make assertions.
+        Assert.assertEquals("Taken code defaults to UNK","UNK", takenCodes.get(0).primitiveValue());
+        
+
+    }
+
+
 }
