@@ -1,0 +1,12 @@
+{
+	"completed": "completed",
+	"active": "completed",
+	"normal": "completed",
+	"new": "completed",
+	"aborted": "entered-in-error",
+	"suspended": "entered-in-error",
+	"cancelled": "entered-in-error",
+	"held": "entered-in-error",
+	"obselete": "entered-in-error",
+	"nullified": "entered-in-error"
+}

@@ -61,13 +61,13 @@ import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Medication;
-import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
+import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
@@ -1453,7 +1453,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// performer -> performer
+		
+		// performer -> practitioner
 		if(cdaImmunizationActivity.getPerformers() != null && !cdaImmunizationActivity.getPerformers().isEmpty()) {
 			for(Performer2 performer : cdaImmunizationActivity.getPerformers()) {
 				if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
@@ -1469,6 +1470,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							ImmunizationPractitionerComponent perf = fhirImmunization.addPractitioner();
 							perf.getRole().addCoding().setSystem("http://hl7.org/fhir/v2/0443").setCode("AP").setDisplay("Administering Provider");
 							perf.setActor(new Reference(entry.getResource().getId()));
+							fhirImmunization.setPrimarySource(true);
 						}
 					}
 				}
@@ -1493,11 +1495,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// statusCode -> status
 		if(cdaImmunizationActivity.getStatusCode()!=null && !cdaImmunizationActivity.getStatusCode().isSetNullFlavor()) {
 			if(cdaImmunizationActivity.getStatusCode().getCode() != null && !cdaImmunizationActivity.getStatusCode().getCode().isEmpty()) {
-				// TODO: We need a mapping from immunizationActivity to Immunization resource status
-				String status = cdaImmunizationActivity.getStatusCode().getCode();
-				if (status != null && (status.equals("completed") || status.equals("entered-in-error"))) {
+				
+				ImmunizationStatus status = vst.tStatusCode2ImmunizationStatus(cdaImmunizationActivity.getStatusCode().getCode());
+				if (status != null) {
 					try {
-						fhirImmunization.setStatus(ImmunizationStatus.fromCode(cdaImmunizationActivity.getStatusCode().getCode()));
+						fhirImmunization.setStatus(status);
 					} catch (FHIRException e) {
 						throw new IllegalArgumentException(e);
 					}
@@ -1505,7 +1507,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// wasNotGiven == true
+		// notGiven == true
 		if(fhirImmunization.getNotGiven()) {
 			// immunizationRefusalReason.code -> explanation.reasonNotGiven
 			if (cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
@@ -1515,7 +1517,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-		// wasNotGiven == false
+		// notGiven == false
 		else if(!fhirImmunization.getNotGiven()) {
 			// indication.value -> explanation.reason
 			if(cdaImmunizationActivity.getIndication() != null && !cdaImmunizationActivity.getIndication().isSetNullFlavor()) {
@@ -1547,6 +1549,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
+		
 		
 		// TODO: in STU3 this property at this level was removed. Figure out how
 		// to map this to STU3
@@ -1682,25 +1685,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// meta.profile
 		if(Config.isGenerateDafProfileMetadata())
 			fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
-		
-		// init Medication.product
-		//Medication.Product fhirProduct = new Medication.Product();
-		//fhirMedication.setProduct(fhirProduct);
 
 		// manufacturedMaterial -> code and ingredient
 		if(cdaManufacturedProduct.getManufacturedMaterial() != null && !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 			if(cdaManufacturedProduct.getManufacturedMaterial().getCode() != null && !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 				// manufacturedMaterial.code -> code
-				fhirMedication.setCode(dtt.tCD2CodeableConceptExcludingTranslations(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
-				// translation -> ingredient
-				for(CD translation : cdaManufacturedProduct.getManufacturedMaterial().getCode().getTranslations()) {
-					if(!translation.isSetNullFlavor()) {
-						MedicationIngredientComponent fhirIngredient = fhirMedication.addIngredient();
-						Substance fhirSubstance = tCD2Substance(translation);
-						fhirIngredient.setItem(new Reference(fhirSubstance.getId()));
-						fhirMedicationBundle.addEntry(new BundleEntryComponent().setResource(fhirSubstance));
-					}
-				}
+				fhirMedication.setCode(dtt.tCD2CodeableConcept(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
 			}
 		}
 		
@@ -2631,15 +2621,39 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		for(Performer2 performer : cdaProcedure.getPerformers()) {
 			if(performer.getAssignedEntity()!= null && !performer.getAssignedEntity().isSetNullFlavor()) {
 				Bundle practBundle = tPerformer22Practitioner(performer);
+				ProcedurePerformerComponent fhirPerformer = null; // share across resources
 				for(BundleEntryComponent entry : practBundle.getEntry()) {
 					// Add all the resources returned from the bundle to the main bundle
 					fhirProcBundle.addEntry(entry);
+					
 					// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
 					if(entry.getResource() instanceof Practitioner) {
-						ProcedurePerformerComponent fhirPerformer = new ProcedurePerformerComponent();
+						if (fhirPerformer == null) {
+							fhirPerformer = new ProcedurePerformerComponent();
+							fhirProc.addPerformer(fhirPerformer);							
+						}
 						fhirPerformer.setActor(new Reference(entry.getResource().getId()));
-						fhirProc.addPerformer(fhirPerformer);
 					}
+
+					// performer.assignedEntity.representedOrganization -> performer.onBehalfOf
+					if(entry.getResource() instanceof Organization) {
+						if (fhirPerformer == null) {
+							fhirPerformer = new ProcedurePerformerComponent();
+							fhirProc.addPerformer(fhirPerformer);							
+						}
+						Reference reference = new Reference(entry.getResource().getIdElement());						
+						fhirPerformer.setOnBehalfOf(reference);
+					}
+					
+					// performer.assignedEntity.code -> performer.role
+					if (entry.getResource() instanceof PractitionerRole) {
+						if (fhirPerformer == null) {
+							fhirPerformer = new ProcedurePerformerComponent();
+							fhirProc.addPerformer(fhirPerformer);							
+						}
+						PractitionerRole role = (PractitionerRole) entry.getResource();
+						fhirPerformer.setRole(role.getCodeFirstRep());
+					}					
 				}
 			}
 		}
@@ -2657,7 +2671,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirProc.setCode(dtt.tCD2CodeableConcept(cdaProcedure.getCode()));
 		}
 
-		// encounter[0] -> encounter
+		// encounter[0] -> context
 		if(!cdaProcedure.getEncounters().isEmpty()) {
 			org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter = cdaProcedure.getEncounters().get(0);
 			if(cdaEncounter != null && !cdaEncounter.isSetNullFlavor()) {
@@ -2670,7 +2684,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-
+		
+		List<EntryRelationship> relationships = cdaProcedure.getEntryRelationships();
+		if (relationships != null) {
+			relationships.stream()
+				.map(r -> r.getObservation())
+				.filter(o -> o != null && o instanceof Indication)
+				.forEach(r -> {
+					CodeableConcept cc = dtt.tCD2CodeableConcept(r.getCode());
+					if (cc != null) {
+						fhirProc.addReasonCode(cc);
+					}
+				});
+		}		
+				
 		return fhirProcBundle;
 	}
 

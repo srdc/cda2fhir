@@ -39,6 +39,7 @@ import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyHistoryStatus;
 import org.hl7.fhir.dstu3.model.Group.GroupType;
 import org.hl7.fhir.dstu3.model.HumanName.NameUse;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
@@ -233,6 +234,13 @@ public interface IValueSetsTransformer {
 	 * @return A value from the FHIR valueset MedicationStatementStatus
 	 */
 	MedicationStatementStatus tStatusCode2MedicationStatementStatus(String cdaStatusCode);
+	
+	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ImmunizationStatus.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR ImmunizationStatus
+	 */
+	ImmunizationStatus tStatusCode2ImmunizationStatus(String cdaStatusCode);
 	
 	/**
 	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ProcedureStatus.
