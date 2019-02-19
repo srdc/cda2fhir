@@ -13,8 +13,8 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Enumeration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
-import org.openhealthtools.mdht.uml.cda.consol.Author;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyStatusObservationImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
@@ -88,7 +88,7 @@ public class MedicationStatementTest {
 		
 		CS cs = cdaTypeFactory.createCS("nullified"); 
 		
-		Author author = cdaFactory.createAuthor();
+		Author author =  cdaFactory.createAuthor();
 		return medAct;
 		
 
