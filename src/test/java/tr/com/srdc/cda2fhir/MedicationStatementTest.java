@@ -65,7 +65,7 @@ public class MedicationStatementTest {
         List<Base> takenCodes = fhirResource.getNamedProperty("taken").getValues();
         
         // Make assertions.
-        Assert.assertEquals("Taken code defaults to UNK","UNK", takenCodes.get(0).primitiveValue());
+        Assert.assertEquals("Taken code defaults to UNK","unk", takenCodes.get(0).primitiveValue());
         
 
     }
