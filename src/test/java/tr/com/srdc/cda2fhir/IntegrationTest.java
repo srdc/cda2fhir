@@ -158,7 +158,8 @@ public class IntegrationTest{
 
     	// create transaction bundle from ccda bundle
     	Bundle transactionBundle = generateTransactionBundle(ccdaBundle, resourceProfileMap); 
-    	FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle_2.json");
+    	// print pre-post bundle
+    	FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
     	
     	// Send transaction bundle to server.
     	Bundle resp = client.transaction().withBundle(transactionBundle).execute();
