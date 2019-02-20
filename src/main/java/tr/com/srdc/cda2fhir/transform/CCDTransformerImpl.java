@@ -116,6 +116,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         return patientRef;
     }
     
+    public void setPatientRef(Reference patientRef) {
+        this.patientRef = patientRef;
+    }
+    
     public synchronized String getUniqueId() {
         switch (this.idGenerator) {
             case COUNTER:
@@ -183,9 +187,20 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
      */
     public Bundle transformDocument(ClinicalDocument cda) {
-        if(cda == null)
+    	return transformDocument(cda, true);
+    }
+    
+    /**
+     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
+     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
+     * @param includeComposition Flag to include composition (required for document type bundles)
+     * @return A FHIR Bundle
+     */
+    public Bundle transformDocument(ClinicalDocument cda, boolean includeComposition) { // TODO: Should be bundle type based.
+        if(cda == null) {
             return null;
-
+        }
+        
         ContinuityOfCareDocument ccd = null;
 
         // first, cast the ClinicalDocument to ContinuityOfCareDocument
@@ -197,24 +212,30 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
 
         // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
-        Bundle ccdBundle = resTransformer.tClinicalDocument2Composition(ccd);
+        Bundle ccdBundle = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
+        
         // the first bundle entry is always the composition
-        Composition ccdComposition = (Composition)ccdBundle.getEntry().get(0).getResource();
+        Composition ccdComposition = includeComposition ? (Composition)ccdBundle.getEntry().get(0).getResource() : null;
+        
         // init the patient id reference if it is not given externally. the patient is always the 2nd bundle entry
-        if (patientRef == null)
-            patientRef = new Reference(ccdBundle.getEntry().get(1).getResource().getId());
-        else // Correct the subject at composition with given patient reference.
+        if (patientRef == null) {
+            patientRef = new Reference(ccdBundle.getEntry().get(1).getResource().getId()); // TO DO: Do not depend on the order
+        } else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
             ccdComposition.setSubject(patientRef);
-
+        }
+            
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
             SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
             
-            if(fhirSec == null)
+            if(fhirSec == null) {
             	continue;
-            else
-                ccdComposition.addSection(fhirSec);
+            }
             
+            if (ccdComposition != null) {
+                ccdComposition.addSection(fhirSec);
+            }
+                
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
             }

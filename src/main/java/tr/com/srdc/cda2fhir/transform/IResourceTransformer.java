@@ -103,7 +103,16 @@ public interface IResourceTransformer {
 	 * @return A FHIR Bundle that contains the Composition as the first entry, which can also include other referenced resources such as Patient, Practitioner, Organization
 	 */
 	Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument);
+
+	/**
+	 * Transforms a CDA ClicinalDocument instance to a FHIR Bundle resource.
+	 * @param cdaClinicalDocument A CDA ClicinalDocument instance
+	 * @param includeComposition Include composition resource or not
+	 * @return A FHIR Bundle
+	 */
 	
+	Bundle tClinicalDocument2Bundle(ClinicalDocument cdaClinicalDocument, boolean includeComposition);
+		
 	/**
 	 * Transforms a CDA CustodianOrganization instance to a FHIR Organization resource.
 	 * @param cdaCustodianOrganization A CDA CustodianOrganization instance

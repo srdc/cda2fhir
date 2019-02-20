@@ -95,6 +95,7 @@ import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.Performer2;
+import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
@@ -611,61 +612,72 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		return fhirSubstance;
 	}
-	
+
 	public Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument) {
+		return tClinicalDocument2Bundle(cdaClinicalDocument, true); 
+	}
+		
+	public Bundle tClinicalDocument2Bundle(ClinicalDocument cdaClinicalDocument, boolean includeComposition) {
 		if(cdaClinicalDocument == null || cdaClinicalDocument.isSetNullFlavor())
 			return null;
 
 		// create and init the global bundle and the composition resources
 		Bundle fhirCompBundle = new Bundle();
-		Composition fhirComp = new Composition();
-		fhirComp.setId(new IdType("Composition", getUniqueId()));
-		fhirCompBundle.addEntry(new BundleEntryComponent().setResource(fhirComp));
 		
-		// id -> identifier
-		if(cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
-			fhirComp.setIdentifier(dtt.tII2Identifier(cdaClinicalDocument.getId()));
-		}
-
-		// status
-		fhirComp.setStatus(Config.DEFAULT_COMPOSITION_STATUS);
+		Composition fhirComp = includeComposition ? new Composition() : null;
 		
-		// effectiveTime -> date
-		if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {
-			fhirComp.setDateElement(dtt.tTS2DateTime(cdaClinicalDocument.getEffectiveTime()));
-		}
+		if (fhirComp != null) {		
+			fhirComp.setId(new IdType("Composition", getUniqueId()));
+			fhirCompBundle.addEntry(new BundleEntryComponent().setResource(fhirComp));
 		
-		// code -> type
-		if(cdaClinicalDocument.getCode() != null && !cdaClinicalDocument.getCode().isSetNullFlavor()) {
-			fhirComp.setType(dtt.tCD2CodeableConcept(cdaClinicalDocument.getCode()));
-		}
-
-		// title.text -> title
-		if(cdaClinicalDocument.getTitle() != null && !cdaClinicalDocument.getTitle().isSetNullFlavor()) {
-			if(cdaClinicalDocument.getTitle().getText() != null && !cdaClinicalDocument.getTitle().getText().isEmpty()) {
-				fhirComp.setTitle(cdaClinicalDocument.getTitle().getText());
+			// id -> identifier
+			if(cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
+				fhirComp.setIdentifier(dtt.tII2Identifier(cdaClinicalDocument.getId()));
 			}
-		}
+
+			// status
+			fhirComp.setStatus(Config.DEFAULT_COMPOSITION_STATUS);
 		
-		// confidentialityCode -> confidentiality
-		if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {
-			if(cdaClinicalDocument.getConfidentialityCode().getCode() != null && !cdaClinicalDocument.getConfidentialityCode().getCode().isEmpty()) {
-				//fhirComp.setConfidentiality(cdaClinicalDocument.getConfidentialityCode().getCode());
-				try {
-					fhirComp.setConfidentiality(DocumentConfidentiality.fromCode(cdaClinicalDocument.getConfidentialityCode().getCode()));
-				} catch (FHIRException e) {
-					throw new IllegalArgumentException(e);
+			// effectiveTime -> date
+			if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {
+				fhirComp.setDateElement(dtt.tTS2DateTime(cdaClinicalDocument.getEffectiveTime()));
+			}
+		
+			// code -> type
+			if(cdaClinicalDocument.getCode() != null && !cdaClinicalDocument.getCode().isSetNullFlavor()) {
+				fhirComp.setType(dtt.tCD2CodeableConcept(cdaClinicalDocument.getCode()));
+			}
+
+			// title.text -> title
+			if(cdaClinicalDocument.getTitle() != null && !cdaClinicalDocument.getTitle().isSetNullFlavor()) {
+				if(cdaClinicalDocument.getTitle().getText() != null && !cdaClinicalDocument.getTitle().getText().isEmpty()) {
+					fhirComp.setTitle(cdaClinicalDocument.getTitle().getText());
+				}
+			}
+		
+			// confidentialityCode -> confidentiality
+			if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {
+				if(cdaClinicalDocument.getConfidentialityCode().getCode() != null && !cdaClinicalDocument.getConfidentialityCode().getCode().isEmpty()) {
+					//fhirComp.setConfidentiality(cdaClinicalDocument.getConfidentialityCode().getCode());
+					try {
+						fhirComp.setConfidentiality(DocumentConfidentiality.fromCode(cdaClinicalDocument.getConfidentialityCode().getCode()));
+					} catch (FHIRException e) {
+						throw new IllegalArgumentException(e);
+					}
 				}
 			}
 		}
-
-		// transform the patient data and assign it to Composition.subject.
-		// patient might refer to additional resources such as organization; hence the method returns a bundle.
-		Bundle subjectBundle = tPatientRole2Patient(cdaClinicalDocument.getRecordTargets().get(0).getPatientRole());
-		for(BundleEntryComponent entry : subjectBundle.getEntry()){
-			fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-			if(entry.getResource() instanceof org.hl7.fhir.dstu3.model.Patient){
-				fhirComp.setSubject(new Reference(entry.getResource().getId()));
+		
+		EList<RecordTarget> recordTargets = cdaClinicalDocument.getRecordTargets();
+		if (recordTargets != null && !recordTargets.isEmpty()) { // Support empty for testing purposes. We might need a flag here not to include patient in the bundle as well in future
+			// transform the patient data and assign it to Composition.subject.
+			// patient might refer to additional resources such as organization; hence the method returns a bundle.
+			Bundle subjectBundle = tPatientRole2Patient(cdaClinicalDocument.getRecordTargets().get(0).getPatientRole());
+			for(BundleEntryComponent entry : subjectBundle.getEntry()){
+				fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
+				if(fhirComp != null && entry.getResource() instanceof org.hl7.fhir.dstu3.model.Patient){
+					fhirComp.setSubject(new Reference(entry.getResource().getId()));
+				}
 			}
 		}
 		
@@ -679,7 +691,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						for(BundleEntryComponent entry : practBundle.getEntry()) {
 							// Add all the resources returned from the bundle to the main bundle
 							fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-							if(entry.getResource() instanceof Practitioner) {
+							if(fhirComp != null && entry.getResource() instanceof Practitioner) {
 								fhirComp.addAuthor().setReference((entry.getResource()).getId());
 							}
 						}	
@@ -690,14 +702,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		
 		// legalAuthenticator -> attester[mode = legal]
 		if(cdaClinicalDocument.getLegalAuthenticator() != null && !cdaClinicalDocument.getLegalAuthenticator().isSetNullFlavor()) {
-			CompositionAttesterComponent attester = fhirComp.addAttester();
-			attester.addMode(CompositionAttestationMode.LEGAL);
-			attester.setTimeElement(dtt.tTS2DateTime(cdaClinicalDocument.getLegalAuthenticator().getTime()));
+			CompositionAttesterComponent attester = fhirComp != null ? fhirComp.addAttester() : null;
+			if (attester != null) {
+				attester.addMode(CompositionAttestationMode.LEGAL);
+				attester.setTimeElement(dtt.tTS2DateTime(cdaClinicalDocument.getLegalAuthenticator().getTime()));
+			}
 			Bundle practBundle = tAssignedEntity2Practitioner(cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity());
 			for(BundleEntryComponent entry : practBundle.getEntry()) {
 				// Add all the resources returned from the bundle to the main bundle
 				fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-				if(entry.getResource() instanceof Practitioner) {
+				if(attester != null && entry.getResource() instanceof Practitioner) {
 					attester.setParty(new Reference((entry.getResource()).getId()));
 				}
 			}
@@ -706,14 +720,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// authenticator -> attester[mode = professional]
 		for(org.openhealthtools.mdht.uml.cda.Authenticator authenticator : cdaClinicalDocument.getAuthenticators()) {
 			if(!authenticator.isSetNullFlavor()) {
-				CompositionAttesterComponent attester = fhirComp.addAttester();
-				attester.addMode(CompositionAttestationMode.PROFESSIONAL);
-				attester.setTimeElement(dtt.tTS2DateTime(authenticator.getTime()));
+				CompositionAttesterComponent attester = fhirComp != null ? fhirComp.addAttester() : null;
+				if (attester != null) {
+					attester.addMode(CompositionAttestationMode.PROFESSIONAL);
+					attester.setTimeElement(dtt.tTS2DateTime(authenticator.getTime()));
+				}
 				Bundle practBundle = tAssignedEntity2Practitioner(authenticator.getAssignedEntity());
 				for (BundleEntryComponent entry : practBundle.getEntry()) {
 					// Add all the resources returned from the bundle to the main bundle
 					fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-					if (entry.getResource() instanceof Practitioner) {
+					if (attester != null && entry.getResource() instanceof Practitioner) {
 						attester.setParty(new Reference((entry.getResource()).getId()));
 					}
 				}

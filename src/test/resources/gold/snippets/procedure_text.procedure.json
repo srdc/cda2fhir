@@ -1,0 +1,73 @@
+[{
+  "resourceType": "Procedure",
+  "id": "1",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/daf-procedure"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Type</td><td></td></tr><tr><td>Date/Period</td><td>Wed Mar 26 10:45:00 EST 2018 - ?</td></tr></tbody></table></div>"
+  },
+  "identifier": [
+    {
+      "value": "4372357a-30bb-48d9-a612-8f459ae8c00c"
+    }
+  ],
+  "status": "completed",
+  "subject": {
+    "reference": "Patient/0"
+  },
+  "performedPeriod": {
+    "start": "2018-03-26T10:45:00.000-05:00"
+  }
+}, {
+  "resourceType": "Procedure",
+  "id": "2",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/daf-procedure"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Type</td><td></td></tr><tr><td>Date/Period</td><td>Wed Mar 26 09:15:00 EST 2018 - ?</td></tr></tbody></table></div>"
+  },
+  "identifier": [
+    {
+      "value": "77baeec3-124e-4348-bcec-fbe2fd25e7ef"
+    }
+  ],
+  "status": "completed",
+  "subject": {
+    "reference": "Patient/0"
+  },
+  "performedPeriod": {
+    "start": "2018-03-26T09:15:00.000-05:00"
+  }
+}, {
+  "resourceType": "Procedure",
+  "id": "3",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/daf-procedure"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Type</td><td></td></tr><tr><td>Date/Period</td><td>Wed Mar 26 12:10:00 EST 2018 - ?</td></tr></tbody></table></div>"
+  },
+  "identifier": [
+    {
+      "value": "e39bdae7-7b35-4ceb-88b7-8891414c3bc2"
+    }
+  ],
+  "status": "completed",
+  "subject": {
+    "reference": "Patient/0"
+  },
+  "performedPeriod": {
+    "start": "2018-03-26T12:10:00.000-05:00"
+  }
+}]

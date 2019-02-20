@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.json.JSONException;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -18,6 +19,7 @@ import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap.Entry;
 import org.eclipse.emf.ecore.xml.type.AnyType;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.IdType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
@@ -28,7 +30,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
@@ -97,10 +98,13 @@ public class ProceduresSnippetTest {
         		System.out.println(map.toString());
         	}
         }
-        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        Reference dummyPatientRef = new Reference(new IdType("Patient", "0"));
+        ccdTransformer.setPatientRef(dummyPatientRef);
+        
         Config.setGenerateDafProfileMetadata(true);
         Config.setGenerateNarrative(true);
-        Bundle bundle = ccdTransformer.transformDocument(cda);
+        Bundle bundle = ccdTransformer.transformDocument(cda, false);
         return bundle;
     }
     
