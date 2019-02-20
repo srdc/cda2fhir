@@ -2433,6 +2433,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 					CS statusCode = cdaProblemConcernAct.getStatusCode();
 					String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null : statusCode.getCode();
+					
+					// statusCode -> verificationStatus
 					fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));	
 				}
 			}
@@ -2506,6 +2508,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				fhirCondition.setAbatement(dtt.tTS2DateTime(high));
 			}
 		}
+		
+		// onset and abatement -> clinicalStatus
+		if (fhirCondition.getAbatement() != null) {	
+			fhirCondition.setClinicalStatus(ConditionClinicalStatus.INACTIVE);
+		} else {
+			fhirCondition.setClinicalStatus(ConditionClinicalStatus.ACTIVE);
+		}
 
 		// author[0] -> asserter
 		if(!cdaProbObs.getAuthors().isEmpty()) {
@@ -2534,28 +2543,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					fhirConditionBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
 					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Encounter) {
 						fhirCondition.setContext(new Reference(entry.getResource().getId()));
-					}
-				}
-			}
-		}
-
-		EList<EntryRelationship> entryRels = cdaProbObs.getEntryRelationships();
-		
-		if(entryRels != null && !entryRels.isEmpty()) {
-			for(EntryRelationship entryRelShip : entryRels) {
-				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
-					Observation observation = entryRelShip.getObservation();
-					if(observation != null && !observation.isSetNullFlavor()) {
-						// problem status  -> clinical status
-						if(observation != null && observation instanceof ProblemStatus) {
-							observation.getValues().stream().filter(value -> value instanceof CE)
-									.map(value -> (CE) value)
-									.map(ce -> ce.getCode())
-									.forEach(code -> {
-										ConditionClinicalStatus status = vst.tProblemStatus2ConditionClinicalStatus(code);
-										fhirCondition.setClinicalStatus(status);
-									});
-						}
 					}
 				}
 			}
