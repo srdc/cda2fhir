@@ -124,7 +124,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
     public synchronized String getUniqueId() {
         switch (this.idGenerator) {
             case COUNTER:
-                return Integer.toString(++counter);
+                return Integer.toString(++	counter);
             case UUID:
             default:
                 return UUID.randomUUID().toString();
@@ -142,24 +142,20 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @param resourceProfileMap The mappings of default resource profiles to desired resource profiles. Used to set profile URI's of bundle entries or omit unwanted entries.
      * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources but Patient that are referenced within the Composition.
      */
-    public Bundle transformDocument(ClinicalDocument cda, BundleType bundleType, String patientRef, Map<String, String> resourceProfileMap) {
-        // The default transformer will use this patient reference if it is set.
-        this.patientRef = new Reference("Patient/" + patientRef);
-
-        Bundle documentBundle =  transformDocument(cda);
-        if (documentBundle == null) return null;
-
+    public Bundle createTransactionBundle(Bundle bundle, BundleType bundleType, Map<String, String> resourceProfileMap, boolean initialBundle) {
         Bundle resultBundle = new Bundle();
         resultBundle.setType(bundleType);
 
         switch (bundleType) {
             case TRANSACTION:
-                for(BundleEntryComponent entry : documentBundle.getEntry()) {
+                for(BundleEntryComponent entry : bundle.getEntry()) {
                     // Patient resource will not be added
-                    if (entry != null && !entry.getResource().getResourceType().name().equals("Patient")) {
+                    if (entry != null) {
                         // Add request and fullUrl fields to entries
                         addRequestToEntry(entry);
-                        addFullUrlToEntry(entry);
+                        if(!initialBundle) {
+                        	addFullUrlToEntry(entry);
+                        }
                         // if resourceProfileMap is specified omit the resources with no profiles given
                         // Empty profileUri means add with no change
                         if (resourceProfileMap != null) {
@@ -177,7 +173,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                 }
                 break;
             default:
-                return documentBundle;
+                return bundle;
         }
         return resultBundle;
     }
