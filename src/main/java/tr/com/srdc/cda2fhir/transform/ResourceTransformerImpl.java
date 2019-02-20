@@ -1810,22 +1810,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio((RTO)cdaMedicationActivity.getMaxDoseQuantity()));
 		}
 
-		// negationInd -> wasNotTaken
-		if(cdaMedicationActivity.getNegationInd() != null) {
-			//fhirMedSt.setWasNotTaken(cdaMedicationActivity.getNegationInd());
-			if(cdaMedicationActivity.getNegationInd()) {
-				fhirMedSt.setTaken(MedicationStatementTaken.N);
-			} else {
-				fhirMedSt.setTaken(MedicationStatementTaken.Y);
-			}
-		}
+		// taken -> UNK
+		fhirMedSt.setTaken(MedicationStatementTaken.UNK);
 
 		// indication -> reason
 		for(Indication indication : cdaMedicationActivity.getIndications()) {
-			// First, to set reasonForUse, we need to set wasNotTaken to false
-			//fhirMedSt.setWasNotTaken(false);
-			fhirMedSt.setTaken(MedicationStatementTaken.Y);
-
 			Condition cond = tIndication2Condition(indication);
 			medStatementBundle.addEntry(new BundleEntryComponent().setResource(cond));
 			fhirMedSt.addReasonReference(new Reference(cond.getId()));
