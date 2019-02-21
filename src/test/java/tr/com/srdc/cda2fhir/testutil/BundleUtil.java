@@ -14,6 +14,7 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class BundleUtil {
@@ -44,5 +45,13 @@ public class BundleUtil {
 		Config.setGenerateNarrative(false); // TODO: Make this an argument to ccdTransformer
 		Bundle bundle = ccdTransformer.transformDocument(cda, false);
 		return bundle;
+	}
+	
+	public static <T extends Resource> void printBundleResources(Bundle bundle, String sourceName, Class<T> cls)  throws Exception {
+		List<T> procedures = findResources(bundle, cls);
+		String baseName = sourceName.substring(0, sourceName.length() - 4);
+		String addlName = cls.getSimpleName();
+		String outputName = String.format("src/test/resources/output/%s.%s.json", baseName, addlName);
+		FHIRUtil.printJSON(procedures, outputName);						
 	}
 }

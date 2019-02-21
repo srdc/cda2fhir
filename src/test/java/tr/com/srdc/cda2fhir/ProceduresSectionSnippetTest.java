@@ -7,11 +7,13 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Procedure;
-import org.hl7.fhir.dstu3.model.Resource;
 import org.json.JSONException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Location;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -94,18 +96,17 @@ public class ProceduresSectionSnippetTest {
 		verifyGoldFile(procedures, "snippets/procedure_text.xml");
 	}
 	
-	private static <T extends Resource> void processSampleFile(String sourceName, Class<T> cls) throws Exception {
-		Bundle bundle = BundleUtil.generateSnippetBundle(sourceName);
-		List<T> procedures = BundleUtil.findResources(bundle, cls);
-		String baseName = sourceName.substring(0, sourceName.length() - 4);
-		String addlName = cls.getSimpleName();
-		String outputName = String.format("src/test/resources/output/%s.%s.json", baseName, addlName);
-		FHIRUtil.printJSON(procedures, outputName);				
-	}
-	
 	@Ignore
 	@Test
-	public void testCernerPatient() throws Exception {
-		processSampleFile("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML", Procedure.class);
+	public void testCerner() throws Exception {
+		String file1 = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
+		Bundle bundle1 = BundleUtil.generateSnippetBundle(file1);
+		BundleUtil.printBundleResources(bundle1, file1, Procedure.class);
+		String file2 = "Cerner/Encounter-RAKIA_TEST_DOC00001.XML";
+		Bundle bundle2 = BundleUtil.generateSnippetBundle(file2);
+		BundleUtil.printBundleResources(bundle2, file2, Procedure.class);
+		BundleUtil.printBundleResources(bundle2, file2, Encounter.class);
+		BundleUtil.printBundleResources(bundle2, file2, Practitioner.class);
+		BundleUtil.printBundleResources(bundle2, file2, Location.class);
 	}
 }
