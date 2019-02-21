@@ -17,9 +17,13 @@ import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class BundleUtil {
-	static public <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type, int count) throws Exception {
-		List<T> resources = bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
+	static public <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type) throws Exception {
+		return bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
 				.map(r -> type.cast(r)).collect(Collectors.toList());
+	}
+
+	static public <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type, int count) throws Exception {
+		List<T> resources = findResources(bundle, type);
 		String msg = String.format("Expect %d %s resources in the bundle", count, type.getName());
 		Assert.assertEquals(msg, count, resources.size());
 		return resources;

@@ -745,7 +745,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if(cdaClinicalDocument.getCustodian().getAssignedCustodian() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().isSetNullFlavor()) {
 				if(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().isSetNullFlavor()) {
 					org.hl7.fhir.dstu3.model.Organization fhirOrganization = tCustodianOrganization2Organization(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization());
-					fhirComp.setCustodian(new Reference(fhirOrganization.getId()));
+					if (fhirComp != null) {
+						fhirComp.setCustodian(new Reference(fhirOrganization.getId()));
+					}
 					fhirCompBundle.addEntry(new BundleEntryComponent().setResource(fhirOrganization));
 				}
 			}

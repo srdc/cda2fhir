@@ -7,12 +7,14 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.json.JSONException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -90,5 +92,20 @@ public class ProceduresSectionSnippetTest {
 
 		replaceIdWithIdentifier(procedures); // JSONAssert needs a unique key, id changes based on order
 		verifyGoldFile(procedures, "snippets/procedure_text.xml");
+	}
+	
+	private static <T extends Resource> void processSampleFile(String sourceName, Class<T> cls) throws Exception {
+		Bundle bundle = BundleUtil.generateSnippetBundle(sourceName);
+		List<T> procedures = BundleUtil.findResources(bundle, cls);
+		String baseName = sourceName.substring(0, sourceName.length() - 4);
+		String addlName = cls.getSimpleName();
+		String outputName = String.format("src/test/resources/output/%s.%s.json", baseName, addlName);
+		FHIRUtil.printJSON(procedures, outputName);				
+	}
+	
+	@Ignore
+	@Test
+	public void testCernerPatient() throws Exception {
+		processSampleFile("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML", Procedure.class);
 	}
 }
