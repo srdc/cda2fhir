@@ -109,4 +109,15 @@ public class ProceduresSectionSnippetTest {
 		BundleUtil.printBundleResources(bundle2, file2, Practitioner.class);
 		BundleUtil.printBundleResources(bundle2, file2, Location.class);
 	}
+
+	@Ignore
+	@Test
+	public void testEpic() throws Exception {
+		String file1 = "Epic/HannahBanana_EpicCCD.xml";
+		Bundle bundle1 = BundleUtil.generateSnippetBundle(file1);
+		BundleUtil.printBundleResources(bundle1, file1, Procedure.class);
+		// String file2 = "Epic/rakia_testone_ccd_EPIC (1).xml";
+		// Bundle bundle2 = BundleUtil.generateSnippetBundle(file2);
+		// BundleUtil.printBundleResources(bundle2, file2, Procedure.class);
+	}
 }
