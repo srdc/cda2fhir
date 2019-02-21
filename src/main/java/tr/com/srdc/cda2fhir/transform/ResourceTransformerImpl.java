@@ -1422,7 +1422,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// negationInd -> wasNotTaken
+		// negationInd -> notGiven
 		if(cdaImmunizationActivity.getNegationInd() != null) {
 			fhirImmunization.setNotGiven(cdaImmunizationActivity.getNegationInd());
 		}
