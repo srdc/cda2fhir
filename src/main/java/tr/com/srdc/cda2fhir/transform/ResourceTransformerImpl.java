@@ -107,7 +107,6 @@ import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemStatus;
 import org.openhealthtools.mdht.uml.cda.consol.ProductInstance;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
@@ -583,7 +582,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 		
 		// representedOrganization -> practitionerRole.organization
-		// NOTE: we skipped multiple instances of representated organization; we just omit apart from the first
+		// NOTE: we skipped multiple instances of represented organization; we just omit apart from the first
 		if(!cdaAssignedEntity.getRepresentedOrganizations().isEmpty()) {
 			if(cdaAssignedEntity.getRepresentedOrganizations().get(0) != null && !cdaAssignedEntity.getRepresentedOrganizations().get(0).isSetNullFlavor()) {
 				org.hl7.fhir.dstu3.model.Organization fhirOrganization = tOrganization2Organization(cdaAssignedEntity.getRepresentedOrganizations().get(0));
