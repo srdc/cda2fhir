@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir.transform;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +34,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalSta
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
+import org.hl7.fhir.dstu3.model.Annotation;
 import org.hl7.fhir.dstu3.model.BooleanType;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -80,6 +82,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.exceptions.FHIRException;
+import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
@@ -100,6 +103,7 @@ import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyStatusObservation;
+import org.openhealthtools.mdht.uml.cda.consol.CommentActivity;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
@@ -2580,7 +2584,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return fhirConditionBundle;
 	}
 
-	public Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure){
+	static private String tED2Annotation(ED ed, Map<String, String> idedAnnotations) {
+		if (ed != null && idedAnnotations != null) {
+			TEL tel = ed.getReference();
+			String value = tel.getValue();
+			if (value != null && value.charAt(0) == '#') {
+				String key = value.substring(1);
+				return idedAnnotations.get(key);
+			}
+		}
+		return null;
+	}
+	
+	public Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure, Map<String, String> idedAnnotations){
 		if(cdaProcedure == null || cdaProcedure.isSetNullFlavor())
 			return null;
 
@@ -2672,8 +2688,22 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> code
-		if(cdaProcedure.getCode() != null && !cdaProcedure.getCode().isSetNullFlavor()) {
-			fhirProc.setCode(dtt.tCD2CodeableConcept(cdaProcedure.getCode()));
+		CD code = cdaProcedure.getCode();
+		if(code != null) {
+			CodeableConcept cc = null;
+			if (!code.isSetNullFlavor()) {
+				cc = dtt.tCD2CodeableConcept(code);
+			}
+			String annotation = tED2Annotation(code.getOriginalText(), idedAnnotations);
+			if (annotation != null) {
+				if (cc == null) {
+					cc = new CodeableConcept();
+				}
+				cc.setText(annotation);
+			}
+			if (cc != null) {
+				fhirProc.setCode(cc);
+			}
 		}
 
 		// encounter[0] -> context
@@ -2692,20 +2722,35 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		
 		List<EntryRelationship> relationships = cdaProcedure.getEntryRelationships();
 		if (relationships != null) {
-			relationships.stream()
-				.map(r -> r.getObservation())
-				.filter(o -> o != null && o instanceof Indication)
-				.forEach(r -> {
-					CodeableConcept cc = dtt.tCD2CodeableConcept(r.getCode());
+			for (EntryRelationship relationship: relationships) {
+				Observation observation = relationship.getObservation();
+				if (observation != null && observation instanceof Indication) {
+					CodeableConcept cc = dtt.tCD2CodeableConcept(observation.getCode());
 					if (cc != null) {
 						fhirProc.addReasonCode(cc);
 					}
-				});
+					continue;
+				}
+				
+				Act act = relationship.getAct();
+				if (act != null && act instanceof CommentActivity) {
+					String annotation = tED2Annotation(act.getText(), idedAnnotations);
+					if (annotation != null) {
+						Annotation fhirAnnotation = new Annotation();
+						fhirAnnotation.setText(annotation);
+						fhirProc.addNote(fhirAnnotation);
+					}							
+				}
+			}
 		}		
 				
 		return fhirProcBundle;
 	}
 
+	public Bundle tProcedure2Procedure (org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure) {
+		return tProcedure2Procedure(cdaProcedure, null);
+	}		
+		
 	public Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation) {
 		return tObservation2Observation(cdaReactionObservation);
 	}

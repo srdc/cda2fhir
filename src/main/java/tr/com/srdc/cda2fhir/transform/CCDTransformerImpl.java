@@ -21,6 +21,7 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -76,6 +77,7 @@ import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerImpl implements ICDATransformer, Serializable {
@@ -235,7 +237,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
             if (ccdComposition != null) {
                 ccdComposition.addSection(fhirSec);
             }
-                
+            
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
             }
@@ -328,8 +330,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
             }
             else if(cdaSec instanceof ProceduresSection) {
                 ProceduresSection procSec = (ProceduresSection) cdaSec;
-                for(ProcedureActivityProcedure proc : procSec.getConsolProcedureActivityProcedures()) {
-                    Bundle procBundle = resTransformer.tProcedure2Procedure(proc);
+                Map<String, String> idedAnnotations = EMFUtil.findReferences(procSec.getText());
+                List<ProcedureActivityProcedure> procs = procSec.getConsolProcedureActivityProcedures();
+                for(ProcedureActivityProcedure proc : procs) {
+                    Bundle procBundle = resTransformer.tProcedure2Procedure(proc, idedAnnotations);
                     mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
                 }
             }

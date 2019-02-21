@@ -1,5 +1,7 @@
 package tr.com.srdc.cda2fhir.transform;
 
+import java.util.Map;
+
 /*
  * #%L
  * CDA to FHIR Transformer Library
@@ -265,6 +267,14 @@ public interface IResourceTransformer {
 	 * @return A FHIR Bundle that contains the Procedure as the first entry, which can also include other referenced resources such as Practitioner
 	 */
 	Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
+
+	/**
+	 * Transforms a CDA Procedure instance to a FHIR Procedure resource.
+	 * @param cdaProcedure A CDA Procedure instance
+	 * @param idedAnnotations Annotations that can be referenced
+	 * @return A FHIR Bundle that contains the Procedure as the first entry, which can also include other referenced resources such as Practitioner
+	 */
+	Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure, Map<String, String> idAnnotations);
 
 	/**
 	 * Transforms a CDA ReactionObservation instance to a FHIR Observation resource.
