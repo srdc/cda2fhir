@@ -139,6 +139,18 @@ public class ProblemConcernActTest {
 		Assert.assertEquals("Active Problem without high value", "active", actual);
 		
 	}
+	
+	@Test
+	public void testProblemObservationProblemStatusActiveNoDate() throws Exception {
+		ProblemConcernActImpl act = createProblemConcernAct();
+
+		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
+		ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+		Assert.assertEquals("Active Problem without no value defaults to active", "active", actual);
+		
+	}
 
 	static private void verifyConditionVerificationStatus(ProblemConcernAct act, String expected) throws Exception {
 		Bundle bundle = rt.tProblemConcernAct2Condition(act);
