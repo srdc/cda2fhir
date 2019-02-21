@@ -257,7 +257,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// statusCode -> status
+		// statusCode -> verificationStatus
 		if(cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaAllergyProbAct.getStatusCode().getCode() != null && !cdaAllergyProbAct.getStatusCode().getCode().isEmpty()) {
 				AllergyIntoleranceVerificationStatus allergyIntoleranceStatusEnum = vst.tStatusCode2AllergyIntoleranceVerificationStatus(cdaAllergyProbAct.getStatusCode().getCode());
@@ -322,6 +322,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							fhirAllergyIntolerance.setOnset(dtt.tString2DateTime(cdaAllergyObs.getEffectiveTime().getValue()));
 						}
 					}
+					
+					// effectiveTime -> clinicalStatus
+					if (cdaAllergyObs.getEffectiveTime() != null && !cdaAllergyObs.getEffectiveTime().isSetNullFlavor()) {
+
+						IVXB_TS high = cdaAllergyObs.getEffectiveTime().getHigh();
+
+						// high -> inactive
+						if (high != null && !high.isSetNullFlavor()) {
+							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.INACTIVE);
+						} else {
+							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
+						}		
+					}
+
 
 					// searching for reaction observation
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()) {
