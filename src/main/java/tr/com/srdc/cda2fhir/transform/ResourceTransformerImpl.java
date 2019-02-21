@@ -332,7 +332,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.INACTIVE);
 						} else {
 							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
-						}		
+						}
+					} else {
+						fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
 					}
 
 

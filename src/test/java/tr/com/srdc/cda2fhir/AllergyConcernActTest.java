@@ -272,7 +272,20 @@ public class AllergyConcernActTest {
 		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
 		String actual = clinicalStatus.toCode();
 
-		Assert.assertEquals("Inactive Allergy with high value", "active", actual);	
+		Assert.assertEquals("Active Allergy with low value", "active", actual);	
+	}
+	
+	@Test
+	public void testAllergyObservationStatusNoDate() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		//AllergyObservationImpl observation =  (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();
+		
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+
+		Assert.assertEquals("No effective time defaults to active", "active", actual);	
 	}
 
 	static private IVL_TS createEffectiveTimeLow(String value) {
