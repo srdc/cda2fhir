@@ -50,11 +50,10 @@ public class CCDTransformerTest {
 
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        Config.setGenerateDafProfileMetadata(true);
+        Config.setGenerateDafProfileMetadata(false);
         Config.setGenerateNarrative(true);
         Bundle bundle = ccdTransformer.transformDocument(cda);
-        if(bundle != null)
-            FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
+        FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
     }
 
 //    // Inp Sample r2.1
