@@ -25,7 +25,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,4 +125,8 @@ public class FHIRUtil {
         }
     }
 
+	public static <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type) {
+		return bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
+				.map(r -> type.cast(r)).collect(Collectors.toList());
+	}
 }

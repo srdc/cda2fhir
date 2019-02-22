@@ -2,7 +2,6 @@ package tr.com.srdc.cda2fhir.testutil;
 
 import java.io.FileInputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.IdType;
@@ -18,13 +17,8 @@ import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class BundleUtil {
-	static public <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type) throws Exception {
-		return bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
-				.map(r -> type.cast(r)).collect(Collectors.toList());
-	}
-
 	static public <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type, int count) throws Exception {
-		List<T> resources = findResources(bundle, type);
+		List<T> resources = FHIRUtil.findResources(bundle, type);
 		String msg = String.format("Expect %d %s resources in the bundle", count, type.getName());
 		Assert.assertEquals(msg, count, resources.size());
 		return resources;
@@ -48,7 +42,7 @@ public class BundleUtil {
 	}
 	
 	public static <T extends Resource> void printBundleResources(Bundle bundle, String sourceName, Class<T> cls)  throws Exception {
-		List<T> procedures = findResources(bundle, cls);
+		List<T> procedures = FHIRUtil.findResources(bundle, cls);
 		String baseName = sourceName.substring(0, sourceName.length() - 4);
 		String addlName = cls.getSimpleName();
 		String outputName = String.format("src/test/resources/output/%s.%s.json", baseName, addlName);

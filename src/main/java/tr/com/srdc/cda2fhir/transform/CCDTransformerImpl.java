@@ -39,6 +39,7 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
+import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
@@ -78,6 +79,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.util.EMFUtil;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerImpl implements ICDATransformer, Serializable {
@@ -219,9 +221,12 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         // the first bundle entry is always the composition
         Composition ccdComposition = includeComposition ? (Composition)ccdBundle.getEntry().get(0).getResource() : null;
         
-        // init the patient id reference if it is not given externally. the patient is always the 2nd bundle entry
+        // init the patient id reference if it is not given externally.
         if (patientRef == null) {
-            patientRef = new Reference(ccdBundle.getEntry().get(1).getResource().getId()); // TO DO: Do not depend on the order
+        	List<Patient> patients = FHIRUtil.findResources(ccdBundle, Patient.class);
+        	if (patients.size() > 0) { 
+        		patientRef = new Reference(patients.get(0).getId());
+        	}
         } else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
             ccdComposition.setSubject(patientRef);
         }
