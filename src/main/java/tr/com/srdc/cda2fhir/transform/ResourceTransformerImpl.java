@@ -2586,18 +2586,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return fhirConditionBundle;
 	}
 
-	static private String tED2Annotation(ED ed, Map<String, String> idedAnnotations) {
-		if (ed != null && idedAnnotations != null) {
-			TEL tel = ed.getReference();
-			String value = tel.getValue();
-			if (value != null && value.charAt(0) == '#') {
-				String key = value.substring(1);
-				return idedAnnotations.get(key);
-			}
-		}
-		return null;
-	}
-	
 	public Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure, Map<String, String> idedAnnotations){
 		if(cdaProcedure == null || cdaProcedure.isSetNullFlavor())
 			return null;
@@ -2692,17 +2680,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// code -> code
 		CD code = cdaProcedure.getCode();
 		if(code != null) {
-			CodeableConcept cc = null;
-			if (!code.isSetNullFlavor()) {
-				cc = dtt.tCD2CodeableConcept(code);
-			}
-			String annotation = tED2Annotation(code.getOriginalText(), idedAnnotations);
-			if (annotation != null) {
-				if (cc == null) {
-					cc = new CodeableConcept();
-				}
-				cc.setText(annotation);
-			}
+			CodeableConcept cc = dtt.tCD2CodeableConcept(code, idedAnnotations);
 			if (cc != null) {
 				fhirProc.setCode(cc);
 			}
@@ -2736,7 +2714,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				
 				Act act = relationship.getAct();
 				if (act != null && act instanceof CommentActivity) {
-					String annotation = tED2Annotation(act.getText(), idedAnnotations);
+					String annotation = dtt.tED2Annotation(act.getText(), idedAnnotations);
 					if (annotation != null) {
 						Annotation fhirAnnotation = new Annotation();
 						fhirAnnotation.setText(annotation);

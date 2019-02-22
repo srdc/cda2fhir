@@ -1,5 +1,7 @@
 package tr.com.srdc.cda2fhir.transform;
 
+import java.util.Map;
+
 /*
  * #%L
  * CDA to FHIR Transformer Library
@@ -86,7 +88,23 @@ public interface IDataTypesTransformer {
 	* @return A BooleanType primitive datatype instance
 	*/
 	BooleanType tBL2Boolean(BL bl);
-	
+
+	/**
+	* Transforms a CDA ED instance to a String based on ided annotations from section text.
+	* @param ed A CDA ED instance
+	* @idedAnnotations A id to value map for annotation
+	* @return A String
+	*/
+	String tED2Annotation(ED ed, Map<String, String> idedAnnotations);	
+		
+	/**
+	* Transforms a CDA CD instance to a FHIR CodeableConcept composite datatype instance. Translations and original text of the CD instance are also included.
+	* @param cd A CDA CD instance
+	* @param A id to value map of annotations that maybe referred from originalText
+	* @return A CodeableConcept composite datatype instance
+	*/
+	CodeableConcept tCD2CodeableConcept(CD cd, Map<String, String> idedAnnotations);
+
 	/**
 	* Transforms a CDA CD instance to a FHIR CodeableConcept composite datatype instance. Translations of the CD instance are also included.
 	* @param cd A CDA CD instance
@@ -94,6 +112,14 @@ public interface IDataTypesTransformer {
 	*/
 	CodeableConcept tCD2CodeableConcept(CD cd);
 
+	/**
+	* Transforms a CDA CD instance to a FHIR CodeableConcept composite datatype instance. Translations of the CD instance are excluded but original text is included.
+	* @param cd A CDA CD instance
+	* @param A id to value map of annotations that maybe referred from originalText
+	* @return A CodeableConcept composite datatype instance
+	*/
+	CodeableConcept tCD2CodeableConceptExcludingTranslations(CD cd, Map<String, String> idedAnnotations);
+	
 	/**
 	* Transforms a CDA CD instance to a FHIR CodeableConcept composite datatype instance. Translations of the CD instance are excluded.
 	* @param cd A CDA CD instance
