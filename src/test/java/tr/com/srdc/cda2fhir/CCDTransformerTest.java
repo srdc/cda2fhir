@@ -23,12 +23,16 @@ package tr.com.srdc.cda2fhir;
 import java.io.FileInputStream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Patient;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.conf.Config;
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ICDATransformer;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -43,6 +47,17 @@ public class CCDTransformerTest {
         CDAUtil.loadPackages();
     }
     
+    public static void verifyComposition(Bundle bundle) throws Exception {
+    	Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
+    	Assert.assertTrue("Expect composition to be the first resource", bundle.getEntry().get(0).getResource() == composition);
+    }
+    
+    public static void verifyPatient(Bundle bundle) throws Exception {
+    	Patient patient = BundleUtil.findOneResource(bundle, Patient.class);
+    	Assert.assertTrue("Expect an identifier for patient", patient.hasIdentifier());
+    	Assert.assertEquals("Expect the patient id in the CCDA file", "414122222", patient.getIdentifier().get(0).getValue());
+    }
+    
     // Gold Sample r2.1
     @Test
     public void testGoldSample() throws Exception {
@@ -53,6 +68,13 @@ public class CCDTransformerTest {
         Config.setGenerateDafProfileMetadata(false);
         Config.setGenerateNarrative(true);
         Bundle bundle = ccdTransformer.transformDocument(cda);
+        Assert.assertNotNull("Expect a bundle after transformation", bundle);
+        Assert.assertTrue("Expect some entries", bundle.hasEntry());
+        
+        // Spot checks
+        verifyComposition(bundle);
+        verifyPatient(bundle);
+        
         FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
     }
 

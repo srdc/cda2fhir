@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir.transform;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +34,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalSta
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
+import org.hl7.fhir.dstu3.model.Annotation;
 import org.hl7.fhir.dstu3.model.BooleanType;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -80,6 +82,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.exceptions.FHIRException;
+import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
@@ -95,10 +98,12 @@ import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.Performer2;
+import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyStatusObservation;
+import org.openhealthtools.mdht.uml.cda.consol.CommentActivity;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
@@ -611,61 +616,72 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		return fhirSubstance;
 	}
-	
+
 	public Bundle tClinicalDocument2Composition(ClinicalDocument cdaClinicalDocument) {
+		return tClinicalDocument2Bundle(cdaClinicalDocument, true); 
+	}
+		
+	public Bundle tClinicalDocument2Bundle(ClinicalDocument cdaClinicalDocument, boolean includeComposition) {
 		if(cdaClinicalDocument == null || cdaClinicalDocument.isSetNullFlavor())
 			return null;
 
 		// create and init the global bundle and the composition resources
 		Bundle fhirCompBundle = new Bundle();
-		Composition fhirComp = new Composition();
-		fhirComp.setId(new IdType("Composition", getUniqueId()));
-		fhirCompBundle.addEntry(new BundleEntryComponent().setResource(fhirComp));
 		
-		// id -> identifier
-		if(cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
-			fhirComp.setIdentifier(dtt.tII2Identifier(cdaClinicalDocument.getId()));
-		}
-
-		// status
-		fhirComp.setStatus(Config.DEFAULT_COMPOSITION_STATUS);
+		Composition fhirComp = includeComposition ? new Composition() : null;
 		
-		// effectiveTime -> date
-		if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {
-			fhirComp.setDateElement(dtt.tTS2DateTime(cdaClinicalDocument.getEffectiveTime()));
-		}
+		if (fhirComp != null) {		
+			fhirComp.setId(new IdType("Composition", getUniqueId()));
+			fhirCompBundle.addEntry(new BundleEntryComponent().setResource(fhirComp));
 		
-		// code -> type
-		if(cdaClinicalDocument.getCode() != null && !cdaClinicalDocument.getCode().isSetNullFlavor()) {
-			fhirComp.setType(dtt.tCD2CodeableConcept(cdaClinicalDocument.getCode()));
-		}
-
-		// title.text -> title
-		if(cdaClinicalDocument.getTitle() != null && !cdaClinicalDocument.getTitle().isSetNullFlavor()) {
-			if(cdaClinicalDocument.getTitle().getText() != null && !cdaClinicalDocument.getTitle().getText().isEmpty()) {
-				fhirComp.setTitle(cdaClinicalDocument.getTitle().getText());
+			// id -> identifier
+			if(cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
+				fhirComp.setIdentifier(dtt.tII2Identifier(cdaClinicalDocument.getId()));
 			}
-		}
+
+			// status
+			fhirComp.setStatus(Config.DEFAULT_COMPOSITION_STATUS);
 		
-		// confidentialityCode -> confidentiality
-		if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {
-			if(cdaClinicalDocument.getConfidentialityCode().getCode() != null && !cdaClinicalDocument.getConfidentialityCode().getCode().isEmpty()) {
-				//fhirComp.setConfidentiality(cdaClinicalDocument.getConfidentialityCode().getCode());
-				try {
-					fhirComp.setConfidentiality(DocumentConfidentiality.fromCode(cdaClinicalDocument.getConfidentialityCode().getCode()));
-				} catch (FHIRException e) {
-					throw new IllegalArgumentException(e);
+			// effectiveTime -> date
+			if(cdaClinicalDocument.getEffectiveTime() != null && !cdaClinicalDocument.getEffectiveTime().isSetNullFlavor()) {
+				fhirComp.setDateElement(dtt.tTS2DateTime(cdaClinicalDocument.getEffectiveTime()));
+			}
+		
+			// code -> type
+			if(cdaClinicalDocument.getCode() != null && !cdaClinicalDocument.getCode().isSetNullFlavor()) {
+				fhirComp.setType(dtt.tCD2CodeableConcept(cdaClinicalDocument.getCode()));
+			}
+
+			// title.text -> title
+			if(cdaClinicalDocument.getTitle() != null && !cdaClinicalDocument.getTitle().isSetNullFlavor()) {
+				if(cdaClinicalDocument.getTitle().getText() != null && !cdaClinicalDocument.getTitle().getText().isEmpty()) {
+					fhirComp.setTitle(cdaClinicalDocument.getTitle().getText());
+				}
+			}
+		
+			// confidentialityCode -> confidentiality
+			if(cdaClinicalDocument.getConfidentialityCode() != null && !cdaClinicalDocument.getConfidentialityCode().isSetNullFlavor()) {
+				if(cdaClinicalDocument.getConfidentialityCode().getCode() != null && !cdaClinicalDocument.getConfidentialityCode().getCode().isEmpty()) {
+					//fhirComp.setConfidentiality(cdaClinicalDocument.getConfidentialityCode().getCode());
+					try {
+						fhirComp.setConfidentiality(DocumentConfidentiality.fromCode(cdaClinicalDocument.getConfidentialityCode().getCode()));
+					} catch (FHIRException e) {
+						throw new IllegalArgumentException(e);
+					}
 				}
 			}
 		}
-
-		// transform the patient data and assign it to Composition.subject.
-		// patient might refer to additional resources such as organization; hence the method returns a bundle.
-		Bundle subjectBundle = tPatientRole2Patient(cdaClinicalDocument.getRecordTargets().get(0).getPatientRole());
-		for(BundleEntryComponent entry : subjectBundle.getEntry()){
-			fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-			if(entry.getResource() instanceof org.hl7.fhir.dstu3.model.Patient){
-				fhirComp.setSubject(new Reference(entry.getResource().getId()));
+		
+		EList<RecordTarget> recordTargets = cdaClinicalDocument.getRecordTargets();
+		if (recordTargets != null && !recordTargets.isEmpty()) { // Support empty for testing purposes. We might need a flag here not to include patient in the bundle as well in future
+			// transform the patient data and assign it to Composition.subject.
+			// patient might refer to additional resources such as organization; hence the method returns a bundle.
+			Bundle subjectBundle = tPatientRole2Patient(cdaClinicalDocument.getRecordTargets().get(0).getPatientRole());
+			for(BundleEntryComponent entry : subjectBundle.getEntry()){
+				fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
+				if(fhirComp != null && entry.getResource() instanceof org.hl7.fhir.dstu3.model.Patient){
+					fhirComp.setSubject(new Reference(entry.getResource().getId()));
+				}
 			}
 		}
 		
@@ -679,7 +695,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						for(BundleEntryComponent entry : practBundle.getEntry()) {
 							// Add all the resources returned from the bundle to the main bundle
 							fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-							if(entry.getResource() instanceof Practitioner) {
+							if(fhirComp != null && entry.getResource() instanceof Practitioner) {
 								fhirComp.addAuthor().setReference((entry.getResource()).getId());
 							}
 						}	
@@ -690,14 +706,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		
 		// legalAuthenticator -> attester[mode = legal]
 		if(cdaClinicalDocument.getLegalAuthenticator() != null && !cdaClinicalDocument.getLegalAuthenticator().isSetNullFlavor()) {
-			CompositionAttesterComponent attester = fhirComp.addAttester();
-			attester.addMode(CompositionAttestationMode.LEGAL);
-			attester.setTimeElement(dtt.tTS2DateTime(cdaClinicalDocument.getLegalAuthenticator().getTime()));
+			CompositionAttesterComponent attester = fhirComp != null ? fhirComp.addAttester() : null;
+			if (attester != null) {
+				attester.addMode(CompositionAttestationMode.LEGAL);
+				attester.setTimeElement(dtt.tTS2DateTime(cdaClinicalDocument.getLegalAuthenticator().getTime()));
+			}
 			Bundle practBundle = tAssignedEntity2Practitioner(cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity());
 			for(BundleEntryComponent entry : practBundle.getEntry()) {
 				// Add all the resources returned from the bundle to the main bundle
 				fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-				if(entry.getResource() instanceof Practitioner) {
+				if(attester != null && entry.getResource() instanceof Practitioner) {
 					attester.setParty(new Reference((entry.getResource()).getId()));
 				}
 			}
@@ -706,14 +724,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// authenticator -> attester[mode = professional]
 		for(org.openhealthtools.mdht.uml.cda.Authenticator authenticator : cdaClinicalDocument.getAuthenticators()) {
 			if(!authenticator.isSetNullFlavor()) {
-				CompositionAttesterComponent attester = fhirComp.addAttester();
-				attester.addMode(CompositionAttestationMode.PROFESSIONAL);
-				attester.setTimeElement(dtt.tTS2DateTime(authenticator.getTime()));
+				CompositionAttesterComponent attester = fhirComp != null ? fhirComp.addAttester() : null;
+				if (attester != null) {
+					attester.addMode(CompositionAttestationMode.PROFESSIONAL);
+					attester.setTimeElement(dtt.tTS2DateTime(authenticator.getTime()));
+				}
 				Bundle practBundle = tAssignedEntity2Practitioner(authenticator.getAssignedEntity());
 				for (BundleEntryComponent entry : practBundle.getEntry()) {
 					// Add all the resources returned from the bundle to the main bundle
 					fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-					if (entry.getResource() instanceof Practitioner) {
+					if (attester != null && entry.getResource() instanceof Practitioner) {
 						attester.setParty(new Reference((entry.getResource()).getId()));
 					}
 				}
@@ -725,7 +745,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if(cdaClinicalDocument.getCustodian().getAssignedCustodian() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().isSetNullFlavor()) {
 				if(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization() != null && !cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization().isSetNullFlavor()) {
 					org.hl7.fhir.dstu3.model.Organization fhirOrganization = tCustodianOrganization2Organization(cdaClinicalDocument.getCustodian().getAssignedCustodian().getRepresentedCustodianOrganization());
-					fhirComp.setCustodian(new Reference(fhirOrganization.getId()));
+					if (fhirComp != null) {
+						fhirComp.setCustodian(new Reference(fhirOrganization.getId()));
+					}
 					fhirCompBundle.addEntry(new BundleEntryComponent().setResource(fhirOrganization));
 				}
 			}
@@ -2564,7 +2586,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return fhirConditionBundle;
 	}
 
-	public Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure){
+	public Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure, Map<String, String> idedAnnotations){
 		if(cdaProcedure == null || cdaProcedure.isSetNullFlavor())
 			return null;
 
@@ -2656,8 +2678,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> code
-		if(cdaProcedure.getCode() != null && !cdaProcedure.getCode().isSetNullFlavor()) {
-			fhirProc.setCode(dtt.tCD2CodeableConcept(cdaProcedure.getCode()));
+		CD code = cdaProcedure.getCode();
+		if(code != null) {
+			CodeableConcept cc = dtt.tCD2CodeableConcept(code, idedAnnotations);
+			if (cc != null) {
+				fhirProc.setCode(cc);
+			}
 		}
 
 		// encounter[0] -> context
@@ -2676,20 +2702,35 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		
 		List<EntryRelationship> relationships = cdaProcedure.getEntryRelationships();
 		if (relationships != null) {
-			relationships.stream()
-				.map(r -> r.getObservation())
-				.filter(o -> o != null && o instanceof Indication)
-				.forEach(r -> {
-					CodeableConcept cc = dtt.tCD2CodeableConcept(r.getCode());
+			for (EntryRelationship relationship: relationships) {
+				Observation observation = relationship.getObservation();
+				if (observation != null && observation instanceof Indication) {
+					CodeableConcept cc = dtt.tCD2CodeableConcept(observation.getCode());
 					if (cc != null) {
 						fhirProc.addReasonCode(cc);
 					}
-				});
+					continue;
+				}
+				
+				Act act = relationship.getAct();
+				if (act != null && act instanceof CommentActivity) {
+					String annotation = dtt.tED2Annotation(act.getText(), idedAnnotations);
+					if (annotation != null) {
+						Annotation fhirAnnotation = new Annotation();
+						fhirAnnotation.setText(annotation);
+						fhirProc.addNote(fhirAnnotation);
+					}							
+				}
+			}
 		}		
 				
 		return fhirProcBundle;
 	}
 
+	public Bundle tProcedure2Procedure (org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure) {
+		return tProcedure2Procedure(cdaProcedure, null);
+	}		
+		
 	public Bundle tReactionObservation2Observation(ReactionObservation cdaReactionObservation) {
 		return tObservation2Observation(cdaReactionObservation);
 	}

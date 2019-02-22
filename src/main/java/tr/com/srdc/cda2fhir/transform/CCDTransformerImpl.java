@@ -21,6 +21,7 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,6 +39,7 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
+import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
@@ -76,6 +78,8 @@ import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tr.com.srdc.cda2fhir.util.EMFUtil;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerImpl implements ICDATransformer, Serializable {
@@ -114,6 +118,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
     public Reference getPatientRef() {
         return patientRef;
+    }
+    
+    public void setPatientRef(Reference patientRef) {
+        this.patientRef = patientRef;
     }
     
     public synchronized String getUniqueId() {
@@ -183,9 +191,20 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
      */
     public Bundle transformDocument(ClinicalDocument cda) {
-        if(cda == null)
+    	return transformDocument(cda, true);
+    }
+    
+    /**
+     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
+     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
+     * @param includeComposition Flag to include composition (required for document type bundles)
+     * @return A FHIR Bundle
+     */
+    public Bundle transformDocument(ClinicalDocument cda, boolean includeComposition) { // TODO: Should be bundle type based.
+        if(cda == null) {
             return null;
-
+        }
+        
         ContinuityOfCareDocument ccd = null;
 
         // first, cast the ClinicalDocument to ContinuityOfCareDocument
@@ -197,15 +216,21 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
 
         // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
-        Bundle ccdBundle = resTransformer.tClinicalDocument2Composition(ccd);
+        Bundle ccdBundle = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
+        
         // the first bundle entry is always the composition
-        Composition ccdComposition = (Composition)ccdBundle.getEntry().get(0).getResource();
-        // init the patient id reference if it is not given externally. the patient is always the 2nd bundle entry
-        if (patientRef == null)
-            patientRef = new Reference(ccdBundle.getEntry().get(1).getResource().getId());
-        else // Correct the subject at composition with given patient reference.
+        Composition ccdComposition = includeComposition ? (Composition)ccdBundle.getEntry().get(0).getResource() : null;
+        
+        // init the patient id reference if it is not given externally.
+        if (patientRef == null) {
+        	List<Patient> patients = FHIRUtil.findResources(ccdBundle, Patient.class);
+        	if (patients.size() > 0) { 
+        		patientRef = new Reference(patients.get(0).getId());
+        	}
+        } else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
             ccdComposition.setSubject(patientRef);
-
+        }
+            
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
             
@@ -219,12 +244,12 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         		
             	if(fhirSec == null) {
             		continue;
-            	} else {
+            	} else if (ccdComposition != null) {
                 	ccdComposition.addSection(fhirSec);
             	}
             
         	}
-            
+
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
             }
@@ -317,8 +342,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
             }
             else if(cdaSec instanceof ProceduresSection) {
                 ProceduresSection procSec = (ProceduresSection) cdaSec;
-                for(ProcedureActivityProcedure proc : procSec.getConsolProcedureActivityProcedures()) {
-                    Bundle procBundle = resTransformer.tProcedure2Procedure(proc);
+                Map<String, String> idedAnnotations = EMFUtil.findReferences(procSec.getText());
+                List<ProcedureActivityProcedure> procs = procSec.getConsolProcedureActivityProcedures();
+                for(ProcedureActivityProcedure proc : procs) {
+                    Bundle procBundle = resTransformer.tProcedure2Procedure(proc, idedAnnotations);
                     mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
                 }
             }
