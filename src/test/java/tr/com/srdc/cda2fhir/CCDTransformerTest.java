@@ -65,7 +65,7 @@ public class CCDTransformerTest {
 
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        Config.setGenerateDafProfileMetadata(true);
+        Config.setGenerateDafProfileMetadata(false);
         Config.setGenerateNarrative(true);
         Bundle bundle = ccdTransformer.transformDocument(cda);
         Assert.assertNotNull("Expect a bundle after transformation", bundle);

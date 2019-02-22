@@ -233,16 +233,23 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
             
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
-            SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
             
-            if(fhirSec == null) {
-            	continue;
-            }
+        	SectionComponent fhirSec = null; 		
+        	
+        	
+        	//Conditional logic to only return supported sections.
+        	if (cdaSec instanceof AllergiesSection || cdaSec instanceof ImmunizationsSection || cdaSec instanceof ProceduresSection || cdaSec instanceof ProblemSection || cdaSec instanceof MedicationsSection) {    		
             
-            if (ccdComposition != null) {
-                ccdComposition.addSection(fhirSec);
-            }
+        		fhirSec = resTransformer.tSection2Section(cdaSec);
+        		
+            	if(fhirSec == null) {
+            		continue;
+            	} else if (ccdComposition != null) {
+                	ccdComposition.addSection(fhirSec);
+            	}
             
+        	}
+
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
             }
@@ -253,14 +260,14 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                     mergeBundles(allBundle, ccdBundle, fhirSec, AllergyIntolerance.class);
             	}
             }
-            else if(cdaSec instanceof EncountersSection) {
+            /*else if(cdaSec instanceof EncountersSection) {
                 EncountersSection encSec = (EncountersSection) cdaSec;
                 for (EncounterActivities encAct : encSec.getConsolEncounterActivitiess()) {
                     Bundle encBundle = resTransformer.tEncounterActivity2Encounter(encAct);
                     mergeBundles(encBundle, ccdBundle, fhirSec, Encounter.class);
                 }
-            }
-            else if(cdaSec instanceof FamilyHistorySection) {
+            }*/
+            /*else if(cdaSec instanceof FamilyHistorySection) {
                 FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
                 for(FamilyHistoryOrganizer fhOrganizer : famSec.getFamilyHistories()) {
                     FamilyMemberHistory fmh = resTransformer.tFamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
@@ -268,8 +275,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                     ref.setReference(fmh.getId());
                     ccdBundle.addEntry().setResource(fmh);
                 }
-            }
-            else if(cdaSec instanceof FunctionalStatusSection) {
+            }*/
+            /*else if(cdaSec instanceof FunctionalStatusSection) {
                 FunctionalStatusSection funcSec = (FunctionalStatusSection) cdaSec;
                 for(FunctionalStatusResultOrganizer funcOrganizer : funcSec.getFunctionalStatusResultOrganizers()) {
                     for(org.openhealthtools.mdht.uml.cda.Observation funcObservation : funcOrganizer.getObservations()) {
@@ -277,7 +284,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                         mergeBundles(funcBundle, ccdBundle, fhirSec, Observation.class);
                     }
                 }
-            }
+            }*/
             else if(cdaSec instanceof ImmunizationsSection) {
             	ImmunizationsSection immSec = (ImmunizationsSection) cdaSec;
             	for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
@@ -285,7 +292,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                     mergeBundles(immBundle, ccdBundle, fhirSec, Immunization.class);
             	}
             }
-            else if(cdaSec instanceof MedicalEquipmentSection) {
+            /*else if(cdaSec instanceof MedicalEquipmentSection) {
                 MedicalEquipmentSection equipSec = (MedicalEquipmentSection) cdaSec;
                 // Case 1: Entry is a Non-Medicinal Supply Activity (V2)
                 for(NonMedicinalSupplyActivity supplyActivity : equipSec.getNonMedicinalSupplyActivities()) {
@@ -312,7 +319,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                         mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
                     }
                 }
-            }
+            }*/
             else if(cdaSec instanceof MedicationsSection) {
                 MedicationsSection medSec = (MedicationsSection) cdaSec;
                 for(MedicationActivity medAct : medSec.getMedicationActivities()) {
@@ -342,15 +349,15 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                     mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
                 }
             }
-            else if(cdaSec instanceof ResultsSection) {
+            /*else if(cdaSec instanceof ResultsSection) {
             	ResultsSection resultSec = (ResultsSection) cdaSec;
             	for(ResultOrganizer resOrg : resultSec.getResultOrganizers()) {
                     Bundle resBundle = resTransformer.tResultOrganizer2DiagnosticReport(resOrg);
                     mergeBundles(resBundle, ccdBundle, fhirSec, DiagnosticReport.class);
             	}
-            }
-            else if(cdaSec instanceof SocialHistorySection) {
-                SocialHistorySection socialSec = (SocialHistorySection) cdaSec;
+            }*/
+            /*else if(cdaSec instanceof SocialHistorySection) {
+                SocialHistorySection socialSec = (SocialHistorySection) cdaSec;*/
                 /**
                  * The generic observation transformer should be able to transform all the possible entries:
                  *    Caregiver Characteristics
@@ -361,12 +368,12 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                  *    Social History Observation (V3)
                  *    Tobacco Use (V2)
                  */
-                for(org.openhealthtools.mdht.uml.cda.Observation socialObs : socialSec.getObservations()) {
+           /*     for(org.openhealthtools.mdht.uml.cda.Observation socialObs : socialSec.getObservations()) {
                     Bundle socialObsBundle = resTransformer.tObservation2Observation(socialObs);
                     mergeBundles(socialObsBundle, ccdBundle, fhirSec, Observation.class);
                 }
-            }
-            else if(cdaSec instanceof VitalSignsSection) {
+            }*/
+            /*else if(cdaSec instanceof VitalSignsSection) {
             	VitalSignsSection vitalSec = (VitalSignsSection) cdaSec;
             	for(VitalSignsOrganizer vsOrg : vitalSec.getVitalSignsOrganizers())	{
             		for(VitalSignObservation vsObs : vsOrg.getVitalSignObservations()) {
@@ -374,7 +381,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                         mergeBundles(vsBundle, ccdBundle, fhirSec, Observation.class);
             		}
             	}
-            }
+            }*/
         }
 
         return ccdBundle;
