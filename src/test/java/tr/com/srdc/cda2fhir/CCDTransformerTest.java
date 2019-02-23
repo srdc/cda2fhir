@@ -22,9 +22,14 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.FileInputStream;
 
+import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Procedure;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,22 +52,9 @@ public class CCDTransformerTest {
         CDAUtil.loadPackages();
     }
     
-    public static void verifyComposition(Bundle bundle) throws Exception {
-    	Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
-    	Assert.assertTrue("Expect composition to be the first resource", bundle.getEntry().get(0).getResource() == composition);
-    }
-    
-    public static void verifyPatient(Bundle bundle) throws Exception {
-    	Patient patient = BundleUtil.findOneResource(bundle, Patient.class);
-    	Assert.assertTrue("Expect an identifier for patient", patient.hasIdentifier());
-    	Assert.assertEquals("Expect the patient id in the CCDA file", "414122222", patient.getIdentifier().get(0).getValue());
-    }
-    
-    // Gold Sample r2.1
-    @Test
-    public void testGoldSample() throws Exception {
-        FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_gold_sample2_v1.xml");
-
+    private static Bundle readVerifyFile(String sourceName) throws Exception {
+        FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
+                
         ClinicalDocument cda = CDAUtil.load(fis);
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
         Config.setGenerateDafProfileMetadata(false);
@@ -70,82 +62,58 @@ public class CCDTransformerTest {
         Bundle bundle = ccdTransformer.transformDocument(cda);
         Assert.assertNotNull("Expect a bundle after transformation", bundle);
         Assert.assertTrue("Expect some entries", bundle.hasEntry());
+    	
+    	Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
+    	Assert.assertTrue("Expect composition to be the first resource", bundle.getEntry().get(0).getResource() == composition);
+
+    	String baseName = sourceName.substring(sourceName.length() - 4);
+        FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
+        return bundle;
+    }
+    
+    // Gold Sample r2.1
+    @Test
+    public void testSample1() throws Exception {
+    	Bundle bundle = readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml");
+        Assert.assertTrue("Expect some entries", bundle.hasEntry());
         
         // Spot checks
-        verifyComposition(bundle);
-        verifyPatient(bundle);
-        
-        FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_gold_sample2_v1.json");
+    	Patient patient = BundleUtil.findOneResource(bundle, Patient.class);
+    	Assert.assertTrue("Expect an identifier for patient", patient.hasIdentifier());
+    	Assert.assertEquals("Expect the patient id in the CCDA file", "414122222", patient.getIdentifier().get(0).getValue());
+
+        BundleUtil.findResources(bundle, AllergyIntolerance.class, 1);
+        BundleUtil.findResources(bundle, Condition.class, 1);
+        BundleUtil.findResources(bundle, MedicationStatement.class, 1);
+        BundleUtil.findResources(bundle, Immunization.class, 1);
+        BundleUtil.findResources(bundle, Procedure.class, 1);
     }
 
-//    // Inp Sample r2.1
-//    @Test
-//    public void testInpSample() throws Exception {
-//        FileInputStream fis = new FileInputStream("src/test/resources/170.315_b1_toc_inp_ccd_r21_sample1_v5.xml");
-//
-//        ClinicalDocument cda = CDAUtil.load(fis);
-//        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-//        Config.setGenerateDafProfileMetadata(true);
-//        Config.setGenerateNarrative(true);
-//        Bundle bundle = ccdTransformer.transformDocument(cda);
-//        if(bundle != null)
-//            FHIRUtil.printJSON(bundle, "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5.json");
-//    }
-//
-//    // C-CDA_R2-1_CCD.xml - with DAF profile in meta.profile
-//    @Test
-//    public void testReferenceCCDInstance() throws Exception {
-//        FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-//
-//        ClinicalDocument cda = CDAUtil.load(fis);
-//        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-//        Config.setGenerateDafProfileMetadata(true);
-//        Config.setGenerateNarrative(true);
-//        Bundle bundle = ccdTransformer.transformDocument(cda);
-//        if(bundle != null) 
-//        	FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
-//    }
-//
-//    // C-CDA_R2-1_CCD.xml - without DAF profile in meta.profile
-//    @Test
-//    public void testReferenceCCDInstanceWithoutDAF() throws Exception {
-//        FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-//
-//        ClinicalDocument cda = CDAUtil.load(fis);
-//        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-//        Config.setGenerateDafProfileMetadata(false);
-//        Config.setGenerateNarrative(true);
-//        Bundle bundle = ccdTransformer.transformDocument(cda);
-//        if(bundle != null)
-//            FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-wo-daf.json");
-//    }
-//
-//    // C-CDA_R2-1_CCD.xml - without DAF profile in meta.profile and without narrative generated in resources
-//    @Test
-//    public void testReferenceCCDInstanceWithoutDAFAndNarrative() throws Exception {
-//        FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-//
-//        ClinicalDocument cda = CDAUtil.load(fis);
-//        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-//        Config.setGenerateDafProfileMetadata(false);
-//        Config.setGenerateNarrative(false);
-//        Bundle bundle = ccdTransformer.transformDocument(cda);
-//        if(bundle != null)
-//            FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-wo-daf-narrative.json");
-//    }
-//
-//    // Vitera
-//    @Test
-//    public void testViteraSample() throws Exception {
-//        FileInputStream fis = new FileInputStream("src/test/resources/Vitera_CCDA_SMART_Sample.xml");
-//
-//        ClinicalDocument cda = CDAUtil.load(fis);
-//        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-//        Config.setGenerateDafProfileMetadata(true);
-//        Config.setGenerateNarrative(true);
-//        Bundle bundle = ccdTransformer.transformDocument(cda);
-//        if(bundle != null)
-//            FHIRUtil.printJSON(bundle, "src/test/resources/output/Vitera_CCDA_SMART_Sample.json");
-//    }
+    @Test
+    public void testSample2() throws Exception {
+    	Bundle bundle = readVerifyFile("C-CDA_R2-1_CCD.xml");
+        Assert.assertTrue("Expect some entries", bundle.hasEntry());
+        
+        // Spot checks
+    	BundleUtil.findOneResource(bundle, Patient.class);
+        BundleUtil.findResources(bundle, AllergyIntolerance.class, 2);
+        BundleUtil.findResources(bundle, Condition.class, 6);
+        BundleUtil.findResources(bundle, MedicationStatement.class, 2);
+        BundleUtil.findResources(bundle, Immunization.class, 5);
+        BundleUtil.findResources(bundle, Procedure.class, 1);
+    }
 
+    @Test
+    public void testSample3() throws Exception {
+    	Bundle bundle = readVerifyFile("Vitera_CCDA_SMART_Sample.xml");
+        Assert.assertTrue("Expect some entries", bundle.hasEntry());
+        
+        // Spot checks
+    	BundleUtil.findOneResource(bundle, Patient.class);
+        BundleUtil.findResources(bundle, AllergyIntolerance.class, 5);
+        BundleUtil.findResources(bundle, Condition.class, 1);
+        BundleUtil.findResources(bundle, MedicationStatement.class, 16);
+        BundleUtil.findResources(bundle, Immunization.class, 1);
+        BundleUtil.findResources(bundle, Procedure.class, 4);
+    }
 }
