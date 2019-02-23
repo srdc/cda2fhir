@@ -21,15 +21,21 @@ package tr.com.srdc.cda2fhir;
  */
 
 import java.io.FileInputStream;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -70,50 +76,68 @@ public class CCDTransformerTest {
         FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
         return bundle;
     }
+
+    private static List<Reference> getSectionEntries(Composition composition, String title) {
+        for (SectionComponent section: composition.getSection()) {
+        	if (title.equals(section.getTitle())) {
+        		return section.getEntry();
+        	}
+        }
+        return null;
+    }
     
+    private static <T extends Resource> void verifySection(Bundle bundle, String title, Class<T> clazz, int count, int referenceCount) throws Exception {
+        List<T> resources = BundleUtil.findResources(bundle, clazz, count);
+        Set<String> ids = resources.stream().map(r -> r.getId()).collect(Collectors.toSet());
+        Composition composition = (Composition) bundle.getEntry().get(0).getResource();
+        List<Reference> references = getSectionEntries(composition, title);
+        Assert.assertNotNull("Expect references in section " + title, references);
+        Assert.assertEquals("Expect " + referenceCount + " references in composition", referenceCount, references.size());
+        for (int idx = 0; idx < referenceCount; ++idx) {
+        	String id = references.get(idx).getReference().toString();
+        	Assert.assertTrue("Expect composition reference to be a resource id", ids.contains(id));
+        }
+    }
+
+    private static <T extends Resource> void verifySection(Bundle bundle, String title, Class<T> clazz, int count) throws Exception {
+    	verifySection(bundle, title, clazz, count, count);
+    }    
     // Gold Sample r2.1
     @Test
     public void testSample1() throws Exception {
     	Bundle bundle = readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml");
-        Assert.assertTrue("Expect some entries", bundle.hasEntry());
-        
+
+    	verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 1);
+    	verifySection(bundle, "PROBLEMS", Condition.class, 1);
+    	verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 1);
+    	verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 1);
+    	verifySection(bundle, "PROCEDURES", Procedure.class, 1);
+
         // Spot checks
     	Patient patient = BundleUtil.findOneResource(bundle, Patient.class);
     	Assert.assertTrue("Expect an identifier for patient", patient.hasIdentifier());
     	Assert.assertEquals("Expect the patient id in the CCDA file", "414122222", patient.getIdentifier().get(0).getValue());
-
-        BundleUtil.findResources(bundle, AllergyIntolerance.class, 1);
-        BundleUtil.findResources(bundle, Condition.class, 1);
-        BundleUtil.findResources(bundle, MedicationStatement.class, 1);
-        BundleUtil.findResources(bundle, Immunization.class, 1);
-        BundleUtil.findResources(bundle, Procedure.class, 1);
     }
 
     @Test
     public void testSample2() throws Exception {
     	Bundle bundle = readVerifyFile("C-CDA_R2-1_CCD.xml");
-        Assert.assertTrue("Expect some entries", bundle.hasEntry());
-        
-        // Spot checks
-    	BundleUtil.findOneResource(bundle, Patient.class);
-        BundleUtil.findResources(bundle, AllergyIntolerance.class, 2);
-        BundleUtil.findResources(bundle, Condition.class, 6);
-        BundleUtil.findResources(bundle, MedicationStatement.class, 2);
-        BundleUtil.findResources(bundle, Immunization.class, 5);
-        BundleUtil.findResources(bundle, Procedure.class, 1);
+         
+    	verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 2);
+    	verifySection(bundle, "PROBLEMS", Condition.class, 6, 4);
+    	verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 2);
+    	verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 5);
+    	verifySection(bundle, "PROCEDURES", Procedure.class, 1);
     }
 
     @Test
     public void testSample3() throws Exception {
     	Bundle bundle = readVerifyFile("Vitera_CCDA_SMART_Sample.xml");
-        Assert.assertTrue("Expect some entries", bundle.hasEntry());
         
-        // Spot checks
-    	BundleUtil.findOneResource(bundle, Patient.class);
-        BundleUtil.findResources(bundle, AllergyIntolerance.class, 5);
-        BundleUtil.findResources(bundle, Condition.class, 1);
-        BundleUtil.findResources(bundle, MedicationStatement.class, 16);
-        BundleUtil.findResources(bundle, Immunization.class, 1);
-        BundleUtil.findResources(bundle, Procedure.class, 4);
+    	verifySection(bundle, "Allergies", AllergyIntolerance.class, 5);
+    	verifySection(bundle, "Problems", Condition.class, 1);
+    	verifySection(bundle, "Medications", MedicationStatement.class, 16);
+    	verifySection(bundle, "Immunizations", Immunization.class, 1);
+    	verifySection(bundle, "Procedures and Surgical/Medical History", Procedure.class, 4);
     }
 }
