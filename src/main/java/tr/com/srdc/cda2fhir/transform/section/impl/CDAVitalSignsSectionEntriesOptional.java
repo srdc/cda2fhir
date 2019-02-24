@@ -1,18 +1,18 @@
 package tr.com.srdc.cda2fhir.transform.section.impl;
 
 import org.hl7.fhir.dstu3.model.Observation;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSectionEntriesOptional;
 
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
-public class CDAVitalSignsSection implements ICDASection {
-	private VitalSignsSection section;
+public class CDAVitalSignsSectionEntriesOptional implements ICDASection {
+	private VitalSignsSectionEntriesOptional section;
 	
 	@SuppressWarnings("unused")
-	private CDAVitalSignsSection() {};
+	private CDAVitalSignsSectionEntriesOptional() {};
 	
-	public CDAVitalSignsSection(VitalSignsSection section) {
+	public CDAVitalSignsSectionEntriesOptional(VitalSignsSectionEntriesOptional section) {
 		this.section = section;
 	}
 	
