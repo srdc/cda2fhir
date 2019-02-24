@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
@@ -33,53 +32,17 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
-import org.hl7.fhir.dstu3.model.Condition;
-import org.hl7.fhir.dstu3.model.DiagnosticReport;
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
-import org.hl7.fhir.dstu3.model.Immunization;
-import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
-import org.openhealthtools.mdht.uml.cda.Observation;
-import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.Section;
-import org.openhealthtools.mdht.uml.cda.Supply;
-import org.openhealthtools.mdht.uml.cda.consol.AdvanceDirectivesSection;
-import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
-import org.openhealthtools.mdht.uml.cda.consol.EncountersSection;
-import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.FamilyHistorySection;
-import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusResultOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusSection;
-import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
-import org.openhealthtools.mdht.uml.cda.consol.MedicalEquipmentSection;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
-import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
-import org.openhealthtools.mdht.uml.cda.consol.PayersSection;
-import org.openhealthtools.mdht.uml.cda.consol.PlanOfCareSection;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
-import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
-import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection;
-import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
-import org.openhealthtools.mdht.uml.cda.consol.SocialHistorySection;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.transform.section.CDASectionFactory;
+import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -93,11 +56,13 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	private int counter;
     private IdGeneratorEnum idGenerator;
     private IResourceTransformer resTransformer;
     private Reference patientRef;
-
+    private CDASectionFactory sectionFactory = new CDASectionFactory();
+    
     private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
 
     /**
@@ -143,6 +108,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         this.idGenerator = idGen;
     }
 
+    public void addSection(CDASectionTypeEnum sectionEnum) {
+    	sectionFactory.addSection(sectionEnum);
+    }
+    
     /**
      * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
      * @param bundleType Desired type of the FHIR Bundle to be returned
@@ -236,30 +205,22 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
             ccdComposition.setSubject(patientRef);
         }
         
-        CDASectionFactory sectionFactory = new CDASectionFactory();
         BundleInfo bundleInfo = new BundleInfo(resTransformer);
         
         // transform the sections
-        for(Section cdaSec: ccd.getSections()) {
-            
-        	SectionComponent fhirSec = null; 		
-        	
-        	
-        	//Conditional logic to only return supported sections.
-        	if (cdaSec instanceof AllergiesSection || cdaSec instanceof ImmunizationsSection || cdaSec instanceof ProceduresSection || cdaSec instanceof ProblemSection || cdaSec instanceof MedicationsSection) {    		
-            
-        		fhirSec = resTransformer.tSection2Section(cdaSec);
+        for(Section cdaSec: ccd.getSections()) {        	
+        	ICDASection section = sectionFactory.getInstance(cdaSec);
+        	if (section != null) {
+            	SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
         		
             	if(fhirSec == null) {
             		continue;
-            	} else if (ccdComposition != null) {
+            	}
+            	
+            	if (ccdComposition != null) {
                 	ccdComposition.addSection(fhirSec);
             	}
-            
-        	}
-        	
-        	ICDASection section = sectionFactory.getInstance(cdaSec);
-        	if (section != null) {
+        		        		
         		Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
         		bundleInfo.mergeIdedAnnotations(idedAnnotations);
         		
@@ -277,103 +238,6 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         		
         		continue;
         	}
-        	
-
-            if(cdaSec instanceof AdvanceDirectivesSection) {
-
-            }
-            /*else if(cdaSec instanceof EncountersSection) {
-                EncountersSection encSec = (EncountersSection) cdaSec;
-                for (EncounterActivities encAct : encSec.getConsolEncounterActivitiess()) {
-                    Bundle encBundle = resTransformer.tEncounterActivity2Encounter(encAct);
-                    mergeBundles(encBundle, ccdBundle, fhirSec, Encounter.class);
-                }
-            }*/
-            /*else if(cdaSec instanceof FamilyHistorySection) {
-                FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
-                for(FamilyHistoryOrganizer fhOrganizer : famSec.getFamilyHistories()) {
-                    FamilyMemberHistory fmh = resTransformer.tFamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
-                    Reference ref = fhirSec.addEntry();
-                    ref.setReference(fmh.getId());
-                    ccdBundle.addEntry().setResource(fmh);
-                }
-            }*/
-            /*else if(cdaSec instanceof FunctionalStatusSection) {
-                FunctionalStatusSection funcSec = (FunctionalStatusSection) cdaSec;
-                for(FunctionalStatusResultOrganizer funcOrganizer : funcSec.getFunctionalStatusResultOrganizers()) {
-                    for(org.openhealthtools.mdht.uml.cda.Observation funcObservation : funcOrganizer.getObservations()) {
-                        Bundle funcBundle = resTransformer.tFunctionalStatus2Observation(funcObservation);
-                        mergeBundles(funcBundle, ccdBundle, fhirSec, Observation.class);
-                    }
-                }
-            }*/
-            /*else if(cdaSec instanceof MedicalEquipmentSection) {
-                MedicalEquipmentSection equipSec = (MedicalEquipmentSection) cdaSec;
-                // Case 1: Entry is a Non-Medicinal Supply Activity (V2)
-                for(NonMedicinalSupplyActivity supplyActivity : equipSec.getNonMedicinalSupplyActivities()) {
-                	org.hl7.fhir.dstu3.model.Device fhirDevice = resTransformer.tSupply2Device(supplyActivity);
-                    Reference ref = fhirSec.addEntry();
-                    ref.setReference(fhirDevice.getId());
-                    ccdBundle.addEntry().setResource(fhirDevice);
-                }
-                // Case 2: Entry is a Medical Equipment Organizer, which is indeed a collection of Non-Medicinal Supply Activity (V2)
-                for(Organizer organizer : equipSec.getOrganizers()) {
-                    for(Supply supply : organizer.getSupplies()) {
-                        if(supply instanceof NonMedicinalSupplyActivity) {
-                            org.hl7.fhir.dstu3.model.Device fhirDevice = resTransformer.tSupply2Device(supply);
-                            Reference ref = fhirSec.addEntry();
-                            ref.setReference(fhirDevice.getId());
-                            ccdBundle.addEntry().setResource(fhirDevice);
-                        }
-                    }
-                }
-                // Case 3: Entry is a Procedure Activity Procedure (V2)
-                for(org.openhealthtools.mdht.uml.cda.Procedure procedure : equipSec.getProcedures()) {
-                    if(procedure instanceof ProcedureActivityProcedure) {
-                        Bundle procBundle = resTransformer.tProcedure2Procedure(procedure);
-                        mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
-                    }
-                }
-            }*/
-            else if(cdaSec instanceof PayersSection) {
-
-            }
-            else if(cdaSec instanceof PlanOfCareSection) {
-
-            }
-            /*else if(cdaSec instanceof ResultsSection) {
-            	ResultsSection resultSec = (ResultsSection) cdaSec;
-            	for(ResultOrganizer resOrg : resultSec.getResultOrganizers()) {
-                    Bundle resBundle = resTransformer.tResultOrganizer2DiagnosticReport(resOrg);
-                    mergeBundles(resBundle, ccdBundle, fhirSec, DiagnosticReport.class);
-            	}
-            }*/
-            /*else if(cdaSec instanceof SocialHistorySection) {
-                SocialHistorySection socialSec = (SocialHistorySection) cdaSec;*/
-                /**
-                 * The generic observation transformer should be able to transform all the possible entries:
-                 *    Caregiver Characteristics
-                 *    Characteristics of Home Environment
-                 *    Cultural and Religious Observation
-                 *    Pregnancy Observation
-                 *    Smoking Status - Meaningful Use (V2)
-                 *    Social History Observation (V3)
-                 *    Tobacco Use (V2)
-                 */
-           /*     for(org.openhealthtools.mdht.uml.cda.Observation socialObs : socialSec.getObservations()) {
-                    Bundle socialObsBundle = resTransformer.tObservation2Observation(socialObs);
-                    mergeBundles(socialObsBundle, ccdBundle, fhirSec, Observation.class);
-                }
-            }*/
-            /*else if(cdaSec instanceof VitalSignsSection) {
-            	VitalSignsSection vitalSec = (VitalSignsSection) cdaSec;
-            	for(VitalSignsOrganizer vsOrg : vitalSec.getVitalSignsOrganizers())	{
-            		for(VitalSignObservation vsObs : vsOrg.getVitalSignObservations()) {
-            			Bundle vsBundle = resTransformer.tVitalSignObservation2Observation(vsObs);
-                        mergeBundles(vsBundle, ccdBundle, fhirSec, Observation.class);
-            		}
-            	}
-            }*/
         }
 
         return ccdBundle;

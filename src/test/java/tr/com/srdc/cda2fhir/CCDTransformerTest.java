@@ -21,6 +21,7 @@ package tr.com.srdc.cda2fhir;
  */
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,8 +31,12 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -45,7 +50,7 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.ICDATransformer;
+import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
@@ -58,11 +63,14 @@ public class CCDTransformerTest {
         CDAUtil.loadPackages();
     }
     
-    private static Bundle readVerifyFile(String sourceName) throws Exception {
+    private static Bundle readVerifyFile(String sourceName, List<CDASectionTypeEnum> addlSections) throws Exception {
         FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
                 
         ClinicalDocument cda = CDAUtil.load(fis);
-        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+        if (addlSections != null) {
+        	addlSections.stream().forEach(r -> ccdTransformer.addSection(r));
+        }
         Config.setGenerateDafProfileMetadata(false);
         Config.setGenerateNarrative(true);
         Bundle bundle = ccdTransformer.transformDocument(cda);
@@ -105,7 +113,7 @@ public class CCDTransformerTest {
     // Gold Sample r2.1
     @Test
     public void testSample1() throws Exception {
-    	Bundle bundle = readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml");
+    	Bundle bundle = readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", null);
 
     	verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 1);
     	verifySection(bundle, "PROBLEMS", Condition.class, 1);
@@ -121,18 +129,33 @@ public class CCDTransformerTest {
 
     @Test
     public void testSample2() throws Exception {
-    	Bundle bundle = readVerifyFile("C-CDA_R2-1_CCD.xml");
+    	List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
+    	addlSections.add(CDASectionTypeEnum.ENCOUNTERS_SECTION);
+    	addlSections.add(CDASectionTypeEnum.VITAL_SIGNS_SECTION);
+    	addlSections.add(CDASectionTypeEnum.SOCIAL_HISTORY_SECTION);
+    	addlSections.add(CDASectionTypeEnum.RESULTS_SECTION);
+    	addlSections.add(CDASectionTypeEnum.FUNCTIONAL_STATUS_SECTION);
+    	addlSections.add(CDASectionTypeEnum.FAMILY_HISTORY_SECTION);
+    	addlSections.add(CDASectionTypeEnum.MEDICAL_EQUIPMENT_SECTION);
+    	Bundle bundle = readVerifyFile("C-CDA_R2-1_CCD.xml", addlSections);
          
     	verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 2);
-    	verifySection(bundle, "PROBLEMS", Condition.class, 6, 4);
+    	verifySection(bundle, "PROBLEMS", Condition.class, 7, 4);
     	verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 2);
     	verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 5);
-    	verifySection(bundle, "PROCEDURES", Procedure.class, 1);
+    	verifySection(bundle, "PROCEDURES", Procedure.class, 2, 1);
+    	verifySection(bundle, "ENCOUNTERS", Encounter.class, 2, 1);
+    	verifySection(bundle, "VITAL SIGNS", Observation.class, 20, 8);
+    	verifySection(bundle, "SOCIAL HISTORY", Observation.class, 20, 3);
+    	verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
+    	verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
+    	verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
+    	verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 111, 4);
     }
 
     @Test
     public void testSample3() throws Exception {
-    	Bundle bundle = readVerifyFile("Vitera_CCDA_SMART_Sample.xml");
+    	Bundle bundle = readVerifyFile("Vitera_CCDA_SMART_Sample.xml", null);
         
     	verifySection(bundle, "Allergies", AllergyIntolerance.class, 5);
     	verifySection(bundle, "Problems", Condition.class, 1);

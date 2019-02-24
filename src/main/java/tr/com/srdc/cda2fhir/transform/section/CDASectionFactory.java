@@ -6,20 +6,24 @@ import java.util.List;
 import org.openhealthtools.mdht.uml.cda.Section;
 
 public class CDASectionFactory {
-	private List<CDASectionTypeEnum> allowedSections = new ArrayList<CDASectionTypeEnum>();
+	private List<CDASectionTypeEnum> sections = new ArrayList<CDASectionTypeEnum>();
 	
 	public CDASectionFactory() {
-		allowedSections.add(CDASectionTypeEnum.ALLERGIES_SECTION);
-		allowedSections.add(CDASectionTypeEnum.IMMUNIZATIONS_SECTION);
-		allowedSections.add(CDASectionTypeEnum.MEDICATIONS_SECTION);
-		allowedSections.add(CDASectionTypeEnum.PROBLEM_SECTION);
-		allowedSections.add(CDASectionTypeEnum.PROCEDURES_SECTION);
+		sections.add(CDASectionTypeEnum.ALLERGIES_SECTION);
+		sections.add(CDASectionTypeEnum.IMMUNIZATIONS_SECTION);
+		sections.add(CDASectionTypeEnum.MEDICATIONS_SECTION);
+		sections.add(CDASectionTypeEnum.PROBLEM_SECTION);
+		sections.add(CDASectionTypeEnum.PROCEDURES_SECTION);
 	}
 
+	public void addSection(CDASectionTypeEnum sectionEnum) {
+		sections.add(sectionEnum);
+	}
+	
 	public ICDASection getInstance(Section section) {
-		for (CDASectionTypeEnum allowedSection: allowedSections) {
-			if (allowedSection.supports(section)) {
-				return allowedSection.toCDASection(section);
+		for (CDASectionTypeEnum Section: sections) {
+			if (Section.supports(section)) {
+				return Section.toCDASection(section);
 			}
 		}
 		return null;
