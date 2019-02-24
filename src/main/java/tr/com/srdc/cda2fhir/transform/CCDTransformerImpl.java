@@ -42,6 +42,7 @@ import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Organizer;
@@ -78,6 +79,10 @@ import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tr.com.srdc.cda2fhir.transform.section.CDASectionFactory;
+import tr.com.srdc.cda2fhir.transform.section.ICDASection;
+import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -230,7 +235,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         } else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
             ccdComposition.setSubject(patientRef);
         }
-            
+        
+        CDASectionFactory sectionFactory = new CDASectionFactory();
+        BundleInfo bundleInfo = new BundleInfo(resTransformer);
+        
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {
             
@@ -249,16 +257,30 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
             	}
             
         	}
+        	
+        	ICDASection section = sectionFactory.getInstance(cdaSec);
+        	if (section != null) {
+        		Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
+        		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+        		
+        		ISectionResult sectionResult = section.transform(bundleInfo);
+        		if (sectionResult != null) {
+        			FHIRUtil.mergeBundle(sectionResult.getBundle(), ccdBundle);
+        		}
+        		if (fhirSec != null) {
+        			List<? extends Resource> resources = sectionResult.getSectionResources();
+        			for (Resource resource: resources) {
+        				Reference ref = fhirSec.addEntry();
+                        ref.setReference(resource.getId());             				
+        			}
+        		}
+        		
+        		continue;
+        	}
+        	
 
             if(cdaSec instanceof AdvanceDirectivesSection) {
 
-            }
-            else if(cdaSec instanceof AllergiesSection) {
-            	AllergiesSection allSec = (AllergiesSection) cdaSec;
-            	for(AllergyProblemAct probAct : allSec.getAllergyProblemActs()) {
-            		Bundle allBundle = resTransformer.tAllergyProblemAct2AllergyIntolerance(probAct);
-                    mergeBundles(allBundle, ccdBundle, fhirSec, AllergyIntolerance.class);
-            	}
             }
             /*else if(cdaSec instanceof EncountersSection) {
                 EncountersSection encSec = (EncountersSection) cdaSec;
@@ -285,13 +307,6 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                     }
                 }
             }*/
-            else if(cdaSec instanceof ImmunizationsSection) {
-            	ImmunizationsSection immSec = (ImmunizationsSection) cdaSec;
-            	for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
-            		Bundle immBundle = resTransformer.tImmunizationActivity2Immunization(immAct);
-                    mergeBundles(immBundle, ccdBundle, fhirSec, Immunization.class);
-            	}
-            }
             /*else if(cdaSec instanceof MedicalEquipmentSection) {
                 MedicalEquipmentSection equipSec = (MedicalEquipmentSection) cdaSec;
                 // Case 1: Entry is a Non-Medicinal Supply Activity (V2)
@@ -320,34 +335,11 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
                     }
                 }
             }*/
-            else if(cdaSec instanceof MedicationsSection) {
-                MedicationsSection medSec = (MedicationsSection) cdaSec;
-                for(MedicationActivity medAct : medSec.getMedicationActivities()) {
-                    Bundle medBundle = resTransformer.tMedicationActivity2MedicationStatement(medAct);
-                    mergeBundles(medBundle, ccdBundle, fhirSec, MedicationStatement.class);
-                }
-            }
             else if(cdaSec instanceof PayersSection) {
 
             }
             else if(cdaSec instanceof PlanOfCareSection) {
 
-            }
-            else if(cdaSec instanceof ProblemSection) {
-                ProblemSection probSec = (ProblemSection) cdaSec;
-                for(ProblemConcernAct pcAct : probSec.getConsolProblemConcerns()) {
-                    Bundle conBundle = resTransformer.tProblemConcernAct2Condition(pcAct);
-                    mergeBundles(conBundle, ccdBundle, fhirSec, Condition.class);
-                }
-            }
-            else if(cdaSec instanceof ProceduresSection) {
-                ProceduresSection procSec = (ProceduresSection) cdaSec;
-                Map<String, String> idedAnnotations = EMFUtil.findReferences(procSec.getText());
-                List<ProcedureActivityProcedure> procs = procSec.getConsolProcedureActivityProcedures();
-                for(ProcedureActivityProcedure proc : procs) {
-                    Bundle procBundle = resTransformer.tProcedure2Procedure(proc, idedAnnotations);
-                    mergeBundles(procBundle, ccdBundle, fhirSec, Procedure.class);
-                }
             }
             /*else if(cdaSec instanceof ResultsSection) {
             	ResultsSection resultSec = (ResultsSection) cdaSec;
@@ -385,29 +377,6 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
 
         return ccdBundle;
-    }
-
-    /**
-     * Copies all the entries from the source bundle to the target bundle, and at the same time adds a reference to the Section.Entry for each instance of the specified class
-     * @param sourceBundle Source FHIR Bundle to be copied from
-     * @param targetBundle Target FHIR Bundle to be copied into
-     * @param fhirSec FHIR Section where the reference will be added
-     * @param sectionRefCls Specific FHIR Resource Class among the resources in the sourceBundle, whose reference will be added to the FHIR Section
-     */
-    private void mergeBundles(Bundle sourceBundle, Bundle targetBundle, SectionComponent fhirSec, Class<?> sectionRefCls) {
-    	if(sourceBundle != null) {
-    		for(BundleEntryComponent entry : sourceBundle.getEntry()) {
-    			if(entry != null) {
-    				// Add all the resources returned from the source bundle to the target bundle
-                    targetBundle.addEntry(entry);
-                    // Add a reference to the section for each instance of requested class, e.g. Observation, Procedure ...
-                    if(sectionRefCls.isInstance(entry.getResource())) {
-                        Reference ref = fhirSec.addEntry();
-                        ref.setReference(entry.getResource().getId());
-                    }
-    			}
-            }
-    	}
     }
 
     /**
