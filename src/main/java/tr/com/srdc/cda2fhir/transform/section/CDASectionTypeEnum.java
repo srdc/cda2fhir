@@ -42,12 +42,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof AllergiesSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAAllergiesSection((AllergiesSection) section);
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAAllergiesSection(ccd.getAllergiesSection());
@@ -58,12 +58,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof ImmunizationsSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAImmunizationsSection((ImmunizationsSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return null;
@@ -74,12 +74,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof ImmunizationsSectionEntriesOptional;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAImmunizationsSectionEntriesOptional((ImmunizationsSectionEntriesOptional) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAImmunizationsSectionEntriesOptional(ccd.getImmunizationsSectionEntriesOptional());
@@ -90,12 +90,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof MedicationsSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAMedicationsSection((MedicationsSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAMedicationsSection(ccd.getMedicationsSection());
@@ -106,12 +106,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof ProblemSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAProblemsSection((ProblemSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAProblemsSection(ccd.getProblemSection());
@@ -122,12 +122,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof ProceduresSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAProceduresSection((ProceduresSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAProceduresSection(ccd.getProceduresSection());
@@ -138,12 +138,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof EncountersSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAEncountersSection((EncountersSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAEncountersSection(ccd.getEncountersSection());
@@ -154,12 +154,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof VitalSignsSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAVitalSignsSection((VitalSignsSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return null;
@@ -170,12 +170,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof VitalSignsSectionEntriesOptional;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAVitalSignsSectionEntriesOptional((VitalSignsSectionEntriesOptional) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAVitalSignsSectionEntriesOptional(ccd.getVitalSignsSectionEntriesOptional());
@@ -186,12 +186,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof SocialHistorySection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDASocialHistorySection((SocialHistorySection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDASocialHistorySection(ccd.getSocialHistorySection());
@@ -202,12 +202,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof ResultsSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAResultsSection((ResultsSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAResultsSection(ccd.getResultsSection());
@@ -218,12 +218,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof FunctionalStatusSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAFunctionalStatusSection((FunctionalStatusSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAFunctionalStatusSection(ccd.getFunctionalStatusSection());
@@ -234,12 +234,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof FamilyHistorySection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAFamilyHistorySection((FamilyHistorySection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAFamilyHistorySection(ccd.getFamilyHistorySection());
@@ -250,12 +250,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof MedicalEquipmentSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAMedicalEquipmentSection((MedicalEquipmentSection) section);
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAMedicalEquipmentSection(ccd.getMedicalEquipmentSection());
@@ -266,12 +266,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof AdvanceDirectivesSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAUnplementedSection();
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAUnplementedSection();
@@ -282,12 +282,12 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof PayersSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAUnplementedSection();
-		}		
-		
+		}
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAUnplementedSection();
@@ -298,21 +298,21 @@ public enum CDASectionTypeEnum {
 		public boolean supports(Section section) {
 			return section instanceof PlanOfCareSection;
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(Section section) {
 			return new CDAUnplementedSection();
 		}
-		
+
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAUnplementedSection();
 		}
 	};
-	
+
 	public abstract boolean supports(Section section);
-	
+
 	public abstract ICDASection toCDASection(Section section);
-	
+
 	public abstract ICDASection toCDASection(ContinuityOfCareDocument ccd);
 }

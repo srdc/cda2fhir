@@ -21,6 +21,7 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,7 +42,6 @@ import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tr.com.srdc.cda2fhir.transform.section.CDASectionFactory;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
@@ -61,7 +61,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
     private IdGeneratorEnum idGenerator;
     private IResourceTransformer resTransformer;
     private Reference patientRef;
-    private CDASectionFactory sectionFactory = new CDASectionFactory();
+	
+    private List<CDASectionTypeEnum> supportedSectionTypes = new ArrayList<CDASectionTypeEnum>();
     
     private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
 
@@ -74,6 +75,12 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         this.idGenerator = IdGeneratorEnum.UUID;
         resTransformer = new ResourceTransformerImpl(this);
         this.patientRef = null;
+
+		supportedSectionTypes.add(CDASectionTypeEnum.ALLERGIES_SECTION);
+		supportedSectionTypes.add(CDASectionTypeEnum.IMMUNIZATIONS_SECTION);
+		supportedSectionTypes.add(CDASectionTypeEnum.MEDICATIONS_SECTION);
+		supportedSectionTypes.add(CDASectionTypeEnum.PROBLEM_SECTION);
+		supportedSectionTypes.add(CDASectionTypeEnum.PROCEDURES_SECTION);
     }
 
     /**
@@ -109,7 +116,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
     }
 
     public void addSection(CDASectionTypeEnum sectionEnum) {
-    	sectionFactory.addSection(sectionEnum);
+    	supportedSectionTypes.add(sectionEnum);
     }
     
     /**
@@ -167,6 +174,15 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
     public Bundle transformDocument(ClinicalDocument cda) {
     	return transformDocument(cda, true);
     }
+
+	private ICDASection findCDASection(Section section) {
+		for (CDASectionTypeEnum sectionType: supportedSectionTypes) {
+			if (sectionType.supports(section)) {
+				return sectionType.toCDASection(section);
+			}
+		}
+		return null;
+	}
     
     /**
      * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
@@ -209,7 +225,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {        	
-        	ICDASection section = sectionFactory.getInstance(cdaSec);
+        	ICDASection section = findCDASection(cdaSec);
         	if (section != null) {
             	SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
         		
