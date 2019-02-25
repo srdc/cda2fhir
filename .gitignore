@@ -29,6 +29,8 @@ logs/
 src/test/resources/output/
 src/test/resources/Cerner
 src/test/resources/gold/Cerner
+src/test/resources/Epic
+src/test/resources/gold/Epic
 bin
 src/test/resources/output
 HannahBanana_EpicCCD.xml
