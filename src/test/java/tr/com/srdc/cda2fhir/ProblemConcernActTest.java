@@ -1,6 +1,5 @@
 package tr.com.srdc.cda2fhir;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,14 +18,11 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ProblemConcernActImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ProblemObservationImpl;
-import org.openhealthtools.mdht.uml.cda.consol.impl.ProblemStatusImpl;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
-import org.openhealthtools.mdht.uml.cda.impl.EntryRelationshipImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.CDImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
@@ -44,43 +40,15 @@ public class ProblemConcernActTest {
 	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
-	private static Map<String, String> cdaProblemStatusCodeToName = new HashMap<String, String>();
-
-	private static Map<String, Object> clinicalStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/ConditionClinicalStatus.json");
 	private static Map<String, Object> verificationStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/ConditionVerificationStatus.json");
 		
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 		
-		cdaProblemStatusCodeToName.put("55561003", "Active");
-		cdaProblemStatusCodeToName.put("73425007", "Inactive");
-		cdaProblemStatusCodeToName.put("413322009", "Resolved");
-
 		cdaObjFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
 		cdaTypeFactory = DatatypesFactoryImpl.init();		
 		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
-	}
-
-	static private ProblemStatusImpl createProblemStatus(String cdaProblemStatusCode) {
-		ProblemStatusImpl problemStatus = (ProblemStatusImpl) cdaObjFactory.createProblemStatus();	
-		
-		II templateId = cdaTypeFactory.createII("2.16.840.1.113883.10.20.22.4.6");
-		problemStatus.getTemplateIds().add(templateId);
-
-		CD code = cdaTypeFactory.createCD("33999-4", "2.16.840.1.113883.6.1", null, null);
-		problemStatus.setCode(code);
-
-		CS cs = cdaTypeFactory.createCS("completed");
-		problemStatus.setStatusCode(cs);
-		if (cdaProblemStatusCode == null) {
-			cdaProblemStatusCode = clinicalStatusMap.entrySet().stream().findFirst().get().getKey();
-		}
-		String cdaProblemStatusName = cdaProblemStatusCodeToName.get(cdaProblemStatusCode);	
-		CE ce = cdaTypeFactory.createCE (cdaProblemStatusCode, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaProblemStatusName);
-		problemStatus.getValues().add(ce);
-		
-		return problemStatus;
 	}
 	
 	private static ProblemConcernActImpl createProblemConcernAct() {
@@ -136,32 +104,52 @@ public class ProblemConcernActTest {
 	}
 		
 	@Test
-	public void testProblemObservationProblemStatus() throws Exception {
+	public void testProblemObservationProblemStatusInactive() throws Exception {
 		ProblemConcernActImpl act = createProblemConcernAct();
 		ProblemObservationImpl observation =  (ProblemObservationImpl) act.getEntryRelationships().get(0).getObservation();
 		
-		for (Map.Entry<String, Object> entry : clinicalStatusMap.entrySet()) {
-			String cdaProblemStatusCode = entry.getKey();
-			String fhirClinicalStatus = (String) entry.getValue();
-										
-			ProblemStatusImpl problemStatus = createProblemStatus(cdaProblemStatusCode);	
-			EntryRelationshipImpl entryRelationship = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();
-			entryRelationship.setObservation(problemStatus);
-			entryRelationship.setTypeCode(x_ActRelationshipEntryRelationship.REFR);
-			
-			observation.getEntryRelationships().clear();
-			observation.getEntryRelationships().add(entryRelationship);
-										
-			DiagnosticChain dxChain = new BasicDiagnostic();
-			Boolean validation = act.validateProblemConcernActProblemObservation(dxChain, null);
-			Assert.assertTrue("Invalid Problem Concern Act in Test", validation);
+		String low = "2018-01-01";
+		String high = "2019-01-01";
+		
+		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, high);
+		
+		observation.setEffectiveTime(interval);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
+		ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+		Assert.assertEquals("Inactive Problem with high value", "inactive", actual);
+		
+	}
 	
-			Bundle bundle = rt.tProblemConcernAct2Condition(act);
-			Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
-			ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
-			String actual = clinicalStatus.toCode();
-			Assert.assertEquals("Unexpected Problem Concern Act Status", fhirClinicalStatus, actual);
-		}
+	@Test
+	public void testProblemObservationProblemStatusActive() throws Exception {
+		ProblemConcernActImpl act = createProblemConcernAct();
+		ProblemObservationImpl observation =  (ProblemObservationImpl) act.getEntryRelationships().get(0).getObservation();
+		
+		String low = "2018-01-01";
+		
+		IVL_TS interval = cdaTypeFactory.createIVL_TS(low);
+		
+		observation.setEffectiveTime(interval);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
+		ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+		Assert.assertEquals("Active Problem without high value", "active", actual);
+		
+	}
+	
+	@Test
+	public void testProblemObservationProblemStatusActiveNoDate() throws Exception {
+		ProblemConcernActImpl act = createProblemConcernAct();
+
+		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
+		ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+		Assert.assertEquals("Active Problem without no value defaults to active", "active", actual);
+		
 	}
 
 	static private void verifyConditionVerificationStatus(ProblemConcernAct act, String expected) throws Exception {

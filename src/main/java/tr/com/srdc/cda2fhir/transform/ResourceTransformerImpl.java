@@ -112,7 +112,6 @@ import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemStatus;
 import org.openhealthtools.mdht.uml.cda.consol.ProductInstance;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
@@ -262,7 +261,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// statusCode -> status
+		// statusCode -> verificationStatus
 		if(cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaAllergyProbAct.getStatusCode().getCode() != null && !cdaAllergyProbAct.getStatusCode().getCode().isEmpty()) {
 				AllergyIntoleranceVerificationStatus allergyIntoleranceStatusEnum = vst.tStatusCode2AllergyIntoleranceVerificationStatus(cdaAllergyProbAct.getStatusCode().getCode());
@@ -327,6 +326,22 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							fhirAllergyIntolerance.setOnset(dtt.tString2DateTime(cdaAllergyObs.getEffectiveTime().getValue()));
 						}
 					}
+					
+					// effectiveTime -> clinicalStatus
+					if (cdaAllergyObs.getEffectiveTime() != null && !cdaAllergyObs.getEffectiveTime().isSetNullFlavor()) {
+
+						IVXB_TS high = cdaAllergyObs.getEffectiveTime().getHigh();
+
+						// high -> inactive
+						if (high != null && !high.isSetNullFlavor()) {
+							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.INACTIVE);
+						} else {
+							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
+						}
+					} else {
+						fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
+					}
+
 
 					// searching for reaction observation
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()) {
@@ -574,7 +589,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 		
 		// representedOrganization -> practitionerRole.organization
-		// NOTE: we skipped multiple instances of representated organization; we just omit apart from the first
+		// NOTE: we skipped multiple instances of represented organization; we just omit apart from the first
 		if(!cdaAssignedEntity.getRepresentedOrganizations().isEmpty()) {
 			if(cdaAssignedEntity.getRepresentedOrganizations().get(0) != null && !cdaAssignedEntity.getRepresentedOrganizations().get(0).isSetNullFlavor()) {
 				org.hl7.fhir.dstu3.model.Organization fhirOrganization = tOrganization2Organization(cdaAssignedEntity.getRepresentedOrganizations().get(0));
@@ -1430,7 +1445,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// negationInd -> wasNotTaken
+		// negationInd -> notGiven
 		if(cdaImmunizationActivity.getNegationInd() != null) {
 			fhirImmunization.setNotGiven(cdaImmunizationActivity.getNegationInd());
 		}
@@ -2455,6 +2470,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 					CS statusCode = cdaProblemConcernAct.getStatusCode();
 					String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null : statusCode.getCode();
+					
+					// statusCode -> verificationStatus
 					fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));	
 				}
 			}
@@ -2528,6 +2545,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				fhirCondition.setAbatement(dtt.tTS2DateTime(high));
 			}
 		}
+		
+		// onset and abatement -> clinicalStatus
+		if (fhirCondition.getAbatement() != null) {	
+			fhirCondition.setClinicalStatus(ConditionClinicalStatus.INACTIVE);
+		} else {
+			fhirCondition.setClinicalStatus(ConditionClinicalStatus.ACTIVE);
+		}
 
 		// author[0] -> asserter
 		if(!cdaProbObs.getAuthors().isEmpty()) {
@@ -2556,28 +2580,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					fhirConditionBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
 					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Encounter) {
 						fhirCondition.setContext(new Reference(entry.getResource().getId()));
-					}
-				}
-			}
-		}
-
-		EList<EntryRelationship> entryRels = cdaProbObs.getEntryRelationships();
-		
-		if(entryRels != null && !entryRels.isEmpty()) {
-			for(EntryRelationship entryRelShip : entryRels) {
-				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
-					Observation observation = entryRelShip.getObservation();
-					if(observation != null && !observation.isSetNullFlavor()) {
-						// problem status  -> clinical status
-						if(observation != null && observation instanceof ProblemStatus) {
-							observation.getValues().stream().filter(value -> value instanceof CE)
-									.map(value -> (CE) value)
-									.map(ce -> ce.getCode())
-									.forEach(code -> {
-										ConditionClinicalStatus status = vst.tProblemStatus2ConditionClinicalStatus(code);
-										fhirCondition.setClinicalStatus(status);
-									});
-						}
 					}
 				}
 			}
