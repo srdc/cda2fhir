@@ -2763,7 +2763,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 			
-			// observationRange.interpretationCode -> meaning
+			// observationRange.interpretationCode -> type
 			if(cdaReferenceRange.getObservationRange().getInterpretationCode() != null && !cdaReferenceRange.getObservationRange().getInterpretationCode().isSetNullFlavor()) {
 				fhirRefRange.setType(dtt.tCD2CodeableConcept(cdaReferenceRange.getObservationRange().getInterpretationCode()));
 			}
