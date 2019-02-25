@@ -12,8 +12,9 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
-import org.hl7.fhir.dstu3.model.Bundle.BundleTypeEnumFactory;
+import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -37,7 +38,6 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 public class IntegrationTest{
 	static String hapiURL = "http://localhost:8080";
 	static String serverBase = hapiURL + "/baseDstu3";
-	static BundleTypeEnumFactory bundleTypeEnumFactory;
 	static FhirContext ctx;
 	static IGenericClient client;
 	static CCDTransformerImpl ccdTransformer;
@@ -49,7 +49,6 @@ public class IntegrationTest{
         // This has to be called before loading the document; otherwise will have no effect.
         CDAUtil.loadPackages();
         ctx = FhirContext.forDstu3();
-        bundleTypeEnumFactory = new BundleTypeEnumFactory();
         client = ctx.newRestfulGenericClient(serverBase);
         ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
     }
@@ -61,25 +60,7 @@ public class IntegrationTest{
             .build();
 	
 
-	 private static Bundle generateTransactionBundle(Bundle bundle, Map<String, String> map) throws Exception {
-			
-		 BundleType bt = bundleTypeEnumFactory.fromCode("transaction");
-	     Bundle transactionBundle = ccdTransformer.createTransactionBundle(bundle, bt, map, true);
-	       
-	     return transactionBundle;
-	}
-	 
-	 private static Bundle generateCcdaBundle(String sourceName) throws Exception {
-			
-	        FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
-	        ClinicalDocument cda = CDAUtil.load(fis);
-	        Bundle bundle = ccdTransformer.transformDocument(cda);
-	       
-	        return bundle;
-	 }
-	 
-	
-	 
+	@SuppressWarnings("unused")
 	private static void validate(Bundle bundle) {
 		FhirValidator validator = new FhirValidator(ctx);
     	ValidationResult result = validator.validateWithResult(bundle);
@@ -88,57 +69,19 @@ public class IntegrationTest{
     	}
     	Assert.assertTrue(result.isSuccessful());
 	}
-    
-	private Map<String, String> getResourceProfileMap(Bundle bundle) {
-		HashMap<String, String> map = new HashMap<String, String>();
-		
-		for( BundleEntryComponent entry : bundle.getEntry()) {
-			if(entry != null) {
-				map.put(entry.getResource().getResourceType().name() ,"");
-			}
-		}
-		
-		return map;
-	}
-
-	private String rakiaPatientIntegration(Bundle bundle) throws Exception {
-		
-		List<Patient> patients = bundle.getEntry().stream()
-				.map(r -> r.getResource())
-				.filter(r -> (r instanceof Patient))
-				.map(r -> (Patient) r)
-				.collect(Collectors.toList());
-		
-    	Patient patient = patients.get(0);
-    	
-    	MethodOutcome outcome = client.create()
- 			   .resource(patient)
- 			   .prettyPrint()
- 			   .encodedJson()
- 			   .execute();
-    	
-    	Assert.assertTrue(outcome.getCreated());
-    	return outcome.getResource().getIdElement().getIdPart();
-	}
 	
 	
     @Test
 	public void rakiaIntegration() throws Exception {
-    	String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
-    	// generate bundle with patient
-		Bundle ccdaBundle  = generateCcdaBundle(sourceName);
-		
-		// currently doesn't valiate. Potentially due to incorrect implementation
+    	String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";	
+    	// create transaction bundle from ccda bundle
+    	Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName, BundleType.TRANSACTION, null);
+   
+		// currently doesn't validate. Potentially due to incorrect implementation
 		// of resourceProfileMap.
 		// TODO: Make valid.
-		// validate(patientBundle);
-		
-		// Generate empty resourceProfileMap to appease transaction generator function
-		// TODO: properly implement getResouceProfileMap
-		Map<String, String> resourceProfileMap = getResourceProfileMap(ccdaBundle);
-
-    	// create transaction bundle from ccda bundle
-    	Bundle transactionBundle = generateTransactionBundle(ccdaBundle, resourceProfileMap); 
+		// validate(transactionBundle);
+    	
     	// print pre-post bundle
     	FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
     	
@@ -151,17 +94,32 @@ public class IntegrationTest{
     		Assert.assertEquals("201 Created", entryResp.getStatus());
     	}
     	
+    	Bundle patientResults = (Bundle)client
+	    	      .search()
+	    	      .forResource(Patient.class)
+	    	      .prettyPrint()
+	    	      .execute();
+    	
+    	Bundle practitionerResults = (Bundle)client
+	    	      .search()
+	    	      .forResource(Practitioner.class)
+	    	      .prettyPrint()
+	    	      .execute();
+    	
+    	Bundle medicationResults = (Bundle)client
+	    	      .search()
+	    	      .forResource(Medication.class)
+	    	      .prettyPrint()
+	    	      .execute();
+    
+    	Assert.assertEquals(1, patientResults.getTotal());
+    	Assert.assertEquals(18, practitionerResults.getTotal());
+    	Assert.assertEquals(14, medicationResults.getTotal());
+    	
     	// TODO: Test each entry exists in server via search
-//    	for( BundleEntryComponent entry : transactionBundle.getEntry()) {
-//    		System.out.println(entry.getClass());
-//    		Bundle results = (Bundle) client
-//    	    	      .search()
-//    	    	      .forResource((Class<? extends IBaseResource>) entry.getClass())
-//    	    	      .prettyPrint()
-//    	    	      .execute();
-//    		
-//    		Assert.assertTrue(results.hasEntry());
-//    	}
     	
 	}
+    
+
+    
 }
