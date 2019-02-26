@@ -25,7 +25,9 @@
                 <configuration>
                     <!-- Setting the system file encoding to UTF-8 -->
                     <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
+                
             </plugin>
         </plugins>
     </build>
@@ -135,6 +137,6 @@
     		<groupId>org.json</groupId>
     		<artifactId>json</artifactId>
     		<version>20180130</version>
-		</dependency>
+		</dependency>		
     </dependencies>
 </project>
