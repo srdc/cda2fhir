@@ -25,7 +25,9 @@
                 <configuration>
                     <!-- Setting the system file encoding to UTF-8 -->
                     <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
+                
             </plugin>
         </plugins>
     </build>
@@ -38,7 +40,14 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <hapifhir.version>3.6.0</hapifhir.version>
     </properties>
-
+    
+    <repositories>
+	    <repository>
+			<id>palantir</id>
+			<name>palatir</name>
+			<url>https://dl.bintray.com/palantir/releases/</url>
+	    </repository>
+ 	</repositories>
     <dependencies>
         <!-- MDHT: CDA manipulation -->
         <dependency>
@@ -46,6 +55,12 @@
             <artifactId>ipf-modules-cda-mdht</artifactId>
             <version>3.6-20190124</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-client -->
+		<dependency>
+		    <groupId>ca.uhn.hapi.fhir</groupId>
+		    <artifactId>hapi-fhir-client</artifactId>
+		    <version>3.7.0</version>
+		</dependency>
         <!-- HAPI: FHIR manipulation -->
         <!--
         <dependency>
@@ -105,7 +120,13 @@
     		<groupId>com.bazaarvoice.jolt</groupId>
     		<artifactId>json-utils</artifactId>
     		<version>0.1.1</version>
-		</dependency>									                
+		</dependency>	
+		<!-- https://mvnrepository.com/artifact/com.palantir.docker.compose/docker-compose-rule-junit4 -->
+		<dependency>
+		    <groupId>com.palantir.docker.compose</groupId>
+		    <artifactId>docker-compose-rule-junit4</artifactId>
+		    <version>0.34.0</version>
+		</dependency>								                									                
 		<dependency>
     		<groupId>org.skyscreamer</groupId>
     		<artifactId>jsonassert</artifactId>
@@ -116,6 +137,6 @@
     		<groupId>org.json</groupId>
     		<artifactId>json</artifactId>
     		<version>20180130</version>
-		</dependency>
+		</dependency>		
     </dependencies>
 </project>
