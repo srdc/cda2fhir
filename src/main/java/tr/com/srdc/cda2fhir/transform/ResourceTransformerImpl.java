@@ -121,6 +121,7 @@ import org.openhealthtools.mdht.uml.cda.consol.SeverityObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
+import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
@@ -2096,6 +2097,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						fhirObs.setValue(dtt.tED2Attachment((ED)value));
 					} else if(value instanceof TS) {
 						fhirObs.setValue(dtt.tTS2DateTime((TS)value));
+					} else if (value instanceof BL) {
+						fhirObs.setValue(dtt.tBL2Boolean((BL) value));
 					}
 				}
 			}
@@ -2762,7 +2765,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 			
-			// observationRange.interpretationCode -> meaning
+			// observationRange.interpretationCode -> type
 			if(cdaReferenceRange.getObservationRange().getInterpretationCode() != null && !cdaReferenceRange.getObservationRange().getInterpretationCode().isSetNullFlavor()) {
 				fhirRefRange.setType(dtt.tCD2CodeableConcept(cdaReferenceRange.getObservationRange().getInterpretationCode()));
 			}
