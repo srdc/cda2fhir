@@ -24,7 +24,6 @@ import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
-import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -37,8 +36,6 @@ public class ProcedureActivityProcedureTest {
 
 	private static CDAFactories factories;
 	
-	private static ConsolFactoryImpl cdaObjFactory;
-
 	private static Map<String, Object> statusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/ProcedureStatus.json");
 	
 	@BeforeClass
@@ -46,13 +43,11 @@ public class ProcedureActivityProcedureTest {
 		CDAUtil.loadPackages();
 
 		factories = CDAFactories.init();
-		
-		cdaObjFactory = factories.consol;
 	}
 	
 	@Test
 	public void testPerformer() throws Exception {
-		ProcedureActivityProcedure pap = cdaObjFactory.createProcedureActivityProcedure();
+		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
 
 		String organizationName = "PAP Organization";
 		
@@ -90,7 +85,7 @@ public class ProcedureActivityProcedureTest {
 	
 	@Test
 	public void testStatusCode() throws Exception {
-		ProcedureActivityProcedure pap = cdaObjFactory.createProcedureActivityProcedure();
+		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
 		verifyProcedureStatus(pap, null);
 		
 		DiagnosticChain dxChain = new BasicDiagnostic();
@@ -113,7 +108,7 @@ public class ProcedureActivityProcedureTest {
 	
 	@Test
 	public void testIndication() throws Exception {
-		ProcedureActivityProcedure pap = cdaObjFactory.createProcedureActivityProcedure();
+		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
 		
 		IndicationGenerator indicationGenerator = new IndicationGenerator();
 		Indication indication = indicationGenerator.generate(factories);
