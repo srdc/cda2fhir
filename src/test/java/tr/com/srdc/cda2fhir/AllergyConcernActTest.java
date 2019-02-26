@@ -45,6 +45,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
 public class AllergyConcernActTest {
@@ -56,8 +57,7 @@ public class AllergyConcernActTest {
 	
 	private static Map<String, String> cdaProblemStatusCodeToName = new HashMap<String, String>();
 	private static Map<String, String> cdaAllergyIntoleranceTypeCodeToName = new HashMap<String, String>();
-	
-	private static Map<String, Object> clinicalStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceClinicalStatus.json");
+
 	private static Map<String, Object> verificationStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceVerificationStatus.json");
 	private static Map<String, Object> categoryMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
 		
@@ -115,12 +115,6 @@ public class AllergyConcernActTest {
 
 		CS cs = cdaTypeFactory.createCS("completed");
 		allergyStatus.setStatusCode(cs);
-		if (cdaProblemStatusCode == null) {
-			cdaProblemStatusCode = clinicalStatusMap.entrySet().stream().findFirst().get().getKey();
-		}
-		String cdaProblemStatusName = cdaProblemStatusCodeToName.get(cdaProblemStatusCode);	
-		CE ce = cdaTypeFactory.createCE (cdaProblemStatusCode, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaProblemStatusName);
-		allergyStatus.getValues().add(ce);
 		
 		return allergyStatus;
 	}
@@ -245,31 +239,53 @@ public class AllergyConcernActTest {
 	}
 
 	@Test
-	public void testStatusObservation() throws Exception {
+	public void testAllergyObservationStatusInactive() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
-		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
+		AllergyObservationImpl observation =  (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();
 		
-		for (Map.Entry<String, Object> entry : clinicalStatusMap.entrySet()) {
-			String cdaProblemStatusCode = entry.getKey();
-			String fhirClinicalStatus = (String) entry.getValue();
-										
-			AllergyStatusObservationImpl allergyStatus = createAllergyStatusObservation(cdaProblemStatusCode);	
-			EntryRelationshipImpl entryRelationship = (EntryRelationshipImpl) cdaFactory.createEntryRelationship();
-			entryRelationship.setObservation(allergyStatus);
-			
-			observationTop.getEntryRelationships().clear();
-			observationTop.getEntryRelationships().add(entryRelationship);
-										
-			DiagnosticChain dxChain = new BasicDiagnostic();
-			Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
-			Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
+		String low = "2018-01-01";
+		String high = "2019-01-01";
+		
+		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, high);
+		
+		observation.setEffectiveTime(interval);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+
+		Assert.assertEquals("Inactive Allergy with high value", "inactive", actual);	
+	}
 	
-			Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
-			AllergyIntolerance allergyIntolerance = findOneResource(bundle);
-			AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
-			String actual = clinicalStatus.toCode();
-			Assert.assertEquals("Unexpected AllergtIntolerance Clinical Status", fhirClinicalStatus, actual);
-		}
+	@Test
+	public void testAllergyObservationStatusActive() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation =  (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();
+		
+		String low = "2018-01-01";
+		
+		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, null);
+		
+		observation.setEffectiveTime(interval);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+
+		Assert.assertEquals("Active Allergy with low value", "active", actual);	
+	}
+	
+	@Test
+	public void testAllergyObservationStatusNoDate() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		//AllergyObservationImpl observation =  (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();
+		
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
+		String actual = clinicalStatus.toCode();
+
+		Assert.assertEquals("No effective time defaults to active", "active", actual);	
 	}
 
 	static private IVL_TS createEffectiveTimeLow(String value) {

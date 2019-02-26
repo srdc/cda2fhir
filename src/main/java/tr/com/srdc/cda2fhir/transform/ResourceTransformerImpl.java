@@ -112,7 +112,6 @@ import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemStatus;
 import org.openhealthtools.mdht.uml.cda.consol.ProductInstance;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
@@ -122,6 +121,7 @@ import org.openhealthtools.mdht.uml.cda.consol.SeverityObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
+import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
@@ -262,7 +262,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// statusCode -> status
+		// statusCode -> verificationStatus
 		if(cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor()) {
 			if(cdaAllergyProbAct.getStatusCode().getCode() != null && !cdaAllergyProbAct.getStatusCode().getCode().isEmpty()) {
 				AllergyIntoleranceVerificationStatus allergyIntoleranceStatusEnum = vst.tStatusCode2AllergyIntoleranceVerificationStatus(cdaAllergyProbAct.getStatusCode().getCode());
@@ -327,6 +327,22 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							fhirAllergyIntolerance.setOnset(dtt.tString2DateTime(cdaAllergyObs.getEffectiveTime().getValue()));
 						}
 					}
+					
+					// effectiveTime -> clinicalStatus
+					if (cdaAllergyObs.getEffectiveTime() != null && !cdaAllergyObs.getEffectiveTime().isSetNullFlavor()) {
+
+						IVXB_TS high = cdaAllergyObs.getEffectiveTime().getHigh();
+
+						// high -> inactive
+						if (high != null && !high.isSetNullFlavor()) {
+							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.INACTIVE);
+						} else {
+							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
+						}
+					} else {
+						fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
+					}
+
 
 					// searching for reaction observation
 					if(cdaAllergyObs.getEntryRelationships() != null && !cdaAllergyObs.getEntryRelationships().isEmpty()) {
@@ -574,7 +590,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 		
 		// representedOrganization -> practitionerRole.organization
-		// NOTE: we skipped multiple instances of representated organization; we just omit apart from the first
+		// NOTE: we skipped multiple instances of represented organization; we just omit apart from the first
 		if(!cdaAssignedEntity.getRepresentedOrganizations().isEmpty()) {
 			if(cdaAssignedEntity.getRepresentedOrganizations().get(0) != null && !cdaAssignedEntity.getRepresentedOrganizations().get(0).isSetNullFlavor()) {
 				org.hl7.fhir.dstu3.model.Organization fhirOrganization = tOrganization2Organization(cdaAssignedEntity.getRepresentedOrganizations().get(0));
@@ -824,7 +840,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(Config.isGenerateDafProfileMetadata())
 			fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
-		// patient
+		// subject
 		fhirEncounter.setSubject(getPatientRef());
 
 		// id -> identifier
@@ -922,7 +938,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// entryRelationship[@typeCode='RSON'].observation[Indication] -> indication
+		// entryRelationship[@typeCode='RSON'].observation[Indication] -> diagnosis.condition
 		if(cdaEncounter.getEntryRelationships() != null && !cdaEncounter.getEntryRelationships().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaEncounter.getEntryRelationships()) {
 				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
@@ -969,7 +985,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(Config.isGenerateDafProfileMetadata())
 			fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
-		// patient
+		// subject
 		fhirEncounter.setSubject(getPatientRef());
 
 		// id -> identifier
@@ -1042,7 +1058,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirEncounter.setPeriod(dtt.tIVL_TS2Period(cdaEncounterActivity.getEffectiveTime()));
 		}
 
-		// indication -> indication
+		// indication -> diagnosis.condition
 		for(Indication cdaIndication : cdaEncounterActivity.getIndications()) {
 			if(!cdaIndication.isSetNullFlavor()) {
 				Condition fhirIndication = tIndication2Condition(cdaIndication);
@@ -1430,7 +1446,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// negationInd -> wasNotTaken
+		// negationInd -> notGiven
 		if(cdaImmunizationActivity.getNegationInd() != null) {
 			fhirImmunization.setNotGiven(cdaImmunizationActivity.getNegationInd());
 		}
@@ -2081,6 +2097,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						fhirObs.setValue(dtt.tED2Attachment((ED)value));
 					} else if(value instanceof TS) {
 						fhirObs.setValue(dtt.tTS2DateTime((TS)value));
+					} else if (value instanceof BL) {
+						fhirObs.setValue(dtt.tBL2Boolean((BL) value));
 					}
 				}
 			}
@@ -2455,6 +2473,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 					CS statusCode = cdaProblemConcernAct.getStatusCode();
 					String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null : statusCode.getCode();
+					
+					// statusCode -> verificationStatus
 					fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));	
 				}
 			}
@@ -2528,6 +2548,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				fhirCondition.setAbatement(dtt.tTS2DateTime(high));
 			}
 		}
+		
+		// onset and abatement -> clinicalStatus
+		if (fhirCondition.getAbatement() != null) {	
+			fhirCondition.setClinicalStatus(ConditionClinicalStatus.INACTIVE);
+		} else {
+			fhirCondition.setClinicalStatus(ConditionClinicalStatus.ACTIVE);
+		}
 
 		// author[0] -> asserter
 		if(!cdaProbObs.getAuthors().isEmpty()) {
@@ -2556,28 +2583,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					fhirConditionBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
 					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Encounter) {
 						fhirCondition.setContext(new Reference(entry.getResource().getId()));
-					}
-				}
-			}
-		}
-
-		EList<EntryRelationship> entryRels = cdaProbObs.getEntryRelationships();
-		
-		if(entryRels != null && !entryRels.isEmpty()) {
-			for(EntryRelationship entryRelShip : entryRels) {
-				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
-					Observation observation = entryRelShip.getObservation();
-					if(observation != null && !observation.isSetNullFlavor()) {
-						// problem status  -> clinical status
-						if(observation != null && observation instanceof ProblemStatus) {
-							observation.getValues().stream().filter(value -> value instanceof CE)
-									.map(value -> (CE) value)
-									.map(ce -> ce.getCode())
-									.forEach(code -> {
-										ConditionClinicalStatus status = vst.tProblemStatus2ConditionClinicalStatus(code);
-										fhirCondition.setClinicalStatus(status);
-									});
-						}
 					}
 				}
 			}
@@ -2760,7 +2765,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 			
-			// observationRange.interpretationCode -> meaning
+			// observationRange.interpretationCode -> type
 			if(cdaReferenceRange.getObservationRange().getInterpretationCode() != null && !cdaReferenceRange.getObservationRange().getInterpretationCode().isSetNullFlavor()) {
 				fhirRefRange.setType(dtt.tCD2CodeableConcept(cdaReferenceRange.getObservationRange().getInterpretationCode()));
 			}
