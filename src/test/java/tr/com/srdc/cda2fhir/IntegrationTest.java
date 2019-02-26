@@ -14,6 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
@@ -25,6 +27,7 @@ import ca.uhn.fhir.validation.ValidationResult;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
+import tr.com.srdc.cda2fhir.validation.ValidatorImpl;
 
 public class IntegrationTest {
 	static String hapiURL = "http://localhost:8080";
@@ -32,7 +35,8 @@ public class IntegrationTest {
 	static FhirContext ctx;
 	static IGenericClient client;
 	static CCDTransformerImpl ccdTransformer;
-
+	static Logger logger;
+	
 	@BeforeClass
 	public static void init() throws IOException {
 
@@ -44,6 +48,7 @@ public class IntegrationTest {
 		ctx = FhirContext.forDstu3();
 		client = ctx.newRestfulGenericClient(serverBase);
 		ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+		logger = LoggerFactory.getLogger(ValidatorImpl.class);
 	}
 
 	@ClassRule
