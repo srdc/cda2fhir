@@ -922,7 +922,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 		
-		// entryRelationship[@typeCode='RSON'].observation[Indication] -> indication
+		// entryRelationship[@typeCode='RSON'].observation[Indication] -> diagnosis.condition
 		if(cdaEncounter.getEntryRelationships() != null && !cdaEncounter.getEntryRelationships().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.EntryRelationship entryRelShip : cdaEncounter.getEntryRelationships()) {
 				if(entryRelShip != null && !entryRelShip.isSetNullFlavor()) {
@@ -1042,7 +1042,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirEncounter.setPeriod(dtt.tIVL_TS2Period(cdaEncounterActivity.getEffectiveTime()));
 		}
 
-		// indication -> indication
+		// indication -> diagnosis.condition
 		for(Indication cdaIndication : cdaEncounterActivity.getIndications()) {
 			if(!cdaIndication.isSetNullFlavor()) {
 				Condition fhirIndication = tIndication2Condition(cdaIndication);
