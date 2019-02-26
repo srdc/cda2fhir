@@ -824,7 +824,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(Config.isGenerateDafProfileMetadata())
 			fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
-		// patient
+		// subject
 		fhirEncounter.setSubject(getPatientRef());
 
 		// id -> identifier
@@ -969,7 +969,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(Config.isGenerateDafProfileMetadata())
 			fhirEncounter.getMeta().addProfile(Constants.PROFILE_DAF_ENCOUNTER);
 		
-		// patient
+		// subject
 		fhirEncounter.setSubject(getPatientRef());
 
 		// id -> identifier
