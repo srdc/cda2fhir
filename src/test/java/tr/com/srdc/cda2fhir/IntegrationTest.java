@@ -23,6 +23,7 @@ import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.validation.FhirValidator;
+import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationResult;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -36,7 +37,7 @@ public class IntegrationTest {
 	static IGenericClient client;
 	static CCDTransformerImpl ccdTransformer;
 	static Logger logger;
-	
+
 	@BeforeClass
 	public static void init() throws IOException {
 
@@ -60,7 +61,14 @@ public class IntegrationTest {
 		FhirValidator validator = new FhirValidator(ctx);
 		ValidationResult result = validator.validateWithResult(bundle);
 		if (!result.isSuccessful()) {
-			System.out.println(result.toString());
+
+			if (result.getMessages().size() > 0) {
+				logger.debug("validation debug messages: ");
+				for (SingleValidationMessage s : result.getMessages()) {
+					logger.debug(s.getMessage());
+				}
+			}
+
 		}
 		Assert.assertTrue(result.isSuccessful());
 	}
