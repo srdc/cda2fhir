@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="cda.xsl"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:sdtc="urn:hl7-org:sdtc"
+	xsi:schemaLocation="urn:hl7-org:v3 ../../../CDA%20R2/cda-schemas-and-samples/infrastructure/cda/CDA.xsd"
+	classCode="DOCCLIN" moodCode="EVN">
+	<realmCode code="US" />
+	<typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040" />
+	<templateId root="2.16.840.1.113883.10.20.22.1.1"
+		extension="2015-08-01" />
+	<templateId root="2.16.840.1.113883.10.20.22.1.2"
+		extension="2015-08-01" />
+	<id root="2.16.840.1.113883.3.552.1.3.100.1.13.1.999362"
+		extension="4950044" />
+	<code code="34133-9" codeSystem="2.16.840.1.113883.6.1"
+		displayName="Summarization of Episode Note" />
+	<title>Continuity of Care Document</title>
+	<effectiveTime value="20180720172746.338-0400" />
+	<confidentialityCode code="N" displayName="Normal"
+		codeSystem="2.16.840.1.113883.5.25" />
+	<languageCode code="en-US" />
+	<component typeCode="COMP">
+		<structuredBody classCode="DOCBODY" moodCode="EVN">
+			<component typeCode="COMP" contextConductionInd="true">
+				<section classCode="DOCSECT" moodCode="EVN">
+					<templateId root="2.16.840.1.113883.10.20.22.2.22.1"
+						extension="2015-08-01" />
+					<templateId root="2.16.840.1.113883.10.20.22.2.22.1" />
+					<templateId root="2.16.840.1.113883.10.20.22.2.22"
+						extension="2015-08-01" />
+					<templateId root="2.16.840.1.113883.10.20.22.2.22" />
+					<code code="46240-8" codeSystem="2.16.840.1.113883.6.1"
+						codeSystemName="LOINC"
+						displayName="History of hospitalizations+History of outpatient visits" />
+					<title>Encounter</title>
+					<text>
+						<paragraph ID="ENCVTYUKL666">
+							<content styleCode="Bold">AMIDACOMFIN 6666666666 Date(s):
+								10/7/16 - 1/9/18</content>
+							<br />
+							AMIDAUH 500 HIGH STREET PITTSBURGH, DC 20005- US
+							<br />
+							<content ID="ENCNTRDDP197416489">Discharge Disposition: EXAMPLE</content>
+							<br />
+							Attending Physician: JOE ATTENDING
+							<br />
+							Admitting Physician: JOE ADMITTING
+							<br />
+							Referring Physician: JOE REFERRING
+							<br />
+						</paragraph>
+					</text>
+					<entry>
+						<encounter classCode="ENC" moodCode="EVN">
+							<templateId root="2.16.840.1.113883.10.20.22.4.49"
+								extension="2015-08-01" />
+							<templateId root="2.16.840.1.113883.10.20.22.4.49" />
+							<id root="2.66.666.6"
+								extension="1234567" assigningAuthorityName="AMIDACOMFIN" />
+							<code nullFlavor="UNK">
+								<originalText>Inpatient</originalText>
+							</code>
+							<effectiveTime>
+								<low value="20171107075500.000-0400" />
+								<high value="20190309112900.000-0500" />
+							</effectiveTime>
+							<sdtc:dischargeDispositionCode
+								nullFlavor="UNK">
+								<originalText>
+									<reference value="#ENCNTRDDP197416489" />
+								</originalText>
+							</sdtc:dischargeDispositionCode>
+							<performer>
+								<assignedEntity classCode="ASSIGNED">
+									<id root="2.567.876.4455.34" extension="AAXX345"
+										assigningAuthorityName="XYXYYXX" />
+									<addr use="WP">
+										<streetAddressLine>DRUDE BLDG SUITE 4500</streetAddressLine>
+										<streetAddressLine>456 FOURTH STREET</streetAddressLine>
+										<city>ROCKVILLE</city>
+										<state>DC</state>
+										<postalCode>20005-    </postalCode>
+										<country>US</country>
+									</addr>
+									<telecom use="WP" value="tel:(666)666-6666" ></telecom>
+									<assignedPerson classCode="PSN"
+										determinerCode="INSTANCE">
+										<name>
+											<given>MARCUD</given>
+											<given>S</given>
+											<family>SILVERMANN</family>
+										</name>
+									</assignedPerson>
+								</assignedEntity>
+							</performer>
+							<participant typeCode="LOC">
+								<participantRole classCode="SDLOC">
+									<templateId root="2.16.840.1.113883.10.20.22.4.32" />
+									<code nullFlavor="NI" />
+									<addr use="WP">
+										<streetAddressLine>500 HIGH STREET</streetAddressLine>
+										<city>WASHINGTON</city>
+										<state>DC</state>
+										<postalCode>20005-    </postalCode>
+										<country>US</country>
+									</addr>
+									<telecom nullFlavor="NI" />
+									<playingEntity classCode="PLC">
+										<name>AMIDAPUH</name>
+									</playingEntity>
+								</participantRole>
+							</participant>
+						</encounter>
+					</entry>
+					<entry>
+						<encounter classCode="ENC" moodCode="EVN">
+							<templateId root="2.16.840.1.113883.10.20.22.4.49"
+								extension="2015-08-01" />
+							<templateId root="2.16.840.1.113883.10.20.22.4.49" />
+							<id root="2.66.666.6"
+								extension="987654" assigningAuthorityName="AMIDACOMFIN" />
+							<code nullFlavor="UNK">
+								<originalText>Outpatient</originalText>
+							</code>
+							<effectiveTime>
+								<low value="20141107075500.000-0400" />
+								<high value="20150309112900.000-0500" />
+							</effectiveTime>
+						</encounter>
+					</entry>
+				</section>
+			</component>
+			<component typeCode="COMP" contextConductionInd="true">
+				<section classCode="DOCSECT" moodCode="EVN">
+					<templateId root="2.16.840.1.113883.10.20.22.2.7.1"
+						extension="2014-06-09" />
+					<templateId root="2.16.840.1.113883.10.20.22.2.7.1" />
+					<code code="47519-4" codeSystem="2.16.840.1.113883.6.1"
+						codeSystemName="LOINC" displayName="History of Procedures" />
+					<title>Procedures</title>
+					<text>
+						<table cellspacing="1" cellpadding="0" width="95%">
+							<colgroup>
+								<col width="45%" />
+								<col width="10%" />
+								<col width="20%" />
+								<col width="15%" />
+								<col width="10%" />
+							</colgroup>
+							<thead>
+								<tr>
+									<th>Procedure</th>
+									<th>Date</th>
+									<th>Related Diagnosis</th>
+									<th>Body Site</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ID="ITEM_PROC890">
+									<td>
+										<content ID="PROC890">
+											APPENDECTOMY LAPAROSCOPIC
+											<sup>1</sup>
+										</content>
+									</td>
+									<td>1/12/17</td>
+									<td>
+									</td>
+									<td>
+									</td>
+									<td>Completed</td>
+								</tr>
+								<tr ID="ITEM_PROC889">
+									<td>
+										<content ID="PROC889">
+											REMOVAL IMPLANTED DEVICES FROM BONE
+											<sup>2</sup>
+										</content>
+									</td>
+									<td>1/12/17</td>
+									<td>
+									</td>
+									<td>
+									</td>
+									<td>Completed</td>
+								</tr>
+								<tr ID="ITEM_PROC888">
+									<td>
+										<content ID="PROC888">
+											REPAIR ELBOW
+											<sup>3</sup>
+										</content>
+									</td>
+									<td>1/12/17</td>
+									<td>
+									</td>
+									<td>
+									</td>
+									<td>Completed</td>
+								</tr>
+							</tbody>
+						</table>
+					</text>
+					<entry typeCode="DRIV" contextConductionInd="true">
+						<procedure classCode="PROC" moodCode="EVN">
+							<templateId root="2.16.840.1.113883.10.20.22.4.14"
+								extension="2014-06-09" />
+							<templateId root="2.16.840.1.113883.10.20.22.4.14" />
+							<id root="77baeec3-124e-4348-bcec-fbe2fd25e7ef" />
+							<code nullFlavor="UNK">
+								<originalText>
+									<reference value="#PROC890" />
+								</originalText>
+							</code>
+							<statusCode code="completed" />
+							<effectiveTime value="20160312091500.000-0500" />
+							<entryRelationship typeCode="COMP"
+								inversionInd="true">
+								<encounter classCode="ENC" moodCode="EVN">
+									<id root="2.66.666.6"
+										extension="1234567" assigningAuthorityName="AMIDACOMFIN" />
+								</encounter>
+							</entryRelationship>
+						</procedure>
+					</entry>
+					<entry typeCode="DRIV" contextConductionInd="true">
+						<procedure classCode="PROC" moodCode="EVN">
+							<templateId root="2.16.840.1.113883.10.20.22.4.14"
+								extension="2014-06-09" />
+							<templateId root="2.16.840.1.113883.10.20.22.4.14" />
+							<id root="4372357a-30bb-48d9-a612-8f459ae8c00c" />
+							<code nullFlavor="UNK">
+								<originalText>
+									<reference value="#PROC889" />
+								</originalText>
+							</code>
+							<statusCode code="completed" ></statusCode>
+							<effectiveTime value="20180112104500.000-0500" />
+							<entryRelationship typeCode="COMP"
+								inversionInd="true">
+								<encounter classCode="ENC" moodCode="EVN">
+									<id root="2.66.666.6"
+										extension="1234567" assigningAuthorityName="AMIDACOMFIN" />
+								</encounter>
+							</entryRelationship>
+						</procedure>
+					</entry>
+					<entry typeCode="DRIV" contextConductionInd="true">
+						<procedure classCode="PROC" moodCode="EVN">
+							<templateId root="2.16.840.1.113883.10.20.22.4.14"
+								extension="2014-06-09" />
+							<templateId root="2.16.840.1.113883.10.20.22.4.14" />
+							<id root="e39bdae7-7b35-4ceb-88b7-8891414c3bc2" />
+							<code nullFlavor="UNK">
+								<originalText>
+									<reference value="#PROC888" />
+								</originalText>
+							</code>
+							<statusCode code="completed" />
+							<effectiveTime value="20170612121000.000-0500" />
+							<entryRelationship typeCode="COMP"
+								inversionInd="true">
+								<encounter classCode="ENC" moodCode="EVN">
+									<id root="2.66.666.6"
+										extension="987654" assigningAuthorityName="AMIDACOMFIN" />
+								</encounter>
+							</entryRelationship>
+						</procedure>
+					</entry>
+				</section>
+			</component>
+		</structuredBody>
+	</component>
+</ClinicalDocument>
