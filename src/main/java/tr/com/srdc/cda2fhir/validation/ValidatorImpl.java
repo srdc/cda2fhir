@@ -182,6 +182,24 @@ public class ValidatorImpl implements IValidator {
     	}		
 	}
 	
+	
+	
+	private String getOutcomeMessagesString(ValidationResult result) {
+		String messagesStr = "";
+		if(result.isSuccessful()) {
+			messagesStr += "Validation successful\n";
+		}
+		if(result.getMessages().size() > 0) {
+			for (SingleValidationMessage message : result.getMessages()) {
+				messagesStr += message.getLocationString() + "\n";
+				messagesStr += message.getSeverity() + "\n";
+				messagesStr += message.getMessage();
+		 	}    	
+		}
+		return messagesStr;
+			
+	}
+	
 	public OutputStream validateResource(IBaseResource resource) {
 		if(resource == null) {
 			logger.warn("The resource to be validated is null. Returning null");
@@ -211,8 +229,7 @@ public class ValidatorImpl implements IValidator {
 		
 		// notice that html tag is not included in the outcome string
 		try {
-			OperationOutcome operationOutcome = (OperationOutcome) result.toOperationOutcome();
-			String outcomeText = operationOutcome.getText().getDivAsString();
+			String outcomeText =  getOutcomeMessagesString(result);
 			outcomeText = "<h3>" + resource.getIdElement() + "</h3>" + outcomeText + "<hr>";
 			outputStream.write(outcomeText.getBytes("UTF-8"));
 		} catch (IOException e) {
@@ -257,4 +274,20 @@ public class ValidatorImpl implements IValidator {
     	logValidationResult(result);
     	return result;
     }
+    
+    public void logValidationErrors(ValidationResult result) {	
+		if (!result.isSuccessful()) {
+			List<SingleValidationMessage> messages = result.getMessages();
+			if(messages.size() > 0) {
+				for (SingleValidationMessage message : messages) {
+	    		   logger.debug("Validation Message:");
+	    		   logger.debug(" * Location: " + message.getLocationString());
+	    		   logger.debug(" * Severity: " + message.getSeverity());
+	    		   logger.debug(" * Message : " + message.getMessage());
+		    	}    
+			}	
+		} else {
+			logger.debug("No validation errors.");
+		}
+	}
 }
