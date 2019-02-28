@@ -32,12 +32,6 @@ import ca.uhn.fhir.validation.ValidationResult;
 
 public interface IValidator {
 
-	/**
-	 * Sets the terminology server of the validator object and make the connection to the given server.
-	 * @param tServerURL A terminology server URL String
-	 */
-    void setTerminologyServer(String tServerURL);
-
     /**
      * Validates the FHIR resource(s) contained in the FHIR Bundle by using the validation engine supplied by hl7.org
      * @param bundle A FHIR Bundle instance containing the FHIR resource(s) to be validated. If the (DAF) profile is supplied in meta.profile attribute of contained resources, then (DAF) profile validation is enable automatically.

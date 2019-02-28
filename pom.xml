@@ -103,14 +103,6 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
         </dependency>
-        <!-- Official HL7 FHIR Validator. This is ugly but it is not available in any maven repo -->
-        <dependency>
-            <groupId>org.hl7.fhir</groupId>
-            <artifactId>validator</artifactId>
-            <version>1.0.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/org.hl7.fhir.validator.jar</systemPath>
-        </dependency>
 		<dependency>
     		<groupId>com.bazaarvoice.jolt</groupId>
     		<artifactId>jolt-core</artifactId>

@@ -28,16 +28,10 @@ import java.io.OutputStream;
 
 import java.util.List;
 
-import java.net.HttpURLConnection;
-import java.net.URISyntaxException;
-import java.net.URL;
-
 import org.apache.commons.io.IOUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
 
 import ca.uhn.fhir.context.FhirContext;
 
@@ -52,66 +46,16 @@ import ca.uhn.fhir.validation.schematron.SchematronBaseValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.xml.sax.SAXException;
-
-import tr.com.srdc.cda2fhir.conf.Config;
-
 public class ValidatorImpl implements IValidator {
 
-	private String tServerURL = null;
-	private final org.hl7.fhir.dstu2.validation.ValidationEngine validationEngine = new org.hl7.fhir.dstu2.validation.ValidationEngine();
 	private final Logger logger = LoggerFactory.getLogger(ValidatorImpl.class);
 	
 	/**
 	 * Constructs a validator using the default configuration.
 	 */
 	public ValidatorImpl() {
-		// searching for an available terminology server
-		for(String tServerURLString : Config.VALIDATOR_TERMINOLOGY_SERVER_URLS) {
-			/*
-			 *  if the request is successful,  set tServerURL with that available terminology server and break the loop.
-			 *   .. otherwise, catch the exception and continue with the next terminology server URL string contained in the config.
-			 */
-			boolean checkResult = checkServer(tServerURLString);
-			if(checkResult) {
-				this.tServerURL = tServerURLString;
-				logger.info("Terminology server is successfully set as: {}", tServerURLString);
-				break;
-			} else {
-				logger.warn("Could not reach terminology server at {} . Trying the next alternative ...", tServerURLString);
-				continue;
-			}
-		}
 
-		// if the set of terminology servers did not work, proceed with the fallback option even if it is not reachable
-		// because the HL7 validation engine mandates setting a terminology server
-		if(this.tServerURL == null) {
-			this.tServerURL = Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_URL;
-			logger.warn("None of the terminology server alternatives was reachable. Proceeding with the fallback option {}", this.tServerURL);
-		}
-		
-		// reading definitions
-		try {
-			validationEngine.readDefinitions(Config.VALIDATION_DEFINITION_PATH);
-		} catch (IOException e) {
-			logger.error("IOException occurred while trying to read the definitions for the validator", e);
-		} catch (SAXException e) {
-			logger.error("Improper definition for the validator", e);
-		} catch (FHIRException e) {
-			logger.error("FHIRException occurred while trying to read the definitions for the validator", e);
-		}
-		
-		// calling the validation engine's connect method for terminology service
-		setTerminologyServer(this.tServerURL);
-	}
-	
-	public void setTerminologyServer(String paramTServerURL) {
-		this.tServerURL = paramTServerURL;
-		try {
-			validationEngine.connectToTSServer(tServerURL);
-		} catch (URISyntaxException ex) {
-			logger.error("Terminology server URL string could not be parsed as a URI reference", ex);
-		}
+
 	}
 
 	public OutputStream validateBundle(Bundle bundle) {
@@ -238,28 +182,6 @@ public class ValidatorImpl implements IValidator {
 		}
 		
 		return outputStream;
-	}
-	
-	/**
-	 * Sends an HTTP GET request to a server to check if the server is available
-	 * @param serverURLString A string that contains the URL of the server
-	 * @return A boolean indicating if the server is available
-	 */
-	private boolean checkServer(String serverURLString) {
-		try {
-			URL url = new URL(serverURLString);
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
-			con.setConnectTimeout(Config.DEFAULT_VALIDATOR_TERMINOLOGY_SERVER_CHECK_TIMEOUT);
-			con.connect();
-			if (con.getResponseCode() < 300)
-				return true;
-			else
-				return false;
-		} catch(Exception e) {
-			logger.error("Exception occurred while trying to reach the server at {}", serverURLString, e);
-			return false;
-		}
 	}
 
     public ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException {
