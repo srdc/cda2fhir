@@ -1,6 +1,5 @@
 package tr.com.srdc.cda2fhir.transform.section.impl;
 
-import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Device;
 import org.openhealthtools.mdht.uml.cda.Organizer;
 import org.openhealthtools.mdht.uml.cda.Procedure;
@@ -10,6 +9,7 @@ import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
@@ -44,8 +44,11 @@ public class CDAMedicalEquipmentSection implements ICDASection {
         // Case 3: Entry is a Procedure Activity Procedure (V2)
         for (Procedure procedure : section.getProcedures()) {
             if (procedure instanceof ProcedureActivityProcedure) {
-                Bundle bundle = rt.tProcedure2Procedure(procedure);
-           		result.merge(bundle, org.hl7.fhir.dstu3.model.Procedure.class);
+                IEntryResult entryResult = rt.tProcedure2Procedure(procedure);
+           		result.merge(entryResult.getBundle(), org.hl7.fhir.dstu3.model.Procedure.class);
+           		if (entryResult.hasDeferredReferences()) {
+           			result.addDeferredReferences(entryResult.getDeferredReferences());
+           		}
            	}
         }
         return result;

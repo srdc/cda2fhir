@@ -14,6 +14,7 @@ import org.openhealthtools.mdht.uml.cda.consol.AdvanceDirectivesSection;
 import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.EncountersSection;
+import org.openhealthtools.mdht.uml.cda.consol.EncountersSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistorySection;
 import org.openhealthtools.mdht.uml.cda.consol.FunctionalStatusSection;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
@@ -22,6 +23,7 @@ import org.openhealthtools.mdht.uml.cda.consol.MedicalEquipmentSection;
 
 import tr.com.srdc.cda2fhir.transform.section.impl.CDAAllergiesSection;
 import tr.com.srdc.cda2fhir.transform.section.impl.CDAEncountersSection;
+import tr.com.srdc.cda2fhir.transform.section.impl.CDAEncountersSectionEntriesOptional;
 import tr.com.srdc.cda2fhir.transform.section.impl.CDAFamilyHistorySection;
 import tr.com.srdc.cda2fhir.transform.section.impl.CDAFunctionalStatusSection;
 import tr.com.srdc.cda2fhir.transform.section.impl.CDAImmunizationsSection;
@@ -147,6 +149,22 @@ public enum CDASectionTypeEnum {
 		@Override
 		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
 			return new CDAEncountersSection(ccd.getEncountersSection());
+		}
+	},
+	ENCOUNTERS_SECTION_ENTRIES_OPTIONAL {
+		@Override
+		public boolean supports(Section section) {
+			return section instanceof EncountersSectionEntriesOptional;
+		}
+
+		@Override
+		public ICDASection toCDASection(Section section) {
+			return new CDAEncountersSectionEntriesOptional((EncountersSectionEntriesOptional) section);
+		}
+
+		@Override
+		public ICDASection toCDASection(ContinuityOfCareDocument ccd) {
+			return null;
 		}
 	},
 	VITAL_SIGNS_SECTION {

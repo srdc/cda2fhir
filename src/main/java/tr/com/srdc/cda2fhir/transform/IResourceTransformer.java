@@ -56,6 +56,8 @@ import org.openhealthtools.mdht.uml.cda.consol.ServiceDeliveryLocation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+
 public interface IResourceTransformer {
 	
 	/**
@@ -262,19 +264,19 @@ public interface IResourceTransformer {
 	Bundle tProblemObservation2Condition(ProblemObservation cdaProbObs);
 
 	/**
-	 * Transforms a CDA Procedure instance to a FHIR Procedure resource.
+	 * Transforms a CDA Procedure instance to a FHIR Procedure and supporting resources.
 	 * @param cdaProcedure A CDA Procedure instance
-	 * @return A FHIR Bundle that contains the Procedure as the first entry, which can also include other referenced resources such as Practitioner
+	 * @return A result object that contains a FHIR Bundle and supporting information
 	 */
-	Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
+	IEntryResult tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure);
 
 	/**
-	 * Transforms a CDA Procedure instance to a FHIR Procedure resource.
+	 * Transforms a CDA Procedure instance to a FHIR Procedure and supporting resources.
 	 * @param cdaProcedure A CDA Procedure instance
 	 * @param idedAnnotations Annotations that can be referenced
-	 * @return A FHIR Bundle that contains the Procedure as the first entry, which can also include other referenced resources such as Practitioner
+	 * @return A result object that contains a FHIR Bundle and supporting information
 	 */
-	Bundle tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure, Map<String, String> idAnnotations);
+	IEntryResult tProcedure2Procedure(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure, Map<String, String> idAnnotations);
 
 	/**
 	 * Transforms a CDA ReactionObservation instance to a FHIR Observation resource.

@@ -130,7 +130,6 @@ public class CCDTransformerTest {
     @Test
     public void testSample2() throws Exception {
     	List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
-    	addlSections.add(CDASectionTypeEnum.ENCOUNTERS_SECTION);
     	addlSections.add(CDASectionTypeEnum.VITAL_SIGNS_SECTION);
     	addlSections.add(CDASectionTypeEnum.SOCIAL_HISTORY_SECTION);
     	addlSections.add(CDASectionTypeEnum.RESULTS_SECTION);
@@ -144,13 +143,13 @@ public class CCDTransformerTest {
     	verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 2);
     	verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 5);
     	verifySection(bundle, "PROCEDURES", Procedure.class, 2, 1);
-    	verifySection(bundle, "ENCOUNTERS", Encounter.class, 2, 1);
+    	verifySection(bundle, "ENCOUNTERS", Encounter.class, 1, 1);
     	verifySection(bundle, "VITAL SIGNS", Observation.class, 20, 8);
     	verifySection(bundle, "SOCIAL HISTORY", Observation.class, 20, 3);
     	verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
     	verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
     	verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-    	verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 111, 4);
+    	verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 110, 4);
     }
 
     @Test
@@ -162,5 +161,6 @@ public class CCDTransformerTest {
     	verifySection(bundle, "Medications", MedicationStatement.class, 16);
     	verifySection(bundle, "Immunizations", Immunization.class, 1);
     	verifySection(bundle, "Procedures and Surgical/Medical History", Procedure.class, 4);
+    	verifySection(bundle, "Encounters", Encounter.class, 13);
     }
 }
