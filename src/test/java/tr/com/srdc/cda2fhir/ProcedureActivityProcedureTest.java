@@ -25,6 +25,7 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 
+import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.IndicationGenerator;
@@ -53,9 +54,10 @@ public class ProcedureActivityProcedureTest {
 
 		String organizationName = "PAP Organization";
 
-		PerformerGenerator performerGenerator = new PerformerGenerator();
-		performerGenerator.setCode();
-		performerGenerator.setOrganizationName(organizationName);
+		AssignedEntityGenerator aeg = new AssignedEntityGenerator();
+		aeg.setCode();
+		aeg.setOrganizationName(organizationName);
+		PerformerGenerator performerGenerator = new PerformerGenerator(aeg);
 		Performer2 performer = performerGenerator.generate(factories);
 		pap.getPerformers().add(performer);
 
@@ -75,7 +77,7 @@ public class ProcedureActivityProcedureTest {
 				organizationReference.getReference());
 		Assert.assertTrue("Expect a performer role", fhirPerformer.hasRole());
 		Coding role = fhirPerformer.getRole().getCoding().get(0);
-		Assert.assertEquals("Expect the default role code", PerformerGenerator.DEFAULT_CODE_CODE, role.getCode());
+		Assert.assertEquals("Expect the default role code", AssignedEntityGenerator.DEFAULT_CODE_CODE, role.getCode());
 	}
 
 	static private void verifyProcedureStatus(ProcedureActivityProcedure pap, String expected) throws Exception {

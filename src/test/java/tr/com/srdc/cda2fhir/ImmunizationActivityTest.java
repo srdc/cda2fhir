@@ -15,13 +15,13 @@ import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationActivityImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
@@ -32,22 +32,17 @@ public class ImmunizationActivityTest {
 
 	private static CDAFactories factories;
 	
-	private static ConsolFactoryImpl cdaObjFactory;
-
 	private static Map<String, Object> statusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/ImmunizationStatus.json");
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-
 		factories = CDAFactories.init();
-		
-		cdaObjFactory = factories.consol;
 	}
 	
 	@Test
 	public void testPerformer() throws Exception {
-		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
 
 		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
@@ -55,9 +50,11 @@ public class ImmunizationActivityTest {
 				
 		String lastName = "Doe";
 		String firstName = "Joe";
-		PerformerGenerator performerGenerator = new PerformerGenerator();
-		performerGenerator.setFamilyName(lastName);
-		performerGenerator.addGivenName(firstName);
+		AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
+		assignedEntityGenerator.setFamilyName(lastName);
+		assignedEntityGenerator.addGivenName(firstName);
+		
+		PerformerGenerator performerGenerator = new PerformerGenerator(assignedEntityGenerator);
 		Performer2 performer = performerGenerator.generate(factories);
 		act.getPerformers().add(performer);
 
@@ -88,7 +85,7 @@ public class ImmunizationActivityTest {
 	
 	@Test
 	public void testNegationInd() throws Exception {
-		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
 		verifyNotGiven(act, true);
 		verifyNotGiven(act, false);
 	}
@@ -105,7 +102,7 @@ public class ImmunizationActivityTest {
 		
 	@Test
 	public void testStatusCode() throws Exception {
-		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
 		DiagnosticChain dxChain = new BasicDiagnostic();		
 		verifyImmunizationStatus(act, null);
 	
