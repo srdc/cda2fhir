@@ -125,13 +125,6 @@ public interface IResourceTransformer {
 	org.hl7.fhir.dstu3.model.Organization tCustodianOrganization2Organization(org.openhealthtools.mdht.uml.cda.CustodianOrganization cdaCustodianOrganization);
 	
 	/**
-	 * Transforms a CDA Encounter instance to a FHIR Encounter resource.
-	 * @param cdaEncounter A CDA Encounter instance
-	 * @return A FHIR Bundle that contains the Encounter as the first entry, which can also include other referenced resources such as Practitioner, Location
-	 */
-	Bundle tEncounter2Encounter(org.openhealthtools.mdht.uml.cda.Encounter cdaEncounter);
-
-	/**
 	 * Transforms a CDA EncounterActivity instance to a FHIR Encounter resource.
 	 * @param cdaEncounterActivity A CDA EncounterActivity instance
 	 * @return A FHIR Bundle that contains the Encounter as the first entry, which can also include other referenced resources such as Practitioner, Location
