@@ -23,11 +23,19 @@ package tr.com.srdc.cda2fhir;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Base;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.HumanName;
+import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.impl.OrganizationImpl;
 import org.openhealthtools.mdht.uml.cda.impl.AuthorImpl;
+import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.impl.AssignedAuthorImpl;
 import org.openhealthtools.mdht.uml.cda.impl.PersonImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -37,22 +45,27 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
+import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
 public class EntitiesTest {
 
     private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
+	private static CDAFactories factories;
+
 	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
     @BeforeClass
 	public static void init() {
-		CDAUtil.loadPackages();	
+		CDAUtil.loadPackages();
+		factories = CDAFactories.init();
 		cdaTypeFactory = DatatypesFactoryImpl.init();		
 		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();		
     }
- 
 
     @Test
     public void organizationNameAlias() throws Exception {
@@ -118,4 +131,37 @@ public class EntitiesTest {
     }
 
 
+    @Test
+    public void testAssignedEntityBasic() throws Exception {
+    	
+    	AssignedEntityGenerator aeg = AssignedEntityGenerator.getDefaultInstance();
+    	
+    	AssignedEntity ae = aeg.generate(factories);
+    	Bundle bundle = rt.tAssignedEntity2Practitioner(ae);
+    	
+    	Practitioner practitioner = BundleUtil.findOneResource(bundle, Practitioner.class);
+
+    	String expectedFamilyName = AssignedEntityGenerator.DEFAULT_FAMILY_NAME;
+    	String expectedGivenName = AssignedEntityGenerator.DEFAULT_GIVEN_NAME;
+    	HumanName humanName = practitioner.getName().get(0);
+    	Assert.assertEquals("Expect the correct family name", expectedFamilyName, humanName.getFamily());
+    	Assert.assertEquals("Expect the correct given name", expectedGivenName, humanName.getGiven().get(0).getValue());
+    	
+    	Identifier identifier = practitioner.getIdentifier().get(0);
+    	String expectedIdSystem = AssignedEntityGenerator.DEFAULT_ID_ROOT;
+    	String expectedIdValue = AssignedEntityGenerator.DEFAULT_ID_EXTENSION;
+    	Assert.assertEquals("Expect the correct id system", "urn:oid:" + expectedIdSystem, identifier.getSystem());
+    	Assert.assertEquals("Expect the correct id value", expectedIdValue, identifier.getValue());
+
+    	PractitionerRole role = BundleUtil.findOneResource(bundle, PractitionerRole.class);
+       	String expecteRoleCode = AssignedEntityGenerator.DEFAULT_CODE_CODE;
+    	String expectedRolePrintName = AssignedEntityGenerator.DEFAULT_CODE_PRINTNAME;
+     	Coding code = role.getCode().get(0).getCoding().get(0);
+    	Assert.assertEquals("Expect the role code", expecteRoleCode, code.getCode());
+    	Assert.assertEquals("Expect the role print name", expectedRolePrintName, code.getDisplay());
+ 
+    	Organization org = BundleUtil.findOneResource(bundle, Organization.class);
+    	String expectedOrgName = AssignedEntityGenerator.DEFAULT_ORGANIZATION_NAME;
+    	Assert.assertEquals("Expect the organization name ", expectedOrgName, org.getName());
+    }
 }
