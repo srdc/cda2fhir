@@ -2,8 +2,10 @@ package tr.com.srdc.cda2fhir.transform.section.impl;
 
 import org.eclipse.emf.common.util.EList;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Observation;
+import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
@@ -33,5 +35,15 @@ public class CDASectionCommon {
     		}
     	}
     	return SectionResultSingular.getInstance(result, Observation.class);
+	}
+	
+	public static SectionResultSingular<Encounter> transformEncounterActivitiesList(EList<EncounterActivities> encounterList, IBundleInfo bundleInfo) {
+		IResourceTransformer rt = bundleInfo.getResourceTransformer();
+		Bundle result = new Bundle();
+    	for (EncounterActivities act : encounterList) {
+    		Bundle bundle = rt.tEncounterActivity2Encounter(act);
+    		FHIRUtil.mergeBundle(bundle, result);
+    	}
+    	return SectionResultSingular.getInstance(result, Encounter.class);		
 	}
 }
