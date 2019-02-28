@@ -34,10 +34,12 @@ import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
@@ -47,16 +49,22 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
+import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
+import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerTest {
-	private static List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
+	private static final Logger logger = LoggerFactory.getLogger(ResourceTransformerImpl.class);
+	private final static List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
 
 	static {
 		addlSections.add(CDASectionTypeEnum.VITAL_SIGNS_SECTION);
@@ -66,7 +74,7 @@ public class CCDTransformerTest {
 		addlSections.add(CDASectionTypeEnum.FAMILY_HISTORY_SECTION);
 		addlSections.add(CDASectionTypeEnum.MEDICAL_EQUIPMENT_SECTION);
 	};
-
+	
 	@BeforeClass
 	public static void init() {
 		// Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar
@@ -94,7 +102,32 @@ public class CCDTransformerTest {
 		Assert.assertEquals(msg, compositionEntries == null ? 0 : compositionEntries.size(), resources.size());
 	}
 
+	private static void verifyNoDuplicatePractitioner(Bundle bundle) {
+		IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(bundle);
+		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
+		for (Practitioner practitioner: practitioners) {
+			if (!practitioner.hasIdentifier()) {
+				logger.info("No practioner identifier");
+				continue;
+			}
+			String id = practitioner.getId();			
+			for (Identifier identifier: practitioner.getIdentifier()) {
+				String idInMap = identifierMap.get(practitioner.fhirType(), identifier);
+				if (idInMap == null) {
+					logger.error("Did not find " + id + " in identifier map");
+				} else {
+					if (!idInMap.equals(id)) {
+						logger.error(id + " is a duplicate of " + idInMap);						
+					} else {
+						logger.error("All good for " + id);						
+					}
+				}
+			}
+		}	
+	}
+		
 	private static Bundle readVerifyFile(String sourceName, List<CDASectionTypeEnum> addlSections) throws Exception {
+		logger.info(String.format("Verifying file %s", sourceName));
 		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
 
 		ClinicalDocument cda = CDAUtil.load(fis);
@@ -115,6 +148,8 @@ public class CCDTransformerTest {
 		// Nothing should create encounters but Encounters Section
 		verifySectionCounts(bundle, "46240-8", Encounter.class);
 
+		verifyNoDuplicatePractitioner(bundle);
+		
 		String baseName = sourceName.substring(0, sourceName.length() - 4);
 		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
 		return bundle;
