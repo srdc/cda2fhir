@@ -24,9 +24,6 @@ import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.HumanName;
-import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
@@ -132,36 +129,19 @@ public class EntitiesTest {
 
 
     @Test
-    public void testAssignedEntityBasic() throws Exception {
-    	
+    public void testAssignedEntityBasic() throws Exception {    	
     	AssignedEntityGenerator aeg = AssignedEntityGenerator.getDefaultInstance();
     	
     	AssignedEntity ae = aeg.generate(factories);
     	Bundle bundle = rt.tAssignedEntity2Practitioner(ae);
     	
     	Practitioner practitioner = BundleUtil.findOneResource(bundle, Practitioner.class);
-
-    	String expectedFamilyName = AssignedEntityGenerator.DEFAULT_FAMILY_NAME;
-    	String expectedGivenName = AssignedEntityGenerator.DEFAULT_GIVEN_NAME;
-    	HumanName humanName = practitioner.getName().get(0);
-    	Assert.assertEquals("Expect the correct family name", expectedFamilyName, humanName.getFamily());
-    	Assert.assertEquals("Expect the correct given name", expectedGivenName, humanName.getGiven().get(0).getValue());
+    	aeg.verify(practitioner);
     	
-    	Identifier identifier = practitioner.getIdentifier().get(0);
-    	String expectedIdSystem = AssignedEntityGenerator.DEFAULT_ID_ROOT;
-    	String expectedIdValue = AssignedEntityGenerator.DEFAULT_ID_EXTENSION;
-    	Assert.assertEquals("Expect the correct id system", "urn:oid:" + expectedIdSystem, identifier.getSystem());
-    	Assert.assertEquals("Expect the correct id value", expectedIdValue, identifier.getValue());
-
     	PractitionerRole role = BundleUtil.findOneResource(bundle, PractitionerRole.class);
-       	String expecteRoleCode = AssignedEntityGenerator.DEFAULT_CODE_CODE;
-    	String expectedRolePrintName = AssignedEntityGenerator.DEFAULT_CODE_PRINTNAME;
-     	Coding code = role.getCode().get(0).getCoding().get(0);
-    	Assert.assertEquals("Expect the role code", expecteRoleCode, code.getCode());
-    	Assert.assertEquals("Expect the role print name", expectedRolePrintName, code.getDisplay());
+    	aeg.verify(role);
  
     	Organization org = BundleUtil.findOneResource(bundle, Organization.class);
-    	String expectedOrgName = AssignedEntityGenerator.DEFAULT_ORGANIZATION_NAME;
-    	Assert.assertEquals("Expect the organization name ", expectedOrgName, org.getName());
+    	aeg.verify(org);
     }
 }

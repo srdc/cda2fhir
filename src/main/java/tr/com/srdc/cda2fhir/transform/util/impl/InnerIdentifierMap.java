@@ -31,11 +31,9 @@ public class InnerIdentifierMap<T> {
 			}
 		}
 	}
-	
-	public T get(Identifier identifier) {
-		String value = identifier.getValue();
+
+	public T get(String system, String value) {
 		if (value != null) {		
-			String system = identifier.getSystem();
 			if (system != null) {
 				if (systemMaps == null) {
 					return null;
@@ -51,5 +49,14 @@ public class InnerIdentifierMap<T> {
 			}
 		}
 		return null;
+	}
+	
+	
+	public T get(Identifier identifier) {
+		return get(identifier.getSystem(), identifier.getValue());
+	}
+
+	public T get(String value) {
+		return get(null, value);
 	}
 }

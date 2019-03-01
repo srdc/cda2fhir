@@ -44,7 +44,6 @@ public class ProcedureActivityProcedureTest {
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-
 		factories = CDAFactories.init();
 	}
 
@@ -52,11 +51,9 @@ public class ProcedureActivityProcedureTest {
 	public void testPerformer() throws Exception {
 		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
 
-		String organizationName = "PAP Organization";
-
 		AssignedEntityGenerator aeg = new AssignedEntityGenerator();
 		aeg.setCode();
-		aeg.setOrganizationName(organizationName);
+		aeg.setOrganizationName("PAP Organization");
 		PerformerGenerator performerGenerator = new PerformerGenerator(aeg);
 		Performer2 performer = performerGenerator.generate(factories);
 		pap.getPerformers().add(performer);
@@ -65,7 +62,7 @@ public class ProcedureActivityProcedureTest {
 		Bundle bundle = entryResult.getBundle();
 
 		Organization organization = BundleUtil.findOneResource(bundle, Organization.class);
-		Assert.assertEquals("Unexpected organization name", organizationName, organization.getName());
+		aeg.verify(organization);
 
 		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
 

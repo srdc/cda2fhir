@@ -5,7 +5,6 @@ import java.util.Map;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -65,9 +64,7 @@ public class ImmunizationActivityTest {
 		String reference = immunization1.getPractitioner().get(0).getActor().getReference();
 		Practitioner practitioner = BundleUtil.findOneResource(bundle1, Practitioner.class);
 		Assert.assertEquals("Unexpected Reference", reference, practitioner.getId());
-		HumanName humanName = practitioner.getName().get(0);
-		Assert.assertEquals("Unexpected Last Name", lastName, humanName.getFamily());
-		Assert.assertEquals("Unexpected First Name", firstName, humanName.getGiven().get(0).asStringValue());		
+		assignedEntityGenerator.verify(practitioner);
 	}
 		
 	static private void verifyNotGiven(ImmunizationActivity act, Boolean value) throws Exception {

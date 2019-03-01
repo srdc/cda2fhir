@@ -13,8 +13,12 @@ import org.hl7.fhir.exceptions.FHIRException;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 
 public class IdentifierMapFactory {
-	public static IIdentifierMap<String> bundleToIds(Bundle bundle) {
-        IdentifierMap<String> identifierMap = new IdentifierMap<String>();
+	interface ResourceInfo<T> {
+		T get(Resource resource);
+	}
+
+	public static <T> IIdentifierMap<T> bundleToResourceInfo(Bundle bundle, ResourceInfo<T> resourceInfo) {
+        IdentifierMap<T> identifierMap = new IdentifierMap<T>();
 		for (BundleEntryComponent entry : bundle.getEntry()) {
 			Resource resource = entry.getResource();
 			Property property = resource.getNamedProperty("identifier");
@@ -25,12 +29,23 @@ public class IdentifierMapFactory {
 						try {
 							Identifier identifier = resource.castToIdentifier(base);
 							String fhirType = resource.fhirType();
-							identifierMap.put(fhirType, identifier, resource.getId());
+							T info = resourceInfo.get(resource);
+							if (info != null) {
+								identifierMap.put(fhirType, identifier, info);
+							}
 						} catch (FHIRException e) {}
 					}
 				}
 			}
     	}
 		return identifierMap;
+	}
+		
+	public static IIdentifierMap<String> bundleToIds(Bundle bundle) {
+		return bundleToResourceInfo(bundle, r -> r.getId());
+	}
+	
+	public static IIdentifierMap<Resource> bundleToResource(Bundle bundle) {
+		return bundleToResourceInfo(bundle, r -> r);
 	}
 }

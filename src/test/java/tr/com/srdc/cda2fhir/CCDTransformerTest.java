@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
@@ -74,7 +75,7 @@ public class CCDTransformerTest {
 		addlSections.add(CDASectionTypeEnum.FAMILY_HISTORY_SECTION);
 		addlSections.add(CDASectionTypeEnum.MEDICAL_EQUIPMENT_SECTION);
 	};
-	
+
 	@BeforeClass
 	public static void init() {
 		// Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar
@@ -105,27 +106,27 @@ public class CCDTransformerTest {
 	private static void verifyNoDuplicatePractitioner(Bundle bundle) {
 		IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(bundle);
 		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
-		for (Practitioner practitioner: practitioners) {
+		for (Practitioner practitioner : practitioners) {
 			if (!practitioner.hasIdentifier()) {
 				logger.info("No practioner identifier");
 				continue;
 			}
-			String id = practitioner.getId();			
-			for (Identifier identifier: practitioner.getIdentifier()) {
+			String id = practitioner.getId();
+			for (Identifier identifier : practitioner.getIdentifier()) {
 				String idInMap = identifierMap.get(practitioner.fhirType(), identifier);
 				if (idInMap == null) {
 					logger.error("Did not find " + id + " in identifier map");
 				} else {
 					if (!idInMap.equals(id)) {
-						logger.error(id + " is a duplicate of " + idInMap);						
+						logger.error(id + " is a duplicate of " + idInMap);
 					} else {
-						logger.error("All good for " + id);						
+						logger.error("All good for " + id);
 					}
 				}
 			}
-		}	
+		}
 	}
-		
+
 	private static Bundle readVerifyFile(String sourceName, List<CDASectionTypeEnum> addlSections) throws Exception {
 		logger.info(String.format("Verifying file %s", sourceName));
 		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
@@ -149,7 +150,7 @@ public class CCDTransformerTest {
 		verifySectionCounts(bundle, "46240-8", Encounter.class);
 
 		verifyNoDuplicatePractitioner(bundle);
-		
+
 		String baseName = sourceName.substring(0, sourceName.length() - 4);
 		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
 		return bundle;
@@ -185,6 +186,7 @@ public class CCDTransformerTest {
 	}
 
 	// Gold Sample r2.1
+	@Ignore
 	@Test
 	public void testSample1() throws Exception {
 		readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", addlSections);
@@ -219,8 +221,26 @@ public class CCDTransformerTest {
 		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
 		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
 		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 110, 4);
+
+		// Spot checks
+		BundleUtil util = new BundleUtil(bundle);
+		util.spotCheckImmunizationPractitioner("e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92", "Hippocrates", null,
+				"Good Health Clinic");
+		util.spotCheckEncounterPractitioner("2a620155-9d11-439e-92b3-5d9815ff4de8", null, "59058001", null);
+		util.spotCheckProcedurePractitioner("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d", null, null, "Community Health and Hospitals");
+		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.19.5.9999.456", "2981823", null, "1001 Village Avenue");
+		util.spotCheckAttesterPractitioner(CompositionAttestationMode.PROFESSIONAL, "Primary", "207QA0505X", null);
+		util.spotCheckAttesterPractitioner(CompositionAttestationMode.LEGAL, "Primary", "207QA0505X", null);
+		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.4.6", "5555555555", "Primary", "1004 Healthcare Drive ");
+		util.spotCheckAuthorPractitioner("Primary", "207QA0505X", null);
+		util.spotCheckObservationPractitioner("b63a8636-cfff-4461-b018-40ba58ba8b32", null, null, null);
+		util.spotCheckMedStatementPractitioner("6c844c75-aa34-411c-b7bd-5e4a9f206e29", "Primary", null, null);
+		util.spotCheckObservationPractitioner("ed9589fd-fda0-41f7-a3d0-dc537554f5c2", null, null, null);
+		util.spotCheckConditionPractitioner("ab1791b0-5c71-11db-b0de-0800200c9a66", null, null, null);
+		util.spotCheckAllergyPractitioner("36e3e930-7b14-11db-9fe1-0800200c9a66", null, null, null);
 	}
 
+	@Ignore
 	@Test
 	public void testSample3() throws Exception {
 		readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", addlSections);

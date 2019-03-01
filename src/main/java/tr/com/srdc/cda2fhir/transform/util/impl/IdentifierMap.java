@@ -28,4 +28,22 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 		}
 		return null;
 	}
+
+	@Override
+	public T get(String fhirType, String value) {
+		InnerIdentifierMap<T> innerMap = map.get(fhirType);
+		if (innerMap != null) {
+			return innerMap.get(value);
+		}
+		return null;
+	}
+
+	@Override
+	public T get(String fhirType, String system, String value) {
+		InnerIdentifierMap<T> innerMap = map.get(fhirType);
+		if (innerMap != null) {
+			return innerMap.get(system, value);
+		}
+		return null;
+	}
 }
