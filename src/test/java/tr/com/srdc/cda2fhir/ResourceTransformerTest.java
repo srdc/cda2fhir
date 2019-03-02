@@ -132,7 +132,7 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: AssignedAuthor2Practitioner\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.AssignedAuthor cdaNull = null;
-		Bundle fhirNull = rt.tAssignedAuthor2Practitioner(cdaNull);
+		Bundle fhirNull = rt.tAssignedAuthor2Practitioner(cdaNull).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -141,7 +141,7 @@ public class ResourceTransformerTest {
 				// traversing authors
 				if(author != null && author.getAssignedAuthor() != null) {
 					appendToResultFile(transformationStartMsg);
-					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner(author.getAssignedAuthor()).getBundle();
 					appendToResultFile(transformationEndMsg);
 					appendToResultFile(practitionerBundle);
 				}
@@ -155,7 +155,7 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: AssignedEntity2Practitioner\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.AssignedEntity cdaNull = null;
-		Bundle fhirNull = rt.tAssignedEntity2Practitioner(cdaNull);
+		Bundle fhirNull = rt.tAssignedEntity2Practitioner(cdaNull).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -167,7 +167,7 @@ public class ResourceTransformerTest {
 						for(org.openhealthtools.mdht.uml.cda.Performer2 performer : procedure.getPerformers()) {
 							if(performer.getAssignedEntity() != null && !performer.getAssignedEntity().isSetNullFlavor()) {
 								appendToResultFile(transformationStartMsg);
-								Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity());
+								Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity()).getBundle();
 								appendToResultFile(transformationEndMsg);
 								appendToResultFile(fhirPractitionerBundle);
 							}

@@ -56,6 +56,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ServiceDeliveryLocation;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 
 public interface IResourceTransformer {
@@ -77,23 +78,24 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA AssignedAuthor instance to a FHIR Practitioner resource.
 	 * @param cdaAssignedAuthor A CDA AssignedAuthor instance
-	 * @return A FHIR Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
+	 * @return A result object that might include FHIR Bundle and/or a reference to a Practitioner
      */
-	Bundle tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor);
+	IEntityResult tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor);
 
 	/**
 	 * Transforms a CDA AssignedEntity instance to a FHIR Practitioner resource.
 	 * @param cdaAssignedEntity A CDA AssignedEntity instance
-	 * @return A FHIR Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
+	 * @return A result object that might include FHIR Bundle and/or a reference to a Practitioner
      */
-	Bundle tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity);
+	IEntityResult tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity);
 
 	/**
 	 * Transforms a CDA Author instance to a FHIR Practitioner resource.
 	 * @param cdaAuthor A CDA Author instance
-	 * @return A FHIR Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
+	 * @return A result object that might include FHIR Bundle and/or a reference to a Practitioner
 	 */
-	Bundle tAuthor2Practitioner(org.openhealthtools.mdht.uml.cda.Author cdaAuthor);
+	IEntityResult tAuthor2Practitioner(org.openhealthtools.mdht.uml.cda.Author cdaAuthor);
+
 	/**
 	 * Transforms a CDA CD instance to a FHIR Substance resource.
 	 * @param cdaSubstanceCode A CDA CD instance
@@ -240,7 +242,7 @@ public interface IResourceTransformer {
 	 * @param cdaPerformer2 A CDA Performer2 instance
 	 * @return A FHIR Bundle that contains the Practitioner as the first entry, which can also include other referenced resources such as Organization
 	 */
-	Bundle tPerformer22Practitioner(Performer2 cdaPerformer2);
+	IEntityResult tPerformer22Practitioner(Performer2 cdaPerformer2);
 	
 	/**
 	 * Transforms a CDA ProblemConcernAct instance to FHIR Condition resource(s). A ProblemConcernAct might include several Problem Observations, and each Problem Observation corresponds to a FHIR Condition. Therefore, the returning Bundle can contain several FHIR Conditions.

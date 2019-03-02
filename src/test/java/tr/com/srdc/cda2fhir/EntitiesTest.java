@@ -23,7 +23,6 @@ package tr.com.srdc.cda2fhir;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Base;
-import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
@@ -43,9 +42,9 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
 import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
-import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 
 public class EntitiesTest {
 
@@ -116,11 +115,10 @@ public class EntitiesTest {
 
 
         // Transform from CDA to FHIR.
-        org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tAuthor2Practitioner(auth);
-        org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+        IEntityResult entityResult = rt.tAuthor2Practitioner(auth);
+        org.hl7.fhir.dstu3.model.Resource fhirResource = entityResult.getPractitioner();
         List<Base> fhirNames = fhirResource.getNamedProperty("name").getValues();
-        
-        
+                
         // Make assertions.
         Assert.assertEquals("Multiple Name for Practitioner Supported",2,fhirNames.size());
         Assert.assertEquals("Practitioner Name One Set",authorStringOne, fhirNames.get(0).getNamedProperty("text").getValues().get(0).toString());;
@@ -133,15 +131,15 @@ public class EntitiesTest {
     	AssignedEntityGenerator aeg = AssignedEntityGenerator.getDefaultInstance();
     	
     	AssignedEntity ae = aeg.generate(factories);
-    	Bundle bundle = rt.tAssignedEntity2Practitioner(ae);
+    	IEntityResult entityResult = rt.tAssignedEntity2Practitioner(ae);
     	
-    	Practitioner practitioner = BundleUtil.findOneResource(bundle, Practitioner.class);
+    	Practitioner practitioner = entityResult.getPractitioner();
     	aeg.verify(practitioner);
     	
-    	PractitionerRole role = BundleUtil.findOneResource(bundle, PractitionerRole.class);
+    	PractitionerRole role = entityResult.getPractitionerRole();
     	aeg.verify(role);
  
-    	Organization org = BundleUtil.findOneResource(bundle, Organization.class);
+    	Organization org = entityResult.getOrganization();
     	aeg.verify(org);
     }
 }

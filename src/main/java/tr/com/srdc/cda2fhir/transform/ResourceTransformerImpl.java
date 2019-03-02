@@ -70,7 +70,6 @@ import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
-import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
@@ -150,6 +149,7 @@ import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.entry.impl.DeferredProcedureEncounterReference;
+import tr.com.srdc.cda2fhir.transform.entry.impl.EntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.util.Constants;
@@ -266,16 +266,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaAllergyProbAct.getAuthors()) {
 				// Asserting that at most one author exists
 				if(author != null && !author.isSetNullFlavor()) {
-					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-					
-					for(BundleEntryComponent entry : fhirPractitionerBundle.getEntry()) {
-						allergyIntoleranceBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-						if(entry.getResource() instanceof Practitioner){
-							fhirPractitioner = (Practitioner)entry.getResource();
-						}
+					EntityResult entityResult = tAuthor2Practitioner(author);
+					entityResult.copyTo(allergyIntoleranceBundle);
+					if (entityResult.hasPractitioner()) {
+						fhirAllergyIntolerance.setRecorder(entityResult.getPractitionerReference());
 					}
-					fhirAllergyIntolerance.setRecorder(new Reference(fhirPractitioner.getId()));
 				}
 			}
 		}
@@ -466,15 +461,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return allergyIntoleranceBundle;
 	}
 
-	public Bundle tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor) {
-		if(cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor())
-			return null;
+	public EntityResult tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor) {
+		EntityResult entityResult = new EntityResult();
+		
+		if (cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor()) {
+			return entityResult;
+		}
 		
 		Practitioner fhirPractitioner = new Practitioner();
-		
-		// bundle
-		Bundle fhirPractitionerBundle = new Bundle();
-		fhirPractitionerBundle.addEntry(new BundleEntryComponent().setResource(fhirPractitioner));
+		entityResult.setPractitioner(fhirPractitioner);
 		
 		// resource id
 		IdType resourceId = new IdType("Practitioner", getUniqueId());
@@ -537,23 +532,24 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			org.hl7.fhir.dstu3.model.Organization fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
 			fhirPractitionerRole.setOrganization(new Reference(fhirOrganization.getId()));
 			fhirPractitionerRole.setPractitioner(new Reference(fhirPractitioner.getId()));
-			fhirPractitionerBundle.addEntry().setResource(fhirPractitionerRole);
-			fhirPractitionerBundle.addEntry().setResource(fhirOrganization);
+
+			entityResult.setPractitionerRole(fhirPractitionerRole);
+			entityResult.setOrganization(fhirOrganization);
 		}
 
-		return fhirPractitionerBundle;
+		return entityResult;
 	}
 
-	public Bundle tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity) {
-		if(cdaAssignedEntity == null || cdaAssignedEntity.isSetNullFlavor())
-			return null;
+	public EntityResult tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity) {
+		EntityResult entityResult = new EntityResult();
+
+		if(cdaAssignedEntity == null || cdaAssignedEntity.isSetNullFlavor()) {
+			return entityResult;
+		}
 		
 		Practitioner fhirPractitioner = new Practitioner();
-
-		// bundle
-		Bundle fhirPractitionerBundle = new Bundle();
-		fhirPractitionerBundle.addEntry(new BundleEntryComponent().setResource(fhirPractitioner));
-			
+		entityResult.setPractitioner(fhirPractitioner);
+		
 		// resource id
 		IdType resourceId = new IdType("Practitioner", getUniqueId());
 		fhirPractitioner.setId(resourceId);
@@ -614,22 +610,25 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				org.hl7.fhir.dstu3.model.Organization fhirOrganization = tOrganization2Organization(cdaAssignedEntity.getRepresentedOrganizations().get(0));
 				fhirPractitionerRole.setOrganization(new Reference(fhirOrganization.getId()));
 				fhirPractitionerRole.setPractitioner(new Reference(fhirPractitioner.getId()));
-				fhirPractitionerBundle.addEntry().setResource(fhirPractitionerRole);
-				fhirPractitionerBundle.addEntry().setResource(fhirOrganization);
+
+				entityResult.setPractitionerRole(fhirPractitionerRole);
+				entityResult.setOrganization(fhirOrganization);
 			}
 		}
 
-		return fhirPractitionerBundle;
+		return entityResult;
 	}
 
-	public Bundle tAuthor2Practitioner(org.openhealthtools.mdht.uml.cda.Author cdaAuthor) {
-		if(cdaAuthor == null || cdaAuthor.isSetNullFlavor()) {
+	public EntityResult tAuthor2Practitioner(org.openhealthtools.mdht.uml.cda.Author cdaAuthor) {
+		if (cdaAuthor == null || cdaAuthor.isSetNullFlavor()) {
 			return null;
-		} else if(cdaAuthor.getAssignedAuthor() == null || cdaAuthor.getAssignedAuthor().isSetNullFlavor()) {
-			return null;
-		} else {
-			return tAssignedAuthor2Practitioner(cdaAuthor.getAssignedAuthor());
 		}
+		
+		if(cdaAuthor.getAssignedAuthor() == null || cdaAuthor.getAssignedAuthor().isSetNullFlavor()) {
+			return null;
+		}
+		
+		return tAssignedAuthor2Practitioner(cdaAuthor.getAssignedAuthor());
 	}
 	
 	public Substance tCD2Substance(CD cdaSubstanceCode) {
@@ -725,14 +724,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				// Asserting that at most one author exists
 				if(author != null && !author.isSetNullFlavor()) {
 					if(author.getAssignedAuthor() != null && !author.getAssignedAuthor().isSetNullFlavor()) {
-						Bundle practBundle = tAuthor2Practitioner(author);
-						for(BundleEntryComponent entry : practBundle.getEntry()) {
-							// Add all the resources returned from the bundle to the main bundle
-							fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-							if(fhirComp != null && entry.getResource() instanceof Practitioner) {
-								fhirComp.addAuthor().setReference((entry.getResource()).getId());
-							}
-						}	
+						EntityResult entityResult = tAuthor2Practitioner(author);
+						entityResult.copyTo(fhirCompBundle);
+						if (fhirComp != null && entityResult.hasPractitioner()) {
+							fhirComp.addAuthor().setReference(entityResult.getPractitionerId());						
+						}
 					}
 				}
 			}
@@ -745,13 +741,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				attester.addMode(CompositionAttestationMode.LEGAL);
 				attester.setTimeElement(dtt.tTS2DateTime(cdaClinicalDocument.getLegalAuthenticator().getTime()));
 			}
-			Bundle practBundle = tAssignedEntity2Practitioner(cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity());
-			for(BundleEntryComponent entry : practBundle.getEntry()) {
-				// Add all the resources returned from the bundle to the main bundle
-				fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-				if(attester != null && entry.getResource() instanceof Practitioner) {
-					attester.setParty(new Reference((entry.getResource()).getId()));
-				}
+			EntityResult entityResult = tAssignedEntity2Practitioner(cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity());
+			entityResult.copyTo(fhirCompBundle);
+			Reference reference = entityResult.getPractitionerReference();
+			if (attester != null && reference != null) {
+				attester.setParty(reference);
 			}
 		}
 
@@ -763,13 +757,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					attester.addMode(CompositionAttestationMode.PROFESSIONAL);
 					attester.setTimeElement(dtt.tTS2DateTime(authenticator.getTime()));
 				}
-				Bundle practBundle = tAssignedEntity2Practitioner(authenticator.getAssignedEntity());
-				for (BundleEntryComponent entry : practBundle.getEntry()) {
-					// Add all the resources returned from the bundle to the main bundle
-					fhirCompBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-					if (attester != null && entry.getResource() instanceof Practitioner) {
-						attester.setParty(new Reference((entry.getResource()).getId()));
-					}
+				EntityResult entityResult = tAssignedEntity2Practitioner(authenticator.getAssignedEntity());
+				entityResult.copyTo(fhirCompBundle);
+				Reference reference = entityResult.getPractitionerReference();
+				if (attester != null && reference != null) {
+					attester.setParty(reference);
 				}
 			}
 		}
@@ -907,21 +899,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaEncounterActivity.getPerformers() != null && !cdaEncounterActivity.getPerformers().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaEncounterActivity.getPerformers()) {
 				if(cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {
-					EncounterParticipantComponent fhirParticipant = new EncounterParticipantComponent();
-
-					// default encounter participant type code
-					fhirParticipant.addType().addCoding(Config.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
-
-					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tPerformer22Practitioner(cdaPerformer);
-					for(BundleEntryComponent entry : fhirPractitionerBundle.getEntry()) {
-						if(entry.getResource() instanceof Practitioner) {
-							fhirPractitioner = (Practitioner)entry.getResource();
-							fhirEncounterBundle.addEntry(new Bundle().addEntry().setResource(entry.getResource()));
-						}
+					EntityResult entityResult = tPerformer22Practitioner(cdaPerformer);
+					entityResult.copyTo(fhirEncounterBundle);
+					if (entityResult.hasPractitioner()) {
+						EncounterParticipantComponent fhirParticipant = new EncounterParticipantComponent();
+						// default encounter participant type code
+						fhirParticipant.addType().addCoding(Config.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
+						fhirParticipant.setIndividual(entityResult.getPractitionerReference());
+						fhirEncounter.addParticipant(fhirParticipant);
 					}
-					fhirParticipant.setIndividual(new Reference(fhirPractitioner.getId()));
-					fhirEncounter.addParticipant(fhirParticipant);
 				}
 			}
 		}
@@ -1203,17 +1189,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaObservation.getAuthors() != null && !cdaObservation.getAuthors().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaObservation.getAuthors()) {
 				if(author != null && !author.isSetNullFlavor()) {
-					Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-						
-					for(BundleEntryComponent entry : fhirPractitionerBundle.getEntry()) {
-						fhirObsBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-						
-						if(entry.getResource() instanceof Practitioner) {
-								fhirPractitioner = (Practitioner)entry.getResource();
-						}
+					EntityResult entityResult = tAuthor2Practitioner(author);
+					entityResult.copyTo(fhirObsBundle);
+					if (entityResult.hasPractitioner()) {
+						fhirObs.addPerformer().setReference(entityResult.getPractitionerId());
 					}
-					fhirObs.addPerformer().setReference(fhirPractitioner.getId());
 				}
 			}
 		}
@@ -1369,20 +1349,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaImmunizationActivity.getPerformers() != null && !cdaImmunizationActivity.getPerformers().isEmpty()) {
 			for(Performer2 performer : cdaImmunizationActivity.getPerformers()) {
 				if(performer.getAssignedEntity()!=null && !performer.getAssignedEntity().isSetNullFlavor()) {
-					Bundle practBundle = tPerformer22Practitioner(performer);
-					for(BundleEntryComponent entry : practBundle.getEntry()) {
-						// Add all the resources returned from the bundle to the main bundle
-						fhirImmunizationBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-						// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
-						if(entry.getResource() instanceof Practitioner) {
-							// TODO: verify the STU3 mappings
-							// TODO: find defined valueset/codesystem for immunization role
-							//fhirImmunization.setPerformer(new Reference(entry.getResource().getId()));
-							ImmunizationPractitionerComponent perf = fhirImmunization.addPractitioner();
-							perf.getRole().addCoding().setSystem("http://hl7.org/fhir/v2/0443").setCode("AP").setDisplay("Administering Provider");
-							perf.setActor(new Reference(entry.getResource().getId()));
-							fhirImmunization.setPrimarySource(true);
-						}
+					EntityResult entityResult = tPerformer22Practitioner(performer);
+					entityResult.copyTo(fhirImmunizationBundle);
+					if (entityResult.hasPractitioner()) {
+						// TODO: verify the STU3 mappings
+						// TODO: find defined valueset/codesystem for immunization role
+						// fhirImmunization.setPerformer(new Reference(entry.getResource().getId()));
+						ImmunizationPractitionerComponent perf = fhirImmunization.addPractitioner();
+						perf.getRole().addCoding().setSystem("http://hl7.org/fhir/v2/0443").setCode("AP").setDisplay("Administering Provider");
+						perf.setActor(entityResult.getPractitionerReference());
+						fhirImmunization.setPrimarySource(true);
 					}
 				}
 			}
@@ -1659,14 +1635,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// author[0] -> informationSource
 		if(!cdaMedicationActivity.getAuthors().isEmpty()) {
 			if(!cdaMedicationActivity.getAuthors().get(0).isSetNullFlavor()) {
-				Bundle practBundle = tAuthor2Practitioner(cdaMedicationActivity.getAuthors().get(0));
-				for(BundleEntryComponent entry : practBundle.getEntry()) {
-					// Add all the resources returned from the bundle to the main bundle
-					medStatementBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-					// Add a reference to informationSource attribute only for Practitioner resource. Further resources can include Organization.
-					if(entry.getResource() instanceof Practitioner) {
-						fhirMedSt.setInformationSource(new Reference(entry.getResource().getId()));
-					}
+				EntityResult entityResult = tAuthor2Practitioner(cdaMedicationActivity.getAuthors().get(0));
+				entityResult.copyTo(medStatementBundle);
+				if (entityResult.hasPractitioner()) {
+					fhirMedSt.setInformationSource(entityResult.getPractitionerReference());
 				}
 			}
 		}
@@ -1803,18 +1775,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaMedicationDispense.getPerformers() != null && !cdaMedicationDispense.getPerformers().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaMedicationDispense.getPerformers()) {
 				if(cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {
-					// Asserting that at most one performer exists
-					org.hl7.fhir.dstu3.model.Practitioner fhirPractitioner = null;
-					Bundle fhirPractitionerBundle = tPerformer22Practitioner(cdaPerformer);
-					
-					for(BundleEntryComponent entry : fhirPractitionerBundle.getEntry()) {
-						fhirMediDispBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-						if(entry.getResource() instanceof org.hl7.fhir.dstu3.model.Practitioner) {
-							fhirPractitioner = (org.hl7.fhir.dstu3.model.Practitioner)entry.getResource();
-						}
+					EntityResult entityResult = tPerformer22Practitioner(cdaPerformer);
+					entityResult.copyTo(fhirMediDispBundle);
+					if (entityResult.hasPractitioner()) {
+						fhirMediDisp.addPerformer().setActor(entityResult.getPractitionerReference());
 					}
-					// dispenser
-					fhirMediDisp.addPerformer().setActor(new Reference(fhirPractitioner.getId()));
 				}
 			}
 		}
@@ -1980,12 +1945,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// author -> performer
 		for(org.openhealthtools.mdht.uml.cda.Author author : cdaObservation.getAuthors()) {
 			if(author != null && !author.isSetNullFlavor()) {
-				Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-				for(BundleEntryComponent entry : fhirPractitionerBundle.getEntry()) {
-					fhirObsBundle.addEntry(entry);
-					if(entry.getResource() instanceof Practitioner) {
-						fhirObs.addPerformer().setReference(entry.getResource().getId());
-					}
+				EntityResult entityResult = tAuthor2Practitioner(author);
+				entityResult.copyTo(fhirObsBundle);
+				if (entityResult.hasPractitioner()) {
+					fhirObs.addPerformer().setReference(entityResult.getPractitionerId());
 				}
 			}
 		}
@@ -2296,12 +2259,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return fhirPatientBundle;
 	}
 	
-	public Bundle tPerformer22Practitioner(Performer2 cdaPerformer2) {
-		if(cdaPerformer2 == null || cdaPerformer2.isSetNullFlavor()) 
+	public EntityResult tPerformer22Practitioner(Performer2 cdaPerformer2) {
+		if(cdaPerformer2 == null || cdaPerformer2.isSetNullFlavor()) {
 			return null;
-		else
-			return tAssignedEntity2Practitioner(cdaPerformer2.getAssignedEntity());
-		
+		}
+
+		return tAssignedEntity2Practitioner(cdaPerformer2.getAssignedEntity());		
 	}
 
 	public Bundle tProblemConcernAct2Condition(ProblemConcernAct cdaProblemConcernAct) {
@@ -2410,14 +2373,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(!cdaProbObs.getAuthors().isEmpty()) {
 			if (cdaProbObs.getAuthors().get(0) != null && !cdaProbObs.getAuthors().get(0).isSetNullFlavor()) {
 				Author author = cdaProbObs.getAuthors().get(0);
-				Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-				for (BundleEntryComponent entry : fhirPractitionerBundle.getEntry()) {
-					fhirConditionBundle.addEntry(new BundleEntryComponent().setResource(entry.getResource()));
-					if (entry.getResource() instanceof Practitioner) {
-						fhirCondition.setAsserter(new Reference(entry.getResource().getId()));
-					}
+				EntityResult entityResult = tAuthor2Practitioner(author);
+				entityResult.copyTo(fhirConditionBundle);
+				if (entityResult.hasPractitioner()) {
+					fhirCondition.setAsserter(entityResult.getPractitionerReference());
 				}
-
 				// author.time -> assertedDate
 				if (author.getTime() != null && !author.getTime().isSetNullFlavor()) {
 					fhirCondition.setAssertedDateElement(dtt.tTS2DateTime(author.getTime()));
@@ -2475,40 +2435,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// performer -> performer
 		for(Performer2 performer : cdaProcedure.getPerformers()) {
 			if(performer.getAssignedEntity()!= null && !performer.getAssignedEntity().isSetNullFlavor()) {
-				Bundle practBundle = tPerformer22Practitioner(performer);
-				ProcedurePerformerComponent fhirPerformer = null; // share across resources
-				for(BundleEntryComponent entry : practBundle.getEntry()) {
-					// Add all the resources returned from the bundle to the main bundle
-					fhirProcBundle.addEntry(entry);
-					
-					// Add a reference to performer attribute only for Practitioner resource. Further resources can include Organization.
-					if(entry.getResource() instanceof Practitioner) {
-						if (fhirPerformer == null) {
-							fhirPerformer = new ProcedurePerformerComponent();
-							fhirProc.addPerformer(fhirPerformer);							
-						}
-						fhirPerformer.setActor(new Reference(entry.getResource().getId()));
+				EntityResult entityResult = tPerformer22Practitioner(performer);
+				entityResult.copyTo(fhirProcBundle);
+				if (!entityResult.isEmpty()) {
+					ProcedurePerformerComponent fhirPerformer = new ProcedurePerformerComponent();
+					fhirProc.addPerformer(fhirPerformer);
+					if (entityResult.hasPractitioner()) {
+						fhirPerformer.setActor(entityResult.getPractitionerReference());
 					}
-
-					// performer.assignedEntity.representedOrganization -> performer.onBehalfOf
-					if(entry.getResource() instanceof Organization) {
-						if (fhirPerformer == null) {
-							fhirPerformer = new ProcedurePerformerComponent();
-							fhirProc.addPerformer(fhirPerformer);							
-						}
-						Reference reference = new Reference(entry.getResource().getIdElement());						
-						fhirPerformer.setOnBehalfOf(reference);
+					if (entityResult.hasOrganization()) {
+						fhirPerformer.setOnBehalfOf(entityResult.getOrganizationReference());						
 					}
-					
-					// performer.assignedEntity.code -> performer.role
-					if (entry.getResource() instanceof PractitionerRole) {
-						if (fhirPerformer == null) {
-							fhirPerformer = new ProcedurePerformerComponent();
-							fhirProc.addPerformer(fhirPerformer);							
-						}
-						PractitionerRole role = (PractitionerRole) entry.getResource();
-						fhirPerformer.setRole(role.getCodeFirstRep());
-					}					
+					if (entityResult.hasPractitionerRoleCode()) {
+						fhirPerformer.setRole(entityResult.getPractitionerRoleCode());						
+					}
 				}
 			}
 		}
@@ -2722,13 +2662,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			for(org.openhealthtools.mdht.uml.cda.Author author : cdaResultOrganizer.getAuthors()) {
 				// Asserting that at most one author exists
 				if(author != null && !author.isSetNullFlavor()) {
-					Bundle fhirPractitionerBundle = tAuthor2Practitioner(author);
-					for(BundleEntryComponent entry : fhirPractitionerBundle.getEntry()) {
-						fhirDiagReportBundle.addEntry(entry);
-						if(entry.getResource() instanceof Practitioner) {
-							// TODO: what about role?
-							fhirDiagReport.addPerformer().setActor(new Reference(entry.getResource().getId()));
-						}
+					EntityResult entityResult = tAuthor2Practitioner(author);
+					entityResult.copyTo(fhirDiagReportBundle);
+					// TODO: what about role?
+					if (entityResult.hasPractitioner()) {
+						fhirDiagReport.addPerformer().setActor(entityResult.getPractitionerReference());
 					}
 				}
 			}
