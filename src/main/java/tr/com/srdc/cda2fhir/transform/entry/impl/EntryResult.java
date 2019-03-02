@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class EntryResult implements IEntryResult {
 	private Bundle bundle;
@@ -16,9 +17,18 @@ public class EntryResult implements IEntryResult {
 		this.bundle = bundle;
 	}
 
+	public EntryResult() {}
+	
 	@Override
 	public Bundle getBundle() {
 		return bundle;
+	}
+
+	@Override
+	public void copyTo(Bundle bundle) {
+		if (bundle != null) {
+			FHIRUtil.mergeBundle(this.bundle, bundle);
+		}
 	}
 
 	public boolean hasDeferredReference() {

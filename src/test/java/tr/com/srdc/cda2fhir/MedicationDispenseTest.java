@@ -14,6 +14,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.MedicationDispenseGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class MedicationDispenseTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
@@ -31,7 +32,8 @@ public class MedicationDispenseTest {
 		MedicationDispenseGenerator mdg = MedicationDispenseGenerator.getDefaultInstance();
 		org.openhealthtools.mdht.uml.cda.consol.MedicationDispense md = mdg.generate(factories);
 
-		Bundle bundle = rt.tMedicationDispense2MedicationDispense(md);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tMedicationDispense2MedicationDispense(md, bundleInfo).getBundle();
 		
 		Practitioner p = BundleUtil.findOneResource(bundle, Practitioner.class);
 		mdg.verify(p);

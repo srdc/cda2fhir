@@ -9,6 +9,8 @@ import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 public interface IEntryResult {
 	Bundle getBundle();
 
+	void copyTo(Bundle bundle);
+	
 	boolean hasDeferredReferences();
 
 	List<IDeferredReference> getDeferredReferences();

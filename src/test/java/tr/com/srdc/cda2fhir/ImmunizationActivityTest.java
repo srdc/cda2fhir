@@ -25,6 +25,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class ImmunizationActivityTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
@@ -42,8 +43,9 @@ public class ImmunizationActivityTest {
 	@Test
 	public void testPerformer() throws Exception {
 		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
-		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		Assert.assertEquals("Unexpected positive primary source", false, immunization.getPrimarySource());
 				
@@ -57,7 +59,7 @@ public class ImmunizationActivityTest {
 		Performer2 performer = performerGenerator.generate(factories);
 		act.getPerformers().add(performer);
 
-		Bundle bundle1 = rt.tImmunizationActivity2Immunization(act);
+		Bundle bundle1 = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization1 = BundleUtil.findOneResource(bundle1, Immunization.class);
 		Assert.assertEquals("Unexpected negative primary source", true, immunization1.getPrimarySource());
 
@@ -75,7 +77,8 @@ public class ImmunizationActivityTest {
 			Assert.assertTrue("Invalid Immunization Activity in Test", validation);
 		}
 
-		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		Assert.assertEquals("Unexpected not given", value == null ? false : value, immunization.getNotGiven());				
 	}
@@ -89,7 +92,8 @@ public class ImmunizationActivityTest {
 
 
 	static private void verifyImmunizationStatus(ImmunizationActivityImpl act, String expected) throws Exception {
-		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		
     	ImmunizationStatus status = immunization.getStatus();

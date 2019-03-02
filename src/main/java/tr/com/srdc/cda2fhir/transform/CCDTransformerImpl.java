@@ -45,6 +45,7 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
@@ -233,7 +234,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
 
         // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
-        Bundle ccdBundle = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
+        IEntryResult entryResult = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
+        Bundle ccdBundle = entryResult.getBundle();
         
         // the first bundle entry is always the composition
         Composition ccdComposition = includeComposition ? (Composition)ccdBundle.getEntry().get(0).getResource() : null;

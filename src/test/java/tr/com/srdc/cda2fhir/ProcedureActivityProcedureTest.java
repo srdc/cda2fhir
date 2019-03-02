@@ -32,6 +32,7 @@ import tr.com.srdc.cda2fhir.testutil.IndicationGenerator;
 import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class ProcedureActivityProcedureTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
@@ -58,7 +59,8 @@ public class ProcedureActivityProcedureTest {
 		Performer2 performer = performerGenerator.generate(factories);
 		pap.getPerformers().add(performer);
 
-		EntryResult entryResult = rt.tProcedure2Procedure(pap);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		EntryResult entryResult = rt.tProcedure2Procedure(pap, bundleInfo);
 		Bundle bundle = entryResult.getBundle();
 
 		Organization organization = BundleUtil.findOneResource(bundle, Organization.class);
@@ -78,7 +80,8 @@ public class ProcedureActivityProcedureTest {
 	}
 
 	static private void verifyProcedureStatus(ProcedureActivityProcedure pap, String expected) throws Exception {
-		EntryResult entryResult = rt.tProcedure2Procedure(pap);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		EntryResult entryResult = rt.tProcedure2Procedure(pap, bundleInfo);
 		Bundle bundle = entryResult.getBundle();
 		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
 
@@ -128,7 +131,8 @@ public class ProcedureActivityProcedureTest {
 		DiagnosticChain dxChain = new BasicDiagnostic();
 		pap.validateProcedureActivityProcedureIndication(dxChain, null);
 
-		EntryResult entryResult = rt.tProcedure2Procedure(pap);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		EntryResult entryResult = rt.tProcedure2Procedure(pap, bundleInfo);
 		Bundle bundle = entryResult.getBundle();
 		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
 		Assert.assertTrue("Expect a reason code", procedure.hasReasonCode());

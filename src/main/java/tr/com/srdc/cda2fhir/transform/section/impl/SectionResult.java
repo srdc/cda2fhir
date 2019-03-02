@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 
@@ -40,5 +41,13 @@ public abstract class SectionResult implements ISectionResult {
 	@Override
 	public Bundle getBundle() {
 		return bundle;
+	}
+	
+	@Override
+	public void updateFrom(IEntryResult entryResult) {
+		entryResult.copyTo(bundle);
+   		if (entryResult.hasDeferredReferences()) {
+   			addDeferredReferences(entryResult.getDeferredReferences());
+   		}    		
 	}
 }

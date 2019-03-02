@@ -186,7 +186,6 @@ public class CCDTransformerTest {
 	}
 
 	// Gold Sample r2.1
-	@Ignore
 	@Test
 	public void testSample1() throws Exception {
 		readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", addlSections);
@@ -240,7 +239,6 @@ public class CCDTransformerTest {
 		util.spotCheckAllergyPractitioner("36e3e930-7b14-11db-9fe1-0800200c9a66", null, null, null);
 	}
 
-	@Ignore
 	@Test
 	public void testSample3() throws Exception {
 		readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", addlSections);

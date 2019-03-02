@@ -1,13 +1,12 @@
 package tr.com.srdc.cda2fhir.transform.section.impl;
 
-import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.openhealthtools.mdht.uml.cda.consol.SocialHistorySection;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
-import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class CDASocialHistorySection implements ICDASection {
 	private SocialHistorySection section;
@@ -32,11 +31,11 @@ public class CDASocialHistorySection implements ICDASection {
          *    Tobacco Use (V2)
          */
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
-		Bundle result = new Bundle();
+		SectionResultSingular<Observation> result = SectionResultSingular.getInstance(Observation.class);
     	for (org.openhealthtools.mdht.uml.cda.Observation obs : section.getObservations()) {
-    		Bundle bundle = rt.tObservation2Observation(obs);
-    		FHIRUtil.mergeBundle(bundle, result);
+    		IEntryResult er = rt.tObservation2Observation(obs, bundleInfo);
+    		result.updateFrom(er);
     	}
-    	return SectionResultSingular.getInstance(result, Observation.class);
+    	return result;
 	}
 }

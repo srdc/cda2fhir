@@ -45,6 +45,7 @@ import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class EntitiesTest {
 
@@ -115,7 +116,8 @@ public class EntitiesTest {
 
 
         // Transform from CDA to FHIR.
-        IEntityResult entityResult = rt.tAuthor2Practitioner(auth);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+        IEntityResult entityResult = rt.tAuthor2Practitioner(auth, bundleInfo);
         org.hl7.fhir.dstu3.model.Resource fhirResource = entityResult.getPractitioner();
         List<Base> fhirNames = fhirResource.getNamedProperty("name").getValues();
                 
@@ -131,7 +133,8 @@ public class EntitiesTest {
     	AssignedEntityGenerator aeg = AssignedEntityGenerator.getDefaultInstance();
     	
     	AssignedEntity ae = aeg.generate(factories);
-    	IEntityResult entityResult = rt.tAssignedEntity2Practitioner(ae);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+    	IEntityResult entityResult = rt.tAssignedEntity2Practitioner(ae, bundleInfo);
     	
     	Practitioner practitioner = entityResult.getPractitioner();
     	aeg.verify(practitioner);
