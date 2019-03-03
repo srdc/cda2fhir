@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.transform.util.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -23,14 +24,23 @@ public class LocalCDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	}	
 
 	@Override
-	public T get(II id) {
-		T result = existingIIMap.get(id);
+	public T get(II ii) {
+		T result = existingIIMap.get(ii);
 		if (result == null && newIIMap != null) {
-			return newIIMap.get(id);
+			return newIIMap.get(ii);
 		}
 		return result;
 	}
 
+	@Override
+	public T get(List<II> iis) {
+		T result = existingIIMap.get(iis);
+		if (result == null && newIIMap != null) {
+			return newIIMap.get(iis);
+		}
+		return result;
+	}
+		
 	@Override
 	public void putRootValuesTo(Map<String, T> target) {
 		if (newIIMap != null) {

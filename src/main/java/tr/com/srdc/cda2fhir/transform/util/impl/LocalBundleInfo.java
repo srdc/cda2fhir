@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.transform.util.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Identifier;
@@ -38,6 +39,15 @@ public class LocalBundleInfo implements IBundleInfo {
 		IEntityInfo result = bundleInfo.findEntityResult(ii);
 		if (result == null) {
 			return entities.get(ii);
+		}
+		return result;
+	}
+
+	@Override
+	public IEntityInfo findEntityResult(List<II> iis) {
+		IEntityInfo result = bundleInfo.findEntityResult(iis);
+		if (result == null) {
+			return entities.get(iis);
 		}
 		return result;
 	}

@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.transform.util.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -55,8 +56,19 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	}
 	
 	@Override
-	public T get(II id) {
-		return get(id.getRoot(), id.getExtension());
+	public T get(II ii) {
+		return get(ii.getRoot(), ii.getExtension());
+	}
+
+	@Override
+	public T get(List<II> iis) {
+		for (II ii: iis) {
+			T result = get(ii);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
 	}
 
 	@Override

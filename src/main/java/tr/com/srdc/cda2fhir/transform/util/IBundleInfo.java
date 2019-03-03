@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.transform.util;
 
+import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Identifier;
@@ -17,4 +18,6 @@ public interface IBundleInfo {
 	Reference getReferenceByIdentifier(String fhirType, Identifier identifier);
 	
 	IEntityInfo findEntityResult(II ii);
+
+	IEntityInfo findEntityResult(List<II> iis);
 }
