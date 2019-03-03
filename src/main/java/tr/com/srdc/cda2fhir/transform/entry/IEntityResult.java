@@ -1,13 +1,17 @@
 package tr.com.srdc.cda2fhir.transform.entry;
 
+import java.util.List;
+
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
-public interface IEntityResult {
+public interface IEntityResult extends IEntityInfo {
+	List<II> getNewIds();
+	
+	IEntityInfo getInfo();
+	
 	void copyTo(Bundle bundle);
 
 	boolean isEmpty();
@@ -22,12 +26,6 @@ public interface IEntityResult {
 
 	boolean hasPractitionerRoleCode();
 
-	Practitioner getPractitioner();
-	
-	PractitionerRole getPractitionerRole();
-	
-	Organization getOrganization();
-	
 	Reference getPractitionerReference();
 
 	Reference getOrganizationReference();

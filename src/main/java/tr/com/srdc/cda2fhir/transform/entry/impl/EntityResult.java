@@ -1,39 +1,55 @@
 package tr.com.srdc.cda2fhir.transform.entry.impl;
 
+import java.util.List;
+
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 
 public class EntityResult implements IEntityResult {
-	private Practitioner practitioner;
-	private PractitionerRole role;
-	private Organization organization;
-
-	public void setPractitioner(Practitioner practitioner) {
-		this.practitioner = practitioner;
+	private IEntityInfo info;
+	private List<II> ids;
+	
+	public EntityResult() {
+		info = new EntityInfo();
 	}
-
-	public void setPractitionerRole(PractitionerRole practitionerRole) {
-		this.role = practitionerRole;
+	
+	public EntityResult(IEntityInfo info) {
+		this.info = info;
 	}
-
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
+	
+	public EntityResult(IEntityInfo info, List<II> ids) {
+		this.info = info;
+		this.ids = ids;
 	}
-
+	
+	@Override
+	public List<II> getNewIds() {
+		return ids;
+	}
+	
+	public IEntityInfo getInfo() {
+		return info;
+	}
+	
 	@Override
 	public void copyTo(Bundle bundle) {
+		Practitioner practitioner = info.getPractitioner();
 		if (practitioner != null) {
 			bundle.addEntry().setResource(practitioner);
 		}
+		PractitionerRole role = info.getPractitionerRole();
 		if (role != null) {
 			bundle.addEntry().setResource(role);
 		}
+		Organization organization = info.getOrganization();
 		if (organization != null) {
 			bundle.addEntry().setResource(organization);
 		}
@@ -51,46 +67,48 @@ public class EntityResult implements IEntityResult {
 	
 	@Override
 	public boolean isEmpty() {
-		return practitioner == null && role == null && organization == null;
+		return info.getPractitioner() == null && info.getPractitionerRole() == null && info.getOrganization() == null;
 	}
 
 	@Override
 	public boolean hasPractitioner() {
-		return practitioner != null;
+		return info.getPractitioner() != null;
 	}
 
 	@Override
 	public boolean hasOrganization() {
-		return organization != null;
+		return info.getOrganization() != null;
 	}
 
 	@Override
 	public boolean hasPractitionerRole() {
-		return role != null;
+		return info.getPractitionerRole() != null;
 	}
 
 	@Override
 	public boolean hasPractitionerRoleCode() {
+		PractitionerRole role = info.getPractitionerRole();
 		return role != null && role.hasCode();
 	}
 
 	@Override
 	public Practitioner getPractitioner() {
-		return practitioner;
+		return info.getPractitioner();
 	}
 	
 	@Override
 	public PractitionerRole getPractitionerRole() {
-		return role;
+		return info.getPractitionerRole();
 	}
 	
 	@Override
 	public Organization getOrganization() {
-		return organization;
+		return info.getOrganization();
 	}
 
 	@Override
 	public Reference getPractitionerReference() {
+		Practitioner practitioner = info.getPractitioner();
 		if (practitioner != null) {
 			return new Reference(practitioner.getId());
 		}
@@ -99,6 +117,7 @@ public class EntityResult implements IEntityResult {
 
 	@Override
 	public Reference getOrganizationReference() {
+		Organization organization = info.getOrganization();
 		if (organization != null) {
 			return new Reference(organization.getId());
 		}
@@ -107,6 +126,7 @@ public class EntityResult implements IEntityResult {
 
 	@Override
 	public Reference getPractitionerRoleReference() {
+		PractitionerRole role = info.getPractitionerRole();
 		if (role != null) {
 			return new Reference(role.getId());
 		}
@@ -115,6 +135,7 @@ public class EntityResult implements IEntityResult {
 
 	@Override
 	public CodeableConcept getPractitionerRoleCode() {
+		PractitionerRole role = info.getPractitionerRole();
 		if (role != null && role.hasCode()) {
 			return role.getCode().get(0);
 		}
@@ -123,6 +144,7 @@ public class EntityResult implements IEntityResult {
 
 	@Override
 	public String getPractitionerId() {
+		Practitioner practitioner = info.getPractitioner();
 		if (practitioner != null) {
 			return practitioner.getId();
 		}

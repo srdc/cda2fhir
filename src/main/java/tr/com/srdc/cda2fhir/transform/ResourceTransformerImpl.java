@@ -148,6 +148,7 @@ import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.entry.impl.DeferredProcedureEncounterReference;
+import tr.com.srdc.cda2fhir.transform.entry.impl.EntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
@@ -464,14 +465,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	public EntityResult tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo) {
-		EntityResult entityResult = new EntityResult();
+		EntityInfo info = new EntityInfo();
 		
 		if (cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor()) {
-			return entityResult;
+			return new EntityResult(info);
 		}
 		
 		Practitioner fhirPractitioner = new Practitioner();
-		entityResult.setPractitioner(fhirPractitioner);
+		info.setPractitioner(fhirPractitioner);
 		
 		// resource id
 		IdType resourceId = new IdType("Practitioner", getUniqueId());
@@ -482,10 +483,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 		
 		// id -> identifier
+		List<II> ids = null;
 		if(cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty()) {
 			for(II ii : cdaAssignedAuthor.getIds()) {
 				if(ii != null && !ii.isSetNullFlavor()) {
+					if (ids == null) {
+						ids = new ArrayList<II>();
+					}
 					fhirPractitioner.addIdentifier(dtt.tII2Identifier(ii));
+					ids.add(ii);
 				}
 			}
 		}
@@ -535,22 +541,22 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirPractitionerRole.setOrganization(new Reference(fhirOrganization.getId()));
 			fhirPractitionerRole.setPractitioner(new Reference(fhirPractitioner.getId()));
 
-			entityResult.setPractitionerRole(fhirPractitionerRole);
-			entityResult.setOrganization(fhirOrganization);
+			info.setPractitionerRole(fhirPractitionerRole);
+			info.setOrganization(fhirOrganization);
 		}
 
-		return entityResult;
+		return new EntityResult(info, ids);
 	}
 
 	public EntityResult tAssignedEntity2Practitioner(AssignedEntity cdaAssignedEntity, IBundleInfo bundleInfo) {
-		EntityResult entityResult = new EntityResult();
+		EntityInfo info = new EntityInfo();
 
 		if(cdaAssignedEntity == null || cdaAssignedEntity.isSetNullFlavor()) {
-			return entityResult;
+			return new EntityResult(info);
 		}
 		
 		Practitioner fhirPractitioner = new Practitioner();
-		entityResult.setPractitioner(fhirPractitioner);
+		info.setPractitioner(fhirPractitioner);
 		
 		// resource id
 		IdType resourceId = new IdType("Practitioner", getUniqueId());
@@ -561,10 +567,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirPractitioner.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
 		
 		// id -> identifier
+		List<II> ids = null;
 		if(cdaAssignedEntity.getIds() != null && !cdaAssignedEntity.getIds().isEmpty()) {
 			for(II id : cdaAssignedEntity.getIds()) {
 				if(id != null && !id.isSetNullFlavor()) {
 					fhirPractitioner.addIdentifier(dtt.tII2Identifier(id));
+					if (ids == null) {
+						ids = new ArrayList<II>();
+					}
+					ids.add(id);
 				}
 			}
 		}
@@ -613,12 +624,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				fhirPractitionerRole.setOrganization(new Reference(fhirOrganization.getId()));
 				fhirPractitionerRole.setPractitioner(new Reference(fhirPractitioner.getId()));
 
-				entityResult.setPractitionerRole(fhirPractitionerRole);
-				entityResult.setOrganization(fhirOrganization);
+				info.setPractitionerRole(fhirPractitionerRole);
+				info.setOrganization(fhirOrganization);
 			}
 		}
 
-		return entityResult;
+		return new EntityResult(info, ids);
 	}
 
 	public EntityResult tAuthor2Practitioner(org.openhealthtools.mdht.uml.cda.Author cdaAuthor, IBundleInfo bundleInfo) {

@@ -7,12 +7,12 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
-import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public class LocalBundleInfo implements IBundleInfo {
 	private IBundleInfo bundleInfo;
-	private CDAIIMap<IEntityResult> entities = new CDAIIMap<IEntityResult>();
+	private CDAIIMap<IEntityInfo> entities = new CDAIIMap<IEntityInfo>();
 	
 	public LocalBundleInfo(IBundleInfo bundleInfo) {
 		this.bundleInfo = bundleInfo;
@@ -34,8 +34,8 @@ public class LocalBundleInfo implements IBundleInfo {
 	}
 	
 	@Override
-	public IEntityResult findEntityResult(II ii) {
-		IEntityResult result = bundleInfo.findEntityResult(ii);
+	public IEntityInfo findEntityResult(II ii) {
+		IEntityInfo result = bundleInfo.findEntityResult(ii);
 		if (result == null) {
 			return entities.get(ii);
 		}

@@ -8,7 +8,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
-import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
 
@@ -17,7 +17,7 @@ public class BundleInfo implements IBundleInfo {
 	private Map<String, String> idedAnnotations = new HashMap<String, String>();
 	private IIdentifierMap<Reference> identifiedReferences = new IdentifierMap<Reference>();
 
-	private CDAIIMap<IEntityResult> entities = new CDAIIMap<IEntityResult>();
+	private CDAIIMap<IEntityInfo> entities = new CDAIIMap<IEntityInfo>();
 	
 	public BundleInfo(IResourceTransformer resourceTransformer) {
 		this.resourceTransformer = resourceTransformer;
@@ -47,7 +47,7 @@ public class BundleInfo implements IBundleInfo {
 	}
 
 	@Override
-	public IEntityResult findEntityResult(II ii) {
+	public IEntityInfo findEntityResult(II ii) {
 		return entities.get(ii);
 	}
 }
