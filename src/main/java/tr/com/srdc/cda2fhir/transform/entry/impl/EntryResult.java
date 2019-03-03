@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -13,11 +16,11 @@ public class EntryResult implements IEntryResult {
 	private Bundle bundle;
 	private List<IDeferredReference> deferredReferences;
 
-	public EntryResult(Bundle bundle) {
-		this.bundle = bundle;
-	}
+	//public EntryResult(Bundle bundle) {
+	//	this.bundle = bundle;
+	//}
 
-	public EntryResult() {}
+	//public EntryResult() {}
 	
 	@Override
 	public Bundle getBundle() {
@@ -31,10 +34,20 @@ public class EntryResult implements IEntryResult {
 		}
 	}
 
-	public boolean hasDeferredReference() {
-		return !deferredReferences.isEmpty();
+	public void addResource(Resource resource) {
+		if (bundle == null) {
+			bundle = new Bundle();
+		}
+		bundle.addEntry(new BundleEntryComponent().setResource(resource));		
 	}
-
+	
+	public void updateFrom(IEntityResult entityResult) {
+		if (bundle == null) {
+			bundle = new Bundle();
+		}
+		entityResult.copyTo(bundle);
+	}
+	
 	public void addDeferredReference(IDeferredReference deferredReference) {
 		if (deferredReferences == null) {
 			deferredReferences = new ArrayList<IDeferredReference>();

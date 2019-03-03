@@ -57,15 +57,20 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	
 	@Override
 	public T get(II ii) {
+		if (ii == null) {
+			return null;
+		}
 		return get(ii.getRoot(), ii.getExtension());
 	}
 
 	@Override
 	public T get(List<II> iis) {
-		for (II ii: iis) {
-			T result = get(ii);
-			if (result != null) {
-				return result;
+		if (iis != null) {
+			for (II ii: iis) {
+				T result = get(ii);
+				if (result != null) {
+					return result;
+				}
 			}
 		}
 		return null;

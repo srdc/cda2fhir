@@ -236,7 +236,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
         IEntryResult entryResult = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
         Bundle ccdBundle = entryResult.getBundle();
-        
+        if (ccdBundle == null) {
+        	ccdBundle = new Bundle();
+        }
+         
         // the first bundle entry is always the composition
         Composition ccdComposition = includeComposition ? (Composition)ccdBundle.getEntry().get(0).getResource() : null;
         
