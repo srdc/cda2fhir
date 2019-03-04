@@ -141,7 +141,9 @@ public class CCDTransformerTest {
 		Bundle bundle = ccdTransformer.transformDocument(cda);
 		Assert.assertNotNull("Expect a bundle after transformation", bundle);
 		Assert.assertTrue("Expect some entries", bundle.hasEntry());
-
+		
+		BundleUtil.verifyIdsUnique(bundle);
+		
 		Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
 		Assert.assertTrue("Expect composition to be the first resource",
 				bundle.getEntry().get(0).getResource() == composition);
@@ -219,7 +221,7 @@ public class CCDTransformerTest {
 		verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
 		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
 		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 110, 4);
+		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 92, 4);
 
 		// Spot checks
 		BundleUtil util = new BundleUtil(bundle);

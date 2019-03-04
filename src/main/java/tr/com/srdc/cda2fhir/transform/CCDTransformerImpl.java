@@ -254,6 +254,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
             
         BundleInfo bundleInfo = new BundleInfo(resTransformer);
+        bundleInfo.updateFrom(entryResult);
         List<IDeferredReference> deferredReferences = new ArrayList<IDeferredReference>();
         
         // transform the sections
@@ -286,6 +287,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         			if (sectionResult.hasDefferredReferences()) {
         				deferredReferences.addAll(sectionResult.getDeferredReferences());
         			}
+        			bundleInfo.updateFrom(sectionResult);
         		}
         	}
         }

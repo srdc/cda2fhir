@@ -54,4 +54,9 @@ public class LocalCDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 			newIIMap.putExtensionValuesTo(target);		
 		}
 	}
+
+	@Override
+	public boolean hasIIMapValues() {
+		return newIIMap != null;
+	}
 }

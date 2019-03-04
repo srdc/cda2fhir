@@ -21,7 +21,7 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 				if (extensionMaps == null) {
 					extensionMaps = new HashMap<String, Map<String, T>>();
 				}
-				Map<String, T> extensionMap = extensionMaps.get(extension);
+				Map<String, T> extensionMap = extensionMaps.get(root);
 				if (extensionMap == null) {
 					extensionMap = new HashMap<String, T>();
 					extensionMaps.put(root, extensionMap);
@@ -36,6 +36,23 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 		}
 	}
 
+	public void put(List<II> ids, T value) {
+		for (II id: ids) {
+			put(id, value);
+		}
+	}
+	
+	public void put(ICDAIIMapSource<T> source) {
+		if (rootMap == null) {
+			rootMap = new HashMap<String, T>();
+		}
+		source.putRootValuesTo(rootMap);
+		if (extensionMaps == null) {
+			extensionMaps = new HashMap<String, Map<String, T>>();
+		}
+		source.putExtensionValuesTo(extensionMaps);
+	}
+		
 	private T get(String root, String extension) {
 		if (root != null) {		
 			if (extension != null) {
@@ -78,11 +95,29 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 
 	@Override
 	public void putRootValuesTo(Map<String, T> target) {
-		target.putAll(rootMap);
+		if (rootMap != null) {
+			target.putAll(rootMap);
+		}
 	}
 
 	@Override
 	public void putExtensionValuesTo(Map<String, Map<String, T>> target) {
-		target.putAll(extensionMaps);		
+		if (extensionMaps != null) {
+			for (Map.Entry<String, Map<String, T>> entry : extensionMaps.entrySet()) {
+				String root = entry.getKey();
+				Map<String, T> extensionMap = entry.getValue();
+				Map<String, T> targetExtensionMap = target.get(root);
+				if (targetExtensionMap == null) {
+					target.put(root, extensionMap);
+				} else {
+					targetExtensionMap.putAll(extensionMap);
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean hasIIMapValues() {
+		return rootMap != null || extensionMaps != null;
 	}
 }

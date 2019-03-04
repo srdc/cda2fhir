@@ -481,10 +481,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-				
-		IEntityInfo existingInfo = bundleInfo.findEntityResult(ids);
-		if (existingInfo != null) {
-			return new EntityResult(existingInfo);
+		
+		if (ids != null) {
+			IEntityInfo existingInfo = bundleInfo.findEntityResult(ids);
+			if (existingInfo != null) {
+				return new EntityResult(existingInfo);
+			}
 		}
 		
 		EntityInfo info = new EntityInfo();
@@ -539,7 +541,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// Adding a practitionerRole
 		//Practitioner.PractitionerRole fhirPractitionerRole = fhirPractitioner.addPractitionerRole();
 		PractitionerRole fhirPractitionerRole = new PractitionerRole();
-		
+		fhirPractitionerRole.setId(new IdType("PractitionerRole", getUniqueId()));
+
 		// code -> practitionerRole.role
 		if(cdaAssignedAuthor.getCode() != null && !cdaAssignedAuthor.isSetNullFlavor()) {
 			//fhirPractitionerRole.setRole(dtt.tCD2CodeableConcept(cdaAssignedAuthor.getCode()));
@@ -575,10 +578,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-				
-		IEntityInfo existingInfo = bundleInfo.findEntityResult(ids);
-		if (existingInfo != null) {
-			return new EntityResult(existingInfo);
+		
+		if (ids != null) {
+			IEntityInfo existingInfo = bundleInfo.findEntityResult(ids);
+			if (existingInfo != null) {
+				return new EntityResult(existingInfo);
+			}
 		}
 		
 		EntityInfo info = new EntityInfo();
@@ -630,6 +635,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		//Practitioner.PractitionerRole fhirPractitionerRole = fhirPractitioner.addPractitionerRole();
 		PractitionerRole fhirPractitionerRole = new PractitionerRole();
+		fhirPractitionerRole.setId(new IdType("PractitionerRole", getUniqueId()));
 
 		// code -> practitionerRole.role
 		if(cdaAssignedEntity.getCode() != null && !cdaAssignedEntity.isSetNullFlavor()) {
@@ -763,6 +769,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					if(author.getAssignedAuthor() != null && !author.getAssignedAuthor().isSetNullFlavor()) {
 						EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
 						result.updateFrom(entityResult);
+						bundleInfo.updateFrom(entityResult);
 						if (fhirComp != null && entityResult.hasPractitioner()) {
 							fhirComp.addAuthor().setReference(entityResult.getPractitionerId());						
 						}
@@ -780,6 +787,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 			EntityResult entityResult = tAssignedEntity2Practitioner(cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity(), bundleInfo);
 			result.updateFrom(entityResult);
+			bundleInfo.updateFrom(entityResult);
 			Reference reference = entityResult.getPractitionerReference();
 			if (attester != null && reference != null) {
 				attester.setParty(reference);
@@ -796,6 +804,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 				EntityResult entityResult = tAssignedEntity2Practitioner(authenticator.getAssignedEntity(), bundleInfo);
 				result.updateFrom(entityResult);
+				bundleInfo.updateFrom(entityResult);
 				Reference reference = entityResult.getPractitionerReference();
 				if (attester != null && reference != null) {
 					attester.setParty(reference);

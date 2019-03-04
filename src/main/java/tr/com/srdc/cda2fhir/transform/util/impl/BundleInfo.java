@@ -10,7 +10,9 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
 
 public class BundleInfo implements IBundleInfo {
@@ -47,6 +49,19 @@ public class BundleInfo implements IBundleInfo {
 		identifiedReferences.put(fhirType, identifier, reference);
 	}
 
+	public void updateFrom(IEntityResult entityResult) {
+		List<II> iis = entityResult.getNewIds();
+		if (iis != null) {
+			entities.put(iis, entityResult.getInfo());
+		}
+	}
+	
+	public void updateFrom(ICDAIIMapSource<IEntityInfo> source){
+		if (source.hasIIMapValues()) {
+			entities.put(source);
+		}
+	}
+	
 	@Override
 	public IEntityInfo findEntityResult(II ii) {
 		return entities.get(ii);

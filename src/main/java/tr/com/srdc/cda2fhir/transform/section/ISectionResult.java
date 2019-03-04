@@ -5,10 +5,12 @@ import java.util.List;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Resource;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 
-public interface ISectionResult {
+public interface ISectionResult extends ICDAIIMapSource<IEntityInfo> {
 	Bundle getBundle();
 	
 	List<? extends Resource> getSectionResources();

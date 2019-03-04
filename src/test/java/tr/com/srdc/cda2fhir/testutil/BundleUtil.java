@@ -1,9 +1,11 @@
 package tr.com.srdc.cda2fhir.testutil;
 
 import java.io.FileInputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
@@ -21,6 +23,7 @@ import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -182,5 +185,16 @@ public class BundleUtil {
 	public static PractitionerRole findPractitionersRole(Bundle bundle, Practitioner practitioner) {
 		List<PractitionerRole> roles = findPractitionersRoles(bundle, practitioner, 1);
 		return roles.get(0);
+	}
+	
+	public static void verifyIdsUnique(Bundle bundle) {
+		Set<String> set = new HashSet<String>();
+		for (BundleEntryComponent entry : bundle.getEntry()) {
+			Resource resource = entry.getResource();
+			String id = resource.getId();
+			Assert.assertNotNull("Id is null for " + resource.getResourceType(), id);
+			Assert.assertFalse("Previous resource with id: " + id, set.contains(id));
+			set.add(id);
+		}
 	}
 }
