@@ -944,11 +944,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// performer -> participant.individual
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		if(cdaEncounterActivity.getPerformers() != null && !cdaEncounterActivity.getPerformers().isEmpty()) {
 			for(org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaEncounterActivity.getPerformers()) {
 				if(cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {
-					EntityResult entityResult = tPerformer22Practitioner(cdaPerformer, bundleInfo);
+					EntityResult entityResult = tPerformer22Practitioner(cdaPerformer, localBundleInfo);
 					result.updateFrom(entityResult);
+					localBundleInfo.updateFrom(result);
 					if (entityResult.hasPractitioner()) {
 						EncounterParticipantComponent fhirParticipant = new EncounterParticipantComponent();
 						// default encounter participant type code
@@ -2327,8 +2329,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 		
 		// each problem observation instance -> FHIR Condition instance
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		for(ProblemObservation cdaProbObs : cdaProblemConcernAct.getProblemObservations()) {
-			EntryResult er = tProblemObservation2Condition(cdaProbObs, bundleInfo);
+			EntryResult er = tProblemObservation2Condition(cdaProbObs, localBundleInfo);
+			localBundleInfo.updateFrom(er);
+			result.updateEntitiesFrom(er);
 			Bundle fhirProbObsBundle = er.getBundle();
 			if(fhirProbObsBundle == null)
 				continue;

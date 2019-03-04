@@ -134,6 +134,9 @@ public class CCDTransformerTest {
 		Bundle bundle = ccdTransformer.transformDocument(cda);
 		Assert.assertNotNull("Expect a bundle after transformation", bundle);
 		Assert.assertTrue("Expect some entries", bundle.hasEntry());
+
+		String baseName = sourceName.substring(0, sourceName.length() - 4);
+		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
 		
 		BundleUtil.verifyIdsUnique(bundle);
 		
@@ -146,8 +149,6 @@ public class CCDTransformerTest {
 
 		verifyNoDuplicatePractitioner(bundle);
 
-		String baseName = sourceName.substring(0, sourceName.length() - 4);
-		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
 		return bundle;
 	}
 
