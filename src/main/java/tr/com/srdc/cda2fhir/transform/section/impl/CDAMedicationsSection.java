@@ -8,6 +8,7 @@ import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDAMedicationsSection implements ICDASection {
 	private MedicationsSection section;
@@ -23,9 +24,11 @@ public class CDAMedicationsSection implements ICDASection {
 	public SectionResultSingular<MedicationStatement> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		SectionResultSingular<MedicationStatement> result = SectionResultSingular.getInstance(MedicationStatement.class);
-    	for (MedicationActivity act : section.getMedicationActivities()) {
-    		IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, bundleInfo);
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
+		for (MedicationActivity act : section.getMedicationActivities()) {
+    		IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, localBundleInfo);
     		result.updateFrom(er);
+    		localBundleInfo.updateFrom(er);
     	}
     	return result;
 	}

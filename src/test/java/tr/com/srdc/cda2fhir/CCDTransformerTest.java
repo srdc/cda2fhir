@@ -114,15 +114,8 @@ public class CCDTransformerTest {
 			String id = practitioner.getId();
 			for (Identifier identifier : practitioner.getIdentifier()) {
 				String idInMap = identifierMap.get(practitioner.fhirType(), identifier);
-				if (idInMap == null) {
-					logger.error("Did not find " + id + " in identifier map");
-				} else {
-					if (!idInMap.equals(id)) {
-						logger.error(id + " is a duplicate of " + idInMap);
-					} else {
-						logger.error("All good for " + id);
-					}
-				}
+				Assert.assertNotNull("Practitioner id from map", idInMap);
+				Assert.assertEquals("Practitioner id from map", id, idInMap);
 			}
 		}
 	}
@@ -221,7 +214,7 @@ public class CCDTransformerTest {
 		verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
 		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
 		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 92, 4);
+		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 74, 4);
 
 		// Spot checks
 		BundleUtil util = new BundleUtil(bundle);

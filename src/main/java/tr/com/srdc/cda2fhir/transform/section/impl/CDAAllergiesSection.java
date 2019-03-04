@@ -8,6 +8,7 @@ import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDAAllergiesSection implements ICDASection {
 	private AllergiesSection section;
@@ -23,9 +24,11 @@ public class CDAAllergiesSection implements ICDASection {
 	public SectionResultSingular<AllergyIntolerance> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		SectionResultSingular<AllergyIntolerance> result = SectionResultSingular.getInstance(AllergyIntolerance.class);
-    	for (AllergyProblemAct act : section.getAllergyProblemActs()) {
-    		IEntryResult er = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo);
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
+		for (AllergyProblemAct act : section.getAllergyProblemActs()) {
+    		IEntryResult er = rt.tAllergyProblemAct2AllergyIntolerance(act, localBundleInfo);
     		result.updateFrom(er);
+    		localBundleInfo.updateFrom(er);
     	}
     	return result;
 	}

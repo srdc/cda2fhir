@@ -155,6 +155,7 @@ import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 import tr.com.srdc.cda2fhir.util.Constants;
 
 public class ResourceTransformerImpl implements IResourceTransformer, Serializable {
@@ -2750,10 +2751,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 		
 		// ResultObservation -> result
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		for(ResultObservation cdaResultObs : cdaResultOrganizer.getResultObservations()) {
 			if(!cdaResultObs.isSetNullFlavor()) {
-				EntryResult entryResult = tResultObservation2Observation(cdaResultObs, bundleInfo);
-				Bundle fhirObsBundle = entryResult.getBundle();
+				EntryResult er = tResultObservation2Observation(cdaResultObs, localBundleInfo);
+				localBundleInfo.updateFrom(er);
+				result.updateEntitiesFrom(er);
+				Bundle fhirObsBundle = er.getBundle();
 				if (fhirObsBundle != null) {
 					for(BundleEntryComponent entry : fhirObsBundle.getEntry()) {
 						result.addResource(entry.getResource());

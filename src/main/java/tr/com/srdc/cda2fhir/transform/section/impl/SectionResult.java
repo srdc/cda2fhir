@@ -57,8 +57,8 @@ public abstract class SectionResult implements ISectionResult {
    		if (entryResult.hasIIMapValues()) {
    			if (entities == null) {
    				entities = new CDAIIMap<IEntityInfo>();
-   				entities.put(entryResult);
    			}
+			entities.put(entryResult);
    		}
 	}
 

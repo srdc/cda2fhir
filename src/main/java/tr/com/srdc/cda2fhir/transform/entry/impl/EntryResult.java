@@ -59,7 +59,16 @@ public class EntryResult implements IEntryResult {
 			entityResult.copyTo(bundle);			
 		}
 	}
-	
+
+	public void updateEntitiesFrom(IEntryResult entryResult) {
+   		if (entryResult.hasIIMapValues()) {
+   			if (entities == null) {
+   				entities = new CDAIIMap<IEntityInfo>();
+   			}
+			entities.put(entryResult);
+   		}
+	}
+		
 	public void addDeferredReference(IDeferredReference deferredReference) {
 		if (deferredReferences == null) {
 			deferredReferences = new ArrayList<IDeferredReference>();
