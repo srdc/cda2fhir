@@ -21,10 +21,6 @@ public class EntryResult implements IEntryResult {
 		return bundle;
 	}
 
-	public boolean hasDeferredReference() {
-		return !deferredReferences.isEmpty();
-	}
-
 	public void addDeferredReference(IDeferredReference deferredReference) {
 		if (deferredReferences == null) {
 			deferredReferences = new ArrayList<IDeferredReference>();
