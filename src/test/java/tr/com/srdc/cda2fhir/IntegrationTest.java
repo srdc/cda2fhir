@@ -1,6 +1,9 @@
 package tr.com.srdc.cda2fhir;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -56,34 +59,12 @@ public class IntegrationTest {
 	public static DockerComposeRule docker = DockerComposeRule.builder().file("src/test/resources/docker-compose.yaml")
 			.waitingForService("hapi", HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat(hapiURL))).build();
 
-	@SuppressWarnings("unused")
-	private static void validate(Bundle bundle) {
-		FhirValidator validator = new FhirValidator(ctx);
-		ValidationResult result = validator.validateWithResult(bundle);
-		if (!result.isSuccessful()) {
-
-			if (result.getMessages().size() > 0) {
-				logger.debug("validation debug messages: ");
-				for (SingleValidationMessage s : result.getMessages()) {
-					logger.debug(s.getMessage());
-				}
-			}
-
-		}
-		Assert.assertTrue(result.isSuccessful());
-	}
-
 	@Test
 	public void rakiaIntegration() throws Exception {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		// create transaction bundle from ccda bundle
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
 				BundleType.TRANSACTION, null);
-
-		// currently doesn't validate. Potentially due to incorrect implementation
-		// of resourceProfileMap.
-		// TODO: Make valid.
-		// validate(transactionBundle);
 
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
