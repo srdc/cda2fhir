@@ -34,8 +34,8 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 import tr.com.srdc.cda2fhir.validation.ValidatorImpl;
 
 public class IntegrationTest {
-	static String hapiURL = "http://localhost:8080";
-	static String serverBase = hapiURL + "/baseDstu3";
+	static String hapiURL = "http://localhost:1137";
+	static String serverBase = hapiURL + "/fhir";
 	static FhirContext ctx;
 	static IGenericClient client;
 	static CCDTransformerImpl ccdTransformer;

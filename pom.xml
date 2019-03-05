@@ -25,7 +25,6 @@
                 <configuration>
                     <!-- Setting the system file encoding to UTF-8 -->
                     <argLine>-Dfile.encoding=UTF-8</argLine>
-                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
                 
             </plugin>

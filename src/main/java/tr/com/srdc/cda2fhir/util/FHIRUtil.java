@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,5 +129,17 @@ public class FHIRUtil {
 	public static <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type) {
 		return bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
 				.map(r -> type.cast(r)).collect(Collectors.toList());
+	}
+	
+	public static void mergeBundle(Bundle source, Bundle target) {
+		if (source == null || target == null) {
+			return;
+		}
+		
+		for (BundleEntryComponent entry : source.getEntry()) {
+			if (entry != null) {
+				target.addEntry(entry);
+            }
+    	}		
 	}
 }
