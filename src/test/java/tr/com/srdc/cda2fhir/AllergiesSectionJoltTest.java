@@ -32,7 +32,7 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.JsonUtils;
 
-public class AllergiesSectionTestJolt {
+public class AllergiesSectionJoltTest {
     @BeforeClass
     public static void init() {
     	// Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
