@@ -43,6 +43,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -55,112 +56,254 @@ import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerTest {
+	private static List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
 
-    @BeforeClass
-    public static void init() {
-        // Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
-        // This has to be called before loading the document; otherwise will have no effect.
-        CDAUtil.loadPackages();
-    }
-    
-    private static Bundle readVerifyFile(String sourceName, List<CDASectionTypeEnum> addlSections) throws Exception {
-        FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
-                
-        ClinicalDocument cda = CDAUtil.load(fis);
-        CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        if (addlSections != null) {
-        	addlSections.stream().forEach(r -> ccdTransformer.addSection(r));
-        }
-        Config.setGenerateDafProfileMetadata(false);
-        Config.setGenerateNarrative(true);
-        Bundle bundle = ccdTransformer.transformDocument(cda);
-        Assert.assertNotNull("Expect a bundle after transformation", bundle);
-        Assert.assertTrue("Expect some entries", bundle.hasEntry());
-    	
-    	Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
-    	Assert.assertTrue("Expect composition to be the first resource", bundle.getEntry().get(0).getResource() == composition);
+	static {
+		addlSections.add(CDASectionTypeEnum.VITAL_SIGNS_SECTION);
+		addlSections.add(CDASectionTypeEnum.SOCIAL_HISTORY_SECTION);
+		addlSections.add(CDASectionTypeEnum.RESULTS_SECTION);
+		addlSections.add(CDASectionTypeEnum.FUNCTIONAL_STATUS_SECTION);
+		addlSections.add(CDASectionTypeEnum.FAMILY_HISTORY_SECTION);
+		addlSections.add(CDASectionTypeEnum.MEDICAL_EQUIPMENT_SECTION);
+	};
 
-    	String baseName = sourceName.substring(sourceName.length() - 4);
-        FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
-        return bundle;
-    }
+	@BeforeClass
+	public static void init() {
+		// Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar
+		// documents will not be recognised.
+		// This has to be called before loading the document; otherwise will have no
+		// effect.
+		CDAUtil.loadPackages();
+	}
 
-    private static List<Reference> getSectionEntries(Composition composition, String title) {
-        for (SectionComponent section: composition.getSection()) {
-        	if (title.equals(section.getTitle())) {
-        		return section.getEntry();
-        	}
-        }
-        return null;
-    }
-    
-    private static <T extends Resource> void verifySection(Bundle bundle, String title, Class<T> clazz, int count, int referenceCount) throws Exception {
-        List<T> resources = BundleUtil.findResources(bundle, clazz, count);
-        Set<String> ids = resources.stream().map(r -> r.getId()).collect(Collectors.toSet());
-        Composition composition = (Composition) bundle.getEntry().get(0).getResource();
-        List<Reference> references = getSectionEntries(composition, title);
-        Assert.assertNotNull("Expect references in section " + title, references);
-        Assert.assertEquals("Expect " + referenceCount + " references in composition", referenceCount, references.size());
-        for (int idx = 0; idx < referenceCount; ++idx) {
-        	String id = references.get(idx).getReference().toString();
-        	Assert.assertTrue("Expect composition reference to be a resource id", ids.contains(id));
-        }
-    }
+	private static List<Reference> getSectionEntriesByCode(Composition composition, String code) {
+		for (SectionComponent section : composition.getSection()) {
+			String sectionCode = section.getCode().getCoding().get(0).getCode();
+			if (code.equals(sectionCode)) {
+				return section.getEntry();
+			}
+		}
+		return null;
+	}
 
-    private static <T extends Resource> void verifySection(Bundle bundle, String title, Class<T> clazz, int count) throws Exception {
-    	verifySection(bundle, title, clazz, count, count);
-    }    
-    // Gold Sample r2.1
-    @Test
-    public void testSample1() throws Exception {
-    	Bundle bundle = readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", null);
+	private static <T extends Resource> void verifySectionCounts(Bundle bundle, String sectionCode, Class<T> clazz) {
+		Composition composition = (Composition) bundle.getEntry().get(0).getResource();
+		List<Reference> compositionEntries = getSectionEntriesByCode(composition, sectionCode);
+		List<T> resources = FHIRUtil.findResources(bundle, clazz);
+		String msg = String.format("Expect only section resources for type %s", clazz.getSimpleName());
+		Assert.assertEquals(msg, compositionEntries == null ? 0 : compositionEntries.size(), resources.size());
+	}
 
-    	verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 1);
-    	verifySection(bundle, "PROBLEMS", Condition.class, 1);
-    	verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 1);
-    	verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 1);
-    	verifySection(bundle, "PROCEDURES", Procedure.class, 1);
+	private static Bundle readVerifyFile(String sourceName, List<CDASectionTypeEnum> addlSections) throws Exception {
+		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
 
-        // Spot checks
-    	Patient patient = BundleUtil.findOneResource(bundle, Patient.class);
-    	Assert.assertTrue("Expect an identifier for patient", patient.hasIdentifier());
-    	Assert.assertEquals("Expect the patient id in the CCDA file", "414122222", patient.getIdentifier().get(0).getValue());
-    }
+		ClinicalDocument cda = CDAUtil.load(fis);
+		CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+		if (addlSections != null) {
+			addlSections.stream().forEach(r -> ccdTransformer.addSection(r));
+		}
+		Config.setGenerateDafProfileMetadata(false);
+		Config.setGenerateNarrative(true);
+		Bundle bundle = ccdTransformer.transformDocument(cda);
+		Assert.assertNotNull("Expect a bundle after transformation", bundle);
+		Assert.assertTrue("Expect some entries", bundle.hasEntry());
 
-    @Test
-    public void testSample2() throws Exception {
-    	List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
-    	addlSections.add(CDASectionTypeEnum.ENCOUNTERS_SECTION);
-    	addlSections.add(CDASectionTypeEnum.VITAL_SIGNS_SECTION);
-    	addlSections.add(CDASectionTypeEnum.SOCIAL_HISTORY_SECTION);
-    	addlSections.add(CDASectionTypeEnum.RESULTS_SECTION);
-    	addlSections.add(CDASectionTypeEnum.FUNCTIONAL_STATUS_SECTION);
-    	addlSections.add(CDASectionTypeEnum.FAMILY_HISTORY_SECTION);
-    	addlSections.add(CDASectionTypeEnum.MEDICAL_EQUIPMENT_SECTION);
-    	Bundle bundle = readVerifyFile("C-CDA_R2-1_CCD.xml", addlSections);
-         
-    	verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 2);
-    	verifySection(bundle, "PROBLEMS", Condition.class, 7, 4);
-    	verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 2);
-    	verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 5);
-    	verifySection(bundle, "PROCEDURES", Procedure.class, 2, 1);
-    	verifySection(bundle, "ENCOUNTERS", Encounter.class, 2, 1);
-    	verifySection(bundle, "VITAL SIGNS", Observation.class, 20, 8);
-    	verifySection(bundle, "SOCIAL HISTORY", Observation.class, 20, 3);
-    	verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
-    	verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
-    	verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-    	verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 111, 4);
-    }
+		Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
+		Assert.assertTrue("Expect composition to be the first resource",
+				bundle.getEntry().get(0).getResource() == composition);
 
-    @Test
-    public void testSample3() throws Exception {
-    	Bundle bundle = readVerifyFile("Vitera_CCDA_SMART_Sample.xml", null);
-        
-    	verifySection(bundle, "Allergies", AllergyIntolerance.class, 5);
-    	verifySection(bundle, "Problems", Condition.class, 1);
-    	verifySection(bundle, "Medications", MedicationStatement.class, 16);
-    	verifySection(bundle, "Immunizations", Immunization.class, 1);
-    	verifySection(bundle, "Procedures and Surgical/Medical History", Procedure.class, 4);
-    }
+		// Nothing should create encounters but Encounters Section
+		verifySectionCounts(bundle, "46240-8", Encounter.class);
+
+		String baseName = sourceName.substring(0, sourceName.length() - 4);
+		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
+		return bundle;
+	}
+
+	private static List<Reference> getSectionEntries(Composition composition, String title) {
+		for (SectionComponent section : composition.getSection()) {
+			if (title.equals(section.getTitle())) {
+				return section.getEntry();
+			}
+		}
+		return null;
+	}
+
+	private static <T extends Resource> void verifySection(Bundle bundle, String title, Class<T> clazz, int count,
+			int referenceCount) throws Exception {
+		List<T> resources = BundleUtil.findResources(bundle, clazz, count);
+		Set<String> ids = resources.stream().map(r -> r.getId()).collect(Collectors.toSet());
+		Composition composition = (Composition) bundle.getEntry().get(0).getResource();
+		List<Reference> references = getSectionEntries(composition, title);
+		Assert.assertNotNull("Expect references in section " + title, references);
+		Assert.assertEquals("Expect " + referenceCount + " references in composition", referenceCount,
+				references.size());
+		for (int idx = 0; idx < referenceCount; ++idx) {
+			String id = references.get(idx).getReference().toString();
+			Assert.assertTrue("Expect composition reference to be a resource id", ids.contains(id));
+		}
+	}
+
+	private static <T extends Resource> void verifySection(Bundle bundle, String title, Class<T> clazz, int count)
+			throws Exception {
+		verifySection(bundle, title, clazz, count, count);
+	}
+
+	// Gold Sample r2.1
+	@Test
+	public void testSample1() throws Exception {
+		readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", addlSections);
+		Bundle bundle = readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", null);
+
+		verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 1);
+		verifySection(bundle, "PROBLEMS", Condition.class, 1);
+		verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 1);
+		verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 1);
+		verifySection(bundle, "PROCEDURES", Procedure.class, 1);
+
+		// Spot checks
+		Patient patient = BundleUtil.findOneResource(bundle, Patient.class);
+		Assert.assertTrue("Expect an identifier for patient", patient.hasIdentifier());
+		Assert.assertEquals("Expect the patient id in the CCDA file", "414122222",
+				patient.getIdentifier().get(0).getValue());
+	}
+
+	@Test
+	public void testSample2() throws Exception {
+		Bundle bundle = readVerifyFile("C-CDA_R2-1_CCD.xml", addlSections);
+
+		verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 2);
+		verifySection(bundle, "PROBLEMS", Condition.class, 7, 4);
+		verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 2);
+		verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 5);
+		verifySection(bundle, "PROCEDURES", Procedure.class, 2, 1);
+		verifySection(bundle, "ENCOUNTERS", Encounter.class, 1);
+		verifySection(bundle, "VITAL SIGNS", Observation.class, 20, 8);
+		verifySection(bundle, "SOCIAL HISTORY", Observation.class, 20, 3);
+		verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
+		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
+		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
+		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 110, 4);
+	}
+
+	@Test
+	public void testSample3() throws Exception {
+		readVerifyFile("170.315_b1_toc_gold_sample2_v1.xml", addlSections);
+		Bundle bundle = readVerifyFile("Vitera_CCDA_SMART_Sample.xml", null);
+
+		verifySection(bundle, "Allergies", AllergyIntolerance.class, 5);
+		verifySection(bundle, "Problems", Condition.class, 1);
+		verifySection(bundle, "Medications", MedicationStatement.class, 16);
+		verifySection(bundle, "Immunizations", Immunization.class, 1);
+		verifySection(bundle, "Procedures and Surgical/Medical History", Procedure.class, 4);
+		verifySection(bundle, "Encounters", Encounter.class, 13);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample1() throws Exception {
+		readVerifyFile("Epic/DOC0001.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample2() throws Exception {
+		readVerifyFile("Epic/DOC0001 2.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample3() throws Exception {
+		readVerifyFile("Epic/DOC0001 3.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample4() throws Exception {
+		readVerifyFile("Epic/DOC0001 4.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample5() throws Exception {
+		readVerifyFile("Epic/DOC0001 5.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample6() throws Exception {
+		readVerifyFile("Epic/DOC0001 6.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample7() throws Exception {
+		readVerifyFile("Epic/DOC0001 7.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample8() throws Exception {
+		readVerifyFile("Epic/DOC0001 8.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample9() throws Exception {
+		readVerifyFile("Epic/DOC0001 9.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample10() throws Exception {
+		readVerifyFile("Epic/DOC0001 10.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample11() throws Exception {
+		readVerifyFile("Epic/DOC0001 11.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample12() throws Exception {
+		readVerifyFile("Epic/DOC0001 12.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample13() throws Exception {
+		readVerifyFile("Epic/DOC0001 13.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample14() throws Exception {
+		readVerifyFile("Epic/DOC0001 14.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample15() throws Exception {
+		readVerifyFile("Epic/DOC0001 15.XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample16() throws Exception {
+		readVerifyFile("Epic/HannahBanana_EpicCCD.xml", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample1() throws Exception {
+		readVerifyFile("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML", addlSections);
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample2() throws Exception {
+		readVerifyFile("Cerner/Encounter-RAKIA_TEST_DOC00001.XML", addlSections);
+	}
 }

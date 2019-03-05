@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
@@ -35,9 +36,12 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Property;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
@@ -48,7 +52,9 @@ import org.slf4j.LoggerFactory;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
+import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -85,6 +91,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		supportedSectionTypes.add(CDASectionTypeEnum.MEDICATIONS_SECTION);
 		supportedSectionTypes.add(CDASectionTypeEnum.PROBLEM_SECTION);
 		supportedSectionTypes.add(CDASectionTypeEnum.PROCEDURES_SECTION);
+		supportedSectionTypes.add(CDASectionTypeEnum.ENCOUNTERS_SECTION);
+		supportedSectionTypes.add(CDASectionTypeEnum.ENCOUNTERS_SECTION_ENTRIES_OPTIONAL);
     }
 
     /**
@@ -244,6 +252,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
             
         BundleInfo bundleInfo = new BundleInfo(resTransformer);
+        List<IDeferredReference> deferredReferences = new ArrayList<IDeferredReference>();
         
         // transform the sections
         for(Section cdaSec: ccd.getSections()) {        	
@@ -265,18 +274,50 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         		ISectionResult sectionResult = section.transform(bundleInfo);
         		if (sectionResult != null) {
         			FHIRUtil.mergeBundle(sectionResult.getBundle(), ccdBundle);
-        		}
-        		if (fhirSec != null) {
-        			List<? extends Resource> resources = sectionResult.getSectionResources();
-        			for (Resource resource: resources) {
-        				Reference ref = fhirSec.addEntry();
-                        ref.setReference(resource.getId());             				
+        			if (fhirSec != null) {
+        				List<? extends Resource> resources = sectionResult.getSectionResources();
+        				for (Resource resource: resources) {
+        					Reference ref = fhirSec.addEntry();
+        					ref.setReference(resource.getId());             				
+        				}
+        			}
+        			if (sectionResult.hasDefferredReferences()) {
+        				deferredReferences.addAll(sectionResult.getDeferredReferences());
         			}
         		}
-        		
-        		continue;
         	}
         }
+        
+        IdentifierMap<String> identifierMap = new IdentifierMap<String>();
+		for (BundleEntryComponent entry : ccdBundle.getEntry()) {
+			Resource resource = entry.getResource();
+			Property property = resource.getNamedProperty("identifier");
+			if (property != null) {
+				List<Base> bases = property.getValues();
+				if (!bases.isEmpty()) {
+					for (Base base: bases) {
+						try {
+							Identifier identifier = resource.castToIdentifier(base);
+							String fhirType = resource.fhirType();
+							identifierMap.put(fhirType, identifier, resource.getId());
+						} catch (FHIRException e) {}
+					}
+				}
+			}
+    	}		
+        
+		if (!deferredReferences.isEmpty()) {
+			for (IDeferredReference dr: deferredReferences) {
+				String id = identifierMap.get(dr.getFhirType(), dr.getIdentifier());
+				if (id != null) {
+					Reference reference = new Reference(id);
+					dr.resolve(reference);
+				} else {
+					String msg = String.format("%s %s is referred but not found", dr.getFhirType(), dr.getIdentifier().getValue());
+					logger.error(msg);
+				}
+			}
+		}
 
         return ccdBundle;
     }
