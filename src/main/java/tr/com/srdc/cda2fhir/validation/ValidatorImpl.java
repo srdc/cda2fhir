@@ -109,7 +109,7 @@ public class ValidatorImpl implements IValidator {
 		return outputStream;
 	}
 	
-	private void logValidationResult(ValidationResult result) {
+	public void logValidationResult(ValidationResult result) {
     	if (logger.isDebugEnabled()) {
     		if (result.isSuccessful()) {
     			logger.info("Validation of resource passed.");
@@ -197,19 +197,5 @@ public class ValidatorImpl implements IValidator {
     	return result;
     }
     
-    public void logValidationErrors(ValidationResult result) {	
-		if (!result.isSuccessful()) {
-			List<SingleValidationMessage> messages = result.getMessages();
-			if(messages.size() > 0) {
-				for (SingleValidationMessage message : messages) {
-	    		   logger.debug("Validation Message:");
-	    		   logger.debug(" * Location: " + message.getLocationString());
-	    		   logger.debug(" * Severity: " + message.getSeverity());
-	    		   logger.debug(" * Message : " + message.getMessage());
-		    	}    
-			}	
-		} else {
-			logger.debug("No validation errors.");
-		}
-	}
+    
 }
