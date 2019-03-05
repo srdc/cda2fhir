@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir;
+package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.nio.charset.Charset;

@@ -1,2 +1,23 @@
-[
-]
+[{
+  "operation": "default",
+  "spec": {
+    "extension": ""
+  }
+}, {
+  "operation": "shift",
+  "spec": {
+    "extension": {
+      "": {
+        "@2": {
+          "root": "value"
+        }
+      },
+      "*": {
+        "@2": {
+          "root": "system",
+          "extension": "value"
+        }
+      }
+    }
+  }
+}]
