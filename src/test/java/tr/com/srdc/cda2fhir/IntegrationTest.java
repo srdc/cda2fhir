@@ -55,9 +55,9 @@ public class IntegrationTest {
 		logger = LoggerFactory.getLogger(ValidatorImpl.class);
 	}
 
-//	@ClassRule
-//	public static DockerComposeRule docker = DockerComposeRule.builder().file("src/test/resources/docker-compose.yaml")
-//			.waitingForService("hapi", HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat(hapiURL))).build();
+	@ClassRule
+	public static DockerComposeRule docker = DockerComposeRule.builder().file("src/test/resources/docker-compose.yaml")
+			.waitingForService("hapi", HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat(hapiURL))).build();
 
 	@Test
 	public void rakiaIntegration() throws Exception {
