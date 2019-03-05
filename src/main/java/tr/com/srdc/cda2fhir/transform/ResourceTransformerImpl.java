@@ -2257,15 +2257,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// meta.profile
 		if(Config.isGenerateDafProfileMetadata())
 			fhirLocation.getMeta().addProfile(Constants.PROFILE_DAF_LOCATION);
-		
-		// id -> identifier
-		if(cdaParticipantRole.getIds() != null && !cdaParticipantRole.getIds().isEmpty()) {
-			for(II ii : cdaParticipantRole.getIds()) {
-				if(ii != null && !ii.isSetNullFlavor()) {
-					fhirLocation.addIdentifier(dtt.tII2Identifier(ii));
-				}
-			}
-		}
 
 		// code -> type
 		// TODO: Requires huge mapping work from HL7 HealthcareServiceLocation value set to http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType
