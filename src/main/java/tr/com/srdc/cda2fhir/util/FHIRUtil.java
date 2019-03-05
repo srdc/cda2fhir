@@ -24,7 +24,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +55,21 @@ public class FHIRUtil {
     	return jsonParser.encodeResourceToString(res);
     }
     
+    public static <T extends IBaseResource> String encodeToJSON(Collection<T> resources) {
+    	String[] objects = resources.stream().map(r -> encodeToJSON(r)).toArray(String[]::new);
+    	return "[" + String.join(", ", objects) + "]";	
+    }
+    
     public static String encodeToXML(IBaseResource res) {
         return xmlParser.encodeResourceToString(res);
     }
 
     public static void printJSON(IBaseResource res) {
         System.out.println(jsonParser.encodeResourceToString(res));
+    }
+
+    public static <T extends IBaseResource> void printJSON(Collection<T> resources) {
+        System.out.println(encodeToJSON(resources));
     }
 
     public static void printXML(IBaseResource res) {
@@ -67,6 +81,19 @@ public class FHIRUtil {
         f.getParentFile().mkdirs();
         try {
             jsonParser.encodeResourceToWriter(res, new FileWriter(f));
+        } catch (IOException e) {
+            logger.error("Could not print FHIR JSON to file", e);
+        }
+    }
+
+    public static <T extends IBaseResource> void printJSON(Collection<T> resources, String filePath) {
+        File f = new File(filePath);
+        f.getParentFile().mkdirs();
+        try {
+        	String json = encodeToJSON(resources);
+        	FileWriter fw = new FileWriter(f);
+        	fw.write(json);
+        	fw.close();
         } catch (IOException e) {
             logger.error("Could not print FHIR JSON to file", e);
         }
@@ -98,4 +125,8 @@ public class FHIRUtil {
         }
     }
 
+	public static <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type) {
+		return bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
+				.map(r -> type.cast(r)).collect(Collectors.toList());
+	}
 }

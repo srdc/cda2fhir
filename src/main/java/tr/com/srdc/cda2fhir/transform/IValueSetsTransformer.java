@@ -23,12 +23,14 @@ package tr.com.srdc.cda2fhir.transform;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
+import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
 import org.hl7.fhir.dstu3.model.DiagnosticReport.DiagnosticReportStatus;
@@ -37,6 +39,7 @@ import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyHistoryStatus;
 import org.hl7.fhir.dstu3.model.Group.GroupType;
 import org.hl7.fhir.dstu3.model.HumanName.NameUse;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
@@ -205,11 +208,11 @@ public interface IValueSetsTransformer {
 	AllergyIntoleranceVerificationStatus tStatusCode2AllergyIntoleranceVerificationStatus(String cdaStatusCode);
 
 	/**
-	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ConditionClinicalStatus.
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ConditionVerificationStatus.
 	 * @param cdaStatusCode A CDA StatusCode string
-	 * @return A value from the FHIR valueset ConditionClinicalStatus
+	 * @return A value from the FHIR valueset ConditionVerificationStatus
      */
-	ConditionClinicalStatus tStatusCode2ConditionClinicalStatus(String cdaStatusCode);
+	ConditionVerificationStatus tStatusCode2ConditionVerificationStatus(String cdaStatusCode);
 
 	/**
 	 * Transforms a CDA StatusCode string to a value from the FHIR valueset EncounterStatus.
@@ -233,6 +236,13 @@ public interface IValueSetsTransformer {
 	MedicationStatementStatus tStatusCode2MedicationStatementStatus(String cdaStatusCode);
 	
 	/**
+	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ImmunizationStatus.
+	 * @param cdaStatusCode A CDA StatusCode string
+	 * @return A value from the FHIR ImmunizationStatus
+	 */
+	ImmunizationStatus tStatusCode2ImmunizationStatus(String cdaStatusCode);
+	
+	/**
 	 * Transforms a CDA StatusCode string to a value from the FHIR valueset ProcedureStatus.
 	 * @param cdaStatusCode A CDA StatusCode string
 	 * @return A value from the FHIR valueset ProcedureStatus
@@ -252,4 +262,18 @@ public interface IValueSetsTransformer {
 	 * @return A value from the FHIR valueset ContactPointSystem.
 	 */
 	ContactPointSystem tTelValue2ContactPointSystem(String cdaTelValue);
+	
+	/**
+	 * Transforms a CDA ProblemStatus code to a AllergyIntoleranceClinicalStatus
+	 * @param code ProblemStatus code
+	 * @return A value from the FHIR AllergyIntoleranceClinicalStatus 
+	 */
+	AllergyIntoleranceClinicalStatus tProblemStatus2AllergyIntoleranceClinicalStatus(String code);
+
+	/**
+	 * Transforms a CDA ProblemStatus code to a COnditionClinicalStatus
+	 * @param code ProblemStatus code
+	 * @return A value from the FHIR ConditionClinicalStatus 
+	 */
+	ConditionClinicalStatus tProblemStatus2ConditionClinicalStatus(String code);
 }

@@ -25,12 +25,14 @@ import java.io.Serializable;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
+import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
 import org.hl7.fhir.dstu3.model.DiagnosticReport.DiagnosticReportStatus;
@@ -39,6 +41,7 @@ import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyHistoryStatus;
 import org.hl7.fhir.dstu3.model.Group.GroupType;
 import org.hl7.fhir.dstu3.model.HumanName.NameUse;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
@@ -110,15 +113,12 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			case "418471000":
 				return AllergyIntoleranceCategory.FOOD;
 			case "232347008":
-				return AllergyIntoleranceCategory.ENVIRONMENT;
 			case "420134006":
 			case "418038007":
 			case "419199007": 
-				// TODO: what is correct mapping?
-				//return AllergyIntoleranceCategory.OTHER;
-				//throw new IllegalArgumentException("Unmapped " + cdaAllergyCategoryCode);
-				LOGGER.error("Unmapped {}", cdaAllergyCategoryCode);
+				return AllergyIntoleranceCategory.ENVIRONMENT;
 			default:
+				LOGGER.error("Unmapped allergy category code: {}", cdaAllergyCategoryCode);
 				return null;
 		}
 	}
@@ -690,29 +690,19 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			return null;
 		
 		Coding fhirPatientContactRelationshipCode = new Coding();
-		fhirPatientContactRelationshipCode.setSystem("http://hl7.org/fhir/patient-contact-relationship");
+		fhirPatientContactRelationshipCode.setSystem("http://hl7.org/fhir/v2/0131");
 		String code = null;
 		String display = null;
 		
 		switch(cdaRoleCode.toLowerCase()) {
 			case "econ": // emergency contact
-				code="emergency"; display = "Emergency"; break;
 			case "ext": // extended family member
-			case "fammemb": // family member
-				code = "family"; display = "Family"; break;
 			case "guard": // guardian
-				code = "guardian"; display = "Guardian"; break;
 			case "frnd": // friend
-				code = "friend"; display = "Friend"; break;
 			case "sps": // spouse
 			case "dompart": // domestic partner
 			case "husb": // husband
 			case "wife": // wife
-				code = "partner"; display = "Partner"; break;
-			case "work": 
-				code = "work"; display = "Work"; break;
-			case "gt": 
-				code = "guarantor"; display = "Guarantor"; break;
 			case "prn": // parent
 			case "fth": // father
 			case "mth": // mother
@@ -725,12 +715,16 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			case "stpprn": // step parent
 			case "stpfth": // stepfather
 			case "stpmth": // stepmother
-				code = "parent"; display = "Parent"; break;
-			case "powatt":
-				code = "agent"; display = "Agent"; break;
+				code="C"; display = "Emergency Contact"; break; // emergency contact
+			case "work": 
+				code = "E"; display = "Employer"; break; // employer
+			case "fammemb":
+				code = "N"; display = "Next-of-Kin"; break; // family
 			default:
-				return null;
-		}
+				code = "O"; display = "Other"; break; // other
+		 }
+		
+		
 		fhirPatientContactRelationshipCode.setCode(code);
 		fhirPatientContactRelationshipCode.setDisplay(display);
 		return fhirPatientContactRelationshipCode;
@@ -758,45 +752,35 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 	}
 	
 	public AllergyIntoleranceVerificationStatus tStatusCode2AllergyIntoleranceVerificationStatus(String cdaStatusCode) {
-		// TODO: handle the unmapped; maybe they should be mapped to
-		// AllergyIntoleranceClinicalStatus? In DSTU2 these were under a single enum
-		// but in STU3 they were split
 		switch(cdaStatusCode.toLowerCase()) {
-			case "nullified":
-			case "error":
-				return AllergyIntoleranceVerificationStatus.ENTEREDINERROR;
-			case "confirmed":
-				return AllergyIntoleranceVerificationStatus.CONFIRMED;
-			case "unconfirmed":
-				return AllergyIntoleranceVerificationStatus.UNCONFIRMED;
-			case "refuted":
+			case "completed":
 				return AllergyIntoleranceVerificationStatus.REFUTED;
 			case "active":
-				//return AllergyIntoleranceStatusEnum.ACTIVE;
-			case "inactive":
-				//return AllergyIntoleranceStatusEnum.INACTIVE;
-			case "resolved":
-				//return AllergyIntoleranceVerificationStatus.RESOLVED;
-				//throw new IllegalArgumentException("Unmapped status " + cdaStatusCode.toLowerCase());
-				LOGGER.error("Unmapped status {}", cdaStatusCode.toLowerCase());
+				return AllergyIntoleranceVerificationStatus.CONFIRMED;
+			case "suspended":
+				return AllergyIntoleranceVerificationStatus.UNCONFIRMED;
+			case "aborted":
+				return AllergyIntoleranceVerificationStatus.ENTEREDINERROR;
 			default:
 				return null;
 		}
 	}
 
-	public ConditionClinicalStatus tStatusCode2ConditionClinicalStatus(String cdaStatusCode) {
-		switch (cdaStatusCode.toLowerCase()) {
-			// semantically not the same, but at least outcome-wise it is similar
-			case "aborted":
-				return ConditionClinicalStatus.RESOLVED;
-			case "active":
-				return ConditionClinicalStatus.ACTIVE;
+	public ConditionVerificationStatus tStatusCode2ConditionVerificationStatus(String cdaStatusCode) {
+		if (cdaStatusCode == null) {
+			return ConditionVerificationStatus.UNKNOWN;
+		}
+		switch(cdaStatusCode.toLowerCase()) {
 			case "completed":
-				return ConditionClinicalStatus.RESOLVED;
+				return ConditionVerificationStatus.REFUTED;
+			case "active":
+				return ConditionVerificationStatus.CONFIRMED;
 			case "suspended":
-				return ConditionClinicalStatus.REMISSION;
+				return ConditionVerificationStatus.PROVISIONAL;
+			case "aborted":
+				return ConditionVerificationStatus.ENTEREDINERROR;
 			default:
-				return null;
+				return ConditionVerificationStatus.UNKNOWN;
 		}
 	}
 
@@ -859,6 +843,38 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	public ImmunizationStatus tStatusCode2ImmunizationStatus(String cdaStatusCode) {
+		if (cdaStatusCode == null) {
+			return null;
+		}
+		
+		switch(cdaStatusCode.toLowerCase()) {
+			case "active":
+				return ImmunizationStatus.COMPLETED;
+			case "completed":
+				return ImmunizationStatus.COMPLETED;
+			case "nullified":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "normal":
+				return ImmunizationStatus.COMPLETED;
+			case "new":
+				return ImmunizationStatus.COMPLETED;
+			case "aborted":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "suspended":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "cancelled":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "held":
+				return ImmunizationStatus.ENTEREDINERROR;
+			case "obselete":
+				return ImmunizationStatus.ENTEREDINERROR;
+
+			default:
+				return null;
+		}
+	}
+
 	public ProcedureStatus tStatusCode2ProcedureStatus(String cdaStatusCode) {
 		switch(cdaStatusCode.toLowerCase()) {
 			case "active":
@@ -866,12 +882,11 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			case "completed":
 				return ProcedureStatus.COMPLETED;
 			case "aborted":
-			case "aboted":
 				return ProcedureStatus.ABORTED;
-			case "error":
-				return ProcedureStatus.ENTEREDINERROR;
+			case "cancelled":
+				return ProcedureStatus.SUSPENDED;
 			default:
-				return null;
+				return ProcedureStatus.UNKNOWN;
 		}
 	}
 
@@ -912,6 +927,38 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 				return ContactPointSystem.URL;
 			default:
 				return null;
+		}
+	}
+	
+	public AllergyIntoleranceClinicalStatus tProblemStatus2AllergyIntoleranceClinicalStatus(String code) {
+		if(code == null) {
+			return AllergyIntoleranceClinicalStatus.NULL;
+		}
+		switch(code) {
+			case "55561003":
+				return AllergyIntoleranceClinicalStatus.ACTIVE;
+			case "73425007":
+				return AllergyIntoleranceClinicalStatus.INACTIVE;
+			case "413322009":
+				return AllergyIntoleranceClinicalStatus.RESOLVED;
+			default:
+				return AllergyIntoleranceClinicalStatus.NULL;
+		}
+	}
+
+	public ConditionClinicalStatus tProblemStatus2ConditionClinicalStatus(String code) {
+		if(code == null) {
+			return ConditionClinicalStatus.NULL;
+		}
+		switch(code) {
+			case "55561003":
+				return ConditionClinicalStatus.ACTIVE;
+			case "73425007":
+				return ConditionClinicalStatus.INACTIVE;
+			case "413322009":
+				return ConditionClinicalStatus.RESOLVED;
+			default:
+				return ConditionClinicalStatus.NULL;
 		}
 	}
 }

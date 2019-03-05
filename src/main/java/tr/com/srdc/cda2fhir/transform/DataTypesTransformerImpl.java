@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir.transform;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
@@ -236,8 +237,24 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	     return (bl == null || bl.isSetNullFlavor()) ? null : new BooleanType(bl.getValue());
 	}
 	
+	public String tED2Annotation(ED ed, Map<String, String> idedAnnotations) {
+		if (ed != null && idedAnnotations != null) {
+			TEL tel = ed.getReference();
+			String value = tel.getValue();
+			if (value != null && value.charAt(0) == '#') {
+				String key = value.substring(1);
+				return idedAnnotations.get(key);
+			}
+		}
+		return null;
+	}
+
 	public CodeableConcept tCD2CodeableConcept(CD cd) {
-       	CodeableConcept myCodeableConcept = tCD2CodeableConceptExcludingTranslations(cd);
+		return tCD2CodeableConcept(cd, null);
+	}	
+	
+	public CodeableConcept tCD2CodeableConcept(CD cd, Map<String, String> idedAnnotations) {
+       	CodeableConcept myCodeableConcept = tCD2CodeableConceptExcludingTranslations(cd, idedAnnotations);
 
 		if(myCodeableConcept == null)
 			return null;
@@ -281,45 +298,60 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
     }
 
 	public CodeableConcept tCD2CodeableConceptExcludingTranslations(CD cd) {
-		if(cd == null || cd.isSetNullFlavor())
+		return tCD2CodeableConceptExcludingTranslations(cd, null);
+	}
+	
+	public CodeableConcept tCD2CodeableConceptExcludingTranslations(CD cd, Map<String, String> idedAnnotations) {
+		if (cd == null) {
 			return null;
-
-		CodeableConcept myCodeableConcept = new CodeableConcept();
-
-		// .
-		Coding codingDt = new Coding();
-		boolean isEmpty = true;
-
-		// codeSystem -> system
-		if(cd.getCodeSystem() != null && !cd.getCodeSystem().isEmpty()){
-			codingDt.setSystem(vst.tOid2Url(cd.getCodeSystem()));
-			isEmpty = false;
 		}
+		
+		CodeableConcept myCodeableConcept = null;
 
-		// code -> code
-		if(cd.getCode() !=null && !cd.getCode().isEmpty()) {
-			codingDt.setCode(cd.getCode());
-			isEmpty = false;
-		}
+		if(!cd.isSetNullFlavor()) {
+			// .
+			Coding codingDt = new Coding();
+			boolean isEmpty = true;
 
-		// codeSystemVersion -> version
-		if(cd.getCodeSystemVersion() !=null && !cd.getCodeSystemVersion().isEmpty()){
-			codingDt.setVersion(cd.getCodeSystemVersion());
-			isEmpty = false;
-		}
+			// codeSystem -> system
+			if(cd.getCodeSystem() != null && !cd.getCodeSystem().isEmpty()){
+				codingDt.setSystem(vst.tOid2Url(cd.getCodeSystem()));
+				isEmpty = false;
+			}
 
-		// displayName -> display
-		if(cd.getDisplayName() != null && !cd.getDisplayName().isEmpty()){
-			codingDt.setDisplay(cd.getDisplayName());
-			isEmpty = false;
-		}
+			// code -> code
+			if(cd.getCode() !=null && !cd.getCode().isEmpty()) {
+				codingDt.setCode(cd.getCode());
+				isEmpty = false;
+			}
 
-		if(!isEmpty) {
-			myCodeableConcept.addCoding(codingDt);
-			return myCodeableConcept;
+			// codeSystemVersion -> version
+			if(cd.getCodeSystemVersion() !=null && !cd.getCodeSystemVersion().isEmpty()){
+				codingDt.setVersion(cd.getCodeSystemVersion());
+				isEmpty = false;
+			}
+
+			// displayName -> display
+			if(cd.getDisplayName() != null && !cd.getDisplayName().isEmpty()){
+				codingDt.setDisplay(cd.getDisplayName());
+				isEmpty = false;
+			}
+
+			if(!isEmpty) {
+				myCodeableConcept = new CodeableConcept();
+				myCodeableConcept.addCoding(codingDt);
+			}
 		}
-		else
-			return null;
+		
+		String annotation = tED2Annotation(cd.getOriginalText(), idedAnnotations);
+		if (annotation != null) {
+			if (myCodeableConcept == null) {
+				myCodeableConcept = new CodeableConcept();
+			}
+			myCodeableConcept.setText(annotation);
+		}		
+		
+		return myCodeableConcept;
 	}
 	
 	public Coding tCV2Coding(CV cv) {
