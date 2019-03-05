@@ -106,23 +106,4 @@ public class AllergiesSectionJoltTest {
     	String resultFile = "src/test/resources/output/jolt/" + "C-CDA_R2-1_CCD allergy entry result - jolt.json";
         FileUtils.writeStringToFile(new File(resultFile), prettyJson, Charset.defaultCharset());
     }
-
-    @Test
-    public void testGoldSampleJolt() throws Exception {
-    	String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
-    	File file = new File("src/test/resources/" + sourceName);
-    	String content = FileUtils.readFileToString(file, Charset.defaultCharset());    	
-    	JSONObject recordTargetJson = XML.toJSONObject(content)
-    						.getJSONObject("ClinicalDocument")
-    						.getJSONObject("recordTarget");
-    	String outputFile = "src/test/resources/output/" + "Cerner/Person-RAKIA_TEST_DOC00001 (1) - jolt.json";
-    	FileUtils.writeStringToFile(new File(outputFile), recordTargetJson.toString(4), Charset.defaultCharset());    	
-    	
-        List<Object> chainrSpecJSON = JsonUtils.filepathToList("src/test/resources/jolt/patient.json");
-        
-        Chainr chainr = Chainr.fromSpec( chainrSpecJSON );
-        Object inputJSON = JsonUtils.filepathToObject(outputFile);
-        Object transformedOutput = chainr.transform(inputJSON);
-        System.out.println(JsonUtils.toJsonString(transformedOutput));    	
-    }
 }
