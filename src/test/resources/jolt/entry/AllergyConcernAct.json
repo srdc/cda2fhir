@@ -10,6 +10,8 @@
 	"operation": "shift",
 	"spec": {
 		"act": {
+			"effectiveTime": "assertedDate.->EffectiveTime.data",
+			"#low_or_value": "assertedDate.->EffectiveTime.type",
 			"author": {
 				"*": "->AuthorParticipation"
 			},
@@ -18,6 +20,7 @@
 					"observation": "->AllergyIntoleranceObservation"
 				}
 			}
+			
 		}
 	}
 }]
