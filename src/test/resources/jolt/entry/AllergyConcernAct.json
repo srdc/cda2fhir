@@ -1,0 +1,23 @@
+[{
+	"operation": "cardinality",
+	"spec": {
+		"act": {
+			"author": "MANY",
+			"entryRelationship": "MANY"
+		}
+	}
+}, {
+	"operation": "shift",
+	"spec": {
+		"act": {
+			"author": {
+				"*": "->AuthorParticipation"
+			},
+			"entryRelationship": {
+				"*": {
+					"observation": "->AllergyIntoleranceObservation"
+				}
+			}
+		}
+	}
+}]

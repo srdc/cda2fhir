@@ -1,33 +1,17 @@
 package tr.com.srdc.cda2fhir;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.hl7.fhir.dstu3.model.Patient;
 import org.apache.commons.io.FileUtils;
-import org.hl7.fhir.dstu3.model.Bundle;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.ICDATransformer;
-import tr.com.srdc.cda2fhir.util.FHIRUtil;
-import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.JsonUtils;
@@ -35,53 +19,94 @@ import com.bazaarvoice.jolt.JsonUtils;
 public class AllergiesSectionJoltTest {
     @BeforeClass
     public static void init() {
-    	// Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
-        // This has to be called before loading the document; otherwise will have no effect.
         CDAUtil.loadPackages();
     }
     
-    private static Bundle generateBundle(String sourceName) throws Exception {
-        FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
-        ClinicalDocument cda = CDAUtil.load(fis);
+    private static JSONObject getSection(JSONArray component, String code) throws JSONException {
+    	for (int idx = 0; idx < component.length(); ++idx) {
+    		JSONObject section = component.getJSONObject(idx).getJSONObject("section");
+    		String sectionCode = section.getJSONObject("code").getString("code");
+    		if (code.equals(sectionCode)) {
+    			return section;
+    		}
+    	}
+    	return null;
+    }
+    
+    private static void convertNamedObjectToArray(JSONObject input, String key) throws JSONException {
+    	JSONArray names = input.names();
+    	for (int index = 0; index < names.length(); ++index) {
+    		String name = names.optString(index);
+    		if (!key.equals(name)) {
+        		JSONArray asArray = input.optJSONArray(name);
+        		if (asArray != null) {
+        			convertNamedObjectToArray(asArray, key);
+        			continue;
+        		}
+        		JSONObject asObject = input.optJSONObject(name);
+        		if (asObject != null) {
+        			convertNamedObjectToArray(asObject, key);
+        			continue;
+        		}
+    		}
+    		JSONArray asArray = input.optJSONArray(name);
+    		if (asArray != null) {
+    			convertNamedObjectToArray(asArray, key);
+    			continue;
+    		}
+    		JSONObject asObject = input.optJSONObject(name);
+    		if (asObject != null) {
+    			convertNamedObjectToArray(asObject, key);
+    			JSONArray replacement = new JSONArray();
+    			replacement.put(asObject);
+    			input.remove(name);
+    			input.put(name, replacement);
+    		}
+    	}
+    }
 
-        ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-        Config.setGenerateDafProfileMetadata(true);
-        Config.setGenerateNarrative(true);
-        Bundle bundle = ccdTransformer.transformDocument(cda);
-        return bundle;
+    private static void convertNamedObjectToArray(JSONArray input, String key) throws JSONException {
+    	int length = input.length();
+    	for (int index = 0; index < length; ++index) {
+    		JSONArray asArray = input.optJSONArray(index);
+    		if (asArray != null) {
+    			convertNamedObjectToArray(asArray, key);
+    			continue;
+    		}
+    		JSONObject asObject = input.optJSONObject(index);
+    		if (asObject != null) {
+    			convertNamedObjectToArray(asObject, key);
+    		}
+    	}
     }
-    
-    private static void verifyPatient(Bundle bundle, String baseName) throws IOException, JSONException {
-    	Assert.assertNotNull(bundle);
-    	FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
-    	
-    	List<Patient> patients = bundle.getEntry().stream()
-    								.map(r -> r.getResource())
-    								.filter(r -> (r instanceof Patient))
-    								.map(r -> (Patient) r)
-    								.collect(Collectors.toList());
-    	Assert.assertEquals(1, patients.size());
-    	Patient patient = patients.get(0);
-    	String actual = FHIRUtil.encodeToJSON(patient);
-    	FHIRUtil.printJSON(patient, "src/test/resources/output/" + baseName + ".patient.json");
-    	
-    	Path goldFilePath = Paths.get("src/test/resources/gold/" + baseName + ".patient.json");
-    	String expected = new String(Files.readAllBytes(goldFilePath));
-    	JSONAssert.assertEquals(expected, actual, true);
-    }
-    
-    private static void runGoldTest(String sourceName) throws Exception {
-     	Bundle bundle = generateBundle(sourceName);   	
-    	String baseName = sourceName.substring(0, sourceName.length() - 4);    	
-        verifyPatient(bundle, baseName);   	
-    }
-    
-    // Cerner/Person-RAKIA_TEST_DOC00001 (1).XML
+
     @Test
-    public void testGoldSample() throws Exception {
-    	runGoldTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+    public void testSample1() throws Exception {
+    	String sourceName = "C-CDA_R2-1_CCD.xml";
+    	File file = new File("src/test/resources/" + sourceName);
+    	String content = FileUtils.readFileToString(file, Charset.defaultCharset());    	
+    	JSONArray component = XML.toJSONObject(content)
+							.getJSONObject("ClinicalDocument")
+							.getJSONObject("component")
+							.getJSONObject("structuredBody")
+    						.getJSONArray("component");
+    	JSONObject allergiesSection = getSection(component, "48765-2");
+    	JSONObject entry = allergiesSection.getJSONArray("entry").getJSONObject(0);
+    	//convertNamedObjectToArray(entry, "entryRelationship");
+    	
+    	String outputFile = "src/test/resources/output/" + "C-CDA_R2-1_CCD allergy entry - jolt.json";
+    	FileUtils.writeStringToFile(new File(outputFile), entry.toString(4), Charset.defaultCharset());    	
+    	
+        List<Object> chainrSpecJSON = JsonUtils.filepathToList("src/test/resources/jolt/entry/AllergyConcernAct.json");
+        
+        Chainr chainr = Chainr.fromSpec( chainrSpecJSON );
+        Object inputJSON = JsonUtils.filepathToObject(outputFile);
+        Object transformedOutput = chainr.transform(inputJSON);
+        String prettyJson = JsonUtils.toPrettyJsonString(transformedOutput);
+    	String resultFile = "src/test/resources/output/jolt/" + "C-CDA_R2-1_CCD allergy entry result - jolt.json";
+        FileUtils.writeStringToFile(new File(resultFile), prettyJson, Charset.defaultCharset());
     }
-    
+
     @Test
     public void testGoldSampleJolt() throws Exception {
     	String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
