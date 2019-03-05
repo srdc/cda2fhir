@@ -22,53 +22,42 @@ package tr.com.srdc.cda2fhir;
 
 import java.util.List;
 
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.hl7.fhir.dstu3.model.Base;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
 public class MedicationStatementTest {
 
-    private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
+	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
-	private static DatatypesFactory cdaTypeFactory;
-	private static CDAFactoryImpl cdaFactory;
 	private static ConsolFactoryImpl consolFactory;
 
-    @BeforeClass
+	@BeforeClass
 	public static void init() {
-		CDAUtil.loadPackages();	
-		cdaTypeFactory = DatatypesFactoryImpl.init();		
-		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
+		CDAUtil.loadPackages();
 		consolFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
-    }
- 
+	}
 
-    @Test
-    public void testMedicationStatus() throws Exception {
-      
-    	// Make a medication activity.
-    	MedicationActivityImpl medAct = (MedicationActivityImpl) consolFactory.createMedicationActivity();
-    	
-        // Transform from CDA to FHIR.
-        org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tMedicationActivity2MedicationStatement(medAct);
-       
-        org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
-        List<Base> takenCodes = fhirResource.getNamedProperty("taken").getValues();
-        
-        // Make assertions.
-        Assert.assertEquals("Taken code defaults to UNK","unk", takenCodes.get(0).primitiveValue());
-        
+	@Test
+	public void testMedicationStatus() throws Exception {
 
-    }
+		// Make a medication activity.
+		MedicationActivityImpl medAct = (MedicationActivityImpl) consolFactory.createMedicationActivity();
 
+		// Transform from CDA to FHIR.
+		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tMedicationActivity2MedicationStatement(medAct);
+
+		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		List<Base> takenCodes = fhirResource.getNamedProperty("taken").getValues();
+
+		// Make assertions.
+		Assert.assertEquals("Taken code defaults to UNK", "unk", takenCodes.get(0).primitiveValue());
+
+	}
 
 }

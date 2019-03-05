@@ -61,6 +61,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.model.api.IResource;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerTest {
@@ -717,8 +718,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: Procedure2Procedure\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Procedure cdaNull = null;
-		Bundle fhirNull = rt.tProcedure2Procedure(cdaNull);
-		Assert.assertNull(fhirNull);
+		EntryResult entryResultNull = rt.tProcedure2Procedure(cdaNull);
+		Assert.assertNull(entryResultNull);
 
 		// instances from file
 		if(ResourceTransformerTest.ccd.getProceduresSection() != null && !ResourceTransformerTest.ccd.getProceduresSection().isSetNullFlavor()) {
@@ -726,7 +727,8 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : ResourceTransformerTest.ccd.getProceduresSection().getProcedures()) {
 					// traversing procedures
 					appendToResultFile(transformationStartMsg);
-					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
+					EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure);
+					Bundle fhirProcedureBundle = entryResult.getBundle();
 					appendToResultFile(transformationEndMsg);
 					appendToResultFile(fhirProcedureBundle);
 				}
@@ -738,7 +740,8 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : ResourceTransformerTest.ccd.getEncountersSection().getProcedures()) {
 					// traversing procedures					
 					appendToResultFile(transformationStartMsg);
-					Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
+					EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure);
+					Bundle fhirProcedureBundle = entryResult.getBundle();
 					appendToResultFile(transformationEndMsg);
 					appendToResultFile(fhirProcedureBundle);
 				}
@@ -751,7 +754,8 @@ public class ResourceTransformerTest {
 					for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures()) {
 						// traversing procedures
 						appendToResultFile(transformationStartMsg);
-						Bundle fhirProcedureBundle = rt.tProcedure2Procedure(cdaProcedure);
+						EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure);
+						Bundle fhirProcedureBundle = entryResult.getBundle();
 						appendToResultFile(transformationEndMsg);
 						appendToResultFile(fhirProcedureBundle);
 					}

@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.json.JSONException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
@@ -95,7 +96,40 @@ public class ProceduresSectionSnippetTest {
 		replaceIdWithIdentifier(procedures); // JSONAssert needs a unique key, id changes based on order
 		verifyGoldFile(procedures, "snippets/procedure_text.xml");
 	}
-	
+
+	private static Encounter findEncounterByReference(List<Encounter> encounters, Reference reference) {
+		for (Encounter encounter : encounters) {
+			String encounterId = encounter.getId();
+			String referenceId = reference.getReference();
+			if (encounterId.equals(referenceId)) {
+				return encounter;
+			}
+		}
+		return null;
+	}
+
+	private static void verifyProcedureContext(Procedure procedure, List<Encounter> encounters, String expectedId) {
+		Reference reference = procedure.getContext();
+		Encounter encounter = findEncounterByReference(encounters, reference);
+		Assert.assertNotNull("Expect procedure encounter", encounter);
+		Assert.assertEquals("Expect the right id for procedure encounter", expectedId,
+				encounter.getIdentifier().get(0).getValue());
+	}
+
+	@Test
+	public void testEncounterReferences() throws Exception {
+		Bundle bundle = BundleUtil.generateSnippetBundle("snippets/procedure_encounter.xml");
+		List<Procedure> procedures = BundleUtil.findResources(bundle, Procedure.class, 3);
+		List<Encounter> encounters = BundleUtil.findResources(bundle, Encounter.class, 2);
+
+		Procedure procedure0 = findProcedureById(procedures, "77baeec3-124e-4348-bcec-fbe2fd25e7ef");
+		verifyProcedureContext(procedure0, encounters, "1234567");
+		Procedure procedure1 = findProcedureById(procedures, "4372357a-30bb-48d9-a612-8f459ae8c00c");
+		verifyProcedureContext(procedure1, encounters, "1234567");
+		Procedure procedure2 = findProcedureById(procedures, "e39bdae7-7b35-4ceb-88b7-8891414c3bc2");
+		verifyProcedureContext(procedure2, encounters, "987654");
+	}
+
 	@Ignore
 	@Test
 	public void testCerner() throws Exception {

@@ -18,7 +18,6 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ProblemConcernActImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ProblemObservationImpl;
-import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
@@ -38,7 +37,6 @@ public class ProblemConcernActTest {
 	
 	private static ConsolFactoryImpl cdaObjFactory;
 	private static DatatypesFactory cdaTypeFactory;
-	private static CDAFactoryImpl cdaFactory;
 
 	private static Map<String, Object> verificationStatusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/ConditionVerificationStatus.json");
 		
@@ -48,7 +46,6 @@ public class ProblemConcernActTest {
 		
 		cdaObjFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
 		cdaTypeFactory = DatatypesFactoryImpl.init();		
-		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
 	}
 	
 	private static ProblemConcernActImpl createProblemConcernAct() {
