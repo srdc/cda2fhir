@@ -18,20 +18,18 @@ cda2fhir [![License Info](http://img.shields.io/badge/license-Apache%202.0-brigh
 ===
 
 cda2fhir is a Java library to transform HL7 CDA R2 instances to HL7 FHIR resources. More specifically, cda2fhir enables automatic transformation of
-Consolidated CDA (C-CDA) Release 2.1 compliant document instances to the corresponding FHIR DSTU2 resources, wherever possible implementing the
-[U.S. Data Access Framework (DAF) FHIR Implementation Guide](http://hl7.org/fhir/DSTU2/daf/daf.html). For this purpose, cda2fhir provides extensible
+Consolidated CDA (C-CDA) Release 2.1 compliant document instances to the corresponding FHIR STU3 resources. For this purpose, cda2fhir provides extensible
 document transformers, resource transformers, data type transformers and value set transformers. The current implementation provides a
 document transformer for Continuity of Care Document (CCD), but further document transformers, e.g. for Discharge Summary or Referral Note,
 can be easily introduced by reusing the already existing section and entry transformers. Although the cda2fhir library expects C-CDA R2.1 compliant
-documents/entries, it has been tested as well with several older document instances compliant with earlier releases of C-CDA. The official
-[HL7 FHIR Validator](https://www.hl7.org/fhir/validation.html#jar) is also integrated for automated validation of the generated FHIR resources.
+documents/entries, it has been tested as well with several older document instances compliant with earlier releases of C-CDA. The 
+[HAPI FHIR Validator](http://hapifhir.io/doc_validation.html) is also integrated for automated validation of the generated FHIR resources.
 
 All the mappings implemented between CDA artifacts and FHIR resources, data types and value sets are documented in this sheet:
-[C-CDA CCD to FHIR DAF Mapping](https://docs.google.com/spreadsheets/d/15Kv6PFyPh91sH1JMYwLH7D2yjh4HOTy5pjETjQNRyaU/edit?usp=sharing)
+[CDA to STU3 Mapping](https://docs.google.com/spreadsheets/d/e/2PACX-1vSVo_OoZXDxaLHwllt7EfOtePIY8EpiphlCrNssOrq7rvzVgdO361eTXQ96xiHugTJvY12J_-zibpeJ/pubhtml#)
 
 [Model Driven Health Tools (MDHT)](https://projects.eclipse.org/projects/modeling.mdht) is used for CDA manipulation and
-[HAPI](http://hapifhir.io/) is used for FHIR manipulation. The current implementation produces DSTU2 resources.
-We are planning to cover STU3 resources as well, after the specification becomes official.
+[HAPI](http://hapifhir.io/) is used for FHIR manipulation. The current implementation produces STU3 resources.
 
 ## Installation
 
@@ -47,6 +45,24 @@ In order to make a clean install run the following:
 
 These will build the cda2fhir library and also run a number of test cases, which will transform some C-CDA Continuity of Care Document (CCD) instances,
 and some manually crafted CDA artifacts (e.g. entry class instances) and datatype instances to corresponding FHIR resources, wherever possible using the DAF profile.
+
+This project incrementally builds and releases files for use in maven projects, using the instructions provided [here](https://gist.github.com/fernandezpablo85/03cf8b0cd2e7d8527063). To use, add the repository and dependency to your pom.xml like so, replacing the `X.X.X` with a version number.
+
+```
+<repository>
+  <id>amida-github</id>
+  <name>github</name>
+  <url>https://github.com/amida-tech/cda2fhir/raw/release</url>
+</repository>
+...
+<dependency> 
+  <artifactId>cda2fhir</artifactId>
+  <groupId>tr.com.srdc</groupId>
+  <version>X.X.X</version>	        
+</dependency>
+```
+
+
 
 ## Transforming a CDA document to a Bundle of corresponding FHIR resources
 
@@ -131,8 +147,7 @@ and [CCDTransformerImpl](https://github.com/srdc/cda2fhir/blob/master/src/main/j
 
 ## Validating generated FHIR resources
 
-We have also integrated the official [HL7 FHIR Validator](https://www.hl7.org/fhir/validation.html#jar), although in a bit ugly way since this validator is not available in any
-Maven repo. We have implemented a wrapper interface and a class on top of this validator: IValidator and ValidatorImpl. A resource can be validated individually, or a Bundle
+We have also integrated the [HAPI FHIR Validator](http://hapifhir.io/doc_validation.html) and have implemented a wrapper interface and a class on top of this validator: IValidator and ValidatorImpl. A resource can be validated individually, or a Bundle
 containing several resources as in the case of CDA transformation outcome can be validated at once. When (DAF) profile metadata is provided within the resources' meta.profile
 attribute, validation takes into account this profile as well. Validation outcome is provided as HTML within an OutputStream.
 
@@ -153,13 +168,7 @@ valOutcomeOs.close();
 fos.close();
 ```
 
-Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class. Some of the tests
-in this class are ignored, as validating takes some time, especially due to external Terminology Server access dependency. But they do work, users can enable them.
-
-Unfortunately it is not easy to find up and running DSTU2 terminology servers all the time, hence this test can fail when none of the terminology servers configured in
-[Config](https://github.com/srdc/cda2fhir/blob/master/src/main/java/tr/com/srdc/cda2fhir/conf/Config.java) is accessible. In this case, if you happen to know an accessible
-DSTU2 terminology server, you can either update Config or set via the setTerminologyServer method of the validator. If you cannot find a running terminology server, then
- you can just ignore the validator tests.
+Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class.
 
 ## Acknowledgement
 
