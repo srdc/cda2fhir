@@ -13,6 +13,7 @@
 		"operation": "shift",
 		"spec": {
 			"act": {
+				"#AllergyIntolerance": "resourceType",
 				"id": {
 					"*": "identifier[].->ID"
 				},
