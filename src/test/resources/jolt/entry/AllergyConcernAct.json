@@ -1,44 +1,54 @@
-[{
-	"operation": "cardinality",
-	"spec": {
-		"act": {
-			"id": "MANY",
-			"author": "MANY",
-			"entryRelationship": "MANY"
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"act": {
+				"id": "MANY",
+				"author": "MANY",
+				"entryRelationship": "MANY"
+			}
 		}
-	}
-}, {
-	"operation": "shift",
-	"spec": {
-		"act": {
-			"id": {
-				"*": "identifier"
-			},
-			"statusCode": {
-				"code": "verificationStatus"
-			},
-			"effectiveTime": "assertedDate.->EffectiveTime.data",
-			"#low_or_value": "assertedDate.->EffectiveTime.type",
-			"author": {
-				"*": "->AuthorParticipation"
-			},
-			"entryRelationship": {
-				"*": {
-					"observation": "->AllergyIntoleranceObservation"
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"act": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"statusCode": {
+					"code": "verificationStatus"
+				},
+				"effectiveTime": "assertedDate.->EffectiveTime.data",
+				"#low_or_value": "assertedDate.->EffectiveTime.type",
+				"author": {
+					"*": "->AuthorParticipation"
+				},
+				"entryRelationship": {
+					"*": {
+						"observation": "->AllergyIntoleranceObservation"
+					}
 				}
 			}
-			
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ValueSetTransform",
+		"spec": {
+			"name": "value-maps/AllergyIntoleranceVerificationStatus.json",
+			"path": "verificationStatus"
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"identifier": "MANY"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+			"dummy": "dummy"
 		}
 	}
-}, {
-	"operation": "tr.com.srdc.cda2fhir.jolt.ValueSetTransform",
-	"spec" : {
-		"name": "value-maps/AllergyIntoleranceVerificationStatus.json",
-		"path": "verificationStatus"
-	}
-}, {
-	"operation": "cardinality",
-	"spec": {
-		"identifier": "MANY"
-	}
-}]
+]

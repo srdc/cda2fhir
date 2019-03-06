@@ -56,6 +56,7 @@ public class Substitute implements ContextualTransform, SpecDriven {
 				Object replacement = findTemplateValue(map);
 				if (replacement == null) {
 					substitute(map);
+					continue;
 				}
 				entry.setValue(replacement);
 			}
@@ -76,6 +77,7 @@ public class Substitute implements ContextualTransform, SpecDriven {
 				Object replacement = findTemplateValue(map);
 				if (replacement == null) {
 					substitute(map);
+					continue;
 				}
 				list.set(index, replacement);
 			}

@@ -16,7 +16,7 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.JsonUtils;
 
-public class AllergiesSectionJoltTest {
+public class AllergyConcernActTest {
     @BeforeClass
     public static void init() {
         CDAUtil.loadPackages();
