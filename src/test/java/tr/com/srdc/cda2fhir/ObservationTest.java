@@ -12,6 +12,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class ObservationTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
@@ -29,7 +30,8 @@ public class ObservationTest {
     	BL bl = factories.datatype.createBL(value);
     	observation.getValues().add(bl);
     	
-    	Bundle bundle = rt.tObservation2Observation(observation);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+    	Bundle bundle = rt.tObservation2Observation(observation, bundleInfo).getBundle();
     	org.hl7.fhir.dstu3.model.Observation fhirObservation = BundleUtil.findOneResource(bundle, org.hl7.fhir.dstu3.model.Observation.class);
     	BooleanType bt = fhirObservation.getValueBooleanType();
     	Assert.assertEquals("Pull back the observation " + value + " boolean value", value, bt.getValue().booleanValue());

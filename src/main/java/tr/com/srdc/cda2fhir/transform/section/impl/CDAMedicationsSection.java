@@ -1,14 +1,14 @@
 package tr.com.srdc.cda2fhir.transform.section.impl;
 
-import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
-import tr.com.srdc.cda2fhir.util.FHIRUtil;
+import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDAMedicationsSection implements ICDASection {
 	private MedicationsSection section;
@@ -23,11 +23,13 @@ public class CDAMedicationsSection implements ICDASection {
 	@Override
 	public SectionResultSingular<MedicationStatement> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
-		Bundle result = new Bundle();
-    	for (MedicationActivity act : section.getMedicationActivities()) {
-    		Bundle bundle = rt.tMedicationActivity2MedicationStatement(act);
-    		FHIRUtil.mergeBundle(bundle, result);
+		SectionResultSingular<MedicationStatement> result = SectionResultSingular.getInstance(MedicationStatement.class);
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
+		for (MedicationActivity act : section.getMedicationActivities()) {
+    		IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, localBundleInfo);
+    		result.updateFrom(er);
+    		localBundleInfo.updateFrom(er);
     	}
-    	return SectionResultSingular.getInstance(result, MedicationStatement.class);
+    	return result;
 	}
 }

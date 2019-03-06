@@ -6,6 +6,7 @@ import java.util.List;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Resource;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class SectionResultDynamic extends SectionResult  {
@@ -16,11 +17,14 @@ public class SectionResultDynamic extends SectionResult  {
 		resources.add(resource);
 	}
 	
-	public <T extends Resource> void merge(Bundle bundle, Class<T> clazz) {
-   		FHIRUtil.mergeBundle(bundle, getBundle());
-   		List<? extends Resource> sectionResources = FHIRUtil.findResources(bundle, clazz);
-		resources.addAll(sectionResources);
-	}
+	public <T extends Resource> void updateFrom(IEntryResult entryResult, Class<T> clazz) {
+   		updateFrom(entryResult);
+   		Bundle bundle = entryResult.getBundle();
+   		if (bundle != null) {
+   			List<? extends Resource> sectionResources = FHIRUtil.findResources(bundle, clazz);
+   			resources.addAll(sectionResources);
+   		}
+   	}
 	
 	@Override
 	public List<Resource> getSectionResources() {

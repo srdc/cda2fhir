@@ -46,6 +46,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class AllergyConcernActTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
@@ -95,7 +96,8 @@ public class AllergyConcernActTest {
 	}
 	
 	static private void verifyAllergyIntoleranceCategory(AllergyProblemAct act, String expected) throws Exception {
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 
     	Enumeration<AllergyIntolerance.AllergyIntoleranceCategory> category = allergyIntolerance.getCategory().get(0);
@@ -152,6 +154,7 @@ public class AllergyConcernActTest {
 	public void testAllergyIntoleranceObservationEffectiveTime() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();					
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
 		String expected1 = "20171002";
 		
@@ -165,7 +168,7 @@ public class AllergyConcernActTest {
 		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
 		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 
-		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
 		String actual1 = allergyIntolerance1.getOnsetDateTimeType().getValueAsString();
 		Assert.assertEquals("Unexpected AllergyIntolerance OnSet", expected1, actual1.replaceAll("-", ""));
@@ -175,7 +178,7 @@ public class AllergyConcernActTest {
 		ivlTs2.setValue(expected2);
 		observation.setEffectiveTime(ivlTs2);
 		
-		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
 		String actual2 = allergyIntolerance2.getOnsetDateTimeType().getValueAsString();
 		Assert.assertEquals("Unexpected AllergyIntolerance OnSet", expected2, actual2.replaceAll("-", ""));	
@@ -204,7 +207,8 @@ public class AllergyConcernActTest {
 		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
 		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		CodeableConcept cc = allergyIntolerance.getCode();
 		Coding coding = cc.getCoding().get(0);
@@ -248,7 +252,8 @@ public class AllergyConcernActTest {
 		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, high);
 		
 		observation.setEffectiveTime(interval);
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
 		String actual = clinicalStatus.toCode();
@@ -266,7 +271,8 @@ public class AllergyConcernActTest {
 		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, null);
 		
 		observation.setEffectiveTime(interval);
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
 		String actual = clinicalStatus.toCode();
@@ -279,7 +285,8 @@ public class AllergyConcernActTest {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		//AllergyObservationImpl observation =  (AllergyObservationImpl) act.getEntryRelationships().get(0).getObservation();
 		
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
 		String actual = clinicalStatus.toCode();
@@ -328,7 +335,8 @@ public class AllergyConcernActTest {
 		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
 		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);		
 
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		List<AllergyIntoleranceReactionComponent> reactions = allergyIntolerance.getReaction();
 		
@@ -349,6 +357,7 @@ public class AllergyConcernActTest {
 	public void testEffectiveTime() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		DiagnosticChain dxChain = new BasicDiagnostic();
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
 		String expected1 = "20171002";		
 		IVL_TS ivlTs1 = createEffectiveTimeLow(expected1);
@@ -357,7 +366,7 @@ public class AllergyConcernActTest {
 		Boolean validation1 = act.validateAllergyProblemActEffectiveTime(dxChain, null);
 		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation1);
 
-		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		Bundle bundle1 = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance1 = findOneResource(bundle1);
 		String actual1 = allergyIntolerance1.getAssertedDateElement().getValueAsString();
 		Assert.assertEquals("Unexpected AllergyIntolerance Asserted Date (1)", expected1, actual1.replaceAll("-", ""));
@@ -369,14 +378,15 @@ public class AllergyConcernActTest {
 		Boolean validation2 = act.validateAllergyProblemActEffectiveTime(dxChain, null);
 		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation2);
 				
-		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		Bundle bundle2 = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
 		String actual2 = allergyIntolerance2.getAssertedDateElement().getValueAsString();
 		Assert.assertEquals("Unexpected AllergyIntolerance Asserted Date (2)", expected2, actual2.replaceAll("-", ""));	
 	}
 		
 	static private void verifyAllergyIntoleranceVerificationStatus(AllergyProblemAct act, String expected) throws Exception {
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		
     	AllergyIntoleranceVerificationStatus verificationStatus = allergyIntolerance.getVerificationStatus();

@@ -44,11 +44,8 @@ public class CDAMedicalEquipmentSection implements ICDASection {
         // Case 3: Entry is a Procedure Activity Procedure (V2)
         for (Procedure procedure : section.getProcedures()) {
             if (procedure instanceof ProcedureActivityProcedure) {
-                IEntryResult entryResult = rt.tProcedure2Procedure(procedure);
-           		result.merge(entryResult.getBundle(), org.hl7.fhir.dstu3.model.Procedure.class);
-           		if (entryResult.hasDeferredReferences()) {
-           			result.addDeferredReferences(entryResult.getDeferredReferences());
-           		}
+                IEntryResult entryResult = rt.tProcedure2Procedure(procedure, bundleInfo);
+                result.updateFrom(entryResult, org.hl7.fhir.dstu3.model.Procedure.class);
            	}
         }
         return result;

@@ -62,6 +62,7 @@ import ca.uhn.fhir.model.api.IResource;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResourceTransformerTest {
@@ -114,13 +115,14 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: AllergyProblemAct2AllergyIntolerance\n");
 		// null instance test
 		AllergyProblemAct cdaNull = null;
-		Bundle fhirNull = rt.tAllergyProblemAct2AllergyIntolerance(cdaNull);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle fhirNull = rt.tAllergyProblemAct2AllergyIntolerance(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
 		for(AllergyProblemAct cdaAPA : ResourceTransformerTest.ccd.getAllergiesSection().getAllergyProblemActs()) {
 			appendToResultFile(transformationStartMsg);
-			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA);
+			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA, bundleInfo).getBundle();
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(allergyBundle);
 		}
@@ -131,8 +133,9 @@ public class ResourceTransformerTest {
 	public void testAssignedAuthor2Practitioner() {
 		appendToResultFile("## TEST: AssignedAuthor2Practitioner\n");
 		// null instance test
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		org.openhealthtools.mdht.uml.cda.AssignedAuthor cdaNull = null;
-		Bundle fhirNull = rt.tAssignedAuthor2Practitioner(cdaNull);
+		Bundle fhirNull = rt.tAssignedAuthor2Practitioner(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -141,7 +144,7 @@ public class ResourceTransformerTest {
 				// traversing authors
 				if(author != null && author.getAssignedAuthor() != null) {
 					appendToResultFile(transformationStartMsg);
-					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner(author.getAssignedAuthor());
+					Bundle practitionerBundle = rt.tAssignedAuthor2Practitioner(author.getAssignedAuthor(), bundleInfo).getBundle();
 					appendToResultFile(transformationEndMsg);
 					appendToResultFile(practitionerBundle);
 				}
@@ -155,7 +158,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: AssignedEntity2Practitioner\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.AssignedEntity cdaNull = null;
-		Bundle fhirNull = rt.tAssignedEntity2Practitioner(cdaNull);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle fhirNull = rt.tAssignedEntity2Practitioner(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -167,7 +171,7 @@ public class ResourceTransformerTest {
 						for(org.openhealthtools.mdht.uml.cda.Performer2 performer : procedure.getPerformers()) {
 							if(performer.getAssignedEntity() != null && !performer.getAssignedEntity().isSetNullFlavor()) {
 								appendToResultFile(transformationStartMsg);
-								Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity());
+								Bundle fhirPractitionerBundle = rt.tAssignedEntity2Practitioner(performer.getAssignedEntity(), bundleInfo).getBundle();
 								appendToResultFile(transformationEndMsg);
 								appendToResultFile(fhirPractitionerBundle);
 							}
@@ -184,13 +188,13 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: ClinicalDocument2Composition\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument cdaNull = null;
-		Bundle fhirNull = rt.tClinicalDocument2Composition(cdaNull);
+		Bundle fhirNull = rt.tClinicalDocument2Composition(cdaNull).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instance from file
 		if(ResourceTransformerTest.ccd != null && !ResourceTransformerTest.ccd.isSetNullFlavor()) {
 			appendToResultFile(transformationStartMsg);
-			Bundle fhirComp = rt.tClinicalDocument2Composition(ResourceTransformerTest.ccd);
+			Bundle fhirComp = rt.tClinicalDocument2Composition(ResourceTransformerTest.ccd).getBundle();
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(fhirComp);
 		}
@@ -202,7 +206,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: EncounterActivity2Encounter\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.EncounterActivities cdaNull = null;
-		Bundle fhirNull = rt.tEncounterActivity2Encounter(cdaNull);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle fhirNull = rt.tEncounterActivity2Encounter(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -211,7 +216,7 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.consol.EncounterActivities encounterActivity : ResourceTransformerTest.ccd.getEncountersSection().getEncounterActivitiess()) {
 					if(encounterActivity != null && !encounterActivity.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
-						Bundle fhirEncounterBundle = rt.tEncounterActivity2Encounter(encounterActivity);
+						Bundle fhirEncounterBundle = rt.tEncounterActivity2Encounter(encounterActivity, bundleInfo).getBundle();
 						appendToResultFile(transformationEndMsg);
 						appendToResultFile(fhirEncounterBundle);
 					}
@@ -248,7 +253,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: FunctionalStatus2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Observation cdaNull = null;
-		Bundle fhirNull = rt.tFunctionalStatus2Observation(cdaNull);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle fhirNull = rt.tFunctionalStatus2Observation(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instance from file
@@ -262,7 +268,7 @@ public class ResourceTransformerTest {
 							if(((FunctionalStatusResultOrganizer)funcStatOrg).getObservations() != null && !((FunctionalStatusResultOrganizer)funcStatOrg).getObservations().isEmpty()) {
 								for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : ((FunctionalStatusResultOrganizer)funcStatOrg).getObservations()) {
 									appendToResultFile(transformationStartMsg);
-									Bundle fhirObs = rt.tFunctionalStatus2Observation(cdaObs);
+									Bundle fhirObs = rt.tFunctionalStatus2Observation(cdaObs, bundleInfo).getBundle();
 									appendToResultFile(transformationEndMsg);
 									appendToResultFile(fhirObs);
 								}
@@ -308,7 +314,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: ImmunizationActivity2Immunization\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity cdaNull = null;
-		Bundle fhirNull = rt.tImmunizationActivity2Immunization(cdaNull);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle fhirNull = rt.tImmunizationActivity2Immunization(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -318,7 +325,7 @@ public class ResourceTransformerTest {
 			for(ImmunizationActivity immAct : immSec.getImmunizationActivities()) {
 				if(immAct != null && !immAct.isSetNullFlavor()) {
 					appendToResultFile(transformationStartMsg);
-					Bundle fhirImm = rt.tImmunizationActivity2Immunization(immAct);
+					Bundle fhirImm = rt.tImmunizationActivity2Immunization(immAct, bundleInfo).getBundle();
 					appendToResultFile(transformationEndMsg);
 					appendToResultFile(fhirImm);
 				}
@@ -381,10 +388,11 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testMedicationActivity2MedicationStatement(){
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		appendToResultFile("## TEST: MedicationActivity2MedicationStatement\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.MedicationActivity cdaNull = null;
-		Bundle fhirNull = rt.tMedicationActivity2MedicationStatement(cdaNull);
+		Bundle fhirNull = rt.tMedicationActivity2MedicationStatement(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -393,7 +401,7 @@ public class ResourceTransformerTest {
 				for(MedicationActivity cdaMedAct : ResourceTransformerTest.ccd.getMedicationsSection().getMedicationActivities()) {
 					if(cdaMedAct != null && !cdaMedAct.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
-						Bundle fhirMedStBundle = rt.tMedicationActivity2MedicationStatement(cdaMedAct);
+						Bundle fhirMedStBundle = rt.tMedicationActivity2MedicationStatement(cdaMedAct, bundleInfo).getBundle();
 						appendToResultFile(transformationEndMsg);
 						appendToResultFile(fhirMedStBundle);
 					}
@@ -405,10 +413,11 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testMedicationDispense2MedicationDispense(){
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		appendToResultFile("## TEST: MedicationDispense2MedicationDispense\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaNull = null;
-		Bundle fhirNull = rt.tMedicationDispense2MedicationDispense(cdaNull);
+		Bundle fhirNull = rt.tMedicationDispense2MedicationDispense(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -422,7 +431,7 @@ public class ResourceTransformerTest {
 							for(org.openhealthtools.mdht.uml.cda.consol.MedicationDispense medDisp : medAct.getMedicationDispenses()) {
 								if(medDisp != null && !medDisp.isSetNullFlavor()) {
 									appendToResultFile(transformationStartMsg);
-									Bundle fhirMedDispBundle = rt.tMedicationDispense2MedicationDispense(medDisp);
+									Bundle fhirMedDispBundle = rt.tMedicationDispense2MedicationDispense(medDisp, bundleInfo).getBundle();
 									appendToResultFile(transformationEndMsg);
 									appendToResultFile(fhirMedDispBundle);
 								}
@@ -438,9 +447,10 @@ public class ResourceTransformerTest {
 	@Test
 	public void testObservation2Observation(){
 		appendToResultFile("## TEST: Observation2Observation\n");
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Observation cdaNull = null;
-		Bundle fhirNull = rt.tObservation2Observation(cdaNull);
+		Bundle fhirNull = rt.tObservation2Observation(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -449,7 +459,7 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : ResourceTransformerTest.ccd.getSocialHistorySection().getObservations()) {
 					if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
-						Bundle obsBundle = rt.tObservation2Observation(cdaObs);
+						Bundle obsBundle = rt.tObservation2Observation(cdaObs, bundleInfo).getBundle();
 						appendToResultFile(transformationEndMsg);
 						appendToResultFile(obsBundle);
 					}
@@ -691,10 +701,11 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testProblemConcernAct2Condition() {
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		appendToResultFile("## TEST: ProblemConcernAct2Condition\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct cdaNull = null;
-		Bundle fhirNull = rt.tProblemConcernAct2Condition(cdaNull);
+		Bundle fhirNull = rt.tProblemConcernAct2Condition(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -703,7 +714,7 @@ public class ResourceTransformerTest {
 				for(ProblemConcernAct problemConcernAct : ResourceTransformerTest.ccd.getProblemSection().getProblemConcerns()) {
 					if(problemConcernAct != null && !problemConcernAct.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
-						Bundle fhirConditionBundle = rt.tProblemConcernAct2Condition(problemConcernAct);
+						Bundle fhirConditionBundle = rt.tProblemConcernAct2Condition(problemConcernAct, bundleInfo).getBundle();
 						appendToResultFile(transformationEndMsg);
 						appendToResultFile(fhirConditionBundle);
 					}
@@ -715,11 +726,12 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testProcedure2Procedure(){
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		appendToResultFile("## TEST: Procedure2Procedure\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Procedure cdaNull = null;
-		EntryResult entryResultNull = rt.tProcedure2Procedure(cdaNull);
-		Assert.assertNull(entryResultNull);
+		EntryResult entryResultNull = rt.tProcedure2Procedure(cdaNull, bundleInfo);
+		Assert.assertNull(entryResultNull.getBundle());
 
 		// instances from file
 		if(ResourceTransformerTest.ccd.getProceduresSection() != null && !ResourceTransformerTest.ccd.getProceduresSection().isSetNullFlavor()) {
@@ -727,7 +739,7 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : ResourceTransformerTest.ccd.getProceduresSection().getProcedures()) {
 					// traversing procedures
 					appendToResultFile(transformationStartMsg);
-					EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure);
+					EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure, bundleInfo);
 					Bundle fhirProcedureBundle = entryResult.getBundle();
 					appendToResultFile(transformationEndMsg);
 					appendToResultFile(fhirProcedureBundle);
@@ -740,7 +752,7 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure : ResourceTransformerTest.ccd.getEncountersSection().getProcedures()) {
 					// traversing procedures					
 					appendToResultFile(transformationStartMsg);
-					EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure);
+					EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure, bundleInfo);
 					Bundle fhirProcedureBundle = entryResult.getBundle();
 					appendToResultFile(transformationEndMsg);
 					appendToResultFile(fhirProcedureBundle);
@@ -754,7 +766,7 @@ public class ResourceTransformerTest {
 					for(org.openhealthtools.mdht.uml.cda.Procedure cdaProcedure: section.getProcedures()) {
 						// traversing procedures
 						appendToResultFile(transformationStartMsg);
-						EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure);
+						EntryResult entryResult = rt.tProcedure2Procedure(cdaProcedure, bundleInfo);
 						Bundle fhirProcedureBundle = entryResult.getBundle();
 						appendToResultFile(transformationEndMsg);
 						appendToResultFile(fhirProcedureBundle);
@@ -767,10 +779,11 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testResultOrganizer2DiagnosticReport() {
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		appendToResultFile("## TEST: ResultOrganizer2DiagnosticReport\n");
 		// null instance test
 		ResultOrganizer cdaNull = null;
-		Bundle fhirNull = rt.tResultOrganizer2DiagnosticReport(cdaNull);
+		Bundle fhirNull = rt.tResultOrganizer2DiagnosticReport(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instance from file
@@ -782,7 +795,7 @@ public class ResourceTransformerTest {
 					if(cdaOrganizer != null && !cdaOrganizer.isSetNullFlavor()) {
 						if(cdaOrganizer instanceof ResultOrganizer) {
 							appendToResultFile(transformationStartMsg);
-							Bundle fhirDiagReport = rt.tResultOrganizer2DiagnosticReport((ResultOrganizer)cdaOrganizer);
+							Bundle fhirDiagReport = rt.tResultOrganizer2DiagnosticReport((ResultOrganizer)cdaOrganizer, bundleInfo).getBundle();
 							appendToResultFile(transformationEndMsg);
 							appendToResultFile(fhirDiagReport);
 						}
@@ -825,6 +838,7 @@ public class ResourceTransformerTest {
 
 	@Test
 	public void testSocialHistory() {
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		appendToResultFile("## TEST: SocialHistory\n");
 		SocialHistorySection socialHistSec = ResourceTransformerTest.ccd.getSocialHistorySection();
 		
@@ -833,7 +847,7 @@ public class ResourceTransformerTest {
 				for(org.openhealthtools.mdht.uml.cda.Observation cdaObs : socialHistSec.getObservations()) {
 					if(cdaObs != null && !cdaObs.isSetNullFlavor()) {
 						appendToResultFile(transformationStartMsg);
-						Bundle fhirObs = rt.tObservation2Observation(cdaObs);
+						Bundle fhirObs = rt.tObservation2Observation(cdaObs, bundleInfo).getBundle();
 						appendToResultFile(transformationEndMsg);
 						appendToResultFile(fhirObs);
 					}
@@ -845,10 +859,11 @@ public class ResourceTransformerTest {
 	
 	@Test
 	public void testVitalSignObservation2Observation() {
+		BundleInfo bundleInfo = new BundleInfo(rt);
 		appendToResultFile("## TEST: VitalSignObservation2Observation\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation cdaNull = null;
-		Bundle fhirNull = rt.tVitalSignObservation2Observation(cdaNull);
+		Bundle fhirNull = rt.tVitalSignObservation2Observation(cdaNull, bundleInfo).getBundle();
 		Assert.assertNull(fhirNull);
 
 		// instances from file
@@ -861,7 +876,7 @@ public class ResourceTransformerTest {
 							for(VitalSignObservation vitalSignObservation : vitalSignOrganizer.getVitalSignObservations()) {
 								if(vitalSignObservation != null && !vitalSignObservation.isSetNullFlavor()) {
 									appendToResultFile(transformationStartMsg);
-									Bundle fhirObservation = rt.tVitalSignObservation2Observation((VitalSignObservation)vitalSignObservation);
+									Bundle fhirObservation = rt.tVitalSignObservation2Observation((VitalSignObservation)vitalSignObservation, bundleInfo).getBundle();
 									appendToResultFile(transformationEndMsg);
 									appendToResultFile(fhirObservation);
 								}

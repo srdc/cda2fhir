@@ -29,15 +29,18 @@ import java.util.stream.Collectors;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
@@ -47,16 +50,22 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
+import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
+import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerTest {
-	private static List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
+	private static final Logger logger = LoggerFactory.getLogger(ResourceTransformerImpl.class);
+	private final static List<CDASectionTypeEnum> addlSections = new ArrayList<CDASectionTypeEnum>();
 
 	static {
 		addlSections.add(CDASectionTypeEnum.VITAL_SIGNS_SECTION);
@@ -94,7 +103,25 @@ public class CCDTransformerTest {
 		Assert.assertEquals(msg, compositionEntries == null ? 0 : compositionEntries.size(), resources.size());
 	}
 
+	private static void verifyNoDuplicatePractitioner(Bundle bundle) {
+		IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(bundle);
+		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
+		for (Practitioner practitioner : practitioners) {
+			if (!practitioner.hasIdentifier()) {
+				logger.info("No practioner identifier");
+				continue;
+			}
+			String id = practitioner.getId();
+			for (Identifier identifier : practitioner.getIdentifier()) {
+				String idInMap = identifierMap.get(practitioner.fhirType(), identifier);
+				Assert.assertNotNull("Practitioner id from map", idInMap);
+				Assert.assertEquals("Practitioner id from map", id, idInMap);
+			}
+		}
+	}
+
 	private static Bundle readVerifyFile(String sourceName, List<CDASectionTypeEnum> addlSections) throws Exception {
+		logger.info(String.format("Verifying file %s", sourceName));
 		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
 
 		ClinicalDocument cda = CDAUtil.load(fis);
@@ -108,6 +135,11 @@ public class CCDTransformerTest {
 		Assert.assertNotNull("Expect a bundle after transformation", bundle);
 		Assert.assertTrue("Expect some entries", bundle.hasEntry());
 
+		String baseName = sourceName.substring(0, sourceName.length() - 4);
+		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
+		
+		BundleUtil.verifyIdsUnique(bundle);
+		
 		Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
 		Assert.assertTrue("Expect composition to be the first resource",
 				bundle.getEntry().get(0).getResource() == composition);
@@ -115,8 +147,8 @@ public class CCDTransformerTest {
 		// Nothing should create encounters but Encounters Section
 		verifySectionCounts(bundle, "46240-8", Encounter.class);
 
-		String baseName = sourceName.substring(0, sourceName.length() - 4);
-		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
+		verifyNoDuplicatePractitioner(bundle);
+
 		return bundle;
 	}
 
@@ -183,7 +215,24 @@ public class CCDTransformerTest {
 		verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
 		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
 		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 110, 4);
+		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 74, 4);
+
+		// Spot checks
+		BundleUtil util = new BundleUtil(bundle);
+		util.spotCheckImmunizationPractitioner("e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92", "Hippocrates", null,
+				"Good Health Clinic");
+		util.spotCheckEncounterPractitioner("2a620155-9d11-439e-92b3-5d9815ff4de8", null, "59058001", null);
+		util.spotCheckProcedurePractitioner("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d", null, null, "Community Health and Hospitals");
+		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.19.5.9999.456", "2981823", null, "1001 Village Avenue");
+		util.spotCheckAttesterPractitioner(CompositionAttestationMode.PROFESSIONAL, "Primary", "207QA0505X", null);
+		util.spotCheckAttesterPractitioner(CompositionAttestationMode.LEGAL, "Primary", "207QA0505X", null);
+		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.4.6", "5555555555", "Primary", "1004 Healthcare Drive ");
+		util.spotCheckAuthorPractitioner("Primary", "207QA0505X", null);
+		util.spotCheckObservationPractitioner("b63a8636-cfff-4461-b018-40ba58ba8b32", null, null, null);
+		util.spotCheckMedStatementPractitioner("6c844c75-aa34-411c-b7bd-5e4a9f206e29", "Primary", null, null);
+		util.spotCheckObservationPractitioner("ed9589fd-fda0-41f7-a3d0-dc537554f5c2", null, null, null);
+		util.spotCheckConditionPractitioner("ab1791b0-5c71-11db-b0de-0800200c9a66", null, null, null);
+		util.spotCheckAllergyPractitioner("36e3e930-7b14-11db-9fe1-0800200c9a66", null, null, null);
 	}
 
 	@Test

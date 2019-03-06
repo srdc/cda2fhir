@@ -25,7 +25,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -141,5 +143,15 @@ public class FHIRUtil {
 				target.addEntry(entry);
             }
     	}		
+	}
+	
+	public static Map<String, Resource> getIdResourceMap(Bundle bundle) {
+		Map<String, Resource> result = new HashMap<String, Resource>();
+		bundle.getEntry().stream().map(e -> e.getResource()).forEach(r -> result.put(r.getId(), r));
+		return result;
+	}
+	
+	interface ResourcePredicate {
+		boolean get(Resource resource);
 	}
 }
