@@ -25,12 +25,14 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 
+import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.IndicationGenerator;
 import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class ProcedureActivityProcedureTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
@@ -43,7 +45,6 @@ public class ProcedureActivityProcedureTest {
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-
 		factories = CDAFactories.init();
 	}
 
@@ -51,19 +52,19 @@ public class ProcedureActivityProcedureTest {
 	public void testPerformer() throws Exception {
 		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
 
-		String organizationName = "PAP Organization";
-
-		PerformerGenerator performerGenerator = new PerformerGenerator();
-		performerGenerator.setCode();
-		performerGenerator.setOrganizationName(organizationName);
+		AssignedEntityGenerator aeg = new AssignedEntityGenerator();
+		aeg.setCode();
+		aeg.setOrganizationName("PAP Organization");
+		PerformerGenerator performerGenerator = new PerformerGenerator(aeg);
 		Performer2 performer = performerGenerator.generate(factories);
 		pap.getPerformers().add(performer);
 
-		EntryResult entryResult = rt.tProcedure2Procedure(pap);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		EntryResult entryResult = rt.tProcedure2Procedure(pap, bundleInfo);
 		Bundle bundle = entryResult.getBundle();
 
 		Organization organization = BundleUtil.findOneResource(bundle, Organization.class);
-		Assert.assertEquals("Unexpected organization name", organizationName, organization.getName());
+		aeg.verify(organization);
 
 		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
 
@@ -75,11 +76,12 @@ public class ProcedureActivityProcedureTest {
 				organizationReference.getReference());
 		Assert.assertTrue("Expect a performer role", fhirPerformer.hasRole());
 		Coding role = fhirPerformer.getRole().getCoding().get(0);
-		Assert.assertEquals("Expect the default role code", PerformerGenerator.DEFAULT_CODE_CODE, role.getCode());
+		Assert.assertEquals("Expect the default role code", AssignedEntityGenerator.DEFAULT_CODE_CODE, role.getCode());
 	}
 
 	static private void verifyProcedureStatus(ProcedureActivityProcedure pap, String expected) throws Exception {
-		EntryResult entryResult = rt.tProcedure2Procedure(pap);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		EntryResult entryResult = rt.tProcedure2Procedure(pap, bundleInfo);
 		Bundle bundle = entryResult.getBundle();
 		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
 
@@ -129,7 +131,8 @@ public class ProcedureActivityProcedureTest {
 		DiagnosticChain dxChain = new BasicDiagnostic();
 		pap.validateProcedureActivityProcedureIndication(dxChain, null);
 
-		EntryResult entryResult = rt.tProcedure2Procedure(pap);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		EntryResult entryResult = rt.tProcedure2Procedure(pap, bundleInfo);
 		Bundle bundle = entryResult.getBundle();
 		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
 		Assert.assertTrue("Expect a reason code", procedure.hasReasonCode());

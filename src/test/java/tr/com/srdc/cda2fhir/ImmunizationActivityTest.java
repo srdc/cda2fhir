@@ -5,7 +5,6 @@ import java.util.Map;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -15,62 +14,59 @@ import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationActivityImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class ImmunizationActivityTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
 	private static CDAFactories factories;
 	
-	private static ConsolFactoryImpl cdaObjFactory;
-
 	private static Map<String, Object> statusMap = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/ImmunizationStatus.json");
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-
 		factories = CDAFactories.init();
-		
-		cdaObjFactory = factories.consol;
 	}
 	
 	@Test
 	public void testPerformer() throws Exception {
-		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
-		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		Assert.assertEquals("Unexpected positive primary source", false, immunization.getPrimarySource());
 				
 		String lastName = "Doe";
 		String firstName = "Joe";
-		PerformerGenerator performerGenerator = new PerformerGenerator();
-		performerGenerator.setFamilyName(lastName);
-		performerGenerator.addGivenName(firstName);
+		AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
+		assignedEntityGenerator.setFamilyName(lastName);
+		assignedEntityGenerator.addGivenName(firstName);
+		
+		PerformerGenerator performerGenerator = new PerformerGenerator(assignedEntityGenerator);
 		Performer2 performer = performerGenerator.generate(factories);
 		act.getPerformers().add(performer);
 
-		Bundle bundle1 = rt.tImmunizationActivity2Immunization(act);
+		Bundle bundle1 = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization1 = BundleUtil.findOneResource(bundle1, Immunization.class);
 		Assert.assertEquals("Unexpected negative primary source", true, immunization1.getPrimarySource());
 
 		String reference = immunization1.getPractitioner().get(0).getActor().getReference();
 		Practitioner practitioner = BundleUtil.findOneResource(bundle1, Practitioner.class);
 		Assert.assertEquals("Unexpected Reference", reference, practitioner.getId());
-		HumanName humanName = practitioner.getName().get(0);
-		Assert.assertEquals("Unexpected Last Name", lastName, humanName.getFamily());
-		Assert.assertEquals("Unexpected First Name", firstName, humanName.getGiven().get(0).asStringValue());		
+		assignedEntityGenerator.verify(practitioner);
 	}
 		
 	static private void verifyNotGiven(ImmunizationActivity act, Boolean value) throws Exception {
@@ -81,21 +77,23 @@ public class ImmunizationActivityTest {
 			Assert.assertTrue("Invalid Immunization Activity in Test", validation);
 		}
 
-		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		Assert.assertEquals("Unexpected not given", value == null ? false : value, immunization.getNotGiven());				
 	}
 	
 	@Test
 	public void testNegationInd() throws Exception {
-		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
 		verifyNotGiven(act, true);
 		verifyNotGiven(act, false);
 	}
 
 
 	static private void verifyImmunizationStatus(ImmunizationActivityImpl act, String expected) throws Exception {
-		Bundle bundle = rt.tImmunizationActivity2Immunization(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		
     	ImmunizationStatus status = immunization.getStatus();
@@ -105,7 +103,7 @@ public class ImmunizationActivityTest {
 		
 	@Test
 	public void testStatusCode() throws Exception {
-		ImmunizationActivityImpl act = (ImmunizationActivityImpl) cdaObjFactory.createImmunizationActivity();
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
 		DiagnosticChain dxChain = new BasicDiagnostic();		
 		verifyImmunizationStatus(act, null);
 	

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
@@ -36,12 +35,9 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
-import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Property;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.exceptions.FHIRException;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
@@ -49,12 +45,14 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
+import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
+import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
-import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -236,8 +234,12 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
 
         // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
-        Bundle ccdBundle = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
-        
+        IEntryResult entryResult = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
+        Bundle ccdBundle = entryResult.getBundle();
+        if (ccdBundle == null) {
+        	ccdBundle = new Bundle();
+        }
+         
         // the first bundle entry is always the composition
         Composition ccdComposition = includeComposition ? (Composition)ccdBundle.getEntry().get(0).getResource() : null;
         
@@ -252,6 +254,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         }
             
         BundleInfo bundleInfo = new BundleInfo(resTransformer);
+        bundleInfo.updateFrom(entryResult);
         List<IDeferredReference> deferredReferences = new ArrayList<IDeferredReference>();
         
         // transform the sections
@@ -284,28 +287,13 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         			if (sectionResult.hasDefferredReferences()) {
         				deferredReferences.addAll(sectionResult.getDeferredReferences());
         			}
+        			bundleInfo.updateFrom(sectionResult);
         		}
         	}
         }
         
-        IdentifierMap<String> identifierMap = new IdentifierMap<String>();
-		for (BundleEntryComponent entry : ccdBundle.getEntry()) {
-			Resource resource = entry.getResource();
-			Property property = resource.getNamedProperty("identifier");
-			if (property != null) {
-				List<Base> bases = property.getValues();
-				if (!bases.isEmpty()) {
-					for (Base base: bases) {
-						try {
-							Identifier identifier = resource.castToIdentifier(base);
-							String fhirType = resource.fhirType();
-							identifierMap.put(fhirType, identifier, resource.getId());
-						} catch (FHIRException e) {}
-					}
-				}
-			}
-    	}		
-        
+        IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(ccdBundle);
+         
 		if (!deferredReferences.isEmpty()) {
 			for (IDeferredReference dr: deferredReferences) {
 				String id = identifierMap.get(dr.getFhirType(), dr.getIdentifier());

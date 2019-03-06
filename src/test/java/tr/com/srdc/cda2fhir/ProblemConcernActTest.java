@@ -31,6 +31,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class ProblemConcernActTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
@@ -69,6 +70,7 @@ public class ProblemConcernActTest {
 		ProblemConcernActImpl act = createProblemConcernAct();
 		ProblemObservationImpl observation =  (ProblemObservationImpl) act.getEntryRelationships().get(0).getObservation();
 		DiagnosticChain dxChain = new BasicDiagnostic();
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
 		String code = "404684003"; // From CCDA Specification
 		String displayName = "Finding";		
@@ -78,7 +80,7 @@ public class ProblemConcernActTest {
 		Boolean validation = act.validateProblemConcernActProblemObservation(dxChain, null);
 		Assert.assertTrue("Invalid Problem Concern Act in Test", validation);
 
-		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
 		List<Coding> category = condition.getCategory().get(0).getCoding();
 		Assert.assertEquals("Unexpected number of category codings", 1, category.size());
@@ -92,7 +94,7 @@ public class ProblemConcernActTest {
 		Boolean validation2 = act.validateProblemConcernActProblemObservation(dxChain, null);
 		Assert.assertTrue("Invalid Problem Concern Act in Test", validation2);
 
-		Bundle bundle2 = rt.tProblemConcernAct2Condition(act);
+		Bundle bundle2 = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition2 = BundleUtil.findOneResource(bundle2, Condition.class);
 		List<Coding> category2 = condition2.getCategory().get(0).getCoding();
 		Assert.assertEquals("Unexpected number of category codings", 2, category2.size());
@@ -111,7 +113,8 @@ public class ProblemConcernActTest {
 		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, high);
 		
 		observation.setEffectiveTime(interval);
-		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
 		ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
 		String actual = clinicalStatus.toCode();
@@ -129,7 +132,8 @@ public class ProblemConcernActTest {
 		IVL_TS interval = cdaTypeFactory.createIVL_TS(low);
 		
 		observation.setEffectiveTime(interval);
-		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
 		ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
 		String actual = clinicalStatus.toCode();
@@ -141,7 +145,8 @@ public class ProblemConcernActTest {
 	public void testProblemObservationProblemStatusActiveNoDate() throws Exception {
 		ProblemConcernActImpl act = createProblemConcernAct();
 
-		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
 		ConditionClinicalStatus clinicalStatus = condition.getClinicalStatus();
 		String actual = clinicalStatus.toCode();
@@ -150,7 +155,8 @@ public class ProblemConcernActTest {
 	}
 
 	static private void verifyConditionVerificationStatus(ProblemConcernAct act, String expected) throws Exception {
-		Bundle bundle = rt.tProblemConcernAct2Condition(act);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
 		
     	ConditionVerificationStatus verificationStatus = condition.getVerificationStatus();

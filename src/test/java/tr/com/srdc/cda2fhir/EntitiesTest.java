@@ -23,11 +23,15 @@ package tr.com.srdc.cda2fhir;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Base;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.impl.OrganizationImpl;
 import org.openhealthtools.mdht.uml.cda.impl.AuthorImpl;
+import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.impl.AssignedAuthorImpl;
 import org.openhealthtools.mdht.uml.cda.impl.PersonImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -37,22 +41,28 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
+import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class EntitiesTest {
 
     private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
+
+	private static CDAFactories factories;
 
 	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
     @BeforeClass
 	public static void init() {
-		CDAUtil.loadPackages();	
+		CDAUtil.loadPackages();
+		factories = CDAFactories.init();
 		cdaTypeFactory = DatatypesFactoryImpl.init();		
 		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();		
     }
- 
 
     @Test
     public void organizationNameAlias() throws Exception {
@@ -106,11 +116,11 @@ public class EntitiesTest {
 
 
         // Transform from CDA to FHIR.
-        org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tAuthor2Practitioner(auth);
-        org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		BundleInfo bundleInfo = new BundleInfo(rt);
+        IEntityResult entityResult = rt.tAuthor2Practitioner(auth, bundleInfo);
+        org.hl7.fhir.dstu3.model.Resource fhirResource = entityResult.getPractitioner();
         List<Base> fhirNames = fhirResource.getNamedProperty("name").getValues();
-        
-        
+                
         // Make assertions.
         Assert.assertEquals("Multiple Name for Practitioner Supported",2,fhirNames.size());
         Assert.assertEquals("Practitioner Name One Set",authorStringOne, fhirNames.get(0).getNamedProperty("text").getValues().get(0).toString());;
@@ -118,4 +128,21 @@ public class EntitiesTest {
     }
 
 
+    @Test
+    public void testAssignedEntityBasic() throws Exception {    	
+    	AssignedEntityGenerator aeg = AssignedEntityGenerator.getDefaultInstance();
+    	
+    	AssignedEntity ae = aeg.generate(factories);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+    	IEntityResult entityResult = rt.tAssignedEntity2Practitioner(ae, bundleInfo);
+    	
+    	Practitioner practitioner = entityResult.getPractitioner();
+    	aeg.verify(practitioner);
+    	
+    	PractitionerRole role = entityResult.getPractitionerRole();
+    	aeg.verify(role);
+ 
+    	Organization org = entityResult.getOrganization();
+    	aeg.verify(org);
+    }
 }
