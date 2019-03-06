@@ -22,6 +22,7 @@ public class Substitute implements ContextualTransform, SpecDriven {
     static Map<String, Chainr> templates = new HashMap<String, Chainr>();
     static {
     	templates.put("->ID", generateChainr("data-type/ID.json"));
+    	templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
     }
     
 	@Inject

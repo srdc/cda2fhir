@@ -4,7 +4,7 @@
 		"spec": {
 			"act": {
 				"id": "MANY",
-				"author": "MANY",
+				"author": "ONE",
 				"entryRelationship": "MANY"
 			}
 		}
@@ -22,9 +22,7 @@
 				},
 				"effectiveTime": "assertedDate.->EffectiveTime.data",
 				"#low_or_value": "assertedDate.->EffectiveTime.type",
-				"author": {
-					"*": "->AuthorParticipation"
-				},
+				"author": "recorder.->AuthorParticipation",
 				"entryRelationship": {
 					"*": {
 						"observation": "->AllergyIntoleranceObservation"
