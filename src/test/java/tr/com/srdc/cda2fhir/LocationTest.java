@@ -30,14 +30,20 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
+import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
+
 public class LocationTest {
 
     private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
+    private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
     @BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();			
+		cdaTypeFactory = DatatypesFactoryImpl.init();
 		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();		
     }
  
@@ -48,6 +54,11 @@ public class LocationTest {
     	// Make a participant.
     	ParticipantRoleImpl pr = (ParticipantRoleImpl) cdaFactory.createParticipantRole();
     	PlayingEntityImpl	pe = (PlayingEntityImpl) cdaFactory.createPlayingEntity();
+    	
+    	II identifier = cdaTypeFactory.createII();
+    	identifier.setRoot("sampleRoot");
+
+    	pr.getIds().add(identifier);
     	
     	pr.setPlayingEntity(pe);
     	
