@@ -51,6 +51,7 @@ import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Quantity;
 import org.hl7.fhir.dstu3.model.Range;
 import org.hl7.fhir.dstu3.model.Ratio;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import org.hl7.fhir.dstu3.model.StringType;
 import org.hl7.fhir.dstu3.model.Timing;
@@ -517,6 +518,10 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		else if(ii.getExtension() != null && !ii.getExtension().isEmpty())
 			identifierDt.setValue(ii.getExtension());
 		
+		if(ii.getAssigningAuthorityName() != null) {
+			identifierDt.setAssigner(new Reference(ii.getAssigningAuthorityName()));
+		}
+			
 		return identifierDt;
 
 	}
