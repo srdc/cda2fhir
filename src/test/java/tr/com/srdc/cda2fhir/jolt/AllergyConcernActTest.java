@@ -46,7 +46,9 @@ public class AllergyConcernActTest {
     	JSONObject allergiesSection = getSection(component, "48765-2");
     	JSONObject entry = allergiesSection.getJSONArray("entry").getJSONObject(0);
     	
-    	//OrgJsonUtil.convertNamedObjectToArray(entry, "template");
+    	OrgJsonUtil.convertNamedObjectToArray(entry, "templateId");
+    	OrgJsonUtil.convertNamedObjectToArray(entry, "entryRelationship");
+    	
     	
     	String outputFile = "src/test/resources/output/" + "C-CDA_R2-1_CCD allergy entry - jolt.json";
     	FileUtils.writeStringToFile(new File(outputFile), entry.toString(4), Charset.defaultCharset());    	

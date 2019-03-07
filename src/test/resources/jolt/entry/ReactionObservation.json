@@ -1,0 +1,46 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"value": "MANY"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"effectiveTime": {
+				"low": {
+					"value": "onset"
+				}
+			},
+			"value": {
+				"*": "manifestation[].->CD"
+			},
+			"entryRelationship": {
+				"*": {
+					"observation": {
+						"templateId": {
+							"0": {
+								"root": {
+									"2.16.840.1.113883.10.20.22.4.8": {
+										"@4": {
+											"value": {
+												"code": "severity"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+			"dummy": "dummy"
+		}
+	}
+]

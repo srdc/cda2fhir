@@ -26,6 +26,7 @@ public class Substitute implements ContextualTransform, SpecDriven {
     	templates.put("->CD", generateChainr("data-type/CD.json"));
     	templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
     	templates.put("->AllergyIntoleranceObservation", generateChainr("entry/AllergyIntoleranceObservation.json"));
+    	templates.put("->ReactionObservation", generateChainr("entry/ReactionObservation.json"));
     }
     
 	@Inject
