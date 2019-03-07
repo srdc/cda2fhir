@@ -28,8 +28,6 @@ import org.openhealthtools.mdht.uml.cda.impl.ParticipantRoleImpl;
 import org.openhealthtools.mdht.uml.cda.impl.PlayingEntityImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 
 public class LocationTest {
@@ -39,8 +37,7 @@ public class LocationTest {
 
     @BeforeClass
 	public static void init() {
-		CDAUtil.loadPackages();	
-		cdaTypeFactory = DatatypesFactoryImpl.init();		
+		CDAUtil.loadPackages();			
 		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();		
     }
  
