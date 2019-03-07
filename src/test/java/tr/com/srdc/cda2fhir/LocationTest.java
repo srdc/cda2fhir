@@ -35,8 +35,6 @@ import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 public class LocationTest {
 
     private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
-
-	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
     @BeforeClass
