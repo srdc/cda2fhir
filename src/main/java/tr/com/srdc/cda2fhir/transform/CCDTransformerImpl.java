@@ -36,6 +36,7 @@ import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
@@ -192,6 +193,28 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
     public Bundle transformDocument(String filePath) throws Exception {
     	ClinicalDocument cda = getClinicalDocument(filePath);
     	return transformDocument(cda, true);
+    }
+    
+    /**
+     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
+     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
+     * @param bundleType The type of bundle to create, currently only supports transaction bundles.
+     * @param resourceProfileMap The mappings of default resource profiles to desired resource profiles. Used to set profile URI's of bundle entries or omit unwanted entries.
+     * @param provenance An optional FHIR Provenance object that may be inserted into the bundle.
+     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
+     * @throws Exception 
+     */
+    public Bundle transformDocument(ClinicalDocument cda, BundleType bundleType, Map<String, String> resourceProfileMap, Provenance provenance) throws Exception {
+    	Bundle bundle = transformDocument(cda, true);
+    	bundle.setType(bundleType);
+    	if (!provenance.equals(null)) {
+    		// TODO: Code here to take object and add it bundle, and build provenance.target on it for all of the resources.
+    		// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
+    	}
+		if(bundleType.equals(BundleType.TRANSACTION)){
+			return createTransactionBundle(bundle, resourceProfileMap, false);
+		}
+		return bundle;
     }
     
     /**
