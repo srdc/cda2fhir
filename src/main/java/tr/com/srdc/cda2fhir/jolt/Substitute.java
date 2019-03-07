@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ public class Substitute implements ContextualTransform, SpecDriven {
     	templates.put("->ID", generateChainr("data-type/ID.json"));
     	templates.put("->CD", generateChainr("data-type/CD.json"));
     	templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
+    	templates.put("->AllergyIntoleranceObservation", generateChainr("entry/AllergyIntoleranceObservation.json"));
     }
     
 	@Inject
@@ -49,8 +51,15 @@ public class Substitute implements ContextualTransform, SpecDriven {
 		if (object == null) {
 			return;
 		}
+		
+		List<String> topSubstitutes = new ArrayList<String>();			
 		for (Map.Entry<String, Object> entry: object.entrySet()) {
+			String key = entry.getKey();
 			Object value = entry.getValue();
+			Chainr chainr = templates.get(key);
+		    if (chainr != null) {
+		    	topSubstitutes.add(key);
+			}			
 			if (value instanceof List) {
 				List<Object> elements = (List<Object>) value;
 				substitute(elements, context);
@@ -66,6 +75,16 @@ public class Substitute implements ContextualTransform, SpecDriven {
 				entry.setValue(replacement);
 			}
 		}
+
+		for (String key: topSubstitutes) {
+			Object value = object.get(key);
+			Chainr chainr = templates.get(key);
+			Map<String, Object> additionalKeys = (Map<String, Object>) chainr.transform(value, context);
+			if (additionalKeys != null) {
+				object.putAll(additionalKeys);
+			}
+			object.remove(key);			
+		}		
 	}
 	
 	@SuppressWarnings("unchecked")

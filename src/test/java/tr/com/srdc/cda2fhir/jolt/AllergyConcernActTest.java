@@ -14,6 +14,8 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
+
 public class AllergyConcernActTest {
     @BeforeClass
     public static void init() {
@@ -43,6 +45,8 @@ public class AllergyConcernActTest {
     						.getJSONArray("component");
     	JSONObject allergiesSection = getSection(component, "48765-2");
     	JSONObject entry = allergiesSection.getJSONArray("entry").getJSONObject(0);
+    	
+    	//OrgJsonUtil.convertNamedObjectToArray(entry, "template");
     	
     	String outputFile = "src/test/resources/output/" + "C-CDA_R2-1_CCD allergy entry - jolt.json";
     	FileUtils.writeStringToFile(new File(outputFile), entry.toString(4), Charset.defaultCharset());    	

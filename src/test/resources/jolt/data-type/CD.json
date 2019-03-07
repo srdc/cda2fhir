@@ -2,9 +2,9 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"code": "Coding[].code",
-			"codeSystem": "Coding[].system",
-			"displayName": "Coding[].display"
+			"code": "coding.code",
+			"codeSystem": "coding.system",
+			"displayName": "coding.display"
 		}
 	}
 ]
