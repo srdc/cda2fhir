@@ -1,0 +1,26 @@
+[
+	{
+		"input": {
+		},
+		"template": [
+			{
+				"operation": "default",
+				"spec": {
+					"id": ""
+				}
+			},
+			{
+				"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+				"spec": {
+					"id": "=defaultid(@0)"
+				}
+			}
+		],
+		"expected": {
+			"id": {
+				"root": "amida.id",
+				"extension": "135792468"
+			}
+		}
+	}
+]
