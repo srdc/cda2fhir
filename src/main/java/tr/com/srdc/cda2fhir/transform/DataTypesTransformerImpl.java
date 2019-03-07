@@ -43,6 +43,7 @@ import org.hl7.fhir.dstu3.model.DateType;
 import org.hl7.fhir.dstu3.model.DecimalType;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Identifier.IdentifierUse;
 import org.hl7.fhir.dstu3.model.InstantType;
 import org.hl7.fhir.dstu3.model.IntegerType;
 import org.hl7.fhir.dstu3.model.Narrative;
@@ -82,6 +83,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
+import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
@@ -490,9 +492,13 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	public Identifier tII2Identifier(II ii) {
 		if(ii == null || ii.isSetNullFlavor())
 			return null;
-		
-		Identifier identifierDt = new Identifier();
 
+		Identifier identifierDt = new Identifier();
+		
+		//default to official use
+		IdentifierUse use = Config.DEFAULT_IDENTIFIER_USE;
+		identifierDt.setUse(use);
+		
 		// if both root and extension are present, then
 		// root -> system
 		// extension -> value

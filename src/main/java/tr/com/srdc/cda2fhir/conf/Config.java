@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Composition.CompositionStatus;
 import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus;
+import org.hl7.fhir.dstu3.model.Identifier.IdentifierUse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,7 @@ public class Config {
     public static final String DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM = "urn:ietf:bcp:47";
     public static final ConditionVerificationStatus DEFAULT_CONDITION_VERIFICATION_STATUS = ConditionVerificationStatus.CONFIRMED;
     public static final CompositionStatus DEFAULT_COMPOSITION_STATUS = CompositionStatus.PRELIMINARY;
+    public static final IdentifierUse DEFAULT_IDENTIFIER_USE = IdentifierUse.OFFICIAL;
     public static final ContactPointSystem DEFAULT_CONTACT_POINT_SYSTEM = ContactPointSystem.PHONE;
     public static final Coding DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE = new Coding().setSystem("http://hl7.org/fhir/v3/ParticipationType").setCode("PART").setDisplay("Participation");
     public static final EncounterStatus DEFAULT_ENCOUNTER_STATUS = EncounterStatus.FINISHED;
