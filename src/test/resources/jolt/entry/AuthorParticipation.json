@@ -1,15 +1,19 @@
 [
 	{
-		"operation": "shift",
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdDefault",
 		"spec": {
-			"assignedAuthor": {		
-				"id": "--Split.branches[0].--AssignedAuthorPractitioner.id",
-				"assignedAuthor": "--Split.branches[0].--AssignedAuthorPractitioner.assignedAuthor",
-				"representedOrganization": "--Split.branches[1].--AssignedAuthorOrganization",
-				"code": "--Split.branches[2].--AssignedAuthorPractitionerRole.code"
-			},
-			"#0": "--Split.references[2].practitioner",
-			"#1": "--Split.references[2].organization"			 
+			"path": "assignedAuthor"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Parallel",
+		"spec": {
+			"path": "assignedAuthor",		
+			"branches": [
+				"--AssignedAuthorPractitioner",
+				"--AssignedAuthorPractitionerRole",
+				"--AssignedAuthorOrganization"
+			]
 		}
 	}
 ]

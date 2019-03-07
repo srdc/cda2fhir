@@ -22,13 +22,14 @@ public class Substitute implements ContextualTransform, SpecDriven {
     static Map<String, Chainr> templates = new HashMap<String, Chainr>();
     static {
     	templates.put("->ID", generateChainr("data-type/ID.json"));
+    	templates.put("->CD", generateChainr("data-type/CD.json"));
     	templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
     }
     
 	@Inject
     public Substitute( Object spec ) {}
 
-	private Object findTemplateValue(Map<String, Object> map) {
+	private Object findTemplateValue(Map<String, Object> map, Map<String, Object> context) {
 		Set<String> keys = map.keySet();
 		if (keys.size() != 1) {
 			return null;
@@ -39,24 +40,27 @@ public class Substitute implements ContextualTransform, SpecDriven {
 			return null;
 		}
 		Object input = map.get(key);
-        Object replacement = chainr.transform(input);
+        Object replacement = chainr.transform(input, context);
         return replacement;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void substitute(Map<String, Object> object) {
+	private void substitute(Map<String, Object> object, Map<String, Object> context) {
+		if (object == null) {
+			return;
+		}
 		for (Map.Entry<String, Object> entry: object.entrySet()) {
 			Object value = entry.getValue();
 			if (value instanceof List) {
 				List<Object> elements = (List<Object>) value;
-				substitute(elements);
+				substitute(elements, context);
 				continue;
 			}
 			if (value instanceof Map) {
 				Map<String, Object> map = (Map<String, Object>) value;
-				Object replacement = findTemplateValue(map);
+				Object replacement = findTemplateValue(map, context);
 				if (replacement == null) {
-					substitute(map);
+					substitute(map, context);
 					continue;
 				}
 				entry.setValue(replacement);
@@ -65,19 +69,19 @@ public class Substitute implements ContextualTransform, SpecDriven {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void substitute(List<Object> list) {
+	private void substitute(List<Object> list, Map<String, Object> context) {
 		int size = list.size();
 		for (int index = 0; index < size; ++index) {
 			Object element = list.get(index);
 			if (element instanceof List) {
-				substitute((List<Object>) element);
+				substitute((List<Object>) element, context);
 				continue;
 			}
 			if (element instanceof Map) {
 				Map<String, Object> map = (Map<String, Object>) element;
-				Object replacement = findTemplateValue(map);
+				Object replacement = findTemplateValue(map, context);
 				if (replacement == null) {
-					substitute(map);
+					substitute(map, context);
 					continue;
 				}
 				list.set(index, replacement);
@@ -89,7 +93,7 @@ public class Substitute implements ContextualTransform, SpecDriven {
 	@SuppressWarnings("unchecked")
 	public Object transform(Object input, Map<String, Object> context) {
 		Map<String, Object> map = (Map<String, Object>) input;
-		substitute(map);
+		substitute(map, context);
 		return map;
 	}
 }

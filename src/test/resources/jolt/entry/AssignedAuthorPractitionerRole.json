@@ -1,0 +1,22 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"id": "ONE"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"#PractitionerRole": "resourceType",
+			"id": "practitioner.->REF",
+			"code": "code.->CD"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+			"dummy": "dummy"
+		}
+	}
+]
