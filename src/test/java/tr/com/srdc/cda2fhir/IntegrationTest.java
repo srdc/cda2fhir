@@ -64,8 +64,8 @@ public class IntegrationTest {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		// create transaction bundle from ccda bundle
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null);
-
+				BundleType.TRANSACTION, null, null);
+		
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
 
