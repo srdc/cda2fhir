@@ -1,5 +1,15 @@
 [
 	{
+		"operation": "default",
+		"spec": {
+			"effectiveTime": {
+				"high": {
+					"value": ""
+				}
+			}
+		}
+	},
+	{
 		"operation": "cardinality",
 		"spec": {
 			"participant": "ONE",
@@ -11,7 +21,16 @@
 		"spec": {
 			"effectiveTime": {
 				"*": "onsetDateTime.->EffectiveTimeLowOrValue",
-				"high": "clinicalStatus"
+				"high": {
+					"value": {
+						"": {
+							"#active": "clinicalStatus"
+						},
+						"*": {
+							"#inactive": "clinicalStatus"						
+						}						
+					}
+				}
 			},
 			"value": {
 				"code": "category[]"

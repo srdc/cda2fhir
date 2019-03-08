@@ -46,6 +46,10 @@ public class BundleUtil {
 		idMap = FHIRUtil.getIdResourceMap(bundle);		
 	}
 	
+	public IIdentifierMap<Resource> getIdentifierMap() {
+		return identifierMap;
+	}
+	
 	public void spotCheckAssignedPractitioner(String reference, String familyName, String roleCode, String organizationName) {
 		Practitioner p = (Practitioner) idMap.get(reference);
 		if (familyName == null) {
