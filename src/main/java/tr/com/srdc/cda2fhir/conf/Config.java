@@ -79,6 +79,10 @@ public class Config {
         else
             fhirCtx.setNarrativeGenerator(null);
     }
+    
+    public static boolean getGenerateNarrative() {
+       return generateNarrative;
+    }
 
     public static void setGenerateDafProfileMetadata(boolean generateDafProfileMeta) {
         generateDafProfileMetadata = generateDafProfileMeta;

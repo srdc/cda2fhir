@@ -211,7 +211,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 		return null;
 	}
-	
+		
 	public Age tAgeObservation2Age(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation) {
 		if(cdaAgeObservation == null || cdaAgeObservation.isSetNullFlavor())
 			return null;
@@ -2796,6 +2796,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirSec.setCode(dtt.tCD2CodeableConcept(cdaSection.getCode()));
 		}
 
+		// text -> text
+		if(cdaSection.getText() != null) {
+			Narrative fhirText = dtt.tStrucDocText2Narrative(cdaSection.getText());
+			if(fhirText != null && Config.getGenerateNarrative())
+				fhirSec.setText(fhirText);
+		}
+
 		return fhirSec;
 	}
 	
@@ -2871,6 +2878,4 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		return result;
 	}
-	
-	
 }
