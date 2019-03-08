@@ -14,7 +14,6 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.ClinicalDocumentMetadataGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
-import org.hl7.fhir.dstu3.model.DateType;
 
 
 public class CompositionTest {
@@ -23,12 +22,12 @@ public class CompositionTest {
 	static ClinicalDocumentMetadataGenerator metadataGenerator;
 	static String defaultExpectedUse =  Config.DEFAULT_IDENTIFIER_USE.getDisplay();
 	static String defaultExpectedStatus =  Config.DEFAULT_COMPOSITION_STATUS.getDisplay();
-	static String defaultExpectedAssigner =  metadataGenerator.DEFAULT_ASSN_AUTH;
-	static String defaultExpectedIdValue =  metadataGenerator.DEFAULT_ID_ROOT;
-	static String defaultExpectedTypeCode =  metadataGenerator.DEFAULT_CODE_CODE;
+	static String defaultExpectedAssigner =  ClinicalDocumentMetadataGenerator.DEFAULT_ASSN_AUTH;
+	static String defaultExpectedIdValue =  ClinicalDocumentMetadataGenerator.DEFAULT_ID_ROOT;
+	static String defaultExpectedTypeCode =  ClinicalDocumentMetadataGenerator.DEFAULT_CODE_CODE;
 	static String defaultExpectedTypeSystem =  "http://loinc.org";
-	static String defaultExpectedTypeDisplay =  metadataGenerator.DEFAULT_CODE_DISPLAY;
-	static String defaultExpectedTitle =  metadataGenerator.DEFAULT_TITLE;
+	static String defaultExpectedTypeDisplay =  ClinicalDocumentMetadataGenerator.DEFAULT_CODE_DISPLAY;
+	static String defaultExpectedTitle =  ClinicalDocumentMetadataGenerator.DEFAULT_TITLE;
 	static String defaultExpectedConfidentiality =  "N";
 
 	
