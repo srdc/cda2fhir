@@ -88,8 +88,6 @@ public class IntegrationTest {
 		Assert.assertEquals(18, practitionerResults.getTotal());
 		Assert.assertEquals(14, medicationResults.getTotal());
 
-		// TODO: Test each entry exists in server via search
-
 	}
 
 }
