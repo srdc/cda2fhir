@@ -52,7 +52,7 @@ public class Config {
     
     public static final String NARRATIVE_PROPERTIES_FILE_PATH = "file:src/main/resources/narrative/customnarrative.properties";
 
-    private static boolean generateNarrative = true;
+    private static boolean generateNarrative = false;
     private static INarrativeGenerator narrativeGenerator;
 
     private static boolean generateDafProfileMetadata = true;

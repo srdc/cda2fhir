@@ -2796,13 +2796,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirSec.setCode(dtt.tCD2CodeableConcept(cdaSection.getCode()));
 		}
 
-		// text -> text
-		if(cdaSection.getText() != null) {
-			Narrative fhirText = dtt.tStrucDocText2Narrative(cdaSection.getText());
-			if(fhirText != null)
-				fhirSec.setText(fhirText);
-		}
-
 		return fhirSec;
 	}
 	
