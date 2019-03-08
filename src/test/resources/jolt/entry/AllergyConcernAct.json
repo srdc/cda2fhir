@@ -31,13 +31,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.ValueSetTransform",
-		"spec": {
-			"name": "value-maps/AllergyIntoleranceVerificationStatus.json",
-			"path": "verificationStatus"
-		}
-	},
-	{
 		"operation": "cardinality",
 		"spec": {
 			"identifier": "MANY"
@@ -49,7 +42,11 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"assertedDate": "=datetimeAdapter(@0)"
+			"assertedDate": "=datetimeAdapter(@0)",
+			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)"
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator"
 	}
 ]
