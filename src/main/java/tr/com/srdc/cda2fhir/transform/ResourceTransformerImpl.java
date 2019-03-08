@@ -1452,7 +1452,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (cdaImmunizationActivity.getImmunizationRefusalReason() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().isSetNullFlavor()) {
 				if (cdaImmunizationActivity.getImmunizationRefusalReason().getCode() != null && !cdaImmunizationActivity.getImmunizationRefusalReason().getCode().isSetNullFlavor()) {
 					//fhirImmunization.setExplanation(new Explanation().addReasonNotGiven(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getImmunizationRefusalReason().getCode())));
-					fhirImmunization.getExplanation().addReason(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getImmunizationRefusalReason().getCode()));
+					fhirImmunization.getExplanation().addReasonNotGiven(dtt.tCD2CodeableConcept(cdaImmunizationActivity.getImmunizationRefusalReason().getCode()));
 				}
 			}
 		}
