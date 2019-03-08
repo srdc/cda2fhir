@@ -352,7 +352,7 @@ public class DataTypesTransformerTest{
     	Identifier identifier = dtt.tII2Identifier(ii);
     	Assert.assertEquals("II.root was not transformed", "urn:oid:2.16.840.1.113883.19.5.99999.1", identifier.getSystem());
 		Assert.assertEquals("II.extension was not transformed", "myIdentifierExtension", identifier.getValue());
-		Assert.assertEquals("II.assigningAuthorityName was not transformed", "assigning Authority Name", identifier.getAssigner().getReference());
+		Assert.assertEquals("II.assigningAuthorityName was not transformed", "assigning Authority Name", identifier.getAssigner().getDisplay());
     	
 		// test defaults
 		
