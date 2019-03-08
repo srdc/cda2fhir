@@ -63,7 +63,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String URLS_ROOT = "http://www.nlm.nih.gov/research/umls/";
+	private static final String UMLS_ROOT = "http://www.nlm.nih.gov/research/umls/";
 	private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ValueSetsTransformerImpl.class);
 
 	public AdministrativeGender tAdministrativeGenderCode2AdministrativeGender(String cdaAdministrativeGenderCode) {
@@ -433,7 +433,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			system = "http://snomed.info/sct";
 			break;
 		case "2.16.840.1.113883.6.88":
-			system = URLS_ROOT + "rxnorm";
+			system = UMLS_ROOT + "rxnorm";
 			break;
 		case "2.16.840.1.113883.6.1":
 			system = "http://loinc.org";
@@ -514,10 +514,10 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			system = "http://clinicaltrials.gov";
 			break;
 		case "2.16.840.1.113883.6.314":
-			system = URLS_ROOT + "mmsl";
+			system = UMLS_ROOT + "mmsl";
 			break;
 		case "2.16.840.1.113883.3.26.1.1":
-			system = URLS_ROOT + "nci";
+			system = UMLS_ROOT + "nci";
 			break;
 		default:
 			system = "urn:oid:" + codeSystem;
