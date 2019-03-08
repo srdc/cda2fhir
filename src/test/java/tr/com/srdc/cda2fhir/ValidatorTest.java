@@ -107,7 +107,7 @@ public class ValidatorTest {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-profile-validation.xml";
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-C-CDA_R2-1_CCD.html";
-		boolean generateDAFProfileMetadata = true;
+		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile, generateDAFProfileMetadata);
 	}
 	
@@ -132,7 +132,7 @@ public class ValidatorTest {
 	}
 	
 	// Vitera_CCDA_SMART_Sample.xml with profile
-	@Test
+	@Ignore
 	public void testRakiaBundle() throws Exception {
 		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		String targetPathForFHIRResource = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";

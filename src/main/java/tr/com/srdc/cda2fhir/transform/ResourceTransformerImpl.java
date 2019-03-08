@@ -1581,9 +1581,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// NOTE: A default value is assigned to verificationStatus attribute, as it is mandatory but cannot be mapped from the CDA side
-		fhirCond.setVerificationStatus(Config.DEFAULT_CONDITION_VERIFICATION_STATUS);
-
+		
+		//only set verificationStatus if clinicalStatus is present.
+		if (fhirCond.getClinicalStatus() != null) {
+			CS statusCode = cdaIndication.getStatusCode();
+			String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null : statusCode.getCode();
+			
+			// statusCode -> verificationStatus
+			fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
+		}
+		
 		return fhirCond;
 	}
 	
@@ -2419,6 +2426,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		} else {
 			fhirCondition.setClinicalStatus(ConditionClinicalStatus.ACTIVE);
 		}
+		
+		// per spec will always have effectiveTime, so no need for verification status adjustment (as in indication section).
 
 		// author[0] -> asserter
 		if(!cdaProbObs.getAuthors().isEmpty()) {
