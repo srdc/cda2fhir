@@ -10,9 +10,8 @@
 		"spec": {
 			"path": "assignedAuthor",		
 			"branches": [
-				"--AssignedAuthorPractitioner",
-				"--AssignedAuthorPractitionerRole",
-				"--AssignedAuthorOrganization"
+				"AssignedAuthorPractitioner",
+				"AssignedAuthorPractitionerRole"
 			]
 		}
 	}
