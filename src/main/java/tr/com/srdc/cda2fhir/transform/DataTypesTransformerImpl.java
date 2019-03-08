@@ -83,7 +83,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.URL;
-import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
