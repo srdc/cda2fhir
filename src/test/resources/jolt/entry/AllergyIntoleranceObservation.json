@@ -10,11 +10,11 @@
 		"operation": "shift",
 		"spec": {
 			"effectiveTime": {
-				"*": "onset.->EffectiveTimeLowOrValue",
+				"*": "onsetDateTime.->EffectiveTimeLowOrValue",
 				"high": "clinicalStatus"
 			},
 			"value": {
-				"code": "category"
+				"code": "category[]"
 			},
 			"participant": {
 				"participantRole": {
@@ -53,8 +53,11 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
+			"onsetDateTime": "=datetimeAdapter(@0)",
 			"criticality": "=valueSetAdapter('AllergyIntoleranceCriticality',@0)",
-			"category": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
+			"category": {
+				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
+			}
 		}
 	}
 ]

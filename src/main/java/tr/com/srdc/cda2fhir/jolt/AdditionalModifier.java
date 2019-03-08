@@ -19,10 +19,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	public static final class DatetimeAdapter extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
-			if (!(arg instanceof String)) {
+			
+			if (!(arg instanceof String || arg instanceof Integer)) {
 				return Optional.empty();
 			}
-			String datetimeWithZone = (String) arg;
+			String datetimeWithZone = arg.toString();
 			if (datetimeWithZone.length() < 4) {
 				return Optional.empty();
 			}
