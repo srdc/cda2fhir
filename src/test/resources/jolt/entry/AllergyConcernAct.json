@@ -21,7 +21,7 @@
 					"code": "verificationStatus"
 				},
 				"effectiveTime": "assertedDate.->EffectiveTimeLowOrValue",
-				"author": "recorder.->AuthorParticipation",
+				"author": "recorder.reference.->AuthorParticipation",
 				"entryRelationship": {
 					"*": {
 						"observation": "->AllergyIntoleranceObservation"
