@@ -20,8 +20,7 @@
 				"statusCode": {
 					"code": "verificationStatus"
 				},
-				"effectiveTime": "assertedDate.->EffectiveTime.data",
-				"#low_or_value": "assertedDate.->EffectiveTime.type",
+				"effectiveTime": "assertedDate.->EffectiveTimeLowOrValue",
 				"author": "recorder.->AuthorParticipation",
 				"entryRelationship": {
 					"*": {

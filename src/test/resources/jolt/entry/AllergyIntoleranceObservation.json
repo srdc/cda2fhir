@@ -10,10 +10,9 @@
 		"operation": "shift",
 		"spec": {
 			"effectiveTime": {
-				"*": "onset.->EffectiveTime.data",
+				"*": "onset.->EffectiveTimeLowOrValue",
 				"high": "clinicalStatus"
 			},
-			"#low_or_value": "onset.->EffectiveTime.type",
 			"value": {
 				"code": "category"
 			},
@@ -50,5 +49,12 @@
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"criticality": "=valueSetAdapter('AllergyIntoleranceCriticality',@0)",
+			"category": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
+		}
 	}
 ]

@@ -6,5 +6,31 @@
 			"codeSystem": "coding.system",
 			"displayName": "coding.display"
 		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"coding": "MANY"
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"coding": {
+				"*": {
+					"code": "=toString(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"coding": {
+				"*": {
+					"system": "=systemAdapter(@0)"
+				}
+			}
+		}
 	}
 ]

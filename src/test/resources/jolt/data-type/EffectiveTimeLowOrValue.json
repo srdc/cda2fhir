@@ -1,0 +1,25 @@
+[
+	{
+		"operation": "default",
+		"spec": {
+			"low": {
+				"value": ""
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"low": {
+				"value": {
+					"": {
+						"@4": {
+							"value": "@0"
+						}
+					},
+					"*": "@0"
+				}
+			}
+		}
+	}
+]
