@@ -15,9 +15,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
-		"spec": {
-			"dummy": "dummy"
-		}
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	}
 ]

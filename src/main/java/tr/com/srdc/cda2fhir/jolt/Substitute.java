@@ -6,14 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.ContextualTransform;
 import com.bazaarvoice.jolt.JsonUtils;
-import com.bazaarvoice.jolt.SpecDriven;
 
-public class Substitute implements ContextualTransform, SpecDriven {
+public class Substitute implements ContextualTransform {
     private static Chainr generateChainr(String filepath) {
         List<Object> spec = JsonUtils.filepathToList("src/test/resources/jolt/" + filepath);
         Chainr chainr = Chainr.fromSpec(spec);
@@ -29,9 +26,6 @@ public class Substitute implements ContextualTransform, SpecDriven {
     	templates.put("->ReactionObservation", generateChainr("entry/ReactionObservation.json"));
     }
     
-	@Inject
-    public Substitute( Object spec ) {}
-
 	private Object findTemplateValue(Map<String, Object> map, Map<String, Object> context) {
 		Set<String> keys = map.keySet();
 		if (keys.size() != 1) {
