@@ -22,5 +22,11 @@
 				}
 			}
 		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"value": "=toString(@0)"
+		}
 	}
 ]

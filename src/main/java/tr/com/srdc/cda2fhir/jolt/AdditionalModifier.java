@@ -14,9 +14,12 @@ import com.bazaarvoice.jolt.common.Optional;
 import com.bazaarvoice.jolt.modifier.function.Function;
 
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 
 @SuppressWarnings("deprecation")
 public class AdditionalModifier implements SpecDriven, ContextualTransform {
+	private static Map<String, Object> temporaryContext; // Hack for now
+		
 	public static final class DatetimeAdapter extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
@@ -98,6 +101,33 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class ReferenceAdapter extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+            if(argList == null || argList.size() != 2 ) {
+                return Optional.empty();
+            }
+            String fhirType = (String) argList.get(0);
+			Object arg = argList.get(1);
+			if (!(arg instanceof Map)) {
+				return Optional.empty();
+			}
+			Map<String, Object> identifier =(Map<String, Object>) arg;
+			String system = (String) identifier.get("system");
+			String value = (String) identifier.get("value");			
+			IdentifierMap<String> map = (IdentifierMap<String>) temporaryContext.get("RefsByIdentifier");
+			if (map == null) {
+				return Optional.empty();
+			}
+			String reference = map.get(fhirType, system, value);
+			if (reference == null) {
+				return Optional.empty();
+			}
+			return Optional.of(reference);
+		}
+	}
+
     public static final class MaxDateTime extends Function.ListFunction {
     	@SuppressWarnings({ "rawtypes", "unchecked" })
         @Override
@@ -117,6 +147,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
 		AMIDA_FUNCTIONS.put("datetimeAdapter", new DatetimeAdapter());
+		AMIDA_FUNCTIONS.put("referenceAdapter", new ReferenceAdapter());
 		AMIDA_FUNCTIONS.put("valueSetAdapter", new ValueSetAdapter());
 		AMIDA_FUNCTIONS.put("systemAdapter", new SystemAdapter());
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
@@ -126,6 +157,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	
     @Override
     public Object transform(final Object input, final Map<String, Object> context) {
+    	temporaryContext = context; // TODO: Improve modifiers to have context available
 		return modifier.transform(input, context);
 	}
 

@@ -20,6 +20,15 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 		innerMap.put(identifier, identifiedValue);
 	}
 	
+	public void put(String fhirType, String system, String value, T identifiedValue) {
+		InnerIdentifierMap<T> innerMap = map.get(fhirType);
+		if (innerMap == null) {
+			innerMap = new InnerIdentifierMap<T>();
+			map.put(fhirType, innerMap);
+		}
+		innerMap.put(system, value, identifiedValue);
+	}
+	
 	@Override
 	public T get(String fhirType, Identifier identifier) {
 		InnerIdentifierMap<T> innerMap = map.get(fhirType);

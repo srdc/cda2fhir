@@ -9,12 +9,18 @@
 		"operation": "shift",
 		"spec": {
 			"#PractitionerRole": "resourceType",
-			"id": "practitioner.->REF",
+			"id": "practitioner.->ID",
 			"code": "code.->CD"
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"practitioner": "=referenceAdapter('Practitioner',@0)"
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator"
