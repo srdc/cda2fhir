@@ -524,7 +524,9 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 			identifierDt.setValue(ii.getExtension());
 		
 		if(ii.getAssigningAuthorityName() != null) {
-			identifierDt.setAssigner(new Reference(ii.getAssigningAuthorityName()));
+			Reference ref = new Reference();
+			ref.setDisplay(ii.getAssigningAuthorityName());
+			identifierDt.setAssigner(ref);
 		}
 			
 		return identifierDt;

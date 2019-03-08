@@ -47,7 +47,7 @@ public class CompositionTest {
 		Bundle bundle = entryResult.getBundle();
 		Composition comp = BundleUtil.findOneResource(bundle, Composition.class);
 	
-		Assert.assertEquals("Expect assigner to equal assigningAuthorityName", defaultExpectedAssigner, comp.getIdentifier().getAssigner().getReference());
+		Assert.assertEquals("Expect assigner to equal assigningAuthorityName", defaultExpectedAssigner, comp.getIdentifier().getAssigner().getDisplay());
 		Assert.assertEquals("Expect use to equal default", defaultExpectedUse, comp.getIdentifier().getUse().getDisplay());
 		Assert.assertEquals("Expect status to equal default", defaultExpectedStatus, comp.getStatus().getDisplay());
 		Assert.assertEquals("Expect Identifier Value to equal Clinical Document id root", defaultExpectedIdValue, comp.getIdentifier().getValue());
