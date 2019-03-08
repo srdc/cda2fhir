@@ -55,7 +55,7 @@ public class Config {
     private static boolean generateNarrative = false;
     private static INarrativeGenerator narrativeGenerator;
 
-    private static boolean generateDafProfileMetadata = true;
+    private static boolean generateDafProfileMetadata = false;
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
