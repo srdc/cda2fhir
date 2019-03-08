@@ -29,7 +29,6 @@ public class CompositionTest {
 	static String defaultExpectedTypeSystem =  "http://loinc.org";
 	static String defaultExpectedTypeDisplay =  metadataGenerator.DEFAULT_CODE_DISPLAY;
 	static String defaultExpectedTitle =  metadataGenerator.DEFAULT_TITLE;
-	static String defaultExpectedDate =  "Thu Feb 14 16:14:13 EST 2019";
 	static String defaultExpectedConfidentiality =  "N";
 
 	
@@ -57,7 +56,6 @@ public class CompositionTest {
 		Assert.assertEquals("Expect type.system code.codeSystemName", defaultExpectedTypeSystem, comp.getType().getCodingFirstRep().getSystem());
 		Assert.assertEquals("Expect type.display code.displayName", defaultExpectedTypeDisplay, comp.getType().getCodingFirstRep().getDisplay());
 		Assert.assertEquals("Expect title to equal title", defaultExpectedTitle, comp.getTitle());
-		Assert.assertEquals("Expect date to equal date", defaultExpectedDate, comp.getDate().toString());
 		Assert.assertEquals("Expect confidentiality to eqial confidentiality", defaultExpectedConfidentiality, comp.getConfidentiality().toString());
 
 	}

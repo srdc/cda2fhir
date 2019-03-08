@@ -78,6 +78,7 @@ import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -210,6 +211,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			return result;
 		}
 		return null;
+	}
+	
+	private Reference getReference(Resource resource) {
+		if(resource instanceof Observation) {
+			
+		}
+		return new Reference();
 	}
 		
 	public Age tAgeObservation2Age(org.openhealthtools.mdht.uml.cda.consol.AgeObservation cdaAgeObservation) {
@@ -2871,4 +2879,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		return result;
 	}
+	
+	
 }
