@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -97,12 +98,28 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+    public static final class MaxDateTime extends Function.ListFunction {
+    	@SuppressWarnings({ "rawtypes", "unchecked" })
+        @Override
+        protected Optional applyList( final List<Object> argList ) {
+        	if (argList == null || argList.size() < 1) {
+        		return  Optional.empty();
+        	}
+        	java.util.Optional<String> result = argList.stream().map(dt -> (String) dt).max(Comparator.comparing(String::valueOf));
+        	if (result.isPresent()) {
+        		return Optional.of(result.get());
+        	}
+        	return Optional.empty();
+        }
+    }
+		
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
 		AMIDA_FUNCTIONS.put("datetimeAdapter", new DatetimeAdapter());
 		AMIDA_FUNCTIONS.put("valueSetAdapter", new ValueSetAdapter());
 		AMIDA_FUNCTIONS.put("systemAdapter", new SystemAdapter());
+		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
 	}
 
 	private Modifier.Overwritr modifier;
