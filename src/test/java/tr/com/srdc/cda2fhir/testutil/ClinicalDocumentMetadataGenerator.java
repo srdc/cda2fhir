@@ -1,6 +1,5 @@
 package tr.com.srdc.cda2fhir.testutil;
 
-import org.hl7.fhir.utilities.xhtml.HierarchicalTableGenerator.Title;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
@@ -12,20 +11,20 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 public class ClinicalDocumentMetadataGenerator {
 	ClinicalDocument doc;
 	static final public String DEFAULT_REALM_CODE = "US";
-	static final public String DEFAULT_ID_ROOT = "1.2.840.114350.1.13.88.3.7.8.688883.41197285";
-	static final public String DEFAULT_ASSN_AUTH = "EPC";
+	static final public String DEFAULT_ID_ROOT = "1.2.345.678901.7.89.10.1.2.3.123456.12345678";
+	static final public String DEFAULT_ASSN_AUTH = "Assigning Authority";
 	static final public String DEFAULT_CODE_CODE = "34133-9";
 	static final public String DEFAULT_CODE_SYSTEM = "2.16.840.1.113883.6.1";
 	static final public String DEFAULT_CODE_SYSTEM_NAME= "LOINC";
 	static final public String DEFAULT_CODE_DISPLAY = "Summarization of Episode Note";
 	static final public String DEFAULT_TITLE = "Patient Health Summary";
-	static final public String DEFAULT_EFFCT_DTTM = "20190214161413-0500";
+	static final public String DEFAULT_EFFCT_DTTM = "20190119161413-0500";
 	static final public String DEFAULT_CONF_CODE_CODE = "N";
-	static final public String DEFAULT_CONF_CODE_SYSTEM = "2.16.840.1.113883.5.25";
+	static final public String DEFAULT_CONF_CODE_SYSTEM = "1.23.456.7.890123.4.56";
 	static final public String DEFAULT_CONF_CODE_DSP = "Normal";
 	static final public String DEFAULT_LANG_CODE = "en-US";
-	static final public String DEFAULT_SET_ID_EXT = "7a8b50d2-309d-11e9-a581-5102195700f0";
-	static final public String DEFAULT_SET_ID_ROOT = "1.2.840.114350.1.13.88.3.7.1.1";
+	static final public String DEFAULT_SET_ID_EXT = "12345678-9012-3456-7890-123456789012";
+	static final public String DEFAULT_SET_ID_ROOT = "1.2.345.678901.2.34.56.7.8.9.0";
 	static final public String DEFAULT_VERSION_NUMBER = "1";
 	
 	public ClinicalDocument generateClinicalDoc(CDAFactories factories) {
