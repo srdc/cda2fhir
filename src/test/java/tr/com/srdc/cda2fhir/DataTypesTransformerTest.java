@@ -70,6 +70,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.IDataTypesTransformer;
 
@@ -346,10 +347,17 @@ public class DataTypesTransformerTest{
     	II ii = DatatypesFactory.eINSTANCE.createII();
     	ii.setRoot("2.16.840.1.113883.19.5.99999.1");
     	ii.setExtension("myIdentifierExtension");
-    	
+		ii.setAssigningAuthorityName("assigning Authority Name");
+
     	Identifier identifier = dtt.tII2Identifier(ii);
     	Assert.assertEquals("II.root was not transformed", "urn:oid:2.16.840.1.113883.19.5.99999.1", identifier.getSystem());
 		Assert.assertEquals("II.extension was not transformed", "myIdentifierExtension", identifier.getValue());
+		Assert.assertEquals("II.assigningAuthorityName was not transformed", "assigning Authority Name", identifier.getAssigner().getDisplay());
+    	
+		// test defaults
+		
+		Assert.assertEquals("II.use equals default use", Config.DEFAULT_IDENTIFIER_USE, identifier.getUse());
+		Assert.assertEquals("II.type.", Config.DEFAULT_IDENTIFIER_USE, identifier.getUse());
 
     	// null instance test
     	
@@ -362,6 +370,10 @@ public class DataTypesTransformerTest{
     	ii3.setNullFlavor(NullFlavor.MSK);
     	Identifier identifier3=dtt.tII2Identifier(ii3);
     	Assert.assertNull("II nullFlavor set instance transform failed",identifier3);
+    	
+    	
+    	
+    	
     }
 
     @Test
