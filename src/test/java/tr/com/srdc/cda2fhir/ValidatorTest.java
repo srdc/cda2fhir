@@ -92,7 +92,7 @@ public class ValidatorTest {
 	}
 	
 	// C-CDA_R2-1_CCD.xml without DAF profile
-	@Ignore
+	@Test
 	public void testReferenceCCDBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-wo-profile-validation.xml";
@@ -102,7 +102,7 @@ public class ValidatorTest {
 	}
 	
 	// C-CDA_R2-1_CCD.xml with DAF profile
-	@Test
+	@Ignore
 	public void testReferenceCCDBundleWithProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-profile-validation.xml";
