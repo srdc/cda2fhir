@@ -15,6 +15,7 @@ import com.bazaarvoice.jolt.modifier.function.Function;
 
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
+import tr.com.srdc.cda2fhir.util.StringUtil;
 
 @SuppressWarnings("deprecation")
 public class AdditionalModifier implements SpecDriven, ContextualTransform {
@@ -101,6 +102,22 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class IdSystemAdapter extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null || !(arg instanceof String)) {
+				return Optional.empty();
+			}
+			String system = (String) arg;
+			if (StringUtil.isOID(system)) {
+				return Optional.of("urn:oid:" + system);
+			} else if (StringUtil.isUUID(system)) {
+				return Optional.of("urn:uuid:" + system);
+			}						
+			return Optional.of(system);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public static final class ReferenceAdapter extends Function.ListFunction {
 		@Override
@@ -150,6 +167,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("referenceAdapter", new ReferenceAdapter());
 		AMIDA_FUNCTIONS.put("valueSetAdapter", new ValueSetAdapter());
 		AMIDA_FUNCTIONS.put("systemAdapter", new SystemAdapter());
+		AMIDA_FUNCTIONS.put("idSystemAdapter", new IdSystemAdapter());
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
 	}
 

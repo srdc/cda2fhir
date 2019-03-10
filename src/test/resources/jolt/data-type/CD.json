@@ -2,9 +2,24 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"code": "coding.code",
-			"codeSystem": "coding.system",
-			"displayName": "coding.display"
+			"code": "coding[0].code",
+			"codeSystem": "coding[0].codeSystem",
+			"displayName": "coding[0].displayName",
+			"translation": {
+				"*": "coding"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"coding": {
+				"*": {
+					"code": "coding[&1].code",
+					"codeSystem": "coding[&1].system",
+					"displayName": "coding[&1].display"
+				}
+			}
 		}
 	},
 	{

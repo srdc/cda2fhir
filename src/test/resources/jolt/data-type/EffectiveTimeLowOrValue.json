@@ -11,12 +11,13 @@
 		"operation": "shift",
 		"spec": {
 			"low": {
+				"nullFlavor": null,
 				"value": {
 					"": {
 						"@3": {
 							"value": ""
 						}
-					},
+					},										
 					"*": {
 						"@1": ""
 					}

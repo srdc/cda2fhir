@@ -1,7 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,25 +8,19 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
-import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.XML;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
-import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
-import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
-import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class AllergyConcernActTest {
 	@BeforeClass
@@ -35,92 +28,70 @@ public class AllergyConcernActTest {
 		CDAUtil.loadPackages();
 	}
 
-	private static JSONObject getSection(JSONArray component, String code) throws JSONException {
-		for (int idx = 0; idx < component.length(); ++idx) {
-			JSONObject section = component.getJSONObject(idx).getJSONObject("section");
-			String sectionCode = section.getJSONObject("code").getString("code");
-			if (code.equals(sectionCode)) {
-				return section;
-			}
-		}
-		return null;
-	}
-
-	private static BundleUtil getBundle(String sourceName) throws Exception {
-		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
-		ClinicalDocument cda = CDAUtil.load(fis);
-		CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-		Config.setGenerateDafProfileMetadata(false);
-		Config.setGenerateNarrative(false);
-		Bundle bundle = ccdTransformer.transformDocument(cda);
-		return new BundleUtil(bundle);
+	private static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
+		Map<String, Object> r = new LinkedHashMap<String, Object>();
+		r.put("reference", reference.getReference());	
+		joltResult.put(property, r);
 	}
 	
-	private static JSONArray getAllergies(String sourceName) throws Exception {
-		File file = new File("src/test/resources/" + sourceName);
-		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
-		JSONArray component = XML.toJSONObject(content).getJSONObject("ClinicalDocument").getJSONObject("component")
-				.getJSONObject("structuredBody").getJSONArray("component");
-		JSONObject allergiesSection = getSection(component, "48765-2");
-		return allergiesSection.getJSONArray("entry");
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static void compare(Map<String, Object> joltResult, BundleUtil bundleUtil) throws Exception{
-		List<Object> identifiers = (List<Object>) joltResult.get("identifier");
-		Map<String, Object> identifier = (Map<String, Object>) identifiers.get(0);
-		String system = (String) identifier.get("system");
-		String value = (String) identifier.get("value");
+	private static void compare(Map<String, Object> joltResult, AllergyIntolerance cda2FHIRResult) throws Exception{
+		joltResult.put("id", cda2FHIRResult.getId().split("/")[1]); // ids are not expected to be equal
+		putReference(joltResult, "patient", cda2FHIRResult.getPatient()); // patient is not yet implemented
+		putReference(joltResult, "recorder", cda2FHIRResult.getRecorder()); // do not check recorder for now, ids are different
 		
-		AllergyIntolerance cda2FHIRResource = (AllergyIntolerance) bundleUtil.getIdentifierMap().get("AllergyIntolerance", system, value);
-		joltResult.put("id", cda2FHIRResource.getId().split("/")[1]); // ids are not expected to be equal
-		Map<String, Object> patient = new LinkedHashMap<String, Object>();
-		joltResult.put("patient", patient);
-		patient.put("reference", cda2FHIRResource.getPatient().getReference()); // patient is not yet implemented
-		Map<String, Object> recorder = new LinkedHashMap<String, Object>();
-		joltResult.put("recorder",recorder);
-		recorder.put("reference", cda2FHIRResource.getRecorder().getReference()); // do not check recorder for now, ids are different
-
-		String expected = FHIRUtil.encodeToJSON(cda2FHIRResource);
-		FHIRUtil.printJSON(cda2FHIRResource);
+		String expected = FHIRUtil.encodeToJSON(cda2FHIRResult);
 		String actual = JsonUtils.toJsonString(joltResult);
 		JSONAssert.assertEquals("Jolt output vs CDA2FHIR output", expected, actual, false);
 	}
-	
-	
-	@SuppressWarnings("unchecked")
-	private static Map<String, Object> chooseAllergy(List<Object> resources) {
-		for (Object resource: resources) {
-			Map<String, Object> map = (Map<String, Object>) resource;
-			String resourceType = (String) map.get("resourceType");
-			if (resourceType.equals("AllergyIntolerance")) {
-				return map;
-			}
-		}
-		return null;
-	}
 
 	@SuppressWarnings("unchecked")
+	private static void testAllergies(String sourceName) throws Exception {
+		BundleUtil util = BundleUtil.getInstance(sourceName);
+
+		OrgJsonUtil jsonUtil = OrgJsonUtil.readXML("src/test/resources/" + sourceName);
+
+		JSONArray allergies = jsonUtil.getAllergiesSectionEntries();		
+		
+		int count = allergies.length();
+		util.checkResourceCount(AllergyIntolerance.class, count);
+		
+		String baseName = "src/test/resources/output/jolt/" + sourceName.substring(0, sourceName.length() - 4);
+		
+		for (int index = 0; index < allergies.length(); ++index) {		
+			JSONObject entry = allergies.getJSONObject(index);
+			String cdaJSONFile = baseName + " allergies entry " + index + ".json";
+			FileUtils.writeStringToFile(new File(cdaJSONFile), entry.toString(4), Charset.defaultCharset());
+
+			List<Object> joltResultList = (List<Object>) TransformManager.transformEntryInFile("AllergyConcernAct", cdaJSONFile);
+			String prettyJson = JsonUtils.toPrettyJsonString(joltResultList);
+			String resultFile = baseName + " allergies entry " + index + " - result" + ".json";		
+			FileUtils.writeStringToFile(new File(resultFile), prettyJson, Charset.defaultCharset());
+		
+			Map<String, Object> joltResult = TransformManager.chooseResource(joltResultList, "AllergyIntolerance");
+			List<Object> identifiers = (List<Object>) joltResult.get("identifier");		
+			AllergyIntolerance cda2FHIRResult = (AllergyIntolerance) util.getFromJSONArray("AllergyIntolerance", identifiers);
+			String cda2FHIRFile = baseName + " allergies entry " + index + " - ccda2fhir" + ".json";		
+			FileUtils.writeStringToFile(new File(cda2FHIRFile), FHIRUtil.encodeToJSON(cda2FHIRResult), Charset.defaultCharset());
+
+			compare(joltResult, cda2FHIRResult);
+		}		
+	}
+	
 	@Test
 	public void testSample1() throws Exception {
 		String sourceName = "C-CDA_R2-1_CCD.xml";
-		BundleUtil util = getBundle(sourceName);
+		testAllergies(sourceName);
+	}
 
-		JSONArray allergies = getAllergies(sourceName);		
-		JSONObject entry = allergies.getJSONObject(0);
-		OrgJsonUtil.convertNamedObjectToArray(entry, "templateId");
-		OrgJsonUtil.convertNamedObjectToArray(entry, "entryRelationship");
+	@Test
+	public void testSample2() throws Exception {
+		String sourceName = "170.315_b1_toc_gold_sample2_v1.xml";
+		testAllergies(sourceName);
+	}
 
-		String cdaJSONFile = "src/test/resources/output/" + "C-CDA_R2-1_CCD allergy entry - jolt.json";
-		FileUtils.writeStringToFile(new File(cdaJSONFile), entry.toString(4), Charset.defaultCharset());
-
-		List<Object> transformedOutput = (List<Object>) TransformManager.transformEntryInFile("AllergyConcernAct", cdaJSONFile);
-		Map<String, Object> joltAllergy = chooseAllergy(transformedOutput);
-		
-		String prettyJson = JsonUtils.toPrettyJsonString(transformedOutput);
-		String resultFile = "src/test/resources/output/jolt/" + "C-CDA_R2-1_CCD allergy entry result - jolt.json";		
-		FileUtils.writeStringToFile(new File(resultFile), prettyJson, Charset.defaultCharset());
-		
-		compare(joltAllergy, util);
+	@Test
+	public void testSample3() throws Exception {
+		String sourceName = "Vitera_CCDA_SMART_Sample.xml";
+		testAllergies(sourceName);
 	}
 }

@@ -43,18 +43,20 @@ public class Substitute implements ContextualTransform {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void substitute(Map<String, Object> object, Map<String, Object> context) {
+	private boolean substitute(Map<String, Object> object, Map<String, Object> context) {
 		if (object == null) {
-			return;
+			return true;
 		}
 		
-		List<String> topSubstitutes = new ArrayList<String>();			
+		List<String> topSubstitutes = new ArrayList<String>();
+		List<String> tobeRemoved = new ArrayList<String>();
 		for (Map.Entry<String, Object> entry: object.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue();
 			Chainr chainr = templates.get(key);
 		    if (chainr != null) {
 		    	topSubstitutes.add(key);
+		    	continue;
 			}			
 			if (value instanceof List) {
 				List<Object> elements = (List<Object>) value;
@@ -65,7 +67,10 @@ public class Substitute implements ContextualTransform {
 				Map<String, Object> map = (Map<String, Object>) value;
 				Object replacement = findTemplateValue(map, context);
 				if (replacement == null) {
-					substitute(map, context);
+					boolean remains = substitute(map, context);
+					if (!remains) {
+						tobeRemoved.add(key);
+					}
 					continue;
 				}
 				entry.setValue(replacement);
@@ -80,7 +85,14 @@ public class Substitute implements ContextualTransform {
 				object.putAll(additionalKeys);
 			}
 			object.remove(key);			
-		}		
+			return additionalKeys != null;
+		}
+		
+		for (String key: tobeRemoved) {
+			object.remove(key);
+		}
+
+		return true;
 	}
 	
 	@SuppressWarnings("unchecked")
