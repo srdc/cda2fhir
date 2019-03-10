@@ -11,7 +11,7 @@
 		"extension": "0246810"
 	},
 	"expected": {
-		"system": "36e3e930-7b14-11db-9fe1-0800200c9a66",
+		"system": "urn:oid:36e3e930-7b14-11db-9fe1-0800200c9a66",
 		"value": "0246810"
 	} 
 }]

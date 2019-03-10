@@ -36,7 +36,7 @@ public class IDTest {
             String actual = JsonUtils.toPrettyJsonString(actualObject);
 
             String expected = expectedJSON.toString();
-    		JSONAssert.assertEquals(expected, actual, false);
+    		JSONAssert.assertEquals("Test Case " + index, expected, actual, false);
     	}
     }
 
@@ -59,7 +59,7 @@ public class IDTest {
 
             String actual = JsonUtils.toJsonString(actualObject);
             String expected = expectedJSON.toString();
-    		JSONAssert.assertEquals(expected, actual, false);
+    		JSONAssert.assertEquals("Test Case " + index, expected, actual, false);
     	}
     }
 }
