@@ -42,8 +42,8 @@ public class OrgJsonUtil {
 	}
 
 	public JSONArray getAllergiesSectionEntries() throws JSONException {
-		JSONObject section = getSection("48765-2");
-		return section.getJSONArray("entry");		
+		JSONObject section = getSection("48765-2");		
+		return section.optJSONArray("entry");				
 	}
 	
 	public static OrgJsonUtil readXML(String filepath) throws JSONException, IOException {
