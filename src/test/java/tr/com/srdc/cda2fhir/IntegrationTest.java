@@ -14,8 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
@@ -82,7 +82,6 @@ public class IntegrationTest {
 		Assert.assertEquals(18, practitionerResults.getTotal());
 		Assert.assertEquals(14, medicationResults.getTotal());
 
-		// TODO: Test each entry exists in server via search
 
 	}
 
