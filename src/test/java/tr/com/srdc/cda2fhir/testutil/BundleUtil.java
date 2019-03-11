@@ -26,6 +26,8 @@ import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.conf.Config;
@@ -168,7 +170,7 @@ public class BundleUtil {
 
 	public static Bundle generateSnippetBundle(String sourceName) throws Exception {
 		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
-		ClinicalDocument cda = CDAUtil.load(fis);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis, ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
 		CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 		Reference dummyPatientRef = new Reference(new IdType("Patient", "0"));
 		ccdTransformer.setPatientRef(dummyPatientRef);
