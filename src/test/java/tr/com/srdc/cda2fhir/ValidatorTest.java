@@ -31,6 +31,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import ca.uhn.fhir.validation.ValidationResult;
@@ -156,7 +158,7 @@ public class ValidatorTest {
 		// file to be transformed
 		FileInputStream fis = new FileInputStream(cdaResourcePath);
 
-        ClinicalDocument cda = CDAUtil.load(fis);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis, ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
         ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 
 		// set whether DAF Profile URLs will be created in meta.profile of relevant resources

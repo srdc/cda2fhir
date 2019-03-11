@@ -41,6 +41,7 @@ import org.hl7.fhir.dstu3.model.Resource;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,7 +175,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @throws Exception 
      */
     public Bundle transformDocument(String filePath, BundleType bt, Map<String, String> resourceProfileMap) throws Exception {
-    	ClinicalDocument cda = getClinicalDocument(filePath);
+    	
+    	ContinuityOfCareDocument cda = getClinicalDocument(filePath);
+    	
     	Bundle bundle = transformDocument(cda, true);
     	bundle.setType(bt);
 		if(bt.equals(BundleType.TRANSACTION)){
@@ -190,7 +193,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @throws Exception 
      */
     public Bundle transformDocument(String filePath) throws Exception {
-    	ClinicalDocument cda = getClinicalDocument(filePath);
+    	ContinuityOfCareDocument cda = getClinicalDocument(filePath);
     	return transformDocument(cda, true);
     }
     
@@ -199,7 +202,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
      * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
      */
-    public Bundle transformDocument(ClinicalDocument cda) {
+    public Bundle transformDocument(ContinuityOfCareDocument cda) {
     	return transformDocument(cda, true);
     }
     
@@ -218,18 +221,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
      * @param includeComposition Flag to include composition (required for document type bundles)
      * @return A FHIR Bundle
      */
-    public Bundle transformDocument(ClinicalDocument cda, boolean includeComposition) { // TODO: Should be bundle type based.
-        if(cda == null) {
-            return null;
-        }
-        
-        ContinuityOfCareDocument ccd = null;
-
-        // first, cast the ClinicalDocument to ContinuityOfCareDocument
-        try {
-            ccd = (ContinuityOfCareDocument) cda;
-        } catch (ClassCastException ex) {
-            logger.error("ClinicalDocument could not be cast to ContinuityOfCareDocument. Returning null", ex);
+    public Bundle transformDocument(ContinuityOfCareDocument ccd, boolean includeComposition) { // TODO: Should be bundle type based.
+        if(ccd == null) {
             return null;
         }
 
@@ -332,9 +325,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
     }
     
 
-    private ClinicalDocument getClinicalDocument(String filePath) throws Exception {
+    private ContinuityOfCareDocument getClinicalDocument(String filePath) throws Exception {
     	 FileInputStream fis = new FileInputStream(filePath);
-	     ClinicalDocument cda = CDAUtil.load(fis);
+	     //ClinicalDocument cda = CDAUtil.load(fis);
+	     ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis, ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
 	     fis.close();
 	     return cda;
     }

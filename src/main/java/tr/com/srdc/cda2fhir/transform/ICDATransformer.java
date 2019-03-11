@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir.transform;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
@@ -50,5 +51,5 @@ public interface ICDATransformer {
      * @param cda A ClinicalDocument (CDA) instance to be transformed
      * @return A FHIR Bundle that contains a Composition corresponding to the CDA document and all other resources that are referenced within the Composition.
      */
-    Bundle transformDocument(ClinicalDocument cda);
+    Bundle transformDocument(ContinuityOfCareDocument cda);
 }
