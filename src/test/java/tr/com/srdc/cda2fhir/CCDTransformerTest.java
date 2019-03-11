@@ -49,6 +49,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +126,7 @@ public class CCDTransformerTest {
 		logger.info(String.format("Verifying file %s", sourceName));
 		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
 
-		ClinicalDocument cda = CDAUtil.load(fis);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis, ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
 		CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 		if (addlSections != null) {
 			addlSections.stream().forEach(r -> ccdTransformer.addSection(r));
