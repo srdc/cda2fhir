@@ -39,8 +39,8 @@ import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
@@ -60,30 +60,29 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	private int counter;
-    private IdGeneratorEnum idGenerator;
-    private IResourceTransformer resTransformer;
-    private Reference patientRef;
+	private IdGeneratorEnum idGenerator;
+	private IResourceTransformer resTransformer;
+	private Reference patientRef;
 
-	
-    private List<CDASectionTypeEnum> supportedSectionTypes = new ArrayList<CDASectionTypeEnum>();
-    
-    private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
+	private List<CDASectionTypeEnum> supportedSectionTypes = new ArrayList<CDASectionTypeEnum>();
 
-    /**
-     * Default constructor that initiates with a UUID resource id generator
-     */
-    public CCDTransformerImpl() {
-        this.counter = 0;
-        // The default resource id pattern is UUID
-        this.idGenerator = IdGeneratorEnum.UUID;
-        resTransformer = new ResourceTransformerImpl(this);
-        this.patientRef = null;
+	private final Logger logger = LoggerFactory.getLogger(CCDTransformerImpl.class);
+
+	/**
+	 * Default constructor that initiates with a UUID resource id generator
+	 */
+	public CCDTransformerImpl() {
+		this.counter = 0;
+		// The default resource id pattern is UUID
+		this.idGenerator = IdGeneratorEnum.UUID;
+		resTransformer = new ResourceTransformerImpl(this);
+		this.patientRef = null;
 
 		supportedSectionTypes.add(CDASectionTypeEnum.ALLERGIES_SECTION);
 		supportedSectionTypes.add(CDASectionTypeEnum.IMMUNIZATIONS_SECTION);
@@ -92,148 +91,185 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		supportedSectionTypes.add(CDASectionTypeEnum.PROCEDURES_SECTION);
 		supportedSectionTypes.add(CDASectionTypeEnum.ENCOUNTERS_SECTION);
 		supportedSectionTypes.add(CDASectionTypeEnum.ENCOUNTERS_SECTION_ENTRIES_OPTIONAL);
-    }
+	}
 
-    /**
-     * Constructor that initiates with the provided resource id generator
-     * @param idGen The id generator enumeration to be set
-     */
-    public CCDTransformerImpl(IdGeneratorEnum idGen) {
-        this();
-        // Override the default resource id pattern
-        this.idGenerator = idGen;
-    }
+	/**
+	 * Constructor that initiates with the provided resource id generator
+	 * 
+	 * @param idGen The id generator enumeration to be set
+	 */
+	public CCDTransformerImpl(IdGeneratorEnum idGen) {
+		this();
+		// Override the default resource id pattern
+		this.idGenerator = idGen;
+	}
 
-    public Reference getPatientRef() {
-        return patientRef;
-    }
-    
-    public void setPatientRef(Reference patientRef) {
-        this.patientRef = patientRef;
-    }
-    
-    public synchronized String getUniqueId() {
-        switch (this.idGenerator) {
-            case COUNTER:
-                return Integer.toString(++counter);
-            case UUID:
-            default:
-                return UUID.randomUUID().toString();
-        }
-    }
+	public Reference getPatientRef() {
+		return patientRef;
+	}
 
-    public void setIdGenerator(IdGeneratorEnum idGen) {
-        this.idGenerator = idGen;
-    }
-    
-    public void addSection(CDASectionTypeEnum sectionEnum) {
-    	supportedSectionTypes.add(sectionEnum);
-    }
-    
-   
-    /**
-     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
-     * @param bundleType Desired type of the FHIR Bundle to be returned
-     * @param resourceProfileMap The mappings of default resource profiles to desired resource profiles. Used to set profile URI's of bundle entries or omit unwanted entries.
-     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources but Patient that are referenced within the Composition.
-     */
-    public Bundle createTransactionBundle(Bundle bundle,  Map<String, String> resourceProfileMap, boolean addURLs) {
-        Bundle resultBundle = new Bundle();
+	public void setPatientRef(Reference patientRef) {
+		this.patientRef = patientRef;
+	}
 
-        for(BundleEntryComponent entry : bundle.getEntry()) {
-            // Patient resource will not be added
-            if (entry != null) {
-                // Add request and fullUrl fields to entries
-                addRequestToEntry(entry);
-                if(addURLs) {
-                	addFullUrlToEntry(entry);
-                }
-                // if resourceProfileMap is specified omit the resources with no profiles given
-                // Empty profileUri means add with no change
-                if (resourceProfileMap != null) {
-                    String profileUri = resourceProfileMap.get(entry.getResource().getResourceType().name());
-                    if (profileUri != null) {
-                        if (!profileUri.isEmpty()) {
-                            entry.getResource().getMeta().addProfile(profileUri);
-                        }
-                        resultBundle.addEntry(entry);
-                    }
-                } else {
-                    resultBundle.addEntry(entry);
-                }
-            }
-        }
-        
-        return resultBundle;
-    }
-    
-    /**
-     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
-     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
-     * @param bundleType The type of bundle to create, currently only supports transaction bundles.
-     * @param resourceProfileMap The mappings of default resource profiles to desired resource profiles. Used to set profile URI's of bundle entries or omit unwanted entries.
-     * @param provenance An optional FHIR provenance object that may be inserted into the bundle.
-     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
-     * @throws Exception 
-     */
-    public Bundle transformDocument(String filePath, BundleType bundleType, Map<String, String> resourceProfileMap, Provenance provenance) throws Exception {
-    	ClinicalDocument cda = getClinicalDocument(filePath);
-    	Bundle bundle = transformDocument(cda, true);
-    	bundle.setType(bundleType);
-    	if (!provenance.equals(null)) {
-    		// TODO: Code here to take object and add it bundle, and build provenance.target on it for all of the resources.
-    		// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
-    	}
-		if(bundleType.equals(BundleType.TRANSACTION)){
+	public synchronized String getUniqueId() {
+		switch (this.idGenerator) {
+		case COUNTER:
+			return Integer.toString(++counter);
+		case UUID:
+		default:
+			return UUID.randomUUID().toString();
+		}
+	}
+
+	public void setIdGenerator(IdGeneratorEnum idGen) {
+		this.idGenerator = idGen;
+	}
+
+	public void addSection(CDASectionTypeEnum sectionEnum) {
+		supportedSectionTypes.add(sectionEnum);
+	}
+
+	/**
+	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
+	 *                           Document (CCD) instance to be transformed
+	 * @param bundleType         Desired type of the FHIR Bundle to be returned
+	 * @param resourceProfileMap The mappings of default resource profiles to
+	 *                           desired resource profiles. Used to set profile
+	 *                           URI's of bundle entries or omit unwanted entries.
+	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
+	 *         document and all other resources but Patient that are referenced
+	 *         within the Composition.
+	 */
+	public Bundle createTransactionBundle(Bundle bundle, Map<String, String> resourceProfileMap, boolean addURLs) {
+		Bundle resultBundle = new Bundle();
+
+		for (BundleEntryComponent entry : bundle.getEntry()) {
+			// Patient resource will not be added
+			if (entry != null) {
+				// Add request and fullUrl fields to entries
+				addRequestToEntry(entry);
+				if (addURLs) {
+					addFullUrlToEntry(entry);
+				}
+				// if resourceProfileMap is specified omit the resources with no profiles given
+				// Empty profileUri means add with no change
+				if (resourceProfileMap != null) {
+					String profileUri = resourceProfileMap.get(entry.getResource().getResourceType().name());
+					if (profileUri != null) {
+						if (!profileUri.isEmpty()) {
+							entry.getResource().getMeta().addProfile(profileUri);
+						}
+						resultBundle.addEntry(entry);
+					}
+				} else {
+					resultBundle.addEntry(entry);
+				}
+			}
+		}
+
+		return resultBundle;
+	}
+
+	/**
+	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
+	 * instance to a Bundle of corresponding FHIR resources
+	 * 
+	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
+	 *                           Document (CCD) instance to be transformed
+	 * @param bundleType         The type of bundle to create, currently only
+	 *                           supports transaction bundles.
+	 * @param resourceProfileMap The mappings of default resource profiles to
+	 *                           desired resource profiles. Used to set profile
+	 *                           URI's of bundle entries or omit unwanted entries.
+	 * @param provenance         An optional FHIR provenance object that may be
+	 *                           inserted into the bundle.
+	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
+	 *         document and all other resources that are referenced within the
+	 *         Composition.
+	 * @throws Exception
+	 */
+	public Bundle transformDocument(String filePath, BundleType bundleType, Map<String, String> resourceProfileMap,
+			Provenance provenance) throws Exception {
+		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
+		Bundle bundle = transformDocument(cda, true);
+		bundle.setType(bundleType);
+		if (!provenance.equals(null)) {
+			// TODO: Code here to take object and add it bundle, and build provenance.target
+			// on it for all of the resources.
+			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
+		}
+		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
 		return bundle;
-    }
+	}
 
-    /**
-     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
-     * @param filePath A file path string to a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) on file system
-     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
-     * @throws Exception 
-     */
-    public Bundle transformDocument(String filePath) throws Exception {
-    	ClinicalDocument cda = getClinicalDocument(filePath);
-    	return transformDocument(cda, true);
-    }
-    
-    /**
-     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
-     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
-     * @param bundleType The type of bundle to create, currently only supports transaction bundles.
-     * @param resourceProfileMap The mappings of default resource profiles to desired resource profiles. Used to set profile URI's of bundle entries or omit unwanted entries.
-     * @param provenance An optional FHIR provenance object that may be inserted into the bundle.
-     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
-     * @throws Exception 
-     */
-    public Bundle transformDocument(ClinicalDocument cda, BundleType bundleType, Map<String, String> resourceProfileMap, Provenance provenance) throws Exception {
-    	Bundle bundle = transformDocument(cda, true);
-    	bundle.setType(bundleType);
-    	if (!provenance.equals(null)) {
-    		// TODO: Code here to take object and add it bundle, and build provenance.target on it for all of the resources.
-    		// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
-    	}
-		if(bundleType.equals(BundleType.TRANSACTION)){
+	/**
+	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
+	 * instance to a Bundle of corresponding FHIR resources
+	 * 
+	 * @param filePath A file path string to a Consolidated CDA (C-CDA) 2.1
+	 *                 Continuity of Care Document (CCD) on file system
+	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
+	 *         document and all other resources that are referenced within the
+	 *         Composition.
+	 * @throws Exception
+	 */
+	public Bundle transformDocument(String filePath) throws Exception {
+		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
+		return transformDocument(cda, true);
+	}
+
+	/**
+	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
+	 * instance to a Bundle of corresponding FHIR resources
+	 * 
+	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
+	 *                           Document (CCD) instance to be transformed
+	 * @param bundleType         The type of bundle to create, currently only
+	 *                           supports transaction bundles.
+	 * @param resourceProfileMap The mappings of default resource profiles to
+	 *                           desired resource profiles. Used to set profile
+	 *                           URI's of bundle entries or omit unwanted entries.
+	 * @param provenance         An optional FHIR provenance object that may be
+	 *                           inserted into the bundle.
+	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
+	 *         document and all other resources that are referenced within the
+	 *         Composition.
+	 * @throws Exception
+	 */
+	public Bundle transformDocument(ContinuityOfCareDocument cda, BundleType bundleType,
+			Map<String, String> resourceProfileMap, Provenance provenance) throws Exception {
+		Bundle bundle = transformDocument(cda, true);
+		bundle.setType(bundleType);
+		if (!provenance.equals(null)) {
+			// TODO: Code here to take object and add it bundle, and build provenance.target
+			// on it for all of the resources.
+			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
+		}
+		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
 		return bundle;
-    }
-    
-    /**
-     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
-     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
-     * @return A FHIR Bundle that contains a Composition corresponding to the CCD document and all other resources that are referenced within the Composition.
-     */
-    public Bundle transformDocument(ClinicalDocument cda) {
-    	return transformDocument(cda, true);
-    }
-    
+	}
+
+	/**
+	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
+	 * instance to a Bundle of corresponding FHIR resources
+	 * 
+	 * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
+	 *            instance to be transformed
+	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
+	 *         document and all other resources that are referenced within the
+	 *         Composition.
+	 */
+	public Bundle transformDocument(ContinuityOfCareDocument cda) {
+		return transformDocument(cda, true);
+	}
+
 	private ICDASection findCDASection(Section section) {
-		for (CDASectionTypeEnum sectionType: supportedSectionTypes) {
+		for (CDASectionTypeEnum sectionType : supportedSectionTypes) {
 			if (sectionType.supports(section)) {
 				return sectionType.toCDASection(section);
 			}
@@ -242,129 +278,130 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	}
 
 	/**
-     * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to a Bundle of corresponding FHIR resources
-     * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD) instance to be transformed
-     * @param includeComposition Flag to include composition (required for document type bundles)
-     * @return A FHIR Bundle
-     */
-    public Bundle transformDocument(ClinicalDocument cda, boolean includeComposition) { // TODO: Should be bundle type based.
-        if(cda == null) {
-            return null;
-        }
-        
-        ContinuityOfCareDocument ccd = null;
+	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
+	 * instance to a Bundle of corresponding FHIR resources
+	 * 
+	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
+	 *                           Document (CCD) instance to be transformed
+	 * @param includeComposition Flag to include composition (required for document
+	 *                           type bundles)
+	 * @return A FHIR Bundle
+	 */
+	public Bundle transformDocument(ContinuityOfCareDocument ccd, boolean includeComposition) { // TODO: Should be
+																								// bundle type based.
+		if (ccd == null) {
+			return null;
+		}
 
-        // first, cast the ClinicalDocument to ContinuityOfCareDocument
-        try {
-            ccd = (ContinuityOfCareDocument) cda;
-        } catch (ClassCastException ex) {
-            logger.error("ClinicalDocument could not be cast to ContinuityOfCareDocument. Returning null", ex);
-            return null;
-        }
+		// init the global ccd bundle via a call to resource transformer, which handles
+		// cda header data (in fact, all except the sections)
+		IEntryResult entryResult = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
+		Bundle ccdBundle = entryResult.getBundle();
+		if (ccdBundle == null) {
+			ccdBundle = new Bundle();
+		}
 
-        // init the global ccd bundle via a call to resource transformer, which handles cda header data (in fact, all except the sections)
-        IEntryResult entryResult = resTransformer.tClinicalDocument2Bundle(ccd, includeComposition);
-        Bundle ccdBundle = entryResult.getBundle();
-        if (ccdBundle == null) {
-        	ccdBundle = new Bundle();
-        }
-         
-        // the first bundle entry is always the composition
-        Composition ccdComposition = includeComposition ? (Composition)ccdBundle.getEntry().get(0).getResource() : null;
-        
-        // init the patient id reference if it is not given externally.
-        if (patientRef == null) {
-        	List<Patient> patients = FHIRUtil.findResources(ccdBundle, Patient.class);
-        	if (patients.size() > 0) { 
-        		patientRef = new Reference(patients.get(0).getId());
-        	}
-        } else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
-            ccdComposition.setSubject(patientRef);
-        }
-            
-        BundleInfo bundleInfo = new BundleInfo(resTransformer);
-        bundleInfo.updateFrom(entryResult);
-        List<IDeferredReference> deferredReferences = new ArrayList<IDeferredReference>();
-        
-        // transform the sections
-        for(Section cdaSec: ccd.getSections()) {        	
-        	ICDASection section = findCDASection(cdaSec);
-        	if (section != null) {
-            	SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
-        		
-            	if(fhirSec == null) {
-            		continue;
-            	}
-            	
-            	if (ccdComposition != null) {
-                	ccdComposition.addSection(fhirSec);
-            	}
-        		        		
-        		Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
-        		bundleInfo.mergeIdedAnnotations(idedAnnotations);
-        		
-        		ISectionResult sectionResult = section.transform(bundleInfo);
-        		if (sectionResult != null) {
-        			FHIRUtil.mergeBundle(sectionResult.getBundle(), ccdBundle);
-        			if (fhirSec != null) {
-        				List<? extends Resource> resources = sectionResult.getSectionResources();
-        				for (Resource resource: resources) {
-        					Reference ref = fhirSec.addEntry();
-        					ref.setReference(resource.getId());             				
-        				}
-        			}
-        			if (sectionResult.hasDefferredReferences()) {
-        				deferredReferences.addAll(sectionResult.getDeferredReferences());
-        			}
-        			bundleInfo.updateFrom(sectionResult);
-        		}
-        	}
-        }
-        
-        IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(ccdBundle);
-         
+		// the first bundle entry is always the composition
+		Composition ccdComposition = includeComposition ? (Composition) ccdBundle.getEntry().get(0).getResource()
+				: null;
+
+		// init the patient id reference if it is not given externally.
+		if (patientRef == null) {
+			List<Patient> patients = FHIRUtil.findResources(ccdBundle, Patient.class);
+			if (patients.size() > 0) {
+				patientRef = new Reference(patients.get(0).getId());
+			}
+		} else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
+			ccdComposition.setSubject(patientRef);
+		}
+
+		BundleInfo bundleInfo = new BundleInfo(resTransformer);
+		bundleInfo.updateFrom(entryResult);
+		List<IDeferredReference> deferredReferences = new ArrayList<IDeferredReference>();
+
+		// transform the sections
+		for (Section cdaSec : ccd.getSections()) {
+			ICDASection section = findCDASection(cdaSec);
+			if (section != null) {
+				SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
+
+				if (fhirSec == null) {
+					continue;
+				}
+
+				if (ccdComposition != null) {
+					ccdComposition.addSection(fhirSec);
+				}
+
+				Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
+				bundleInfo.mergeIdedAnnotations(idedAnnotations);
+
+				ISectionResult sectionResult = section.transform(bundleInfo);
+				if (sectionResult != null) {
+					FHIRUtil.mergeBundle(sectionResult.getBundle(), ccdBundle);
+					if (fhirSec != null) {
+						List<? extends Resource> resources = sectionResult.getSectionResources();
+						for (Resource resource : resources) {
+							Reference ref = fhirSec.addEntry();
+							ref.setReference(resource.getId());
+						}
+					}
+					if (sectionResult.hasDefferredReferences()) {
+						deferredReferences.addAll(sectionResult.getDeferredReferences());
+					}
+					bundleInfo.updateFrom(sectionResult);
+				}
+			}
+		}
+
+		IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(ccdBundle);
+
 		if (!deferredReferences.isEmpty()) {
-			for (IDeferredReference dr: deferredReferences) {
+			for (IDeferredReference dr : deferredReferences) {
 				String id = identifierMap.get(dr.getFhirType(), dr.getIdentifier());
 				if (id != null) {
 					Reference reference = new Reference(id);
 					dr.resolve(reference);
 				} else {
-					String msg = String.format("%s %s is referred but not found", dr.getFhirType(), dr.getIdentifier().getValue());
+					String msg = String.format("%s %s is referred but not found", dr.getFhirType(),
+							dr.getIdentifier().getValue());
 					logger.error(msg);
 				}
 			}
 		}
 
-        return ccdBundle;
-    }
+		return ccdBundle;
+	}
 
-     /**
-     * Adds fullUrl field to the entry using it's resource id.
-     * @param entry Entry which fullUrl field to be added.
-     */
-    private void addFullUrlToEntry(BundleEntryComponent entry) {
-        //entry.setFullUrl("urn:uuid:" + entry.getResource().getId().getIdPart());
-        entry.setFullUrl("urn:uuid:" + entry.getResource().getIdElement().getIdPart());
-    }
+	/**
+	 * Adds fullUrl field to the entry using it's resource id.
+	 * 
+	 * @param entry Entry which fullUrl field to be added.
+	 */
+	private void addFullUrlToEntry(BundleEntryComponent entry) {
+		// entry.setFullUrl("urn:uuid:" + entry.getResource().getId().getIdPart());
+		entry.setFullUrl("urn:uuid:" + entry.getResource().getIdElement().getIdPart());
+	}
 
-    /**
-     * Adds request field to the entry, method is POST, url is resource type.
-     * @param entry Entry which request field to be added.
-     */
-    private void addRequestToEntry(BundleEntryComponent entry) {
-        BundleEntryRequestComponent request = new BundleEntryRequestComponent();
-        request.setMethod(HTTPVerb.POST);
-        //request.setUrl(entry.getResource().getResourceName());
-        request.setUrl(entry.getResource().getResourceType().name());
-        entry.setRequest(request);
-    }
-    
+	/**
+	 * Adds request field to the entry, method is POST, url is resource type.
+	 * 
+	 * @param entry Entry which request field to be added.
+	 */
+	private void addRequestToEntry(BundleEntryComponent entry) {
+		BundleEntryRequestComponent request = new BundleEntryRequestComponent();
+		request.setMethod(HTTPVerb.POST);
+		// request.setUrl(entry.getResource().getResourceName());
+		request.setUrl(entry.getResource().getResourceType().name());
+		entry.setRequest(request);
+	}
 
-    private ClinicalDocument getClinicalDocument(String filePath) throws Exception {
-    	 FileInputStream fis = new FileInputStream(filePath);
-	     ClinicalDocument cda = CDAUtil.load(fis);
-	     fis.close();
-	     return cda;
-    }
+	private ContinuityOfCareDocument getClinicalDocument(String filePath) throws Exception {
+		FileInputStream fis = new FileInputStream(filePath);
+		// ClinicalDocument cda = CDAUtil.load(fis);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+		fis.close();
+		return cda;
+	}
 }

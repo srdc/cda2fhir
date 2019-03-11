@@ -43,6 +43,7 @@ import org.hl7.fhir.dstu3.model.DateType;
 import org.hl7.fhir.dstu3.model.DecimalType;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Identifier.IdentifierUse;
 import org.hl7.fhir.dstu3.model.InstantType;
 import org.hl7.fhir.dstu3.model.IntegerType;
 import org.hl7.fhir.dstu3.model.Narrative;
@@ -51,6 +52,7 @@ import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Quantity;
 import org.hl7.fhir.dstu3.model.Range;
 import org.hl7.fhir.dstu3.model.Ratio;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import org.hl7.fhir.dstu3.model.StringType;
 import org.hl7.fhir.dstu3.model.Timing;
@@ -489,9 +491,13 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	public Identifier tII2Identifier(II ii) {
 		if(ii == null || ii.isSetNullFlavor())
 			return null;
-		
-		Identifier identifierDt = new Identifier();
 
+		Identifier identifierDt = new Identifier();
+		
+		//default to official use
+		IdentifierUse use = Config.DEFAULT_IDENTIFIER_USE;
+		identifierDt.setUse(use);
+		
 		// if both root and extension are present, then
 		// root -> system
 		// extension -> value
@@ -517,6 +523,12 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		else if(ii.getExtension() != null && !ii.getExtension().isEmpty())
 			identifierDt.setValue(ii.getExtension());
 		
+		if(ii.getAssigningAuthorityName() != null) {
+			Reference ref = new Reference();
+			ref.setDisplay(ii.getAssigningAuthorityName());
+			identifierDt.setAssigner(ref);
+		}
+			
 		return identifierDt;
 
 	}

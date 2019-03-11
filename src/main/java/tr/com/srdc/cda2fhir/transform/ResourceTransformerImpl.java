@@ -2790,7 +2790,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// text -> text
 		if(cdaSection.getText() != null) {
 			Narrative fhirText = dtt.tStrucDocText2Narrative(cdaSection.getText());
-			if(fhirText != null)
+			if(fhirText != null && Config.getGenerateNarrative())
 				fhirSec.setText(fhirText);
 		}
 
