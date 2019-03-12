@@ -10,31 +10,29 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.bazaarvoice.jolt.JsonUtils;
 
 public class Main {
 	final private static String PATH = "src/test/resources/jolt/";
-	final private static String OUTPUT_PATH = "src/test/resources/output/jolt-report";
+	// final private static String OUTPUT_PATH = "src/test/resources/output/jolt-report";
 
-	private static JoltTemplate toJoltTemplate(JSONArray content) {
+	@SuppressWarnings("unchecked")
+	private static JoltTemplate toJoltTemplate(List<Object> content) {
 		JoltTemplate result = new JoltTemplate();
 
 		boolean beforeShift = true;
-		int length = content.length();
+		int length = content.size();
 		for (int index = 0; index < length; ++index) {
-			JSONObject transform = content.getJSONObject(index);
-			String operation = transform.getString("operation");
+			Map<String, Object> transform = (Map<String, Object>) content.get(index);
+			String operation = (String) transform.get("operation");
 			if (operation.equals("cardinality")) {
 				if (beforeShift) {
-					result.cardinality = transform.getJSONObject("spec");
+					result.cardinality = (Map<String, Object>) transform.get("spec");
 				}
 				continue;
 			}
 			if (operation.equals("shift")) {
-				JSONObject shift = transform.getJSONObject("spec");
+				Map<String, Object> shift = (Map<String, Object>) transform.get("spec");
 				result.shifts.add(shift);
 				continue;
 			}
@@ -43,7 +41,7 @@ public class Main {
 				continue;
 			}
 			if (operation.endsWith("AdditionalModifier")) {
-				result.format = transform.getJSONObject("spec");
+				result.format = (Map<String, Object>) transform.get("spec");
 				continue;
 			}
 		}
@@ -51,16 +49,17 @@ public class Main {
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static Map<String, JoltTemplate> createHandlers() {
 		try (Stream<Path> walk = Files.walk(Paths.get(PATH))) {
 			List<Path> jsonPaths = walk.filter(f -> f.toString().endsWith(".json")).collect(Collectors.toList());
 			Map<String, JoltTemplate> templateMap = new HashMap<String, JoltTemplate>();
 			for (Path jsonPath : jsonPaths) {
 				String filename = jsonPath.getFileName().toString();
-				String name = filename.substring(0, filename.length() - 4);
+				String name = filename.substring(0, filename.length() - 5);
 				Object content = JsonUtils.filepathToObject(jsonPath.toString());
-				if (content instanceof JSONArray) {
-					JSONArray template = (JSONArray) content;
+				if (content instanceof List) {
+					List<Object> template = (List<Object>) content;
 					JoltTemplate joltTemplate = toJoltTemplate(template);
 					if (name.equals("ID") || name.contentEquals("CD")) {
 						joltTemplate.leafTemplate = true;
@@ -79,8 +78,9 @@ public class Main {
 		Map<String, JoltTemplate> templateMap = createHandlers();
 		if (templateMap != null) {
 			JoltTemplate template = templateMap.get("AllergyConcernAct");
+			//JoltTemplate template = templateMap.get("EffectiveTimeLowOrValue");
 			Table table = template.createTable(templateMap);
-			String output = table.writeCsv("");
+			String output = table.writeCsv();
 			System.out.print(output);
 		}
 	}

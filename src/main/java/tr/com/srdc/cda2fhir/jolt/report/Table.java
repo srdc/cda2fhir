@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 public class Table {
 	public List<TableRow> rows = new ArrayList<TableRow>();
 		
-	public String writeCsv(String filepath) {
+	public String writeCsv() {
 		String result = rows.stream().map(row -> row.getCSVRow()).collect(Collectors.joining());
 		return result;
 	}
