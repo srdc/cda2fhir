@@ -1,21 +1,25 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JoltPath {
-	private LinkedList<String> paths = new LinkedList<String>();
+	private LinkedList<JoltPath> children = new LinkedList<JoltPath>();
+	private String path;
 	private String target;
 	private String link;
 	
 	private JoltPath(String path, String target, String link) {
-		paths.add(path);
+		this.path = path;
 		this.target = target;
 		this.link = link;
 	}
 	
 	private JoltPath(String path, String target) {
-		paths.add(path);
+		this.path = path;
 		this.target = target;
 	}
 	
@@ -23,31 +27,51 @@ public class JoltPath {
 		return link;
 	}
 	
-	public void prependPath(String path) {
-		paths.addFirst(path);
-	}
-
-	public void prependFrom(JoltPath source) {
-		source.paths.forEach(path -> {
-			paths.addFirst(path);
-		});
-		target = source.target + "." + target;
+	public void addChild(JoltPath child) {
+		children.add(child);
 	}
 	
-	public void appendPath(String path) {
-		paths.addLast(path);
+	public void addChildren(List<JoltPath> children) {
+		this.children.addAll(children);
 	}
 	
 	public void setTarget(String target) {
 		this.target = target; 
 	}
 
-	@Override
-	public String toString() {
-		String path = paths.stream().collect(Collectors.joining("."));
-		String targetDisplay = target.length() == 0 ? "\"\"" : target;
-		String display = String.format("%s -> %s", path, targetDisplay);
-		return link != null ? String.format("%s (%s)", display, link) : display;
+	public void expandLinks(Map<String, List<JoltPath>> linkMap) {
+		if (link == null) {
+			children.forEach(c -> c.expandLinks(linkMap));
+			return;
+		}
+		
+		List<JoltPath> linkPaths = linkMap.get(link);
+		if (linkPaths != null) {
+			linkPaths.forEach(lp -> lp.expandLinks(linkMap));
+			children.addAll(linkPaths);
+			link = null;
+		}
+	}
+	
+	public List<TableRow> toTableRows() {
+		if (children.size() < 1) {
+			TableRow row = new TableRow();
+			row.path = path;
+			row.target = target;
+			row.link = link;
+			List<TableRow> result = new ArrayList<TableRow>();
+			result.add(row);
+			return result;
+		}
+		
+		List<TableRow> rows = children.stream().map(jp -> jp.toTableRows()).flatMap(List::stream).collect(Collectors.toList());
+		rows.forEach(row -> {
+			row.path = path + "." + row.path;
+			if (target != null) {
+				row.target = target + "." + row.target;
+			}
+		});
+		return rows;
 	}
 	
 	public static JoltPath getInstance(String path, String target) {
