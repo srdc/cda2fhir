@@ -247,6 +247,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			// TODO: Code here to take object and add it bundle, and build provenance.target
 			// on it for all of the resources.
 			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
+			bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		}
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
@@ -268,8 +269,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 */
 	public Bundle transformDocument(ContinuityOfCareDocument cda, Provenance provenance) {
 		Bundle bundle = transformDocument(cda, true);
-		if (provenance != null) {
-			// Add provenance.
+		if (!provenance.equals(null)) {
+			bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		}
 		return bundle;
 	}
