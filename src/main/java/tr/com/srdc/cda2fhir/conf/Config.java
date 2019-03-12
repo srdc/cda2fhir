@@ -52,10 +52,10 @@ public class Config {
     
     public static final String NARRATIVE_PROPERTIES_FILE_PATH = "file:src/main/resources/narrative/customnarrative.properties";
 
-    private static boolean generateNarrative = true;
+    private static boolean generateNarrative = false;
     private static INarrativeGenerator narrativeGenerator;
 
-    private static boolean generateDafProfileMetadata = true;
+    private static boolean generateDafProfileMetadata = false;
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
@@ -78,6 +78,10 @@ public class Config {
             fhirCtx.setNarrativeGenerator(narrativeGenerator);
         else
             fhirCtx.setNarrativeGenerator(null);
+    }
+    
+    public static boolean getGenerateNarrative() {
+       return generateNarrative;
     }
 
     public static void setGenerateDafProfileMetadata(boolean generateDafProfileMeta) {
