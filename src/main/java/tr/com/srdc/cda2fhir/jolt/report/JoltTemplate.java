@@ -72,6 +72,7 @@ public class JoltTemplate {
 		List<JoltPath> joltPaths = toJoltPaths();
 		Map<String, List<JoltPath>> expandable = getExpandableLinks(map);
 		joltPaths.forEach(jp -> jp.expandLinks(expandable));
+		joltPaths.forEach(jp -> jp.createConditions(null));
 		
 		joltPaths.forEach(jp -> {
 			List<TableRow> rows = jp.toTableRows();

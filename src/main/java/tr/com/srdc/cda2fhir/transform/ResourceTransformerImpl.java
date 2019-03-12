@@ -2107,7 +2107,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-
+		
 		return fhirOrganization;
 	}
 

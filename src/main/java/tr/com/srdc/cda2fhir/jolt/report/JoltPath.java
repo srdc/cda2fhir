@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 public class JoltPath {
 	private LinkedList<JoltPath> children = new LinkedList<JoltPath>();
+	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 	private String path;
 	private String target;
 	private String link;
@@ -53,12 +54,25 @@ public class JoltPath {
 		}
 	}
 	
+	public void createConditions(JoltPath parent) {
+		if (children.size() == 0) {
+			return;
+		}
+		children.forEach(child -> child.createConditions(this));
+		List<JoltPath> nullChildren = children.parallelStream().filter(child -> {
+			return child.children.size() == 0 && child.target == null;
+		}).collect(Collectors.toList());
+		nullChildren.forEach(child -> {
+			String conditionPath = path + "." + child.path;
+			JoltCondition condition = new JoltCondition(conditionPath, "isnotnull");
+			conditions.add(condition);
+			children.remove(child);
+		});			
+	}
+	
 	public List<TableRow> toTableRows() {
 		if (children.size() < 1) {
-			TableRow row = new TableRow();
-			row.path = path;
-			row.target = target;
-			row.link = link;
+			TableRow row = new TableRow(path, target, link);
 			List<TableRow> result = new ArrayList<TableRow>();
 			result.add(row);
 			return result;
@@ -70,6 +84,10 @@ public class JoltPath {
 			if (target != null) {
 				row.target = target + "." + row.target;
 			}
+			conditions.forEach(condition -> {
+				String conditionAsString = condition.toString();
+				row.conditions.add(conditionAsString);
+			});
 		});
 		return rows;
 	}
