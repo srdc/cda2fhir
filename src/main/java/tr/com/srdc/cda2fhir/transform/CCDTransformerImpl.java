@@ -258,14 +258,20 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
 	 * instance to a Bundle of corresponding FHIR resources
 	 * 
-	 * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
-	 *            instance to be transformed
+	 * @param cda        A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document
+	 *                   (CCD) instance to be transformed
+	 * @param provenance An optional FHIR provenance object that may be inserted
+	 *                   into the bundle.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 */
-	public Bundle transformDocument(ContinuityOfCareDocument cda) {
-		return transformDocument(cda, true);
+	public Bundle transformDocument(ContinuityOfCareDocument cda, Provenance provenance) {
+		Bundle bundle = transformDocument(cda, true);
+		if (provenance != null) {
+			// Add provenance.
+		}
+		return bundle;
 	}
 
 	private ICDASection findCDASection(Section section) {
