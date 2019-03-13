@@ -194,7 +194,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		if (!provenance.equals(null)) {
+		if (provenance != null) {
 			// TODO: Code here to take object and add it bundle, and build provenance.target
 			// on it for all of the resources.
 			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
@@ -247,6 +247,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			// TODO: Code here to take object and add it bundle, and build provenance.target
 			// on it for all of the resources.
 			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
+
+			provenance.addTarget();
 			bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		}
 		if (bundleType.equals(BundleType.TRANSACTION)) {
@@ -269,7 +271,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 */
 	public Bundle transformDocument(ContinuityOfCareDocument cda, Provenance provenance) {
 		Bundle bundle = transformDocument(cda, true);
-		if (!provenance.equals(null)) {
+		System.out.println("PROVENANCE");
+		System.out.println(provenance);
+		if (provenance != null) {
 			bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		}
 		return bundle;
