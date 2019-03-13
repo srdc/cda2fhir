@@ -1,13 +1,13 @@
 package tr.com.srdc.cda2fhir;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Medication;
-import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Provenance;
@@ -66,11 +66,8 @@ public class IntegrationTest {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		// create transaction bundle from ccda bundle
 
-		Organization org = organizationGenerator.generate();
-		Provenance transactionProvenance = provenanceGenerator.generate(org);
-
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, transactionProvenance);
+				BundleType.TRANSACTION, null, null, null);
 
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
@@ -93,7 +90,26 @@ public class IntegrationTest {
 		Assert.assertEquals(1, patientResults.getTotal());
 		Assert.assertEquals(18, practitionerResults.getTotal());
 		Assert.assertEquals(14, medicationResults.getTotal());
+	}
 
+	@Test
+	public void provenanceIntegration() throws Exception {
+		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
+		// create transaction bundle from ccda bundle
+
+		String encodedBody = Base64.getEncoder().encodeToString("<ClinicalDoc>\n</ClinicalDoc>".getBytes());
+
+		Provenance transactionProvenance = provenanceGenerator.generate(organizationGenerator.generate());
+
+		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
+				BundleType.TRANSACTION, null, transactionProvenance, encodedBody);
+
+		// print pre-post bundle
+		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/provenance_bundle.json");
+
+//		byte[] stuff = Base64.getDecoder().decode(encodedBody);
+//		String stuffout = new String(stuff);
+//		System.out.println(stuffout);
 	}
 
 }

@@ -55,11 +55,14 @@ public interface ICDATransformer {
 	 * Transforms a Clinical Document Architecture (CDA) instance to a Bundle of
 	 * corresponding FHIR resources
 	 * 
-	 * @param cda        A ContinuityOfCareDocument (CDA) instance to be transformed
-	 * @param provenance An optional Provenance instance that maybe added to the CDA
+	 * @param cda         A ContinuityOfCareDocument (CDA) instance to be
+	 *                    transformed
+	 * @param provenance  An optional Provenance instance that maybe added to the
+	 *                    CDA
+	 * @param encodedBody The base64 encoded body from the original document
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CDA
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 */
-	Bundle transformDocument(ContinuityOfCareDocument cda, Provenance provenance);
+	Bundle transformDocument(ContinuityOfCareDocument cda, Provenance provenance, String encodedBody);
 }

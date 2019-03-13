@@ -10,7 +10,6 @@ import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
 
 public class OrganizationGenerator {
 	public Organization generate() {
-		System.out.println("Organization generate");
 		Organization organization = new Organization();
 		organization.setName("Aperture Science");
 		organization.setActive(true);
@@ -32,7 +31,6 @@ public class OrganizationGenerator {
 		occ.setAddress(address);
 
 		organization.addContact(occ);
-		System.out.println(organization.toString());
 		return organization;
 	}
 }
