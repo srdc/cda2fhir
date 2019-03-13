@@ -72,8 +72,8 @@ public class JoltTemplate {
 		Map<String, JoltPath> expandable = getExpandableLinks(map);
 		
 		rootPath.expandLinks(expandable);
-		rootPath.createConditions(null);
-		rootPath.mergeSpecialGrandChildren();
+		rootPath.createConditions();
+		rootPath.mergeSpecialDescendants();
 
 		rootPath.children.forEach(jp -> {
 			List<TableRow> rows = jp.toTableRows();

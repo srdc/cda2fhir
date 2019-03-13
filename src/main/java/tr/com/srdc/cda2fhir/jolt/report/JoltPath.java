@@ -120,19 +120,27 @@ public class JoltPath {
 			
 		}		
 		JoltPath grandChild = child.children.get(0);
-		child.conditions.addAll(grandChild.conditions);
 		child.children.remove(grandChild);
 		child.children.addAll(grandChild.children);		
+		child.link = grandChild.link;
+		if (grandChild.target != null) {
+			child.target = grandChild.target;
+		}
 		int grandChildRank = Integer.valueOf(grandChild.path.substring(1));
 		if (grandChildRank == 0) {
+			child.conditions.addAll(grandChild.conditions);
 			return;
 		}
+		grandChild.conditions.forEach(condition -> condition.prependPath(child.path));
+		child.conditions.addAll(grandChild.conditions);
+		
 		JoltPath replacementChild = new JoltPath("!" + (grandChildRank - 1));
 		child.conditions.forEach(condition -> {
-			condition.prependPath(child.path);
 			replacementChild.conditions.add(condition);
 		});
-		replacementChild.children.addAll(child.children);
+		replacementChild.children.addAll(child.children);			
+		replacementChild.link = child.link;
+		replacementChild.target = child.target;			
 		children.remove(child);
 		children.add(replacementChild);		
 	}
@@ -174,13 +182,26 @@ public class JoltPath {
 		});
 		children.removeAll(childrenToBeRemoved);
 	}
+
+	public void mergeSpecialDescendants() {
+		mergeSpecialGrandChildren();
+		
+		List<JoltPath> specialChildren = children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());
+		specialChildren.forEach(child -> {
+			JoltPath grandChild = child.children.get(0);
+			child.conditions.forEach(condition -> condition.prependPath("<"));
+			grandChild.conditions.addAll(child.conditions);
+			children.add(grandChild);
+			children.remove(child);
+		});
+	}
 	
-	public void createConditions(JoltPath parent) {
+	public void createConditions() {
 		if (children.size() == 0) {
 			return;
 		}
-		children.forEach(child -> child.createConditions(this));
-		List<JoltPath> nullChildren = children.parallelStream().filter(child -> {
+		children.forEach(child -> child.createConditions());
+		List<JoltPath> nullChildren = children.stream().filter(child -> {
 			return child.children.size() == 0 && child.target == null;
 		}).collect(Collectors.toList());
 		nullChildren.forEach(child -> {
@@ -233,7 +254,10 @@ public class JoltPath {
 		rows.forEach(row -> {
 			row.path = path + "." + row.path;
 			if (target != null) {
-				row.target = target + "." + row.target;
+				if (target.length() > 0) {
+					String previousTarget = row.target.length() > 0 ? "." + row.target : "";
+					row.target = target + previousTarget;
+				}
 			}
 			
 			for (int index=0; index < row.conditions.size(); ++index) {
