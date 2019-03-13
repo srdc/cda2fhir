@@ -240,9 +240,12 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         if (patientRef == null) {
         	List<Patient> patients = FHIRUtil.findResources(ccdBundle, Patient.class);
         	if (patients.size() > 0) { 
-        		patientRef = new Reference(patients.get(0).getId());
+        		Reference ref = resTransformer.getReference(patients.get(0));
+        		
+        		setPatientRef(resTransformer.getReference(patients.get(0)));
         	}
         } else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
+        	
             ccdComposition.setSubject(patientRef);
         }
             

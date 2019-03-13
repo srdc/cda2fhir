@@ -27,12 +27,20 @@ import java.io.IOException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -76,6 +84,7 @@ public class ResourceTransformerTest {
 	private static final String transformationStartMsg = "\n# TRANSFORMATION STARTING..\n";
 	private static final String transformationEndMsg = "# END OF TRANSFORMATION.\n";
 	private static final String endOfTestMsg = "\n## END OF TEST\n";
+	
 
 	@BeforeClass
 	public static void init() {
@@ -106,6 +115,97 @@ public class ResourceTransformerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Test 
+	public void referenceTest() {
+		Reference ref;
+		
+		Identifier identifier = new Identifier();
+		identifier.setId("identifierId");
+		identifier.setValue("identifierValue");
+		
+		Medication med = new Medication();
+		
+		IdType id = new IdType("testID", "0");
+		med.setId(id);
+		
+		ref = rt.getReference(med);
+		
+		Assert.assertTrue(ref.getDisplay().contentEquals("Medication Reference"));
+		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
+		
+		MedicationStatement medStatement = new MedicationStatement();
+		
+		medStatement.setId(id);
+		medStatement.addIdentifier(identifier);
+		
+		ref = rt.getReference(medStatement);
+		
+		Assert.assertTrue(ref.getDisplay().contentEquals("MedicationStatement Reference"));
+		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
+		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
+		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
+
+		Patient patient = new Patient();
+		
+		patient.setId(id);
+		patient.addIdentifier(identifier);
+		
+		ref = rt.getReference(patient);
+		
+		Assert.assertTrue(ref.getDisplay().contentEquals("Patient Reference"));
+		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
+		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
+		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
+		
+		Practitioner prac = new Practitioner();
+		
+		prac.setId(id);
+		prac.addIdentifier(identifier);
+		
+		ref = rt.getReference(prac);
+		
+		Assert.assertTrue(ref.getDisplay().contentEquals("Practitioner Reference"));
+		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
+		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
+		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
+		
+		Organization org = new Organization();
+		
+		org.setId(id);
+		org.addIdentifier(identifier);
+		
+		ref = rt.getReference(org);
+		
+		Assert.assertTrue(ref.getDisplay().contentEquals("Organization Reference"));
+		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
+		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
+		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
+		
+		Immunization immunization = new Immunization();
+		
+		immunization.setId(id);
+		immunization.addIdentifier(identifier);
+		
+		ref = rt.getReference(immunization);
+		
+		Assert.assertTrue(ref.getDisplay().contentEquals("Immunization Reference"));
+		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
+		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
+		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
+		
+		Condition condition = new Condition();
+		
+		condition.setId(id);
+		condition.addIdentifier(identifier);
+		
+		ref = rt.getReference(condition);
+		
+		Assert.assertTrue(ref.getDisplay().contentEquals("Condition Reference"));
+		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
+		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
+		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
 	}
 
 	// Most of the test methods just print the transformed object in JSON form.

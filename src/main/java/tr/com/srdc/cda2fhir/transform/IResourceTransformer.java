@@ -28,6 +28,8 @@ import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.Group;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
+import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
@@ -320,4 +322,6 @@ public interface IResourceTransformer {
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Encounter, Practitioner
 	 */
 	IEntryResult tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation, IBundleInfo bundleInfo);
+
+	Reference getReference(Resource resource);
 }
