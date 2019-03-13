@@ -245,10 +245,17 @@ public class JoltPath {
 		createConditions();
 		mergeSpecialDescendants();
 	}
+	
+	private String externalPath() {
+		if (path.charAt(0) == '#') {
+			return String.format("'%s'", path.substring(1));
+		}
+		return path;
+	}
 		
 	public List<TableRow> toTableRows() {
 		if (children.size() < 1) {
-			TableRow row = new TableRow(path, target, link);
+			TableRow row = new TableRow(externalPath(), target, link);
 			conditions.forEach(condition -> {
 				String conditionAsString = condition.toString(path);
 				row.conditions.add(conditionAsString);
@@ -264,7 +271,9 @@ public class JoltPath {
 			rows.addAll(childRows);
 		});
 		rows.forEach(row -> {
-			row.path = path + "." + row.path;
+			if (row.path.charAt(0) != '\'') {
+				row.path = path + "." + row.path;
+			}
 			if (target != null) {
 				if (target.length() > 0) {
 					String previousTarget = row.target.length() > 0 ? "." + row.target : "";
