@@ -17,20 +17,29 @@ public class JoltPath {
 		this.path = path;
 	}
 	
+	private JoltPath(String path, String target) {
+		this.path = path;
+		this.target = target;
+	}
+	
 	private JoltPath(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
 		this.link = link;
 	}
 	
-	private JoltPath(String path, String target) {
-		this.path = path;
-		this.target = target;
+	@Override
+	public JoltPath clone() {
+		JoltPath result = new JoltPath(path, target, link);
+		result.children.addAll(children);
+		result.conditions.addAll(conditions);
+		return result;
 	}
 	
 	public String getLink() {
 		return link;
 	}
+	
 	
 	public void addChild(JoltPath child) {
 		children.add(child);
@@ -58,23 +67,15 @@ public class JoltPath {
 		}
 	}
 	
+	private boolean isSpecial(char type) {
+		return path.length() > 0 && path.charAt(0) == type;
+	}
+	
 	private long specialChildCount(char type) {
 		if (children.size() == 0) {
 			return 0;
 		}		
-		long count = children.stream().filter(child -> {			
-			String childPath = child.path;
-			
-			if (childPath.length() > 0 && childPath.charAt(0) == type) {
-				return true;
-			}
-			return false;
-		}).count();		
-		if (count > 0 && children.size() != count) {
-			throw new ReportException("Special children can be the only type children nwhen exists");
-			
-		}
-		return count;		
+		return children.stream().filter(child -> child.isSpecial(type)).count();		
 	}
 	
 	private long specialGrandChildrenCount(char type) {
@@ -110,7 +111,7 @@ public class JoltPath {
 	}
 	
 	private void mergeSpecialGrandChild(JoltPath child) {
-		if (children.size() != 1) {
+		if (child.children.size() != 1) {
 			throw new ReportException("Only unique Special children can be merged");
 			
 		}		
@@ -141,15 +142,33 @@ public class JoltPath {
 		if (specialCount == 0) {
 			return;
 		}
+		List<JoltPath> childClones = new ArrayList<JoltPath>();
+		List<JoltPath> childrenToBeRemoved = new ArrayList<JoltPath>();
 		for (JoltPath child: children) {
 			if (child.specialChildCount('!') < 1) {
 				continue;
 			}			
 			if (child.children.size() == 1) {				
 				mergeSpecialGrandChild(child);
+				continue;
+			}
+			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());			
+			for (JoltPath grandChild: specialGrandChildren) {
+				JoltPath childClone = child.clone();
+				childClone.children.clear();
+				childClone.children.add(grandChild);
+				child.children.remove(grandChild);
+				childClones.add(childClone);
+			}
+			if (child.children.size() == 0) {
+				childrenToBeRemoved.add(child);
 			}
 		};
-		return;
+		childClones.forEach(childClone -> {
+			children.add(childClone);
+			mergeSpecialGrandChild(childClone);
+		});
+		children.removeAll(childrenToBeRemoved);
 	}
 	
 	public void createConditions(JoltPath parent) {
