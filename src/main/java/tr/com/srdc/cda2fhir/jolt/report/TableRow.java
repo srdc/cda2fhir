@@ -30,7 +30,7 @@ public class TableRow {
 		}
 		String space = "    ";
 		String result = path + " ->";
-		result += "\n" + conditions.stream().map(c -> space + c).collect(Collectors.joining("\n"));
+		result += "\n" + space + "* " + conditions.stream().collect(Collectors.joining("\n" + space + "* "));
 		result += "\n" + space + targetDisplay;
 		return result;
 	}
