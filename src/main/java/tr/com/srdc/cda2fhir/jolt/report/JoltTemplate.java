@@ -32,18 +32,12 @@ public class JoltTemplate {
 	}
 	
 	public Table createTable(Map<String, JoltTemplate> map) {
-		Table result = new Table();
 		JoltPath rootPath = toJoltPath();
 		Map<String, JoltPath> expandable = getExpandableLinks(map);
 		
 		rootPath.expandLinks(expandable);
 		rootPath.conditionalize();
 
-		rootPath.children.forEach(jp -> {
-			List<TableRow> rows = jp.toTableRows();
-			rows.forEach(r -> System.out.println(r.toString()));			
-		});		
-		//appendRowsFromShift(map, result, "", shift);
-		return result;
+		return rootPath.toTable();
 	}
 }

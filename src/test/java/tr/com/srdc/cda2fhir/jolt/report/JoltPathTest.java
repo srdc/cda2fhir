@@ -1,7 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -28,9 +27,8 @@ public class JoltPathTest {
 		jpathACA.expandLinks(expansionMap);
 		jpathACA.conditionalize();
 
-		jpathACA.children.forEach(jp -> {
-			List<TableRow> rows = jp.toTableRows();
-			rows.forEach(r -> System.out.println(r.toString()));			
-		});		
+		Table table = jpathACA.toTable();
+		
+		System.out.println(table.toString());			
 	}
 }

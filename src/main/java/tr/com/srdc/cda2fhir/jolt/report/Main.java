@@ -79,9 +79,10 @@ public class Main {
 		if (templateMap != null) {
 			JoltTemplate template = templateMap.get("AllergyConcernAct");
 			//JoltTemplate template = templateMap.get("EffectiveTimeLowOrValue");
-			Table table = template.createTable(templateMap);
-			String output = table.writeCsv();
-			System.out.print(output);
+			Table table = template.createTable(templateMap);			
+			System.out.println(table.toString());			
+			//String output = table.writeCsv();
+			//System.out.print(output);
 		}
 	}
 }

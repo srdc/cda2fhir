@@ -18,8 +18,13 @@ public class TableRow {
 		this.link = link;
 	}
 	
-	public String getCSVRow() {
-		return String.format("%s,%s,%s,%s\n", path, format, target);
+	public String toCsvRow() {
+		String result = String.format("%s,%s,%s\n", path, format, target);
+		if (conditions.size() > 0) {
+			String conditionInfo = conditions.stream().collect(Collectors.joining(","));
+			result += "," + conditionInfo;
+		}
+		return result;
 	}
 	
 	@Override

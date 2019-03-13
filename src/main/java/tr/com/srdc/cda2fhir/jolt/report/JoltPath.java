@@ -340,4 +340,13 @@ public class JoltPath {
 		}
 		return result;
 	}
+	
+	public Table toTable() {
+		Table result = new Table();
+		children.forEach(jp -> {
+			List<TableRow> rows = jp.toTableRows();
+			result.addRows(rows);
+		});		
+		return result;
+	}
 }
