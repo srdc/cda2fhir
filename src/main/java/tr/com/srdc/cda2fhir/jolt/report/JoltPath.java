@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JoltPath {
-	private LinkedList<JoltPath> children = new LinkedList<JoltPath>();
+	public LinkedList<JoltPath> children = new LinkedList<JoltPath>();
 	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 	private String path;
 	private String target;
 	private String link;
 	
-	private JoltPath(String path) {
+	public JoltPath(String path) {
 		this.path = path;
 	}
 	
@@ -49,20 +49,24 @@ public class JoltPath {
 		this.children.addAll(children);
 	}
 	
+	public void addChildrenOf(JoltPath joltPath) {
+		this.children.addAll(joltPath.children);
+	}
+	
 	public void setTarget(String target) {
 		this.target = target; 
 	}
 
-	public void expandLinks(Map<String, List<JoltPath>> linkMap) {
+	public void expandLinks(Map<String, JoltPath> linkMap) {
 		if (link == null) {
 			children.forEach(c -> c.expandLinks(linkMap));
 			return;
 		}
 		
-		List<JoltPath> linkPaths = linkMap.get(link);
+		JoltPath linkPaths = linkMap.get(link);
 		if (linkPaths != null) {
-			linkPaths.forEach(lp -> lp.expandLinks(linkMap));
-			children.addAll(linkPaths);
+			linkPaths.children.forEach(lp -> lp.expandLinks(linkMap));
+			children.addAll(linkPaths.children);
 			link = null;
 		}
 	}

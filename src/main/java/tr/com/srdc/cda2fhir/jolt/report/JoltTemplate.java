@@ -14,33 +14,33 @@ public class JoltTemplate {
 	public boolean leafTemplate = false;
 	
 	@SuppressWarnings("unchecked")
-	private static List<JoltPath> toPaths(Map<String, Object> map) {
-		List<JoltPath> result = new ArrayList<JoltPath>();
+	private static JoltPath toRootPath(Map<String, Object> map) {
+		JoltPath result = new JoltPath("root");
 		for (Map.Entry<String, Object> entry: map.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue();
 			if (value == null) {
 				JoltPath joltPath = JoltPath.getInstance(key, null);
-				result.add(joltPath);
+				result.addChild(joltPath);
 				continue;
 			}			
 			if (value instanceof Map) {
-				List<JoltPath> children = toPaths((Map<String, Object>) value);
+				JoltPath rootChild = toRootPath((Map<String, Object>) value);
 				JoltPath joltPath = JoltPath.getInstance(key, null);
-				joltPath.addChildren(children);
-				result.add(joltPath);
+				joltPath.addChildrenOf(rootChild);
+				result.addChild(joltPath);
 				continue;
 			}
 			if (value instanceof String) {
 				JoltPath joltPath = JoltPath.getInstance(key, (String) value);
-				result.add(joltPath);
+				result.addChild(joltPath);
 				continue;
 			}
 			if (value instanceof List) {
 				List<String> values = (List<String>) value;
 				values.forEach(target -> {
 					JoltPath joltPath = JoltPath.getInstance(key, target);
-					result.add(joltPath);					
+					result.addChild(joltPath);					
 				});
 				continue;
 			}
@@ -48,13 +48,12 @@ public class JoltTemplate {
 		return result;
 	}
 	
-	public List<JoltPath> toJoltPaths() {
+	public JoltPath toJoltPath() {
 		Map<String, Object> shift = shifts.get(0);
-		List<JoltPath> joltPaths = toPaths(shift);
-		return joltPaths;
+		return toRootPath(shift);
 	}
 	
-	private static Map<String, List<JoltPath>> getExpandableLinks(Map<String, JoltTemplate> map) {
+	private static Map<String, JoltPath> getExpandableLinks(Map<String, JoltTemplate> map) {
 		return map.entrySet().stream().filter(entry -> {
 			JoltTemplate value = entry.getValue();
 			if (value.leafTemplate || value.topTemplate) {
@@ -64,18 +63,19 @@ public class JoltTemplate {
 				return false;								
 			}
 			return true;
-		}).collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toJoltPaths()));
+		}).collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toJoltPath()));
 	}
 	
 	public Table createTable(Map<String, JoltTemplate> map) {
 		Table result = new Table();
-		List<JoltPath> joltPaths = toJoltPaths();
-		Map<String, List<JoltPath>> expandable = getExpandableLinks(map);
-		joltPaths.forEach(jp -> jp.expandLinks(expandable));
-		joltPaths.forEach(jp -> jp.createConditions(null));
-		joltPaths.forEach(jp -> jp.mergeSpecialGrandChildren());
+		JoltPath rootPath = toJoltPath();
+		Map<String, JoltPath> expandable = getExpandableLinks(map);
+		
+		rootPath.expandLinks(expandable);
+		rootPath.createConditions(null);
+		rootPath.mergeSpecialGrandChildren();
 
-		joltPaths.forEach(jp -> {
+		rootPath.children.forEach(jp -> {
 			List<TableRow> rows = jp.toTableRows();
 			rows.forEach(r -> System.out.println(r.toString()));			
 		});		
