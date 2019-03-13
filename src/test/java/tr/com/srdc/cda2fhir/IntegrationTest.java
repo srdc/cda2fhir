@@ -2,13 +2,25 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.IOException;
 
+import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Organization.OrganizationContactComponent;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.Provenance;
+import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
+import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.codesystems.ContactentityType;
+import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
+import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
+import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentType;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -57,9 +69,48 @@ public class IntegrationTest {
 	public void rakiaIntegration() throws Exception {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		// create transaction bundle from ccda bundle
+
+		// Consider extract into its own function later if needed.
+		Organization org = new Organization();
+		org.setName("Aperture Science");
+		org.setActive(true);
+
+		Coding typeCoding = new Coding(OrganizationType.BUS.getSystem(), OrganizationType.BUS.toCode(),
+				OrganizationType.BUS.getDisplay());
+		org.addType(new CodeableConcept().addCoding(typeCoding));
+
+		OrganizationContactComponent occ = new OrganizationContactComponent();
+		Coding purposeCoding = new Coding(ContactentityType.ADMIN.getSystem(), ContactentityType.ADMIN.toCode(),
+				ContactentityType.ADMIN.getDisplay());
+		occ.setPurpose(new CodeableConcept().addCoding(purposeCoding));
+
+		Address address = new Address();
+		address.addLine("A place");
+		address.setCity("Unknown");
+		address.setState("Arizona");
+		address.setPostalCode("99999");
+		occ.setAddress(address);
+
+		org.addContact(occ);
+
+		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
+		pac.setId(org.getId());
+
+		Coding agentTypeCoding = new Coding(ProvenanceAgentType.ORGANIZATION.getSystem(),
+				ProvenanceAgentType.ORGANIZATION.toCode(), ProvenanceAgentType.ORGANIZATION.getDisplay());
+		pac.addRole(new CodeableConcept().addCoding(agentTypeCoding));
+
+		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
+				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
+		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
+
+		Provenance transactionProvenance = new Provenance();
+		transactionProvenance.addAgent(pac);
+		transactionProvenance.addTarget(new Reference(org));
+
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, null);
-		
+				BundleType.TRANSACTION, null, transactionProvenance);
+
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
 
@@ -81,7 +132,6 @@ public class IntegrationTest {
 		Assert.assertEquals(1, patientResults.getTotal());
 		Assert.assertEquals(18, practitionerResults.getTotal());
 		Assert.assertEquals(14, medicationResults.getTotal());
-
 
 	}
 
