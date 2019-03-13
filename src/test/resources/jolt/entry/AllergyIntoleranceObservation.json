@@ -23,10 +23,14 @@
 				"high": {
 					"value": {
 						"": {
-							"#active": "clinicalStatus"
+							"@1": {
+								"#active": "clinicalStatus"
+							}
 						},
 						"*": {
-							"#inactive": "clinicalStatus"						
+							"@1": {
+								"#inactive": "clinicalStatus"						
+							}
 						}						
 					}
 				},
