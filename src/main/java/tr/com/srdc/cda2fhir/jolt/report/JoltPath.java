@@ -31,8 +31,14 @@ public class JoltPath {
 	@Override
 	public JoltPath clone() {
 		JoltPath result = new JoltPath(path, target, link);
-		result.children.addAll(children);
-		result.conditions.addAll(conditions);
+		children.forEach(child -> {
+			JoltPath childClone = child.clone();
+			result.addChild(childClone);
+		});
+		conditions.forEach(condition -> {
+			JoltCondition conditionClone = condition.clone();
+			result.conditions.add(conditionClone);
+		});
 		return result;
 	}
 	
@@ -65,8 +71,9 @@ public class JoltPath {
 		
 		JoltPath linkPaths = linkMap.get(link);
 		if (linkPaths != null) {
-			linkPaths.children.forEach(lp -> lp.expandLinks(linkMap));
-			children.addAll(linkPaths.children);
+			JoltPath linkPathsClone = linkPaths.clone();
+			linkPathsClone.children.forEach(lp -> lp.expandLinks(linkMap));
+			children.addAll(linkPathsClone.children);
 			link = null;
 		}
 	}
@@ -233,7 +240,12 @@ public class JoltPath {
 			children.addAll(newChildren);			
 		}
 	}
-	
+
+	public void conditionalize() {
+		createConditions();
+		mergeSpecialDescendants();
+	}
+		
 	public List<TableRow> toTableRows() {
 		if (children.size() < 1) {
 			TableRow row = new TableRow(path, target, link);
@@ -292,5 +304,40 @@ public class JoltPath {
 			reducedTarget += "." + pieces[index];
 		}
 		return new JoltPath(path, reducedTarget, link);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static JoltPath getInstance(Map<String, Object> map) {
+		JoltPath result = new JoltPath("root");
+		for (Map.Entry<String, Object> entry: map.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			if (value == null) {
+				JoltPath joltPath = JoltPath.getInstance(key, null);
+				result.addChild(joltPath);
+				continue;
+			}			
+			if (value instanceof Map) {
+				JoltPath rootChild = getInstance((Map<String, Object>) value);
+				JoltPath joltPath = JoltPath.getInstance(key, null);
+				joltPath.addChildrenOf(rootChild);
+				result.addChild(joltPath);
+				continue;
+			}
+			if (value instanceof String) {
+				JoltPath joltPath = JoltPath.getInstance(key, (String) value);
+				result.addChild(joltPath);
+				continue;
+			}
+			if (value instanceof List) {
+				List<String> values = (List<String>) value;
+				values.forEach(target -> {
+					JoltPath joltPath = JoltPath.getInstance(key, target);
+					result.addChild(joltPath);					
+				});
+				continue;
+			}
+		}
+		return result;
 	}
 }

@@ -16,6 +16,11 @@ public class JoltCondition {
 		this.value = value;
 	}
 
+	@Override
+	public JoltCondition clone() {
+		return new JoltCondition(path, relation, value);
+	}
+	
 	public void prependPath(String path) {
 		if (this.path == null || this.path.length() == 0) {
 			this.path = path;
