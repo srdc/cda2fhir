@@ -16,6 +16,14 @@ public class JoltCondition {
 		this.value = value;
 	}
 
+	public void prependPath(String path) {
+		if (this.path == null || this.path.length() == 0) {
+			this.path = path;
+		} else {
+			this.path = path + '.' + this.path;
+		}
+	}
+		
 	public JoltCondition not() {
 		if (relation.equals("isnotnull")) {
 			return new JoltCondition(path, "isnull");

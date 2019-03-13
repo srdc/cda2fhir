@@ -13,6 +13,10 @@ public class JoltPath {
 	private String target;
 	private String link;
 	
+	private JoltPath(String path) {
+		this.path = path;
+	}
+	
 	private JoltPath(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
@@ -54,24 +58,32 @@ public class JoltPath {
 		}
 	}
 	
-	private long valueCount() {
+	private long specialChildCount(char type) {
+		if (children.size() == 0) {
+			return 0;
+		}		
+		long count = children.stream().filter(child -> {			
+			String childPath = child.path;
+			
+			if (childPath.length() > 0 && childPath.charAt(0) == type) {
+				return true;
+			}
+			return false;
+		}).count();		
+		if (count > 0 && children.size() != count) {
+			throw new ReportException("Special children can be the only type children nwhen exists");
+			
+		}
+		return count;		
+	}
+	
+	private long specialGrandChildrenCount(char type) {
 		if (children.size() == 0) {
 			return 0;
 		}		
 		return children.stream().filter(child -> {
-			if (child.children.size() == 0) {
-				return false;
-			}
-			
-			JoltPath grandChild = child.children.get(0);
-			String grandChildPath = grandChild.path;
-			
-			if (grandChildPath.length() > 0 && grandChildPath.charAt(0) == '@') {
-				return true;
-			}
-			return false;
-		}).count();
-		
+			return child.specialChildCount(type) > 0;
+		}).count();		
 	}
 	
 	private List<JoltCondition> childToCondition(String value, List<JoltCondition> allConditions) {
@@ -97,6 +109,49 @@ public class JoltPath {
 		return "!" + value;
 	}
 	
+	private void mergeSpecialGrandChild(JoltPath child) {
+		if (children.size() != 1) {
+			throw new ReportException("Only unique Special children can be merged");
+			
+		}		
+		JoltPath grandChild = child.children.get(0);
+		child.conditions.addAll(grandChild.conditions);
+		child.children.remove(grandChild);
+		child.children.addAll(grandChild.children);		
+		int grandChildRank = Integer.valueOf(grandChild.path.substring(1));
+		if (grandChildRank == 0) {
+			return;
+		}
+		JoltPath replacementChild = new JoltPath("!" + (grandChildRank - 1));
+		child.conditions.forEach(condition -> {
+			condition.prependPath(child.path);
+			replacementChild.conditions.add(condition);
+		});
+		replacementChild.children.addAll(child.children);
+		children.remove(child);
+		children.add(replacementChild);		
+	}
+	
+	public void mergeSpecialGrandChildren() {
+		for (JoltPath child: children) {
+			child.mergeSpecialGrandChildren();
+		}
+		
+		long specialCount = specialGrandChildrenCount('!');
+		if (specialCount == 0) {
+			return;
+		}
+		for (JoltPath child: children) {
+			if (child.specialChildCount('!') < 1) {
+				continue;
+			}			
+			if (child.children.size() == 1) {				
+				mergeSpecialGrandChild(child);
+			}
+		};
+		return;
+	}
+	
 	public void createConditions(JoltPath parent) {
 		if (children.size() == 0) {
 			return;
@@ -112,7 +167,7 @@ public class JoltPath {
 			children.remove(child);
 		});
 		
-		long valueCount = valueCount();
+		long valueCount = specialGrandChildrenCount('@');
 		if (valueCount > 0) {
 			if (children.size() != valueCount) {
 				throw new ReportException("Unsupported Jolt template.");
