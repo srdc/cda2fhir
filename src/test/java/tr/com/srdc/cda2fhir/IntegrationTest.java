@@ -2,25 +2,15 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.IOException;
 
-import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Organization.OrganizationContactComponent;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Provenance;
-import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.codesystems.ContactentityType;
-import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
-import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
-import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentType;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -34,6 +24,8 @@ import com.palantir.docker.compose.connection.waiting.HealthChecks;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import tr.com.srdc.cda2fhir.testutil.OrganizationGenerator;
+import tr.com.srdc.cda2fhir.testutil.ProvenanceGenerator;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -46,49 +38,8 @@ public class IntegrationTest {
 	static IGenericClient client;
 	static CCDTransformerImpl ccdTransformer;
 	static Logger logger;
-
-	public Organization generateTestOrganization() {
-		Organization org = new Organization();
-		org.setName("Aperture Science");
-		org.setActive(true);
-
-		Coding typeCoding = new Coding(OrganizationType.BUS.getSystem(), OrganizationType.BUS.toCode(),
-				OrganizationType.BUS.getDisplay());
-		org.addType(new CodeableConcept().addCoding(typeCoding));
-
-		OrganizationContactComponent occ = new OrganizationContactComponent();
-		Coding purposeCoding = new Coding(ContactentityType.ADMIN.getSystem(), ContactentityType.ADMIN.toCode(),
-				ContactentityType.ADMIN.getDisplay());
-		occ.setPurpose(new CodeableConcept().addCoding(purposeCoding));
-
-		Address address = new Address();
-		address.addLine("100 Aperture Drive");
-		address.setCity("Cleveland");
-		address.setState("Ohio");
-		address.setPostalCode("44101");
-		occ.setAddress(address);
-
-		org.addContact(occ);
-		return org;
-	}
-
-	public Provenance generateTestProvenance(Organization org) {
-		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
-		pac.setId(org.getId());
-
-		Coding agentTypeCoding = new Coding(ProvenanceAgentType.ORGANIZATION.getSystem(),
-				ProvenanceAgentType.ORGANIZATION.toCode(), ProvenanceAgentType.ORGANIZATION.getDisplay());
-		pac.addRole(new CodeableConcept().addCoding(agentTypeCoding));
-
-		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
-				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
-		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
-
-		Provenance provenance = new Provenance();
-		provenance.addAgent(pac);
-		provenance.addTarget(new Reference(org));
-		return provenance;
-	}
+	static OrganizationGenerator organizationGenerator;
+	static ProvenanceGenerator provenanceGenerator;
 
 	@BeforeClass
 	public static void init() throws IOException {
@@ -102,6 +53,8 @@ public class IntegrationTest {
 		client = ctx.newRestfulGenericClient(serverBase);
 		ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 		logger = LoggerFactory.getLogger(ValidatorImpl.class);
+		organizationGenerator = new OrganizationGenerator();
+		provenanceGenerator = new ProvenanceGenerator();
 	}
 
 	@ClassRule
@@ -113,7 +66,8 @@ public class IntegrationTest {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		// create transaction bundle from ccda bundle
 
-		Provenance transactionProvenance = generateTestProvenance(generateTestOrganization());
+		Organization org = organizationGenerator.generate();
+		Provenance transactionProvenance = provenanceGenerator.generate(org);
 
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
 				BundleType.TRANSACTION, null, transactionProvenance);
