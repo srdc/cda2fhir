@@ -47,6 +47,49 @@ public class IntegrationTest {
 	static CCDTransformerImpl ccdTransformer;
 	static Logger logger;
 
+	public Organization generateTestOrganization() {
+		Organization org = new Organization();
+		org.setName("Aperture Science");
+		org.setActive(true);
+
+		Coding typeCoding = new Coding(OrganizationType.BUS.getSystem(), OrganizationType.BUS.toCode(),
+				OrganizationType.BUS.getDisplay());
+		org.addType(new CodeableConcept().addCoding(typeCoding));
+
+		OrganizationContactComponent occ = new OrganizationContactComponent();
+		Coding purposeCoding = new Coding(ContactentityType.ADMIN.getSystem(), ContactentityType.ADMIN.toCode(),
+				ContactentityType.ADMIN.getDisplay());
+		occ.setPurpose(new CodeableConcept().addCoding(purposeCoding));
+
+		Address address = new Address();
+		address.addLine("100 Aperture Drive");
+		address.setCity("Cleveland");
+		address.setState("Ohio");
+		address.setPostalCode("44101");
+		occ.setAddress(address);
+
+		org.addContact(occ);
+		return org;
+	}
+
+	public Provenance generateTestProvenance(Organization org) {
+		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
+		pac.setId(org.getId());
+
+		Coding agentTypeCoding = new Coding(ProvenanceAgentType.ORGANIZATION.getSystem(),
+				ProvenanceAgentType.ORGANIZATION.toCode(), ProvenanceAgentType.ORGANIZATION.getDisplay());
+		pac.addRole(new CodeableConcept().addCoding(agentTypeCoding));
+
+		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
+				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
+		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
+
+		Provenance provenance = new Provenance();
+		provenance.addAgent(pac);
+		provenance.addTarget(new Reference(org));
+		return provenance;
+	}
+
 	@BeforeClass
 	public static void init() throws IOException {
 
@@ -70,43 +113,7 @@ public class IntegrationTest {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		// create transaction bundle from ccda bundle
 
-		// Consider extract into its own function later if needed.
-		Organization org = new Organization();
-		org.setName("Aperture Science");
-		org.setActive(true);
-
-		Coding typeCoding = new Coding(OrganizationType.BUS.getSystem(), OrganizationType.BUS.toCode(),
-				OrganizationType.BUS.getDisplay());
-		org.addType(new CodeableConcept().addCoding(typeCoding));
-
-		OrganizationContactComponent occ = new OrganizationContactComponent();
-		Coding purposeCoding = new Coding(ContactentityType.ADMIN.getSystem(), ContactentityType.ADMIN.toCode(),
-				ContactentityType.ADMIN.getDisplay());
-		occ.setPurpose(new CodeableConcept().addCoding(purposeCoding));
-
-		Address address = new Address();
-		address.addLine("A place");
-		address.setCity("Unknown");
-		address.setState("Arizona");
-		address.setPostalCode("99999");
-		occ.setAddress(address);
-
-		org.addContact(occ);
-
-		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
-		pac.setId(org.getId());
-
-		Coding agentTypeCoding = new Coding(ProvenanceAgentType.ORGANIZATION.getSystem(),
-				ProvenanceAgentType.ORGANIZATION.toCode(), ProvenanceAgentType.ORGANIZATION.getDisplay());
-		pac.addRole(new CodeableConcept().addCoding(agentTypeCoding));
-
-		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
-				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
-		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
-
-		Provenance transactionProvenance = new Provenance();
-		transactionProvenance.addAgent(pac);
-		transactionProvenance.addTarget(new Reference(org));
+		Provenance transactionProvenance = generateTestProvenance(generateTestOrganization());
 
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
 				BundleType.TRANSACTION, null, transactionProvenance);
