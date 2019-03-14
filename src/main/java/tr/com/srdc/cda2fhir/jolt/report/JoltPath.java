@@ -62,6 +62,18 @@ public class JoltPath {
 		this.target = target; 
 	}
 
+	private void promoteTargets(String parentTarget) {
+		if (target != null) {
+			if (target.length() > 0) {
+				target = parentTarget + "." + target;
+			} else {
+				target = parentTarget;
+			}
+			return;
+		}
+		children.forEach(child -> child.promoteTargets(parentTarget));
+	}
+	
 	public void expandLinks(Map<String, JoltPath> linkMap) {
 		if (link == null) {
 			children.forEach(c -> c.expandLinks(linkMap));
@@ -71,8 +83,12 @@ public class JoltPath {
 		JoltPath linkPaths = linkMap.get(link);
 		if (linkPaths != null) {
 			JoltPath linkPathsClone = linkPaths.clone();
-			linkPathsClone.children.forEach(lp -> lp.expandLinks(linkMap));
+			linkPathsClone.expandLinks(linkMap);
+			if (target.length() > 0) {
+				linkPathsClone.promoteTargets(target);
+			}
 			children.addAll(linkPathsClone.children);
+			target = null;
 			link = null;
 		}
 	}
@@ -122,16 +138,15 @@ public class JoltPath {
 	
 	private void mergeSpecialGrandChild(JoltPath child) {
 		if (child.children.size() != 1) {
-			throw new ReportException("Only unique Special children can be merged");
+			throw new ReportException("Only unique special children can be merged");
 			
 		}		
 		JoltPath grandChild = child.children.get(0);
 		child.children.remove(grandChild);
 		child.children.addAll(grandChild.children);		
 		child.link = grandChild.link;
-		if (grandChild.target != null) {
-			child.target = grandChild.target;
-		}
+		child.target = grandChild.target;
+
 		int grandChildRank = Integer.valueOf(grandChild.path.substring(1));
 		if (grandChildRank == 0) {
 			child.conditions.addAll(grandChild.conditions);
@@ -152,9 +167,7 @@ public class JoltPath {
 	}
 	
 	public void mergeSpecialGrandChildren() {
-		for (JoltPath child: children) {
-			child.mergeSpecialGrandChildren();
-		}
+		children.forEach(child -> child.mergeSpecialGrandChildren());
 		
 		long specialCount = specialGrandChildrenCount('!');
 		if (specialCount == 0) {
@@ -162,13 +175,13 @@ public class JoltPath {
 		}
 		List<JoltPath> childClones = new ArrayList<JoltPath>();
 		List<JoltPath> childrenToBeRemoved = new ArrayList<JoltPath>();
-		for (JoltPath child: children) {
+		children.forEach(child -> {
 			if (child.specialChildCount('!') < 1) {
-				continue;
+				return;
 			}			
 			if (child.children.size() == 1) {				
 				mergeSpecialGrandChild(child);
-				continue;
+				return;
 			}
 			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());			
 			for (JoltPath grandChild: specialGrandChildren) {
@@ -181,7 +194,7 @@ public class JoltPath {
 			if (child.children.size() == 0) {
 				childrenToBeRemoved.add(child);
 			}
-		};
+		});
 		childClones.forEach(childClone -> {
 			children.add(childClone);
 			mergeSpecialGrandChild(childClone);
@@ -201,27 +214,25 @@ public class JoltPath {
 			children.remove(child);
 		});
 	}
-	
-	public void createConditions() {
-		if (children.size() == 0) {
-			return;
-		}
-		children.forEach(child -> child.createConditions());
+
+	private void convertNullTargetToCondition() {
 		List<JoltPath> nullChildren = children.stream().filter(child -> {
 			return child.children.size() == 0 && child.target == null;
 		}).collect(Collectors.toList());
 		nullChildren.forEach(child -> {
-			String conditionPath = child.path;
-			JoltCondition condition = new JoltCondition(conditionPath, "isnull");
+			JoltCondition condition = new JoltCondition(child.path, "isnull");
 			conditions.add(condition);
 			children.remove(child);
-		});
-		
+		});		
+	}
+	
+	private void convertValueBranchesToConditions() {
 		long valueCount = specialGrandChildrenCount('@');
 		if (valueCount > 0) {
 			if (children.size() != valueCount) {
 				throw new ReportException("Unsupported Jolt template.");
 			}
+
 			List<JoltCondition> allConditions = new ArrayList<JoltCondition>();
 			
 			List<JoltPath> newChildren = children.stream().map(child -> {
@@ -237,7 +248,17 @@ public class JoltPath {
 			
 			children.clear();
 			children.addAll(newChildren);			
+		}		
+	}
+		
+	public void createConditions() {
+		if (children.size() == 0) {
+			return;
 		}
+		children.forEach(child -> child.createConditions());
+
+		convertNullTargetToCondition();
+		convertValueBranchesToConditions();
 	}
 
 	public void conditionalize() {
