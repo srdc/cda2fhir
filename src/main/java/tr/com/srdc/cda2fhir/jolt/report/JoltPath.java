@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JoltPath {
-	public LinkedList<JoltPath> children = new LinkedList<JoltPath>();
-	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 	private String path;
 	private String target;
 	private String link;
+	private LinkedList<JoltPath> children = new LinkedList<JoltPath>();
+	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 	
 	public JoltPath(String path) {
 		this.path = path;
@@ -45,7 +45,6 @@ public class JoltPath {
 	public String getLink() {
 		return link;
 	}
-	
 	
 	public void addChild(JoltPath child) {
 		children.add(child);

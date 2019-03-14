@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,11 @@ public class Table {
 	
 	public void addRow(TableRow row) {
 		this.rows.add(row);
+	}
+	
+	public void sort() {
+		rows.forEach(row -> row.sortConditions());
+		Collections.sort(rows);
 	}
 	
 	@Override

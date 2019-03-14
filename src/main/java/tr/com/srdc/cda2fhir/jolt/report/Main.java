@@ -74,15 +74,39 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static Table transformationTable(String name) {
 		Map<String, JoltTemplate> templateMap = createHandlers();
 		if (templateMap != null) {
-			JoltTemplate template = templateMap.get("AllergyConcernAct");
-			//JoltTemplate template = templateMap.get("EffectiveTimeLowOrValue");
-			Table table = template.createTable(templateMap);			
-			System.out.println(table.toString());			
-			//String output = table.writeCsv();
-			//System.out.print(output);
+			JoltTemplate template = templateMap.get(name);
+			Table table = template.createTable(templateMap);
+			table.sort();
+			return table;
 		}
+		return null;
+		
+	}
+	
+	public static String transformationCSV(String name) {
+		Table table = transformationTable(name);
+		if (table != null) {
+			String output = table.toCsv();
+			return output;
+		}
+		return null;
+	}
+	
+	public static String transformationText(String name) {
+		Table table = transformationTable(name);
+		if (table != null) {
+			String output = table.toString();
+			return output;
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+		// String output = transformationCSV("AllergyConcernAct");
+		String output = transformationText("AllergyConcernAct");
+		System.out.print(output);
 	}
 }
