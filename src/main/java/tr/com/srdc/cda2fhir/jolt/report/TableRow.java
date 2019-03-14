@@ -9,7 +9,8 @@ public class TableRow implements Comparable<TableRow> {
 	public String path = "";
 	public String target = "";
 	public String link;
-
+	public String format = "";
+	
 	public List<String> conditions = new ArrayList<String>();
 		
 	TableRow(String path, String target, String link) {
@@ -18,15 +19,27 @@ public class TableRow implements Comparable<TableRow> {
 		this.link = link;
 	}
 	
+	public int conditionCount() {
+		return conditions.size();
+	}
+	
+	public void updateFormat(JoltFormat formats) {
+		String format = formats.get(this.target);
+		if (format != null) {
+			this.format = format;
+		}
+	}
+	
 	public String toCsvRow() {
-		String result = String.format("%s,%s", target, path);
+		String csvLink = link == null ? "" : link;
+		String result = String.format("%s,%s,%s,%s", target, csvLink, path, format);
 		if (conditions.size() > 0) {
 			String conditionInfo = conditions.stream().collect(Collectors.joining(","));
 			result += "," + conditionInfo;
 		}
 		return result;
 	}
-
+	
 	public void sortConditions() {
 		Collections.sort(conditions);
 	}
@@ -48,7 +61,10 @@ public class TableRow implements Comparable<TableRow> {
 		}
 		String space = "    ";
 		String result = path + " ->";
-		result += "\n" + space + "* " + conditions.stream().collect(Collectors.joining("\n" + space + "* "));
+		result += "\n" + space + "*condition " + conditions.stream().collect(Collectors.joining("\n" + space + "*condition "));
+		if (!format.isEmpty()) {
+			result += "\n" + space + "*format " + format;
+		}
 		result += "\n" + space + targetDisplay;
 		return result;
 	}

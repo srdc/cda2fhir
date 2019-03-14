@@ -42,6 +42,10 @@ public class JoltPath {
 		return result;
 	}
 	
+	public String getTarget() {
+		return target;
+	}
+	
 	public String getLink() {
 		return link;
 	}
@@ -56,6 +60,20 @@ public class JoltPath {
 	
 	public void addChildrenOf(JoltPath joltPath) {
 		this.children.addAll(joltPath.children);
+	}
+	
+	private void fillLinks(List<JoltPath> result) {
+		if (link != null) {
+			result.add(this);
+		} else {	
+			children.forEach(child -> child.fillLinks(result));
+		}
+	}
+	
+	public List<JoltPath> getLinks() {
+		List<JoltPath> result = new ArrayList<JoltPath>();
+		fillLinks(result);
+		return result;
 	}
 	
 	public void setTarget(String target) {

@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 public class JoltTemplate {
 	public List<Map<String, Object>> shifts = new ArrayList<Map<String, Object>>();
 	public Map<String, Object> cardinality;
-	public Map<String, Object> format;
-	
+	public JoltFormat format;
+
 	public boolean topTemplate = false;
 	public boolean leafTemplate = false;
-	
+
 	public JoltPath toJoltPath() {
 		Map<String, Object> shift = shifts.get(0);
 		return JoltPath.getInstance(shift);
@@ -25,25 +25,63 @@ public class JoltTemplate {
 				return false;
 			}
 			if (value.shifts.size() < 1) {
-				return false;								
+				return false;
 			}
 			return true;
 		}).collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()));
 	}
-	
-	private static Map<String, JoltPath> getExpandableLinks(Map<String, JoltTemplate> templates) {		
-		return templates.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toJoltPath()));
+
+	private static Map<String, JoltPath> getPathLinks(Map<String, JoltTemplate> templates) {
+		return templates.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toJoltPath()));
+	}
+
+	private static Map<String, JoltFormat> getFormatLinks(Map<String, JoltTemplate> templates) {
+		return templates.entrySet().stream().filter(e -> e.getValue().format != null)
+				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().format));
+	}
+
+	private static JoltFormat getResolvedFormat(JoltFormat format, JoltPath rootPath, Map<String, JoltFormat> formatLinks,
+			Map<String, JoltPath> pathLinks) {
+		JoltFormat result = format.clone();
+		List<JoltPath> linkPaths = rootPath.getLinks();
+		linkPaths.forEach(joltPath -> {
+			String link = joltPath.getLink();
+			String target = joltPath.getTarget();
+			
+			JoltFormat linkedFormat = formatLinks.get(link);
+			if (linkedFormat == null) {
+				return;
+			}
+			JoltPath linkedRootPath = pathLinks.get(link);
+			JoltFormat resolvedLinkedFormat = getResolvedFormat(linkedFormat, linkedRootPath, formatLinks, pathLinks);
+			result.putAllAsPromoted(resolvedLinkedFormat, target);
+		});
+		return result;
 	}
 	
+	
+	private JoltFormat getResolvedFormat(JoltPath rootPath, Map<String, JoltFormat> formatLinks,
+			Map<String, JoltPath> pathLinks) {
+		return getResolvedFormat(format, rootPath, formatLinks, pathLinks);
+	}
+
 	public Table createTable(Map<String, JoltTemplate> map) {
-		JoltPath rootPath = toJoltPath();
 		Map<String, JoltTemplate> intermediateTemplates = getIntermediateTemplates(map);
-		
-		Map<String, JoltPath> expandable = getExpandableLinks(intermediateTemplates);		
-		rootPath.expandLinks(expandable);
+
+		Map<String, JoltFormat> formatLinks = getFormatLinks(intermediateTemplates);
+		Map<String, JoltPath> pathLinks = getPathLinks(intermediateTemplates);
+
+		JoltPath rootPath = toJoltPath();
+
+		JoltFormat resolvedFormat = getResolvedFormat(rootPath, formatLinks, pathLinks);
+
+		rootPath.expandLinks(pathLinks);
 		rootPath.conditionalize();
 
-		return rootPath.toTable();
+		Table table = rootPath.toTable();
+		table.updateFormats(resolvedFormat);
+		return table;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -71,11 +109,11 @@ public class JoltTemplate {
 				continue;
 			}
 			if (operation.endsWith("AdditionalModifier")) {
-				result.format = (Map<String, Object>) transform.get("spec");
+				result.format = JoltFormat.getInstance((Map<String, Object>) transform.get("spec"));
 				continue;
 			}
 		}
-		
+
 		return result;
 	}
 }
