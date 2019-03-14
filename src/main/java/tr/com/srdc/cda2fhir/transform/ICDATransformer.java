@@ -21,7 +21,6 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 
@@ -57,12 +56,10 @@ public interface ICDATransformer {
 	 * 
 	 * @param cda         A ContinuityOfCareDocument (CDA) instance to be
 	 *                    transformed
-	 * @param provenance  An optional Provenance instance that maybe added to the
-	 *                    CDA
 	 * @param encodedBody The base64 encoded body from the original document
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CDA
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 */
-	Bundle transformDocument(ContinuityOfCareDocument cda, Provenance provenance, String encodedBody);
+	Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody);
 }

@@ -28,23 +28,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.entity.ContentType;
 import org.hl7.fhir.dstu3.model.Base64BinaryType;
 import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
-import org.hl7.fhir.dstu3.model.CodeType;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
-import org.hl7.fhir.dstu3.model.Enumerations.ResourceType;
-import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentType;
-import org.hl7.fhir.utilities.MimeType;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -55,8 +47,10 @@ import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thymeleaf.util.StringUtils;
 
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.entry.impl.ProvenanceGenerator;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
@@ -79,6 +73,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	private IdGeneratorEnum idGenerator;
 	private IResourceTransformer resTransformer;
 	private Reference patientRef;
+
+	private final ProvenanceGenerator provenanceGenerator = new ProvenanceGenerator();
 
 	private List<CDASectionTypeEnum> supportedSectionTypes = new ArrayList<CDASectionTypeEnum>();
 
@@ -192,20 +188,20 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @param resourceProfileMap The mappings of default resource profiles to
 	 *                           desired resource profiles. Used to set profile
 	 *                           URI's of bundle entries or omit unwanted entries.
-	 * @param provenance         An optional FHIR provenance object that may be
-	 *                           inserted into the bundle.
-	 * @param encodedBody        The original encodedBody of the Document
+	 * @param encodedBody        The original encodedBody of the document, to be
+	 *                           included in a provenance object.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 * @throws Exception
 	 */
 	public Bundle transformDocument(String filePath, BundleType bundleType, Map<String, String> resourceProfileMap,
-			Provenance provenance, String encodedBody) throws Exception {
+			String encodedBody) throws Exception {
 		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		if (provenance != null) {
+		if (StringUtils.isEmpty(encodedBody)) {
+			Provenance provenance = provenanceGenerator.generateAmidaProvenance();
 			// TODO: Code here to take object and add it bundle, and build provenance.target
 			// on it for all of the resources.
 			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
@@ -244,18 +240,19 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @param resourceProfileMap The mappings of default resource profiles to
 	 *                           desired resource profiles. Used to set profile
 	 *                           URI's of bundle entries or omit unwanted entries.
-	 * @param provenance         An optional FHIR provenance object that may be
-	 *                           inserted into the bundle.
+	 * @param encodedBody        The original base64 document that would be included
+	 *                           in the provenance object if provided.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 * @throws Exception
 	 */
 	public Bundle transformDocument(ContinuityOfCareDocument cda, BundleType bundleType,
-			Map<String, String> resourceProfileMap, Provenance provenance) throws Exception {
+			Map<String, String> resourceProfileMap, String encodedBody) throws Exception {
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		if (!provenance.equals(null)) {
+		if (StringUtils.isEmpty(encodedBody)) {
+			Provenance provenance = provenanceGenerator.generateAmidaProvenance();
 			// TODO: Code here to take object and add it bundle, and build provenance.target
 			// on it for all of the resources.
 			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
@@ -273,25 +270,23 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * 
 	 * @param cda         A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document
 	 *                    (CCD) instance to be transformed
-	 * @param provenance  An optional FHIR provenance object that may be inserted
-	 *                    into the bundle.
-	 * @param encodedBody The base64 encoded body of the original document.
+	 * @param encodedBody The original base64 document that would be included in the
+	 *                    provenance object if provided.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 */
-	public Bundle transformDocument(ContinuityOfCareDocument cda, Provenance provenance, String encodedBody) {
+	public Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody) {
 		Bundle bundle = transformDocument(cda, true);
-		BundleEntryComponent encodedEntry = new BundleEntryComponent();
-		
-		Binary binary = new Binary(, new Base64BinaryType(encodedBody));
-		Coding resource = new Coding(ResourceType.BINARY.getSystem(), ResourceType.BINARY.toCode(),
-				ResourceType.BINARY.getDisplay());
-//		resource.add
-//		encodedEntry.setResource()
-		
-		bundle.addEntry(encodedEntry);
-		if (provenance != null) {
+		if (StringUtils.isEmpty(encodedBody)) {
+			Provenance provenance = provenanceGenerator.generateAmidaProvenance();
+			BundleEntryComponent encodedEntry = new BundleEntryComponent();
+			Binary binary = new Binary();
+			binary.setContentElement(new Base64BinaryType(encodedBody));
+			binary.setContentType("application/txt");
+
+			provenance.castToResource(binary);
+
 			bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		}
 		return bundle;

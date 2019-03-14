@@ -10,7 +10,6 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.Provenance;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -24,8 +23,6 @@ import com.palantir.docker.compose.connection.waiting.HealthChecks;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import tr.com.srdc.cda2fhir.testutil.OrganizationGenerator;
-import tr.com.srdc.cda2fhir.testutil.ProvenanceGenerator;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -38,8 +35,6 @@ public class IntegrationTest {
 	static IGenericClient client;
 	static CCDTransformerImpl ccdTransformer;
 	static Logger logger;
-	static OrganizationGenerator organizationGenerator;
-	static ProvenanceGenerator provenanceGenerator;
 
 	@BeforeClass
 	public static void init() throws IOException {
@@ -53,8 +48,6 @@ public class IntegrationTest {
 		client = ctx.newRestfulGenericClient(serverBase);
 		ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 		logger = LoggerFactory.getLogger(ValidatorImpl.class);
-		organizationGenerator = new OrganizationGenerator();
-		provenanceGenerator = new ProvenanceGenerator();
 	}
 
 	@ClassRule
@@ -67,7 +60,7 @@ public class IntegrationTest {
 		// create transaction bundle from ccda bundle
 
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, null, null);
+				BundleType.TRANSACTION, null, null);
 
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
@@ -95,14 +88,10 @@ public class IntegrationTest {
 	@Test
 	public void provenanceIntegration() throws Exception {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
-		// create transaction bundle from ccda bundle
-
 		String encodedBody = Base64.getEncoder().encodeToString("<ClinicalDoc>\n</ClinicalDoc>".getBytes());
 
-		Provenance transactionProvenance = provenanceGenerator.generate(organizationGenerator.generate());
-
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, transactionProvenance, encodedBody);
+				BundleType.TRANSACTION, null, encodedBody);
 
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/provenance_bundle.json");
