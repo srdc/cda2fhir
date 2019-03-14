@@ -12,6 +12,7 @@ import org.junit.Test;
 
 public class MainTest {
 	final private static String GOLD_PATH = "src/test/resources/gold/jolt-report/";
+	final private static String OUTPUT_PATH = "src/test/resources/output/jolt-report/";
 
 	@Test
 	public void test0() throws Exception {
@@ -21,6 +22,8 @@ public class MainTest {
 		List<String> goldLines = rawGoldLines.stream().filter(line -> line.length() > 0).collect(Collectors.toList());
 		
 		String actualContent = Main.transformationCSV("AllergyConcernAct");
+		File outputFile = new File(OUTPUT_PATH + "AllergyConcernAct.csv");
+		FileUtils.writeStringToFile(outputFile, actualContent, Charset.defaultCharset());
 		List<String> actualLines = Arrays.asList(actualContent.split("\\n"));
 		
 		Assert.assertEquals("Number of CSV file lines", goldLines.size(), actualLines.size());

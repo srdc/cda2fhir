@@ -294,12 +294,6 @@ public class JoltPath {
 			if (row.path.charAt(0) != '\'') {
 				row.path = path + "." + row.path;
 			}
-			if (target != null) {
-				if (target.length() > 0) {
-					String previousTarget = row.target.length() > 0 ? "." + row.target : "";
-					row.target = target + previousTarget;
-				}
-			}
 			
 			for (int index=0; index < row.conditions.size(); ++index) {
 				String value = row.conditions.get(index);
