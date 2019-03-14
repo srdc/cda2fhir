@@ -1,10 +1,13 @@
 package tr.com.srdc.cda2fhir.transform.entry.impl;
 
 import org.hl7.fhir.dstu3.model.Address;
+import org.hl7.fhir.dstu3.model.Base64BinaryType;
+import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
+import org.hl7.fhir.dstu3.model.Enumerations.ResourceType;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Organization.OrganizationContactComponent;
 import org.hl7.fhir.dstu3.model.Provenance;
@@ -51,6 +54,21 @@ public class ProvenanceGenerator {
 
 		org.addContact(occ);
 		return org;
+	}
+
+	/**
+	 * Generates the
+	 */
+	public Binary generateAmidaBinary(String encodedBody) {
+		Binary binary = new Binary();
+		binary.setContentElement(new Base64BinaryType(encodedBody));
+		binary.setContentType("application/txt");
+
+		Coding binaryCoding = new Coding(ResourceType.BINARY.getSystem(), ResourceType.BINARY.toCode(),
+				ResourceType.BINARY.getDisplay());
+
+//		System.out.println(binary.setSecurityContextTarget();
+		return binary;
 	}
 
 	/**
