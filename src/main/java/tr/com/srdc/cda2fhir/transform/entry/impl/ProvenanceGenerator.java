@@ -12,6 +12,7 @@ import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Organization.OrganizationContactComponent;
 import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.codesystems.ContactentityType;
 import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
@@ -89,7 +90,7 @@ public class ProvenanceGenerator {
 		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
 
 		Provenance provenance = new Provenance().addAgent(pac);
-		provenance.addContained(amidaOrganization);
+		provenance.addTarget(new Reference(amidaOrganization));
 		return provenance;
 	}
 }
