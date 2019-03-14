@@ -203,11 +203,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			// TODO: Code here to take object and add it bundle, and build provenance.target
 			// on it for all of the resources.
 			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
-//			Resource binaryResource = provenance.castToResource(provenanceGenerator.generateAmidaBinary(encodedBody));
-//			provenance.addContained(binaryResource);
-//			Reference binaryReference = new Reference();
-//
-//			provenance.addTarget(binaryReference);
+			Resource binaryResource = provenance.castToResource(provenanceGenerator.generateAmidaBinary(encodedBody));
+			provenance.addTarget(new Reference(binaryResource));
 		}
 		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		if (bundleType.equals(BundleType.TRANSACTION)) {
