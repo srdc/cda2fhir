@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
@@ -194,11 +193,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		if (!StringUtils.isEmpty(encodedBody)) {
-			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, encodedBody)));
-		} else {
-			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, null)));
-		}
+		bundle = resTransformer.tProvenance(bundle, encodedBody, "Higgs");
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -243,10 +238,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			Map<String, String> resourceProfileMap, String encodedBody) throws Exception {
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		if (!StringUtils.isEmpty(encodedBody)) {
-			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, encodedBody)));
-		}
-		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, null)));
+		bundle = resTransformer.tProvenance(bundle, encodedBody, "Higgs");
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -267,10 +259,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 */
 	public Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody) {
 		Bundle bundle = transformDocument(cda, true);
-		if (!StringUtils.isEmpty(encodedBody)) {
-			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, encodedBody)));
-		}
-		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, null)));
+		bundle = resTransformer.tProvenance(bundle, encodedBody, "Higgs");
 		return bundle;
 	}
 

@@ -21,7 +21,6 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import org.hl7.fhir.dstu3.model.Age;
-import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
@@ -29,7 +28,6 @@ import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.Group;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
-import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
@@ -428,18 +426,11 @@ public interface IResourceTransformer {
 			IBundleInfo bundleInfo);
 
 	/**
-	 * Provides a binary object that stores the original encoded document.
-	 * 
-	 * @param encodedBody
-	 * @return A Binary entity.
-	 */
-	Binary tBinary(String encodedBody);
-
-	/**
 	 * Provides a provenance file to store the targeted references.
 	 * 
 	 * @param bundle The built bundle, needed to parse for references.
-	 * @return A provenance object
+	 * @return Bundle, updated with a provenance object, and entries for binary and
+	 *         device.
 	 */
-	Provenance tProvenance(Bundle bundle, String encodedBody);
+	Bundle tProvenance(Bundle bundle, String encodedBody, String deviceName);
 }

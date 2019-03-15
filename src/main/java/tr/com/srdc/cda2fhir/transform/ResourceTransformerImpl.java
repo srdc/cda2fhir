@@ -88,6 +88,7 @@ import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
+import org.hl7.fhir.dstu3.model.codesystems.IdentifierType;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentType;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -3085,17 +3086,26 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return binary;
 	}
 
-	public Device tDevice() {
+	public Device tDevice(String deviceName) {
+		// Afsin I'm confused here.
 		Device device = new Device();
 		device.setStatus(FHIRDeviceStatus.ACTIVE);
+		Identifier deviceIdentifier = new Identifier();
+
+		Coding deviceIdCoding = new Coding(IdentifierType.UDI.getSystem(), IdentifierType.UDI.toCode(),
+				IdentifierType.UDI.getDisplay());
+
 		device.setId(new IdType("Device", getUniqueId()));
 		return device;
 	}
 
-	public Provenance tProvenance(Bundle bundle, String encodedBody) {
+	public Bundle tProvenance(Bundle bundle, String encodedBody, String deviceName) {
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		Binary binary = tBinary(encodedBody);
-		Device device = tDevice();
+		Device device = tDevice(deviceName);
+
+		bundle.addEntry(new BundleEntryComponent().setResource(binary));
+		bundle.addEntry(new BundleEntryComponent().setResource(device));
 
 		Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(), ProvenanceAgentType.DEVICE.toCode(),
 				ProvenanceAgentType.DEVICE.getDisplay());
@@ -3111,7 +3121,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		pec.setRole(ProvenanceEntityRole.SOURCE);
 		pec.setId(binary.getId());
 
-//		pac.setWho(device.getType());
+		pac.setWho(new Reference(device.getId()));
 
 		Provenance provenance = new Provenance().addAgent(pac);
 		provenance.addEntity(pec);
@@ -3119,6 +3129,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			provenance.addTarget(new Reference(bec.getResource().getId()));
 		}
 
-		return provenance;
+		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
+
+		return bundle;
 	}
 }
