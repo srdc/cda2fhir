@@ -224,6 +224,10 @@ public class JoltPath {
 
 		List<JoltPath> specialChildren = children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());
 		specialChildren.forEach(child -> {
+			int rank = Integer.valueOf(child.path.substring(1));
+			if (rank != 0) {
+				throw new ReportException("Error in the template; refers to outside of root.");
+			}			
 			JoltPath grandChild = child.children.get(0);
 			child.conditions.forEach(condition -> condition.prependPath("<"));
 			grandChild.conditions.addAll(child.conditions);

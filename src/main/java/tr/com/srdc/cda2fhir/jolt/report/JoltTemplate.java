@@ -43,6 +43,9 @@ public class JoltTemplate {
 
 	private static JoltFormat getResolvedFormat(JoltFormat format, JoltPath rootPath,
 			Map<String, JoltFormat> formatLinks, Map<String, JoltPath> pathLinks) {
+		if (format == null) {
+			return null;
+		}
 		JoltFormat result = format.clone();
 		List<JoltPath> linkPaths = rootPath.getLinks();
 		linkPaths.forEach(joltPath -> {
@@ -79,7 +82,9 @@ public class JoltTemplate {
 		rootPath.conditionalize();
 
 		Table table = rootPath.toTable();
-		table.updateFormats(resolvedFormat);
+		if (resolvedFormat != null) {
+			table.updateFormats(resolvedFormat);
+		}
 		return table;
 	}
 

@@ -71,8 +71,8 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		// String output = transformationCSV("AllergyConcernAct");
-		String output = transformationText("AllergyConcernAct");
+		String output = transformationCSV("EffectiveTimeLowOrValue");
+		//String output = transformationText("AllergyConcernAct");
 		System.out.print(output);
 	}
 }
