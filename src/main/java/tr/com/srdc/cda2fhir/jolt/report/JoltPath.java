@@ -19,12 +19,12 @@ public class JoltPath implements INode {
 		this.path = path;
 	}
 
-	private JoltPath(String path, String target) {
+	public JoltPath(String path, String target) {
 		this.path = path;
 		this.target = target;
 	}
 
-	private JoltPath(String path, String target, String link) {
+	public JoltPath(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
 		this.link = link;
@@ -322,63 +322,11 @@ public class JoltPath implements INode {
 		return rows;
 	}
 
-	@Override
 	public Table toTable() {
 		Table result = new Table();
 		children.forEach(jp -> {
 			List<TableRow> rows = jp.toTableRows();
 			result.addRows(rows);
-		});
-		return result;
-	}
-
-	private static JoltPath getInstance(String path, String target) {
-		String[] pieces = target.split("\\.");
-		int length = pieces.length;
-		String lastPiece = pieces[length - 1];
-		if (!lastPiece.startsWith("->")) {
-			return new JoltPath(path, target);
-		}
-		String link = lastPiece.substring(2);
-		if (length == 1) {
-			return new JoltPath(path, "", link);
-		}
-		String reducedTarget = pieces[0];
-		for (int index = 1; index < length - 1; ++index) {
-			reducedTarget += "." + pieces[index];
-		}
-		return new JoltPath(path, reducedTarget, link);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<JoltPath> toJoltPaths(Map<String, Object> map) {
-		List<JoltPath> result = new ArrayList<JoltPath>();
-		map.forEach((key, value) -> {
-			if (value == null) {
-				JoltPath joltPath = new JoltPath(key);
-				result.add(joltPath);
-				return;
-			}
-			if (value instanceof Map) {
-				List<JoltPath> subResult = toJoltPaths((Map<String, Object>) value);
-				JoltPath parentJoltPath = new JoltPath(key);
-				subResult.forEach(joltPath -> parentJoltPath.addChild(joltPath));
-				result.add(parentJoltPath);
-				return;
-			}
-			if (value instanceof String) {
-				JoltPath joltPath = JoltPath.getInstance(key, (String) value);
-				result.add(joltPath);
-				return;
-			}
-			if (value instanceof List) {
-				List<String> values = (List<String>) value;
-				values.forEach(target -> {
-					JoltPath joltPath = JoltPath.getInstance(key, target);
-					result.add(joltPath);
-				});
-				return;
-			}
 		});
 		return result;
 	}

@@ -13,6 +13,4 @@ public interface INode {
 	void expandLinks(Map<String, RootNode> linkMap);
 	
 	void conditionalize();
-
-	Table toTable();
 }
