@@ -21,18 +21,7 @@
 		"spec": {
 			"effectiveTime": {
 				"high": {
-					"value": {
-						"": {
-							"@1": {
-								"#active": "clinicalStatus"
-							}
-						},
-						"*": {
-							"@1": {
-								"#inactive": "clinicalStatus"						
-							}
-						}						
-					}
+					"value": "clinicalStatus"
 				},
 				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
 			},
@@ -86,6 +75,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
+			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
 			"onsetDateTime": "=datetimeAdapter(@0)",
 			"criticality": "=valueSetAdapter('AllergyIntoleranceCriticality',@0)",
 			"category": {

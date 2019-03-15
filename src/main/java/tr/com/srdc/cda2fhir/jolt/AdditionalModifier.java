@@ -159,7 +159,20 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
         	return Optional.empty();
         }
     }
-		
+
+	public static final class SelectOnNull extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+            if(argList == null || argList.size() != 3 ) {
+                return Optional.empty();
+            }
+            String value = (String) argList.get(2);
+            int index = value.isEmpty() ? 0 : 1;
+            String result = (String) argList.get(index);
+			return Optional.of(result);
+		}
+	}
+    
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -169,6 +182,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("systemAdapter", new SystemAdapter());
 		AMIDA_FUNCTIONS.put("idSystemAdapter", new IdSystemAdapter());
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
+		AMIDA_FUNCTIONS.put("selectOnNull", new SelectOnNull());
 	}
 
 	private Modifier.Overwritr modifier;
