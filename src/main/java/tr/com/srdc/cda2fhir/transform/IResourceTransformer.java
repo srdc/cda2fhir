@@ -441,5 +441,5 @@ public interface IResourceTransformer {
 	 * @param bundle The built bundle, needed to parse for references.
 	 * @return A provenance object
 	 */
-	Provenance tProvenance(Bundle bundle);
+	Provenance tProvenance(Bundle bundle, String encodedBody);
 }

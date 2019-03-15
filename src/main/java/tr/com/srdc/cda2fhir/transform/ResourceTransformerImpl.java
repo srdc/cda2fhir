@@ -50,6 +50,8 @@ import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.DateTimeType;
+import org.hl7.fhir.dstu3.model.Device;
+import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
@@ -81,6 +83,8 @@ import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
+import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityComponent;
+import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
@@ -3081,21 +3085,40 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return binary;
 	}
 
-	public Provenance tProvenance(Bundle bundle) {
+	public Device tDevice() {
+		Device device = new Device();
+		device.setStatus(FHIRDeviceStatus.ACTIVE);
+		device.setId(new IdType("Device", getUniqueId()));
+		return device;
+	}
+
+	public Provenance tProvenance(Bundle bundle, String encodedBody) {
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
+		Binary binary = tBinary(encodedBody);
+		Device device = tDevice();
 
 		Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(), ProvenanceAgentType.DEVICE.toCode(),
 				ProvenanceAgentType.DEVICE.getDisplay());
+		agentTypeCoding.setId(device.getId());
 		pac.addRole(new CodeableConcept().addCoding(agentTypeCoding));
 
 		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
 				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
+		agentRoleCoding.setId(device.getId());
 		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
 
+		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
+		pec.setRole(ProvenanceEntityRole.SOURCE);
+		pec.setId(binary.getId());
+
+//		pac.setWho(device.getType());
+
 		Provenance provenance = new Provenance().addAgent(pac);
+		provenance.addEntity(pec);
 		for (BundleEntryComponent bec : bundle.getEntry()) {
 			provenance.addTarget(new Reference(bec.getResource().getId()));
 		}
+
 		return provenance;
 	}
 }

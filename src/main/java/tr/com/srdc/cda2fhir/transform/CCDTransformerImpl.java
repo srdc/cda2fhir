@@ -195,12 +195,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
 		if (!StringUtils.isEmpty(encodedBody)) {
-			// TODO: Code here to take object and add it bundle, and build provenance.target
-			// on it for all of the resources.
-			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
-			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tBinary(encodedBody)));
+			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, encodedBody)));
+		} else {
+			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, null)));
 		}
-		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle)));
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -246,9 +244,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
 		if (!StringUtils.isEmpty(encodedBody)) {
-			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tBinary(encodedBody)));
+			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, encodedBody)));
 		}
-		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle)));
+		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, null)));
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -270,9 +268,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	public Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody) {
 		Bundle bundle = transformDocument(cda, true);
 		if (!StringUtils.isEmpty(encodedBody)) {
-			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tBinary(encodedBody)));
+			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, encodedBody)));
 		}
-		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle)));
+		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle, null)));
 		return bundle;
 	}
 
