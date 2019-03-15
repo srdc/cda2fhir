@@ -37,7 +37,6 @@ import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.openhealthtools.mdht.uml.cda.Section;
@@ -48,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
-import tr.com.srdc.cda2fhir.transform.entry.impl.ProvenanceGenerator;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
@@ -71,8 +69,6 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	private IdGeneratorEnum idGenerator;
 	private IResourceTransformer resTransformer;
 	private Reference patientRef;
-
-	private final ProvenanceGenerator provenanceGenerator = new ProvenanceGenerator();
 
 	private List<CDASectionTypeEnum> supportedSectionTypes = new ArrayList<CDASectionTypeEnum>();
 
@@ -198,15 +194,13 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		Provenance provenance = provenanceGenerator.generateAmidaProvenance();
 		if (!StringUtils.isEmpty(encodedBody)) {
 			// TODO: Code here to take object and add it bundle, and build provenance.target
 			// on it for all of the resources.
 			// https://www.hl7.org/fhir/stu3/provenance.html, look at section 6.3.4.6.
-			Resource binaryResource = provenance.castToResource(provenanceGenerator.generateAmidaBinary(encodedBody));
-			provenance.addTarget(new Reference(binaryResource));
+			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tBinary(encodedBody)));
 		}
-		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
+		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle)));
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -251,11 +245,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			Map<String, String> resourceProfileMap, String encodedBody) throws Exception {
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		Provenance provenance = provenanceGenerator.generateAmidaProvenance();
 		if (!StringUtils.isEmpty(encodedBody)) {
-			provenance.castToResource(provenanceGenerator.generateAmidaBinary(encodedBody));
+			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tBinary(encodedBody)));
 		}
-		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
+		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle)));
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -276,11 +269,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 */
 	public Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody) {
 		Bundle bundle = transformDocument(cda, true);
-		Provenance provenance = provenanceGenerator.generateAmidaProvenance();
 		if (!StringUtils.isEmpty(encodedBody)) {
-			provenance.castToResource(provenanceGenerator.generateAmidaBinary(encodedBody));
+			bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tBinary(encodedBody)));
 		}
-		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
+		bundle.addEntry(new BundleEntryComponent().setResource(resTransformer.tProvenance(bundle)));
 		return bundle;
 	}
 
