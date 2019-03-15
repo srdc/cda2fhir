@@ -14,8 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-cda2fhir [![License Info](http://img.shields.io/badge/license-Apache%202.0-brightgreen.svg)](https://github.com/srdc/cda2fhir/blob/master/LICENSE.txt)
+cda2fhir 
 ===
+[![License Info](http://img.shields.io/badge/license-Apache%202.0-brightgreen.svg)](https://github.com/srdc/cda2fhir/blob/master/LICENSE.txt)
+[![Jenkins CI](https://jenkins.amida.com/buildStatus/icon?job=CDA2FHIR%20Tests/)](https://jenkins.amida.com/job/CDA2FHIR%20Tests/)
+
 
 cda2fhir is a Java library to transform HL7 CDA R2 instances to HL7 FHIR resources. More specifically, cda2fhir enables automatic transformation of
 Consolidated CDA (C-CDA) Release 2.1 compliant document instances to the corresponding FHIR STU3 resources. For this purpose, cda2fhir provides extensible
