@@ -4,11 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import com.bazaarvoice.jolt.ContextualTransform;
+import com.bazaarvoice.jolt.SpecDriven;
 
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 
-public class ResourceAccumulator implements ContextualTransform {
+public class ResourceAccumulator implements SpecDriven, ContextualTransform {
+	private String resourceType;
+	
+	@Inject
+	@SuppressWarnings("unchecked")
+	public ResourceAccumulator(Object spec) {
+		Map<String, Object> map = (Map<String, Object>) spec;
+		resourceType = (String) map.get("resourceType");
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object transform(Object input, Map<String, Object> context) {
@@ -22,9 +34,9 @@ public class ResourceAccumulator implements ContextualTransform {
 			context.put("Resources", resources);
 		}
 		int id = resources.size() + 1;
+		resource.put("resourceType", resourceType);
 		resource.put("id", id);
 		resources.add(resource);
-		String resourceType = (String) resource.get("resourceType");
 		String reference = String.format("%s/%s", resourceType, id);
 		List<Object> identifiers = (List<Object>) resource.get("identifier");
 		if (identifiers == null) {

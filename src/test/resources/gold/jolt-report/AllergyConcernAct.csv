@@ -13,5 +13,4 @@ act.entryRelationship.*.observation.entryRelationship.*.observation.value.*,reac
 act.entryRelationship.*.observation.entryRelationship.*.observation.effectiveTime.low.value,reaction[].onset,,datetimeAdapter,act.entryRelationship.*.observation.entryRelationship.*.observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 act.entryRelationship.*.observation.entryRelationship.*.observation.entryRelationship.*.observation.value.code,reaction[].severity,,valueSetAdapter('AllergyIntoleranceSeverity'),act.entryRelationship.*.observation.entryRelationship.*.observation.entryRelationship.*.observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.8,act.entryRelationship.*.observation.entryRelationship.*.observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 act.author,recorder.reference,AuthorParticipation,
-'AllergyIntolerance',resourceType,,
 act.statusCode.code,verificationStatus,,valueSetAdapter('AllergyIntoleranceVerificationStatus')

@@ -8,7 +8,6 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"#PractitionerRole": "resourceType",
 			"id": "practitioner.reference.->ID",
 			"code": "code.->CD"
 		}
@@ -25,6 +24,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator"
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "PractitionerRole"
+		}
 	}
 ]

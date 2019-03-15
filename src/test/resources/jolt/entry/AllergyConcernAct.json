@@ -13,7 +13,6 @@
 		"operation": "shift",
 		"spec": {
 			"act": {
-				"#AllergyIntolerance": "resourceType",
 				"id": {
 					"*": "identifier[].->ID"
 				},
@@ -47,6 +46,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator"
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "AllergyIntolerance"
+		}
 	}
 ]

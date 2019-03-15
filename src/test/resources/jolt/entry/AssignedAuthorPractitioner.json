@@ -8,7 +8,6 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"#Practitioner": "resourceType",
 			"id": {
 				"*": "identifier[].->ID"
 			}
@@ -18,6 +17,9 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator"
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Practitioner"
+		}
 	}
 ]
