@@ -29,8 +29,8 @@ public class NodeFactory {
 	private static void fillNode(INode node, Map<String, Object> map) {
 		map.forEach((key, value) -> {
 			if (value == null) {
-				JoltPath joltPath = new JoltPath(key);
-				node.addChild(joltPath);
+				JoltCondition condition = new JoltCondition(key, "isnull");
+				node.addCondition(condition);
 				return;
 			}
 			if (value instanceof Map) {

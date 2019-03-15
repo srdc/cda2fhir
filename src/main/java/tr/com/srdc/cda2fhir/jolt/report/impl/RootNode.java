@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import tr.com.srdc.cda2fhir.jolt.report.INode;
+import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.JoltFormat;
 import tr.com.srdc.cda2fhir.jolt.report.JoltPath;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
@@ -21,6 +22,11 @@ public class RootNode implements INode {
 	
 	public void addChild(JoltPath node) {
 		root.children.get(0).addChild(node);
+	}
+	
+	@Override
+	public void addCondition(JoltCondition condition) {
+		root.children.get(0).addCondition(condition);		
 	}
 	
 	public List<JoltPath> getLinks() {

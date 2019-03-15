@@ -61,6 +61,11 @@ public class JoltPath implements INode {
 		children.add(child);
 	}
 
+	@Override
+	public void addCondition(JoltCondition condition) {
+		conditions.add(condition);		
+	}
+	
 	public void addChildren(List<JoltPath> children) {
 		this.children.addAll(children);
 	}
@@ -235,17 +240,6 @@ public class JoltPath implements INode {
 		mergeSpecialGrandChildren();
 	}
 
-	private void convertNullTargetToCondition() {
-		List<JoltPath> nullChildren = children.stream().filter(child -> {
-			return child.children.size() == 0 && child.target == null;
-		}).collect(Collectors.toList());
-		nullChildren.forEach(child -> {
-			JoltCondition condition = new JoltCondition(child.path, "isnull");
-			conditions.add(condition);
-			children.remove(child);
-		});
-	}
-
 	private void convertValueBranchesToConditions() {
 		long valueCount = specialGrandChildrenCount('@');
 		if (valueCount > 0) {
@@ -277,7 +271,6 @@ public class JoltPath implements INode {
 		}
 		children.forEach(child -> child.createConditions());
 
-		convertNullTargetToCondition();
 		convertValueBranchesToConditions();
 	}
 
