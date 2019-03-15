@@ -1,9 +1,9 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 public class JoltCondition {
-	public String path;
-	public String relation;
-	public String value;
+	private String path;
+	private String relation;
+	private String value;
 
 	public JoltCondition(String path, String relation) {
 		this.path = path;

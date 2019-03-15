@@ -13,7 +13,7 @@ public class JoltPath {
 	private LinkedList<JoltPath> children = new LinkedList<JoltPath>();
 	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 	
-	public JoltPath(String path) {
+	private JoltPath(String path) {
 		this.path = path;
 	}
 	
@@ -154,34 +154,31 @@ public class JoltPath {
 		return "!" + value;
 	}
 	
-	private void mergeSpecialGrandChild(JoltPath child) {
-		if (child.children.size() != 1) {
-			throw new ReportException("Only unique special children can be merged");
+	private void mergeSpecialChild() {
+		if (children.size() != 1) {
+			throw new ReportException("Only a unique child can be merged.");
 			
 		}		
-		JoltPath grandChild = child.children.get(0);
-		child.children.remove(grandChild);
-		child.children.addAll(grandChild.children);		
-		child.link = grandChild.link;
-		child.target = grandChild.target;
+		JoltPath child = children.get(0);
+		if (!child.isSpecial('!')) {
+			throw new ReportException("Only special children can be merged.");			
+		}
+		
+		children.remove(child);
+		children.addAll(child.children);		
+		link = child.link;
+		target = child.target;
 
-		int grandChildRank = Integer.valueOf(grandChild.path.substring(1));
-		if (grandChildRank == 0) {
-			child.conditions.addAll(grandChild.conditions);
+		int childRank = Integer.valueOf(child.path.substring(1));
+		if (childRank == 0) {
+			conditions.addAll(child.conditions);
 			return;
 		}
-		grandChild.conditions.forEach(condition -> condition.prependPath(child.path));
-		child.conditions.addAll(grandChild.conditions);
-		
-		JoltPath replacementChild = new JoltPath("!" + (grandChildRank - 1));
 		child.conditions.forEach(condition -> {
-			replacementChild.conditions.add(condition);
+			condition.prependPath(path);
+			conditions.add(condition);
 		});
-		replacementChild.children.addAll(child.children);			
-		replacementChild.link = child.link;
-		replacementChild.target = child.target;			
-		children.remove(child);
-		children.add(replacementChild);		
+		path = "!" + (childRank - 1);
 	}
 	
 	public void mergeSpecialGrandChildren() {
@@ -198,7 +195,7 @@ public class JoltPath {
 				return;
 			}			
 			if (child.children.size() == 1) {				
-				mergeSpecialGrandChild(child);
+				child.mergeSpecialChild();
 				return;
 			}
 			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());			
@@ -215,7 +212,7 @@ public class JoltPath {
 		});
 		childClones.forEach(childClone -> {
 			children.add(childClone);
-			mergeSpecialGrandChild(childClone);
+			childClone.mergeSpecialChild();
 		});
 		children.removeAll(childrenToBeRemoved);
 	}
@@ -296,7 +293,7 @@ public class JoltPath {
 			TableRow row = new TableRow(externalPath(), target, link);
 			conditions.forEach(condition -> {
 				String conditionAsString = condition.toString(path);
-				row.conditions.add(conditionAsString);
+				row.addCondition(conditionAsString);
 			});			
 			List<TableRow> result = new ArrayList<TableRow>();
 			result.add(row);
@@ -309,23 +306,25 @@ public class JoltPath {
 			rows.addAll(childRows);
 		});
 		rows.forEach(row -> {
-			if (row.path.charAt(0) != '\'') {
-				row.path = path + "." + row.path;
-			}
-			
-			for (int index=0; index < row.conditions.size(); ++index) {
-				String value = row.conditions.get(index);
-				row.conditions.set(index, path + "." + value);
-			}
+			row.promotePath(path);
 			
 			conditions.forEach(condition -> {
 				String conditionAsString = condition.toString(path);
-				row.conditions.add(conditionAsString);
+				row.addCondition(conditionAsString);
 			});
 		});
 		return rows;
 	}
-	
+		
+	public Table toTable() {
+		Table result = new Table();
+		children.forEach(jp -> {
+			List<TableRow> rows = jp.toTableRows();
+			result.addRows(rows);
+		});		
+		return result;
+	}
+
 	public static JoltPath getInstance(String path, String target) {
 		if (target == null) {
 			return new JoltPath(path, null);			
@@ -379,15 +378,6 @@ public class JoltPath {
 				continue;
 			}
 		}
-		return result;
-	}
-	
-	public Table toTable() {
-		Table result = new Table();
-		children.forEach(jp -> {
-			List<TableRow> rows = jp.toTableRows();
-			result.addRows(rows);
-		});		
 		return result;
 	}
 }

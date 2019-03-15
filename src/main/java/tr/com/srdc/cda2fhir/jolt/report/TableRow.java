@@ -6,17 +6,32 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class TableRow implements Comparable<TableRow> {
-	public String path = "";
-	public String target = "";
-	public String link;
-	public String format = "";
+	private String path = "";
+	private String target = "";
+	private String link;
+	private String format = "";
 	
-	public List<String> conditions = new ArrayList<String>();
+	private List<String> conditions = new ArrayList<String>();
 		
 	TableRow(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
 		this.link = link;
+	}
+	
+	public void promotePath(String parentPath) {
+		if (path.charAt(0) != '\'') {
+			path = parentPath + "." + path;
+		}
+
+		for (int index=0; index < conditions.size(); ++index) {
+			String value = conditions.get(index);
+			conditions.set(index, parentPath + "." + value);
+		}	
+	}
+
+	public void addCondition(String condition) {
+		conditions.add(condition);
 	}
 	
 	public int conditionCount() {
