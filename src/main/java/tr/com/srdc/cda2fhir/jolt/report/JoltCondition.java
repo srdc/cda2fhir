@@ -45,6 +45,15 @@ public class JoltCondition {
 		return new JoltCondition(path, "not" + relation, value);
 	}
 
+	@Override
+	public String toString() {
+		String result = path + " " + relation;
+		if (value != null) {
+			result += " " + value;
+		}
+		return result;	
+	}
+	
 	public String toString(String ownerPath) {
 		String conditionPath = path.length() == 0 ? ownerPath : ownerPath + "." + path;
 		String result = conditionPath + " " + relation;

@@ -13,7 +13,7 @@ public class JoltPath implements INode {
 	private String target;
 	private String link;
 	public LinkedList<JoltPath> children = new LinkedList<JoltPath>();
-	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
+	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 
 	public JoltPath(String path) {
 		this.path = path;
@@ -30,6 +30,10 @@ public class JoltPath implements INode {
 		this.link = link;
 	}
 
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
 	@Override
 	public JoltPath clone() {
 		JoltPath result = new JoltPath(path, target, link);
@@ -229,19 +233,6 @@ public class JoltPath implements INode {
 
 	public void mergeSpecialDescendants() {
 		mergeSpecialGrandChildren();
-
-		List<JoltPath> specialChildren = children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());
-		specialChildren.forEach(child -> {
-			int rank = Integer.valueOf(child.path.substring(1));
-			if (rank != 0) {
-				throw new ReportException("Error in the template; refers to outside of root.");
-			}			
-			JoltPath grandChild = child.children.get(0);
-			child.conditions.forEach(condition -> condition.prependPath("<"));
-			grandChild.conditions.addAll(child.conditions);
-			children.add(grandChild);
-			children.remove(child);
-		});
 	}
 
 	private void convertNullTargetToCondition() {
