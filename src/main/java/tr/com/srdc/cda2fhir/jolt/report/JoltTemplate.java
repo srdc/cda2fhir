@@ -12,18 +12,18 @@ public class JoltTemplate {
 	public Map<String, Object> cardinality;
 	public JoltFormat format;
 
-	public boolean topTemplate = false;
 	public boolean leafTemplate = false;
+	private String resourceType;
 
 	public RootNode toJoltPath() {
 		Map<String, Object> shift = shifts.get(0);
-		return JoltPath.getInstance(shift);
+		return NodeFactory.getInstance(shift, resourceType);
 	}
 
 	private static Map<String, JoltTemplate> getIntermediateTemplates(Map<String, JoltTemplate> map) {
 		return map.entrySet().stream().filter(entry -> {
 			JoltTemplate value = entry.getValue();
-			if (value.leafTemplate || value.topTemplate) {
+			if (value.leafTemplate || value.resourceType != null) {
 				return false;
 			}
 			if (value.shifts.size() < 1) {
@@ -83,10 +83,7 @@ public class JoltTemplate {
 		rootPath.expandLinks(pathLinks);
 		rootPath.conditionalize();
 
-		Table table = rootPath.toTable();
-		if (resolvedFormat != null) {
-			table.updateFormats(resolvedFormat);
-		}
+		Table table = rootPath.toTable(resolvedFormat);
 		return table;
 	}
 
@@ -111,7 +108,8 @@ public class JoltTemplate {
 				continue;
 			}
 			if (operation.endsWith("ResourceAccumulator")) {
-				result.topTemplate = true;
+				Map<String, Object> resource = (Map<String, Object>) transform.get("spec");
+				result.resourceType = (String) resource.get("resourceType");
 				continue;
 			}
 			if (operation.endsWith("AdditionalModifier")) {

@@ -58,6 +58,14 @@ public class TableRow implements Comparable<TableRow> {
 	public void sortConditions() {
 		Collections.sort(conditions);
 	}
+	
+	public void promoteTarget(String path) {
+		if (target.isEmpty()) {
+			target = path;
+		} else {
+			target = path + "." + target;
+		}
+	}
 
 	@Override
 	public int compareTo(TableRow rhs) {

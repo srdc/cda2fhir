@@ -351,7 +351,7 @@ public class JoltPath implements INode {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static List<JoltPath> toJoltPaths(Map<String, Object> map) {
+	public static List<JoltPath> toJoltPaths(Map<String, Object> map) {
 		List<JoltPath> result = new ArrayList<JoltPath>();
 		map.forEach((key, value) -> {
 			if (value == null) {
@@ -381,12 +381,5 @@ public class JoltPath implements INode {
 			}
 		});
 		return result;
-	}
-	
-	public static RootNode getInstance(Map<String, Object> map) {
-		RootNode node = new RootNode();
-		List<JoltPath> list = toJoltPaths(map);
-		list.forEach(joltPath -> node.addChild(joltPath));
-		return node;
 	}
 }

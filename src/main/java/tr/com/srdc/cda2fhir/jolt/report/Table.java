@@ -26,6 +26,10 @@ public class Table {
 		rows.forEach(row -> row.updateFormat(formats));
 	}
 
+	public void promoteTargets(String path) {
+		rows.forEach(row -> row.promoteTarget(path));
+	}
+	
 	@Override
 	public String toString() {
 		return rows.stream().map(r -> r.toString()).collect(Collectors.joining("\n"));

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import tr.com.srdc.cda2fhir.jolt.report.INode;
+import tr.com.srdc.cda2fhir.jolt.report.JoltFormat;
 import tr.com.srdc.cda2fhir.jolt.report.JoltPath;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
-public class RootNode implements INode {
+public class RootNode {
 	private JoltPath root = new JoltPath("root");
 
 	public RootNode() {
@@ -18,29 +18,24 @@ public class RootNode implements INode {
 		root.addChild(base);
 	}
 	
-	@Override
 	public void addChild(JoltPath node) {
 		root.children.get(0).addChild(node);
 	}
 	
-	@Override
 	public List<JoltPath> getLinks() {
 		return root.getLinks();
 	}
 
-	@Override
 	public void expandLinks(Map<String, RootNode> linkMap) {
 		root.expandLinks(linkMap);
 	}
 
-	@Override
 	public void conditionalize() {
 		root.createConditions();
 		root.mergeSpecialDescendants();
 	}
 
-	@Override
-	public Table toTable() {
+	public Table toTable(JoltFormat resolvedFormat) {
 		Table result = new Table();
 		root.children.forEach(child -> {
 			child.children.forEach(grandChild -> {
@@ -54,6 +49,9 @@ public class RootNode implements INode {
 				result.addRows(grandChildRows);				
 			});
 		});
+		if (resolvedFormat != null) {
+			result.updateFormats(resolvedFormat);
+		}
 		return result;
 	}
 
