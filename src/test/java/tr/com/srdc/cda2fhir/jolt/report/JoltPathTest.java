@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
+
 public class JoltPathTest {
 	final private static String PATH = "src/test/resources/jolt-verify/report/jolt-path-0/";
 
@@ -16,11 +18,11 @@ public class JoltPathTest {
 		Map<String, Object> jsonAIO = JsonUtils.filepathToMap(PATH + "AllergyIntoleranceObservation.json");
 		Map<String, Object> jsonETV = JsonUtils.filepathToMap(PATH + "EffectiveTimeLowOrValue.json");
 
-		JoltPath jpathACA = JoltPath.getInstance(jsonACA);
-		JoltPath jpathAIO = JoltPath.getInstance(jsonAIO);
-		JoltPath jpathETV = JoltPath.getInstance(jsonETV);
+		RootNode jpathACA = JoltPath.getInstance(jsonACA);
+		RootNode jpathAIO = JoltPath.getInstance(jsonAIO);
+		RootNode jpathETV = JoltPath.getInstance(jsonETV);
 
-		Map<String, JoltPath> expansionMap = new HashMap<String, JoltPath>();
+		Map<String, RootNode> expansionMap = new HashMap<String, RootNode>();
 		expansionMap.put("AllergyIntoleranceObservation", jpathAIO);
 		expansionMap.put("EffectiveTimeLowOrValue", jpathETV);
 

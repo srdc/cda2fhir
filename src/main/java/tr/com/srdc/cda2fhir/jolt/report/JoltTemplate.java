@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
+
 public class JoltTemplate {
 	public List<Map<String, Object>> shifts = new ArrayList<Map<String, Object>>();
 	public Map<String, Object> cardinality;
@@ -13,7 +15,7 @@ public class JoltTemplate {
 	public boolean topTemplate = false;
 	public boolean leafTemplate = false;
 
-	public JoltPath toJoltPath() {
+	public RootNode toJoltPath() {
 		Map<String, Object> shift = shifts.get(0);
 		return JoltPath.getInstance(shift);
 	}
@@ -31,7 +33,7 @@ public class JoltTemplate {
 		}).collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()));
 	}
 
-	private static Map<String, JoltPath> getPathLinks(Map<String, JoltTemplate> templates) {
+	private static Map<String, RootNode> getPathLinks(Map<String, JoltTemplate> templates) {
 		return templates.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toJoltPath()));
 	}
@@ -41,8 +43,8 @@ public class JoltTemplate {
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().format));
 	}
 
-	private static JoltFormat getResolvedFormat(JoltFormat format, JoltPath rootPath,
-			Map<String, JoltFormat> formatLinks, Map<String, JoltPath> pathLinks) {
+	private static JoltFormat getResolvedFormat(JoltFormat format, RootNode rootPath,
+			Map<String, JoltFormat> formatLinks, Map<String, RootNode> pathLinks) {
 		if (format == null) {
 			return null;
 		}
@@ -56,15 +58,15 @@ public class JoltTemplate {
 			if (linkedFormat == null) {
 				return;
 			}
-			JoltPath linkedRootPath = pathLinks.get(link);
+			RootNode linkedRootPath = pathLinks.get(link);
 			JoltFormat resolvedLinkedFormat = getResolvedFormat(linkedFormat, linkedRootPath, formatLinks, pathLinks);
 			result.putAllAsPromoted(resolvedLinkedFormat, target);
 		});
 		return result;
 	}
 
-	private JoltFormat getResolvedFormat(JoltPath rootPath, Map<String, JoltFormat> formatLinks,
-			Map<String, JoltPath> pathLinks) {
+	private JoltFormat getResolvedFormat(RootNode rootPath, Map<String, JoltFormat> formatLinks,
+			Map<String, RootNode> pathLinks) {
 		return getResolvedFormat(format, rootPath, formatLinks, pathLinks);
 	}
 
@@ -72,9 +74,9 @@ public class JoltTemplate {
 		Map<String, JoltTemplate> intermediateTemplates = getIntermediateTemplates(map);
 
 		Map<String, JoltFormat> formatLinks = getFormatLinks(intermediateTemplates);
-		Map<String, JoltPath> pathLinks = getPathLinks(intermediateTemplates);
+		Map<String, RootNode> pathLinks = getPathLinks(intermediateTemplates);
 
-		JoltPath rootPath = toJoltPath();
+		RootNode rootPath = toJoltPath();
 
 		JoltFormat resolvedFormat = getResolvedFormat(rootPath, formatLinks, pathLinks);
 

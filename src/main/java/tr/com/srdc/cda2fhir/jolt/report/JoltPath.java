@@ -6,14 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class JoltPath {
+import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
+
+public class JoltPath implements INode {
 	private String path;
 	private String target;
 	private String link;
-	private LinkedList<JoltPath> children = new LinkedList<JoltPath>();
+	public LinkedList<JoltPath> children = new LinkedList<JoltPath>();
 	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 
-	private JoltPath(String path) {
+	public JoltPath(String path) {
 		this.path = path;
 	}
 
@@ -50,6 +52,7 @@ public class JoltPath {
 		return link;
 	}
 
+	@Override
 	public void addChild(JoltPath child) {
 		children.add(child);
 	}
@@ -70,6 +73,7 @@ public class JoltPath {
 		}
 	}
 
+	@Override
 	public List<JoltPath> getLinks() {
 		List<JoltPath> result = new ArrayList<JoltPath>();
 		fillLinks(result);
@@ -80,7 +84,7 @@ public class JoltPath {
 		this.target = target;
 	}
 
-	private void promoteTargets(String parentTarget) {
+	public void promoteTargets(String parentTarget) {
 		if (target != null) {
 			if (target.length() > 0) {
 				target = parentTarget + "." + target;
@@ -92,20 +96,18 @@ public class JoltPath {
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
 
-	public void expandLinks(Map<String, JoltPath> linkMap) {
+	@Override
+	public void expandLinks(Map<String, RootNode> linkMap) {
 		if (link == null) {
 			children.forEach(c -> c.expandLinks(linkMap));
 			return;
 		}
 
-		JoltPath linkPaths = linkMap.get(link);
+		RootNode linkPaths = linkMap.get(link);
 		if (linkPaths != null) {
-			JoltPath linkPathsClone = linkPaths.clone();
-			linkPathsClone.expandLinks(linkMap);
-			if (target.length() > 0) {
-				linkPathsClone.promoteTargets(target);
-			}
-			children.addAll(linkPathsClone.children);
+			List<JoltPath> list = linkPaths.getMergableCopy(target);
+			list.forEach(e -> e.expandLinks(linkMap));
+			children.addAll(list);
 			target = null;
 			link = null;
 		}
@@ -282,6 +284,7 @@ public class JoltPath {
 		convertValueBranchesToConditions();
 	}
 
+	@Override
 	public void conditionalize() {
 		createConditions();
 		mergeSpecialDescendants();
@@ -322,6 +325,7 @@ public class JoltPath {
 		return rows;
 	}
 
+	@Override
 	public Table toTable() {
 		Table result = new Table();
 		children.forEach(jp -> {
@@ -350,29 +354,31 @@ public class JoltPath {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static JoltPath getInstance(String path, Map<String, Object> map) {
-		JoltPath result = new JoltPath(path);
+	private static List<JoltPath> toJoltPaths(Map<String, Object> map) {
+		List<JoltPath> result = new ArrayList<JoltPath>();
 		map.forEach((key, value) -> {
 			if (value == null) {
 				JoltPath joltPath = new JoltPath(key);
-				result.addChild(joltPath);
+				result.add(joltPath);
 				return;
 			}
 			if (value instanceof Map) {
-				JoltPath joltPath = JoltPath.getInstance(key, (Map<String, Object>) value);
-				result.addChild(joltPath);
+				List<JoltPath> subResult = toJoltPaths((Map<String, Object>) value);
+				JoltPath parentJoltPath = new JoltPath(key);
+				subResult.forEach(joltPath -> parentJoltPath.addChild(joltPath));
+				result.add(parentJoltPath);
 				return;
 			}
 			if (value instanceof String) {
 				JoltPath joltPath = JoltPath.getInstance(key, (String) value);
-				result.addChild(joltPath);
+				result.add(joltPath);
 				return;
 			}
 			if (value instanceof List) {
 				List<String> values = (List<String>) value;
 				values.forEach(target -> {
 					JoltPath joltPath = JoltPath.getInstance(key, target);
-					result.addChild(joltPath);
+					result.add(joltPath);
 				});
 				return;
 			}
@@ -380,7 +386,10 @@ public class JoltPath {
 		return result;
 	}
 	
-	public static JoltPath getInstance(Map<String, Object> map) {
-		return getInstance("root", map);
+	public static RootNode getInstance(Map<String, Object> map) {
+		RootNode node = new RootNode();
+		List<JoltPath> list = toJoltPaths(map);
+		list.forEach(joltPath -> node.addChild(joltPath));
+		return node;
 	}
 }
