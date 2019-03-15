@@ -6,18 +6,18 @@ import java.util.Map;
 
 public class JoltFormat {
 	private Map<String, String> map = new HashMap<String, String>();
-	
+
 	public String get(String target) {
 		return map.get(target);
 	}
-	
+
 	@Override
 	public JoltFormat clone() {
 		JoltFormat formatClone = new JoltFormat();
 		formatClone.map.putAll(map);
 		return formatClone;
 	}
-	
+
 	public void putAllAsPromoted(JoltFormat source, String target) {
 		source.map.forEach((key, format) -> {
 			if (target.isEmpty()) {
@@ -28,20 +28,20 @@ public class JoltFormat {
 			}
 		});
 	}
-	
+
 	private static String formatValue(String value) {
 		String result = value.replace(",@0", "").replace("(@0)", "");
 		return result.substring(1);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private static void fillResult(JoltFormat result, Map<String, Object> map, String parentPath) {	
-		for (Map.Entry<String, Object> entry: map.entrySet()) {
+	private static void fillResult(JoltFormat result, Map<String, Object> map, String parentPath) {
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue();
 			if (value == null) {
 				throw new ReportException("There must be a function for each entry in format specification");
-			}			
+			}
 			if (value instanceof Map) {
 				Map<String, Object> valueAsMap = (Map<String, Object>) value;
 				Map.Entry<String, Object> valueEntry = valueAsMap.entrySet().stream().findFirst().get();

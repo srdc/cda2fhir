@@ -49,9 +49,9 @@ public class Main {
 			return table;
 		}
 		return null;
-		
+
 	}
-	
+
 	public static String transformationCSV(String name) {
 		Table table = transformationTable(name);
 		if (table != null) {
@@ -60,7 +60,7 @@ public class Main {
 		}
 		return null;
 	}
-	
+
 	public static String transformationText(String name) {
 		Table table = transformationTable(name);
 		if (table != null) {
@@ -69,7 +69,7 @@ public class Main {
 		}
 		return null;
 	}
-	
+
 	public static void main(String[] args) {
 		// String output = transformationCSV("AllergyConcernAct");
 		String output = transformationText("AllergyConcernAct");

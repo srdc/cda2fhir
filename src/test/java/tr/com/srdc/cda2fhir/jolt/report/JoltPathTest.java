@@ -15,20 +15,20 @@ public class JoltPathTest {
 		Map<String, Object> jsonACA = JsonUtils.filepathToMap(PATH + "AllergyConcernAct.json");
 		Map<String, Object> jsonAIO = JsonUtils.filepathToMap(PATH + "AllergyIntoleranceObservation.json");
 		Map<String, Object> jsonETV = JsonUtils.filepathToMap(PATH + "EffectiveTimeLowOrValue.json");
-		
+
 		JoltPath jpathACA = JoltPath.getInstance(jsonACA);
 		JoltPath jpathAIO = JoltPath.getInstance(jsonAIO);
 		JoltPath jpathETV = JoltPath.getInstance(jsonETV);
-		
+
 		Map<String, JoltPath> expansionMap = new HashMap<String, JoltPath>();
 		expansionMap.put("AllergyIntoleranceObservation", jpathAIO);
 		expansionMap.put("EffectiveTimeLowOrValue", jpathETV);
-		
+
 		jpathACA.expandLinks(expansionMap);
 		jpathACA.conditionalize();
 
 		Table table = jpathACA.toTable();
-		
-		System.out.println(table.toString());			
+
+		System.out.println(table.toString());
 	}
 }

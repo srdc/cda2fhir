@@ -41,14 +41,14 @@ public class JoltTemplate {
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().format));
 	}
 
-	private static JoltFormat getResolvedFormat(JoltFormat format, JoltPath rootPath, Map<String, JoltFormat> formatLinks,
-			Map<String, JoltPath> pathLinks) {
+	private static JoltFormat getResolvedFormat(JoltFormat format, JoltPath rootPath,
+			Map<String, JoltFormat> formatLinks, Map<String, JoltPath> pathLinks) {
 		JoltFormat result = format.clone();
 		List<JoltPath> linkPaths = rootPath.getLinks();
 		linkPaths.forEach(joltPath -> {
 			String link = joltPath.getLink();
 			String target = joltPath.getTarget();
-			
+
 			JoltFormat linkedFormat = formatLinks.get(link);
 			if (linkedFormat == null) {
 				return;
@@ -59,8 +59,7 @@ public class JoltTemplate {
 		});
 		return result;
 	}
-	
-	
+
 	private JoltFormat getResolvedFormat(JoltPath rootPath, Map<String, JoltFormat> formatLinks,
 			Map<String, JoltPath> pathLinks) {
 		return getResolvedFormat(format, rootPath, formatLinks, pathLinks);

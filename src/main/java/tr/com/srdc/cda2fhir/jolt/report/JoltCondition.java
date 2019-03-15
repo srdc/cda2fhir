@@ -7,7 +7,7 @@ public class JoltCondition {
 
 	public JoltCondition(String path, String relation) {
 		this.path = path;
-		this.relation = relation;		
+		this.relation = relation;
 	}
 
 	public JoltCondition(String path, String relation, String value) {
@@ -20,7 +20,7 @@ public class JoltCondition {
 	public JoltCondition clone() {
 		return new JoltCondition(path, relation, value);
 	}
-	
+
 	public void prependPath(String path) {
 		if (this.path == null || this.path.length() == 0) {
 			this.path = path;
@@ -28,7 +28,7 @@ public class JoltCondition {
 			this.path = path + '.' + this.path;
 		}
 	}
-		
+
 	public JoltCondition not() {
 		if (relation.equals("isnotnull")) {
 			return new JoltCondition(path, "isnull");
@@ -44,7 +44,7 @@ public class JoltCondition {
 		}
 		return new JoltCondition(path, "not" + relation, value);
 	}
-	
+
 	public String toString(String ownerPath) {
 		String conditionPath = path.length() == 0 ? ownerPath : ownerPath + "." + path;
 		String result = conditionPath + " " + relation;

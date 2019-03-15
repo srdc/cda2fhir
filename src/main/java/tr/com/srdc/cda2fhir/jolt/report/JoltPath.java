@@ -12,22 +12,22 @@ public class JoltPath {
 	private String link;
 	private LinkedList<JoltPath> children = new LinkedList<JoltPath>();
 	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
-	
+
 	private JoltPath(String path) {
 		this.path = path;
 	}
-	
+
 	private JoltPath(String path, String target) {
 		this.path = path;
 		this.target = target;
 	}
-	
+
 	private JoltPath(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
 		this.link = link;
 	}
-	
+
 	@Override
 	public JoltPath clone() {
 		JoltPath result = new JoltPath(path, target, link);
@@ -41,43 +41,43 @@ public class JoltPath {
 		});
 		return result;
 	}
-	
+
 	public String getTarget() {
 		return target;
 	}
-	
+
 	public String getLink() {
 		return link;
 	}
-	
+
 	public void addChild(JoltPath child) {
 		children.add(child);
 	}
-	
+
 	public void addChildren(List<JoltPath> children) {
 		this.children.addAll(children);
 	}
-	
+
 	public void addChildrenOf(JoltPath joltPath) {
 		this.children.addAll(joltPath.children);
 	}
-	
+
 	private void fillLinks(List<JoltPath> result) {
 		if (link != null) {
 			result.add(this);
-		} else {	
+		} else {
 			children.forEach(child -> child.fillLinks(result));
 		}
 	}
-	
+
 	public List<JoltPath> getLinks() {
 		List<JoltPath> result = new ArrayList<JoltPath>();
 		fillLinks(result);
 		return result;
 	}
-	
+
 	public void setTarget(String target) {
-		this.target = target; 
+		this.target = target;
 	}
 
 	private void promoteTargets(String parentTarget) {
@@ -91,13 +91,13 @@ public class JoltPath {
 		}
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
-	
+
 	public void expandLinks(Map<String, JoltPath> linkMap) {
 		if (link == null) {
 			children.forEach(c -> c.expandLinks(linkMap));
 			return;
 		}
-		
+
 		JoltPath linkPaths = linkMap.get(link);
 		if (linkPaths != null) {
 			JoltPath linkPathsClone = linkPaths.clone();
@@ -110,30 +110,31 @@ public class JoltPath {
 			link = null;
 		}
 	}
-	
+
 	private boolean isSpecial(char type) {
 		return path.length() > 0 && path.charAt(0) == type;
 	}
-	
+
 	private long specialChildCount(char type) {
 		if (children.size() == 0) {
 			return 0;
-		}		
-		return children.stream().filter(child -> child.isSpecial(type)).count();		
+		}
+		return children.stream().filter(child -> child.isSpecial(type)).count();
 	}
-	
+
 	private long specialGrandChildrenCount(char type) {
 		if (children.size() == 0) {
 			return 0;
-		}		
+		}
 		return children.stream().filter(child -> {
 			return child.specialChildCount(type) > 0;
-		}).count();		
+		}).count();
 	}
-	
+
 	private List<JoltCondition> childToCondition(String value, List<JoltCondition> allConditions) {
 		if ("*".equals(value)) {
-			List<JoltCondition> reverseConditions = allConditions.stream().map(c -> c.not()).collect(Collectors.toList());
+			List<JoltCondition> reverseConditions = allConditions.stream().map(c -> c.not())
+					.collect(Collectors.toList());
 			return reverseConditions;
 		}
 		if (value.length() == 0) {
@@ -147,25 +148,25 @@ public class JoltPath {
 		conditions.add(condition);
 		return conditions;
 	}
-	
+
 	private static String decrementSpecialPath(String path) {
 		int value = Integer.valueOf(path.substring(1));
 		value -= 1;
 		return "!" + value;
 	}
-	
+
 	private void mergeSpecialChild() {
 		if (children.size() != 1) {
 			throw new ReportException("Only a unique child can be merged.");
-			
-		}		
+
+		}
 		JoltPath child = children.get(0);
 		if (!child.isSpecial('!')) {
-			throw new ReportException("Only special children can be merged.");			
+			throw new ReportException("Only special children can be merged.");
 		}
-		
+
 		children.remove(child);
-		children.addAll(child.children);		
+		children.addAll(child.children);
 		link = child.link;
 		target = child.target;
 
@@ -180,10 +181,10 @@ public class JoltPath {
 		});
 		path = "!" + (childRank - 1);
 	}
-	
+
 	public void mergeSpecialGrandChildren() {
 		children.forEach(child -> child.mergeSpecialGrandChildren());
-		
+
 		long specialCount = specialGrandChildrenCount('!');
 		if (specialCount == 0) {
 			return;
@@ -193,13 +194,14 @@ public class JoltPath {
 		children.forEach(child -> {
 			if (child.specialChildCount('!') < 1) {
 				return;
-			}			
-			if (child.children.size() == 1) {				
+			}
+			if (child.children.size() == 1) {
 				child.mergeSpecialChild();
 				return;
 			}
-			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());			
-			for (JoltPath grandChild: specialGrandChildren) {
+			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isSpecial('!'))
+					.collect(Collectors.toList());
+			for (JoltPath grandChild : specialGrandChildren) {
 				JoltPath childClone = child.clone();
 				childClone.children.clear();
 				childClone.children.add(grandChild);
@@ -219,7 +221,7 @@ public class JoltPath {
 
 	public void mergeSpecialDescendants() {
 		mergeSpecialGrandChildren();
-		
+
 		List<JoltPath> specialChildren = children.stream().filter(c -> c.isSpecial('!')).collect(Collectors.toList());
 		specialChildren.forEach(child -> {
 			JoltPath grandChild = child.children.get(0);
@@ -238,9 +240,9 @@ public class JoltPath {
 			JoltCondition condition = new JoltCondition(child.path, "isnull");
 			conditions.add(condition);
 			children.remove(child);
-		});		
+		});
 	}
-	
+
 	private void convertValueBranchesToConditions() {
 		long valueCount = specialGrandChildrenCount('@');
 		if (valueCount > 0) {
@@ -249,7 +251,7 @@ public class JoltPath {
 			}
 
 			List<JoltCondition> allConditions = new ArrayList<JoltCondition>();
-			
+
 			List<JoltPath> newChildren = children.stream().map(child -> {
 				JoltPath grandChild = child.children.get(0);
 				String newPath = decrementSpecialPath(grandChild.path);
@@ -260,12 +262,12 @@ public class JoltPath {
 				newChild.conditions.addAll(conditions);
 				return newChild;
 			}).collect(Collectors.toList());
-			
+
 			children.clear();
-			children.addAll(newChildren);			
-		}		
+			children.addAll(newChildren);
+		}
 	}
-		
+
 	public void createConditions() {
 		if (children.size() == 0) {
 			return;
@@ -280,26 +282,26 @@ public class JoltPath {
 		createConditions();
 		mergeSpecialDescendants();
 	}
-	
+
 	private String externalPath() {
 		if (path.charAt(0) == '#') {
 			return String.format("'%s'", path.substring(1));
 		}
 		return path;
 	}
-		
+
 	public List<TableRow> toTableRows() {
 		if (children.size() < 1) {
 			TableRow row = new TableRow(externalPath(), target, link);
 			conditions.forEach(condition -> {
 				String conditionAsString = condition.toString(path);
 				row.addCondition(conditionAsString);
-			});			
+			});
 			List<TableRow> result = new ArrayList<TableRow>();
 			result.add(row);
 			return result;
 		}
-		
+
 		List<TableRow> rows = new ArrayList<TableRow>();
 		children.forEach(child -> {
 			List<TableRow> childRows = child.toTableRows();
@@ -307,7 +309,7 @@ public class JoltPath {
 		});
 		rows.forEach(row -> {
 			row.promotePath(path);
-			
+
 			conditions.forEach(condition -> {
 				String conditionAsString = condition.toString(path);
 				row.addCondition(conditionAsString);
@@ -315,25 +317,25 @@ public class JoltPath {
 		});
 		return rows;
 	}
-		
+
 	public Table toTable() {
 		Table result = new Table();
 		children.forEach(jp -> {
 			List<TableRow> rows = jp.toTableRows();
 			result.addRows(rows);
-		});		
+		});
 		return result;
 	}
 
 	public static JoltPath getInstance(String path, String target) {
 		if (target == null) {
-			return new JoltPath(path, null);			
-		}		
-		String[] pieces = target.split("\\.");		
+			return new JoltPath(path, null);
+		}
+		String[] pieces = target.split("\\.");
 		int length = pieces.length;
-		String lastPiece = pieces[length-1];
+		String lastPiece = pieces[length - 1];
 		if (!lastPiece.startsWith("->")) {
-			return new JoltPath(path, target);						
+			return new JoltPath(path, target);
 		}
 		String link = lastPiece.substring(2);
 		if (length == 1) {
@@ -349,14 +351,14 @@ public class JoltPath {
 	@SuppressWarnings("unchecked")
 	public static JoltPath getInstance(Map<String, Object> map) {
 		JoltPath result = new JoltPath("root");
-		for (Map.Entry<String, Object> entry: map.entrySet()) {
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue();
 			if (value == null) {
 				JoltPath joltPath = JoltPath.getInstance(key, null);
 				result.addChild(joltPath);
 				continue;
-			}			
+			}
 			if (value instanceof Map) {
 				JoltPath rootChild = getInstance((Map<String, Object>) value);
 				JoltPath joltPath = JoltPath.getInstance(key, null);
@@ -373,7 +375,7 @@ public class JoltPath {
 				List<String> values = (List<String>) value;
 				values.forEach(target -> {
 					JoltPath joltPath = JoltPath.getInstance(key, target);
-					result.addChild(joltPath);					
+					result.addChild(joltPath);
 				});
 				continue;
 			}
