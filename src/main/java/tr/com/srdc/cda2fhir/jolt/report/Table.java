@@ -33,7 +33,7 @@ public class Table {
 
 	public String toCsv() {
 		int conditionCount = rows.stream().map(r -> r.conditionCount()).mapToInt(Integer::intValue).max().getAsInt();
-		String header = String.format("%s,%s,%s,%s", "Target", "Link", "CCDA Source", "Format");
+		String header = String.format("%s,%s,%s,%s", "CCDA Source", "Target", "Link", "Format");
 		for (int index = 0; index < conditionCount; ++index) {
 			header += "," + "Condition " + (index + 1);
 		}

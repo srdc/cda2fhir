@@ -47,7 +47,7 @@ public class TableRow implements Comparable<TableRow> {
 
 	public String toCsvRow() {
 		String csvLink = link == null ? "" : link;
-		String result = String.format("%s,%s,%s,%s", target, csvLink, path, format);
+		String result = String.format("%s,%s,%s,%s", path, target, csvLink, format);
 		if (conditions.size() > 0) {
 			String conditionInfo = conditions.stream().collect(Collectors.joining(","));
 			result += "," + conditionInfo;
