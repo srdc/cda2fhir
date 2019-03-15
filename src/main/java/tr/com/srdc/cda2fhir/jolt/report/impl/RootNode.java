@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,11 +37,20 @@ public class RootNode implements INode {
 		return root.toTable();
 	}
 
-	public List<JoltPath> getMergableCopy(String name) {
+	private List<JoltPath> getMergableCopy(String name) {
 		JoltPath rootClone = root.clone();
 		if (name.length() > 0) {
 			rootClone.promoteTargets(name);
 		}
 		return rootClone.children;
+	}
+
+	public List<JoltPath> getAsLinkReplacement(String path, String target) {
+		List<JoltPath> list = getMergableCopy(target);
+		JoltPath node = new JoltPath(path);
+		node.children.addAll(list);
+		List<JoltPath> result = new ArrayList<JoltPath>();
+		result.add(node);
+		return result;
 	}
 }

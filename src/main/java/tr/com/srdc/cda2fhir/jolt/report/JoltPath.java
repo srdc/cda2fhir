@@ -110,12 +110,10 @@ public class JoltPath implements INode {
 			linkedChildren.forEach(linkedChild -> {
 				RootNode linkedNode = linkMap.get(linkedChild.link);
 				if (linkedNode != null) {
-					List<JoltPath> list = linkedNode.getMergableCopy(linkedChild.target);
-					list.forEach(e -> e.expandLinks(linkMap));
-					JoltPath newChild = new JoltPath(linkedChild.path);
-					newChild.children.addAll(list);
+					List<JoltPath> newChildren = linkedNode.getAsLinkReplacement(linkedChild.path, linkedChild.target);
+					newChildren.forEach(newChild -> newChild.expandLinks(linkMap));
 					children.remove(linkedChild);
-					children.add(newChild);
+					children.addAll(newChildren);
 				}
 			});
 		}
