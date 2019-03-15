@@ -327,10 +327,7 @@ public class JoltPath {
 		return result;
 	}
 
-	public static JoltPath getInstance(String path, String target) {
-		if (target == null) {
-			return new JoltPath(path, null);
-		}
+	private static JoltPath getInstance(String path, String target) {
 		String[] pieces = target.split("\\.");
 		int length = pieces.length;
 		String lastPiece = pieces[length - 1];
@@ -349,27 +346,23 @@ public class JoltPath {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static JoltPath getInstance(Map<String, Object> map) {
-		JoltPath result = new JoltPath("root");
-		for (Map.Entry<String, Object> entry : map.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
+	private static JoltPath getInstance(String path, Map<String, Object> map) {
+		JoltPath result = new JoltPath(path);
+		map.forEach((key, value) -> {
 			if (value == null) {
-				JoltPath joltPath = JoltPath.getInstance(key, null);
+				JoltPath joltPath = new JoltPath(key);
 				result.addChild(joltPath);
-				continue;
+				return;
 			}
 			if (value instanceof Map) {
-				JoltPath rootChild = getInstance((Map<String, Object>) value);
-				JoltPath joltPath = JoltPath.getInstance(key, null);
-				joltPath.addChildrenOf(rootChild);
+				JoltPath joltPath = JoltPath.getInstance(key, (Map<String, Object>) value);
 				result.addChild(joltPath);
-				continue;
+				return;
 			}
 			if (value instanceof String) {
 				JoltPath joltPath = JoltPath.getInstance(key, (String) value);
 				result.addChild(joltPath);
-				continue;
+				return;
 			}
 			if (value instanceof List) {
 				List<String> values = (List<String>) value;
@@ -377,9 +370,13 @@ public class JoltPath {
 					JoltPath joltPath = JoltPath.getInstance(key, target);
 					result.addChild(joltPath);
 				});
-				continue;
+				return;
 			}
-		}
+		});
 		return result;
+	}
+	
+	public static JoltPath getInstance(Map<String, Object> map) {
+		return getInstance("root", map);
 	}
 }
