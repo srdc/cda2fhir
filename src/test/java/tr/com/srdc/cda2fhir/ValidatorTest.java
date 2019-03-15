@@ -185,7 +185,7 @@ public class ValidatorTest {
 		Config.setGenerateDafProfileMetadata(generateDAFProfileMetadata);
 
 		// make the transformation
-		Bundle bundle = ccdTransformer.transformDocument(cda, null);
+		Bundle bundle = ccdTransformer.transformDocument(cda, null, null);
 		Assert.assertNotNull(bundle);
 
 		// print the bundle for checking against validation results

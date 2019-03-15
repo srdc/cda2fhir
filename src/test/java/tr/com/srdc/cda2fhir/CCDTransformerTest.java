@@ -133,7 +133,7 @@ public class CCDTransformerTest {
 		}
 		Config.setGenerateDafProfileMetadata(false);
 		Config.setGenerateNarrative(true);
-		Bundle bundle = ccdTransformer.transformDocument(cda, null);
+		Bundle bundle = ccdTransformer.transformDocument(cda, null, null);
 		Assert.assertNotNull("Expect a bundle after transformation", bundle);
 		Assert.assertTrue("Expect some entries", bundle.hasEntry());
 

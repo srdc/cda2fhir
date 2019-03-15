@@ -26,6 +26,7 @@ import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.Group;
+import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
 import org.hl7.fhir.dstu3.model.Substance;
@@ -428,9 +429,11 @@ public interface IResourceTransformer {
 	/**
 	 * Provides a provenance file to store the targeted references.
 	 * 
-	 * @param bundle The built bundle, needed to parse for references.
+	 * @param bundle          The built bundle, needed to parse for references.
+	 * @param encodedBody     A string with the encoded document body.
+	 * @param assemblerDevice An Identifier of the original assembling device.
 	 * @return Bundle, updated with a provenance object, and entries for binary and
 	 *         device.
 	 */
-	Bundle tProvenance(Bundle bundle, String encodedBody, String deviceName);
+	Bundle tProvenance(Bundle bundle, String encodedBody, Identifier assemblerDevice);
 }

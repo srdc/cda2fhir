@@ -5,6 +5,7 @@ import java.util.Base64;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -50,7 +51,7 @@ public class IntegrationTest {
 //		// create transaction bundle from ccda bundle
 //
 //		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-//				BundleType.TRANSACTION, null, null);
+//				BundleType.TRANSACTION, null, null, "Higgs");
 //
 //		// print pre-post bundle
 //		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
@@ -79,16 +80,15 @@ public class IntegrationTest {
 	public void provenanceIntegration() throws Exception {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		String encodedBody = Base64.getEncoder().encodeToString("<ClinicalDoc>\n</ClinicalDoc>".getBytes());
+		Identifier device = new Identifier();
+		device.setValue("Higgs");
+		device.setSystem("http://www.amida.com");
 
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, encodedBody);
+				BundleType.TRANSACTION, null, encodedBody, device);
 
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/provenance_bundle.json");
-
-//		byte[] stuff = Base64.getDecoder().decode(encodedBody);
-//		String stuffout = new String(stuff);
-//		System.out.println(stuffout);
 	}
 
 }

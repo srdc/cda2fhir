@@ -72,6 +72,7 @@ import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 import org.hl7.fhir.dstu3.model.Narrative;
+import org.hl7.fhir.dstu3.model.Narrative.NarrativeStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
@@ -88,7 +89,6 @@ import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
-import org.hl7.fhir.dstu3.model.codesystems.IdentifierType;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentType;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -3086,20 +3086,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return binary;
 	}
 
-	public Device tDevice(String deviceName) {
-		// Afsin I'm confused here.
+	public Device tDevice(Identifier assemblerDevice) {
 		Device device = new Device();
 		device.setStatus(FHIRDeviceStatus.ACTIVE);
-		Identifier deviceIdentifier = new Identifier();
+		device.addIdentifier(assemblerDevice);
 
-		Coding deviceIdCoding = new Coding(IdentifierType.UDI.getSystem(), IdentifierType.UDI.toCode(),
-				IdentifierType.UDI.getDisplay());
+		Narrative deviceNarrative = new Narrative().setStatus(NarrativeStatus.GENERATED);
+		deviceNarrative.setDivAsString(assemblerDevice.getValue());
+		device.setText(deviceNarrative);
 
 		device.setId(new IdType("Device", getUniqueId()));
 		return device;
 	}
 
-	public Bundle tProvenance(Bundle bundle, String encodedBody, String deviceName) {
+	public Bundle tProvenance(Bundle bundle, String encodedBody, Identifier deviceName) {
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		Binary binary = tBinary(encodedBody);
 		Device device = tDevice(deviceName);

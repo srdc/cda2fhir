@@ -35,6 +35,7 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
@@ -189,11 +190,11 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @throws Exception
 	 */
 	public Bundle transformDocument(String filePath, BundleType bundleType, Map<String, String> resourceProfileMap,
-			String encodedBody) throws Exception {
+			String encodedBody, Identifier assemblerDevice) throws Exception {
 		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		bundle = resTransformer.tProvenance(bundle, encodedBody, "Higgs");
+		bundle = resTransformer.tProvenance(bundle, encodedBody, assemblerDevice);
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -235,10 +236,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @throws Exception
 	 */
 	public Bundle transformDocument(ContinuityOfCareDocument cda, BundleType bundleType,
-			Map<String, String> resourceProfileMap, String encodedBody) throws Exception {
+			Map<String, String> resourceProfileMap, String encodedBody, Identifier assemblerDevice) throws Exception {
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		bundle = resTransformer.tProvenance(bundle, encodedBody, "Higgs");
+		bundle = resTransformer.tProvenance(bundle, encodedBody, assemblerDevice);
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -257,9 +258,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 */
-	public Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody) {
+	public Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody, Identifier assemblerDevice) {
 		Bundle bundle = transformDocument(cda, true);
-		bundle = resTransformer.tProvenance(bundle, encodedBody, "Higgs");
+		bundle = resTransformer.tProvenance(bundle, encodedBody, assemblerDevice);
 		return bundle;
 	}
 
