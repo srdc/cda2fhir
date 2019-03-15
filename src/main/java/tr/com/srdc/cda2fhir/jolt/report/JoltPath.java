@@ -96,20 +96,28 @@ public class JoltPath implements INode {
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
 
+	private boolean isLeaf() {
+		return children.isEmpty();
+	}
+	
 	@Override
 	public void expandLinks(Map<String, RootNode> linkMap) {
-		if (link == null) {
-			children.forEach(c -> c.expandLinks(linkMap));
-			return;
-		}
-
-		RootNode linkPaths = linkMap.get(link);
-		if (linkPaths != null) {
-			List<JoltPath> list = linkPaths.getMergableCopy(target);
-			list.forEach(e -> e.expandLinks(linkMap));
-			children.addAll(list);
-			target = null;
-			link = null;
+		if (!isLeaf()) {	
+			children.stream().filter(c -> !c.isLeaf()).forEach(c -> c.expandLinks(linkMap));
+		
+			List<JoltPath> linkedChildren = children.stream().filter(c -> c.isLeaf() && c.link != null).collect(Collectors.toList());
+		
+			linkedChildren.forEach(linkedChild -> {
+				RootNode linkedNode = linkMap.get(linkedChild.link);
+				if (linkedNode != null) {
+					List<JoltPath> list = linkedNode.getMergableCopy(linkedChild.target);
+					list.forEach(e -> e.expandLinks(linkMap));
+					JoltPath newChild = new JoltPath(linkedChild.path);
+					newChild.children.addAll(list);
+					children.remove(linkedChild);
+					children.add(newChild);
+				}
+			});
 		}
 	}
 
