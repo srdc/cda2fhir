@@ -1,36 +1,50 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public class NodeFactory {
-	private static JoltPath getInstance(String path, String target) {
-		String[] pieces = target.split("\\.");
-		int length = pieces.length;
-		String lastPiece = pieces[length - 1];
-		if (!lastPiece.startsWith("->")) {
-			return new JoltPath(path, target);
+	private final static class ParsedTarget {
+		public String target;
+		public String link;
+		
+		private ParsedTarget(String target) {
+			this.target = target;
 		}
-		String link = lastPiece.substring(2);
-		if (length == 1) {
-			return new JoltPath(path, "", link);
+		
+		private ParsedTarget(String target, String link) {
+			this.target = target;
+			this.link = link;
 		}
-		String reducedTarget = pieces[0];
-		for (int index = 1; index < length - 1; ++index) {
-			reducedTarget += "." + pieces[index];
+		
+		public static ParsedTarget getInstance(String target) {
+			String[] pieces = target.split("\\.");
+			int length = pieces.length;
+			String lastPiece = pieces[length - 1];
+			if (!lastPiece.startsWith("->")) {
+				return new ParsedTarget(target);
+			}
+			String link = lastPiece.substring(2);
+			if (length == 1) {
+				return new ParsedTarget("", link);
+			}
+			String reducedTarget = pieces[0];
+			for (int index = 1; index < length - 1; ++index) {
+				reducedTarget += "." + pieces[index];
+			}
+			return new ParsedTarget(reducedTarget, link);			
 		}
-		return new JoltPath(path, reducedTarget, link);
 	}
-
-	private static List<JoltCondition> conditionToList(JoltCondition condition) {
-		List<JoltCondition> conditions = new ArrayList<JoltCondition>();
-		conditions.add(condition);
-		return conditions;
+	
+	private static JoltPath getInstance(String path, String target) {
+		ParsedTarget parsedTarget = ParsedTarget.getInstance(target);
+		return new JoltPath(path, parsedTarget.target, parsedTarget.link);
 	}
 
 	private static List<JoltCondition> childToCondition(String value, INode parent) {
@@ -38,10 +52,10 @@ public class NodeFactory {
 			return parent.getChildren().stream().map(c -> c.getConditions().get(0)).map(c -> c.not())
 					.collect(Collectors.toList());
 		}
-		if (value.length() == 0) {
-			return conditionToList(new JoltCondition("", "isnull"));
+		if (value.isEmpty()) {
+			return Collections.singletonList(new JoltCondition("", "isnull"));
 		}
-		return conditionToList(new JoltCondition("", "equal", value));
+		return Collections.singletonList(new JoltCondition("", "equal", value));
 	}
 
 	private static String decrementSpecialPath(String path) {
@@ -60,12 +74,13 @@ public class NodeFactory {
 
 		List<JoltCondition> conditions = childToCondition(value, parent);
 		Object conditionChilren = map.get(key);
-		if (conditionChilren instanceof String) {	
-			JoltPath conditionNode = getInstance(newPath, (String) conditionChilren);
+		if (conditionChilren instanceof String) {
+			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
+			JoltPath conditionNode = new ConditionNode(newPath, pt.target, pt.link);
 			conditionNode.conditions.addAll(conditions);
 			return conditionNode;
 		}
-		JoltPath conditionNode = new JoltPath(newPath);			
+		JoltPath conditionNode = new ConditionNode(newPath);			
 		conditionNode.conditions.addAll(conditions);
 		fillNode(conditionNode, (Map<String, Object>) map.get(key));
 		return conditionNode;

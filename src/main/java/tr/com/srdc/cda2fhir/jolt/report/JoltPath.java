@@ -80,10 +80,6 @@ public class JoltPath implements INode {
 		this.children.addAll(children);
 	}
 
-	public void addChildrenOf(JoltPath joltPath) {
-		this.children.addAll(joltPath.children);
-	}
-
 	private void fillLinks(List<JoltPath> result) {
 		if (link != null) {
 			result.add(this);
@@ -141,33 +137,33 @@ public class JoltPath implements INode {
 		}
 	}
 
-	private boolean isSpecial(char type) {
-		return path.length() > 0 && path.charAt(0) == type;
+	public boolean isCondition() {
+		return path.length() > 0 && path.charAt(0) == '!';
 	}
 
-	private long specialChildCount(char type) {
+	private long conditionChildCount() {
 		if (children.size() == 0) {
 			return 0;
 		}
-		return children.stream().filter(child -> child.isSpecial(type)).count();
+		return children.stream().filter(child -> child.isCondition()).count();
 	}
 
-	private long specialGrandChildrenCount(char type) {
+	private long conditionGrandChildrenCount(char type) {
 		if (children.size() == 0) {
 			return 0;
 		}
 		return children.stream().filter(child -> {
-			return child.specialChildCount(type) > 0;
+			return child.conditionChildCount() > 0;
 		}).count();
 	}
 
-	private void mergeSpecialChild() {
+	private void mergeConditionChild() {
 		if (children.size() != 1) {
 			throw new ReportException("Only a unique child can be merged.");
 
 		}
 		JoltPath child = children.get(0);
-		if (!child.isSpecial('!')) {
+		if (!child.isCondition()) {
 			throw new ReportException("Only special children can be merged.");
 		}
 
@@ -188,24 +184,24 @@ public class JoltPath implements INode {
 		path = "!" + (childRank - 1);
 	}
 
-	public void mergeSpecialGrandChildren() {
-		children.forEach(child -> child.mergeSpecialGrandChildren());
+	public void conditionalize() {
+		children.forEach(child -> child.conditionalize());
 
-		long specialCount = specialGrandChildrenCount('!');
+		long specialCount = conditionGrandChildrenCount('!');
 		if (specialCount == 0) {
 			return;
 		}
 		List<JoltPath> childClones = new ArrayList<JoltPath>();
 		List<JoltPath> childrenToBeRemoved = new ArrayList<JoltPath>();
 		children.forEach(child -> {
-			if (child.specialChildCount('!') < 1) {
+			if (child.conditionChildCount() < 1) {
 				return;
 			}
 			if (child.children.size() == 1) {
-				child.mergeSpecialChild();
+				child.mergeConditionChild();
 				return;
 			}
-			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isSpecial('!'))
+			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isCondition())
 					.collect(Collectors.toList());
 			for (JoltPath grandChild : specialGrandChildren) {
 				JoltPath childClone = child.clone();
@@ -220,14 +216,9 @@ public class JoltPath implements INode {
 		});
 		childClones.forEach(childClone -> {
 			children.add(childClone);
-			childClone.mergeSpecialChild();
+			childClone.mergeConditionChild();
 		});
 		children.removeAll(childrenToBeRemoved);
-	}
-
-	@Override
-	public void conditionalize() {
-		mergeSpecialGrandChildren();
 	}
 
 	public List<TableRow> toTableRows() {
