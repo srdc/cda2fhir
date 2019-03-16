@@ -25,8 +25,18 @@ public class RootNode implements INode {
 	}
 	
 	@Override
+	public List<JoltPath> getChildren() {
+		return null;
+	}
+	
+	@Override
 	public void addCondition(JoltCondition condition) {
 		root.children.get(0).addCondition(condition);		
+	}
+	
+	@Override
+	public List<JoltCondition> getConditions() {
+		return null;
 	}
 	
 	public List<JoltPath> getLinks() {
@@ -38,8 +48,7 @@ public class RootNode implements INode {
 	}
 
 	public void conditionalize() {
-		root.createConditions();
-		root.mergeSpecialDescendants();
+		root.conditionalize();
 	}
 
 	public Table toTable(JoltFormat resolvedFormat) {

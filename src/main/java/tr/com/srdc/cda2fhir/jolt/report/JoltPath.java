@@ -48,6 +48,16 @@ public class JoltPath implements INode {
 		return result;
 	}
 
+	@Override
+	public List<JoltPath> getChildren() {
+		return children;
+	}
+	
+	@Override
+	public List<JoltCondition> getConditions() {
+		return conditions;
+	}
+	
 	public String getTarget() {
 		return target;
 	}
@@ -151,30 +161,6 @@ public class JoltPath implements INode {
 		}).count();
 	}
 
-	private List<JoltCondition> childToCondition(String value, List<JoltCondition> allConditions) {
-		if ("*".equals(value)) {
-			List<JoltCondition> reverseConditions = allConditions.stream().map(c -> c.not())
-					.collect(Collectors.toList());
-			return reverseConditions;
-		}
-		if (value.length() == 0) {
-			JoltCondition condition = new JoltCondition("", "isnull");
-			List<JoltCondition> conditions = new ArrayList<JoltCondition>();
-			conditions.add(condition);
-			return conditions;
-		}
-		JoltCondition condition = new JoltCondition("", "equal", value);
-		List<JoltCondition> conditions = new ArrayList<JoltCondition>();
-		conditions.add(condition);
-		return conditions;
-	}
-
-	private static String decrementSpecialPath(String path) {
-		int value = Integer.valueOf(path.substring(1));
-		value -= 1;
-		return "!" + value;
-	}
-
 	private void mergeSpecialChild() {
 		if (children.size() != 1) {
 			throw new ReportException("Only a unique child can be merged.");
@@ -239,60 +225,14 @@ public class JoltPath implements INode {
 		children.removeAll(childrenToBeRemoved);
 	}
 
-	public void mergeSpecialDescendants() {
-		mergeSpecialGrandChildren();
-	}
-
-	private void convertValueBranchesToConditions() {
-		long valueCount = specialGrandChildrenCount('@');
-		if (valueCount > 0) {
-			if (children.size() != valueCount) {
-				throw new ReportException("Unsupported Jolt template.");
-			}
-
-			List<JoltCondition> allConditions = new ArrayList<JoltCondition>();
-
-			List<JoltPath> newChildren = children.stream().map(child -> {
-				JoltPath grandChild = child.children.get(0);
-				String newPath = decrementSpecialPath(grandChild.path);
-				JoltPath newChild = new JoltPath(newPath, grandChild.target, grandChild.link);
-				newChild.children.addAll(grandChild.children);
-				List<JoltCondition> conditions = childToCondition(child.path, allConditions);
-				allConditions.addAll(conditions);
-				newChild.conditions.addAll(conditions);
-				return newChild;
-			}).collect(Collectors.toList());
-
-			children.clear();
-			children.addAll(newChildren);
-		}
-	}
-
-	public void createConditions() {
-		if (children.size() == 0) {
-			return;
-		}
-		children.forEach(child -> child.createConditions());
-
-		convertValueBranchesToConditions();
-	}
-
 	@Override
 	public void conditionalize() {
-		createConditions();
-		mergeSpecialDescendants();
-	}
-
-	private String externalPath() {
-		if (path.charAt(0) == '#') {
-			return String.format("'%s'", path.substring(1));
-		}
-		return path;
+		mergeSpecialGrandChildren();
 	}
 
 	public List<TableRow> toTableRows() {
 		if (children.size() < 1) {
-			TableRow row = new TableRow(externalPath(), target, link);
+			TableRow row = new TableRow(path, target, link);
 			conditions.forEach(condition -> {
 				String conditionAsString = condition.toString(path);
 				row.addCondition(conditionAsString);

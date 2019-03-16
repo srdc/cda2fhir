@@ -1,7 +1,9 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
@@ -25,6 +27,50 @@ public class NodeFactory {
 		return new JoltPath(path, reducedTarget, link);
 	}
 
+	private static List<JoltCondition> conditionToList(JoltCondition condition) {
+		List<JoltCondition> conditions = new ArrayList<JoltCondition>();
+		conditions.add(condition);
+		return conditions;
+	}
+
+	private static List<JoltCondition> childToCondition(String value, INode parent) {
+		if ("*".equals(value)) {
+			return parent.getChildren().stream().map(c -> c.getConditions().get(0)).map(c -> c.not())
+					.collect(Collectors.toList());
+		}
+		if (value.length() == 0) {
+			return conditionToList(new JoltCondition("", "isnull"));
+		}
+		return conditionToList(new JoltCondition("", "equal", value));
+	}
+
+	private static String decrementSpecialPath(String path) {
+		int value = Integer.valueOf(path.substring(1));
+		value -= 1;
+		return "!" + value;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static JoltPath toConditionNode(String value, Map<String, Object> map, INode parent) {
+		String key = map.keySet().iterator().next();
+		if (key.isEmpty() || key.charAt(0) != '@') {
+			return null;
+		}
+		String newPath = decrementSpecialPath(key);
+
+		List<JoltCondition> conditions = childToCondition(value, parent);
+		Object conditionChilren = map.get(key);
+		if (conditionChilren instanceof String) {	
+			JoltPath conditionNode = getInstance(newPath, (String) conditionChilren);
+			conditionNode.conditions.addAll(conditions);
+			return conditionNode;
+		}
+		JoltPath conditionNode = new JoltPath(newPath);			
+		conditionNode.conditions.addAll(conditions);
+		fillNode(conditionNode, (Map<String, Object>) map.get(key));
+		return conditionNode;
+	}
+
 	@SuppressWarnings("unchecked")
 	private static void fillNode(INode node, Map<String, Object> map) {
 		map.forEach((key, value) -> {
@@ -34,8 +80,12 @@ public class NodeFactory {
 				return;
 			}
 			if (value instanceof Map) {
-				JoltPath childNode = new JoltPath(key);
-				fillNode(childNode, (Map<String, Object>) value);
+				Map<String, Object> valueMap = (Map<String, Object>) value;
+				JoltPath childNode = toConditionNode(key, valueMap, node);
+				if (childNode == null) {
+					childNode = new JoltPath(key);
+					fillNode(childNode, valueMap);
+				}
 				node.addChild(childNode);
 				return;
 			}

@@ -10,6 +10,10 @@ public interface INode {
 	
 	void addCondition(JoltCondition condition);
 	
+	List<JoltPath> getChildren();
+	
+	List<JoltCondition> getConditions();
+	
 	List<JoltPath> getLinks();
 
 	void expandLinks(Map<String, RootNode> linkMap);
