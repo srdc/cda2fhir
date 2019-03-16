@@ -3,8 +3,11 @@ package tr.com.srdc.cda2fhir.jolt.report;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.NotImplementedException;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
@@ -30,8 +33,16 @@ public class JoltPath implements INode {
 		this.link = link;
 	}
 
+	public String getPath() {
+		return path;
+	}
+	
 	public void setPath(String path) {
 		this.path = path;
+	}
+	
+	public void addConditions(List<JoltCondition> conditions) {
+		this.conditions.addAll(conditions);
 	}
 	
 	@Override
@@ -71,6 +82,10 @@ public class JoltPath implements INode {
 		children.add(child);
 	}
 
+	public void removeChild(JoltPath child) {
+		children.remove(child);
+	}
+	
 	@Override
 	public void addCondition(JoltCondition condition) {
 		conditions.add(condition);		
@@ -141,84 +156,31 @@ public class JoltPath implements INode {
 		return path.length() > 0 && path.charAt(0) == '!';
 	}
 
-	private long conditionChildCount() {
-		if (children.size() == 0) {
-			return 0;
-		}
-		return children.stream().filter(child -> child.isCondition()).count();
-	}
-
-	private long conditionGrandChildrenCount(char type) {
-		if (children.size() == 0) {
-			return 0;
-		}
-		return children.stream().filter(child -> {
-			return child.conditionChildCount() > 0;
-		}).count();
-	}
-
-	private void mergeConditionChild() {
-		if (children.size() != 1) {
-			throw new ReportException("Only a unique child can be merged.");
-
-		}
-		JoltPath child = children.get(0);
-		if (!child.isCondition()) {
-			throw new ReportException("Only special children can be merged.");
-		}
-
-		children.remove(child);
-		children.addAll(child.children);
-		link = child.link;
-		target = child.target;
-
-		int childRank = Integer.valueOf(child.path.substring(1));
-		if (childRank == 0) {
-			conditions.addAll(child.conditions);
-			return;
-		}
-		child.conditions.forEach(condition -> {
-			condition.prependPath(path);
-			conditions.add(condition);
-		});
-		path = "!" + (childRank - 1);
+	public JoltPath mergeToParent(JoltPath parent) {
+		throw new NotImplementedException("Not available for arbirtrary nodes");
 	}
 
 	public void conditionalize() {
 		children.forEach(child -> child.conditionalize());
 
-		long specialCount = conditionGrandChildrenCount('!');
-		if (specialCount == 0) {
-			return;
+		ListIterator<JoltPath> childIterator = children.listIterator();
+		while (childIterator.hasNext()) {
+			JoltPath child = childIterator.next();
+
+			if (child.isLeaf()) continue;
+			
+			List<JoltPath> conditionNodes = child.children.stream().filter(n -> n.isCondition()).collect(Collectors.toList());
+			if (conditionNodes.size() == 0) {
+				continue;
+			}
+			if (conditionNodes.size() == child.children.size()) {
+				childIterator.remove();
+			}
+			conditionNodes.forEach(node -> {
+				JoltPath merged = node.mergeToParent(child);
+				childIterator.add(merged);								
+			});
 		}
-		List<JoltPath> childClones = new ArrayList<JoltPath>();
-		List<JoltPath> childrenToBeRemoved = new ArrayList<JoltPath>();
-		children.forEach(child -> {
-			if (child.conditionChildCount() < 1) {
-				return;
-			}
-			if (child.children.size() == 1) {
-				child.mergeConditionChild();
-				return;
-			}
-			List<JoltPath> specialGrandChildren = child.children.stream().filter(c -> c.isCondition())
-					.collect(Collectors.toList());
-			for (JoltPath grandChild : specialGrandChildren) {
-				JoltPath childClone = child.clone();
-				childClone.children.clear();
-				childClone.children.add(grandChild);
-				child.children.remove(grandChild);
-				childClones.add(childClone);
-			}
-			if (child.children.size() == 0) {
-				childrenToBeRemoved.add(child);
-			}
-		});
-		childClones.forEach(childClone -> {
-			children.add(childClone);
-			childClone.mergeConditionChild();
-		});
-		children.removeAll(childrenToBeRemoved);
 	}
 
 	public List<TableRow> toTableRows() {
