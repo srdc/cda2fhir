@@ -104,4 +104,9 @@ public class EntryResult implements IEntryResult {
 	public boolean hasIIMapValues() {
 		return entities != null;
 	}
+	
+	@Override
+	public boolean hasResult() {
+		return this.bundle.hasEntry();
+	}
 }

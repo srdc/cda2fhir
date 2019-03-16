@@ -153,6 +153,7 @@ public class ResourceTransformerTest {
 		appendToResultFile(endOfTestMsg);
 	}
 	
+	
 	@Test
 	public void testAssignedEntity2Practitioner() {
 		appendToResultFile("## TEST: AssignedEntity2Practitioner\n");
@@ -361,8 +362,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: ManufacturedProduct2Medication\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.ManufacturedProduct cdaNull = null;
-		Bundle fhirNull = rt.tManufacturedProduct2Medication(cdaNull);
-		Assert.assertNull(fhirNull);
+		EntryResult nullResult = rt.tManufacturedProduct2Medication(cdaNull);
+		Assert.assertFalse(nullResult.hasResult());
 
 		// instances from file
 		ImmunizationsSectionEntriesOptional immSection = ResourceTransformerTest.ccd.getImmunizationsSectionEntriesOptional();
@@ -374,9 +375,9 @@ public class ResourceTransformerTest {
 							if(immAct.getConsumable().getManufacturedProduct() != null && !immAct.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
 								// immAct.immSection.immAct.consumable.manuProd
 								appendToResultFile(transformationStartMsg);
-								Bundle fhirMed = rt.tManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
+								EntryResult fhirMed = rt.tManufacturedProduct2Medication(immAct.getConsumable().getManufacturedProduct());
 								appendToResultFile(transformationEndMsg);
-								appendToResultFile(fhirMed);
+								appendToResultFile(fhirMed.getBundle());
 							}
 						}
 					}

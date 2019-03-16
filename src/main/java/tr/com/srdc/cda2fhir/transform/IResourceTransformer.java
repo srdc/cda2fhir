@@ -56,6 +56,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public interface IResourceTransformer {
@@ -186,7 +187,7 @@ public interface IResourceTransformer {
 	 * @param cdaManufacturedProduct A CDA ManufacturedProduct instance
 	 * @return A FHIR Bundle that contains the Medication as the first entry, which can also include other referenced resources such as Substance, Organization
 	 */
-	Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct);
+	IEntryResult tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct);
 	
 	/**
 	 * Transforms a CDA MedicationActivity instance to a FHIR MedicationStatement resource.
@@ -207,7 +208,7 @@ public interface IResourceTransformer {
 	 * @param cdaMedicationInformation A CDA MedicationInformation instance
 	 * @return A FHIR Bundle that contains the Medication as the first entry, which can also include other referenced resources such as Substance, Organization
 	 */
-	Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation);
+	IEntryResult tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation);
 	/**
 	 * Transforms a CDA Observation instance to a FHIR Observation resource.
 	 * @param cdaObservation A CDA Observation instance

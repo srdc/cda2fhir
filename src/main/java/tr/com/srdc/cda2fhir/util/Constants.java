@@ -40,6 +40,8 @@ public class Constants {
     public static final String PROFILE_DAF_MEDICATION_LIST              = "http://hl7.org/fhir/StructureDefinition/daf-medicationlist";
     public static final String PROFILE_DAF_MEDICATION_ORDER             = "http://hl7.org/fhir/StructureDefinition/daf-medicationorder";
     public static final String PROFILE_DAF_MEDICATION_STATEMENT         = "http://hl7.org/fhir/StructureDefinition/daf-medicationstatement";
+	public static final String PROFILE_DAF_MEDICATION_REQUEST 			= "http://hl7.org/fhir/StructureDefinition/daf-medicationRequest";
+
     public static final String PROFILE_DAF_ORGANIZATION                 = "http://hl7.org/fhir/StructureDefinition/daf-organization";
     public static final String PROFILE_DAF_PATIENT                      = "http://hl7.org/fhir/StructureDefinition/daf-patient";
     public static final String PROFILE_DAF_PRACTITIONER                 = "http://hl7.org/fhir/StructureDefinition/daf-pract";

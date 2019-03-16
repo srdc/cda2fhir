@@ -78,8 +78,7 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product);
-		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		org.hl7.fhir.dstu3.model.Resource fhirResource = rt.tManufacturedProduct2Medication(product).getBundle().getEntryFirstRep().getResource();
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
 
@@ -111,8 +110,7 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product);
-		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		org.hl7.fhir.dstu3.model.Resource fhirResource = rt.tManufacturedProduct2Medication(product).getBundle().getEntryFirstRep().getResource();
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
 
@@ -142,8 +140,7 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product);
-		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		org.hl7.fhir.dstu3.model.Resource fhirResource = rt.tManufacturedProduct2Medication(product).getBundle().getEntryFirstRep().getResource();
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
 

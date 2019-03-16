@@ -27,7 +27,7 @@ public class ClinicalDocumentMetadataGenerator {
 	static final public String DEFAULT_SET_ID_ROOT = "1.2.345.678901.2.34.56.7.8.9.0";
 	static final public String DEFAULT_VERSION_NUMBER = "1";
 	
-	public ClinicalDocument generateClinicalDoc(CDAFactories factories) {
+	public ClinicalDocument getDefaultInstance(CDAFactories factories) {
 		ClinicalDocument doc = factories.base.createClinicalDocument();
 		
 		// No way to set realm code?

@@ -41,6 +41,9 @@ import org.hl7.fhir.dstu3.model.Resource;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
+import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationSupplyOrderImpl;
+import org.openhealthtools.mdht.uml.cda.impl.SupplyImpl;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
@@ -254,6 +257,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         for(Section cdaSec: ccd.getSections()) {        	
         	ICDASection section = findCDASection(cdaSec);
         	if (section != null) {
+        		if(cdaSec instanceof SupplyImpl) {
+        			System.out.println("oh snap we got one");
+        		}
             	SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
         		
             	if(fhirSec == null) {

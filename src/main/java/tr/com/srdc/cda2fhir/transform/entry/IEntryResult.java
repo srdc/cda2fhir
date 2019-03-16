@@ -13,6 +13,8 @@ public interface IEntryResult extends ICDAIIMapSource<IEntityInfo> {
 	void copyTo(Bundle bundle);
 	
 	boolean hasDeferredReferences();
+	
+	boolean hasResult();
 
 	List<IDeferredReference> getDeferredReferences();
 }
