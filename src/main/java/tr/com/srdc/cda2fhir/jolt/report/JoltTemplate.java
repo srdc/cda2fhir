@@ -81,7 +81,6 @@ public class JoltTemplate {
 		JoltFormat resolvedFormat = getResolvedFormat(rootPath, formatLinks, pathLinks);
 
 		rootPath.expandLinks(pathLinks);
-		rootPath.conditionalize();
 
 		Table table = rootPath.toTable(resolvedFormat);
 		return table;

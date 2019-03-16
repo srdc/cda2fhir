@@ -58,6 +58,7 @@ public class NodeFactory {
 	public static RootNode getInstance(Map<String, Object> map, String resourceType) {
 		RootNode node = resourceType == null ? new RootNode() : new EntryNode(resourceType);
 		fillNode(node, map);
+		node.conditionalize();
 		return node;
 	}
 }

@@ -120,7 +120,10 @@ public class JoltPath implements INode {
 				RootNode linkedNode = linkMap.get(linkedChild.link);
 				if (linkedNode != null) {
 					List<JoltPath> newChildren = linkedNode.getAsLinkReplacement(linkedChild.path, linkedChild.target);
-					newChildren.forEach(newChild -> newChild.expandLinks(linkMap));
+					newChildren.forEach(newChild -> {
+						newChild.conditions.addAll(linkedChild.conditions);
+						newChild.expandLinks(linkMap);
+					});
 					children.remove(linkedChild);
 					children.addAll(newChildren);
 				}
