@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public class NodeFactory {
@@ -42,9 +43,9 @@ public class NodeFactory {
 		}
 	}
 	
-	private static JoltPath getInstance(String path, String target) {
+	private static ParentNode getInstance(String path, String target) {
 		ParsedTarget parsedTarget = ParsedTarget.getInstance(target);
-		return new JoltPath(path, parsedTarget.target, parsedTarget.link);
+		return new ParentNode(path, parsedTarget.target, parsedTarget.link);
 	}
 
 	private static List<JoltCondition> childToCondition(String value, INode parent) {
@@ -65,7 +66,7 @@ public class NodeFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static JoltPath toConditionNode(String value, Map<String, Object> map, INode parent) {
+	private static ParentNode toConditionNode(String value, Map<String, Object> map, INode parent) {
 		String key = map.keySet().iterator().next();
 		if (key.isEmpty() || key.charAt(0) != '@') {
 			return null;
@@ -76,11 +77,11 @@ public class NodeFactory {
 		Object conditionChilren = map.get(key);
 		if (conditionChilren instanceof String) {
 			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
-			JoltPath conditionNode = new ConditionNode(newPath, pt.target, pt.link);
+			ParentNode conditionNode = new ConditionNode(newPath, pt.target, pt.link);
 			conditionNode.conditions.addAll(conditions);
 			return conditionNode;
 		}
-		JoltPath conditionNode = new ConditionNode(newPath);			
+		ParentNode conditionNode = new ConditionNode(newPath);			
 		conditionNode.conditions.addAll(conditions);
 		fillNode(conditionNode, (Map<String, Object>) map.get(key));
 		return conditionNode;
@@ -96,23 +97,23 @@ public class NodeFactory {
 			}
 			if (value instanceof Map) {
 				Map<String, Object> valueMap = (Map<String, Object>) value;
-				JoltPath childNode = toConditionNode(key, valueMap, node);
+				ParentNode childNode = toConditionNode(key, valueMap, node);
 				if (childNode == null) {
-					childNode = new JoltPath(key);
+					childNode = new ParentNode(key);
 					fillNode(childNode, valueMap);
 				}
 				node.addChild(childNode);
 				return;
 			}
 			if (value instanceof String) {
-				JoltPath joltPath = getInstance(key, (String) value);
+				ParentNode joltPath = getInstance(key, (String) value);
 				node.addChild(joltPath);
 				return;
 			}
 			if (value instanceof List) {
 				List<String> values = (List<String>) value;
 				values.forEach(target -> {
-					JoltPath joltPath = getInstance(key, target);
+					ParentNode joltPath = getInstance(key, target);
 					node.addChild(joltPath);
 				});
 				return;
@@ -122,7 +123,8 @@ public class NodeFactory {
 
 	public static RootNode getInstance(Map<String, Object> map, String resourceType) {
 		RootNode node = resourceType == null ? new RootNode() : new EntryNode(resourceType);
-		fillNode(node, map);
+		INode base = node.getBase();
+		fillNode(base, map);
 		node.conditionalize();
 		return node;
 	}

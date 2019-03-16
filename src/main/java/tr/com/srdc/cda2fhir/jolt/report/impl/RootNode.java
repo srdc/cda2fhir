@@ -7,39 +7,39 @@ import java.util.Map;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.JoltFormat;
-import tr.com.srdc.cda2fhir.jolt.report.JoltPath;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
-public class RootNode implements INode {
-	private JoltPath root = new JoltPath("root");
+public class RootNode {
+	private ParentNode root = new ParentNode("root");
 
 	public RootNode() {
-		root = new JoltPath("root");
-		JoltPath base = new JoltPath("base");
+		root = new ParentNode("root");
+		ParentNode base = new ParentNode("base");
 		root.addChild(base);
 	}
 	
-	public void addChild(JoltPath node) {
+	public void addChild(ParentNode node) {
 		root.children.get(0).addChild(node);
 	}
 	
-	@Override
-	public List<JoltPath> getChildren() {
+	public List<INode> getChildren() {
 		return null;
 	}
 	
-	@Override
+	public INode getBase() {
+		return root.children.get(0);
+	}
+	
 	public void addCondition(JoltCondition condition) {
 		root.children.get(0).addCondition(condition);		
 	}
 	
-	@Override
 	public List<JoltCondition> getConditions() {
 		return null;
 	}
 	
-	public List<JoltPath> getLinks() {
+	public List<INode> getLinks() {
 		return root.getLinks();
 	}
 
@@ -54,10 +54,10 @@ public class RootNode implements INode {
 	public Table toTable(JoltFormat resolvedFormat) {
 		Table result = new Table();
 		root.children.forEach(child -> {
-			child.children.forEach(grandChild -> {
+			child.getChildren().forEach(grandChild -> {
 				List<TableRow> grandChildRows = grandChild.toTableRows();
 				grandChildRows.forEach(row -> {
-					child.conditions.forEach(condition -> {
+					child.getConditions().forEach(condition -> {
 						String conditionAsString = condition.toString();
 						row.addCondition(conditionAsString);
 					});					
@@ -71,10 +71,10 @@ public class RootNode implements INode {
 		return result;
 	}
 
-	public List<JoltPath> getAsLinkReplacement(String path, String target) {
-		List<JoltPath> result = new ArrayList<JoltPath>();
+	public List<INode> getAsLinkReplacement(String path, String target) {
+		List<INode> result = new ArrayList<INode>();
 		root.children.forEach(base -> {
-			JoltPath node = base.clone();
+			INode node = base.clone();
 			if (target.length() > 0) {
 				node.promoteTargets(target);
 			}

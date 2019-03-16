@@ -6,17 +6,41 @@ import java.util.Map;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public interface INode {
-	void addChild(JoltPath node);
-	
 	void addCondition(JoltCondition condition);
 	
-	List<JoltPath> getChildren();
+	void addChild(INode node);
+	
+	void removeChild(INode node);
+	
+	List<INode> getChildren();
 	
 	List<JoltCondition> getConditions();
 	
-	List<JoltPath> getLinks();
+	List<INode> getLinks();
 
 	void expandLinks(Map<String, RootNode> linkMap);
 	
 	void conditionalize();
+
+	INode clone();
+
+	List<TableRow> toTableRows();
+	
+	boolean isLeaf();
+	
+	String getLink();
+	
+	String getTarget();
+
+	void fillLinks(List<INode> result);
+	
+	boolean isCondition();
+	
+	INode mergeToParent(INode node);
+
+	String getPath();
+	
+	void promoteTargets(String target);
+	
+	void setPath(String path);
 }

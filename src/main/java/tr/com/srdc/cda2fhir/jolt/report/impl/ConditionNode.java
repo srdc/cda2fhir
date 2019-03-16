@@ -1,8 +1,8 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
-import tr.com.srdc.cda2fhir.jolt.report.JoltPath;
+import tr.com.srdc.cda2fhir.jolt.report.INode;
 
-public class ConditionNode extends JoltPath {
+public class ConditionNode extends ParentNode {
 	public ConditionNode(String path) {
 		super(path);
 	}
@@ -11,7 +11,7 @@ public class ConditionNode extends JoltPath {
 		super(path, target, link);
 	}
 
-	public JoltPath mergeToParent(JoltPath parent) {
+	public INode mergeToParent(INode parent) {
 		parent.removeChild(this);
 		
 		String path = this.getPath();
@@ -21,7 +21,7 @@ public class ConditionNode extends JoltPath {
 		
 		int rank = Integer.valueOf(path.substring(1));		
 		if (rank == 0) {
-			JoltPath result = new JoltPath(parentPath, target, link);
+			ParentNode result = new ParentNode(parentPath, target, link);
 			result.addConditions(parent.getConditions());
 			result.addConditions(this.getConditions());
 			result.addChildren(this.getChildren());

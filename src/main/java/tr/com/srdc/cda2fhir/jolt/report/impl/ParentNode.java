@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.jolt.report;
+package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -9,25 +9,28 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.NotImplementedException;
 
-import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
+import tr.com.srdc.cda2fhir.jolt.report.INode;
+import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
+import tr.com.srdc.cda2fhir.jolt.report.Table;
+import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
-public class JoltPath implements INode {
+public class ParentNode implements INode {
 	private String path;
 	private String target;
 	private String link;
-	public LinkedList<JoltPath> children = new LinkedList<JoltPath>();
+	public LinkedList<INode> children = new LinkedList<INode>();
 	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 
-	public JoltPath(String path) {
+	public ParentNode(String path) {
 		this.path = path;
 	}
 
-	public JoltPath(String path, String target) {
+	public ParentNode(String path, String target) {
 		this.path = path;
 		this.target = target;
 	}
 
-	public JoltPath(String path, String target, String link) {
+	public ParentNode(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
 		this.link = link;
@@ -46,10 +49,10 @@ public class JoltPath implements INode {
 	}
 	
 	@Override
-	public JoltPath clone() {
-		JoltPath result = new JoltPath(path, target, link);
+	public ParentNode clone() {
+		ParentNode result = new ParentNode(path, target, link);
 		children.forEach(child -> {
-			JoltPath childClone = child.clone();
+			INode childClone = child.clone();
 			result.addChild(childClone);
 		});
 		conditions.forEach(condition -> {
@@ -60,7 +63,7 @@ public class JoltPath implements INode {
 	}
 
 	@Override
-	public List<JoltPath> getChildren() {
+	public List<INode> getChildren() {
 		return children;
 	}
 	
@@ -78,11 +81,11 @@ public class JoltPath implements INode {
 	}
 
 	@Override
-	public void addChild(JoltPath child) {
+	public void addChild(INode child) {
 		children.add(child);
 	}
 
-	public void removeChild(JoltPath child) {
+	public void removeChild(INode child) {
 		children.remove(child);
 	}
 	
@@ -91,11 +94,11 @@ public class JoltPath implements INode {
 		conditions.add(condition);		
 	}
 	
-	public void addChildren(List<JoltPath> children) {
+	public void addChildren(List<INode> children) {
 		this.children.addAll(children);
 	}
 
-	private void fillLinks(List<JoltPath> result) {
+	public void fillLinks(List<INode> result) {
 		if (link != null) {
 			result.add(this);
 		} else {
@@ -104,8 +107,8 @@ public class JoltPath implements INode {
 	}
 
 	@Override
-	public List<JoltPath> getLinks() {
-		List<JoltPath> result = new ArrayList<JoltPath>();
+	public List<INode> getLinks() {
+		List<INode> result = new ArrayList<INode>();
 		fillLinks(result);
 		return result;
 	}
@@ -126,7 +129,7 @@ public class JoltPath implements INode {
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
 
-	private boolean isLeaf() {
+	public boolean isLeaf() {
 		return children.isEmpty();
 	}
 	
@@ -135,14 +138,14 @@ public class JoltPath implements INode {
 		if (!isLeaf()) {	
 			children.stream().filter(c -> !c.isLeaf()).forEach(c -> c.expandLinks(linkMap));
 		
-			List<JoltPath> linkedChildren = children.stream().filter(c -> c.isLeaf() && c.link != null).collect(Collectors.toList());
+			List<INode> linkedChildren = children.stream().filter(c -> c.isLeaf() && c.getLink() != null).collect(Collectors.toList());
 		
 			linkedChildren.forEach(linkedChild -> {
-				RootNode linkedNode = linkMap.get(linkedChild.link);
+				RootNode linkedNode = linkMap.get(linkedChild.getLink());
 				if (linkedNode != null) {
-					List<JoltPath> newChildren = linkedNode.getAsLinkReplacement(linkedChild.path, linkedChild.target);
+					List<INode> newChildren = linkedNode.getAsLinkReplacement(linkedChild.getPath(), linkedChild.getTarget());
 					newChildren.forEach(newChild -> {
-						newChild.conditions.addAll(linkedChild.conditions);
+						newChild.getConditions().addAll(linkedChild.getConditions());
 						newChild.expandLinks(linkMap);
 					});
 					children.remove(linkedChild);
@@ -156,28 +159,28 @@ public class JoltPath implements INode {
 		return path.length() > 0 && path.charAt(0) == '!';
 	}
 
-	public JoltPath mergeToParent(JoltPath parent) {
+	public INode mergeToParent(INode parent) {
 		throw new NotImplementedException("Not available for arbirtrary nodes");
 	}
 
 	public void conditionalize() {
 		children.forEach(child -> child.conditionalize());
 
-		ListIterator<JoltPath> childIterator = children.listIterator();
+		ListIterator<INode> childIterator = children.listIterator();
 		while (childIterator.hasNext()) {
-			JoltPath child = childIterator.next();
+			INode child = childIterator.next();
 
 			if (child.isLeaf()) continue;
 			
-			List<JoltPath> conditionNodes = child.children.stream().filter(n -> n.isCondition()).collect(Collectors.toList());
+			List<INode> conditionNodes = child.getChildren().stream().filter(n -> n.isCondition()).collect(Collectors.toList());
 			if (conditionNodes.size() == 0) {
 				continue;
 			}
-			if (conditionNodes.size() == child.children.size()) {
+			if (conditionNodes.size() == child.getChildren().size()) {
 				childIterator.remove();
 			}
 			conditionNodes.forEach(node -> {
-				JoltPath merged = node.mergeToParent(child);
+				INode merged = node.mergeToParent(child);
 				childIterator.add(merged);								
 			});
 		}

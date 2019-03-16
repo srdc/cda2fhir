@@ -13,7 +13,7 @@ public class TableRow implements Comparable<TableRow> {
 
 	private List<String> conditions = new ArrayList<String>();
 
-	TableRow(String path, String target, String link) {
+	public TableRow(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
 		this.link = link;
