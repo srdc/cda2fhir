@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
-import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
@@ -33,10 +33,12 @@ public class ParentNode extends Node implements IParentNode {
 		this.parent = parent;
 	}
 	
+	@Override
 	public String getPath() {
 		return path;
 	}
 	
+	@Override
 	public void setPath(String path) {
 		this.path = path;
 	}
@@ -92,7 +94,7 @@ public class ParentNode extends Node implements IParentNode {
 	}
 
 	@Override
-	public void fillLinkedNodes(List<ILeafNode> result) {
+	public void fillLinkedNodes(List<ILinkedNode> result) {
 		children.forEach(child -> child.fillLinkedNodes(result));
 	}
 
@@ -105,10 +107,6 @@ public class ParentNode extends Node implements IParentNode {
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
 
-	public boolean isLeaf() {
-		return children.isEmpty();
-	}
-	
 	public List<TableRow> toTableRows() {
 		List<TableRow> rows = new ArrayList<TableRow>();
 		children.forEach(child -> {

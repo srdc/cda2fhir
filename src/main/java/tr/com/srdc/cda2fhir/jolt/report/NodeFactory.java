@@ -9,6 +9,8 @@ import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedConditionNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
@@ -47,7 +49,11 @@ public class NodeFactory {
 	
 	private static LeafNode getInstance(IParentNode parent, String path, String target) {
 		ParsedTarget parsedTarget = ParsedTarget.getInstance(target);
-		return new LeafNode(parent, path, parsedTarget.target, parsedTarget.link);
+		if (parsedTarget.link == null) {
+			return new LeafNode(parent, path, parsedTarget.target);
+		} else {
+			return new LinkedNode(parent, path, parsedTarget.target, parsedTarget.link);			
+		}
 	}
 
 	private static List<JoltCondition> childToCondition(String value, IParentNode parent) {
@@ -73,9 +79,15 @@ public class NodeFactory {
 		Object conditionChilren = map.get(key);
 		if (conditionChilren instanceof String) {
 			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
-			LeafConditionNode conditionNode = new LeafConditionNode(parent, rank - 1, pt.target, pt.link);
-			conditionNode.conditions.addAll(conditions);
-			return conditionNode;
+			if (pt.link == null) {
+				LeafConditionNode conditionNode = new LeafConditionNode(parent, rank - 1, pt.target);
+				conditionNode.conditions.addAll(conditions);
+				return conditionNode;
+			} else {
+				LinkedConditionNode conditionNode = new LinkedConditionNode(parent, rank - 1, pt.target, pt.link);				
+				conditionNode.conditions.addAll(conditions);
+				return conditionNode;
+			}
 		}
 		ParentNode conditionNode = new ConditionNode(parent, rank - 1);			
 		conditionNode.conditions.addAll(conditions);

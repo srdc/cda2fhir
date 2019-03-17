@@ -49,7 +49,7 @@ public class JoltTemplate {
 			return null;
 		}
 		JoltFormat result = format.clone();
-		List<ILeafNode> linkPaths = rootPath.getLinks();
+		List<ILinkedNode> linkPaths = rootPath.getLinks();
 		linkPaths.forEach(joltPath -> {
 			String link = joltPath.getLink();
 			String target = joltPath.getTarget();

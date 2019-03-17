@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
-import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 
 public abstract class Node implements INode {
 	@Override
-	public List<ILeafNode> getLinkedNodes() {
-		List<ILeafNode> result = new ArrayList<ILeafNode>();
+	public List<ILinkedNode> getLinkedNodes() {
+		List<ILinkedNode> result = new ArrayList<ILinkedNode>();
 		fillLinkedNodes(result);
 		return result;
 	}

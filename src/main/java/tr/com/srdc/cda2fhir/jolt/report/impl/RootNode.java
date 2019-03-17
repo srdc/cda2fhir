@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
-import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
@@ -43,12 +43,12 @@ public class RootNode {
 		return null;
 	}
 	
-	public List<ILeafNode> getLinks() {
+	public List<ILinkedNode> getLinks() {
 		return root.getLinkedNodes();
 	}
 
 	public void expandLinks(Map<String, RootNode> linkMap) {
-		List<ILeafNode> leafNodes = root.getLinkedNodes();
+		List<ILinkedNode> leafNodes = root.getLinkedNodes();
 		leafNodes.forEach(leafNode -> leafNode.expandLinks(linkMap));
 	}
 

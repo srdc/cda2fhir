@@ -2,11 +2,10 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
-import tr.com.srdc.cda2fhir.jolt.report.INode;
+import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
@@ -15,7 +14,6 @@ public class LeafNode extends Node implements ILeafNode {
 	private IParentNode parent;
 	private String path;
 	private String target;
-	private String link;
 
 	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 
@@ -30,13 +28,6 @@ public class LeafNode extends Node implements ILeafNode {
 		this.target = target;
 	}
 
-	public LeafNode(IParentNode parent, String path, String target, String link) {
-		this.parent = parent;
-		this.path = path;
-		this.target = target;
-		this.link = link;
-	}
-
 	@Override
 	public IParentNode getParent() {
 		return parent;
@@ -47,21 +38,19 @@ public class LeafNode extends Node implements ILeafNode {
 		this.parent = parent;
 	}
 
+	@Override
 	public String getPath() {
 		return path;
 	}
 
-	public String getLink() {
-		return link;
-	}
-
+	@Override
 	public String getTarget() {
 		return target;
 	}
 
 	@Override
 	public LeafNode clone(IParentNode parent) {
-		LeafNode result = new LeafNode(parent, path, target, link);
+		LeafNode result = new LeafNode(parent, path, target);
 		result.conditions.addAll(conditions);
 		return result;
 	}
@@ -78,26 +67,8 @@ public class LeafNode extends Node implements ILeafNode {
 		this.conditions.addAll(conditions);
 	}
 
-	@Override
-	public void expandLinks(Map<String, RootNode> linkMap) {
-		if (link == null) {
-			return;
-		}
-		RootNode rootNode = linkMap.get(link);
-		if (rootNode != null) {
-			List<INode> newChildren = rootNode.getAsLinkReplacement(parent, path, target);
-			newChildren.forEach(newChild -> {
-				newChild.getConditions().addAll(getConditions());
-				parent.addChild(newChild);
-				List<ILeafNode> linkedNodesOfLink = newChild.getLinkedNodes();
-				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(linkMap));
-			});
-			parent.removeChild(this);
-		}
-	}
-
 	public List<TableRow> toTableRows() {
-		TableRow row = new TableRow(path, target, link);
+		TableRow row = new TableRow(path, target, null);
 		conditions.forEach(condition -> {
 			String conditionAsString = condition.toString(path);
 			row.addCondition(conditionAsString);
@@ -107,15 +78,8 @@ public class LeafNode extends Node implements ILeafNode {
 		return result;
 	}
 
-	public boolean isLeaf() {
-		return true;
-	}
-
 	@Override
-	public void fillLinkedNodes(List<ILeafNode> result) {
-		if (link != null) {
-			result.add(this);
-		}
+	public void fillLinkedNodes(List<ILinkedNode> result) {
 	}
 
 	@Override

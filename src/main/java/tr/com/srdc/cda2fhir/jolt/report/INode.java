@@ -15,9 +15,9 @@ public interface INode {
 	void setParent(IParentNode parent);
 	
 	
-	void fillLinkedNodes(List<ILeafNode> result);
+	void fillLinkedNodes(List<ILinkedNode> result);
 
-	List<ILeafNode> getLinkedNodes();
+	List<ILinkedNode> getLinkedNodes();
 
 
 	void fillConditionNodes(List<IConditionNode> result);
@@ -29,8 +29,6 @@ public interface INode {
 
 
 	List<TableRow> toTableRows();
-	
-	boolean isLeaf();
 	
 	
 	String getPath();
