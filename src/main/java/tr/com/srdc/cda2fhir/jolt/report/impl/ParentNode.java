@@ -99,11 +99,7 @@ public class ParentNode implements INode {
 	}
 
 	public void fillLinks(List<INode> result) {
-		if (link != null) {
-			result.add(this);
-		} else {
-			children.forEach(child -> child.fillLinks(result));
-		}
+		children.forEach(child -> child.fillLinks(result));
 	}
 
 	@Override
@@ -118,14 +114,6 @@ public class ParentNode implements INode {
 	}
 
 	public void promoteTargets(String parentTarget) {
-		if (target != null) {
-			if (target.length() > 0) {
-				target = parentTarget + "." + target;
-			} else {
-				target = parentTarget;
-			}
-			return;
-		}
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
 
@@ -135,24 +123,22 @@ public class ParentNode implements INode {
 	
 	@Override
 	public void expandLinks(Map<String, RootNode> linkMap) {
-		if (!isLeaf()) {	
-			children.stream().filter(c -> !c.isLeaf()).forEach(c -> c.expandLinks(linkMap));
+		children.stream().filter(c -> !c.isLeaf()).forEach(c -> c.expandLinks(linkMap));
 		
-			List<INode> linkedChildren = children.stream().filter(c -> c.isLeaf() && c.getLink() != null).collect(Collectors.toList());
+		List<INode> linkedChildren = getLinks();
 		
-			linkedChildren.forEach(linkedChild -> {
-				RootNode linkedNode = linkMap.get(linkedChild.getLink());
-				if (linkedNode != null) {
-					List<INode> newChildren = linkedNode.getAsLinkReplacement(linkedChild.getPath(), linkedChild.getTarget());
-					newChildren.forEach(newChild -> {
-						newChild.getConditions().addAll(linkedChild.getConditions());
-						newChild.expandLinks(linkMap);
-					});
-					children.remove(linkedChild);
-					children.addAll(newChildren);
-				}
-			});
-		}
+		linkedChildren.forEach(linkedChild -> {
+			RootNode linkedNode = linkMap.get(linkedChild.getLink());
+			if (linkedNode != null) {
+				List<INode> newChildren = linkedNode.getAsLinkReplacement(linkedChild.getPath(), linkedChild.getTarget());
+				newChildren.forEach(newChild -> {
+					newChild.getConditions().addAll(linkedChild.getConditions());
+					newChild.expandLinks(linkMap);
+				});
+				children.remove(linkedChild);
+				children.addAll(newChildren);
+			}
+		});
 	}
 
 	public boolean isCondition() {
@@ -187,17 +173,6 @@ public class ParentNode implements INode {
 	}
 
 	public List<TableRow> toTableRows() {
-		if (children.size() < 1) {
-			TableRow row = new TableRow(path, target, link);
-			conditions.forEach(condition -> {
-				String conditionAsString = condition.toString(path);
-				row.addCondition(conditionAsString);
-			});
-			List<TableRow> result = new ArrayList<TableRow>();
-			result.add(row);
-			return result;
-		}
-
 		List<TableRow> rows = new ArrayList<TableRow>();
 		children.forEach(child -> {
 			List<TableRow> childRows = child.toTableRows();
