@@ -1,9 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.List;
-import java.util.Map;
-
-import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public interface INode {
 	void addCondition(JoltCondition condition);
@@ -15,7 +12,9 @@ public interface INode {
 	
 	IParentNode getParent();
 
-
+	void setParent(IParentNode parent);
+	
+	
 	void fillLinkedNodes(List<ILeafNode> result);
 
 	List<ILeafNode> getLinkedNodes();
@@ -26,9 +25,8 @@ public interface INode {
 	List<IConditionNode> getConditionNodes();
 
 
-	void expandLinks(Map<String, RootNode> linkMap);
-	
-	INode clone();
+	INode clone(IParentNode parent);
+
 
 	List<TableRow> toTableRows();
 	

@@ -15,6 +15,14 @@ public class LeafConditionNode extends LeafNode implements IConditionNode {
 	}
 
 	@Override
+	public LeafConditionNode clone(IParentNode parent) {
+		String target = getTarget();
+		String link = getLink();
+		LeafConditionNode result = new LeafConditionNode(parent, rank, target, link);
+		return result;
+	}
+
+	@Override
 	public void fillConditionNodes(List<IConditionNode> result) {
 		result.add(this);
 	}

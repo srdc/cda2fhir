@@ -9,9 +9,6 @@ import tr.com.srdc.cda2fhir.jolt.report.INode;
 
 public abstract class Node implements INode {
 	@Override
-	public abstract Node clone();
-
-	@Override
 	public List<ILeafNode> getLinkedNodes() {
 		List<ILeafNode> result = new ArrayList<ILeafNode>();
 		fillLinkedNodes(result);

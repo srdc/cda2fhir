@@ -6,6 +6,7 @@ import java.util.Map;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
@@ -40,21 +41,26 @@ public class LeafNode extends Node implements ILeafNode {
 	public IParentNode getParent() {
 		return parent;
 	}
-	
+
+	@Override
+	public void setParent(IParentNode parent) {
+		this.parent = parent;
+	}
+
 	public String getPath() {
 		return path;
 	}
-	
+
 	public String getLink() {
 		return link;
 	}
-	
+
 	public String getTarget() {
 		return target;
 	}
 
 	@Override
-	public LeafNode clone() {
+	public LeafNode clone(IParentNode parent) {
 		LeafNode result = new LeafNode(parent, path, target, link);
 		result.conditions.addAll(conditions);
 		return result;
@@ -63,18 +69,33 @@ public class LeafNode extends Node implements ILeafNode {
 	public void addCondition(JoltCondition condition) {
 		conditions.add(condition);
 	}
-	
+
 	public List<JoltCondition> getConditions() {
 		return conditions;
 	}
-	
+
 	public void addConditions(List<JoltCondition> conditions) {
 		this.conditions.addAll(conditions);
 	}
 
+	@Override
 	public void expandLinks(Map<String, RootNode> linkMap) {
+		if (link == null) {
+			return;
+		}
+		RootNode rootNode = linkMap.get(link);
+		if (rootNode != null) {
+			List<INode> newChildren = rootNode.getAsLinkReplacement(parent, path, target);
+			newChildren.forEach(newChild -> {
+				newChild.getConditions().addAll(getConditions());
+				parent.addChild(newChild);
+				List<ILeafNode> linkedNodesOfLink = newChild.getLinkedNodes();
+				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(linkMap));
+			});
+			parent.removeChild(this);
+		}
 	}
-	
+
 	public List<TableRow> toTableRows() {
 		TableRow row = new TableRow(path, target, link);
 		conditions.forEach(condition -> {
@@ -85,22 +106,23 @@ public class LeafNode extends Node implements ILeafNode {
 		result.add(row);
 		return result;
 	}
-	
+
 	public boolean isLeaf() {
 		return true;
 	}
-	
+
 	@Override
 	public void fillLinkedNodes(List<ILeafNode> result) {
 		if (link != null) {
 			result.add(this);
-		}		
+		}
 	}
-	
+
 	@Override
-	public void fillConditionNodes(List<IConditionNode> result) {}
-	
-	public void promoteTargets(String parentTarget){
+	public void fillConditionNodes(List<IConditionNode> result) {
+	}
+
+	public void promoteTargets(String parentTarget) {
 		if (target != null) {
 			if (target.length() > 0) {
 				target = parentTarget + "." + target;
@@ -108,10 +130,10 @@ public class LeafNode extends Node implements ILeafNode {
 				target = parentTarget;
 			}
 			return;
-		}		
+		}
 	}
-	
-	public void setPath(String path){
+
+	public void setPath(String path) {
 		this.path = path;
 	}
 }

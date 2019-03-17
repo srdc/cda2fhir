@@ -3,7 +3,6 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
@@ -29,6 +28,11 @@ public class ParentNode extends Node implements IParentNode {
 		return parent;
 	}
 	
+	@Override
+	public void setParent(IParentNode parent) {
+		this.parent = parent;
+	}
+	
 	public String getPath() {
 		return path;
 	}
@@ -42,10 +46,10 @@ public class ParentNode extends Node implements IParentNode {
 	}
 	
 	@Override
-	public ParentNode clone() {
+	public ParentNode clone(IParentNode parent) {
 		ParentNode result = new ParentNode(parent, path);
 		children.forEach(child -> {
-			INode childClone = child.clone();
+			INode childClone = child.clone(result);
 			result.addChild(childClone);
 		});
 		conditions.forEach(condition -> {
@@ -105,26 +109,6 @@ public class ParentNode extends Node implements IParentNode {
 		return children.isEmpty();
 	}
 	
-	@Override
-	public void expandLinks(Map<String, RootNode> linkMap) {
-		children.stream().filter(c -> !c.isLeaf()).forEach(c -> c.expandLinks(linkMap));
-		
-		List<ILeafNode> linkedChildren = getLinkedNodes();
-		
-		linkedChildren.forEach(linkedChild -> {
-			RootNode linkedNode = linkMap.get(linkedChild.getLink());
-			if (linkedNode != null) {
-				List<INode> newChildren = linkedNode.getAsLinkReplacement(linkedChild.getPath(), linkedChild.getTarget());
-				newChildren.forEach(newChild -> {
-					newChild.getConditions().addAll(linkedChild.getConditions());
-					newChild.expandLinks(linkMap);
-				});
-				children.remove(linkedChild);
-				children.addAll(newChildren);
-			}
-		});
-	}
-
 	public List<TableRow> toTableRows() {
 		List<TableRow> rows = new ArrayList<TableRow>();
 		children.forEach(child -> {

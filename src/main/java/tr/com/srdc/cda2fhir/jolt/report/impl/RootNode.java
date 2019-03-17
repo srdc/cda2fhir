@@ -48,7 +48,8 @@ public class RootNode {
 	}
 
 	public void expandLinks(Map<String, RootNode> linkMap) {
-		root.expandLinks(linkMap);
+		List<ILeafNode> leafNodes = root.getLinkedNodes();
+		leafNodes.forEach(leafNode -> leafNode.expandLinks(linkMap));
 	}
 
 	public void conditionalize() {
@@ -76,16 +77,15 @@ public class RootNode {
 		return result;
 	}
 
-	public List<INode> getAsLinkReplacement(String path, String target) {
+	public List<INode> getAsLinkReplacement(IParentNode parent, String path, String target) {
 		List<INode> result = new ArrayList<INode>();
 		root.children.forEach(base -> {
-			INode node = base.clone();
+			INode node = base.clone(parent);
 			if (target.length() > 0) {
 				node.promoteTargets(target);
 			}
 			node.setPath(path);
-			result.add(node);
-			
+			result.add(node);			
 		});
 		return result;
 	}

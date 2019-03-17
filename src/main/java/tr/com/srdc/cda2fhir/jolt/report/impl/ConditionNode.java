@@ -15,6 +15,12 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 	}
 
 	@Override
+	public ConditionNode clone(IParentNode parent) {
+		ConditionNode result = new ConditionNode(parent, rank);
+		return result;
+	}
+
+	@Override
 	public void fillConditionNodes(List<IConditionNode> result) {
 		super.fillConditionNodes(result);
 		result.add(this);
