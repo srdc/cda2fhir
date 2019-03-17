@@ -33,7 +33,7 @@ public interface INode {
 	
 	String getPath();
 	
-	void promoteTargets(String target);
-	
 	void setPath(String path);
+
+	void promoteTargets(String target);
 }

@@ -47,10 +47,18 @@ public abstract class Node implements INode {
 	}
 
 	@Override
+	public void fillLinkedNodes(List<ILinkedNode> result) {
+	}
+
+	@Override
 	public List<IConditionNode> getConditionNodes() {
 		List<IConditionNode> result = new ArrayList<IConditionNode>();
 		fillConditionNodes(result);
 		return result;		
+	}
+
+	@Override
+	public void fillConditionNodes(List<IConditionNode> result) {
 	}
 
 	@Override

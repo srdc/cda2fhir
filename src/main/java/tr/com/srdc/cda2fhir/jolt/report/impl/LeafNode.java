@@ -3,9 +3,7 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
-import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
@@ -44,14 +42,6 @@ public class LeafNode extends Node implements ILeafNode {
 		List<TableRow> result = new ArrayList<TableRow>();
 		result.add(row);
 		return result;
-	}
-
-	@Override
-	public void fillLinkedNodes(List<ILinkedNode> result) {
-	}
-
-	@Override
-	public void fillConditionNodes(List<IConditionNode> result) {
 	}
 
 	public void promoteTargets(String parentTarget) {
