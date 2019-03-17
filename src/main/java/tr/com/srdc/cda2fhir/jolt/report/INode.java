@@ -10,8 +10,6 @@ public interface INode {
 	
 	void addChild(INode node);
 	
-	void removeChild(INode node);
-	
 	List<INode> getChildren();
 	
 	List<JoltCondition> getConditions();
@@ -37,7 +35,7 @@ public interface INode {
 	
 	boolean isCondition();
 	
-	INode mergeToParent(INode node);
+	INode mergeToParent();
 
 	String getPath();
 	

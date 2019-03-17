@@ -64,8 +64,6 @@ public class LeafNode extends Node implements ILeafNode {
 
 	public void addChild(INode node) {}
 	
-	public void removeChild(INode node) {}
-	
 	public List<INode> getChildren() {
 		return null;
 	}
@@ -102,7 +100,7 @@ public class LeafNode extends Node implements ILeafNode {
 		return false;
 	}
 	
-	public INode mergeToParent(INode node) {
+	public INode mergeToParent() {
 		return null;
 	}
 

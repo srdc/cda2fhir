@@ -16,8 +16,8 @@ public class RootNode {
 	private ParentNode base;
 	
 	public RootNode() {
-		root = new ParentNode("root");
-		base = new ParentNode("base");
+		root = new ParentNode(null, "root");
+		base = new ParentNode(root, "base");
 		root.addChild(base);
 	}
 	

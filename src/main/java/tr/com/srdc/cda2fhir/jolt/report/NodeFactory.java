@@ -62,7 +62,7 @@ public class NodeFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static INode toConditionNode(String value, Map<String, Object> map, INode parent) {
+	private static INode toConditionNode(String value, Map<String, Object> map, IParentNode parent) {
 		String key = map.keySet().iterator().next();
 		if (key.isEmpty() || key.charAt(0) != '@') {
 			return null;
@@ -73,11 +73,11 @@ public class NodeFactory {
 		Object conditionChilren = map.get(key);
 		if (conditionChilren instanceof String) {
 			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
-			LeafConditionNode conditionNode = new LeafConditionNode(rank - 1, pt.target, pt.link);
+			LeafConditionNode conditionNode = new LeafConditionNode(parent, rank - 1, pt.target, pt.link);
 			conditionNode.conditions.addAll(conditions);
 			return conditionNode;
 		}
-		ParentNode conditionNode = new ConditionNode(rank - 1);			
+		ParentNode conditionNode = new ConditionNode(parent, rank - 1);			
 		conditionNode.conditions.addAll(conditions);
 		fillNode(conditionNode, (Map<String, Object>) map.get(key));
 		return conditionNode;
@@ -98,7 +98,7 @@ public class NodeFactory {
 					node.addChild(childNode);
 					return;					
 				}
-				ParentNode parentNode = new ParentNode(key);
+				ParentNode parentNode = new ParentNode(node, key);
 				fillNode(parentNode, valueMap);
 				node.addChild(parentNode);
 				return;

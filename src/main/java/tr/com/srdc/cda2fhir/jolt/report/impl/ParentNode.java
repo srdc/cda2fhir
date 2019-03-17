@@ -17,14 +17,20 @@ import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
 public class ParentNode extends Node implements IParentNode {
+	private IParentNode parent;
 	private String path;
 	public LinkedList<INode> children = new LinkedList<INode>();
 	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 
-	public ParentNode(String path) {
+	public ParentNode(IParentNode parent, String path) {
+		this.parent = parent;
 		this.path = path;
 	}
 
+	public IParentNode getParent() {
+		return parent;
+	}
+	
 	public String getPath() {
 		return path;
 	}
@@ -39,7 +45,7 @@ public class ParentNode extends Node implements IParentNode {
 	
 	@Override
 	public ParentNode clone() {
-		ParentNode result = new ParentNode(path);
+		ParentNode result = new ParentNode(parent, path);
 		children.forEach(child -> {
 			INode childClone = child.clone();
 			result.addChild(childClone);
@@ -115,7 +121,7 @@ public class ParentNode extends Node implements IParentNode {
 		return false;
 	}
 
-	public INode mergeToParent(INode parent) {
+	public INode mergeToParent() {
 		throw new NotImplementedException("Not available for arbirtrary nodes");
 	}
 
@@ -136,8 +142,7 @@ public class ParentNode extends Node implements IParentNode {
 				childIterator.remove();
 			}
 			conditionNodes.forEach(node -> {
-				child.removeChild(node);				
-				INode merged = node.mergeToParent(child);
+				INode merged = node.mergeToParent();
 				childIterator.add(merged);								
 			});
 		}
