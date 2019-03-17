@@ -1931,7 +1931,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return result;
 	}
 	
-	public EntryResult medicationcdaSupplyOrder2MedicationRequest(MedicationSupplyOrder cdaSupplyOrder, BundleInfo localBundleInfo) {
+	public EntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder cdaSupplyOrder, BundleInfo localBundleInfo) {
 		EntryResult result = new EntryResult();
 		
 		if(cdaSupplyOrder == null || cdaSupplyOrder.isSetNullFlavor())

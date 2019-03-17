@@ -41,7 +41,7 @@ public class MedicationRequestTest {
 		
 		BundleInfo bInfo = new BundleInfo(rt);
 		MedicationSupplyOrder defaultMedSupplyOrder = medSupplyOrderGenerator.generateDefaultMedicationSupplyOrder();
-		EntryResult entryResult = rt.medicationcdaSupplyOrder2MedicationRequest(defaultMedSupplyOrder, bInfo);
+		EntryResult entryResult = rt.medicationSupplyOrder2MedicationRequest(defaultMedSupplyOrder, bInfo);
 		Bundle resultBundle = entryResult.getBundle();
 		MedicationRequest medRequest =  BundleUtil.findOneResource(resultBundle, MedicationRequest.class);
 		Medication medication = BundleUtil.findOneResource(resultBundle, Medication.class);
@@ -71,7 +71,7 @@ public class MedicationRequestTest {
 		BundleInfo bInfo = new BundleInfo(rt);
 		MedicationSupplyOrder defaultMedSupplyOrder = medSupplyOrderGenerator.generateDefaultMedicationSupplyOrder();
 		defaultMedSupplyOrder.getEffectiveTimes().clear();
-		EntryResult entryResult = rt.medicationcdaSupplyOrder2MedicationRequest(defaultMedSupplyOrder, bInfo);
+		EntryResult entryResult = rt.medicationSupplyOrder2MedicationRequest(defaultMedSupplyOrder, bInfo);
 		Bundle resultBundle = entryResult.getBundle();
 		MedicationRequest medRequest =  BundleUtil.findOneResource(resultBundle, MedicationRequest.class);
 

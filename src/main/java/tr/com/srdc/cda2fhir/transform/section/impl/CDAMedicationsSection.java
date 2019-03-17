@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.transform.section.impl;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
@@ -30,7 +31,10 @@ public class CDAMedicationsSection implements ICDASection {
 		
 		for(Entry entry : section.getEntries()) {
 			if(entry.hasContent() && entry.getSupply() != null) {
-				
+				if(entry.getSupply().getClassCode().toString().equalsIgnoreCase("SPLY") 
+						&& entry.getSupply().getMoodCode().toString().equalsIgnoreCase("INT")) {
+					IEntryResult medRequestResult = rt.medicationSupplyOrder2MedicationRequest((MedicationSupplyOrder)entry.getSupply());
+				}
 			}
 		}
 		
