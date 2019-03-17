@@ -84,7 +84,7 @@ public class NodeFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void fillNode(INode node, Map<String, Object> map) {
+	private static void fillNode(IParentNode node, Map<String, Object> map) {
 		map.forEach((key, value) -> {
 			if (value == null) {
 				JoltCondition condition = new JoltCondition(key, "isnull");
@@ -94,11 +94,13 @@ public class NodeFactory {
 			if (value instanceof Map) {
 				Map<String, Object> valueMap = (Map<String, Object>) value;
 				INode childNode = toConditionNode(key, valueMap, node);
-				if (childNode == null) {
-					childNode = new ParentNode(key);
-					fillNode(childNode, valueMap);
+				if (childNode != null) {
+					node.addChild(childNode);
+					return;					
 				}
-				node.addChild(childNode);
+				ParentNode parentNode = new ParentNode(key);
+				fillNode(parentNode, valueMap);
+				node.addChild(parentNode);
 				return;
 			}
 			if (value instanceof String) {
@@ -119,7 +121,7 @@ public class NodeFactory {
 
 	public static RootNode getInstance(Map<String, Object> map, String resourceType) {
 		RootNode node = resourceType == null ? new RootNode() : new EntryNode(resourceType);
-		INode base = node.getBase();
+		IParentNode base = node.getBase();
 		fillNode(base, map);
 		node.conditionalize();
 		return node;

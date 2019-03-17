@@ -12,11 +12,12 @@ import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
 public class RootNode {
-	private ParentNode root = new ParentNode("root");
-
+	private ParentNode root;
+	private ParentNode base;
+	
 	public RootNode() {
 		root = new ParentNode("root");
-		ParentNode base = new ParentNode("base");
+		base = new ParentNode("base");
 		root.addChild(base);
 	}
 	
@@ -28,8 +29,8 @@ public class RootNode {
 		return null;
 	}
 	
-	public INode getBase() {
-		return root.children.get(0);
+	public ParentNode getBase() {
+		return base;
 	}
 	
 	public void addCondition(JoltCondition condition) {
