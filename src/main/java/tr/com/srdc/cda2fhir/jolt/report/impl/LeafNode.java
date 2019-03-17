@@ -6,31 +6,41 @@ import java.util.Map;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
 public class LeafNode extends Node implements ILeafNode {
+	private IParentNode parent;
 	private String path;
 	private String target;
 	private String link;
 
 	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 
-	public LeafNode(String path) {
+	public LeafNode(IParentNode parent, String path) {
+		this.parent = parent;
 		this.path = path;
 	}
 
-	public LeafNode(String path, String target) {
+	public LeafNode(IParentNode parent, String path, String target) {
+		this.parent = parent;
 		this.path = path;
 		this.target = target;
 	}
 
-	public LeafNode(String path, String target, String link) {
+	public LeafNode(IParentNode parent, String path, String target, String link) {
+		this.parent = parent;
 		this.path = path;
 		this.target = target;
 		this.link = link;
 	}
 
+	@Override
+	public IParentNode getParent() {
+		return parent;
+	}
+	
 	public String getPath() {
 		return path;
 	}
@@ -45,7 +55,7 @@ public class LeafNode extends Node implements ILeafNode {
 
 	@Override
 	public LeafNode clone() {
-		LeafNode result = new LeafNode(path, target, link);
+		LeafNode result = new LeafNode(parent, path, target, link);
 		result.conditions.addAll(conditions);
 		return result;
 	}
@@ -81,7 +91,7 @@ public class LeafNode extends Node implements ILeafNode {
 	}
 	
 	@Override
-	public void fillLinks(List<ILeafNode> result) {
+	public void fillLinkedNodes(List<ILeafNode> result) {
 		if (link != null) {
 			result.add(this);
 		}		

@@ -44,7 +44,7 @@ public class RootNode {
 	}
 	
 	public List<ILeafNode> getLinks() {
-		return root.getLinks();
+		return root.getLinkedNodes();
 	}
 
 	public void expandLinks(Map<String, RootNode> linkMap) {

@@ -7,12 +7,10 @@ import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 
 public class LeafConditionNode extends LeafNode implements IConditionNode {
-	private IParentNode parent;
 	private int rank;
 	
 	public LeafConditionNode(IParentNode parent, int rank, String target, String link) {
-		super("!" + rank, target, link);
-		this.parent = parent;
+		super(parent, "!" + rank, target, link);
 		this.rank = rank;
 	}
 
@@ -23,13 +21,14 @@ public class LeafConditionNode extends LeafNode implements IConditionNode {
 	
 	@Override
 	public INode mergeToParent() {
+		IParentNode parent = getParent();
 		String link = this.getLink();
 		String target = this.getTarget();
 		String parentPath = parent.getPath();
 		IParentNode grandParent = parent.getParent();
 		
 		if (rank == 0) {
-			LeafNode result = new LeafNode(parentPath, target, link);
+			LeafNode result = new LeafNode(parent, parentPath, target, link);
 			result.addConditions(parent.getConditions());
 			result.addConditions(this.getConditions());
 			grandParent.addChild(result);

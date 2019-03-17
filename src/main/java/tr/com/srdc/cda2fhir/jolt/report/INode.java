@@ -13,9 +13,12 @@ public interface INode {
 	void addConditions(List<JoltCondition> conditions);
 
 	
-	void fillLinks(List<ILeafNode> result);
+	IParentNode getParent();
 
-	List<ILeafNode> getLinks();
+
+	void fillLinkedNodes(List<ILeafNode> result);
+
+	List<ILeafNode> getLinkedNodes();
 
 
 	void fillConditionNodes(List<IConditionNode> result);

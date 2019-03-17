@@ -12,9 +12,9 @@ public abstract class Node implements INode {
 	public abstract Node clone();
 
 	@Override
-	public List<ILeafNode> getLinks() {
+	public List<ILeafNode> getLinkedNodes() {
 		List<ILeafNode> result = new ArrayList<ILeafNode>();
-		fillLinks(result);
+		fillLinkedNodes(result);
 		return result;
 	}
 

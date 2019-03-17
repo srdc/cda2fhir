@@ -24,6 +24,7 @@ public class ParentNode extends Node implements IParentNode {
 		this.path = path;
 	}
 
+	@Override
 	public IParentNode getParent() {
 		return parent;
 	}
@@ -87,8 +88,8 @@ public class ParentNode extends Node implements IParentNode {
 	}
 
 	@Override
-	public void fillLinks(List<ILeafNode> result) {
-		children.forEach(child -> child.fillLinks(result));
+	public void fillLinkedNodes(List<ILeafNode> result) {
+		children.forEach(child -> child.fillLinkedNodes(result));
 	}
 
 	@Override
@@ -108,7 +109,7 @@ public class ParentNode extends Node implements IParentNode {
 	public void expandLinks(Map<String, RootNode> linkMap) {
 		children.stream().filter(c -> !c.isLeaf()).forEach(c -> c.expandLinks(linkMap));
 		
-		List<ILeafNode> linkedChildren = getLinks();
+		List<ILeafNode> linkedChildren = getLinkedNodes();
 		
 		linkedChildren.forEach(linkedChild -> {
 			RootNode linkedNode = linkMap.get(linkedChild.getLink());

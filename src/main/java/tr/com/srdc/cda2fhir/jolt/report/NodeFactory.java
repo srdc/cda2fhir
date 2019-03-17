@@ -45,9 +45,9 @@ public class NodeFactory {
 		}
 	}
 	
-	private static LeafNode getInstance(String path, String target) {
+	private static LeafNode getInstance(IParentNode parent, String path, String target) {
 		ParsedTarget parsedTarget = ParsedTarget.getInstance(target);
-		return new LeafNode(path, parsedTarget.target, parsedTarget.link);
+		return new LeafNode(parent, path, parsedTarget.target, parsedTarget.link);
 	}
 
 	private static List<JoltCondition> childToCondition(String value, IParentNode parent) {
@@ -104,14 +104,14 @@ public class NodeFactory {
 				return;
 			}
 			if (value instanceof String) {
-				LeafNode joltPath = getInstance(key, (String) value);
+				LeafNode joltPath = getInstance(node, key, (String) value);
 				node.addChild(joltPath);
 				return;
 			}
 			if (value instanceof List) {
 				List<String> values = (List<String>) value;
 				values.forEach(target -> {
-					LeafNode joltPath = getInstance(key, target);
+					LeafNode joltPath = getInstance(node, key, target);
 					node.addChild(joltPath);
 				});
 				return;
