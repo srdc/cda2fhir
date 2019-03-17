@@ -1,9 +1,10 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
+import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 
-public class LeafConditionNode extends LeafNode {
+public class LeafConditionNode extends LeafNode implements IConditionNode {
 	private IParentNode parent;
 	private int rank;
 	

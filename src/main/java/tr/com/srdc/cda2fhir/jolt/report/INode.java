@@ -35,8 +35,6 @@ public interface INode {
 	
 	boolean isCondition();
 	
-	INode mergeToParent();
-
 	String getPath();
 	
 	void promoteTargets(String target);

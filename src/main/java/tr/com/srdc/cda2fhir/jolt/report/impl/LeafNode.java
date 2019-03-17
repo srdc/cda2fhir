@@ -100,10 +100,6 @@ public class LeafNode extends Node implements ILeafNode {
 		return false;
 	}
 	
-	public INode mergeToParent() {
-		return null;
-	}
-
 	public void promoteTargets(String parentTarget){
 		if (target != null) {
 			if (target.length() > 0) {

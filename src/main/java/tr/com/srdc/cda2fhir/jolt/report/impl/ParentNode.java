@@ -7,8 +7,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.NotImplementedException;
-
+import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
@@ -121,10 +120,6 @@ public class ParentNode extends Node implements IParentNode {
 		return false;
 	}
 
-	public INode mergeToParent() {
-		throw new NotImplementedException("Not available for arbirtrary nodes");
-	}
-
 	public void conditionalize() {
 		children.forEach(child -> child.conditionalize());
 
@@ -142,7 +137,8 @@ public class ParentNode extends Node implements IParentNode {
 				childIterator.remove();
 			}
 			conditionNodes.forEach(node -> {
-				INode merged = node.mergeToParent();
+				IConditionNode cn = (IConditionNode) node;
+				INode merged = cn.mergeToParent();
 				childIterator.add(merged);								
 			});
 		}
