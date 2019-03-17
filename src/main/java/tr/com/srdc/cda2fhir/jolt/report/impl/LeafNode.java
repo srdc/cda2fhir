@@ -44,7 +44,9 @@ public class LeafNode implements INode {
 
 	@Override
 	public LeafNode clone() {
-		return new LeafNode(path, target, link);
+		LeafNode result = new LeafNode(path, target, link);
+		result.conditions.addAll(conditions);
+		return result;
 	}
 
 	public void addCondition(JoltCondition condition) {
@@ -55,6 +57,10 @@ public class LeafNode implements INode {
 		return conditions;
 	}
 	
+	public void addConditions(List<JoltCondition> conditions) {
+		this.conditions.addAll(conditions)
+;	}
+
 	public void addChild(INode node) {}
 	
 	public void removeChild(INode node) {}

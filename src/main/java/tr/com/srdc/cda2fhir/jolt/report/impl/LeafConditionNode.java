@@ -2,9 +2,9 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 
-public class ConditionNode extends ParentNode {
-	public ConditionNode(String path) {
-		super(path);
+public class LeafConditionNode extends LeafNode {
+	public LeafConditionNode(String path, String target, String link) {
+		super(path, target, link);
 	}
 
 	public boolean isCondition() {
@@ -21,15 +21,13 @@ public class ConditionNode extends ParentNode {
 		
 		int rank = Integer.valueOf(path.substring(1));		
 		if (rank == 0) {
-			ParentNode result = new ParentNode(parentPath, target, link);
+			LeafNode result = new LeafNode(parentPath, target, link);
 			result.addConditions(parent.getConditions());
 			result.addConditions(this.getConditions());
-			result.addChildren(this.getChildren());
 			return result;
 		}		
 		
-		ConditionNode result = new ConditionNode("!" + (rank - 1));
-		result.addChildren(this.getChildren());
+		LeafConditionNode result = new LeafConditionNode("!" + (rank - 1), target, link);
 		result.addConditions(parent.getConditions());
 		this.getConditions().forEach(condition -> {
 			condition.prependPath(parentPath);

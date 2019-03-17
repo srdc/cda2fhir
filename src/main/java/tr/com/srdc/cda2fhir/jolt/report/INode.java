@@ -16,6 +16,8 @@ public interface INode {
 	
 	List<JoltCondition> getConditions();
 	
+	void addConditions(List<JoltCondition> conditions);
+
 	List<INode> getLinks();
 
 	void expandLinks(Map<String, RootNode> linkMap);

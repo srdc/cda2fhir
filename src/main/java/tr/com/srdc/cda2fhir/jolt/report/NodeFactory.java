@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LeafConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
@@ -67,7 +68,7 @@ public class NodeFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static ParentNode toConditionNode(String value, Map<String, Object> map, INode parent) {
+	private static INode toConditionNode(String value, Map<String, Object> map, INode parent) {
 		String key = map.keySet().iterator().next();
 		if (key.isEmpty() || key.charAt(0) != '@') {
 			return null;
@@ -78,7 +79,7 @@ public class NodeFactory {
 		Object conditionChilren = map.get(key);
 		if (conditionChilren instanceof String) {
 			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
-			ParentNode conditionNode = new ConditionNode(newPath, pt.target, pt.link);
+			LeafConditionNode conditionNode = new LeafConditionNode(newPath, pt.target, pt.link);
 			conditionNode.conditions.addAll(conditions);
 			return conditionNode;
 		}
@@ -98,7 +99,7 @@ public class NodeFactory {
 			}
 			if (value instanceof Map) {
 				Map<String, Object> valueMap = (Map<String, Object>) value;
-				ParentNode childNode = toConditionNode(key, valueMap, node);
+				INode childNode = toConditionNode(key, valueMap, node);
 				if (childNode == null) {
 					childNode = new ParentNode(key);
 					fillNode(childNode, valueMap);
