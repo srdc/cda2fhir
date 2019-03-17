@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
@@ -43,9 +44,9 @@ public class NodeFactory {
 		}
 	}
 	
-	private static ParentNode getInstance(String path, String target) {
+	private static LeafNode getInstance(String path, String target) {
 		ParsedTarget parsedTarget = ParsedTarget.getInstance(target);
-		return new ParentNode(path, parsedTarget.target, parsedTarget.link);
+		return new LeafNode(path, parsedTarget.target, parsedTarget.link);
 	}
 
 	private static List<JoltCondition> childToCondition(String value, INode parent) {
@@ -106,14 +107,14 @@ public class NodeFactory {
 				return;
 			}
 			if (value instanceof String) {
-				ParentNode joltPath = getInstance(key, (String) value);
+				LeafNode joltPath = getInstance(key, (String) value);
 				node.addChild(joltPath);
 				return;
 			}
 			if (value instanceof List) {
 				List<String> values = (List<String>) value;
 				values.forEach(target -> {
-					ParentNode joltPath = getInstance(key, target);
+					LeafNode joltPath = getInstance(key, target);
 					node.addChild(joltPath);
 				});
 				return;
