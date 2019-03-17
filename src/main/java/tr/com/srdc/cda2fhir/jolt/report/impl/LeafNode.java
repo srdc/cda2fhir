@@ -7,40 +7,18 @@ import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
-import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
 public class LeafNode extends Node implements ILeafNode {
-	private IParentNode parent;
-	private String path;
 	private String target;
 
-	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
-
 	public LeafNode(IParentNode parent, String path) {
-		this.parent = parent;
-		this.path = path;
+		super(parent, path);
 	}
 
 	public LeafNode(IParentNode parent, String path, String target) {
-		this.parent = parent;
-		this.path = path;
+		super(parent, path);
 		this.target = target;
-	}
-
-	@Override
-	public IParentNode getParent() {
-		return parent;
-	}
-
-	@Override
-	public void setParent(IParentNode parent) {
-		this.parent = parent;
-	}
-
-	@Override
-	public String getPath() {
-		return path;
 	}
 
 	@Override
@@ -50,26 +28,16 @@ public class LeafNode extends Node implements ILeafNode {
 
 	@Override
 	public LeafNode clone(IParentNode parent) {
+		String path = getPath();
 		LeafNode result = new LeafNode(parent, path, target);
-		result.conditions.addAll(conditions);
+		result.addConditions(getConditions());
 		return result;
 	}
 
-	public void addCondition(JoltCondition condition) {
-		conditions.add(condition);
-	}
-
-	public List<JoltCondition> getConditions() {
-		return conditions;
-	}
-
-	public void addConditions(List<JoltCondition> conditions) {
-		this.conditions.addAll(conditions);
-	}
-
 	public List<TableRow> toTableRows() {
+		String path = getPath();
 		TableRow row = new TableRow(path, target, null);
-		conditions.forEach(condition -> {
+		getConditions().forEach(condition -> {
 			String conditionAsString = condition.toString(path);
 			row.addCondition(conditionAsString);
 		});
@@ -95,9 +63,5 @@ public class LeafNode extends Node implements ILeafNode {
 			}
 			return;
 		}
-	}
-
-	public void setPath(String path) {
-		this.path = path;
 	}
 }

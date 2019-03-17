@@ -81,16 +81,16 @@ public class NodeFactory {
 			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
 			if (pt.link == null) {
 				LeafConditionNode conditionNode = new LeafConditionNode(parent, rank - 1, pt.target);
-				conditionNode.conditions.addAll(conditions);
+				conditionNode.addConditions(conditions);
 				return conditionNode;
 			} else {
 				LinkedConditionNode conditionNode = new LinkedConditionNode(parent, rank - 1, pt.target, pt.link);				
-				conditionNode.conditions.addAll(conditions);
+				conditionNode.addConditions(conditions);
 				return conditionNode;
 			}
 		}
 		ParentNode conditionNode = new ConditionNode(parent, rank - 1);			
-		conditionNode.conditions.addAll(conditions);
+		conditionNode.addConditions(conditions);
 		fillNode(conditionNode, (Map<String, Object>) map.get(key));
 		return conditionNode;
 	}

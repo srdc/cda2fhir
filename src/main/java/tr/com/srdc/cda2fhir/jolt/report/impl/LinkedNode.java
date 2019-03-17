@@ -27,7 +27,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		String path = this.getPath();
 		String target = this.getTarget();
 		LinkedNode result = new LinkedNode(parent, path, target, link);
-		result.conditions.addAll(conditions);
+		result.addConditions(getConditions());
 		return result;
 	}
 
@@ -53,7 +53,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		String path = getPath();
 		String target = getTarget();
 		TableRow row = new TableRow(path, target, link);
-		conditions.forEach(condition -> {
+		getConditions().forEach(condition -> {
 			String conditionAsString = condition.toString(path);
 			row.addCondition(conditionAsString);
 		});
