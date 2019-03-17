@@ -6,7 +6,6 @@ import java.util.Map;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
-import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
@@ -60,21 +59,12 @@ public class LeafNode extends Node implements ILeafNode {
 	}
 	
 	public void addConditions(List<JoltCondition> conditions) {
-		this.conditions.addAll(conditions)
-;	}
-
-	public void addChild(INode node) {}
-	
-	public List<INode> getChildren() {
-		return null;
+		this.conditions.addAll(conditions);
 	}
-	
+
 	public void expandLinks(Map<String, RootNode> linkMap) {
 	}
 	
-	public void conditionalize() {
-	}
-
 	public List<TableRow> toTableRows() {
 		TableRow row = new TableRow(path, target, link);
 		conditions.forEach(condition -> {
@@ -99,10 +89,6 @@ public class LeafNode extends Node implements ILeafNode {
 	
 	@Override
 	public void fillConditionNodes(List<IConditionNode> result) {}
-	
-	public boolean isCondition() {
-		return false;
-	}
 	
 	public void promoteTargets(String parentTarget){
 		if (target != null) {

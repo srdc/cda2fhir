@@ -50,7 +50,7 @@ public class NodeFactory {
 		return new LeafNode(path, parsedTarget.target, parsedTarget.link);
 	}
 
-	private static List<JoltCondition> childToCondition(String value, INode parent) {
+	private static List<JoltCondition> childToCondition(String value, IParentNode parent) {
 		if ("*".equals(value)) {
 			return parent.getChildren().stream().map(c -> c.getConditions().get(0)).map(c -> c.not())
 					.collect(Collectors.toList());

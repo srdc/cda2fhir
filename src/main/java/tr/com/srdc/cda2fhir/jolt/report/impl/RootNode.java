@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
+import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.JoltFormat;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
@@ -22,7 +24,7 @@ public class RootNode {
 	}
 	
 	public void addChild(ParentNode node) {
-		root.children.get(0).addChild(node);
+		base.addChild(node);
 	}
 	
 	public List<INode> getChildren() {
@@ -50,13 +52,14 @@ public class RootNode {
 	}
 
 	public void conditionalize() {
-		root.conditionalize();
+		List<IConditionNode> conditionNodes = root.getConditionNodes();
+		conditionNodes.forEach(conditionNode -> conditionNode.mergeToParent());
 	}
 
 	public Table toTable(JoltFormat resolvedFormat) {
 		Table result = new Table();
 		root.children.forEach(child -> {
-			child.getChildren().forEach(grandChild -> {
+			((IParentNode) child).getChildren().forEach(grandChild -> {
 				List<TableRow> grandChildRows = grandChild.toTableRows();
 				grandChildRows.forEach(row -> {
 					child.getConditions().forEach(condition -> {

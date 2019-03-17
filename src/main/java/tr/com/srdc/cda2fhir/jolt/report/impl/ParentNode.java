@@ -3,9 +3,7 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
@@ -71,8 +69,12 @@ public class ParentNode extends Node implements IParentNode {
 		children.add(child);
 	}
 
+	@Override
 	public void removeChild(INode child) {
 		children.remove(child);
+		if (children.size() == 0) {
+			parent.removeChild(this);
+		}
 	}
 	
 	@Override
@@ -120,34 +122,6 @@ public class ParentNode extends Node implements IParentNode {
 				children.addAll(newChildren);
 			}
 		});
-	}
-
-	public boolean isCondition() {
-		return false;
-	}
-
-	public void conditionalize() {
-		children.forEach(child -> child.conditionalize());
-
-		ListIterator<INode> childIterator = children.listIterator();
-		while (childIterator.hasNext()) {
-			INode child = childIterator.next();
-
-			if (child.isLeaf()) continue;
-			
-			List<INode> conditionNodes = child.getChildren().stream().filter(n -> n.isCondition()).collect(Collectors.toList());
-			if (conditionNodes.size() == 0) {
-				continue;
-			}
-			if (conditionNodes.size() == child.getChildren().size()) {
-				childIterator.remove();
-			}
-			conditionNodes.forEach(node -> {
-				IConditionNode cn = (IConditionNode) node;
-				INode merged = cn.mergeToParent();
-				childIterator.add(merged);								
-			});
-		}
 	}
 
 	public List<TableRow> toTableRows() {

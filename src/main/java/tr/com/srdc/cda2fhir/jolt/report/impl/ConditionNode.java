@@ -14,19 +14,15 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 		this.rank = rank;
 	}
 
-	public boolean isCondition() {
-		return true;
-	}
-	
 	@Override
 	public void fillConditionNodes(List<IConditionNode> result) {
+		super.fillConditionNodes(result);
 		result.add(this);
 	}
 
 	@Override
 	public INode mergeToParent() {
 		IParentNode parent = getParent();
-		parent.removeChild(this);				
 		String parentPath = parent.getPath();
 		IParentNode grandParent = parent.getParent();
 		
@@ -35,6 +31,8 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 			result.addConditions(parent.getConditions());
 			result.addConditions(this.getConditions());
 			result.addChildren(this.getChildren());
+			grandParent.addChild(result);
+			parent.removeChild(this);				
 			return result;
 		}		
 		
@@ -45,6 +43,9 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 			condition.prependPath(parentPath);
 			result.addCondition(condition);
 		});
+		grandParent.addChild(result);		
+		parent.removeChild(this);				
+		result.mergeToParent();
 		return result;
 	}
 }

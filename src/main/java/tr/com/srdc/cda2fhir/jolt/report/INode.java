@@ -8,10 +8,6 @@ import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 public interface INode {
 	void addCondition(JoltCondition condition);
 	
-	void addChild(INode node);
-	
-	List<INode> getChildren();
-	
 	List<JoltCondition> getConditions();
 	
 	void addConditions(List<JoltCondition> conditions);
@@ -29,16 +25,12 @@ public interface INode {
 
 	void expandLinks(Map<String, RootNode> linkMap);
 	
-	void conditionalize();
-
 	INode clone();
 
 	List<TableRow> toTableRows();
 	
 	boolean isLeaf();
 	
-	
-	boolean isCondition();
 	
 	String getPath();
 	
