@@ -61,29 +61,23 @@ public class NodeFactory {
 		return Collections.singletonList(new JoltCondition("", "equal", value));
 	}
 
-	private static String decrementSpecialPath(String path) {
-		int value = Integer.valueOf(path.substring(1));
-		value -= 1;
-		return "!" + value;
-	}
-
 	@SuppressWarnings("unchecked")
 	private static INode toConditionNode(String value, Map<String, Object> map, INode parent) {
 		String key = map.keySet().iterator().next();
 		if (key.isEmpty() || key.charAt(0) != '@') {
 			return null;
 		}
-		String newPath = decrementSpecialPath(key);
+		int rank = Integer.valueOf(key.substring(1));
 
 		List<JoltCondition> conditions = childToCondition(value, parent);
 		Object conditionChilren = map.get(key);
 		if (conditionChilren instanceof String) {
 			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
-			LeafConditionNode conditionNode = new LeafConditionNode(newPath, pt.target, pt.link);
+			LeafConditionNode conditionNode = new LeafConditionNode(rank - 1, pt.target, pt.link);
 			conditionNode.conditions.addAll(conditions);
 			return conditionNode;
 		}
-		ParentNode conditionNode = new ConditionNode(newPath);			
+		ParentNode conditionNode = new ConditionNode(rank - 1);			
 		conditionNode.conditions.addAll(conditions);
 		fillNode(conditionNode, (Map<String, Object>) map.get(key));
 		return conditionNode;

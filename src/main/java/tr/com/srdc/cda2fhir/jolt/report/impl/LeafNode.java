@@ -9,7 +9,7 @@ import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
-public class LeafNode implements ILeafNode {
+public class LeafNode extends Node implements ILeafNode {
 	private String path;
 	private String target;
 	private String link;
@@ -70,10 +70,6 @@ public class LeafNode implements ILeafNode {
 		return null;
 	}
 	
-	public List<ILeafNode> getLinks() {
-		return null;
-	}
-
 	public void expandLinks(Map<String, RootNode> linkMap) {
 	}
 	
@@ -95,6 +91,7 @@ public class LeafNode implements ILeafNode {
 		return true;
 	}
 	
+	@Override
 	public void fillLinks(List<ILeafNode> result) {
 		if (link != null) {
 			result.add(this);

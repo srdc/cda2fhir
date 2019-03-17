@@ -16,7 +16,7 @@ import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
-public class ParentNode implements IParentNode {
+public class ParentNode extends Node implements IParentNode {
 	private String path;
 	public LinkedList<INode> children = new LinkedList<INode>();
 	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
@@ -83,13 +83,6 @@ public class ParentNode implements IParentNode {
 		children.forEach(child -> child.fillLinks(result));
 	}
 
-	@Override
-	public List<ILeafNode> getLinks() {
-		List<ILeafNode> result = new ArrayList<ILeafNode>();
-		fillLinks(result);
-		return result;
-	}
-
 	public void promoteTargets(String parentTarget) {
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
@@ -119,7 +112,7 @@ public class ParentNode implements IParentNode {
 	}
 
 	public boolean isCondition() {
-		return path.length() > 0 && path.charAt(0) == '!';
+		return false;
 	}
 
 	public INode mergeToParent(INode parent) {
@@ -143,6 +136,7 @@ public class ParentNode implements IParentNode {
 				childIterator.remove();
 			}
 			conditionNodes.forEach(node -> {
+				child.removeChild(node);				
 				INode merged = node.mergeToParent(child);
 				childIterator.add(merged);								
 			});

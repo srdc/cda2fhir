@@ -3,23 +3,23 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 
 public class LeafConditionNode extends LeafNode {
-	public LeafConditionNode(String path, String target, String link) {
-		super(path, target, link);
+	private int rank;
+	
+	public LeafConditionNode(int rank, String target, String link) {
+		super("!" + rank, target, link);
+		this.rank = rank;
 	}
 
 	public boolean isCondition() {
 		return true;
 	}
 	
+	@Override
 	public INode mergeToParent(INode parent) {
-		parent.removeChild(this);
-		
-		String path = this.getPath();
 		String link = this.getLink();
 		String target = this.getTarget();
 		String parentPath = parent.getPath();
 		
-		int rank = Integer.valueOf(path.substring(1));		
 		if (rank == 0) {
 			LeafNode result = new LeafNode(parentPath, target, link);
 			result.addConditions(parent.getConditions());
@@ -27,7 +27,7 @@ public class LeafConditionNode extends LeafNode {
 			return result;
 		}		
 		
-		LeafConditionNode result = new LeafConditionNode("!" + (rank - 1), target, link);
+		LeafConditionNode result = new LeafConditionNode(rank - 1, target, link);
 		result.addConditions(parent.getConditions());
 		this.getConditions().forEach(condition -> {
 			condition.prependPath(parentPath);

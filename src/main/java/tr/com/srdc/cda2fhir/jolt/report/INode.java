@@ -18,7 +18,11 @@ public interface INode {
 	
 	void addConditions(List<JoltCondition> conditions);
 
+	
+	void fillLinks(List<ILeafNode> result);
+
 	List<ILeafNode> getLinks();
+
 
 	void expandLinks(Map<String, RootNode> linkMap);
 	
@@ -30,7 +34,6 @@ public interface INode {
 	
 	boolean isLeaf();
 	
-	void fillLinks(List<ILeafNode> result);
 	
 	boolean isCondition();
 	
