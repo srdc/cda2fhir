@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
@@ -95,6 +96,9 @@ public class LeafNode extends Node implements ILeafNode {
 			result.add(this);
 		}		
 	}
+	
+	@Override
+	public void fillConditionNodes(List<IConditionNode> result) {}
 	
 	public boolean isCondition() {
 		return false;

@@ -84,10 +84,16 @@ public class ParentNode extends Node implements IParentNode {
 		this.children.addAll(children);
 	}
 
+	@Override
 	public void fillLinks(List<ILeafNode> result) {
 		children.forEach(child -> child.fillLinks(result));
 	}
 
+	@Override
+	public void fillConditionNodes(List<IConditionNode> result) {
+		children.forEach(child -> child.fillConditionNodes(result));
+	}
+		
 	public void promoteTargets(String parentTarget) {
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}

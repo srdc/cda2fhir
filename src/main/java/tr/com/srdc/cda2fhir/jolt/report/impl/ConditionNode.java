@@ -1,5 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
+import java.util.List;
+
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
@@ -16,6 +18,11 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 		return true;
 	}
 	
+	@Override
+	public void fillConditionNodes(List<IConditionNode> result) {
+		result.add(this);
+	}
+
 	@Override
 	public INode mergeToParent() {
 		IParentNode parent = getParent();

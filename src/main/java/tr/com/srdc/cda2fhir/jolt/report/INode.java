@@ -22,6 +22,11 @@ public interface INode {
 	List<ILeafNode> getLinks();
 
 
+	void fillConditionNodes(List<IConditionNode> result);
+
+	List<IConditionNode> getConditionNodes();
+
+
 	void expandLinks(Map<String, RootNode> linkMap);
 	
 	void conditionalize();
