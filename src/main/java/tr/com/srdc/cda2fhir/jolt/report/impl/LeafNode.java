@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
-public class LeafNode implements INode {
+public class LeafNode implements ILeafNode {
 	private String path;
 	private String target;
 	private String link;
@@ -69,7 +70,7 @@ public class LeafNode implements INode {
 		return null;
 	}
 	
-	public List<INode> getLinks() {
+	public List<ILeafNode> getLinks() {
 		return null;
 	}
 
@@ -94,7 +95,7 @@ public class LeafNode implements INode {
 		return true;
 	}
 	
-	public void fillLinks(List<INode> result) {
+	public void fillLinks(List<ILeafNode> result) {
 		if (link != null) {
 			result.add(this);
 		}		

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.JoltFormat;
@@ -39,7 +40,7 @@ public class RootNode {
 		return null;
 	}
 	
-	public List<INode> getLinks() {
+	public List<ILeafNode> getLinks() {
 		return root.getLinks();
 	}
 

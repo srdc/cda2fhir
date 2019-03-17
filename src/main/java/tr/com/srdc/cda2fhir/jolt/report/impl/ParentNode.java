@@ -9,31 +9,20 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.NotImplementedException;
 
+import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
+import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
-public class ParentNode implements INode {
+public class ParentNode implements IParentNode {
 	private String path;
-	private String target;
-	private String link;
 	public LinkedList<INode> children = new LinkedList<INode>();
 	public List<JoltCondition> conditions = new ArrayList<JoltCondition>();
 
 	public ParentNode(String path) {
 		this.path = path;
-	}
-
-	public ParentNode(String path, String target) {
-		this.path = path;
-		this.target = target;
-	}
-
-	public ParentNode(String path, String target, String link) {
-		this.path = path;
-		this.target = target;
-		this.link = link;
 	}
 
 	public String getPath() {
@@ -50,7 +39,7 @@ public class ParentNode implements INode {
 	
 	@Override
 	public ParentNode clone() {
-		ParentNode result = new ParentNode(path, target, link);
+		ParentNode result = new ParentNode(path);
 		children.forEach(child -> {
 			INode childClone = child.clone();
 			result.addChild(childClone);
@@ -72,14 +61,6 @@ public class ParentNode implements INode {
 		return conditions;
 	}
 	
-	public String getTarget() {
-		return target;
-	}
-
-	public String getLink() {
-		return link;
-	}
-
 	@Override
 	public void addChild(INode child) {
 		children.add(child);
@@ -98,19 +79,15 @@ public class ParentNode implements INode {
 		this.children.addAll(children);
 	}
 
-	public void fillLinks(List<INode> result) {
+	public void fillLinks(List<ILeafNode> result) {
 		children.forEach(child -> child.fillLinks(result));
 	}
 
 	@Override
-	public List<INode> getLinks() {
-		List<INode> result = new ArrayList<INode>();
+	public List<ILeafNode> getLinks() {
+		List<ILeafNode> result = new ArrayList<ILeafNode>();
 		fillLinks(result);
 		return result;
-	}
-
-	public void setTarget(String target) {
-		this.target = target;
 	}
 
 	public void promoteTargets(String parentTarget) {
@@ -125,7 +102,7 @@ public class ParentNode implements INode {
 	public void expandLinks(Map<String, RootNode> linkMap) {
 		children.stream().filter(c -> !c.isLeaf()).forEach(c -> c.expandLinks(linkMap));
 		
-		List<INode> linkedChildren = getLinks();
+		List<ILeafNode> linkedChildren = getLinks();
 		
 		linkedChildren.forEach(linkedChild -> {
 			RootNode linkedNode = linkMap.get(linkedChild.getLink());

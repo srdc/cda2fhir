@@ -15,13 +15,11 @@ public class ConditionNode extends ParentNode {
 		parent.removeChild(this);
 		
 		String path = this.getPath();
-		String link = this.getLink();
-		String target = this.getTarget();
 		String parentPath = parent.getPath();
 		
 		int rank = Integer.valueOf(path.substring(1));		
 		if (rank == 0) {
-			ParentNode result = new ParentNode(parentPath, target, link);
+			ParentNode result = new ParentNode(parentPath);
 			result.addConditions(parent.getConditions());
 			result.addConditions(this.getConditions());
 			result.addChildren(this.getChildren());
