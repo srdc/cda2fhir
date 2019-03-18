@@ -16,7 +16,7 @@ public class LinkedWildcardNode extends LinkedNode implements IWildcardNode {
 	}
 
 	@Override
-	public MergedLinkedNode mergeToParent() {
+	public void mergeToParent() {
 		IParentNode parent = getParent();
 		IParentNode grandparent = parent.getParent();
 		String parentPath = parent.getPath();
@@ -26,6 +26,5 @@ public class LinkedWildcardNode extends LinkedNode implements IWildcardNode {
 		parent.removeChild(this);		
 		result.copyConditions(parent);
 		result.copyConditions(this);		
-		return result;
 	}
 }

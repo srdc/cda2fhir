@@ -3,7 +3,6 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import java.util.List;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
-import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 
 public class LeafConditionNode extends LeafNode implements IConditionNode {
@@ -27,7 +26,7 @@ public class LeafConditionNode extends LeafNode implements IConditionNode {
 	}
 	
 	@Override
-	public INode mergeToParent() {
+	public void mergeToParent() {
 		IParentNode parent = getParent();
 		String target = this.getTarget();
 		String parentPath = parent.getPath();
@@ -39,7 +38,7 @@ public class LeafConditionNode extends LeafNode implements IConditionNode {
 			result.addConditions(this.getConditions());
 			grandParent.addChild(result);
 			parent.removeChild(this);				
-			return result;
+			return;
 		}		
 		
 		LeafConditionNode result = new LeafConditionNode(grandParent, rank - 1, target);
@@ -51,6 +50,5 @@ public class LeafConditionNode extends LeafNode implements IConditionNode {
 		grandParent.addChild(result);
 		parent.removeChild(this);
 		result.mergeToParent();
-		return result;
 	}
 }
