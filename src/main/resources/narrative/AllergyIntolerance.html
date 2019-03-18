@@ -24,7 +24,7 @@ a browser.
 			<tr th:if="${resource.reaction} and ${not resource.reaction.empty}" th:each="reaction : ${resource.reaction}">
 				<td>Reaction</td>
 				<td th:each="mani : ${reaction.manifestation}">
-				<span th:narrative="${mani}"/>
+				<div th:narrative="${mani}"/>
 				</td>
 			</tr>
 		</tbody>
