@@ -7,7 +7,9 @@ import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
+import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
+import tr.com.srdc.cda2fhir.jolt.report.PathPredicate;
 
 public abstract class Node implements INode {
 	private IParentNode parent;
@@ -62,6 +64,17 @@ public abstract class Node implements INode {
 	}
 
 	@Override
+	public List<IWildcardNode> getWildcardNodes() {
+		List<IWildcardNode> result = new ArrayList<IWildcardNode>();
+		fillWildcardNodes(result);
+		return result;		
+	}
+
+	@Override
+	public void fillWildcardNodes(List<IWildcardNode> result) {
+	}
+
+	@Override
 	public void addCondition(JoltCondition condition) {
 		conditions.add(condition);
 	}
@@ -74,5 +87,33 @@ public abstract class Node implements INode {
 	@Override
 	public List<JoltCondition> getConditions() {
 		return conditions;
+	}
+
+	@Override
+	public void fillNodes(List<INode> result, PathPredicate pathPredicate) {
+		if (pathPredicate.compare(path)) {
+			result.add(this);
+		}
+	}
+	
+	@Override
+	public List<INode> findNodes(PathPredicate pathPredicate) {
+		List<INode> result = new ArrayList<INode>();
+		fillNodes(result, pathPredicate);
+		return result;
+	}
+
+	@Override
+	public int originalNodeCount() {
+		return 0;
+	}
+	
+	@Override
+	public boolean hasSibling() {
+		return parent.getChildren().size() > 1;
+	}
+	
+	public void copyConditions(INode source) {
+		conditions.addAll(source.getConditions());
 	}
 }

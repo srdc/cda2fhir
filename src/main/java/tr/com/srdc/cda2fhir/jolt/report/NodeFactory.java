@@ -9,10 +9,13 @@ import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LeafWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.WildcardNode;
 
 public class NodeFactory {
 	private final static class ParsedTarget {
@@ -50,9 +53,17 @@ public class NodeFactory {
 	private static LeafNode getInstance(IParentNode parent, String path, String target) {
 		ParsedTarget parsedTarget = ParsedTarget.getInstance(target);
 		if (parsedTarget.link == null) {
-			return new LeafNode(parent, path, parsedTarget.target);
+			if (path.equals("*")) {
+				return new LeafWildcardNode(parent, path, parsedTarget.target);				
+			} else {
+				return new LeafNode(parent, path, parsedTarget.target);
+			}
 		} else {
-			return new LinkedNode(parent, path, parsedTarget.target, parsedTarget.link);			
+			if (path.equals("*")) {
+				return new LinkedWildcardNode(parent, path, parsedTarget.target, parsedTarget.link);				
+			} else {
+				return new LinkedNode(parent, path, parsedTarget.target, parsedTarget.link);					
+			}
 		}
 	}
 
@@ -110,7 +121,12 @@ public class NodeFactory {
 					node.addChild(childNode);
 					return;					
 				}
-				ParentNode parentNode = new ParentNode(node, key);
+				ParentNode parentNode;
+				if (key.equals("*")) {
+					parentNode = new WildcardNode(node, key);
+				} else {
+					parentNode = new ParentNode(node, key);
+				}
 				fillNode(parentNode, valueMap);
 				node.addChild(parentNode);
 				return;
@@ -135,6 +151,7 @@ public class NodeFactory {
 		RootNode node = resourceType == null ? new RootNode() : new EntryNode(resourceType);
 		IParentNode base = node.getBase();
 		fillNode(base, map);
+		node.eliminateWildcardNodes();
 		node.conditionalize();
 		return node;
 	}

@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.jolt.report;
+package tr.com.srdc.cda2fhir.jolt.report;    
 
 import java.io.File;
 import java.nio.charset.Charset;

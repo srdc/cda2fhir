@@ -25,6 +25,11 @@ public interface INode {
 	List<IConditionNode> getConditionNodes();
 
 
+	void fillWildcardNodes(List<IWildcardNode> result);
+
+	List<IWildcardNode> getWildcardNodes();
+
+
 	INode clone(IParentNode parent);
 
 
@@ -36,4 +41,13 @@ public interface INode {
 	void setPath(String path);
 
 	void promoteTargets(String target);
+
+	
+	void fillNodes(List<INode> result, PathPredicate pathPredicate);
+	
+	List<INode> findNodes(PathPredicate pathPredicate);
+	
+	int originalNodeCount();
+	
+	boolean hasSibling();
 }

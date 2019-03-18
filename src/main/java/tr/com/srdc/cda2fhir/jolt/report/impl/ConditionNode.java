@@ -32,7 +32,7 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 		String parentPath = parent.getPath();
 		IParentNode grandParent = parent.getParent();
 		
-		if (rank == 0) {
+		if (rank == parent.originalNodeCount()) {
 			ParentNode result = new ParentNode(grandParent, parentPath);
 			result.addConditions(parent.getConditions());
 			result.addConditions(this.getConditions());

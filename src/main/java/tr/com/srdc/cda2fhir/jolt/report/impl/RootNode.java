@@ -8,6 +8,7 @@ import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
+import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.JoltFormat;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
@@ -52,6 +53,11 @@ public class RootNode {
 		leafNodes.forEach(leafNode -> leafNode.expandLinks(linkMap));
 	}
 
+	public void eliminateWildcardNodes() {
+		List<IWildcardNode> wildcardNodes = root.getWildcardNodes();
+		wildcardNodes.forEach(wildcardNode -> wildcardNode.mergeToParent());
+	}
+	
 	public void conditionalize() {
 		List<IConditionNode> conditionNodes = root.getConditionNodes();
 		conditionNodes.forEach(conditionNode -> conditionNode.mergeToParent());

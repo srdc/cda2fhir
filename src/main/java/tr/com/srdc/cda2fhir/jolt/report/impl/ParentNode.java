@@ -8,7 +8,9 @@ import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
+import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
+import tr.com.srdc.cda2fhir.jolt.report.PathPredicate;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 
@@ -66,11 +68,18 @@ public class ParentNode extends Node implements IParentNode {
 	public void fillConditionNodes(List<IConditionNode> result) {
 		children.forEach(child -> child.fillConditionNodes(result));
 	}
-		
+	
+	@Override
+	public void fillWildcardNodes(List<IWildcardNode> result) {
+		children.forEach(child -> child.fillWildcardNodes(result));
+	}
+	
+	@Override
 	public void promoteTargets(String parentTarget) {
 		children.forEach(child -> child.promoteTargets(parentTarget));
 	}
 
+	@Override
 	public List<TableRow> toTableRows() {
 		String path = getPath();
 		List<TableRow> rows = new ArrayList<TableRow>();
@@ -89,6 +98,13 @@ public class ParentNode extends Node implements IParentNode {
 		return rows;
 	}
 
+	@Override
+	public void fillNodes(List<INode> result, PathPredicate pathPredicate) {
+		children.forEach(child -> child.fillNodes(result, pathPredicate));
+		super.fillNodes(result, pathPredicate);
+		
+	}
+	
 	public Table toTable() {
 		Table result = new Table();
 		children.forEach(jp -> {
@@ -96,5 +112,11 @@ public class ParentNode extends Node implements IParentNode {
 			result.addRows(rows);
 		});
 		return result;
+	}
+	
+	public void copyChildren(IParentNode source) {
+		List<INode> sourceChildren = source.getChildren();
+		sourceChildren.forEach(child -> child.setParent(this));
+		children.addAll(source.getChildren());
 	}
 }
