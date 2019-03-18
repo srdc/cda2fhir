@@ -1,7 +1,6 @@
 package tr.com.srdc.cda2fhir;
 
 import java.io.IOException;
-import java.util.Base64;
 
 import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -98,19 +97,19 @@ public class IntegrationTest {
 	@Test
 	public void provenanceIntegration() throws Exception {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
-		String encodedBody = Base64.getEncoder().encodeToString("<ClinicalDoc>\n</ClinicalDoc>".getBytes());
+		String documentBody = "<ClinicalDoc>\n</ClinicalDoc>";
 		Identifier assemblerDevice = new Identifier();
 		assemblerDevice.setValue("Higgs");
 		assemblerDevice.setSystem("http://www.amida.com");
 
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, encodedBody, assemblerDevice);
+				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/provenance_bundle.json");
 		Binary binary = BundleUtil.findOneResource(transactionBundle, Binary.class);
 		Assert.assertEquals(binary.getContentType(), "text/plain");
-		Assert.assertEquals(binary.getContentAsBase64(), encodedBody);
+		Assert.assertEquals(binary.getContentAsBase64(), documentBody);
 
 		Device device = BundleUtil.findOneResource(transactionBundle, Device.class);
 		Assert.assertEquals(device.getText().getStatusAsString().toLowerCase(),

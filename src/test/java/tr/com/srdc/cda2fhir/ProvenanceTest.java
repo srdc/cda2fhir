@@ -51,7 +51,6 @@ public class ProvenanceTest {
 		Binary binary = BundleUtil.findOneResource(testBundle, Binary.class);
 		Assert.assertEquals(binary.getContentType(), "text/plain");
 
-		// HERE
 		Assert.assertEquals(binary.getContentElement().asStringValue(), documentBody);
 
 		Device device = BundleUtil.findOneResource(testBundle, Device.class);
