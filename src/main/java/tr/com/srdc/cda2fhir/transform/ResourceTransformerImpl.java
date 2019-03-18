@@ -3103,6 +3103,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	public Bundle tProvenance(Bundle bundle, String encodedBody, Identifier assemblerDevice) {
 		Provenance provenance = new Provenance();
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
+		provenance.setId(new IdType("Provenance", getUniqueId()));
 
 		if (!StringUtils.isEmpty(encodedBody)) {
 			Binary binary = tBinary(encodedBody);
@@ -3121,7 +3122,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(),
 					ProvenanceAgentType.DEVICE.toCode(), ProvenanceAgentType.DEVICE.getDisplay());
 			agentTypeCoding.setId(device.getId());
-			pac.addRole(new CodeableConcept().addCoding(agentTypeCoding));
+			pac.setRelatedAgentType(new CodeableConcept().addCoding(agentTypeCoding));
 
 			Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
 					ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
