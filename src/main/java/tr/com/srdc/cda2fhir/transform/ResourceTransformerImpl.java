@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.xml.type.internal.DataValue.Base64;
 import org.hl7.fhir.dstu3.model.Age;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
@@ -3086,7 +3087,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	public Binary tBinary(String documentBody) {
 		Binary binary = new Binary();
-		binary.setContentElement(new Base64BinaryType(documentBody));
+		binary.setContentElement(new Base64BinaryType(Base64.encode(documentBody.getBytes())));
 		binary.setContentType("text/plain");
 		binary.setId(new IdType("Binary", getUniqueId()));
 		binary.setSecurityContext(new Reference(binary.getId()));

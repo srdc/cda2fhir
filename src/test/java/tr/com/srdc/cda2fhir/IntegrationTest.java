@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.IOException;
 
+import org.eclipse.emf.ecore.xml.type.internal.DataValue.Base64;
 import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -10,9 +11,7 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Narrative.NarrativeStatus;
-import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
@@ -109,7 +108,7 @@ public class IntegrationTest {
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/provenance_bundle.json");
 		Binary binary = BundleUtil.findOneResource(transactionBundle, Binary.class);
 		Assert.assertEquals(binary.getContentType(), "text/plain");
-		Assert.assertEquals(binary.getContentAsBase64(), documentBody);
+		Assert.assertEquals(binary.getContentAsBase64(), Base64.encode(documentBody.getBytes()));
 
 		Device device = BundleUtil.findOneResource(transactionBundle, Device.class);
 		Assert.assertEquals(device.getText().getStatusAsString().toLowerCase(),

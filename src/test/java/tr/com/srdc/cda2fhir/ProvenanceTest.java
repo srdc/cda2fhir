@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir;
 
+import org.eclipse.emf.ecore.xml.type.internal.DataValue.Base64;
 import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -51,7 +52,7 @@ public class ProvenanceTest {
 		Binary binary = BundleUtil.findOneResource(testBundle, Binary.class);
 		Assert.assertEquals(binary.getContentType(), "text/plain");
 
-		Assert.assertEquals(binary.getContentElement().asStringValue(), documentBody);
+		Assert.assertEquals(binary.getContentElement().asStringValue(), Base64.encode(documentBody.getBytes()));
 
 		Device device = BundleUtil.findOneResource(testBundle, Device.class);
 		Assert.assertEquals(device.getText().getStatusAsString().toLowerCase(),
