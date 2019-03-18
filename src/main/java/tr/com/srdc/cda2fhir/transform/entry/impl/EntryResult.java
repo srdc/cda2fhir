@@ -107,6 +107,6 @@ public class EntryResult implements IEntryResult {
 	
 	@Override
 	public boolean hasResult() {
-		return this.bundle.hasEntry();
+		return this.bundle != null && this.bundle.hasEntry();
 	}
 }
