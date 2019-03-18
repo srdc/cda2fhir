@@ -52,7 +52,7 @@ public class ProvenanceTest {
 		BundleUtil.findOneResource(testBundle, Patient.class);
 
 		Binary binary = BundleUtil.findOneResource(testBundle, Binary.class);
-		Assert.assertEquals(binary.getContentType(), "application/txt");
+		Assert.assertEquals(binary.getContentType(), "text/plain");
 		Assert.assertEquals(binary.getContentAsBase64(), encodedBody);
 
 		Device device = BundleUtil.findOneResource(testBundle, Device.class);
@@ -70,13 +70,13 @@ public class ProvenanceTest {
 		Assert.assertEquals(provenance.getTarget().get(3).getReference().substring(0, 6), "Binary");
 		Assert.assertEquals(provenance.getTarget().get(4).getReference().substring(0, 6), "Device");
 
-		Coding roleDevice = provenance.getAgentFirstRep().getRole().get(0).getCoding().get(0);
+		Coding roleDevice = provenance.getAgentFirstRep().getRelatedAgentType().getCodingFirstRep();
 		Assert.assertEquals(roleDevice.getId().substring(0, 6), "Device");
 		Assert.assertEquals(roleDevice.getSystem(), ProvenanceAgentType.DEVICE.getSystem());
 		Assert.assertEquals(roleDevice.getCode(), ProvenanceAgentType.DEVICE.toCode());
 		Assert.assertEquals(roleDevice.getDisplay(), ProvenanceAgentType.DEVICE.getDisplay());
 
-		Coding roleAssembler = provenance.getAgentFirstRep().getRole().get(1).getCoding().get(0);
+		Coding roleAssembler = provenance.getAgentFirstRep().getRoleFirstRep().getCodingFirstRep();
 		Assert.assertEquals(roleAssembler.getId().substring(0, 6), "Device");
 		Assert.assertEquals(roleAssembler.getSystem(), ProvenanceAgentRole.ASSEMBLER.getSystem());
 		Assert.assertEquals(roleAssembler.getCode(), ProvenanceAgentRole.ASSEMBLER.toCode());

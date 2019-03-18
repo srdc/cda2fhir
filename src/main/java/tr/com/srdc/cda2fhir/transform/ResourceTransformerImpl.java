@@ -3081,7 +3081,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	public Binary tBinary(String encodedBody) {
 		Binary binary = new Binary();
 		binary.setContentElement(new Base64BinaryType(encodedBody));
-		binary.setContentType("application/txt");
+		binary.setContentType("text/plain");
 		binary.setId(new IdType("Binary", getUniqueId()));
 		binary.setSecurityContext(new Reference(binary.getId()));
 		return binary;

@@ -3,14 +3,22 @@ package tr.com.srdc.cda2fhir;
 import java.io.IOException;
 import java.util.Base64;
 
+import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.Narrative.NarrativeStatus;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.Provenance;
+import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
+import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
+import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentType;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -24,6 +32,7 @@ import com.palantir.docker.compose.connection.waiting.HealthChecks;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -90,15 +99,48 @@ public class IntegrationTest {
 	public void provenanceIntegration() throws Exception {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
 		String encodedBody = Base64.getEncoder().encodeToString("<ClinicalDoc>\n</ClinicalDoc>".getBytes());
-		Identifier device = new Identifier();
-		device.setValue("Higgs");
-		device.setSystem("http://www.amida.com");
+		Identifier assemblerDevice = new Identifier();
+		assemblerDevice.setValue("Higgs");
+		assemblerDevice.setSystem("http://www.amida.com");
 
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, encodedBody, device);
+				BundleType.TRANSACTION, null, encodedBody, assemblerDevice);
 
 		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/provenance_bundle.json");
+		Binary binary = BundleUtil.findOneResource(transactionBundle, Binary.class);
+		Assert.assertEquals(binary.getContentType(), "text/plain");
+		Assert.assertEquals(binary.getContentAsBase64(), encodedBody);
+
+		Device device = BundleUtil.findOneResource(transactionBundle, Device.class);
+		Assert.assertEquals(device.getText().getStatusAsString().toLowerCase(),
+				NarrativeStatus.GENERATED.toString().toLowerCase());
+		Assert.assertEquals(device.getIdentifierFirstRep().getSystem().toLowerCase(),
+				assemblerDevice.getSystem().toLowerCase());
+		Assert.assertEquals(device.getIdentifierFirstRep().getValue().toLowerCase(),
+				assemblerDevice.getValue().toLowerCase());
+
+		Provenance provenance = BundleUtil.findOneResource(transactionBundle, Provenance.class);
+		int lastIndex = provenance.getTarget().size() - 1;
+		Assert.assertEquals(provenance.getTarget().get(lastIndex - 1).getReference(), "Binary/90");
+		Assert.assertEquals(provenance.getTarget().get(lastIndex).getReference(), "Device/91");
+
+		Coding roleDevice = provenance.getAgentFirstRep().getRelatedAgentType().getCodingFirstRep();
+		Assert.assertEquals(roleDevice.getId(), "Device/91");
+		Assert.assertEquals(roleDevice.getSystem(), ProvenanceAgentType.DEVICE.getSystem());
+		Assert.assertEquals(roleDevice.getCode(), ProvenanceAgentType.DEVICE.toCode());
+		Assert.assertEquals(roleDevice.getDisplay(), ProvenanceAgentType.DEVICE.getDisplay());
+
+		Coding roleAssembler = provenance.getAgentFirstRep().getRoleFirstRep().getCodingFirstRep();
+		Assert.assertEquals(roleAssembler.getId(), "Device/91");
+		Assert.assertEquals(roleAssembler.getSystem(), ProvenanceAgentRole.ASSEMBLER.getSystem());
+		Assert.assertEquals(roleAssembler.getCode(), ProvenanceAgentRole.ASSEMBLER.toCode());
+		Assert.assertEquals(roleAssembler.getDisplay(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
+
+		Assert.assertEquals(provenance.getAgentFirstRep().getWhoReference().getReference(), "Device/91");
+
+		Assert.assertEquals(provenance.getEntityFirstRep().getId(), "Binary/90");
+		Assert.assertEquals(provenance.getEntityFirstRep().getRole(), ProvenanceEntityRole.SOURCE);
 	}
 
 }
