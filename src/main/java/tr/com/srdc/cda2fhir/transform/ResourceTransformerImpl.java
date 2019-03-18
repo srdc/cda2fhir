@@ -73,6 +73,7 @@ import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
+import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
@@ -155,6 +156,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhn.fhir.util.BundleUtil;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.impl.DeferredProcedureEncounterReference;
@@ -1637,9 +1639,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		Medication fhirMedication = new Medication();
 		result.addResource(fhirMedication);
 		
-		Bundle fhirMedicationBundle = new Bundle();
-		fhirMedicationBundle.addEntry(new BundleEntryComponent().setResource(fhirMedication));
-		
 		// resource id
 		IdType resourceId = new IdType("Medication", getUniqueId());
 		fhirMedication.setId(resourceId);
@@ -1660,7 +1659,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaManufacturedProduct.getManufacturerOrganization() != null && !cdaManufacturedProduct.getManufacturerOrganization().isSetNullFlavor()) {
 			org.hl7.fhir.dstu3.model.Organization org = tOrganization2Organization(cdaManufacturedProduct.getManufacturerOrganization());
 			fhirMedication.setManufacturer(new Reference(org.getId()));
-			fhirMedicationBundle.addEntry(new BundleEntryComponent().setResource(org));
+			result.addResource(org);
 		}
 
 		return result;
@@ -1741,10 +1740,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaMedicationActivity.getConsumable() != null && !cdaMedicationActivity.getConsumable().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationActivity.getConsumable());
 			if(fhirMedicationResult.hasResult()) {
-				//Should only have one result entry
-				BundleEntryComponent medicationResultEntry = fhirMedicationResult.getBundle().getEntryFirstRep();
-				result.addResource(medicationResultEntry.getResource());
-				fhirMedSt.setMedication(new Reference( medicationResultEntry.getResource().getId()));
+				BundleUtil bundleUtil = new BundleUtil();
+				for(BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
+					if(entry.getResource().fhirType().contentEquals("Medication")) {
+						fhirMedSt.setMedication(new Reference(entry.getResource().getId()));
+					} else if(entry.getResource().fhirType().contentEquals("Organization")) {
+						Organization Org = (Organization) entry.getResource();
+					}
+					result.addResource(entry.getResource());
+				}
 			}
 		}
 		

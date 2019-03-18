@@ -257,9 +257,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
         for(Section cdaSec: ccd.getSections()) {        	
         	ICDASection section = findCDASection(cdaSec);
         	if (section != null) {
-        		if(cdaSec instanceof SupplyImpl) {
-        			System.out.println("oh snap we got one");
-        		}
+        		
             	SectionComponent fhirSec = resTransformer.tSection2Section(cdaSec);
         		
             	if(fhirSec == null) {
