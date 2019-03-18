@@ -1,7 +1,5 @@
 package tr.com.srdc.cda2fhir;
 
-import java.util.Base64;
-
 import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -42,9 +40,8 @@ public class ProvenanceTest {
 		assemblerDevice.setValue("Higgs");
 		assemblerDevice.setSystem("http://www.amida.com");
 
-		String encodedBody = Base64.getEncoder()
-				.encodeToString("<ClinicalDoc>Meowmeowmeowmeow</ClinicalDoc>".getBytes());
-		testBundle = rt.tProvenance(testBundle, encodedBody, assemblerDevice);
+		String documentBody = "<ClinicalDoc>Meowmeowmeowmeow</ClinicalDoc>";
+		testBundle = rt.tProvenance(testBundle, documentBody, assemblerDevice);
 
 		// Verifies bundle contains the initial resources.
 		BundleUtil.findOneResource(testBundle, Organization.class);
@@ -53,7 +50,9 @@ public class ProvenanceTest {
 
 		Binary binary = BundleUtil.findOneResource(testBundle, Binary.class);
 		Assert.assertEquals(binary.getContentType(), "text/plain");
-		Assert.assertEquals(binary.getContentAsBase64(), encodedBody);
+
+		// HERE
+		Assert.assertEquals(binary.getContentElement().asStringValue(), documentBody);
 
 		Device device = BundleUtil.findOneResource(testBundle, Device.class);
 		Assert.assertEquals(device.getText().getStatusAsString().toLowerCase(),

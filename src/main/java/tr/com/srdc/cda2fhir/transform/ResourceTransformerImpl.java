@@ -156,7 +156,6 @@ import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thymeleaf.util.StringUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
@@ -3085,9 +3084,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return result;
 	}
 
-	public Binary tBinary(String encodedBody) {
+	public Binary tBinary(String documentBody) {
 		Binary binary = new Binary();
-		binary.setContentElement(new Base64BinaryType(encodedBody));
+		binary.setContentElement(new Base64BinaryType(documentBody));
 		binary.setContentType("text/plain");
 		binary.setId(new IdType("Binary", getUniqueId()));
 		binary.setSecurityContext(new Reference(binary.getId()));
@@ -3107,38 +3106,33 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return device;
 	}
 
-	public Bundle tProvenance(Bundle bundle, String encodedBody, Identifier assemblerDevice) {
+	public Bundle tProvenance(Bundle bundle, String documentBody, Identifier assemblerDevice) {
 		Provenance provenance = new Provenance();
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		provenance.setId(new IdType("Provenance", getUniqueId()));
 
-		if (!StringUtils.isEmpty(encodedBody)) {
-			Binary binary = tBinary(encodedBody);
-			bundle.addEntry(new BundleEntryComponent().setResource(binary));
-			ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
-			pec.setRole(ProvenanceEntityRole.SOURCE);
-			pec.setId(binary.getId());
-			provenance.addEntity(pec);
+		Binary binary = tBinary(documentBody);
+		bundle.addEntry(new BundleEntryComponent().setResource(binary));
+		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
+		pec.setRole(ProvenanceEntityRole.SOURCE);
+		pec.setId(binary.getId());
+		provenance.addEntity(pec);
 
-		}
+		Device device = tDevice(assemblerDevice);
+		bundle.addEntry(new BundleEntryComponent().setResource(device));
 
-		if (assemblerDevice != null) {
-			Device device = tDevice(assemblerDevice);
-			bundle.addEntry(new BundleEntryComponent().setResource(device));
+		Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(), ProvenanceAgentType.DEVICE.toCode(),
+				ProvenanceAgentType.DEVICE.getDisplay());
+		agentTypeCoding.setId(device.getId());
+		pac.setRelatedAgentType(new CodeableConcept().addCoding(agentTypeCoding));
 
-			Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(),
-					ProvenanceAgentType.DEVICE.toCode(), ProvenanceAgentType.DEVICE.getDisplay());
-			agentTypeCoding.setId(device.getId());
-			pac.setRelatedAgentType(new CodeableConcept().addCoding(agentTypeCoding));
+		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
+				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
+		agentRoleCoding.setId(device.getId());
+		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
 
-			Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
-					ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
-			agentRoleCoding.setId(device.getId());
-			pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
-
-			pac.setWho(new Reference(device.getId()));
-			provenance.addAgent(pac);
-		}
+		pac.setWho(new Reference(device.getId()));
+		provenance.addAgent(pac);
 
 		for (BundleEntryComponent bec : bundle.getEntry()) {
 			provenance.addTarget(new Reference(bec.getResource().getId()));

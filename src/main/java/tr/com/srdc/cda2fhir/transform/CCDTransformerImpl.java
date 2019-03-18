@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
@@ -182,7 +183,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @param resourceProfileMap The mappings of default resource profiles to
 	 *                           desired resource profiles. Used to set profile
 	 *                           URI's of bundle entries or omit unwanted entries.
-	 * @param encodedBody        The original encodedBody of the document, to be
+	 * @param documentBody       The decoded documentBody of the document, to be
 	 *                           included in a provenance object.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
@@ -190,11 +191,14 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @throws Exception
 	 */
 	public Bundle transformDocument(String filePath, BundleType bundleType, Map<String, String> resourceProfileMap,
-			String encodedBody, Identifier assemblerDevice) throws Exception {
+			String documentBody, Identifier assemblerDevice) throws Exception {
 		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		bundle = resTransformer.tProvenance(bundle, encodedBody, assemblerDevice);
+		if (assemblerDevice != null && !StringUtils.isEmpty(documentBody)) {
+			bundle = resTransformer.tProvenance(bundle, documentBody, assemblerDevice);
+		}
+
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -228,7 +232,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @param resourceProfileMap The mappings of default resource profiles to
 	 *                           desired resource profiles. Used to set profile
 	 *                           URI's of bundle entries or omit unwanted entries.
-	 * @param encodedBody        The original base64 document that would be included
+	 * @param documentBody       The decoded base64 document that would be included
 	 *                           in the provenance object if provided.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
@@ -236,10 +240,13 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @throws Exception
 	 */
 	public Bundle transformDocument(ContinuityOfCareDocument cda, BundleType bundleType,
-			Map<String, String> resourceProfileMap, String encodedBody, Identifier assemblerDevice) throws Exception {
+			Map<String, String> resourceProfileMap, String documentBody, Identifier assemblerDevice) throws Exception {
 		Bundle bundle = transformDocument(cda, true);
 		bundle.setType(bundleType);
-		bundle = resTransformer.tProvenance(bundle, encodedBody, assemblerDevice);
+		if (assemblerDevice != null && !StringUtils.isEmpty(documentBody)) {
+			bundle = resTransformer.tProvenance(bundle, documentBody, assemblerDevice);
+		}
+
 		if (bundleType.equals(BundleType.TRANSACTION)) {
 			return createTransactionBundle(bundle, resourceProfileMap, false);
 		}
@@ -250,17 +257,19 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
 	 * instance to a Bundle of corresponding FHIR resources
 	 * 
-	 * @param cda         A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document
-	 *                    (CCD) instance to be transformed
-	 * @param encodedBody The original base64 document that would be included in the
-	 *                    provenance object if provided.
+	 * @param cda          A Consolidated CDA (C-CDA) 2.1 Continuity of Care
+	 *                     Document (CCD) instance to be transformed
+	 * @param documentBody The decoded base64 document that would be included in the
+	 *                     provenance object if provided.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 */
-	public Bundle transformDocument(ContinuityOfCareDocument cda, String encodedBody, Identifier assemblerDevice) {
+	public Bundle transformDocument(ContinuityOfCareDocument cda, String documentBody, Identifier assemblerDevice) {
 		Bundle bundle = transformDocument(cda, true);
-		bundle = resTransformer.tProvenance(bundle, encodedBody, assemblerDevice);
+		if (assemblerDevice != null & !StringUtils.isEmpty(documentBody)) {
+			bundle = resTransformer.tProvenance(bundle, documentBody, assemblerDevice);
+		}
 		return bundle;
 	}
 
