@@ -49,7 +49,6 @@ import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
-import org.hl7.fhir.dstu3.model.DateTimeType;
 
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
@@ -67,6 +66,7 @@ import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
+import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispenseRequestComponent;
 import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestIntent;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
@@ -82,6 +82,7 @@ import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -124,7 +125,6 @@ import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ServiceDeliveryLocation;
 import org.openhealthtools.mdht.uml.cda.consol.SeverityObservation;
-import org.openhealthtools.mdht.uml.cda.Supply;
 
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
@@ -1685,7 +1685,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		
 	}
 	
-	
 	public EntryResult tMedicationActivity2MedicationStatement(MedicationActivity cdaMedicationActivity, IBundleInfo bundleInfo) {
 		EntryResult result = new EntryResult();
 		
@@ -1931,7 +1930,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return result;
 	}
 	
-	public EntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder cdaSupplyOrder, BundleInfo localBundleInfo) {
+	public EntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder cdaSupplyOrder, IBundleInfo localBundleInfo) {
 		EntryResult result = new EntryResult();
 		
 		if(cdaSupplyOrder == null || cdaSupplyOrder.isSetNullFlavor())
@@ -1990,7 +1989,17 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				result.addResource(medicationResult);
 				// We can only add either a reference here or a codeableconcept. Opting for Reference.
 				medRequest.setMedication(new Reference(medicationResult.getId()));
-
+			}
+		}
+		
+		if(cdaSupplyOrder.getQuantity() != null) {
+			if(cdaSupplyOrder.getQuantity().getValue() != null) {
+				MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
+				SimpleQuantity sq = new SimpleQuantity();
+				sq.setValue(cdaSupplyOrder.getQuantity().getValue());
+				sq.setUnit(cdaSupplyOrder.getQuantity().getUnit());
+				dispenseRequest.setQuantity(sq);
+				medRequest.setDispenseRequest(dispenseRequest);
 			}
 		}
 			

@@ -25,7 +25,6 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.junit.Assert;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -151,7 +150,10 @@ public class BundleUtil {
 
 	static public <T extends Resource> T findOneResource(Bundle bundle, Class<T> type) throws Exception {
 		List<T> resources = findResources(bundle, type, 1);
-		return resources.get(0);
+		if(!resources.isEmpty())
+			return resources.get(0);
+		else
+			return null;
 	}
 
 	public static Bundle generateSnippetBundle(String sourceName) throws Exception {

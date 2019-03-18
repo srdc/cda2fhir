@@ -11,7 +11,6 @@ import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
-import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 
 public class CDAMedicationsSection implements ICDASection {
 	private MedicationsSection section;
@@ -33,7 +32,9 @@ public class CDAMedicationsSection implements ICDASection {
 			if(entry.hasContent() && entry.getSupply() != null) {
 				if(entry.getSupply().getClassCode().toString().equalsIgnoreCase("SPLY") 
 						&& entry.getSupply().getMoodCode().toString().equalsIgnoreCase("INT")) {
-					IEntryResult medRequestResult = rt.medicationSupplyOrder2MedicationRequest((MedicationSupplyOrder)entry.getSupply());
+					IEntryResult medRequestResult = rt.medicationSupplyOrder2MedicationRequest((MedicationSupplyOrder)entry.getSupply(), localBundleInfo);
+					result.updateFrom(medRequestResult);
+					
 				}
 			}
 		}

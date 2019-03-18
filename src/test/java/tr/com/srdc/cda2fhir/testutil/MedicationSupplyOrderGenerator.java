@@ -2,11 +2,12 @@ package tr.com.srdc.cda2fhir.testutil;
 
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.Product;
-import org.openhealthtools.mdht.uml.cda.Supply;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_INT;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.ActClassSupply;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 
 public class MedicationSupplyOrderGenerator {
 
@@ -61,7 +62,11 @@ public class MedicationSupplyOrderGenerator {
 	}
 
 	public MedicationSupplyOrder generateDefaultMedicationSupplyOrder() {
+		
 		MedicationSupplyOrder supplyOrder = factories.consol.createMedicationSupplyOrder();
+		
+		supplyOrder.setClassCode(ActClassSupply.SPLY);
+		supplyOrder.setMoodCode(x_DocumentSubstanceMood.INT);
 
 		supplyOrder.getTemplateIds()
 			.add(basicObjectGenerator.genTemplateId(DEFAULT_TEMPLATE_ID, DEFAULT_TEMPLATE_ID_EXT));
@@ -78,7 +83,9 @@ public class MedicationSupplyOrderGenerator {
 	public MedicationSupplyOrder generateMedicationSupplyOrder() {
 
 		MedicationSupplyOrder supplyOrder = factories.consol.createMedicationSupplyOrder();
-
+		
+		supplyOrder.setClassCode(ActClassSupply.SPLY);
+		supplyOrder.setMoodCode(x_DocumentSubstanceMood.INT);
 		if (templateId != null && templateIdExt != null) {
 			supplyOrder.getTemplateIds().add(basicObjectGenerator.genTemplateId(templateId, templateIdExt));
 		} else if (templateId != null && templateIdExt == null) {

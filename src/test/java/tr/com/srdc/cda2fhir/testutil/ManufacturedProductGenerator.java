@@ -117,7 +117,6 @@ public class ManufacturedProductGenerator {
 
 	private Material genManuMaterial(II tempId, CE code) {
 		Material manuMaterial = factories.base.createMaterial();
-		factories.vocab.getEntityClassManufacturedMaterial();
 		manuMaterial.setClassCode(EntityClassManufacturedMaterial.MMAT);
 		manuMaterial.setDeterminerCode(EntityDeterminerDetermined.KIND);
 		manuMaterial.setCode(code);

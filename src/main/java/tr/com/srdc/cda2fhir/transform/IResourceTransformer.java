@@ -45,6 +45,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
@@ -56,7 +57,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
-import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public interface IResourceTransformer {
@@ -321,4 +321,13 @@ public interface IResourceTransformer {
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which can also include other referenced resources such as Encounter, Practitioner
 	 */
 	IEntryResult tVitalSignObservation2Observation(VitalSignObservation cdaVitalSignObservation, IBundleInfo bundleInfo);
+
+	/**
+	 * Transforms a CDA MedicationSupplyOrder to a FHIR MedicationRequest resource.
+	 * @param supply A CDA MedicationSupplyOrder instance
+	 * @return An Entry result that contains a FHIR Bundle with the MedicatinRequest 
+	 * as the first entry, which can also include other referenced resources such as Encounter, Practitioner,
+	 * and will include all other Medication objects that are referenced by the MedicationRequest.
+	 */
+	IEntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder supply, IBundleInfo bundleInfo);
 }
