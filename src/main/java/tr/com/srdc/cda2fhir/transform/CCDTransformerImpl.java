@@ -35,13 +35,13 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Composition.SectionMode;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Section;
-import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,6 +261,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
             	}
             	
             	if (ccdComposition != null) {
+            		fhirSec.setMode(SectionMode.SNAPSHOT);
                 	ccdComposition.addSection(fhirSec);
             	}
         		        		
