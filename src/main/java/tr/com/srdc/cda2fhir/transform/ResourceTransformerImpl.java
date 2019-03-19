@@ -1740,7 +1740,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if(cdaMedicationActivity.getConsumable() != null && !cdaMedicationActivity.getConsumable().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationActivity.getConsumable());
 			if(fhirMedicationResult.hasResult()) {
-				BundleUtil bundleUtil = new BundleUtil();
 				for(BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
 					if(entry.getResource().fhirType().contentEquals("Medication")) {
 						fhirMedSt.setMedication(new Reference(entry.getResource().getId()));
