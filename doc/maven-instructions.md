@@ -10,7 +10,7 @@ This project incrementally builds and releases versions of this library for use 
 
 `<version>0.0.1-SNAPSHOT</version>` should be updated to reflect the intended version number of the release.
 
-#3 - Commit changes directly to master.
+#3 - Commit changes directly to `fhir-stu3` branch.
 
 `git commit -m "incremented pom to version X.Y.Z"`
 
