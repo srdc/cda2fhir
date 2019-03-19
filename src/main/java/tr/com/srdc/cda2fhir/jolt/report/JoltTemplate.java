@@ -20,6 +20,10 @@ public class JoltTemplate {
 		return NodeFactory.getInstance(shift, resourceType);
 	}
 
+	public boolean doesGenerateResource() {
+		return this.resourceType != null;
+	}
+	
 	private static Map<String, JoltTemplate> getIntermediateTemplates(Map<String, JoltTemplate> map) {
 		return map.entrySet().stream().filter(entry -> {
 			JoltTemplate value = entry.getValue();
@@ -82,7 +86,8 @@ public class JoltTemplate {
 
 		rootPath.expandLinks(pathLinks);
 
-		Table table = rootPath.toTable(resolvedFormat);
+		Templates templates = new Templates(resourceType, map, resolvedFormat);
+		Table table = rootPath.toTable(templates);
 		return table;
 	}
 

@@ -22,10 +22,6 @@ public class Table {
 		Collections.sort(rows);
 	}
 
-	public void updateFormats(JoltFormat formats) {
-		rows.forEach(row -> row.updateFormat(formats));
-	}
-
 	public void promoteTargets(String path) {
 		rows.forEach(row -> row.promoteTarget(path));
 	}

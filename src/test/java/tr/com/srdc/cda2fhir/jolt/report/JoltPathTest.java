@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.jolt.report;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bazaarvoice.jolt.JsonUtils;
@@ -12,6 +13,7 @@ import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 public class JoltPathTest {
 	final private static String PATH = "src/test/resources/jolt-verify/report/jolt-path-0/";
 
+	@Ignore
 	@Test
 	public void test0() throws Exception {
 		Map<String, Object> jsonACA = JsonUtils.filepathToMap(PATH + "AllergyConcernAct.json");

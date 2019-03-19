@@ -10,9 +10,9 @@ import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
-import tr.com.srdc.cda2fhir.jolt.report.JoltFormat;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
+import tr.com.srdc.cda2fhir.jolt.report.Templates;
 
 public class RootNode {
 	private ParentNode root;
@@ -63,11 +63,11 @@ public class RootNode {
 		conditionNodes.forEach(conditionNode -> conditionNode.mergeToParent());
 	}
 
-	public Table toTable(JoltFormat resolvedFormat) {
+	public Table toTable(Templates templates) {
 		Table result = new Table();
 		root.children.forEach(child -> {
 			((IParentNode) child).getChildren().forEach(grandChild -> {
-				List<TableRow> grandChildRows = grandChild.toTableRows();
+				List<TableRow> grandChildRows = grandChild.toTableRows(templates);
 				grandChildRows.forEach(row -> {
 					child.getConditions().forEach(condition -> {
 						String conditionAsString = condition.toString();
@@ -77,9 +77,6 @@ public class RootNode {
 				result.addRows(grandChildRows);				
 			});
 		});
-		if (resolvedFormat != null) {
-			result.updateFormats(resolvedFormat);
-		}
 		return result;
 	}
 

@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
-import tr.com.srdc.cda2fhir.jolt.report.impl.EntryNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafWildcardNode;
@@ -148,7 +147,7 @@ public class NodeFactory {
 	}
 
 	public static RootNode getInstance(Map<String, Object> map, String resourceType) {
-		RootNode node = resourceType == null ? new RootNode() : new EntryNode(resourceType);
+		RootNode node = new RootNode();
 		IParentNode base = node.getBase();
 		fillNode(base, map);
 		node.eliminateWildcardNodes();

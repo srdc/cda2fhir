@@ -33,7 +33,7 @@ public interface INode {
 	INode clone(IParentNode parent);
 
 
-	List<TableRow> toTableRows();
+	List<TableRow> toTableRows(Templates templates);
 	
 	
 	String getPath();

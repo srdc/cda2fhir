@@ -13,10 +13,19 @@ public class TableRow implements Comparable<TableRow> {
 
 	private List<String> conditions = new ArrayList<String>();
 
+	public TableRow(String path, String target) {
+		this.path = path;
+		this.target = target;
+	}
+
 	public TableRow(String path, String target, String link) {
 		this.path = path;
 		this.target = target;
 		this.link = link;
+	}
+	
+	public void setFormat(String format) {
+		this.format = format;
 	}
 
 	public void promotePath(String parentPath) {
@@ -36,13 +45,6 @@ public class TableRow implements Comparable<TableRow> {
 
 	public int conditionCount() {
 		return conditions.size();
-	}
-
-	public void updateFormat(JoltFormat formats) {
-		String format = formats.get(this.target);
-		if (format != null) {
-			this.format = format;
-		}
 	}
 
 	public String toCsvRow() {

@@ -13,6 +13,7 @@ import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.PathPredicate;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
+import tr.com.srdc.cda2fhir.jolt.report.Templates;
 
 public class ParentNode extends Node implements IParentNode {
 	public LinkedList<INode> children = new LinkedList<INode>();
@@ -80,11 +81,11 @@ public class ParentNode extends Node implements IParentNode {
 	}
 
 	@Override
-	public List<TableRow> toTableRows() {
+	public List<TableRow> toTableRows(Templates templates) {
 		String path = getPath();
 		List<TableRow> rows = new ArrayList<TableRow>();
 		children.forEach(child -> {
-			List<TableRow> childRows = child.toTableRows();
+			List<TableRow> childRows = child.toTableRows(templates);
 			rows.addAll(childRows);
 		});
 		rows.forEach(row -> {
@@ -105,10 +106,10 @@ public class ParentNode extends Node implements IParentNode {
 		
 	}
 	
-	public Table toTable() {
+	public Table toTable(Templates templates) {
 		Table result = new Table();
 		children.forEach(jp -> {
-			List<TableRow> rows = jp.toTableRows();
+			List<TableRow> rows = jp.toTableRows(templates);
 			result.addRows(rows);
 		});
 		return result;

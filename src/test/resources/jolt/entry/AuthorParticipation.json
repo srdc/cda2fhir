@@ -6,13 +6,15 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Parallel",
+		"operation": "shift",
 		"spec": {
-			"path": "assignedAuthor",		
-			"branches": [
-				"AssignedAuthorPractitioner",
-				"AssignedAuthorPractitionerRole"
+			"assignedAuthor": [
+				"Practitioner.->AssignedAuthorPractitioner",
+				"PractitionerRole.->AssignedAuthorPractitionerRole"
 			]
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	}
 ]

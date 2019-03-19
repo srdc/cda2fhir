@@ -6,6 +6,7 @@ import java.util.List;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
+import tr.com.srdc.cda2fhir.jolt.report.Templates;
 
 public class LeafNode extends Node implements ILeafNode {
 	private String target;
@@ -32,9 +33,13 @@ public class LeafNode extends Node implements ILeafNode {
 		return result;
 	}
 
-	public List<TableRow> toTableRows() {
+	public List<TableRow> toTableRows(Templates templates) {
 		String path = getPath();
-		TableRow row = new TableRow(path, target, null);
+		String rootResourceType = templates.getRootResource();
+		String format = templates.getFormat(target);
+		String actualTarget = rootResourceType == null ? target : rootResourceType + "." + target;
+		TableRow row = new TableRow(path, actualTarget);
+		row.setFormat(format);
 		getConditions().forEach(condition -> {
 			String conditionAsString = condition.toString(path);
 			row.addCondition(conditionAsString);

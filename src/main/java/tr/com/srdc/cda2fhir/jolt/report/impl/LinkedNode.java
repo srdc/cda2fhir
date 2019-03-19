@@ -8,6 +8,7 @@ import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
+import tr.com.srdc.cda2fhir.jolt.report.Templates;
 
 public class LinkedNode extends LeafNode implements ILinkedNode {
 	private String link;
@@ -49,10 +50,19 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		}
 	}
 
-	public List<TableRow> toTableRows() {
+	public List<TableRow> toTableRows(Templates templates) {
 		String path = getPath();
 		String target = getTarget();
-		TableRow row = new TableRow(path, target, link);
+
+		String rootResourceType = templates.getRootResource();
+		boolean isResourceLink = templates.doesGenerateResource(link);
+		
+		String format = templates.getFormat(target);
+		
+		String actualTarget = rootResourceType == null || isResourceLink ? target : rootResourceType + "." + target;
+		
+		TableRow row = isResourceLink ? new TableRow(path, actualTarget) : new TableRow(path, actualTarget, link);
+		row.setFormat(format);
 		getConditions().forEach(condition -> {
 			String conditionAsString = condition.toString(path);
 			row.addCondition(conditionAsString);

@@ -27,6 +27,8 @@ public class Substitute implements ContextualTransform {
 		templates.put("->AllergyIntoleranceObservation", generateChainr("entry/AllergyIntoleranceObservation.json"));
 		templates.put("->ReactionObservation", generateChainr("entry/ReactionObservation.json"));
 		templates.put("->EffectiveTimeLowOrValue", generateChainr("data-type/EffectiveTimeLowOrValue.json"));
+		templates.put("->AssignedAuthorPractitioner", generateChainr("entry/AssignedAuthorPractitioner.json"));
+		templates.put("->AssignedAuthorPractitionerRole", generateChainr("entry/AssignedAuthorPractitionerRole.json"));
 	}
 
 	private Object findTemplateValue(Map<String, Object> map, Map<String, Object> context) {
