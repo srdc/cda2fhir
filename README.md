@@ -49,7 +49,7 @@ In order to make a clean install run the following:
 These will build the cda2fhir library and also run a number of test cases, which will transform some C-CDA Continuity of Care Document (CCD) instances,
 and some manually crafted CDA artifacts (e.g. entry class instances) and datatype instances to corresponding FHIR resources, wherever possible using the DAF profile.
 
-This project incrementally builds and releases files for use in maven projects, using the instructions provided [here](https://gist.github.com/fernandezpablo85/03cf8b0cd2e7d8527063). To use, add the repository and dependency to your pom.xml like so, replacing the `X.X.X` with a version number.
+This project incrementally builds and releases files for use in maven projects, using the instructions provided [here](./doc/maven-instructions.md). To use, add the repository and dependency to your pom.xml like so, replacing the `X.Y.Z` with a version number.
 
 ```
 <repository>
@@ -61,7 +61,7 @@ This project incrementally builds and releases files for use in maven projects, 
 <dependency> 
   <artifactId>cda2fhir</artifactId>
   <groupId>tr.com.srdc</groupId>
-  <version>X.X.X</version>	        
+  <version>X.Y.Z</version>	        
 </dependency>
 ```
 
