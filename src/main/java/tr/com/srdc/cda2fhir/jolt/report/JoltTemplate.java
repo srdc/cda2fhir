@@ -1,6 +1,5 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,17 +7,11 @@ import java.util.stream.Collectors;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public class JoltTemplate {
-	public List<Map<String, Object>> shifts = new ArrayList<Map<String, Object>>();
-	public Map<String, Object> cardinality;
+	public RootNode rootNode;
 	public JoltFormat format;
 
 	public boolean leafTemplate = false;
 	private String resourceType;
-
-	public RootNode toJoltPath() {
-		Map<String, Object> shift = shifts.get(0);
-		return NodeFactory.getInstance(shift, resourceType);
-	}
 
 	public boolean doesGenerateResource() {
 		return this.resourceType != null;
@@ -30,7 +23,7 @@ public class JoltTemplate {
 			if (value.leafTemplate || value.resourceType != null) {
 				return false;
 			}
-			if (value.shifts.size() < 1) {
+			if (value.rootNode == null) {
 				return false;
 			}
 			return true;
@@ -39,7 +32,7 @@ public class JoltTemplate {
 
 	private static Map<String, RootNode> getPathLinks(Map<String, JoltTemplate> templates) {
 		return templates.entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toJoltPath()));
+				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().rootNode));
 	}
 
 	private static Map<String, JoltFormat> getFormatLinks(Map<String, JoltTemplate> templates) {
@@ -80,14 +73,12 @@ public class JoltTemplate {
 		Map<String, JoltFormat> formatLinks = getFormatLinks(intermediateTemplates);
 		Map<String, RootNode> pathLinks = getPathLinks(intermediateTemplates);
 
-		RootNode rootPath = toJoltPath();
+		JoltFormat resolvedFormat = getResolvedFormat(rootNode, formatLinks, pathLinks);
 
-		JoltFormat resolvedFormat = getResolvedFormat(rootPath, formatLinks, pathLinks);
-
-		rootPath.expandLinks(pathLinks);
+		rootNode.expandLinks(pathLinks);
 
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
-		Table table = rootPath.toTable(templates);
+		Table table = rootNode.toTable(templates);
 		return table;
 	}
 
@@ -95,20 +86,15 @@ public class JoltTemplate {
 	public static JoltTemplate getInstance(List<Object> content) {
 		JoltTemplate result = new JoltTemplate();
 
-		boolean beforeShift = true;
 		int length = content.size();
 		for (int index = 0; index < length; ++index) {
 			Map<String, Object> transform = (Map<String, Object>) content.get(index);
 			String operation = (String) transform.get("operation");
-			if (operation.equals("cardinality")) {
-				if (beforeShift) {
-					result.cardinality = (Map<String, Object>) transform.get("spec");
-				}
-				continue;
-			}
 			if (operation.equals("shift")) {
-				Map<String, Object> shift = (Map<String, Object>) transform.get("spec");
-				result.shifts.add(shift);
+				if (result.rootNode == null) {
+					Map<String, Object> shift = (Map<String, Object>) transform.get("spec");
+					result.rootNode = NodeFactory.getInstance(shift);
+				}
 				continue;
 			}
 			if (operation.endsWith("ResourceAccumulator")) {

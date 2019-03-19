@@ -20,9 +20,9 @@ public class JoltPathTest {
 		Map<String, Object> jsonAIO = JsonUtils.filepathToMap(PATH + "AllergyIntoleranceObservation.json");
 		Map<String, Object> jsonETV = JsonUtils.filepathToMap(PATH + "EffectiveTimeLowOrValue.json");
 
-		RootNode jpathACA = NodeFactory.getInstance(jsonACA, "AllergyIntolerace");
-		RootNode jpathAIO = NodeFactory.getInstance(jsonAIO, "Practitioner");
-		RootNode jpathETV = NodeFactory.getInstance(jsonETV, "PractitionerRole");
+		RootNode jpathACA = NodeFactory.getInstance(jsonACA);
+		RootNode jpathAIO = NodeFactory.getInstance(jsonAIO);
+		RootNode jpathETV = NodeFactory.getInstance(jsonETV);
 
 		Map<String, RootNode> expansionMap = new HashMap<String, RootNode>();
 		expansionMap.put("AllergyIntoleranceObservation", jpathAIO);

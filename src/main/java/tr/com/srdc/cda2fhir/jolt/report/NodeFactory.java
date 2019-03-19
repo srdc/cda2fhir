@@ -146,7 +146,7 @@ public class NodeFactory {
 		});
 	}
 
-	public static RootNode getInstance(Map<String, Object> map, String resourceType) {
+	public static RootNode getInstance(Map<String, Object> map) {
 		RootNode node = new RootNode();
 		IParentNode base = node.getBase();
 		fillNode(base, map);
