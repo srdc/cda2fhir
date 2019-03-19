@@ -1744,8 +1744,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				for(BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
 					if(entry.getResource().fhirType().contentEquals("Medication")) {
 						fhirMedSt.setMedication(new Reference(entry.getResource().getId()));
-					} else if(entry.getResource().fhirType().contentEquals("Organization")) {
-						Organization Org = (Organization) entry.getResource();
 					}
 					result.addResource(entry.getResource());
 				}
@@ -1997,13 +1995,18 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 		
 		if(cdaSupplyOrder.getQuantity() != null) {
+			MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
+			medRequest.setDispenseRequest(dispenseRequest);
+			
 			if(cdaSupplyOrder.getQuantity().getValue() != null) {
-				MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
 				SimpleQuantity sq = new SimpleQuantity();
 				sq.setValue(cdaSupplyOrder.getQuantity().getValue());
 				sq.setUnit(cdaSupplyOrder.getQuantity().getUnit());
 				dispenseRequest.setQuantity(sq);
-				medRequest.setDispenseRequest(dispenseRequest);
+			}
+			
+			if(cdaSupplyOrder.getRepeatNumber() != null) {
+				dispenseRequest.setNumberOfRepeatsAllowed(cdaSupplyOrder.getRepeatNumber().getValue().intValue());
 			}
 		}
 			

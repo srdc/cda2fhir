@@ -56,6 +56,8 @@ public class MedicationRequestTest {
 		Assert.assertEquals(medication.getId(), medRequest.getMedicationReference().getReference());
 		Assert.assertEquals("Patient/0", medRequest.getSubject().getReference());
 		Assert.assertEquals("2019-01-01T00:00:00.000-05:00", medRequest.getAuthoredOnElement().getValueAsString());
+		Assert.assertEquals(1, medRequest.getDispenseRequest().getNumberOfRepeatsAllowed());
+
 		Assert.assertEquals(MedicationSupplyOrderGenerator.DEFAULT_QUANTITY_UNIT, medRequest.getDispenseRequest().getQuantity().getUnit());
 		Assert.assertEquals(MedicationSupplyOrderGenerator.DEFAULT_QUANTITY_VALUE, medRequest.getDispenseRequest().getQuantity().getValue().toString());
 
