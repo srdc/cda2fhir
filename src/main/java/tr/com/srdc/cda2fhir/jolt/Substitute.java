@@ -2,7 +2,9 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,22 +13,22 @@ import com.bazaarvoice.jolt.ContextualTransform;
 import com.bazaarvoice.jolt.JsonUtils;
 
 public class Substitute implements ContextualTransform {
-    private static Chainr generateChainr(String filepath) {
-        List<Object> spec = JsonUtils.filepathToList("src/test/resources/jolt/" + filepath);
-        Chainr chainr = Chainr.fromSpec(spec);
-        return chainr;
-    }
-    
-    static Map<String, Chainr> templates = new HashMap<String, Chainr>();
-    static {
-    	templates.put("->ID", generateChainr("data-type/ID.json"));
-    	templates.put("->CD", generateChainr("data-type/CD.json"));
-    	templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
-    	templates.put("->AllergyIntoleranceObservation", generateChainr("entry/AllergyIntoleranceObservation.json"));
-    	templates.put("->ReactionObservation", generateChainr("entry/ReactionObservation.json"));
-    	templates.put("->EffectiveTimeLowOrValue", generateChainr("data-type/EffectiveTimeLowOrValue.json"));
-    }
-    
+	private static Chainr generateChainr(String filepath) {
+		List<Object> spec = JsonUtils.filepathToList("src/test/resources/jolt/" + filepath);
+		Chainr chainr = Chainr.fromSpec(spec);
+		return chainr;
+	}
+
+	static Map<String, Chainr> templates = new HashMap<String, Chainr>();
+	static {
+		templates.put("->ID", generateChainr("data-type/ID.json"));
+		templates.put("->CD", generateChainr("data-type/CD.json"));
+		templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
+		templates.put("->AllergyIntoleranceObservation", generateChainr("entry/AllergyIntoleranceObservation.json"));
+		templates.put("->ReactionObservation", generateChainr("entry/ReactionObservation.json"));
+		templates.put("->EffectiveTimeLowOrValue", generateChainr("data-type/EffectiveTimeLowOrValue.json"));
+	}
+
 	private Object findTemplateValue(Map<String, Object> map, Map<String, Object> context) {
 		Set<String> keys = map.keySet();
 		if (keys.size() != 1) {
@@ -34,93 +36,108 @@ public class Substitute implements ContextualTransform {
 		}
 		String key = keys.stream().findFirst().get();
 		Chainr chainr = templates.get(key);
-	    if (chainr == null) {
+		if (chainr == null) {
 			return null;
 		}
 		Object input = map.get(key);
-        Object replacement = chainr.transform(input, context);
-        return replacement;
+		Object replacement = chainr.transform(input, context);
+		return replacement;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private boolean substitute(Map<String, Object> object, Map<String, Object> context) {
+	private Object substitute(Map<String, Object> object, Map<String, Object> context) {
 		if (object == null) {
-			return true;
+			return null;
 		}
-		
+
+		Iterator<Map.Entry<String, Object>> itr = object.entrySet().iterator();
+
 		List<String> topSubstitutes = new ArrayList<String>();
-		List<String> tobeRemoved = new ArrayList<String>();
-		for (Map.Entry<String, Object> entry: object.entrySet()) {
+		while (itr.hasNext()) {
+			Map.Entry<String, Object> entry = itr.next();
 			String key = entry.getKey();
 			Object value = entry.getValue();
 			Chainr chainr = templates.get(key);
-		    if (chainr != null) {
-		    	topSubstitutes.add(key);
-		    	continue;
-			}			
+			if (chainr != null) {
+				topSubstitutes.add(key);
+				continue;
+			}
 			if (value instanceof List) {
 				List<Object> elements = (List<Object>) value;
-				substitute(elements, context);
+				Object newValue = substitute(elements, context);
+				entry.setValue(newValue);
 				continue;
 			}
 			if (value instanceof Map) {
 				Map<String, Object> map = (Map<String, Object>) value;
 				Object replacement = findTemplateValue(map, context);
 				if (replacement == null) {
-					boolean remains = substitute(map, context);
-					if (!remains) {
-						tobeRemoved.add(key);
-					}
-					continue;
+					replacement = substitute(map, context);
 				}
-				entry.setValue(replacement);
+				if (replacement == null) {
+					itr.remove();
+				} else {
+					entry.setValue(replacement);
+				}
+				continue;
 			}
 		}
 
-		for (String key: topSubstitutes) {
+		for (String key : topSubstitutes) {
 			Object value = object.get(key);
 			Chainr chainr = templates.get(key);
 			Map<String, Object> additionalKeys = (Map<String, Object>) chainr.transform(value, context);
 			if (additionalKeys != null) {
 				object.putAll(additionalKeys);
 			}
-			object.remove(key);			
-			return additionalKeys != null;
-		}
-		
-		for (String key: tobeRemoved) {
 			object.remove(key);
 		}
 
-		return true;
+		if (object.isEmpty()) {
+			return null;
+		}
+		
+		return object;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private void substitute(List<Object> list, Map<String, Object> context) {
-		int size = list.size();
-		for (int index = 0; index < size; ++index) {
-			Object element = list.get(index);
+	private Object substitute(List<Object> list, Map<String, Object> context) {
+		ListIterator<Object> itr = list.listIterator();
+		while (itr.hasNext()) {
+			Object element = itr.next();
 			if (element instanceof List) {
-				substitute((List<Object>) element, context);
-				continue;
+				Object replacement = substitute((List<Object>) element, context);
+				if (replacement == null) {
+					itr.remove();
+				} else {
+					itr.set(replacement);
+				}
+				continue;			
 			}
 			if (element instanceof Map) {
 				Map<String, Object> map = (Map<String, Object>) element;
 				Object replacement = findTemplateValue(map, context);
 				if (replacement == null) {
-					substitute(map, context);
-					continue;
+					replacement = substitute(map, context);
 				}
-				list.set(index, replacement);
+				if (replacement == null) {
+					itr.remove();
+				} else {
+					itr.set(replacement);
+				}
+				continue;
 			}
 		}
+		if (list.size() == 0) {
+			return null;
+		}
+		return list;
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object transform(Object input, Map<String, Object> context) {
 		Map<String, Object> map = (Map<String, Object>) input;
-		substitute(map, context);
-		return map;
+		return substitute(map, context);
 	}
 }
