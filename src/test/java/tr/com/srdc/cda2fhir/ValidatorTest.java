@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -61,7 +62,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_gold_sample2_v1.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	// 170.315_b1_toc_gold_sample2_v1.xml with profile
@@ -72,7 +73,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_gold_sample2_v1.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
@@ -83,7 +84,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	// 170.315_b1_toc_inp_ccd_r21_sample1_v5.xml without profile
@@ -94,7 +95,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-170.315_b1_toc_inp_ccd_r21_sample1_v5.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	// C-CDA_R2-1_CCD.xml without DAF profile
@@ -105,7 +106,18 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-C-CDA_R2-1_CCD.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
+	}
+	
+	// C-CDA_R2-1_CCD.xml with provenance
+	@Test
+	public void testReferenceCCDBundleWithProvenance() throws Exception {
+		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-provenance.xml";
+		String targetPathForResultFile = "src/test/resources/output/validation-result-w-provenance-for-C-CDA_R2-1_CCD.html";
+		boolean generateDAFProfileMetadata = false;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
+				generateDAFProfileMetadata, true);
 	}
 
 	// C-CDA_R2-1_CCD.xml with DAF profile
@@ -116,7 +128,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-C-CDA_R2-1_CCD.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	// Vitera_CCDA_SMART_Sample.xml without profile
@@ -127,7 +139,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-Vitera_CCDA_SMART_Sample.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	// Vitera_CCDA_SMART_Sample.xml with profile
@@ -138,7 +150,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-w-profile-for-Vitera_CCDA_SMART_Sample.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	// Vitera_CCDA_SMART_Sample.xml with profile
@@ -149,7 +161,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/Cerner/validation-result-Person-RAKIA_TEST_DOC00001 (1).html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata);
+				generateDAFProfileMetadata, false);
 	}
 
 	/**
@@ -168,7 +180,7 @@ public class ValidatorTest {
 	 * @throws Exception
 	 */
 	private void transformAndValidate(String cdaResourcePath, String targetPathForFHIRResource,
-			String targetPathForResultFile, boolean generateDAFProfileMetadata) throws Exception {
+			String targetPathForResultFile, boolean generateDAFProfileMetadata, boolean generateProvenance) throws Exception {
 		IValidator validator = new ValidatorImpl();
 		ByteArrayOutputStream os = null;
 
@@ -182,9 +194,34 @@ public class ValidatorTest {
 		// set whether DAF Profile URLs will be created in meta.profile of relevant
 		// resources
 		Config.setGenerateDafProfileMetadata(generateDAFProfileMetadata);
+		
+		Bundle bundle = null;
+		
+		if (generateProvenance) {
+		
+			//CDAUtil closes the stream, re-open it.
+			FileInputStream fisStream = new FileInputStream(cdaResourcePath);
+			byte[] buffer = new byte[10];
+			StringBuilder sb = new StringBuilder();
+			while (fisStream.read(buffer) != -1) {
+				sb.append(new String(buffer));
+				buffer = new byte[10];
+			}
+			fisStream.close();
+
+			String content = sb.toString();
+			
+			Identifier id = new Identifier();
+			
+			id.setValue("Data Transformer");
+			
+			bundle = ccdTransformer.transformDocument(cda, content, id);
+		} else {
+			bundle = ccdTransformer.transformDocument(cda, null, null);
+		}
 
 		// make the transformation
-		Bundle bundle = ccdTransformer.transformDocument(cda, null, null);
+		
 		Assert.assertNotNull(bundle);
 
 		// print the bundle for checking against validation results
