@@ -47,6 +47,14 @@ public class BundleUtil {
 		identifierMap = IdentifierMapFactory.bundleToResource(bundle);
 		idMap = FHIRUtil.getIdResourceMap(bundle);		
 	}
+
+	public Resource getFromJSONArray(String fhirType, List<Object> identifiers) {
+		return identifierMap.getFromJSONArray(fhirType, identifiers);
+	}
+	
+	public IIdentifierMap<Resource> getIdentifierMap() {
+		return identifierMap;
+	}
 	
 	public void spotCheckAssignedPractitioner(String reference, String familyName, String roleCode, String organizationName) {
 		Practitioner p = (Practitioner) idMap.get(reference);
@@ -66,6 +74,12 @@ public class BundleUtil {
 		} else {
 			findPractitionersRoles(bundle, p, 0);
 		}
+	}
+
+	public <T extends Resource> void checkResourceCount(Class<T> type, int count) throws Exception {
+		List<T> resources = FHIRUtil.findResources(bundle, type);
+		String msg = String.format("Expect %d %s resources in the bundle", count, type.getSimpleName());
+		Assert.assertEquals(msg, count, resources.size());
 	}
 	
 	public void spotCheckImmunizationPractitioner(String identifier, String familyName, String roleCode, String organizationName) {
@@ -166,6 +180,11 @@ public class BundleUtil {
 		return bundle;
 	}
 
+	public static BundleUtil getInstance(String sourceName) throws Exception {
+		Bundle bundle = generateSnippetBundle(sourceName);
+		return new BundleUtil(bundle);
+	}
+	
 	public static <T extends Resource> void printBundleResources(Bundle bundle, String sourceName, Class<T> cls)
 			throws Exception {
 		List<T> procedures = FHIRUtil.findResources(bundle, cls);

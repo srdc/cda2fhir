@@ -1,0 +1,19 @@
+{
+	"effectiveTime": {
+		"high": {
+			"value": {
+				"": {
+					"@1": {
+						"#active": "clinicalStatus"
+					}
+				},
+				"*": {
+					"@1": {
+						"#inactive": "clinicalStatus"
+					}
+				}
+			}
+		},
+		"*": "onsetDateTime.->EffectiveTimeLowOrValue"
+	}
+}
