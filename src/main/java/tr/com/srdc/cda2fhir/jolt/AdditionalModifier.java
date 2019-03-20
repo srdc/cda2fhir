@@ -173,6 +173,16 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
     
+	public static final class GetId extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return Optional.empty();
+			}
+			return Optional.of(arg);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -183,6 +193,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("idSystemAdapter", new IdSystemAdapter());
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
 		AMIDA_FUNCTIONS.put("selectOnNull", new SelectOnNull());
+		AMIDA_FUNCTIONS.put("getId", new GetId());
 	}
 
 	private Modifier.Overwritr modifier;

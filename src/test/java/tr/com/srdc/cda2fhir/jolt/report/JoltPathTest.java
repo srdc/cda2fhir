@@ -28,7 +28,6 @@ public class JoltPathTest {
 		expansionMap.put("AllergyIntoleranceObservation", jpathAIO);
 		expansionMap.put("EffectiveTimeLowOrValue", jpathETV);
 
-		jpathACA.expandLinks(expansionMap);
 		jpathACA.conditionalize();
 
 		Table table = jpathACA.toTable(null);

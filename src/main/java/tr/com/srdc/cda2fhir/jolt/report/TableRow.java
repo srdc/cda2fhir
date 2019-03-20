@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.jolt.report;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TableRow implements Comparable<TableRow> {
@@ -13,6 +14,10 @@ public class TableRow implements Comparable<TableRow> {
 
 	private List<String> conditions = new ArrayList<String>();
 
+	private static final String[] pluralFormatWords = {
+			"max", "min", "first", "last"
+	};
+	
 	public TableRow(String path, String target) {
 		this.path = path;
 		this.target = target;
@@ -22,6 +27,18 @@ public class TableRow implements Comparable<TableRow> {
 		this.path = path;
 		this.target = target;
 		this.link = link;
+	}
+	
+	@Override
+	public TableRow clone() {
+		TableRow row = new TableRow(path, target, link);
+		row.format = format;
+		row.conditions.addAll(conditions);
+		return row;
+	}
+	
+	public String getTarget() {
+		return target;
 	}
 	
 	public void setFormat(String format) {
@@ -69,6 +86,25 @@ public class TableRow implements Comparable<TableRow> {
 			target = path;
 		} else {
 			target = path + "." + target;
+		}
+	}
+
+	public void correctArrayOnFormat() {
+		if (!format.isEmpty() && target.indexOf("[") >=0) {
+			for (int index = 0; index < pluralFormatWords.length; ++index) {
+				if (format.startsWith(pluralFormatWords[index])) {
+					target = target.split("\\[")[0];
+				}
+			}
+		}
+	}
+	
+	public void updateResourceType(String resourceType, Set<String> exceptions) {
+		if (!exceptions.contains(target)) {
+			target = resourceType + "." + target;
+		}
+		if (!exceptions.contains(path)) {
+			path = resourceType + "." + path;
 		}
 	}
 

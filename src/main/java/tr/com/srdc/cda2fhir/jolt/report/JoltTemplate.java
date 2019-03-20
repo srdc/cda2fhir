@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
@@ -19,12 +20,13 @@ public class JoltTemplate {
 
 			content.forEach(rawTransform -> {
 				Map<String, Object> transform = (Map<String, Object>) rawTransform;
-				
+
 				String operation = (String) transform.get("operation");
 				Map<String, Object> spec = (Map<String, Object>) transform.get("spec");
-				
+
 				if (operation.equals("shift")) {
-					if (result.shift == null) result.shift = spec;
+					if (result.shift == null)
+						result.shift = spec;
 					return;
 				}
 				if (operation.endsWith("Assign")) {
@@ -38,34 +40,38 @@ public class JoltTemplate {
 				if (operation.endsWith("AdditionalModifier")) {
 					result.modifier = spec;
 					return;
-				}						
+				}
 			});
 
 			return result;
-		}		
+		}
 	}
-	
+
 	private String name;
-	public RootNode rootNode;
+	private RootNode rootNode;
 	public JoltFormat format;
 
-	public boolean leafTemplate = false;
+	private boolean leafTemplate = false;
 	private String resourceType;
 
 	private Table assignTable;
-	
+
 	private JoltTemplate(String name) {
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
+	public RootNode getRootNode() {
+		return rootNode;
+	}
+
 	public boolean doesGenerateResource() {
 		return this.resourceType != null;
 	}
-	
+
 	private static Map<String, JoltTemplate> getIntermediateTemplates(Map<String, JoltTemplate> map) {
 		return map.entrySet().stream().filter(entry -> {
 			JoltTemplate value = entry.getValue();
@@ -79,24 +85,20 @@ public class JoltTemplate {
 		}).collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()));
 	}
 
-	private static Map<String, RootNode> getPathLinks(Map<String, JoltTemplate> templates) {
-		return templates.entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().rootNode));
-	}
-
 	private JoltFormat getResolvedFormat(Map<String, JoltTemplate> templateMap) {
 		if (format == null) {
 			return null;
 		}
 		JoltFormat result = format.clone();
-		List<ILinkedNode> linkedNodes = rootNode.getLinks();
+		List<ILinkedNode> linkedNodes = rootNode.getLinkedNodes();
 		linkedNodes.forEach(linkedNode -> {
 			String link = linkedNode.getLink();
 			String target = linkedNode.getTarget();
 
 			JoltTemplate linkedTemplate = templateMap.get(link);
-			if (linkedTemplate == null) return;
-			
+			if (linkedTemplate == null)
+				return;
+
 			JoltFormat resolvedLinkedFormat = linkedTemplate.getResolvedFormat(templateMap);
 			if (resolvedLinkedFormat != null) {
 				result.putAllAsPromoted(resolvedLinkedFormat, target);
@@ -105,17 +107,46 @@ public class JoltTemplate {
 		return result;
 	}
 
+	public Table getAssignTable(Map<String, JoltTemplate> templateMap) {
+		if (assignTable == null) {
+			return null;
+		}
+		Table result = assignTable.clone();
+		List<ILinkedNode> linkedNodes = rootNode.getLinkedNodes();
+		linkedNodes.forEach(linkedNode -> {
+			String link = linkedNode.getLink();
+			String target = linkedNode.getTarget();
+
+			JoltTemplate linkedTemplate = templateMap.get(link);
+			if (linkedTemplate == null)
+				return;
+
+			Table linkedTable = linkedTemplate.getAssignTable(templateMap);
+			if (linkedTable != null) {
+				linkedTable.promoteTargets(target);
+				result.addTable(linkedTable);
+			}
+		});
+		return result;
+	}
+
 	public Table createTable(Map<String, JoltTemplate> map) {
 		Map<String, JoltTemplate> intermediateTemplates = getIntermediateTemplates(map);
 
-		Map<String, RootNode> pathLinks = getPathLinks(intermediateTemplates);
-
 		JoltFormat resolvedFormat = getResolvedFormat(map);
+		Table assignTable = getAssignTable(map);
+		assignTable.correctArrayOnFormat();
 
-		rootNode.expandLinks(pathLinks);
+		rootNode.expandLinks(intermediateTemplates);
 
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
 		Table table = rootNode.toTable(templates);
+
+		Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
+				.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
+		assignTable.updateResourceType(resourceType, otherTargets);
+
+		table.addTable(assignTable);
 		return table;
 	}
 
@@ -123,11 +154,11 @@ public class JoltTemplate {
 		JoltTemplate result = new JoltTemplate(name);
 
 		result.leafTemplate = name.equals("ID") || name.contentEquals("CD");
-				
+
 		RawTemplate rawTemplate = RawTemplate.getInstance(content);
-		
+
 		if (rawTemplate.modifier != null) {
-			result.format = JoltFormat.getInstance(rawTemplate.modifier);			
+			result.format = JoltFormat.getInstance(rawTemplate.modifier);
 		}
 		result.rootNode = NodeFactory.getInstance(rawTemplate.shift);
 		if (rawTemplate.accumulator != null) {

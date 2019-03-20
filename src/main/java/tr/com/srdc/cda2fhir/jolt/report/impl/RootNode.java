@@ -10,6 +10,7 @@ import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
+import tr.com.srdc.cda2fhir.jolt.report.JoltTemplate;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 import tr.com.srdc.cda2fhir.jolt.report.Templates;
@@ -44,13 +45,13 @@ public class RootNode {
 		return null;
 	}
 	
-	public List<ILinkedNode> getLinks() {
+	public List<ILinkedNode> getLinkedNodes() {
 		return root.getLinkedNodes();
 	}
 
-	public void expandLinks(Map<String, RootNode> linkMap) {
+	public void expandLinks(Map<String, JoltTemplate> templateMap) {
 		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
-		linkedNodes.forEach(linkedNode -> linkedNode.expandLinks(linkMap));
+		linkedNodes.forEach(linkedNode -> linkedNode.expandLinks(templateMap));
 	}
 
 	public void eliminateWildcardNodes() {

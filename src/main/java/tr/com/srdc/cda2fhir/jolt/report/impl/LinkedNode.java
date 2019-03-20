@@ -7,6 +7,7 @@ import java.util.Map;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
+import tr.com.srdc.cda2fhir.jolt.report.JoltTemplate;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
 import tr.com.srdc.cda2fhir.jolt.report.Templates;
 
@@ -33,16 +34,17 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 	}
 
 	@Override
-	public void expandLinks(Map<String, RootNode> linkMap) {
-		RootNode rootNode = linkMap.get(link);
-		if (rootNode != null) {
+	public void expandLinks(Map<String, JoltTemplate> templateMap) {
+		JoltTemplate template = templateMap.get(link);
+		if (template != null) {
+			RootNode rootNode = template.getRootNode();
 			IParentNode parent = getParent();
 			List<INode> newChildren = rootNode.getAsLinkReplacement(this);
 			newChildren.forEach(newChild -> {
 				newChild.getConditions().addAll(getConditions());
 				parent.addChild(newChild);
 				List<ILinkedNode> linkedNodesOfLink = newChild.getLinkedNodes();
-				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(linkMap));
+				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(templateMap));
 			});
 			parent.removeChild(this);
 		}

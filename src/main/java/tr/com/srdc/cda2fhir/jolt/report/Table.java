@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Table {
@@ -17,13 +18,38 @@ public class Table {
 		this.rows.add(row);
 	}
 
+	public void addTable(Table table) {
+		addRows(table.rows);
+	}
+	
+	public List<TableRow> getRows() {
+		return rows;
+	}
+
+	public void correctArrayOnFormat() {
+		rows.forEach(row -> row.correctArrayOnFormat());
+	}
+	
 	public void sort() {
 		rows.forEach(row -> row.sortConditions());
 		Collections.sort(rows);
 	}
 
 	public void promoteTargets(String path) {
-		rows.forEach(row -> row.promoteTarget(path));
+		if (!path.isEmpty()) {
+			rows.forEach(row -> row.promoteTarget(path));
+		}
+	}
+	
+	public void updateResourceType(String resourceType, Set<String> exceptions) {
+		rows.forEach(row -> row.updateResourceType(resourceType, exceptions));
+	}
+
+	@Override
+	public Table clone() {
+		Table result = new Table();
+		rows.forEach(row -> result.addRow(row.clone()));
+		return result;
 	}
 	
 	@Override
