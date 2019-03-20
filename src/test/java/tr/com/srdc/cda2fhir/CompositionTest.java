@@ -15,22 +15,20 @@ import tr.com.srdc.cda2fhir.testutil.ClinicalDocumentMetadataGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 
-
 public class CompositionTest {
 	static ResourceTransformerImpl rt;
 	static CDAFactories factories;
 	static ClinicalDocumentMetadataGenerator metadataGenerator;
-	static String defaultExpectedUse =  Config.DEFAULT_IDENTIFIER_USE.getDisplay();
-	static String defaultExpectedStatus =  Config.DEFAULT_COMPOSITION_STATUS.getDisplay();
-	static String defaultExpectedAssigner =  ClinicalDocumentMetadataGenerator.DEFAULT_ASSN_AUTH;
-	static String defaultExpectedIdValue =  ClinicalDocumentMetadataGenerator.DEFAULT_ID_ROOT;
-	static String defaultExpectedTypeCode =  ClinicalDocumentMetadataGenerator.DEFAULT_CODE_CODE;
-	static String defaultExpectedTypeSystem =  "http://loinc.org";
-	static String defaultExpectedTypeDisplay =  ClinicalDocumentMetadataGenerator.DEFAULT_CODE_DISPLAY;
-	static String defaultExpectedTitle =  ClinicalDocumentMetadataGenerator.DEFAULT_TITLE;
-	static String defaultExpectedConfidentiality =  "N";
+	static String defaultExpectedUse = Config.DEFAULT_IDENTIFIER_USE.getDisplay();
+	static String defaultExpectedStatus = Config.DEFAULT_COMPOSITION_STATUS.getDisplay();
+	static String defaultExpectedAssigner = ClinicalDocumentMetadataGenerator.DEFAULT_ASSN_AUTH;
+	static String defaultExpectedIdValue = ClinicalDocumentMetadataGenerator.DEFAULT_ID_ROOT;
+	static String defaultExpectedTypeCode = ClinicalDocumentMetadataGenerator.DEFAULT_CODE_CODE;
+	static String defaultExpectedTypeSystem = "http://loinc.org";
+	static String defaultExpectedTypeDisplay = ClinicalDocumentMetadataGenerator.DEFAULT_CODE_DISPLAY;
+	static String defaultExpectedTitle = ClinicalDocumentMetadataGenerator.DEFAULT_TITLE;
+	static String defaultExpectedConfidentiality = "N";
 
-	
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
@@ -38,7 +36,7 @@ public class CompositionTest {
 		factories = CDAFactories.init();
 		metadataGenerator = new ClinicalDocumentMetadataGenerator();
 	}
-	
+
 	@Test
 	public void testComposition() throws Exception {
 
@@ -46,19 +44,24 @@ public class CompositionTest {
 		EntryResult entryResult = rt.tClinicalDocument2Composition(clinicalDoc);
 		Bundle bundle = entryResult.getBundle();
 		Composition comp = BundleUtil.findOneResource(bundle, Composition.class);
-	
-		Assert.assertEquals("Expect assigner to equal assigningAuthorityName", defaultExpectedAssigner, comp.getIdentifier().getAssigner().getDisplay());
-		Assert.assertEquals("Expect use to equal default", defaultExpectedUse, comp.getIdentifier().getUse().getDisplay());
+
+		Assert.assertEquals("Expect assigner to equal assigningAuthorityName", defaultExpectedAssigner,
+				comp.getIdentifier().getAssigner().getDisplay());
+		Assert.assertEquals("Expect use to equal default", defaultExpectedUse,
+				comp.getIdentifier().getUse().getDisplay());
 		Assert.assertEquals("Expect status to equal default", defaultExpectedStatus, comp.getStatus().getDisplay());
-		Assert.assertEquals("Expect Identifier Value to equal Clinical Document id root", defaultExpectedIdValue, comp.getIdentifier().getValue());
-		Assert.assertEquals("Expect type.code to equal code.code", defaultExpectedTypeCode, comp.getType().getCodingFirstRep().getCode());
-		Assert.assertEquals("Expect type.system code.codeSystemName", defaultExpectedTypeSystem, comp.getType().getCodingFirstRep().getSystem());
-		Assert.assertEquals("Expect type.display code.displayName", defaultExpectedTypeDisplay, comp.getType().getCodingFirstRep().getDisplay());
+		Assert.assertEquals("Expect Identifier Value to equal Clinical Document id root", defaultExpectedIdValue,
+				comp.getIdentifier().getValue());
+		Assert.assertEquals("Expect type.code to equal code.code", defaultExpectedTypeCode,
+				comp.getType().getCodingFirstRep().getCode());
+		Assert.assertEquals("Expect type.system code.codeSystemName", defaultExpectedTypeSystem,
+				comp.getType().getCodingFirstRep().getSystem());
+		Assert.assertEquals("Expect type.display code.displayName", defaultExpectedTypeDisplay,
+				comp.getType().getCodingFirstRep().getDisplay());
 		Assert.assertEquals("Expect title to equal title", defaultExpectedTitle, comp.getTitle());
-		Assert.assertEquals("Expect confidentiality to eqial confidentiality", defaultExpectedConfidentiality, comp.getConfidentiality().toString());
+		Assert.assertEquals("Expect confidentiality to eqial confidentiality", defaultExpectedConfidentiality,
+				comp.getConfidentiality().toString());
 
 	}
-	
-	
 
 }

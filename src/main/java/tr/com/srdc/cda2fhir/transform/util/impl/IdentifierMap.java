@@ -9,7 +9,7 @@ import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
 
 public class IdentifierMap<T> implements IIdentifierMap<T> {
 	private Map<String, InnerIdentifierMap<T>> map = new HashMap<String, InnerIdentifierMap<T>>();
-	
+
 	@Override
 	public void put(String fhirType, Identifier identifier, T identifiedValue) {
 		InnerIdentifierMap<T> innerMap = map.get(fhirType);
@@ -19,7 +19,7 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 		}
 		innerMap.put(identifier, identifiedValue);
 	}
-	
+
 	@Override
 	public T get(String fhirType, Identifier identifier) {
 		InnerIdentifierMap<T> innerMap = map.get(fhirType);

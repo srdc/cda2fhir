@@ -34,18 +34,18 @@ public class MedicationDispenseTest {
 
 		BundleInfo bundleInfo = new BundleInfo(rt);
 		Bundle bundle = rt.tMedicationDispense2MedicationDispense(md, bundleInfo).getBundle();
-		
+
 		Practitioner p = BundleUtil.findOneResource(bundle, Practitioner.class);
 		mdg.verify(p);
 
 		PractitionerRole role = BundleUtil.findOneResource(bundle, PractitionerRole.class);
 		mdg.verify(role);
-		
+
 		Organization org = BundleUtil.findOneResource(bundle, Organization.class);
 		mdg.verify(org);
-		
+
 		MedicationDispense dispense = BundleUtil.findOneResource(bundle, MedicationDispense.class);
-		String reference = dispense.getPerformer().get(0).getActor().getReference(); 
+		String reference = dispense.getPerformer().get(0).getActor().getReference();
 		Assert.assertEquals("Medication Dispense should have the performer actor", reference, p.getId());
 	}
 }

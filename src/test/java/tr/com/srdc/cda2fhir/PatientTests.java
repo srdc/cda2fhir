@@ -1,42 +1,42 @@
 package tr.com.srdc.cda2fhir;
 
-
-
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
-
-
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
+import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
-import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 
-import org.junit.BeforeClass;
-import org.junit.Assert;
-
-import org.junit.Test;
 public class PatientTests {
 	static CDAFactoryImpl cdaFactory;
 	static DatatypesFactoryImpl dataTypesFactory;
+
 	@BeforeClass
-    public static void init() {
-        // Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
-        // This has to be called before loading the document; otherwise will have no effect.
+	public static void init() {
+		// Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar
+		// documents will not be recognised.
+		// This has to be called before loading the document; otherwise will have no
+		// effect.
 		cdaFactory = new CDAFactoryImpl();
 		dataTypesFactory = new DatatypesFactoryImpl();
-        CDAUtil.loadPackages();
-    }
-    
+		CDAUtil.loadPackages();
+	}
+
 	@Test
 	public void testPatientContactRelationship() {
 		ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
-		Assert.assertEquals("http://hl7.org/fhir/v2/0131", vst.tRoleCode2PatientContactRelationshipCode("econ").getSystem());
+		Assert.assertEquals("http://hl7.org/fhir/v2/0131",
+				vst.tRoleCode2PatientContactRelationshipCode("econ").getSystem());
 		Assert.assertEquals("Emergency Contact", vst.tRoleCode2PatientContactRelationshipCode("econ").getDisplay());
 		Assert.assertEquals("C", vst.tRoleCode2PatientContactRelationshipCode("econ").getCode());
-		Assert.assertEquals("Emergency Contact", vst.tRoleCode2PatientContactRelationshipCode("ext").getDisplay());;
+		Assert.assertEquals("Emergency Contact", vst.tRoleCode2PatientContactRelationshipCode("ext").getDisplay());
+		;
 		Assert.assertEquals("C", vst.tRoleCode2PatientContactRelationshipCode("ext").getCode());
 		Assert.assertEquals("Emergency Contact", vst.tRoleCode2PatientContactRelationshipCode("guard").getDisplay());
 		Assert.assertEquals("C", vst.tRoleCode2PatientContactRelationshipCode("guard").getCode());
@@ -76,9 +76,8 @@ public class PatientTests {
 		Assert.assertEquals("E", vst.tRoleCode2PatientContactRelationshipCode("work").getCode());
 		Assert.assertEquals("Next-of-Kin", vst.tRoleCode2PatientContactRelationshipCode("fammemb").getDisplay());
 		Assert.assertEquals("N", vst.tRoleCode2PatientContactRelationshipCode("fammemb").getCode());
-	}	
-	
-	
+	}
+
 	@Test
 	public void patientLanguageCommunicationTest() {
 		String languageCode = "fr-BE";
@@ -90,7 +89,7 @@ public class PatientTests {
 		frenchBelgian.setCode(languageCode);
 		cdaLanguageCommunication.setLanguageCode(frenchBelgian);
 		ResourceTransformerImpl impl = new ResourceTransformerImpl();
-		PatientCommunicationComponent comm = impl.tLanguageCommunication2Communication(cdaLanguageCommunication);		
+		PatientCommunicationComponent comm = impl.tLanguageCommunication2Communication(cdaLanguageCommunication);
 		Assert.assertEquals(comm.getLanguage().getCodingFirstRep().getCode(), languageCode);
 		Assert.assertEquals(comm.getLanguage().getCodingFirstRep().getSystem(), system);
 		Assert.assertEquals(comm.getLanguage().getCodingFirstRep().getDisplay(), display);

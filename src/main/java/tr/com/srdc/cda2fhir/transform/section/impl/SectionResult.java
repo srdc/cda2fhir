@@ -17,11 +17,11 @@ public abstract class SectionResult implements ISectionResult {
 	private List<IDeferredReference> deferredReferences;
 
 	private CDAIIMap<IEntityInfo> entities;
-		
+
 	SectionResult() {
 		bundle = new Bundle();
 	}
-	
+
 	SectionResult(Bundle bundle) {
 		this.bundle = bundle;
 	}
@@ -30,14 +30,14 @@ public abstract class SectionResult implements ISectionResult {
 	public boolean hasDefferredReferences() {
 		return deferredReferences != null && !deferredReferences.isEmpty();
 	}
-	
+
 	public void addDeferredReferences(List<IDeferredReference> references) {
 		if (deferredReferences == null) {
 			deferredReferences = new ArrayList<IDeferredReference>();
 		}
 		deferredReferences.addAll(references);
 	}
-	
+
 	@Override
 	public List<IDeferredReference> getDeferredReferences() {
 		return deferredReferences;
@@ -47,19 +47,19 @@ public abstract class SectionResult implements ISectionResult {
 	public Bundle getBundle() {
 		return bundle;
 	}
-	
+
 	@Override
 	public void updateFrom(IEntryResult entryResult) {
 		entryResult.copyTo(bundle);
-   		if (entryResult.hasDeferredReferences()) {
-   			addDeferredReferences(entryResult.getDeferredReferences());
-   		}
-   		if (entryResult.hasIIMapValues()) {
-   			if (entities == null) {
-   				entities = new CDAIIMap<IEntityInfo>();
-   			}
+		if (entryResult.hasDeferredReferences()) {
+			addDeferredReferences(entryResult.getDeferredReferences());
+		}
+		if (entryResult.hasIIMapValues()) {
+			if (entities == null) {
+				entities = new CDAIIMap<IEntityInfo>();
+			}
 			entities.put(entryResult);
-   		}
+		}
 	}
 
 	@Override
@@ -73,9 +73,9 @@ public abstract class SectionResult implements ISectionResult {
 	public void putExtensionValuesTo(Map<String, Map<String, IEntityInfo>> target) {
 		if (entities != null) {
 			entities.putExtensionValuesTo(target);
-		}		
+		}
 	}
-	
+
 	@Override
 	public boolean hasIIMapValues() {
 		return entities != null;

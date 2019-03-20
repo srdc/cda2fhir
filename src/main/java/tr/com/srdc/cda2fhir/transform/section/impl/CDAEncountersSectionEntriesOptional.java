@@ -8,14 +8,15 @@ import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public class CDAEncountersSectionEntriesOptional implements ICDASection {
 	private EncountersSectionEntriesOptional section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAEncountersSectionEntriesOptional() {};
-	
+	private CDAEncountersSectionEntriesOptional() {
+	};
+
 	public CDAEncountersSectionEntriesOptional(EncountersSectionEntriesOptional section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<Encounter> transform(IBundleInfo bundleInfo) {
 		return CDASectionCommon.transformEncounterActivitiesList(section.getEncounterActivitiess(), bundleInfo);

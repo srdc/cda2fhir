@@ -108,7 +108,7 @@ public class ValidatorTest {
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
 				generateDAFProfileMetadata, false);
 	}
-	
+
 	// C-CDA_R2-1_CCD.xml with provenance
 	@Test
 	public void testReferenceCCDBundleWithProvenance() throws Exception {
@@ -167,7 +167,7 @@ public class ValidatorTest {
 	/**
 	 * Transforms a CDA resource to a FHIR resource, validates the FHIR resource and
 	 * prints the validation result to the target path.
-	 * 
+	 *
 	 * @param cdaResourcePath            A file path of the CDA resource that is to
 	 *                                   be transformed
 	 * @param targetPathForFHIRResource  A file path where the FHIR resource is to
@@ -180,7 +180,8 @@ public class ValidatorTest {
 	 * @throws Exception
 	 */
 	private void transformAndValidate(String cdaResourcePath, String targetPathForFHIRResource,
-			String targetPathForResultFile, boolean generateDAFProfileMetadata, boolean generateProvenance) throws Exception {
+			String targetPathForResultFile, boolean generateDAFProfileMetadata, boolean generateProvenance)
+			throws Exception {
 		IValidator validator = new ValidatorImpl();
 		ByteArrayOutputStream os = null;
 
@@ -194,12 +195,12 @@ public class ValidatorTest {
 		// set whether DAF Profile URLs will be created in meta.profile of relevant
 		// resources
 		Config.setGenerateDafProfileMetadata(generateDAFProfileMetadata);
-		
+
 		Bundle bundle = null;
-		
+
 		if (generateProvenance) {
-		
-			//CDAUtil closes the stream, re-open it.
+
+			// CDAUtil closes the stream, re-open it.
 			FileInputStream fisStream = new FileInputStream(cdaResourcePath);
 			byte[] buffer = new byte[10];
 			StringBuilder sb = new StringBuilder();
@@ -210,18 +211,18 @@ public class ValidatorTest {
 			fisStream.close();
 
 			String content = sb.toString();
-			
+
 			Identifier id = new Identifier();
-			
+
 			id.setValue("Data Transformer");
-			
+
 			bundle = ccdTransformer.transformDocument(cda, content, id);
 		} else {
 			bundle = ccdTransformer.transformDocument(cda, null, null);
 		}
 
 		// make the transformation
-		
+
 		Assert.assertNotNull(bundle);
 
 		// print the bundle for checking against validation results

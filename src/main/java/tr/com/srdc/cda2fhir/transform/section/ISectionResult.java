@@ -12,12 +12,12 @@ import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 
 public interface ISectionResult extends ICDAIIMapSource<IEntityInfo> {
 	Bundle getBundle();
-	
+
 	List<? extends Resource> getSectionResources();
-	
+
 	boolean hasDefferredReferences();
-	
+
 	List<IDeferredReference> getDeferredReferences();
-	
+
 	void updateFrom(IEntryResult entryResult);
 }
