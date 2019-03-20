@@ -48,7 +48,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -126,22 +125,23 @@ public class CCDTransformerTest {
 		logger.info(String.format("Verifying file %s", sourceName));
 		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
 
-		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis, ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
 		CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 		if (addlSections != null) {
 			addlSections.stream().forEach(r -> ccdTransformer.addSection(r));
 		}
 		Config.setGenerateDafProfileMetadata(false);
 		Config.setGenerateNarrative(true);
-		Bundle bundle = ccdTransformer.transformDocument(cda);
+		Bundle bundle = ccdTransformer.transformDocument(cda, null, null);
 		Assert.assertNotNull("Expect a bundle after transformation", bundle);
 		Assert.assertTrue("Expect some entries", bundle.hasEntry());
 
 		String baseName = sourceName.substring(0, sourceName.length() - 4);
 		FHIRUtil.printJSON(bundle, "src/test/resources/output/" + baseName + ".json");
-		
+
 		BundleUtil.verifyIdsUnique(bundle);
-		
+
 		Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
 		Assert.assertTrue("Expect composition to be the first resource",
 				bundle.getEntry().get(0).getResource() == composition);
@@ -224,7 +224,8 @@ public class CCDTransformerTest {
 		util.spotCheckImmunizationPractitioner("e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92", "Hippocrates", null,
 				"Good Health Clinic");
 		util.spotCheckEncounterPractitioner("2a620155-9d11-439e-92b3-5d9815ff4de8", null, "59058001", null);
-		util.spotCheckProcedurePractitioner("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d", null, null, "Community Health and Hospitals");
+		util.spotCheckProcedurePractitioner("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d", null, null,
+				"Community Health and Hospitals");
 		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.19.5.9999.456", "2981823", null, "1001 Village Avenue");
 		util.spotCheckAttesterPractitioner(CompositionAttestationMode.PROFESSIONAL, "Primary", "207QA0505X", null);
 		util.spotCheckAttesterPractitioner(CompositionAttestationMode.LEGAL, "Primary", "207QA0505X", null);
