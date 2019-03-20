@@ -1,0 +1,87 @@
+[
+	{
+		"operation": "default",
+		"spec": {
+			"effectiveTime": {
+				"high": {
+					"value": ""
+				}
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"participant": "ONE",
+			"entryRelationship": "MANY"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"effectiveTime": {
+				"high": {
+					"value": "clinicalStatus"
+				},
+				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
+			},
+			"value": {
+				"code": "category[]"
+			},
+			"participant": {
+				"participantRole": {
+					"playingEntity": {
+						"code": "code.->CD"
+					}
+				}
+			},
+			"entryRelationship": {
+				"*": {
+					"observation": {
+						"templateId": {
+							"0": {
+								"root": {
+									"2.16.840.1.113883.10.20.22.4.145": {
+										"@4": {
+											"value": {
+												"code": "criticality"
+											}
+										}
+									},
+									"2.16.840.1.113883.10.20.22.4.9": {
+										"@4": "reaction[].->ReactionObservation"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"reaction": {
+				"*": {
+					"onset": "lastOccurrence[]"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
+			"onsetDateTime": "=datetimeAdapter(@0)",
+			"criticality": "=valueSetAdapter('AllergyIntoleranceCriticality',@0)",
+			"category": {
+				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
+			},
+			"lastOccurrence": "=maxDateTime(@0)"
+		}
+	}
+]

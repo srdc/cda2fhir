@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.transform.util.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Identifier;
@@ -18,6 +19,16 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 			map.put(fhirType, innerMap);
 		}
 		innerMap.put(identifier, identifiedValue);
+	}
+	
+	@Override
+	public void put(String fhirType, String system, String value, T identifiedValue) {
+		InnerIdentifierMap<T> innerMap = map.get(fhirType);
+		if (innerMap == null) {
+			innerMap = new InnerIdentifierMap<T>();
+			map.put(fhirType, innerMap);
+		}
+		innerMap.put(system, value, identifiedValue);
 	}
 	
 	@Override
@@ -43,6 +54,18 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 		InnerIdentifierMap<T> innerMap = map.get(fhirType);
 		if (innerMap != null) {
 			return innerMap.get(system, value);
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T getFromJSONArray(String fhirType, List<Object> identifiers) {
+		for (Object identifier: identifiers) {
+			Map<String, Object> idAsMap = (Map<String, Object>) identifier;
+			String system = (String) idAsMap.get("system");
+			String value = (String) idAsMap.get("value");
+		
+			return get(fhirType, system, value);
 		}
 		return null;
 	}

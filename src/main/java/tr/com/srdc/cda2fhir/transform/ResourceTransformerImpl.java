@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.xml.type.internal.DataValue.Base64;
 import org.hl7.fhir.dstu3.model.Age;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
@@ -35,6 +36,8 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Annotation;
+import org.hl7.fhir.dstu3.model.Base64BinaryType;
+import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.BooleanType;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -49,6 +52,8 @@ import org.hl7.fhir.dstu3.model.Composition.SectionMode;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.DateTimeType;
+import org.hl7.fhir.dstu3.model.Device;
+import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
@@ -69,6 +74,7 @@ import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 import org.hl7.fhir.dstu3.model.Narrative;
+import org.hl7.fhir.dstu3.model.Narrative.NarrativeStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
@@ -78,9 +84,15 @@ import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
+import org.hl7.fhir.dstu3.model.Provenance;
+import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
+import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityComponent;
+import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
+import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
+import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentType;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
@@ -244,7 +256,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	@Override
 	public EntryResult tAllergyProblemAct2AllergyIntolerance(AllergyProblemAct cdaAllergyProbAct,
 			IBundleInfo bundleInfo) {
-
 		EntryResult result = new EntryResult();
 
 		if (cdaAllergyProbAct == null || cdaAllergyProbAct.isSetNullFlavor()) {
@@ -254,6 +265,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		AllergyIntolerance fhirAllergyIntolerance = new AllergyIntolerance();
 		result.addResource(fhirAllergyIntolerance);
 //		fhirAllergyIntolerance
+
 		// resource id
 		IdType resourceId = new IdType("AllergyIntolerance", getUniqueId());
 		fhirAllergyIntolerance.setId(resourceId);
@@ -1634,8 +1646,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// TODO: in STU3 this property at this level was removed. Figure out how
 		// to map this to STU3
 		// fhirImmunization.setReported(Config.DEFAULT_IMMUNIZATION_REPORTED);
-
 		return result;
+
 	}
 
 	@Override
@@ -1732,7 +1744,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			// statusCode -> verificationStatus
 			fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
 		}
-
 		return fhirCond;
 	}
 
@@ -3118,5 +3129,64 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		return result;
+	}
+
+	public Binary tBinary(String documentBody) {
+		Binary binary = new Binary();
+		binary.setContentElement(new Base64BinaryType(Base64.encode(documentBody.getBytes())));
+		binary.setContentType("text/plain");
+		binary.setId(new IdType("Binary", getUniqueId()));
+		binary.setSecurityContext(new Reference(binary.getId()));
+		return binary;
+	}
+
+	public Device tDevice(Identifier assemblerDevice) {
+		Device device = new Device();
+		device.setStatus(FHIRDeviceStatus.ACTIVE);
+		device.addIdentifier(assemblerDevice);
+
+		Narrative deviceNarrative = new Narrative().setStatus(NarrativeStatus.GENERATED);
+		deviceNarrative.setDivAsString(assemblerDevice.getValue());
+		device.setText(deviceNarrative);
+
+		device.setId(new IdType("Device", getUniqueId()));
+		return device;
+	}
+
+	@Override
+	public Bundle tProvenance(Bundle bundle, String documentBody, Identifier assemblerDevice) {
+		Provenance provenance = new Provenance();
+		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
+		provenance.setId(new IdType("Provenance", getUniqueId()));
+
+		Binary binary = tBinary(documentBody);
+		bundle.addEntry(new BundleEntryComponent().setResource(binary));
+		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
+		pec.setRole(ProvenanceEntityRole.SOURCE);
+		pec.setId(binary.getId());
+		provenance.addEntity(pec);
+
+		Device device = tDevice(assemblerDevice);
+		bundle.addEntry(new BundleEntryComponent().setResource(device));
+
+		Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(), ProvenanceAgentType.DEVICE.toCode(),
+				ProvenanceAgentType.DEVICE.getDisplay());
+		agentTypeCoding.setId(device.getId());
+		pac.setRelatedAgentType(new CodeableConcept().addCoding(agentTypeCoding));
+
+		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
+				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
+		agentRoleCoding.setId(device.getId());
+		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
+
+		pac.setWho(new Reference(device.getId()));
+		provenance.addAgent(pac);
+
+		for (BundleEntryComponent bec : bundle.getEntry()) {
+			provenance.addTarget(new Reference(bec.getResource().getId()));
+		}
+
+		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
+		return bundle;
 	}
 }

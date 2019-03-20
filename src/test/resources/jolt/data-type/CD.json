@@ -1,0 +1,57 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"code": "code[]",
+			"codeSystem": "system[]",
+			"displayName": "display[]",
+			"translation": {
+				"*": {
+					"code": "code[]",
+					"codeSystem": "system[]",
+					"displayName": "display[]"
+				}
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"code": {
+				"*": "coding[&].code"
+			},
+			"system": {
+				"*": "coding[&].system"
+			},
+			"display": {
+				"*": "coding[&].display"
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"coding": "MANY"
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"coding": {
+				"*": {
+					"code": "=toString(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"coding": {
+				"*": {
+					"system": "=systemAdapter(@0)"
+				}
+			}
+		}
+	}
+]

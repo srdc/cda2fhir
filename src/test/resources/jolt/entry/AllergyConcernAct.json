@@ -1,0 +1,75 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"act": {
+				"id": "MANY",
+				"author": "ONE",
+				"entryRelationship": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"act": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"statusCode": {
+					"code": "verificationStatus"
+				},
+				"effectiveTime": "assertedDate.->EffectiveTimeLowOrValue",
+				"author": "->AuthorParticipation",
+				"entryRelationship": {
+					"*": {
+						"observation": "->AllergyIntoleranceObservation"
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"identifier": "MANY"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": "recorder.reference"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"assertedDate": "=datetimeAdapter(@0)",
+			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)",
+			"recorder": {
+				"reference": "=getId(@0)"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
+		"spec": {
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "AllergyIntolerance"
+		}
+	}
+]

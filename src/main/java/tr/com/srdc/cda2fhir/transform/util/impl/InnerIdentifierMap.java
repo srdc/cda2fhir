@@ -9,10 +9,8 @@ public class InnerIdentifierMap<T> {
 	private Map<String, T> genericMap; 
 	private Map<String, Map<String, T>> systemMaps;
 	
-	public void put(Identifier identifier, T identifiedValue) {
-		String value = identifier.getValue();
+	public void put(String system, String value, T identifiedValue) {
 		if (value != null) {		
-			String system = identifier.getSystem();
 			if (system != null) {
 				if (systemMaps == null) {
 					systemMaps = new HashMap<String, Map<String, T>>();
@@ -29,7 +27,13 @@ public class InnerIdentifierMap<T> {
 				}
 				genericMap.put(value, identifiedValue);
 			}
-		}
+		}		
+	}
+	
+	public void put(Identifier identifier, T identifiedValue) {
+		String value = identifier.getValue();
+		String system = identifier.getSystem();
+		put(system, value, identifiedValue);
 	}
 
 	public T get(String system, String value) {
