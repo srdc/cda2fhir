@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -51,34 +50,6 @@ public class ValidatorImpl implements IValidator {
 	 * Constructs a validator using the default configuration.
 	 */
 	public ValidatorImpl() {
-
-	}
-
-	@Override
-	public List<ValidationResult> validateBundleResultsOnly(Bundle bundle) {
-		if (bundle == null) {
-			logger.warn("The bundle to be validated is null. Returning null.");
-			return null;
-		}
-		if (bundle.getEntry().isEmpty()) {
-			logger.warn("The bundle to be validated is empty. Returning null");
-			return null;
-		}
-
-		logger.info("Validating the bundle containing " + bundle.getEntry().size() + " entries");
-
-		List<ValidationResult> results = new ArrayList<ValidationResult>();
-
-		// traverse the entries of the bundle
-		for (BundleEntryComponent entry : bundle.getEntry()) {
-			if (entry != null && entry.getResource() != null) {
-				results.add(validateResourceResultOnly(entry.getResource()));
-			} else {
-				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry.");
-			}
-		}
-
-		return results;
 
 	}
 
@@ -224,12 +195,6 @@ public class ValidatorImpl implements IValidator {
 	public ValidationResult validateResourceResultOnly(IBaseResource resource) {
 		if (resource == null) {
 			logger.warn("The resource to be validated is null. Returning null");
-			return null;
-		}
-
-		if (resource instanceof Bundle) {
-			logger.error(
-					"Bundle is not a proper parameter for the method Validator.validateResource. Use Validator.validateBundle instead.");
 			return null;
 		}
 

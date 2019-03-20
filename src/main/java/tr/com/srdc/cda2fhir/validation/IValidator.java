@@ -24,7 +24,6 @@ import java.io.IOException;
  */
 
 import java.io.OutputStream;
-import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -47,18 +46,6 @@ public interface IValidator {
 	OutputStream validateBundle(Bundle bundle);
 
 	/**
-	 * Validates the FHIR resource(s) contained in the FHIR Bundle by using the
-	 * validation engine supplied by hl7.org
-	 *
-	 * @param bundle A FHIR Bundle instance containing the FHIR resource(s) to be
-	 *               validated. If the (DAF) profile is supplied in meta.profile
-	 *               attribute of contained resources, then (DAF) profile validation
-	 *               is enable automatically.
-	 * @return A list containing the validation result(s).
-	 */
-	List<ValidationResult> validateBundleResultsOnly(Bundle bundle);
-
-	/**
 	 * Validates a FHIR IBaseResource instance by using the validation engine
 	 * supplied by hl7.org
 	 *
@@ -77,6 +64,18 @@ public interface IValidator {
 	 * @return An output object that contains validation results.
 	 */
 	ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException;
+
+	/**
+	 * Validates the FHIR resource(s) contained in the FHIR Bundle by using the
+	 * validation engine supplied by hl7.org
+	 *
+	 *
+	 * @param bundle A FHIR Bundle instance containing the FHIR resource(s) to be
+	 *               validated. If the (DAF) profile is supplied in meta.profile
+	 *               attribute of contained resources, then (DAF) profile validation
+	 *               is enable automatically.
+	 * @return A ValidationResult object.
+	 */
 
 	ValidationResult validateResourceResultOnly(IBaseResource resource);
 }
