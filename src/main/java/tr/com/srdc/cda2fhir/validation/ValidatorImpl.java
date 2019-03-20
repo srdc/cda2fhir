@@ -137,6 +137,12 @@ public class ValidatorImpl implements IValidator {
 		return outputStream;
 	}
 
+	public void logValidationResults(List<ValidationResult> results) {
+		for (ValidationResult result : results) {
+			logValidationResult(result);
+		}
+	}
+
 	public void logValidationResult(ValidationResult result) {
 		if (logger.isDebugEnabled()) {
 			if (result.isSuccessful()) {
