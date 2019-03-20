@@ -18,33 +18,33 @@ import tr.com.srdc.cda2fhir.jolt.report.Templates;
 public class RootNode {
 	private ParentNode root;
 	private ParentNode base;
-	
+
 	public RootNode() {
 		root = new ParentNode(null, "root");
 		base = new ParentNode(root, "base");
 		root.addChild(base);
 	}
-	
+
 	public void addChild(ParentNode node) {
 		base.addChild(node);
 	}
-	
+
 	public List<INode> getChildren() {
 		return null;
 	}
-	
+
 	public ParentNode getBase() {
 		return base;
 	}
-	
+
 	public void addCondition(JoltCondition condition) {
-		root.children.get(0).addCondition(condition);		
+		root.children.get(0).addCondition(condition);
 	}
-	
+
 	public List<JoltCondition> getConditions() {
 		return null;
 	}
-	
+
 	public List<ILinkedNode> getLinkedNodes() {
 		return root.getLinkedNodes();
 	}
@@ -58,7 +58,7 @@ public class RootNode {
 		List<IWildcardNode> wildcardNodes = root.getWildcardNodes();
 		wildcardNodes.forEach(wildcardNode -> wildcardNode.mergeToParent());
 	}
-	
+
 	public void conditionalize() {
 		List<IConditionNode> conditionNodes = root.getConditionNodes();
 		conditionNodes.forEach(conditionNode -> conditionNode.mergeToParent());
@@ -73,9 +73,9 @@ public class RootNode {
 					child.getConditions().forEach(condition -> {
 						String conditionAsString = condition.toString();
 						row.addCondition(conditionAsString);
-					});					
+					});
 				});
-				result.addRows(grandChildRows);				
+				result.addRows(grandChildRows);
 			});
 		});
 		return result;
@@ -92,7 +92,7 @@ public class RootNode {
 				node.promoteTargets(target);
 			}
 			node.setPath(path);
-			result.add(node);			
+			result.add(node);
 		});
 		return result;
 	}

@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.jolt.report;    
+package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -28,9 +28,9 @@ public class MainTest {
 
 		for (int index = 0; index < goldLines.size(); ++index) {
 			Assert.assertEquals("CSV line " + index, goldLines.get(index), actualLines.get(index));
-		}		
+		}
 	}
-	
+
 	@Test
 	public void testAllergyConcernAct() throws Exception {
 		actualTest("AllergyConcernAct");

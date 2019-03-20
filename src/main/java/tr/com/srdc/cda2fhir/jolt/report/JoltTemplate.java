@@ -157,7 +157,7 @@ public class JoltTemplate {
 			Map<String, TableRow> pathMap = supportTable.getPathMap();
 			table = table.getUpdatedFromPathMap(pathMap);
 		}
-		
+
 		if (assignTable != null) {
 			Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
 					.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());

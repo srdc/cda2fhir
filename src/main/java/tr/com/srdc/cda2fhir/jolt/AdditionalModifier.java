@@ -20,11 +20,11 @@ import tr.com.srdc.cda2fhir.util.StringUtil;
 @SuppressWarnings("deprecation")
 public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	private static Map<String, Object> temporaryContext; // Hack for now
-		
+
 	public static final class DatetimeAdapter extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
-			
+
 			if (!(arg instanceof String || arg instanceof Integer)) {
 				return Optional.empty();
 			}
@@ -39,7 +39,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			if (length > 5) {
 				result += "-" + datetime.substring(4, 6);
 				if (length > 7) {
-					result += "-" + datetime.substring(6, 8);					
+					result += "-" + datetime.substring(6, 8);
 					if (length > 11) {
 						result += "T" + datetime.substring(8, 10) + ":" + datetime.substring(10, 12);
 						if (length > 13) {
@@ -48,7 +48,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 							result += ":00";
 						}
 					}
-				}			
+				}
 			}
 			String zone = pieces.length > 1 ? pieces[1] : null;
 			if (zone != null && zone.length() > 0) {
@@ -61,13 +61,14 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	public static final class ValueSetAdapter extends Function.ListFunction {
 		@Override
 		protected Optional<Object> applyList(List<Object> argList) {
-            if(argList == null || argList.size() != 2 ) {
-                return Optional.empty();
-            }
-            String filename = (String) argList.get(0);
+			if (argList == null || argList.size() != 2) {
+				return Optional.empty();
+			}
+			String filename = (String) argList.get(0);
 			String value = argList.get(1).toString().toLowerCase();
 
-			Map<String, Object> map = JsonUtils.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");
+			Map<String, Object> map = JsonUtils
+					.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");
 			String mappedValue = (String) map.get(value);
 			if (mappedValue != null) {
 				return Optional.of(mappedValue);
@@ -75,7 +76,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			return Optional.empty();
 		}
 	}
-	
+
 	public static final class DefaultId extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
@@ -113,7 +114,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				return Optional.of("urn:oid:" + system);
 			} else if (StringUtil.isUUID(system)) {
 				return Optional.of("urn:uuid:" + system);
-			}						
+			}
 			return Optional.of(system);
 		}
 	}
@@ -122,17 +123,17 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	public static final class ReferenceAdapter extends Function.ListFunction {
 		@Override
 		protected Optional<Object> applyList(List<Object> argList) {
-            if(argList == null || argList.size() != 2 ) {
-                return Optional.empty();
-            }
-            String fhirType = (String) argList.get(0);
+			if (argList == null || argList.size() != 2) {
+				return Optional.empty();
+			}
+			String fhirType = (String) argList.get(0);
 			Object arg = argList.get(1);
 			if (!(arg instanceof Map)) {
 				return Optional.empty();
 			}
-			Map<String, Object> identifier =(Map<String, Object>) arg;
+			Map<String, Object> identifier = (Map<String, Object>) arg;
 			String system = (String) identifier.get("system");
-			String value = (String) identifier.get("value");			
+			String value = (String) identifier.get("value");
 			IdentifierMap<String> map = (IdentifierMap<String>) temporaryContext.get("RefsByIdentifier");
 			if (map == null) {
 				return Optional.empty();
@@ -145,34 +146,35 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
-    public static final class MaxDateTime extends Function.ListFunction {
-    	@SuppressWarnings({ "rawtypes", "unchecked" })
-        @Override
-        protected Optional applyList( final List<Object> argList ) {
-        	if (argList == null || argList.size() < 1) {
-        		return  Optional.empty();
-        	}
-        	java.util.Optional<String> result = argList.stream().map(dt -> (String) dt).max(Comparator.comparing(String::valueOf));
-        	if (result.isPresent()) {
-        		return Optional.of(result.get());
-        	}
-        	return Optional.empty();
-        }
-    }
+	public static final class MaxDateTime extends Function.ListFunction {
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		protected Optional applyList(final List<Object> argList) {
+			if (argList == null || argList.size() < 1) {
+				return Optional.empty();
+			}
+			java.util.Optional<String> result = argList.stream().map(dt -> (String) dt)
+					.max(Comparator.comparing(String::valueOf));
+			if (result.isPresent()) {
+				return Optional.of(result.get());
+			}
+			return Optional.empty();
+		}
+	}
 
 	public static final class SelectOnNull extends Function.ListFunction {
 		@Override
 		protected Optional<Object> applyList(List<Object> argList) {
-            if(argList == null || argList.size() != 3 ) {
-                return Optional.empty();
-            }
-            String value = (String) argList.get(2);
-            int index = value.isEmpty() ? 0 : 1;
-            String result = (String) argList.get(index);
+			if (argList == null || argList.size() != 3) {
+				return Optional.empty();
+			}
+			String value = (String) argList.get(2);
+			int index = value.isEmpty() ? 0 : 1;
+			String result = (String) argList.get(index);
 			return Optional.of(result);
 		}
 	}
-    
+
 	public static final class GetId extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
@@ -197,10 +199,10 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	}
 
 	private Modifier.Overwritr modifier;
-	
-    @Override
-    public Object transform(final Object input, final Map<String, Object> context) {
-    	temporaryContext = context; // TODO: Improve modifiers to have context available
+
+	@Override
+	public Object transform(final Object input, final Map<String, Object> context) {
+		temporaryContext = context; // TODO: Improve modifiers to have context available
 		return modifier.transform(input, context);
 	}
 

@@ -6,8 +6,9 @@ public class Templates {
 	private String rootResourceType;
 	private Map<String, JoltTemplate> templates;
 	private JoltFormat formatMap;
-	
-	public Templates() {}
+
+	public Templates() {
+	}
 
 	public Templates(JoltFormat formatMap) {
 		this.formatMap = formatMap;
@@ -32,7 +33,7 @@ public class Templates {
 	public String getRootResource() {
 		return rootResourceType;
 	}
-	
+
 	public String getFormat(String target) {
 		if (formatMap == null) {
 			return "";

@@ -6,6 +6,6 @@ public interface IParentNode extends INode {
 	void removeChild(INode node);
 
 	void addChild(INode node);
-	
+
 	List<INode> getChildren();
 }

@@ -10,7 +10,8 @@ import com.bazaarvoice.jolt.SpecDriven;
 
 public class SquashEmpty implements ContextualTransform, SpecDriven {
 	@Inject
-	public SquashEmpty(Object spec) {}
+	public SquashEmpty(Object spec) {
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -23,14 +24,15 @@ public class SquashEmpty implements ContextualTransform, SpecDriven {
 		}
 		Map<String, Object> inputAsMap = (Map<String, Object>) input;
 		Iterator<Map.Entry<String, Object>> itr = inputAsMap.entrySet().iterator();
-		while(itr.hasNext()) {
+		while (itr.hasNext()) {
 			Map.Entry<String, Object> entry = itr.next();
 			Object value = entry.getValue();
-			if (!(value instanceof Map)) continue;
+			if (!(value instanceof Map))
+				continue;
 			Map<String, Object> valueAsMap = (Map<String, Object>) value;
 			if (valueAsMap.isEmpty()) {
 				itr.remove();
-			}			
+			}
 		}
 		return input;
 	}

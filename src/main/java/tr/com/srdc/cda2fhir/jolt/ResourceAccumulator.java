@@ -13,7 +13,7 @@ import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 
 public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 	private String resourceType;
-	
+
 	@Inject
 	@SuppressWarnings("unchecked")
 	public ResourceAccumulator(Object spec) {
@@ -26,7 +26,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 	public Object transform(Object input, Map<String, Object> context) {
 		if (input == null) {
 			return null;
-		}		
+		}
 		Map<String, Object> resource = (Map<String, Object>) input;
 		List<Object> resources = (List<Object>) context.get("Resources");
 		if (resources == null) {
@@ -41,19 +41,19 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		List<Object> identifiers = (List<Object>) resource.get("identifier");
 		if (identifiers == null) {
 			return reference;
-		}		
+		}
 		IdentifierMap<String> refsByIdentifier = (IdentifierMap<String>) context.get("RefsByIdentifier");
 		if (refsByIdentifier == null) {
 			refsByIdentifier = new IdentifierMap<String>();
 			context.put("RefsByIdentifier", refsByIdentifier);
 		}
-		for (Object identifier: identifiers) {
+		for (Object identifier : identifiers) {
 			Map<String, Object> map = (Map<String, Object>) identifier;
 			String system = (String) map.get("system");
 			Object valueObject = map.get("value");
-			String value = valueObject == null ? null : valueObject.toString(); 
+			String value = valueObject == null ? null : valueObject.toString();
 			refsByIdentifier.put(resourceType, system, value, reference);
-			
+
 		}
 		return reference;
 	}

@@ -16,10 +16,8 @@ public class TableRow implements Comparable<TableRow> {
 
 	private List<String> conditions = new ArrayList<String>();
 
-	private static final String[] pluralFormatWords = {
-			"max", "min", "first", "last"
-	};
-	
+	private static final String[] pluralFormatWords = { "max", "min", "first", "last" };
+
 	public TableRow(String path, String target) {
 		this.path = path;
 		this.target = target;
@@ -30,7 +28,7 @@ public class TableRow implements Comparable<TableRow> {
 		this.target = target;
 		this.link = link;
 	}
-	
+
 	@Override
 	public TableRow clone() {
 		TableRow row = new TableRow(path, target, link);
@@ -38,11 +36,11 @@ public class TableRow implements Comparable<TableRow> {
 		row.conditions.addAll(conditions);
 		return row;
 	}
-	
+
 	public String getTarget() {
 		return target;
 	}
-	
+
 	public void setFormat(String format) {
 		this.format = format;
 	}
@@ -70,7 +68,7 @@ public class TableRow implements Comparable<TableRow> {
 		String csvLink = link == null ? "" : link;
 		String result = String.format("%s,%s,%s,", path, target, csvLink, format);
 		if (!format.isEmpty()) {
-			result += String.format("\"%s\"", format);			
+			result += String.format("\"%s\"", format);
 		}
 		if (conditions.size() > 0) {
 			String conditionInfo = conditions.stream().collect(Collectors.joining(","));
@@ -82,7 +80,7 @@ public class TableRow implements Comparable<TableRow> {
 	public void sortConditions() {
 		Collections.sort(conditions);
 	}
-	
+
 	public void promoteTarget(String path) {
 		if (target.isEmpty()) {
 			target = path;
@@ -92,7 +90,7 @@ public class TableRow implements Comparable<TableRow> {
 	}
 
 	public void correctArrayOnFormat() {
-		if (!format.isEmpty() && target.indexOf("[") >=0) {
+		if (!format.isEmpty() && target.indexOf("[") >= 0) {
 			for (int index = 0; index < pluralFormatWords.length; ++index) {
 				if (format.startsWith(pluralFormatWords[index])) {
 					target = target.split("\\[")[0];
@@ -100,7 +98,7 @@ public class TableRow implements Comparable<TableRow> {
 			}
 		}
 	}
-	
+
 	public void updateResourceType(String resourceType, Set<String> exceptions) {
 		if (!exceptions.contains(target)) {
 			target = resourceType + "." + target;
@@ -135,14 +133,14 @@ public class TableRow implements Comparable<TableRow> {
 		result += "\n" + space + targetDisplay;
 		return result;
 	}
-	
+
 	public Set<String> getPathKeys() {
 		Set<String> result = new HashSet<>();
 		result.add(path);
 		if (path.indexOf("[]") > 0) {
 			String pathZeroIndex = path.replace("[]", "[0]");
 			result.add(pathZeroIndex);
-		}		
+		}
 		return result;
 	}
 

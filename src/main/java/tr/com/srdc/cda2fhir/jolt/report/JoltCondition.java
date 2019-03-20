@@ -51,9 +51,9 @@ public class JoltCondition {
 		if (value != null) {
 			result += " " + value;
 		}
-		return result;	
+		return result;
 	}
-	
+
 	public String toString(String ownerPath) {
 		String conditionPath = path.length() == 0 ? ownerPath : ownerPath + "." + path;
 		String result = conditionPath + " " + relation;

@@ -41,7 +41,7 @@ public class ParentNode extends Node implements IParentNode {
 	public List<INode> getChildren() {
 		return children;
 	}
-	
+
 	@Override
 	public void addChild(INode child) {
 		children.add(child);
@@ -55,7 +55,7 @@ public class ParentNode extends Node implements IParentNode {
 			parent.removeChild(this);
 		}
 	}
-	
+
 	public void addChildren(List<INode> children) {
 		this.children.addAll(children);
 	}
@@ -69,12 +69,12 @@ public class ParentNode extends Node implements IParentNode {
 	public void fillConditionNodes(List<IConditionNode> result) {
 		children.forEach(child -> child.fillConditionNodes(result));
 	}
-	
+
 	@Override
 	public void fillWildcardNodes(List<IWildcardNode> result) {
 		children.forEach(child -> child.fillWildcardNodes(result));
 	}
-	
+
 	@Override
 	public void promoteTargets(String parentTarget) {
 		children.forEach(child -> child.promoteTargets(parentTarget));
@@ -103,9 +103,9 @@ public class ParentNode extends Node implements IParentNode {
 	public void fillNodes(List<INode> result, PathPredicate pathPredicate) {
 		children.forEach(child -> child.fillNodes(result, pathPredicate));
 		super.fillNodes(result, pathPredicate);
-		
+
 	}
-	
+
 	public Table toTable(Templates templates) {
 		Table result = new Table();
 		children.forEach(jp -> {
@@ -114,7 +114,7 @@ public class ParentNode extends Node implements IParentNode {
 		});
 		return result;
 	}
-	
+
 	public void copyChildren(IParentNode source) {
 		List<INode> sourceChildren = source.getChildren();
 		sourceChildren.forEach(child -> child.setParent(this));

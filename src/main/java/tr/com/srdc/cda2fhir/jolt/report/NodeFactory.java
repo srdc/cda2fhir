@@ -20,16 +20,16 @@ public class NodeFactory {
 	private final static class ParsedTarget {
 		public String target;
 		public String link;
-		
+
 		private ParsedTarget(String target) {
 			this.target = target;
 		}
-		
+
 		private ParsedTarget(String target, String link) {
 			this.target = target;
 			this.link = link;
 		}
-		
+
 		public static ParsedTarget getInstance(String target) {
 			String[] pieces = target.split("\\.");
 			int length = pieces.length;
@@ -45,23 +45,23 @@ public class NodeFactory {
 			for (int index = 1; index < length - 1; ++index) {
 				reducedTarget += "." + pieces[index];
 			}
-			return new ParsedTarget(reducedTarget, link);			
+			return new ParsedTarget(reducedTarget, link);
 		}
 	}
-	
+
 	private static LeafNode getInstance(IParentNode parent, String path, String target) {
 		ParsedTarget parsedTarget = ParsedTarget.getInstance(target);
 		if (parsedTarget.link == null) {
 			if (path.equals("*")) {
-				return new LeafWildcardNode(parent, path, parsedTarget.target);				
+				return new LeafWildcardNode(parent, path, parsedTarget.target);
 			} else {
 				return new LeafNode(parent, path, parsedTarget.target);
 			}
 		} else {
 			if (path.equals("*")) {
-				return new LinkedWildcardNode(parent, path, parsedTarget.target, parsedTarget.link);				
+				return new LinkedWildcardNode(parent, path, parsedTarget.target, parsedTarget.link);
 			} else {
-				return new LinkedNode(parent, path, parsedTarget.target, parsedTarget.link);					
+				return new LinkedNode(parent, path, parsedTarget.target, parsedTarget.link);
 			}
 		}
 	}
@@ -94,12 +94,12 @@ public class NodeFactory {
 				conditionNode.addConditions(conditions);
 				return conditionNode;
 			} else {
-				LinkedConditionNode conditionNode = new LinkedConditionNode(parent, rank - 1, pt.target, pt.link);				
+				LinkedConditionNode conditionNode = new LinkedConditionNode(parent, rank - 1, pt.target, pt.link);
 				conditionNode.addConditions(conditions);
 				return conditionNode;
 			}
 		}
-		ParentNode conditionNode = new ConditionNode(parent, rank - 1);			
+		ParentNode conditionNode = new ConditionNode(parent, rank - 1);
 		conditionNode.addConditions(conditions);
 		fillNode(conditionNode, (Map<String, Object>) map.get(key));
 		return conditionNode;
@@ -118,7 +118,7 @@ public class NodeFactory {
 				INode childNode = toConditionNode(key, valueMap, node);
 				if (childNode != null) {
 					node.addChild(childNode);
-					return;					
+					return;
 				}
 				ParentNode parentNode;
 				if (key.equals("*")) {

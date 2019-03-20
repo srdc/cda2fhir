@@ -56,11 +56,11 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 
 		String rootResourceType = templates.getRootResource();
 		boolean isResourceLink = templates.doesGenerateResource(link);
-		
+
 		String format = templates.getFormat(target);
-		
+
 		String actualTarget = rootResourceType == null || isResourceLink ? target : rootResourceType + "." + target;
-		
+
 		TableRow row = isResourceLink ? new TableRow(path, actualTarget) : new TableRow(path, actualTarget, link);
 		row.setFormat(format);
 		getConditions().forEach(condition -> {

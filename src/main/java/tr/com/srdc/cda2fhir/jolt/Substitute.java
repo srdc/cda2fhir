@@ -98,7 +98,7 @@ public class Substitute implements ContextualTransform {
 		if (object.isEmpty()) {
 			return null;
 		}
-		
+
 		return object;
 	}
 
@@ -114,7 +114,7 @@ public class Substitute implements ContextualTransform {
 				} else {
 					itr.set(replacement);
 				}
-				continue;			
+				continue;
 			}
 			if (element instanceof Map) {
 				Map<String, Object> map = (Map<String, Object>) element;

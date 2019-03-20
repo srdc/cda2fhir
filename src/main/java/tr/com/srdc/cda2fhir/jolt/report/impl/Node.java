@@ -56,7 +56,7 @@ public abstract class Node implements INode {
 	public List<IConditionNode> getConditionNodes() {
 		List<IConditionNode> result = new ArrayList<IConditionNode>();
 		fillConditionNodes(result);
-		return result;		
+		return result;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public abstract class Node implements INode {
 	public List<IWildcardNode> getWildcardNodes() {
 		List<IWildcardNode> result = new ArrayList<IWildcardNode>();
 		fillWildcardNodes(result);
-		return result;		
+		return result;
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public abstract class Node implements INode {
 			result.add(this);
 		}
 	}
-	
+
 	@Override
 	public List<INode> findNodes(PathPredicate pathPredicate) {
 		List<INode> result = new ArrayList<INode>();
@@ -107,12 +107,12 @@ public abstract class Node implements INode {
 	public int originalNodeCount() {
 		return 0;
 	}
-	
+
 	@Override
 	public boolean hasSibling() {
 		return parent.getChildren().size() > 1;
 	}
-	
+
 	public void copyConditions(INode source) {
 		conditions.addAll(source.getConditions());
 	}

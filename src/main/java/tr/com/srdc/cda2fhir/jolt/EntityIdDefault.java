@@ -10,12 +10,12 @@ import com.bazaarvoice.jolt.SpecDriven;
 
 public class EntityIdDefault implements ContextualTransform, SpecDriven {
 	private static int counter = 0;
-	
+
 	private String path;
-	
+
 	@Inject
 	@SuppressWarnings("unchecked")
-    public EntityIdDefault(Object spec) {
+	public EntityIdDefault(Object spec) {
 		Map<String, Object> map = (Map<String, Object>) spec;
 		path = (String) map.get("path");
 	}
@@ -25,17 +25,17 @@ public class EntityIdDefault implements ContextualTransform, SpecDriven {
 		Map<String, Object> id = new LinkedHashMap<String, Object>();
 		id.put("root", "0.0.0.0.0.0");
 		id.put("extention", Integer.toString(counter));
-		return id;	
+		return id;
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object transform(Object input, Map<String, Object> context) {
-		if (input == null)  {
+		if (input == null) {
 			return null;
-		}		
+		}
 		Map<String, Object> mapTop = (Map<String, Object>) input;
-		Map<String, Object> map = (Map<String, Object>) mapTop.get(path);		
+		Map<String, Object> map = (Map<String, Object>) mapTop.get(path);
 		if (map.containsKey("id")) {
 			return input;
 		}

@@ -14,52 +14,52 @@ import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.JsonUtils;
 
 public class IDTest {
-    @Test
-    public void testContained() throws Exception {
-    	File file = new File("src/test/resources/jolt-verify/data-type/ID-identifier.json");
-    	String content = FileUtils.readFileToString(file, Charset.defaultCharset());   	
-    	JSONArray testCases = new JSONArray(content);
-    	for (int index=0; index < testCases.length(); ++index) {
-    		JSONObject testCase = testCases.getJSONObject(index);
-    		JSONObject inputJSON = testCase.getJSONObject("input");
-    		JSONArray templateJSON = testCase.getJSONArray("template");
-    		JSONObject expectedJSON = testCase.getJSONObject("expected");
-    		
-    		String input = inputJSON.toString();
-    		Object inputObject = JsonUtils.jsonToObject(input);
+	@Test
+	public void testContained() throws Exception {
+		File file = new File("src/test/resources/jolt-verify/data-type/ID-identifier.json");
+		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
+		JSONArray testCases = new JSONArray(content);
+		for (int index = 0; index < testCases.length(); ++index) {
+			JSONObject testCase = testCases.getJSONObject(index);
+			JSONObject inputJSON = testCase.getJSONObject("input");
+			JSONArray templateJSON = testCase.getJSONArray("template");
+			JSONObject expectedJSON = testCase.getJSONObject("expected");
 
-    		String template = templateJSON.toString();
-            List<Object> chainrSpecJSON = JsonUtils.jsonToList(template);
-            Chainr chainr = Chainr.fromSpec(chainrSpecJSON);
-        	
-    		Object actualObject = chainr.transform(inputObject);
-            String actual = JsonUtils.toPrettyJsonString(actualObject);
+			String input = inputJSON.toString();
+			Object inputObject = JsonUtils.jsonToObject(input);
 
-            String expected = expectedJSON.toString();
-    		JSONAssert.assertEquals("Test Case " + index, expected, actual, false);
-    	}
-    }
+			String template = templateJSON.toString();
+			List<Object> chainrSpecJSON = JsonUtils.jsonToList(template);
+			Chainr chainr = Chainr.fromSpec(chainrSpecJSON);
 
-    @Test
-    public void testTemplate() throws Exception {
-        List<Object> chainrSpecJSON = JsonUtils.filepathToList("src/test/resources/jolt/data-type/ID.json");
-        Chainr chainr = Chainr.fromSpec(chainrSpecJSON);
-    	
-    	File file = new File("src/test/resources/jolt-verify/data-type/ID.json");
-    	String content = FileUtils.readFileToString(file, Charset.defaultCharset());   	
-    	JSONArray testCases = new JSONArray(content);
-    	for (int index=0; index < testCases.length(); ++index) {
-    		JSONObject testCase = testCases.getJSONObject(index);
-    		JSONObject inputJSON = testCase.getJSONObject("input");
-    		JSONObject expectedJSON = testCase.getJSONObject("expected");
-    		
-    		String input = inputJSON.toString();
-    		Object inputObject = JsonUtils.jsonToObject(input);
-            Object actualObject = chainr.transform(inputObject);
+			Object actualObject = chainr.transform(inputObject);
+			String actual = JsonUtils.toPrettyJsonString(actualObject);
 
-            String actual = JsonUtils.toJsonString(actualObject);
-            String expected = expectedJSON.toString();
-    		JSONAssert.assertEquals("Test Case " + index, expected, actual, false);
-    	}
-    }
+			String expected = expectedJSON.toString();
+			JSONAssert.assertEquals("Test Case " + index, expected, actual, false);
+		}
+	}
+
+	@Test
+	public void testTemplate() throws Exception {
+		List<Object> chainrSpecJSON = JsonUtils.filepathToList("src/test/resources/jolt/data-type/ID.json");
+		Chainr chainr = Chainr.fromSpec(chainrSpecJSON);
+
+		File file = new File("src/test/resources/jolt-verify/data-type/ID.json");
+		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
+		JSONArray testCases = new JSONArray(content);
+		for (int index = 0; index < testCases.length(); ++index) {
+			JSONObject testCase = testCases.getJSONObject(index);
+			JSONObject inputJSON = testCase.getJSONObject("input");
+			JSONObject expectedJSON = testCase.getJSONObject("expected");
+
+			String input = inputJSON.toString();
+			Object inputObject = JsonUtils.jsonToObject(input);
+			Object actualObject = chainr.transform(inputObject);
+
+			String actual = JsonUtils.toJsonString(actualObject);
+			String expected = expectedJSON.toString();
+			JSONAssert.assertEquals("Test Case " + index, expected, actual, false);
+		}
+	}
 }
