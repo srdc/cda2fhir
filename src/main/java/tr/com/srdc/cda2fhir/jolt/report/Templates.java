@@ -7,6 +7,8 @@ public class Templates {
 	private Map<String, JoltTemplate> templates;
 	private JoltFormat formatMap;
 	
+	public Templates() {}
+
 	public Templates(JoltFormat formatMap) {
 		this.formatMap = formatMap;
 	}

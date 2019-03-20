@@ -2,7 +2,9 @@ package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -131,6 +133,26 @@ public class TableRow implements Comparable<TableRow> {
 			result += "\n" + space + "*format " + format;
 		}
 		result += "\n" + space + targetDisplay;
+		return result;
+	}
+	
+	public Set<String> getPathKeys() {
+		Set<String> result = new HashSet<>();
+		result.add(path);
+		if (path.indexOf("[]") > 0) {
+			String pathZeroIndex = path.replace("[]", "[0]");
+			result.add(pathZeroIndex);
+		}		
+		return result;
+	}
+
+	public TableRow getUpdatedFromPathMap(Map<String, TableRow> map) {
+		TableRow mapped = map.get(target);
+		if (mapped == null) {
+			return null;
+		}
+		TableRow result = clone();
+		result.target = mapped.target;
 		return result;
 	}
 }

@@ -40,4 +40,9 @@ public class MainTest {
 	public void testID() throws Exception {
 		actualTest("ID");
 	}
+
+	@Test
+	public void testCD() throws Exception {
+		actualTest("CD");
+	}
 }

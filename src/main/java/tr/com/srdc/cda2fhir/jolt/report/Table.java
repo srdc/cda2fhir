@@ -3,12 +3,22 @@ package tr.com.srdc.cda2fhir.jolt.report;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Table {
-	private List<TableRow> rows = new ArrayList<TableRow>();
+	private List<TableRow> rows;
+
+	public Table() {
+		rows = new ArrayList<>();
+	}
+
+	private Table(List<TableRow> rows) {
+		this.rows = rows;
+	}
 
 	public void addRows(Collection<TableRow> rows) {
 		this.rows.addAll(rows);
@@ -21,7 +31,7 @@ public class Table {
 	public void addTable(Table table) {
 		addRows(table.rows);
 	}
-	
+
 	public List<TableRow> getRows() {
 		return rows;
 	}
@@ -29,7 +39,7 @@ public class Table {
 	public void correctArrayOnFormat() {
 		rows.forEach(row -> row.correctArrayOnFormat());
 	}
-	
+
 	public void sort() {
 		rows.forEach(row -> row.sortConditions());
 		Collections.sort(rows);
@@ -40,7 +50,7 @@ public class Table {
 			rows.forEach(row -> row.promoteTarget(path));
 		}
 	}
-	
+
 	public void updateResourceType(String resourceType, Set<String> exceptions) {
 		rows.forEach(row -> row.updateResourceType(resourceType, exceptions));
 	}
@@ -51,7 +61,7 @@ public class Table {
 		rows.forEach(row -> result.addRow(row.clone()));
 		return result;
 	}
-	
+
 	@Override
 	public String toString() {
 		return rows.stream().map(r -> r.toString()).collect(Collectors.joining("\n"));
@@ -65,5 +75,20 @@ public class Table {
 		}
 		header += "\n";
 		return header + rows.stream().map(row -> row.toCsvRow()).collect(Collectors.joining("\n"));
+	}
+
+	public Map<String, TableRow> getPathMap() {
+		Map<String, TableRow> result = new HashMap<>();
+		rows.forEach(row -> {
+			Set<String> keys = row.getPathKeys();
+			keys.forEach(key -> result.put(key, row));
+		});
+		return result;
+	}
+
+	public Table getUpdatedFromPathMap(Map<String, TableRow> map) {
+		List<TableRow> newRows = rows.stream().map(r -> r.getUpdatedFromPathMap(map)).filter(r -> r != null)
+				.collect(Collectors.toList());
+		return new Table(newRows);
 	}
 }

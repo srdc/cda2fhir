@@ -2,23 +2,29 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"code": "tmpcoding[0].code",
-			"codeSystem": "tmpcoding[0].codeSystem",
-			"displayName": "tmpcoding[0].displayName",
+			"code": "code[]",
+			"codeSystem": "system[]",
+			"displayName": "display[]",
 			"translation": {
-				"*": "tmpcoding[]"
+				"*": {
+					"code": "code[]",
+					"codeSystem": "system[]",
+					"displayName": "display[]"
+				}
 			}
 		}
 	},
 	{
 		"operation": "shift",
 		"spec": {
-			"tmpcoding": {
-				"*": {
-					"code": "coding[&1].code",
-					"codeSystem": "coding[&1].system",
-					"displayName": "coding[&1].display"
-				}
+			"code": {
+				"*": "coding[&].code"
+			},
+			"system": {
+				"*": "coding[&].system"
+			},
+			"display": {
+				"*": "coding[&].display"
 			}
 		}
 	},

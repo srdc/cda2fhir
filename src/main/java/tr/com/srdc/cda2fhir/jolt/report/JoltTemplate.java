@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +10,7 @@ import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public class JoltTemplate {
 	private static final class RawTemplate {
-		public Map<String, Object> shift;
+		public List<Map<String, Object>> shifts = new ArrayList<>();
 		public Map<String, Object> assign;
 		public Map<String, Object> accumulator;
 		public Map<String, Object> modifier;
@@ -25,8 +26,7 @@ public class JoltTemplate {
 				Map<String, Object> spec = (Map<String, Object>) transform.get("spec");
 
 				if (operation.equals("shift")) {
-					if (result.shift == null)
-						result.shift = spec;
+					result.shifts.add(spec);
 					return;
 				}
 				if (operation.endsWith("Assign")) {
@@ -43,13 +43,21 @@ public class JoltTemplate {
 				}
 			});
 
+			if (result.shifts.isEmpty()) {
+				throw new ReportException("Templates should have at least on 'shift' transform.");
+			}
+			if (result.shifts.size() > 2) {
+				throw new ReportException("Templates can have at most two 'shift' transforms.");
+			}
+
 			return result;
 		}
 	}
 
 	private String name;
 	private RootNode rootNode;
-	public JoltFormat format;
+	private RootNode supportRootNode;
+	private JoltFormat format;
 
 	private boolean leafTemplate = false;
 	private String resourceType;
@@ -107,7 +115,7 @@ public class JoltTemplate {
 		return result;
 	}
 
-	public Table getAssignTable(Map<String, JoltTemplate> templateMap) {
+	private Table getAssignTable(Map<String, JoltTemplate> templateMap) {
 		if (assignTable == null) {
 			return null;
 		}
@@ -138,19 +146,25 @@ public class JoltTemplate {
 		if (assignTable != null) {
 			assignTable.correctArrayOnFormat();
 		}
-			
+
 		rootNode.expandLinks(intermediateTemplates);
 
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
 		Table table = rootNode.toTable(templates);
 
+		if (supportRootNode != null) {
+			Table supportTable = supportRootNode.toTable(new Templates());
+			Map<String, TableRow> pathMap = supportTable.getPathMap();
+			table = table.getUpdatedFromPathMap(pathMap);
+		}
+		
 		if (assignTable != null) {
 			Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
 					.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
 			assignTable.updateResourceType(resourceType, otherTargets);
 			table.addTable(assignTable);
 		}
-			
+
 		return table;
 	}
 
@@ -164,7 +178,10 @@ public class JoltTemplate {
 		if (rawTemplate.modifier != null) {
 			result.format = JoltFormat.getInstance(rawTemplate.modifier);
 		}
-		result.rootNode = NodeFactory.getInstance(rawTemplate.shift);
+		result.rootNode = NodeFactory.getInstance(rawTemplate.shifts.get(0));
+		if (rawTemplate.shifts.size() > 1) {
+			result.supportRootNode = NodeFactory.getInstance(rawTemplate.shifts.get(1));
+		}
 		if (rawTemplate.accumulator != null) {
 			result.resourceType = (String) rawTemplate.accumulator.get("resourceType");
 		}
