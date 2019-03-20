@@ -46,11 +46,14 @@ public class ValidatorImpl implements IValidator {
 
 	private final Logger logger = LoggerFactory.getLogger(ValidatorImpl.class);
 
-	/**
-	 * Constructs a validator using the default configuration.
-	 */
-	public ValidatorImpl() {
+	private FhirContext ctx = FhirContext.forDstu3();
 
+	public ValidatorImpl(FhirContext ctx) {
+		this.setCtx(ctx);
+	}
+
+	public ValidatorImpl() {
+		this.setCtx(FhirContext.forDstu3());
 	}
 
 	@Override
@@ -94,7 +97,7 @@ public class ValidatorImpl implements IValidator {
 							e);
 				}
 			} else {
-				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry.");
+				logger.warn("Null bundle entry found. Ignoring the entry.");
 			}
 		}
 
@@ -106,12 +109,6 @@ public class ValidatorImpl implements IValidator {
 		}
 
 		return outputStream;
-	}
-
-	public void logValidationResults(List<ValidationResult> results) {
-		for (ValidationResult result : results) {
-			logValidationResult(result);
-		}
 	}
 
 	public void logValidationResult(ValidationResult result) {
@@ -162,7 +159,6 @@ public class ValidatorImpl implements IValidator {
 
 		logger.info("Validating resource " + resource.getIdElement());
 
-		FhirContext ctx = FhirContext.forDstu3();
 		FhirValidator validator = ctx.newValidator();
 
 		IValidatorModule schemaModule = new SchemaBaseValidator(ctx);
@@ -214,7 +210,7 @@ public class ValidatorImpl implements IValidator {
 
 	@Override
 	public ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException {
-		FhirContext ctx = FhirContext.forDstu3();
+
 		FhirValidator validator = ctx.newValidator();
 		validator.setValidateAgainstStandardSchema(true);
 		validator.setValidateAgainstStandardSchematron(true);
@@ -224,6 +220,14 @@ public class ValidatorImpl implements IValidator {
 		ValidationResult result = validator.validateWithResult(resource);
 		logValidationResult(result);
 		return result;
+	}
+
+	public FhirContext getCtx() {
+		return ctx;
+	}
+
+	public void setCtx(FhirContext ctx) {
+		this.ctx = ctx;
 	}
 
 }
