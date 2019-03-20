@@ -84,45 +84,33 @@ public class JoltTemplate {
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().rootNode));
 	}
 
-	private static Map<String, JoltFormat> getFormatLinks(Map<String, JoltTemplate> templates) {
-		return templates.entrySet().stream().filter(e -> e.getValue().format != null)
-				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().format));
-	}
-
-	private static JoltFormat getResolvedFormat(JoltFormat format, RootNode rootPath,
-			Map<String, JoltFormat> formatLinks, Map<String, RootNode> pathLinks) {
+	private JoltFormat getResolvedFormat(Map<String, JoltTemplate> templateMap) {
 		if (format == null) {
 			return null;
 		}
 		JoltFormat result = format.clone();
-		List<ILinkedNode> linkPaths = rootPath.getLinks();
-		linkPaths.forEach(joltPath -> {
-			String link = joltPath.getLink();
-			String target = joltPath.getTarget();
+		List<ILinkedNode> linkedNodes = rootNode.getLinks();
+		linkedNodes.forEach(linkedNode -> {
+			String link = linkedNode.getLink();
+			String target = linkedNode.getTarget();
 
-			JoltFormat linkedFormat = formatLinks.get(link);
-			if (linkedFormat == null) {
-				return;
+			JoltTemplate linkedTemplate = templateMap.get(link);
+			if (linkedTemplate == null) return;
+			
+			JoltFormat resolvedLinkedFormat = linkedTemplate.getResolvedFormat(templateMap);
+			if (resolvedLinkedFormat != null) {
+				result.putAllAsPromoted(resolvedLinkedFormat, target);
 			}
-			RootNode linkedRootPath = pathLinks.get(link);
-			JoltFormat resolvedLinkedFormat = getResolvedFormat(linkedFormat, linkedRootPath, formatLinks, pathLinks);
-			result.putAllAsPromoted(resolvedLinkedFormat, target);
 		});
 		return result;
-	}
-
-	private JoltFormat getResolvedFormat(RootNode rootPath, Map<String, JoltFormat> formatLinks,
-			Map<String, RootNode> pathLinks) {
-		return getResolvedFormat(format, rootPath, formatLinks, pathLinks);
 	}
 
 	public Table createTable(Map<String, JoltTemplate> map) {
 		Map<String, JoltTemplate> intermediateTemplates = getIntermediateTemplates(map);
 
-		Map<String, JoltFormat> formatLinks = getFormatLinks(intermediateTemplates);
 		Map<String, RootNode> pathLinks = getPathLinks(intermediateTemplates);
 
-		JoltFormat resolvedFormat = getResolvedFormat(rootNode, formatLinks, pathLinks);
+		JoltFormat resolvedFormat = getResolvedFormat(map);
 
 		rootNode.expandLinks(pathLinks);
 

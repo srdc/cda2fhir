@@ -49,8 +49,8 @@ public class RootNode {
 	}
 
 	public void expandLinks(Map<String, RootNode> linkMap) {
-		List<ILinkedNode> leafNodes = root.getLinkedNodes();
-		leafNodes.forEach(leafNode -> leafNode.expandLinks(linkMap));
+		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
+		linkedNodes.forEach(linkedNode -> linkedNode.expandLinks(linkMap));
 	}
 
 	public void eliminateWildcardNodes() {
@@ -80,7 +80,10 @@ public class RootNode {
 		return result;
 	}
 
-	public List<INode> getAsLinkReplacement(IParentNode parent, String path, String target) {
+	public List<INode> getAsLinkReplacement(LinkedNode linkedNode) {
+		IParentNode parent = linkedNode.getParent();
+		String path = linkedNode.getPath();
+		String target = linkedNode.getTarget();
 		List<INode> result = new ArrayList<INode>();
 		root.children.forEach(base -> {
 			INode node = base.clone(parent);

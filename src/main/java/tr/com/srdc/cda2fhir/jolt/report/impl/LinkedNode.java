@@ -37,9 +37,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		RootNode rootNode = linkMap.get(link);
 		if (rootNode != null) {
 			IParentNode parent = getParent();
-			String path = getPath();
-			String target = getTarget();
-			List<INode> newChildren = rootNode.getAsLinkReplacement(parent, path, target);
+			List<INode> newChildren = rootNode.getAsLinkReplacement(this);
 			newChildren.forEach(newChild -> {
 				newChild.getConditions().addAll(getConditions());
 				parent.addChild(newChild);
