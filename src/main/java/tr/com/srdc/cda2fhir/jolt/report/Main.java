@@ -26,10 +26,7 @@ public class Main {
 				Object content = JsonUtils.filepathToObject(jsonPath.toString());
 				if (content instanceof List) {
 					List<Object> template = (List<Object>) content;
-					JoltTemplate joltTemplate = JoltTemplate.getInstance(template);
-					if (name.equals("ID") || name.contentEquals("CD")) {
-						joltTemplate.leafTemplate = true;
-					}
+					JoltTemplate joltTemplate = JoltTemplate.getInstance(name, template);
 					templateMap.put(name, joltTemplate);
 				}
 			}

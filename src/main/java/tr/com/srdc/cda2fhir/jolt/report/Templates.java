@@ -7,6 +7,10 @@ public class Templates {
 	private Map<String, JoltTemplate> templates;
 	private JoltFormat formatMap;
 	
+	public Templates(JoltFormat formatMap) {
+		this.formatMap = formatMap;
+	}
+
 	public Templates(String rootResource, Map<String, JoltTemplate> templates, JoltFormat formatMap) {
 		this.rootResourceType = rootResource;
 		this.templates = templates;
@@ -14,9 +18,11 @@ public class Templates {
 	}
 
 	public boolean doesGenerateResource(String name) {
-		JoltTemplate template = templates.get(name);
-		if (template != null) {
-			return template.doesGenerateResource();
+		if (templates != null) {
+			JoltTemplate template = templates.get(name);
+			if (template != null) {
+				return template.doesGenerateResource();
+			}
 		}
 		return false;
 	}
@@ -26,7 +32,18 @@ public class Templates {
 	}
 	
 	public String getFormat(String target) {
+		if (formatMap == null) {
+			return "";
+		}
 		String result = formatMap.get(target);
-		return result == null ? "" : result;
+		if (result != null) {
+			return result;
+		}
+		if (target.indexOf('[') >= 0) {
+			String singular = target.split("\\[")[0];
+			result = formatMap.get(singular);
+			return result == null ? "" : result;
+		}
+		return "";
 	}
 }
