@@ -135,18 +135,22 @@ public class JoltTemplate {
 
 		JoltFormat resolvedFormat = getResolvedFormat(map);
 		Table assignTable = getAssignTable(map);
-		assignTable.correctArrayOnFormat();
-
+		if (assignTable != null) {
+			assignTable.correctArrayOnFormat();
+		}
+			
 		rootNode.expandLinks(intermediateTemplates);
 
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
 		Table table = rootNode.toTable(templates);
 
-		Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
-				.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
-		assignTable.updateResourceType(resourceType, otherTargets);
-
-		table.addTable(assignTable);
+		if (assignTable != null) {
+			Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
+					.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
+			assignTable.updateResourceType(resourceType, otherTargets);
+			table.addTable(assignTable);
+		}
+			
 		return table;
 	}
 
