@@ -4,59 +4,61 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div>
-	<th:block th:unless="${#lists.isEmpty(resource.name)}">
-		<div class="hapiHeaderText" th:narrative="${resource.name[0]}"/>
-	</th:block>
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${resource.name} and ${not resource.name.empty}">
-				<td>Name</td>
-				<td th:narrative="${resource.name}"></td>
-			</tr>
-			<tr th:if="${not resource.relationship.empty}">
-				<td>Relationship</td>
-				<td th:narrative="${resource.relationship}"></td>
-			</tr>
-			<tr th:if="${resource.born}">
-				<td>Born</td>
-				<td th:narrative="${resource.born}"></td>
-			</tr>
-			<tr th:if="${resource.deceased}">
-				<td>Deceased</td>
-				<td th:if="${resource.deceased.value}" th:text="YES"></td>
-				<td th:unless="${resource.deceased.value}" th:text="NO"></td>
-			</tr>
-		</tbody>
-	</table>
-	<table class="hapiPropertyTable" th:if="${resource.condition} and ${not resource.condition.empty}" th:each="condition: ${resource.condition}">
-		<tbody>
-			<tr>
-				<th th:text="Condition"></th>
-			</tr>
-			<tr th:if="${condition.code}">
-				<td>Code</td>
-				<td th:narrative="${condition.code}"></td>
-			</tr>
-			<tr th:if="${condition.onset} and ${not condition.onset.empty}">
-				<td>Onset</td>
-				<td th:narrative="${condition.onset}"></td>
-			</tr>
-			<tr th:if="${condition.outcome} and ${not condition.outcome.empty}">
-				<td>Outcome</td>
-				<td th:narrative="${condition.outcome}"></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+	<div>
+		<th:block th:unless="${#lists.isEmpty(resource.name)}">
+			<div class="hapiHeaderText" th:narrative="${resource.name[0]}" />
+		</th:block>
+		<table class="hapiPropertyTable">
+			<tbody>
+				<tr th:if="${resource.name} and ${not resource.name.empty}">
+					<td>Name</td>
+					<td th:narrative="${resource.name}"></td>
+				</tr>
+				<tr th:if="${not resource.relationship.empty}">
+					<td>Relationship</td>
+					<td th:narrative="${resource.relationship}"></td>
+				</tr>
+				<tr th:if="${resource.born}">
+					<td>Born</td>
+					<td th:narrative="${resource.born}"></td>
+				</tr>
+				<tr th:if="${resource.deceased}">
+					<td>Deceased</td>
+					<td th:if="${resource.deceased.value}" th:text="YES"></td>
+					<td th:unless="${resource.deceased.value}" th:text="NO"></td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="hapiPropertyTable"
+			th:if="${resource.condition} and ${not resource.condition.empty}"
+			th:each="condition: ${resource.condition}">
+			<tbody>
+				<tr>
+					<th th:text="Condition"></th>
+				</tr>
+				<tr th:if="${condition.code}">
+					<td>Code</td>
+					<td th:narrative="${condition.code}"></td>
+				</tr>
+				<tr th:if="${condition.onset} and ${not condition.onset.empty}">
+					<td>Onset</td>
+					<td th:narrative="${condition.onset}"></td>
+				</tr>
+				<tr th:if="${condition.outcome} and ${not condition.outcome.empty}">
+					<td>Outcome</td>
+					<td th:narrative="${condition.outcome}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->

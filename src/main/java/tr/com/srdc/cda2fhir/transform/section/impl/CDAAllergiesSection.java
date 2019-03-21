@@ -12,24 +12,25 @@ import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDAAllergiesSection implements ICDASection {
 	private AllergiesSection section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAAllergiesSection() {};
-	
+	private CDAAllergiesSection() {
+	};
+
 	public CDAAllergiesSection(AllergiesSection section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<AllergyIntolerance> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		SectionResultSingular<AllergyIntolerance> result = SectionResultSingular.getInstance(AllergyIntolerance.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		for (AllergyProblemAct act : section.getAllergyProblemActs()) {
-    		IEntryResult er = rt.tAllergyProblemAct2AllergyIntolerance(act, localBundleInfo);
-    		result.updateFrom(er);
-    		localBundleInfo.updateFrom(er);
-    	}
-    	return result;
+			IEntryResult er = rt.tAllergyProblemAct2AllergyIntolerance(act, localBundleInfo);
+			result.updateFrom(er);
+			localBundleInfo.updateFrom(er);
+		}
+		return result;
 	}
 }

@@ -4,36 +4,39 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div th:if="${resource.type} and ${not resource.type.empty} or ${resource.reason} and ${not resource.reason.empty} or ${resource.period} and ${resource.period.start} or ${resource.period} and ${resource.period.end}">
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${resource.type} and ${not resource.type.empty}" th:each="type: ${resource.type}">
-				<td>Type</td>
-				<td th:narrative="${type}"></td>
-			</tr>
-			<tr th:if="${resource.reason} and ${not resource.reason.empty}" th:each="reason: ${resource.reason}">
-				<td>Reason</td>
-				<td th:narrative="${reason}"></td>
-			</tr>
-			<tr th:if="${resource.period} and ${resource.period.start}">
-				<td>Start</td>
-				<td th:narrative="${resource.period.startElement}"></td>
-			</tr>
-			<tr th:if="${resource.period} and ${resource.period.end}">
-				<td>End</td>
-				<td th:narrative="${resource.period.endElement}"></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+	<div
+		th:if="${resource.type} and ${not resource.type.empty} or ${resource.reason} and ${not resource.reason.empty} or ${resource.period} and ${resource.period.start} or ${resource.period} and ${resource.period.end}">
+		<table class="hapiPropertyTable">
+			<tbody>
+				<tr th:if="${resource.type} and ${not resource.type.empty}"
+					th:each="type: ${resource.type}">
+					<td>Type</td>
+					<td th:narrative="${type}"></td>
+				</tr>
+				<tr th:if="${resource.reason} and ${not resource.reason.empty}"
+					th:each="reason: ${resource.reason}">
+					<td>Reason</td>
+					<td th:narrative="${reason}"></td>
+				</tr>
+				<tr th:if="${resource.period} and ${resource.period.start}">
+					<td>Start</td>
+					<td th:narrative="${resource.period.startElement}"></td>
+				</tr>
+				<tr th:if="${resource.period} and ${resource.period.end}">
+					<td>End</td>
+					<td th:narrative="${resource.period.endElement}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->

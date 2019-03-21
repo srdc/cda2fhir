@@ -11,22 +11,23 @@ import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public class CDAFamilyHistorySection implements ICDASection {
 	private FamilyHistorySection section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAFamilyHistorySection() {};
-	
+	private CDAFamilyHistorySection() {
+	};
+
 	public CDAFamilyHistorySection(FamilyHistorySection section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<FamilyMemberHistory> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		Bundle result = new Bundle();
-        for (FamilyHistoryOrganizer org : section.getFamilyHistories()) {
-            FamilyMemberHistory fmh = rt.tFamilyHistoryOrganizer2FamilyMemberHistory(org);
-            result.addEntry().setResource(fmh);
-        }
-    	return SectionResultSingular.getInstance(result, FamilyMemberHistory.class);
+		for (FamilyHistoryOrganizer org : section.getFamilyHistories()) {
+			FamilyMemberHistory fmh = rt.tFamilyHistoryOrganizer2FamilyMemberHistory(org);
+			result.addEntry().setResource(fmh);
+		}
+		return SectionResultSingular.getInstance(result, FamilyMemberHistory.class);
 	}
 }
