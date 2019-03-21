@@ -7,5 +7,7 @@ public interface IParentNode extends INode {
 
 	void addChild(INode node);
 
+	void addChildren(List<INode> children);
+
 	List<INode> getChildren();
 }

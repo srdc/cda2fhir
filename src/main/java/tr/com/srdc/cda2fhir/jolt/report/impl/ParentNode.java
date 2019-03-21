@@ -56,6 +56,7 @@ public class ParentNode extends Node implements IParentNode {
 		}
 	}
 
+	@Override
 	public void addChildren(List<INode> children) {
 		this.children.addAll(children);
 	}

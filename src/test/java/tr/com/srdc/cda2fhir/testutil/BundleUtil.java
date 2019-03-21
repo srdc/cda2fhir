@@ -25,7 +25,6 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.junit.Assert;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -48,6 +47,10 @@ public class BundleUtil {
 		idMap = FHIRUtil.getIdResourceMap(bundle);		
 	}
 
+	public Bundle getBundle() {
+		return bundle;
+	}
+	
 	public Resource getFromJSONArray(String fhirType, List<Object> identifiers) {
 		return identifierMap.getFromJSONArray(fhirType, identifiers);
 	}
