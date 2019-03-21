@@ -14,6 +14,6 @@ public interface IIdentifierMap<T> {
 	T get(String fhirType, String value);
 
 	T get(String fhirType, String system, String value);
-	
+
 	T getFromJSONArray(String fhirType, List<Object> identifiers);
 }

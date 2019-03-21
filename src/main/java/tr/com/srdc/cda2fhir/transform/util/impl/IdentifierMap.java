@@ -30,7 +30,7 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 		}
 		innerMap.put(system, value, identifiedValue);
 	}
-	
+
 	@Override
 	public T get(String fhirType, Identifier identifier) {
 		InnerIdentifierMap<T> innerMap = map.get(fhirType);
@@ -60,11 +60,11 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 
 	@SuppressWarnings("unchecked")
 	public T getFromJSONArray(String fhirType, List<Object> identifiers) {
-		for (Object identifier: identifiers) {
+		for (Object identifier : identifiers) {
 			Map<String, Object> idAsMap = (Map<String, Object>) identifier;
 			String system = (String) idAsMap.get("system");
 			String value = (String) idAsMap.get("value");
-		
+
 			return get(fhirType, system, value);
 		}
 		return null;
