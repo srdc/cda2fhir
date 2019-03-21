@@ -8,14 +8,15 @@ import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public class CDAVitalSignsSection implements ICDASection {
 	private VitalSignsSection section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAVitalSignsSection() {};
-	
+	private CDAVitalSignsSection() {
+	};
+
 	public CDAVitalSignsSection(VitalSignsSection section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<Observation> transform(IBundleInfo bundleInfo) {
 		return CDASectionCommon.transformVitalSignsOrganizerList(section.getVitalSignsOrganizers(), bundleInfo);

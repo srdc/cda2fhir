@@ -11,17 +11,17 @@ import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 public class LocalCDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	private CDAIIMap<T> newIIMap;
 	private ICDAIIMap<T> existingIIMap;
-	
+
 	public LocalCDAIIMap(ICDAIIMap<T> iiMap) {
 		existingIIMap = iiMap;
 	}
-	
+
 	public void put(II id, T value) {
 		if (newIIMap == null) {
-			 newIIMap = new CDAIIMap<T>();
+			newIIMap = new CDAIIMap<T>();
 		}
 		newIIMap.put(id, value);
-	}	
+	}
 
 	@Override
 	public T get(II ii) {
@@ -40,7 +40,7 @@ public class LocalCDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 		}
 		return result;
 	}
-		
+
 	@Override
 	public void putRootValuesTo(Map<String, T> target) {
 		if (newIIMap != null) {
@@ -51,7 +51,7 @@ public class LocalCDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	@Override
 	public void putExtensionValuesTo(Map<String, Map<String, T>> target) {
 		if (newIIMap != null) {
-			newIIMap.putExtensionValuesTo(target);		
+			newIIMap.putExtensionValuesTo(target);
 		}
 	}
 

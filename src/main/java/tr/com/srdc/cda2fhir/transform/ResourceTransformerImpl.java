@@ -3136,7 +3136,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		binary.setContentElement(new Base64BinaryType(Base64.encode(documentBody.getBytes())));
 		binary.setContentType("text/plain");
 		binary.setId(new IdType("Binary", getUniqueId()));
-		binary.setSecurityContext(new Reference(binary.getId()));
 		return binary;
 	}
 

@@ -19,27 +19,29 @@ public class ObservationTest {
 	private static CDAFactories factories;
 
 	@BeforeClass
-    public static void init() {
-        CDAUtil.loadPackages();
+	public static void init() {
+		CDAUtil.loadPackages();
 
-        factories = CDAFactories.init();    
-    }
+		factories = CDAFactories.init();
+	}
 
-    public static void verifyBooleanValue(boolean value) throws Exception {
-    	Observation observation = factories.base.createObservation();
-    	BL bl = factories.datatype.createBL(value);
-    	observation.getValues().add(bl);
-    	
+	public static void verifyBooleanValue(boolean value) throws Exception {
+		Observation observation = factories.base.createObservation();
+		BL bl = factories.datatype.createBL(value);
+		observation.getValues().add(bl);
+
 		BundleInfo bundleInfo = new BundleInfo(rt);
-    	Bundle bundle = rt.tObservation2Observation(observation, bundleInfo).getBundle();
-    	org.hl7.fhir.dstu3.model.Observation fhirObservation = BundleUtil.findOneResource(bundle, org.hl7.fhir.dstu3.model.Observation.class);
-    	BooleanType bt = fhirObservation.getValueBooleanType();
-    	Assert.assertEquals("Pull back the observation " + value + " boolean value", value, bt.getValue().booleanValue());
-    }
-		
-    @Test
-    public void valueBooleanTest() throws Exception {
-    	verifyBooleanValue(true);
-    	verifyBooleanValue(false);
-    }
+		Bundle bundle = rt.tObservation2Observation(observation, bundleInfo).getBundle();
+		org.hl7.fhir.dstu3.model.Observation fhirObservation = BundleUtil.findOneResource(bundle,
+				org.hl7.fhir.dstu3.model.Observation.class);
+		BooleanType bt = fhirObservation.getValueBooleanType();
+		Assert.assertEquals("Pull back the observation " + value + " boolean value", value,
+				bt.getValue().booleanValue());
+	}
+
+	@Test
+	public void valueBooleanTest() throws Exception {
+		verifyBooleanValue(true);
+		verifyBooleanValue(false);
+	}
 }

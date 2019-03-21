@@ -1,3 +1,4 @@
-<div th:if="${not resource.empty} and ${not resource.coding.empty} and ${not resource.coding[0].displayElement.empty}">
-<th:block th:text="${resource.coding[0].displayElement.value}"></th:block>
+<div
+	th:if="${not resource.empty} and ${not resource.coding.empty} and ${not resource.coding[0].displayElement.empty}">
+	<th:block th:text="${resource.coding[0].displayElement.value}"></th:block>
 </div>
