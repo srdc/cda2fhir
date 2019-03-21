@@ -9,15 +9,15 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 public interface IEntityResult extends IEntityInfo {
 	boolean isFromExisting();
-	
+
 	List<II> getNewIds();
-	
+
 	IEntityInfo getInfo();
-	
+
 	void copyTo(Bundle bundle);
 
 	boolean isEmpty();
-	
+
 	Bundle getBundle();
 
 	boolean hasPractitioner();

@@ -15,7 +15,7 @@ import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 public class LocalBundleInfo implements IBundleInfo {
 	private IBundleInfo bundleInfo;
 	private CDAIIMap<IEntityInfo> entities = new CDAIIMap<IEntityInfo>();
-	
+
 	public LocalBundleInfo(IBundleInfo bundleInfo) {
 		this.bundleInfo = bundleInfo;
 	}
@@ -34,13 +34,13 @@ public class LocalBundleInfo implements IBundleInfo {
 	public Reference getReferenceByIdentifier(String fhirType, Identifier identifier) {
 		return bundleInfo.getReferenceByIdentifier(fhirType, identifier);
 	}
-	
-	public void updateFrom(ICDAIIMapSource<IEntityInfo> source){
+
+	public void updateFrom(ICDAIIMapSource<IEntityInfo> source) {
 		if (source.hasIIMapValues()) {
 			entities.put(source);
 		}
 	}
-	
+
 	@Override
 	public IEntityInfo findEntityResult(II ii) {
 		IEntityInfo result = bundleInfo.findEntityResult(ii);

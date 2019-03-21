@@ -32,7 +32,7 @@ public class OrgJsonUtil {
 		}
 		return result;
 	}
-	
+
 	public JSONObject getSection(String code) throws JSONException {
 		JSONArray sections = getSections();
 		for (int idx = 0; idx < sections.length(); ++idx) {
@@ -46,10 +46,10 @@ public class OrgJsonUtil {
 	}
 
 	public JSONArray getAllergiesSectionEntries() throws JSONException {
-		JSONObject section = getSection("48765-2");		
-		return section.optJSONArray("entry");				
+		JSONObject section = getSection("48765-2");
+		return section.optJSONArray("entry");
 	}
-	
+
 	public static OrgJsonUtil readXML(String filepath) throws JSONException, IOException {
 		File file = new File(filepath);
 		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
@@ -63,12 +63,12 @@ public class OrgJsonUtil {
 
 	public static JSONObject get(JSONObject object, String[] paths) throws JSONException {
 		JSONObject result = object;
-		for (String path: paths) {
+		for (String path : paths) {
 			result = result.getJSONObject(path);
 		}
 		return result;
 	}
-	
+
 	public static void convertNamedObjectToArray(JSONObject input, String key) throws JSONException {
 		JSONArray names = input.names();
 		for (int index = 0; index < names.length(); ++index) {

@@ -27,12 +27,12 @@ public class EntityInfo implements IEntityInfo {
 	public Practitioner getPractitioner() {
 		return practitioner;
 	}
-	
+
 	@Override
 	public PractitionerRole getPractitionerRole() {
 		return role;
 	}
-	
+
 	@Override
 	public Organization getOrganization() {
 		return organization;

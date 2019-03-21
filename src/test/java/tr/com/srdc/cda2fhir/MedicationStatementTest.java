@@ -22,13 +22,14 @@ package tr.com.srdc.cda2fhir;
 
 import java.util.List;
 
+import org.hl7.fhir.dstu3.model.Base;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
+import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.hl7.fhir.dstu3.model.Base;
+
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
@@ -52,7 +53,8 @@ public class MedicationStatementTest {
 
 		// Transform from CDA to FHIR.
 		BundleInfo bundleInfo = new BundleInfo(rt);
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tMedicationActivity2MedicationStatement(medAct, bundleInfo).getBundle();
+		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tMedicationActivity2MedicationStatement(medAct, bundleInfo)
+				.getBundle();
 
 		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
 		List<Base> takenCodes = fhirResource.getNamedProperty("taken").getValues();

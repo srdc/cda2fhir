@@ -9,16 +9,17 @@ public class CDAFactories {
 	public ConsolFactoryImpl consol;
 	public DatatypesFactory datatype;
 	public CDAFactoryImpl base;
-		
-	private CDAFactories() {};
-	
+
+	private CDAFactories() {
+	};
+
 	static public CDAFactories init() {
 		CDAFactories factories = new CDAFactories();
-		
+
 		factories.consol = (ConsolFactoryImpl) ConsolFactoryImpl.init();
 		factories.datatype = DatatypesFactoryImpl.init();
 		factories.base = (CDAFactoryImpl) CDAFactoryImpl.init();
-		
+
 		return factories;
 	}
 }

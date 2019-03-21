@@ -4,17 +4,19 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div th:if="${resource.repeat} and ${resource.repeat.period} and ${resource.repeat.periodUnit}">
-<th:block th:text="${resource.repeat.period} + '/' + ${resource.repeat.periodUnit}"></th:block>
-</div>
+	<div
+		th:if="${resource.repeat} and ${resource.repeat.period} and ${resource.repeat.periodUnit}">
+		<th:block
+			th:text="${resource.repeat.period} + '/' + ${resource.repeat.periodUnit}"></th:block>
+	</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->
