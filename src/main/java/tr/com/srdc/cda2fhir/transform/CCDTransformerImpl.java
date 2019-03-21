@@ -61,9 +61,6 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
 public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private int counter;
@@ -96,7 +93,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 	/**
 	 * Constructor that initiates with the provided resource id generator
-	 * 
+	 *
 	 * @param idGen The id generator enumeration to be set
 	 */
 	public CCDTransformerImpl(IdGeneratorEnum idGen) {
@@ -105,6 +102,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		this.idGenerator = idGen;
 	}
 
+	@Override
 	public Reference getPatientRef() {
 		return patientRef;
 	}
@@ -113,6 +111,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		this.patientRef = patientRef;
 	}
 
+	@Override
 	public synchronized String getUniqueId() {
 		switch (this.idGenerator) {
 		case COUNTER:
@@ -123,6 +122,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		}
 	}
 
+	@Override
 	public void setIdGenerator(IdGeneratorEnum idGen) {
 		this.idGenerator = idGen;
 	}
@@ -135,6 +135,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
 	 *                           Document (CCD) instance to be transformed
 	 * @param bundleType         Desired type of the FHIR Bundle to be returned
+	 *
+	 * @param patientRef         Patient Reference of the given CDA Document
+	 *
 	 * @param resourceProfileMap The mappings of default resource profiles to
 	 *                           desired resource profiles. Used to set profile
 	 *                           URI's of bundle entries or omit unwanted entries.
@@ -175,7 +178,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	/**
 	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
 	 * instance to a Bundle of corresponding FHIR resources
-	 * 
+	 *
 	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
 	 *                           Document (CCD) instance to be transformed
 	 * @param bundleType         The type of bundle to create, currently only
@@ -184,12 +187,13 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 *                           desired resource profiles. Used to set profile
 	 *                           URI's of bundle entries or omit unwanted entries.
 	 * @param documentBody       The decoded documentBody of the document, to be
-	 *                           included in a provenance object.
+	 *                           included in a provenance object. >>>>>>> fhir-stu3
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 * @throws Exception
 	 */
+
 	public Bundle transformDocument(String filePath, BundleType bundleType, Map<String, String> resourceProfileMap,
 			String documentBody, Identifier assemblerDevice) throws Exception {
 		ContinuityOfCareDocument cda = getClinicalDocument(filePath);
@@ -208,7 +212,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	/**
 	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
 	 * instance to a Bundle of corresponding FHIR resources
-	 * 
+	 *
 	 * @param filePath A file path string to a Consolidated CDA (C-CDA) 2.1
 	 *                 Continuity of Care Document (CCD) on file system
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
@@ -224,8 +228,22 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	/**
 	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
 	 * instance to a Bundle of corresponding FHIR resources
-	 * 
-	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
+	 *
+	 * @param cda A Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
+	 *            instance to be transformed
+	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
+	 *         document and all other resources that are referenced within the
+	 *         Composition.
+	 */
+
+	public Bundle transformDocument(ContinuityOfCareDocument cda) {
+		return transformDocument(cda, true);
+	}
+
+	/**
+	 * @param cda                A
+	 *
+	 *                           Consolidated CDA (C-CDA) 2.1 Continuity of Care
 	 *                           Document (CCD) instance to be transformed
 	 * @param bundleType         The type of bundle to create, currently only
 	 *                           supports transaction bundles.
@@ -239,6 +257,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 *         Composition.
 	 * @throws Exception
 	 */
+
 	public Bundle transformDocument(ContinuityOfCareDocument cda, BundleType bundleType,
 			Map<String, String> resourceProfileMap, String documentBody, Identifier assemblerDevice) throws Exception {
 		Bundle bundle = transformDocument(cda, true);
@@ -256,7 +275,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	/**
 	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
 	 * instance to a Bundle of corresponding FHIR resources
-	 * 
+	 *
 	 * @param cda          A Consolidated CDA (C-CDA) 2.1 Continuity of Care
 	 *                     Document (CCD) instance to be transformed
 	 * @param documentBody The decoded base64 document that would be included in the
@@ -265,6 +284,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
 	 */
+	@Override
 	public Bundle transformDocument(ContinuityOfCareDocument cda, String documentBody, Identifier assemblerDevice) {
 		Bundle bundle = transformDocument(cda, true);
 		if (assemblerDevice != null & !StringUtils.isEmpty(documentBody)) {
@@ -285,7 +305,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	/**
 	 * Transforms a Consolidated CDA (C-CDA) 2.1 Continuity of Care Document (CCD)
 	 * instance to a Bundle of corresponding FHIR resources
-	 * 
+	 *
 	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
 	 *                           Document (CCD) instance to be transformed
 	 * @param includeComposition Flag to include composition (required for document
@@ -380,7 +400,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 	/**
 	 * Adds fullUrl field to the entry using it's resource id.
-	 * 
+	 *
 	 * @param entry Entry which fullUrl field to be added.
 	 */
 	private void addFullUrlToEntry(BundleEntryComponent entry) {
@@ -390,7 +410,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 	/**
 	 * Adds request field to the entry, method is POST, url is resource type.
-	 * 
+	 *
 	 * @param entry Entry which request field to be added.
 	 */
 	private void addRequestToEntry(BundleEntryComponent entry) {

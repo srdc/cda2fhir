@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir;
 
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Composition.SectionMode;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -71,5 +72,16 @@ public class SectionTest {
 		SectionComponent fhirSection = rt.tSection2Section(cdaSection);
 
 		Assert.assertTrue(fhirSection.hasText());
+	}
+
+	@Test
+	public void testSectionMode() {
+		Config.setGenerateNarrative(false);
+		Section cdaSection = factories.base.createSection();
+
+		SectionComponent fhirSection = rt.tSection2Section(cdaSection);
+
+		Assert.assertEquals("Expect fhir section mode to equal", SectionMode.SNAPSHOT.toCode(),
+				fhirSection.getMode().toCode());
 	}
 }
