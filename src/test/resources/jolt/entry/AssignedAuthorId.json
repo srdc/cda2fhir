@@ -1,0 +1,20 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"assignedAuthor": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"assignedAuthor": {
+				"id": {
+					"0": "reference"
+				}
+			}
+		}
+	}
+]
