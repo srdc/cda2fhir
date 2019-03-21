@@ -10,7 +10,8 @@
 		"spec": {
 			"assignedAuthor": [
 				"Practitioner.->AssignedAuthorPractitioner",
-				"PractitionerRole.->AssignedAuthorPractitionerRole"
+				"PractitionerRole.->AssignedAuthorPractitionerRole",
+				"Organization.->AssignedAuthorOrganization"
 			]
 		}
 	},
