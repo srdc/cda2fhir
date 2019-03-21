@@ -46,6 +46,7 @@ import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
+import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
 import org.hl7.fhir.dstu3.model.Composition.DocumentConfidentiality;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Composition.SectionMode;
@@ -109,9 +110,11 @@ import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
+import org.openhealthtools.mdht.uml.cda.Performer1;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.ServiceEvent;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyStatusObservation;
@@ -918,6 +921,33 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		return result;
+	}
+
+	private CompositionAttesterComponent getAttesterFromEvent(ServiceEvent cdaServiceEvent) {
+		if (cdaServiceEvent == null || cdaServiceEvent.isSetNullFlavor()) {
+			return null;
+		}
+
+		CompositionAttesterComponent attester = new CompositionAttesterComponent();
+
+		if (cdaServiceEvent.hasContent() && !cdaServiceEvent.getPerformers().isEmpty()) {
+			Performer1 performer = cdaServiceEvent.getPerformers().get(0);
+			if (performer.hasContent() && !performer.isSetNullFlavor()) {
+				Practitioner practitioner = tPerformer12Practitioner(performer);
+			}
+
+			attester.addMode(Composition.CompositionAttestationMode.PROFESSIONAL);
+
+		}
+	}
+
+	public CompositionEventComponent tServiceEvent2Event(ServiceEvent cdaServiceEvent) {
+		if (cdaServiceEvent == null || cdaServiceEvent.isSetNullFlavor()) {
+			return null;
+		}
+
+		CompositionEventComponent event = new CompositionEventComponent();
+
 	}
 
 	@Override
@@ -2527,6 +2557,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		return tAssignedEntity2Practitioner(cdaPerformer2.getAssignedEntity(), bundleInfo);
+	}
+
+	public EntityResult tPerformer12Practitioner(Performer1 cdaPerformer1, IBundleInfo bundleInfo) {
+		if (cdaPerformer1 == null || cdaPerformer1.isSetNullFlavor()) {
+			return new EntityResult();
+		}
+
+		return tAssignedEntity2Practitioner(cdaPerformer1.getAssignedEntity(), bundleInfo);
 	}
 
 	@Override
