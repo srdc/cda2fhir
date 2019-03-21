@@ -73,8 +73,10 @@ public class AuthorParticipationTest {
 		List<Object> joltResult = TransformManager.transformEntryInFile("AuthorParticipation", assignedAuthorJsonFile.toString());
 		Map<String, Object> joltPractitionerResult = TransformManager.chooseResource(joltResult, "Practitioner");
 		Assert.assertNotNull("Jolt Practitioner", joltPractitionerResult);
+		Assert.assertNotNull("Jolt Practitioner id", joltPractitionerResult.get("id"));
+		joltPractitionerResult.put("id", practitioner.getIdElement().getIdPart()); // ids do not have to match
 		String joltPractitionerJson = JsonUtils.toPrettyJsonString(joltPractitionerResult);
-		File joltPractitionerFile =  new File(OUTPUT_PATH + "defaultCaseJoltPractitioner.xml");
+		File joltPractitionerFile =  new File(OUTPUT_PATH + "defaultCaseJoltPractitioner.json");
 		FileUtils.writeStringToFile(joltPractitionerFile, joltPractitionerJson, Charset.defaultCharset());
 
 		String practitionerJson = FHIRUtil.encodeToJSON(practitioner);
