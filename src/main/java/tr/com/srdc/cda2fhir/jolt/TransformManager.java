@@ -27,7 +27,8 @@ public class TransformManager {
 		return context;
 	}
 
-	public static Object transformEntryInFile(String cdaName, String filepath) {
+	@SuppressWarnings("unchecked")
+	public static List<Object> transformEntryInFile(String cdaName, String filepath) {
 		String specpath = String.format("src/test/resources/jolt/entry/%s.json", cdaName);
 		List<Object> chainrSpec = JsonUtils.filepathToList(specpath);
 
@@ -36,7 +37,7 @@ public class TransformManager {
 
 		Map<String, Object> context = getInitialContext();
 		chainr.transform(input, context);
-		Object result = context.get("Resources");
+		List<Object> result = (List<Object>) context.get("Resources");
 		return result;
 	}
 }

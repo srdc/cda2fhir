@@ -19,6 +19,10 @@ public class OrgJsonUtil {
 		this.root = root;
 	}
 
+	public JSONObject getJSONObject() {
+		return root;
+	}
+		
 	public JSONArray getSections() throws JSONException {
 		JSONArray component = get(this.root, SECTION_PATH).getJSONArray("component");
 		JSONArray result = new JSONArray();

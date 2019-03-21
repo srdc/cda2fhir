@@ -37,7 +37,8 @@ public class AllergyConcernActTest {
 		joltResult.put(property, r);
 	}
 
-	private static void compare(Map<String, Object> joltResult, AllergyIntolerance cda2FHIRResult, String caseName) throws Exception {
+	private static void compare(Map<String, Object> joltResult, AllergyIntolerance cda2FHIRResult, String caseName)
+			throws Exception {
 		joltResult.put("id", cda2FHIRResult.getId().split("/")[1]); // ids are not expected to be equal
 		putReference(joltResult, "patient", cda2FHIRResult.getPatient()); // patient is not yet implemented
 		if (cda2FHIRResult.hasRecorder()) {
@@ -77,8 +78,7 @@ public class AllergyConcernActTest {
 			String cdaJSONFile = baseName + " allergies entry " + index + ".json";
 			FileUtils.writeStringToFile(new File(cdaJSONFile), entry.toString(4), Charset.defaultCharset());
 
-			List<Object> joltResultList = (List<Object>) TransformManager.transformEntryInFile("AllergyConcernAct",
-					cdaJSONFile);
+			List<Object> joltResultList = TransformManager.transformEntryInFile("AllergyConcernAct", cdaJSONFile);
 			String prettyJson = JsonUtils.toPrettyJsonString(joltResultList);
 			String resultFile = baseName + " allergies entry " + index + " - result" + ".json";
 			FileUtils.writeStringToFile(new File(resultFile), prettyJson, Charset.defaultCharset());

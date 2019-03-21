@@ -36,6 +36,9 @@ public class EntityIdDefault implements ContextualTransform, SpecDriven {
 		}
 		Map<String, Object> mapTop = (Map<String, Object>) input;
 		Map<String, Object> map = (Map<String, Object>) mapTop.get(path);
+		if (map == null) {
+			return input;
+		}		
 		if (map.containsKey("id")) {
 			return input;
 		}
