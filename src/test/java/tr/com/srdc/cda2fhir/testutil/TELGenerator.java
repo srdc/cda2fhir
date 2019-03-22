@@ -1,6 +1,8 @@
 package tr.com.srdc.cda2fhir.testutil;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.json.JSONObject;
@@ -8,6 +10,8 @@ import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 
 import com.bazaarvoice.jolt.JsonUtils;
+
+import tr.com.srdc.cda2fhir.conf.Config;
 
 public class TELGenerator {
 	private static Map<String, Object> contactPointSystemMap = JsonUtils
@@ -17,6 +21,10 @@ public class TELGenerator {
 	private String value;
 
 	public TELGenerator() {
+	}
+
+	public TELGenerator(String value) {
+		this.value = value;
 	}
 
 	public TELGenerator(JSONObject json) {
@@ -56,13 +64,18 @@ public class TELGenerator {
 				String expected = (String) contactPointSystemMap.get(valuePieces[0]);
 				String actual = contactPoint.getSystem().toCode();
 				if (expected == null) {
-					expected = "phone";
+					expected = Config.DEFAULT_CONTACT_POINT_SYSTEM.toCode();
 				}
 				Assert.assertEquals("Contact value system", expected, actual);
 			} else {
-				Assert.assertTrue("Contact point system missing", !contactPoint.hasSystem());
+				String expected = Config.DEFAULT_CONTACT_POINT_SYSTEM.toCode();
+				Assert.assertEquals("Contact point system", expected, contactPoint.getSystem().toCode());
 				Assert.assertEquals("Contact point value", value, contactPoint.getValue());
 			}
 		}
+	}
+
+	public static Set<String> getAvailableSystems() {
+		return Collections.unmodifiableSet(contactPointSystemMap.keySet());
 	}
 }

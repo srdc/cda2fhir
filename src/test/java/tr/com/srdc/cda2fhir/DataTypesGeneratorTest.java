@@ -22,21 +22,25 @@ public class DataTypesGeneratorTest {
 	private static CDAFactories factories;
 	private static IDataTypesTransformer dtt;
 
-	private static final Map<String, Consumer<JSONObject>> verifications = new HashMap<>();
-	static {
-		verifications.put("TEL", json -> {
-			TELGenerator generator = new TELGenerator(json);
-			TEL tel = generator.generate(factories);
-			ContactPoint contactPoint = dtt.tTEL2ContactPoint(tel);
-			generator.verify(contactPoint);
-		});
-	}
-
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 		factories = CDAFactories.init();
 		dtt = new DataTypesTransformerImpl();
+	}
+
+	private static final Map<String, Consumer<JSONObject>> verifications = new HashMap<>();
+	static {
+		verifications.put("TEL", json -> {
+			TELGenerator generator = new TELGenerator(json);
+			verify(generator);
+		});
+	}
+
+	private static void verify(TELGenerator generator) {
+		TEL tel = generator.generate(factories);
+		ContactPoint contactPoint = dtt.tTEL2ContactPoint(tel);
+		generator.verify(contactPoint);
 	}
 
 	private static void runTest(String name) throws Exception {
@@ -51,5 +55,11 @@ public class DataTypesGeneratorTest {
 	@Test
 	public void testTEL() throws Exception {
 		runTest("TEL");
+		TELGenerator.getAvailableSystems().forEach(system -> {
+			TELGenerator generator = new TELGenerator(system + ":" + "somevalue");
+			verify(generator);
+		});
+		TELGenerator generator = new TELGenerator("unknownsystem" + ":" + "somevalue");
+		verify(generator);
 	}
 }
