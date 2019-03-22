@@ -10,6 +10,17 @@
 	},
 	{
 		"input": {
+			"value": "tel:+1(555)666-1009",
+			"use": ["H", "WP"]
+		},
+		"expected": {
+			"system": "phone",
+			"value": "+1(555)666-1009",
+			"use": "work"
+		}
+	},
+	{
+		"input": {
 			"value": "email:joedoe@example.com"
 		},
 		"expected": {
@@ -24,6 +35,28 @@
 		"expected": {
 			"system": "phone",
 			"value": "unknownvalue"
+		}
+	},
+	{
+		"input": {
+			"value": "https:amida.com",
+			"use": ["H"]
+		},
+		"expected": {
+			"system": "url",
+			"value": "amida.com",
+			"use": "home"
+		}
+	},
+	{
+		"input": {
+			"value": "fax:+1(555)666-1009",
+			"use": ["UNK"]
+		},
+		"expected": {
+			"system": "fax",
+			"value": "+1(555)666-1009",
+			"use": "temp"
 		}
 	}
 ]

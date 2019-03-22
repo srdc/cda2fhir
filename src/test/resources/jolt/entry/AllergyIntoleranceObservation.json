@@ -81,7 +81,8 @@
 	{
 		"operation": "modify-overwrite-beta",
 		"spec": {
-			"reaction": "=recursivelySquashNulls(@0)"
+			"reaction": "=recursivelySquashNulls(@0)",
+			"criticality": "=toLower(@0)"
 		}
 	},
 	{

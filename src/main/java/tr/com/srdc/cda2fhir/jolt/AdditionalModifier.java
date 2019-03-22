@@ -67,7 +67,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			}
 			String filename = (String) argList.get(0);
 			String defaultValue = size == 3 ? (String) argList.get(1) : null;
-			String value = argList.get(size - 1).toString().toLowerCase();
+			Object object = argList.get(size - 1);
+			if (object == null) {
+				return Optional.empty();
+			}
+			String value = object.toString();
 
 			Map<String, Object> map = JsonUtils
 					.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");

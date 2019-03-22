@@ -1,9 +1,33 @@
 [
 	{
+		"operation": "cardinality",
+		"spec": {
+			"use": "MANY"
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
 			"nullFlavor": null,
-			"value": ["system", "value"]
+			"value": [
+				"system",
+				"value"
+			],
+			"use": {
+				"*": "use"
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"use": "MANY"
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"use": "=lastElement(@0)"
 		}
 	},
 	{
@@ -16,7 +40,8 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"system": "=valueSetAdapter('ContactPointSystem','phone',@0)"
+			"system": "=valueSetAdapter('ContactPointSystem','phone',@0)",
+			"use": "=valueSetAdapter('ContactPointUse','temp',@0)"
 		}
 	}
 ]

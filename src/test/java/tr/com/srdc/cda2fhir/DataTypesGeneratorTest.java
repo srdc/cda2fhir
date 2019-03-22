@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.hl7.fhir.dstu3.model.ContactPoint;
@@ -59,7 +60,20 @@ public class DataTypesGeneratorTest {
 			TELGenerator generator = new TELGenerator(system + ":" + "somevalue");
 			verify(generator);
 		});
-		TELGenerator generator = new TELGenerator("unknownsystem" + ":" + "somevalue");
-		verify(generator);
+		{
+			TELGenerator generator = new TELGenerator("unknownsystem" + ":" + "somevalue");
+			verify(generator);
+		}
+		Set<String> availableUses = TELGenerator.getAvailableUses();
+		availableUses.forEach(use -> {
+			TELGenerator generator = TELGenerator.getDefaultInstance();
+			generator.addUse(use);
+			verify(generator);
+		});
+		{
+			TELGenerator generator = TELGenerator.getDefaultInstance();
+			availableUses.parallelStream().limit(3).forEach(u -> generator.addUse(u));
+			verify(generator);
+		}
 	}
 }
