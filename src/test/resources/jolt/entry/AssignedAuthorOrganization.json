@@ -18,7 +18,13 @@
 				"id": {
 					"*": "identifier[].->ID"
 				},
-				"name": "name"
+				"name": "name",
+				"addr": {
+					"*": "address[].->AD"
+				},
+				"telecom": {
+					"*": "telecom[].->TEL"
+				}				
 			}
 		}
 	},

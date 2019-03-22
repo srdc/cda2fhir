@@ -1,0 +1,22 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"nullFlavor": null,
+			"value": ["system", "value"]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"system": "=piece(':',0,@0)",
+			"value": "=piece(':',1,@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"system": "=valueSetAdapter('ContactPointSystem',@0)"
+		}
+	}
+]

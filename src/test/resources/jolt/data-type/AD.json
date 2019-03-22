@@ -1,0 +1,21 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"nullFlavor": null,
+			"text": "text",
+			"streetAddressLine": "line[]",
+			"city": "city",
+			"county": "district",
+			"country": "country",
+			"state": "state",
+			"postalCode": "postalCode"
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"postalCode": "=toString(@0)"
+		}
+	}
+]

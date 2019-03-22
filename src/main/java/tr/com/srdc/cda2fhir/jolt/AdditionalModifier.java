@@ -185,6 +185,26 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class Piece extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null || argList.size() != 3) {
+				return Optional.empty();
+			}
+			String value = (String) argList.get(2);
+			if (value == null || value.isEmpty()) {
+				return Optional.empty();
+			}
+			int pieceIndex = (int) argList.get(1);
+			String delimiter = (String) argList.get(0);
+			String[] pieces = value.split(delimiter);
+			if (pieceIndex < pieces.length) {
+				return Optional.of(pieces[pieceIndex]);
+			}
+			return Optional.empty();
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -196,6 +216,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
 		AMIDA_FUNCTIONS.put("selectOnNull", new SelectOnNull());
 		AMIDA_FUNCTIONS.put("getId", new GetId());
+		AMIDA_FUNCTIONS.put("piece", new Piece());
 	}
 
 	private Modifier.Overwritr modifier;

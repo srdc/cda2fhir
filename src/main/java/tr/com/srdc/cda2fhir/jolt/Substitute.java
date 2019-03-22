@@ -23,6 +23,8 @@ public class Substitute implements ContextualTransform {
 	static {
 		templates.put("->ID", generateChainr("data-type/ID.json"));
 		templates.put("->CD", generateChainr("data-type/CD.json"));
+		templates.put("->AD", generateChainr("data-type/AD.json"));
+		templates.put("->TEL", generateChainr("data-type/TEL.json"));
 		templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
 		templates.put("->AllergyIntoleranceObservation", generateChainr("entry/AllergyIntoleranceObservation.json"));
 		templates.put("->ReactionObservation", generateChainr("entry/ReactionObservation.json"));

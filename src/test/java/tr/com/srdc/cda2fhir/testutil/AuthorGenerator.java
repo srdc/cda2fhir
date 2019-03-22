@@ -16,10 +16,16 @@ import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.cda.impl.PersonImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 
 public class AuthorGenerator {
+	private static final String DEFAULT_CODE_CODE = "363LA2100X";
+	private static final String DEFAULT_CODE_PRINTNAME = "Nurse Practitioner - Acute Care";
+	private static final String DEFAULT_GIVEN_NAME = "JOE";
+	private static final String DEFAULT_FAMILY_NAME = "DOE";
+	private static final String DEFAULT_ID_ROOT = "2.5.6.77";
+	private static final String DEFAULT_ID_EXTENSION = "1234545";
+
 	private List<Pair<String, String>> ids = new ArrayList<Pair<String, String>>();
 
 	private String familyName;
@@ -28,21 +34,13 @@ public class AuthorGenerator {
 	private String codeCode;
 	private String codePrintName;
 
-	private String organizationName;
-
-	static final public String DEFAULT_CODE_CODE = "363LA2100X";
-	static final public String DEFAULT_CODE_PRINTNAME = "Nurse Practitioner - Acute Care";
-	static final public String DEFAULT_GIVEN_NAME = "JOE";
-	static final public String DEFAULT_FAMILY_NAME = "DOE";
-	static final public String DEFAULT_ORGANIZATION_NAME = "The Organization";
-	static final public String DEFAULT_ID_ROOT = "2.5.6.77";
-	static final public String DEFAULT_ID_EXTENSION = "1234545";
+	private OrganizationGenerator organizationGenerator;
 
 	public Author generate(CDAFactories factories) {
 		Author author = factories.base.createAuthor();
 
 		AssignedAuthor assignedAuthor = factories.base.createAssignedAuthor();
-		
+
 		for (Pair<String, String> id : ids) {
 			String left = id.getLeft();
 			String right = id.getRight();
@@ -75,16 +73,13 @@ public class AuthorGenerator {
 			assignedAuthor.setCode(ce);
 		}
 
-		if (organizationName != null) {
-			Organization organization = factories.base.createOrganization();
-			ON on = factories.datatype.createON();
-			on.addText(organizationName);
-			organization.getNames().add(on);
+		if (organizationGenerator != null) {
+			Organization organization = organizationGenerator.generate(factories);
 			assignedAuthor.setRepresentedOrganization(organization);
 		}
 
 		author.setAssignedAuthor(assignedAuthor);
-		
+
 		return author;
 	}
 
@@ -113,10 +108,6 @@ public class AuthorGenerator {
 		ids.add(Pair.of(root, extension));
 	}
 
-	public void setOrganizationName(String organizationName) {
-		this.organizationName = organizationName;
-	}
-
 	public static AuthorGenerator getDefaultInstance() {
 		AuthorGenerator aeg = new AuthorGenerator();
 
@@ -124,7 +115,8 @@ public class AuthorGenerator {
 		aeg.addGivenName(DEFAULT_GIVEN_NAME);
 		aeg.addId(DEFAULT_ID_ROOT, DEFAULT_ID_EXTENSION);
 		aeg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
-		aeg.setOrganizationName(DEFAULT_ORGANIZATION_NAME);
+
+		aeg.organizationGenerator = OrganizationGenerator.getDefaultInstance();
 
 		return aeg;
 	}
@@ -148,7 +140,11 @@ public class AuthorGenerator {
 		Assert.assertEquals("Expect the role print name", codePrintName, code.getDisplay());
 	}
 
-	public void verify(org.hl7.fhir.dstu3.model.Organization org) {
-		Assert.assertEquals("Expect the organization name ", organizationName, org.getName());
+	public void verify(org.hl7.fhir.dstu3.model.Organization organization) {
+		if (organizationGenerator == null) {
+			Assert.assertNull("Author organization", organization);
+			return;
+		}
+		organizationGenerator.verify(organization);
 	}
 }
