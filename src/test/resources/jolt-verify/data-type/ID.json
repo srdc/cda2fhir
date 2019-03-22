@@ -1,17 +1,22 @@
-[{
-	"input": {
-		"root": "36e3e930-7b14-11db-9fe1-0800200c9a66"
+[
+	{
+		"input": {
+			"root": "36e3e930-7b14-11db-9fe1-0800200c9a66"
+		},
+		"expected": {
+			"use": "official",
+			"value": "36e3e930-7b14-11db-9fe1-0800200c9a66"
+		}
 	},
-	"expected": {
-		"value": "36e3e930-7b14-11db-9fe1-0800200c9a66"
-	} 
-}, {
-	"input": {
-		"root": "36e3e930-7b14-11db-9fe1-0800200c9a66",
-		"extension": "0246810"
-	},
-	"expected": {
-		"system": "urn:oid:36e3e930-7b14-11db-9fe1-0800200c9a66",
-		"value": "0246810"
-	} 
-}]
+	{
+		"input": {
+			"root": "36e3e930-7b14-11db-9fe1-0800200c9a66",
+			"extension": "0246810"
+		},
+		"expected": {
+			"use": "official",
+			"system": "urn:oid:36e3e930-7b14-11db-9fe1-0800200c9a66",
+			"value": "0246810"
+		}
+	}
+]
