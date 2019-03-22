@@ -89,6 +89,7 @@ import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
@@ -1565,7 +1566,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// doseQuantity -> doseQuantity
 		if (cdaImmunizationActivity.getDoseQuantity() != null
 				&& !cdaImmunizationActivity.getDoseQuantity().isSetNullFlavor()) {
-			fhirImmunization.setDoseQuantity(dtt.tPQ2SimpleQuantity(cdaImmunizationActivity.getDoseQuantity()));
+
+			SimpleQuantity dose = dtt.tPQ2SimpleQuantity(cdaImmunizationActivity.getDoseQuantity());
+			// manually set dose system, source object doesn't support it.
+			dose.setSystem(vst.tOid2Url("2.16.840.1.113883.1.11.12839"));
+
+			fhirImmunization.setDoseQuantity(dose);
 		}
 
 		// statusCode -> status
@@ -1903,7 +1909,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// doseQuantity -> dosage.quantity
 		if (cdaMedicationActivity.getDoseQuantity() != null
 				&& !cdaMedicationActivity.getDoseQuantity().isSetNullFlavor()) {
-			fhirDosage.setDose(dtt.tPQ2SimpleQuantity(cdaMedicationActivity.getDoseQuantity()));
+			SimpleQuantity dose = dtt.tPQ2SimpleQuantity(cdaMedicationActivity.getDoseQuantity());
+			// manually set dose system, source object doesn't support it.
+			dose.setSystem(vst.tOid2Url("2.16.840.1.113883.1.11.12839"));
+			fhirDosage.setDose(dose);
 		}
 
 		// routeCode -> dosage.route
