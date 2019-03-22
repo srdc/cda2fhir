@@ -22,7 +22,7 @@ public class OrgJsonUtil {
 	public JSONObject getJSONObject() {
 		return root;
 	}
-		
+
 	public JSONArray getSections() throws JSONException {
 		JSONArray component = get(this.root, SECTION_PATH).getJSONArray("component");
 		JSONArray result = new JSONArray();
@@ -114,5 +114,13 @@ public class OrgJsonUtil {
 				convertNamedObjectToArray(asObject, key);
 			}
 		}
+	}
+
+	public static JSONArray getDataTypeTestCases(String dataType) throws Exception {
+		String testCasesPath = String.format("src/test/resources/jolt-verify/data-type/%s.json", dataType);
+		File file = new File(testCasesPath);
+		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
+		JSONArray testCases = new JSONArray(content);
+		return testCases;
 	}
 }

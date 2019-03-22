@@ -7,5 +7,14 @@
 			"system": "phone",
 			"value": "+1(555)555-1009"
 		}
+	},
+	{
+		"input": {
+			"value": "email:joedoe@example.com"
+		},
+		"expected": {
+			"system": "email",
+			"value": "joedoe@example.com"
+		}
 	}
 ]
