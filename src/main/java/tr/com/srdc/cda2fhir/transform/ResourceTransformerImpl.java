@@ -137,7 +137,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.BL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.EN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -2922,40 +2921,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirDiagReport.setEffective(dtt.tIVL_TS2Period(cdaResultOrganizer.getEffectiveTime()));
 		}
 
-		// author.time -> issued
-		if (cdaResultOrganizer.getAuthors() != null && !cdaResultOrganizer.getAuthors().isEmpty()) {
-			for (org.openhealthtools.mdht.uml.cda.Author author : cdaResultOrganizer.getAuthors()) {
-				if (author != null && !author.isSetNullFlavor()) {
-					if (author.getTime() != null && !author.getTime().isSetNullFlavor()) {
-						fhirDiagReport.setIssuedElement(dtt.tTS2Instant(author.getTime()));
-					}
-				}
-			}
-		}
-
-		// if DiagnosticReport.issued is not set, set the highest value of the
-		// effectiveTime to DiagnosticReport.issued
-		// effectiveTime.high, low or value -> issued
-		if (fhirDiagReport.getIssued() == null) {
-			if (cdaResultOrganizer.getEffectiveTime() != null
-					&& !cdaResultOrganizer.getEffectiveTime().isSetNullFlavor()) {
-				if (cdaResultOrganizer.getEffectiveTime().getHigh() != null
-						&& !cdaResultOrganizer.getEffectiveTime().getHigh().isSetNullFlavor()) {
-					// effectiveTime.high -> issued
-					fhirDiagReport.setIssuedElement(dtt.tTS2Instant(cdaResultOrganizer.getEffectiveTime().getHigh()));
-				} else if (cdaResultOrganizer.getEffectiveTime().getLow() != null
-						&& !cdaResultOrganizer.getEffectiveTime().getLow().isSetNullFlavor()) {
-					// effectiveTime.low -> issued
-					fhirDiagReport.setIssuedElement(dtt.tTS2Instant(cdaResultOrganizer.getEffectiveTime().getLow()));
-				} else if (cdaResultOrganizer.getEffectiveTime().getValue() != null) {
-					// effectiveTime.value -> issued
-					TS ts = DatatypesFactory.eINSTANCE.createTS();
-					ts.setValue(cdaResultOrganizer.getEffectiveTime().getValue());
-					fhirDiagReport.setIssuedElement(dtt.tTS2Instant(ts));
-				}
-			}
-		}
-
 		// author -> performer
 		if (cdaResultOrganizer.getAuthors() != null && !cdaResultOrganizer.getAuthors().isEmpty()) {
 			for (org.openhealthtools.mdht.uml.cda.Author author : cdaResultOrganizer.getAuthors()) {
@@ -2969,31 +2934,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					}
 				}
 			}
-		} else {
-			// if there is no information about the performer in CDA side, assign an empty
-			// Practitioner resource
-			// which has data absent reason: unknown
-			Practitioner fhirPerformerDataAbsent = new Practitioner();
-			fhirPerformerDataAbsent.setId(new IdType("Practitioner", getUniqueId()));
-			Extension extDataAbsentReason = new Extension();
-
-			// meta.profile
-			if (Config.isGenerateDafProfileMetadata())
-				fhirPerformerDataAbsent.getMeta().addProfile(Constants.PROFILE_DAF_PRACTITIONER);
-
-			// setting dataAbsentReason extension
-			// extDataAbsentReason.setModifier(false);
-			extDataAbsentReason.setUrl(Constants.URL_EXTENSION_DATA_ABSENT_REASON);
-			extDataAbsentReason.setValue(Config.DEFAULT_DIAGNOSTICREPORT_PERFORMER_DATA_ABSENT_REASON_CODE);
-
-			// adding dataAbsentReason as undeclaredExtension to fhirPerformer
-			// fhirPerformerDataAbsent.addUndeclaredExtension(extDataAbsentReason);
-			fhirPerformerDataAbsent.addExtension(extDataAbsentReason);
-
-			// setting the performer of DiagnosticReport
-			result.addResource(fhirPerformerDataAbsent);
-			// TODO: role?
-			fhirDiagReport.addPerformer().setActor(new Reference(fhirPerformerDataAbsent.getId()));
 		}
 
 		// ResultObservation -> result
@@ -3007,7 +2947,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				if (fhirObsBundle != null) {
 					for (BundleEntryComponent entry : fhirObsBundle.getEntry()) {
 						result.addResource(entry.getResource());
-						if (entry.getResource() instanceof Observation) {
+						if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Observation) {
 							fhirDiagReport.addResult().setReference(entry.getResource().getId());
 						}
 					}
