@@ -61,15 +61,20 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	public static final class ValueSetAdapter extends Function.ListFunction {
 		@Override
 		protected Optional<Object> applyList(List<Object> argList) {
-			if (argList == null || argList.size() != 2) {
+			int size = argList.size();
+			if (argList == null || size < 2 || size > 3) {
 				return Optional.empty();
 			}
 			String filename = (String) argList.get(0);
-			String value = argList.get(1).toString().toLowerCase();
+			String defaultValue = size == 3 ? (String) argList.get(1) : null;
+			String value = argList.get(size - 1).toString().toLowerCase();
 
 			Map<String, Object> map = JsonUtils
 					.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");
 			String mappedValue = (String) map.get(value);
+			if (mappedValue == null) {
+				mappedValue = defaultValue;
+			}
 			if (mappedValue != null) {
 				return Optional.of(mappedValue);
 			}

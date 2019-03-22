@@ -16,7 +16,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"system": "=valueSetAdapter('ContactPointSystem',@0)"
+			"system": "=valueSetAdapter('ContactPointSystem','phone',@0)"
 		}
 	}
 ]

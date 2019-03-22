@@ -55,6 +55,9 @@ public class TELGenerator {
 				Assert.assertEquals("Contact point value", contactPoint.getValue(), valuePieces[1]);
 				String expected = (String) contactPointSystemMap.get(valuePieces[0]);
 				String actual = contactPoint.getSystem().toCode();
+				if (expected == null) {
+					expected = "phone";
+				}
 				Assert.assertEquals("Contact value system", expected, actual);
 			} else {
 				Assert.assertTrue("Contact point system missing", !contactPoint.hasSystem());

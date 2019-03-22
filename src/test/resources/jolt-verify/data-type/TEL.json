@@ -16,5 +16,14 @@
 			"system": "email",
 			"value": "joedoe@example.com"
 		}
+	},
+	{
+		"input": {
+			"value": "unknown:unknownvalue"
+		},
+		"expected": {
+			"system": "phone",
+			"value": "unknownvalue"
+		}
 	}
 ]
