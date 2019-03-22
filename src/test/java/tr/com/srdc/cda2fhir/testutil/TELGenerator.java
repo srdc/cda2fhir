@@ -1,8 +1,6 @@
 package tr.com.srdc.cda2fhir.testutil;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,9 +21,10 @@ public class TELGenerator {
 			.filepathToMap("src/test/resources/jolt/value-maps/ContactPointUse.json");
 
 	private static final String VALUE = "tel:+1(555)555-1009";
+	private static final String USE = "WP";
 
 	private String value;
-	private List<String> uses = new ArrayList<>();
+	private String use;
 
 	public TELGenerator() {
 	}
@@ -41,8 +40,8 @@ public class TELGenerator {
 		}
 	}
 
-	public void addUse(String use) {
-		uses.add(use);
+	public void set(String use) {
+		this.use = use;
 	}
 
 	public TEL generate(CDAFactories factories) {
@@ -51,11 +50,12 @@ public class TELGenerator {
 		if (value != null) {
 			telecom.setValue(value);
 		}
-		uses.forEach(use -> {
+		if (use != null) {
 			TelecommunicationAddressUse telUse = TelecommunicationAddressUse.get(use);
 			Assert.assertNotNull("Translated use", telUse);
 			telecom.getUses().add(telUse);
-		});
+		}
+		;
 
 		return telecom;
 	}
@@ -64,6 +64,15 @@ public class TELGenerator {
 		TELGenerator tg = new TELGenerator();
 
 		tg.value = VALUE;
+
+		return tg;
+	}
+
+	public static TELGenerator getFullInstance() {
+		TELGenerator tg = new TELGenerator();
+
+		tg.value = VALUE;
+		tg.use = USE;
 
 		return tg;
 	}
@@ -89,9 +98,11 @@ public class TELGenerator {
 				Assert.assertEquals("Contact point value", value, contactPoint.getValue());
 			}
 		}
-		if (!uses.isEmpty()) {
+		if (use == null) {
+			Assert.assertTrue("Contact point use missing", !contactPoint.hasUse());
+		} else {
 			String actual = contactPoint.getUse().toCode();
-			String expected = (String) contactPointUseMap.get(uses.get(uses.size() - 1));
+			String expected = (String) contactPointUseMap.get(use);
 			Assert.assertEquals("Contact point use", expected, actual);
 		}
 	}

@@ -1,11 +1,5 @@
 [
 	{
-		"operation": "cardinality",
-		"spec": {
-			"use": "MANY"
-		}
-	},
-	{
 		"operation": "shift",
 		"spec": {
 			"nullFlavor": null,
@@ -13,21 +7,7 @@
 				"system",
 				"value"
 			],
-			"use": {
-				"*": "use"
-			}
-		}
-	},
-	{
-		"operation": "cardinality",
-		"spec": {
-			"use": "MANY"
-		}
-	},
-	{
-		"operation": "modify-overwrite-beta",
-		"spec": {
-			"use": "=lastElement(@0)"
+			"use": "use"
 		}
 	},
 	{

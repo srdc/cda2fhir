@@ -55,6 +55,20 @@ public class OrganizationGenerator {
 		return og;
 	}
 
+	public static OrganizationGenerator getFullInstance() {
+		OrganizationGenerator og = new OrganizationGenerator();
+
+		og.name = NAME;
+
+		ADGenerator adGenerator = ADGenerator.getDefaultInstance();
+		TELGenerator telGenerator = TELGenerator.getFullInstance();
+
+		og.adGenerators.add(adGenerator);
+		og.telGenerators.add(telGenerator);
+
+		return og;
+	}
+
 	public void verify(org.hl7.fhir.dstu3.model.Organization organization) {
 		Assert.assertEquals("Organization name", name, organization.getName());
 

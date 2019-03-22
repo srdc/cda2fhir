@@ -121,6 +121,19 @@ public class AuthorGenerator {
 		return aeg;
 	}
 
+	public static AuthorGenerator getFullInstance() {
+		AuthorGenerator aeg = new AuthorGenerator();
+
+		aeg.setFamilyName(DEFAULT_FAMILY_NAME);
+		aeg.addGivenName(DEFAULT_GIVEN_NAME);
+		aeg.addId(DEFAULT_ID_ROOT, DEFAULT_ID_EXTENSION);
+		aeg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
+
+		aeg.organizationGenerator = OrganizationGenerator.getFullInstance();
+
+		return aeg;
+	}
+
 	public void verify(Practitioner practitioner) {
 		HumanName humanName = practitioner.getName().get(0);
 		Assert.assertEquals("Expect the correct family name", familyName, humanName.getFamily());

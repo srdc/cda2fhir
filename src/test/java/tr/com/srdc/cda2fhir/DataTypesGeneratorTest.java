@@ -67,13 +67,8 @@ public class DataTypesGeneratorTest {
 		Set<String> availableUses = TELGenerator.getAvailableUses();
 		availableUses.forEach(use -> {
 			TELGenerator generator = TELGenerator.getDefaultInstance();
-			generator.addUse(use);
+			generator.set(use);
 			verify(generator);
 		});
-		{
-			TELGenerator generator = TELGenerator.getDefaultInstance();
-			availableUses.parallelStream().limit(3).forEach(u -> generator.addUse(u));
-			verify(generator);
-		}
 	}
 }

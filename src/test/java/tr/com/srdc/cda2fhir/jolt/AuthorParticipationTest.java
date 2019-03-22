@@ -41,9 +41,7 @@ public class AuthorParticipationTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	@Test
-	public void testDefault() throws Exception {
-		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
+	private static void runTest(AuthorGenerator authorGenerator, String caseName) throws Exception {
 		Author author = authorGenerator.generate(factories);
 
 		IEntityResult cda2FhirResult = rt.tAuthor2Practitioner(author, new BundleInfo(rt));
@@ -56,20 +54,20 @@ public class AuthorParticipationTest {
 		authorGenerator.verify(practitionerRole);
 		authorGenerator.verify(organization);
 
-		File xmlFile = new File(OUTPUT_PATH + "defaultCase.xml");
+		File xmlFile = new File(OUTPUT_PATH + caseName + ".xml");
 		xmlFile.getParentFile().mkdirs();
 		FileWriter fw = new FileWriter(xmlFile);
 		CDAUtil.saveSnippet(author, fw);
 		fw.close();
 
-		FHIRUtil.printJSON(practitioner, OUTPUT_PATH + "defaultCaseCDA2FHIRPractitioner.json");
-		FHIRUtil.printJSON(practitionerRole, OUTPUT_PATH + "defaultCaseCDA2FHIRPractitionerRole.json");
-		FHIRUtil.printJSON(organization, OUTPUT_PATH + "defaultCaseCDA2FHIROrganization.json");
+		FHIRUtil.printJSON(practitioner, OUTPUT_PATH + caseName + "CDA2FHIRPractitioner.json");
+		FHIRUtil.printJSON(practitionerRole, OUTPUT_PATH + caseName + "CDA2FHIRPractitionerRole.json");
+		FHIRUtil.printJSON(organization, OUTPUT_PATH + caseName + "CDA2FHIROrganization.json");
 
 		OrgJsonUtil jsonUtil = OrgJsonUtil.readXML(xmlFile.toString());
 		JSONObject authorJson = jsonUtil.getJSONObject();
 		JSONObject assignedAuthorObject = authorJson.getJSONObject("author");
-		File assignedAuthorJsonFile = new File(OUTPUT_PATH + "defaultCase.json");
+		File assignedAuthorJsonFile = new File(OUTPUT_PATH + caseName + ".json");
 		FileUtils.writeStringToFile(assignedAuthorJsonFile, assignedAuthorObject.toString(4), Charset.defaultCharset());
 
 		List<Object> joltResult = TransformManager.transformEntryInFile("AuthorParticipation",
@@ -80,7 +78,7 @@ public class AuthorParticipationTest {
 		Assert.assertNotNull("Jolt Practitioner id", joltPractitionerResult.get("id"));
 		joltPractitionerResult.put("id", practitioner.getIdElement().getIdPart()); // ids do not have to match
 		String joltPractitionerJson = JsonUtils.toPrettyJsonString(joltPractitionerResult);
-		File joltPractitionerFile = new File(OUTPUT_PATH + "defaultCaseJoltPractitioner.json");
+		File joltPractitionerFile = new File(OUTPUT_PATH + caseName + "JoltPractitioner.json");
 		FileUtils.writeStringToFile(joltPractitionerFile, joltPractitionerJson, Charset.defaultCharset());
 
 		String practitionerJson = FHIRUtil.encodeToJSON(practitioner);
@@ -91,11 +89,22 @@ public class AuthorParticipationTest {
 		Assert.assertNotNull("Jolt Organization id", joltOrganizationResult.get("id"));
 		joltOrganizationResult.put("id", organization.getIdElement().getIdPart()); // ids do not have to match
 		String joltOrganizationJson = JsonUtils.toPrettyJsonString(joltOrganizationResult);
-		File joltOrganizationFile = new File(OUTPUT_PATH + "defaultCaseJoltOrganization.json");
+		File joltOrganizationFile = new File(OUTPUT_PATH + caseName + "JoltOrganization.json");
 		FileUtils.writeStringToFile(joltOrganizationFile, joltOrganizationJson, Charset.defaultCharset());
 
 		String organizationJson = FHIRUtil.encodeToJSON(organization);
 		JSONAssert.assertEquals("jolt practitioner output", organizationJson, joltOrganizationJson, true);
+	}
 
+	@Test
+	public void testDefault() throws Exception {
+		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
+		runTest(authorGenerator, "defaultCase");
+	}
+
+	@Test
+	public void testFull() throws Exception {
+		AuthorGenerator authorGenerator = AuthorGenerator.getFullInstance();
+		runTest(authorGenerator, "fullCase");
 	}
 }
