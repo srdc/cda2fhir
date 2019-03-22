@@ -264,7 +264,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		AllergyIntolerance fhirAllergyIntolerance = new AllergyIntolerance();
 		result.addResource(fhirAllergyIntolerance);
-//		fhirAllergyIntolerance
 
 		// resource id
 		IdType resourceId = new IdType("AllergyIntolerance", getUniqueId());
@@ -361,6 +360,21 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 										fhirAllergyIntolerance
 												.addCategory(vst.tAllergyCategoryCode2AllergyIntoleranceCategory(
 														((CD) value).getCode()));
+									}
+								}
+							}
+						}
+					}
+
+					// allergyObservation.value[@xsi:type='CD'] -> type
+					if (cdaAllergyObs.getValues() != null && !cdaAllergyObs.getValues().isEmpty()) {
+						for (ANY value : cdaAllergyObs.getValues()) {
+							if (value != null && !value.isSetNullFlavor()) {
+								if (value instanceof CD) {
+									if (vst.tAllergyCategoryCode2AllergyIntoleranceType(
+											((CD) value).getCode()) != null) {
+										fhirAllergyIntolerance.setType(vst
+												.tAllergyCategoryCode2AllergyIntoleranceType(((CD) value).getCode()));
 									}
 								}
 							}
