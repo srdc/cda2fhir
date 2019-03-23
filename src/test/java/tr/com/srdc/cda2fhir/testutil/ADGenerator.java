@@ -2,19 +2,33 @@ package tr.com.srdc.cda2fhir.testutil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.StringType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
+import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
+
+import com.bazaarvoice.jolt.JsonUtils;
 
 public class ADGenerator {
+	private static Map<String, Object> ADDRESS_TYPE = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AddressType.json");
+	private static Map<String, Object> ADDRESS_USE = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AddressUse.json");
+
 	private static final String LINE = "100 Aperture Drive";
+	private static final String LINE_2 = "Suite #1245";
 	private static final String CITY = "Cleveland";
 	private static final String STATE = "Ohio";
+	private static final String COUNTY = "Montgomery";
 	private static final String POSTAL_CODE = "44101";
 
 	private String text;
+	private String use;
 
 	private List<String> lines = new ArrayList<>();
 	private String city;
@@ -23,11 +37,45 @@ public class ADGenerator {
 	private String state;
 	private String postalCode;
 
+	public ADGenerator() {
+	}
+
+	public ADGenerator(JSONObject json) {
+		city = json.optString("city");
+		if (city.isEmpty()) {
+			city = null;
+		}
+		postalCode = json.optString("postalCode");
+		if (postalCode.isEmpty()) {
+			postalCode = null;
+		}
+		county = json.optString("county");
+		if (county.isEmpty()) {
+			county = null;
+		}
+		state = json.optString("state");
+		if (state.isEmpty()) {
+			state = null;
+		}
+		JSONArray lineObject = json.optJSONArray("streetAddressLine");
+		if (lineObject != null) {
+			for (int index = 0; index < lineObject.length(); ++index) {
+				String line = (String) lineObject.opt(index);
+				lines.add(line);
+			}
+		}
+	}
+
 	public AD generate(CDAFactories factories) {
 		AD address = factories.datatype.createAD();
 
 		if (text != null) {
 			address.addText(text);
+		}
+
+		if (use != null) {
+			PostalAddressUse addressUse = PostalAddressUse.get(use);
+			address.getUses().add(addressUse);
 		}
 
 		lines.forEach(line -> {
@@ -68,6 +116,20 @@ public class ADGenerator {
 		return ag;
 	}
 
+	public static ADGenerator getFullInstance() {
+		ADGenerator ag = new ADGenerator();
+
+		ag.lines.add(LINE);
+		ag.lines.add(LINE_2);
+		ag.city = CITY;
+		ag.state = STATE;
+		ag.county = COUNTY;
+		ag.postalCode = POSTAL_CODE;
+		ag.use = "H";
+
+		return ag;
+	}
+
 	public void verify(Address address) {
 		if (text == null) {
 			Assert.assertTrue("Missing address text", !address.hasText());
@@ -91,7 +153,7 @@ public class ADGenerator {
 		if (county == null) {
 			Assert.assertTrue("Missing address county", !address.hasDistrictElement());
 		} else {
-			Assert.assertEquals("Address county", county, address.getDistrictElement());
+			Assert.assertEquals("Address county", county, address.getDistrict());
 		}
 
 		if (country == null) {
@@ -110,6 +172,19 @@ public class ADGenerator {
 			Assert.assertTrue("Missing address postalCode", !address.hasPostalCode());
 		} else {
 			Assert.assertEquals("Address postalCode", postalCode, address.getPostalCode());
+		}
+		if (use != null) {
+			String addressType = (String) ADDRESS_TYPE.get(use);
+			if (addressType != null) {
+				Assert.assertEquals("Address type", addressType, address.getType().toCode());
+			} else {
+				String addressUse = (String) ADDRESS_USE.get(use);
+				if (addressUse != null) {
+					Assert.assertEquals("Address use", addressUse, address.getUse().toCode());
+				} else {
+					Assert.assertEquals("Address default use", "temp", address.getUse().toCode());
+				}
+			}
 		}
 	}
 }

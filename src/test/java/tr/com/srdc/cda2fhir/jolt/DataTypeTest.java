@@ -48,4 +48,9 @@ public class DataTypeTest {
 	public void testTEL() throws Exception {
 		runDataTypeTests("TEL");
 	}
+
+	@Test
+	public void testAD() throws Exception {
+		runDataTypeTests("AD");
+	}
 }

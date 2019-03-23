@@ -60,7 +60,7 @@ public class OrganizationGenerator {
 
 		og.name = NAME;
 
-		ADGenerator adGenerator = ADGenerator.getDefaultInstance();
+		ADGenerator adGenerator = ADGenerator.getFullInstance();
 		TELGenerator telGenerator = TELGenerator.getFullInstance();
 
 		og.adGenerators.add(adGenerator);

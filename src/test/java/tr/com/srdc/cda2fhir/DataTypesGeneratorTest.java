@@ -5,14 +5,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 
+import tr.com.srdc.cda2fhir.testutil.ADGenerator;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
 import tr.com.srdc.cda2fhir.testutil.TELGenerator;
@@ -30,18 +33,28 @@ public class DataTypesGeneratorTest {
 		dtt = new DataTypesTransformerImpl();
 	}
 
+	private static void verify(TELGenerator generator) {
+		TEL tel = generator.generate(factories);
+		ContactPoint contactPoint = dtt.tTEL2ContactPoint(tel);
+		generator.verify(contactPoint);
+	}
+
+	private static void verify(ADGenerator generator) {
+		AD ad = generator.generate(factories);
+		Address address = dtt.AD2Address(ad);
+		generator.verify(address);
+	}
+
 	private static final Map<String, Consumer<JSONObject>> verifications = new HashMap<>();
 	static {
 		verifications.put("TEL", json -> {
 			TELGenerator generator = new TELGenerator(json);
 			verify(generator);
 		});
-	}
-
-	private static void verify(TELGenerator generator) {
-		TEL tel = generator.generate(factories);
-		ContactPoint contactPoint = dtt.tTEL2ContactPoint(tel);
-		generator.verify(contactPoint);
+		verifications.put("AD", json -> {
+			ADGenerator generator = new ADGenerator(json);
+			verify(generator);
+		});
 	}
 
 	private static void runTest(String name) throws Exception {
@@ -70,5 +83,10 @@ public class DataTypesGeneratorTest {
 			generator.set(use);
 			verify(generator);
 		});
+	}
+
+	@Test
+	public void testAD() throws Exception {
+		runTest("AD");
 	}
 }

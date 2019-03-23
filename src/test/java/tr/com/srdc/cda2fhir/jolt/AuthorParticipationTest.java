@@ -20,6 +20,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.AuthorGenerator;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
@@ -43,6 +44,9 @@ public class AuthorParticipationTest {
 
 	private static void runTest(AuthorGenerator authorGenerator, String caseName) throws Exception {
 		Author author = authorGenerator.generate(factories);
+
+		Config.setGenerateNarrative(false);
+		Config.setGenerateDafProfileMetadata(false);
 
 		IEntityResult cda2FhirResult = rt.tAuthor2Practitioner(author, new BundleInfo(rt));
 

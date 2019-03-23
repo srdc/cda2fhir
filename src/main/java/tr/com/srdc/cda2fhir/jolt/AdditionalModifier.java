@@ -82,7 +82,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			if (mappedValue != null) {
 				return Optional.of(mappedValue);
 			}
-			return Optional.empty();
+			return Optional.of(null);
 		}
 	}
 

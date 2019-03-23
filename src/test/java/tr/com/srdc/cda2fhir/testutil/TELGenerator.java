@@ -7,6 +7,7 @@ import java.util.Set;
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
@@ -22,9 +23,13 @@ public class TELGenerator {
 
 	private static final String VALUE = "tel:+1(555)555-1009";
 	private static final String USE = "WP";
+	// private static final String START = "20190106";
+	// private static final String END = "20190606";
 
 	private String value;
 	private String use;
+	private String start;
+	private String end;
 
 	public TELGenerator() {
 	}
@@ -55,8 +60,16 @@ public class TELGenerator {
 			Assert.assertNotNull("Translated use", telUse);
 			telecom.getUses().add(telUse);
 		}
-		;
-
+		if (start != null) {
+			SXCM_TS sxcm = factories.datatype.createSXCM_TS();
+			sxcm.setValue(start);
+			telecom.getUseablePeriods().add(sxcm);
+		}
+		if (end != null) {
+			SXCM_TS sxcm = factories.datatype.createSXCM_TS();
+			sxcm.setValue(end);
+			telecom.getUseablePeriods().add(sxcm);
+		}
 		return telecom;
 	}
 
@@ -73,6 +86,8 @@ public class TELGenerator {
 
 		tg.value = VALUE;
 		tg.use = USE;
+		// tg.start = START;
+		// tg.end = END;
 
 		return tg;
 	}
@@ -105,6 +120,17 @@ public class TELGenerator {
 			String expected = (String) contactPointUseMap.get(use);
 			Assert.assertEquals("Contact point use", expected, actual);
 		}
+		/*
+		 * For some reason xml changes for use attribute when start/end is set. if
+		 * (start != null) { String actual =
+		 * contactPoint.getPeriod().getStartElement().getValueAsString(); String
+		 * expected = start.substring(0, 4) + "-" + start.substring(4, 6) + "-" +
+		 * start.substring(6, 8); Assert.assertEquals("Contact point period start",
+		 * expected, actual); } if (end != null) { String actual =
+		 * contactPoint.getPeriod().getEndElement().getValueAsString(); String expected
+		 * = end.substring(0, 4) + "-" + end.substring(4, 6) + "-" + end.substring(6,
+		 * 8); Assert.assertEquals("Contact point period end", expected, actual); }
+		 */
 	}
 
 	public static Set<String> getAvailableSystems() {
