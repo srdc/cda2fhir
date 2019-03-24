@@ -1,40 +1,19 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import com.bazaarvoice.jolt.JsonUtils;
+import tr.com.srdc.cda2fhir.jolt.Utility;
 
 public class Main {
-	final private static String PATH = "src/test/resources/jolt/";
-
-	@SuppressWarnings("unchecked")
 	private static Map<String, JoltTemplate> createHandlers() {
-		try (Stream<Path> walk = Files.walk(Paths.get(PATH))) {
-			List<Path> jsonPaths = walk.filter(f -> f.toString().endsWith(".json")).collect(Collectors.toList());
-			Map<String, JoltTemplate> templateMap = new HashMap<String, JoltTemplate>();
-			for (Path jsonPath : jsonPaths) {
-				String filename = jsonPath.getFileName().toString();
-				String name = filename.substring(0, filename.length() - 5);
-				Object content = JsonUtils.filepathToObject(jsonPath.toString());
-				if (content instanceof List) {
-					List<Object> template = (List<Object>) content;
-					JoltTemplate joltTemplate = JoltTemplate.getInstance(name, template);
-					templateMap.put(name, joltTemplate);
-				}
-			}
-			return templateMap;
-		} catch (IOException e) {
-			e.printStackTrace();
+		Map<String, List<Object>> rawTemplates = Utility.readTemplates();
+		if (rawTemplates == null) {
 			return null;
 		}
+		return rawTemplates.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey(), e -> JoltTemplate.getInstance(e.getKey(), e.getValue())));
 	}
 
 	public static Table transformationTable(String name) {

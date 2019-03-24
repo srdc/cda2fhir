@@ -159,9 +159,11 @@ public class JoltTemplate {
 		}
 
 		if (assignTable != null) {
-			Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
-					.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
-			assignTable.updateResourceType(resourceType, otherTargets);
+			if (resourceType != null) {
+				Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
+						.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
+				assignTable.updateResourceType(resourceType, otherTargets);
+			}
 			table.addTable(assignTable);
 		}
 
