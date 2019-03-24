@@ -1,0 +1,32 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"given": "MANY",
+			"prefix": "MANY",
+			"suffix": "MANY"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"use": "use",
+			"family": "family",
+			"given": {
+				"*": "given[]"
+			},
+			"prefix": {
+				"*": "prefix[]"
+			},
+			"suffix": {
+				"*": "suffix[]"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"use": "=valueSetAdapter('NameUse','usual',@0)"
+		}
+	}
+]

@@ -1,11 +1,11 @@
 package tr.com.srdc.cda2fhir.testutil;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.ContactPoint;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
@@ -38,11 +38,9 @@ public class TELGenerator {
 		this.value = value;
 	}
 
-	public TELGenerator(JSONObject json) {
-		value = json.optString("value");
-		if (value.isEmpty()) {
-			value = null;
-		}
+	public TELGenerator(Map<String, Object> json) {
+		value = (String) json.get("value");
+		use = (String) json.get("use");
 	}
 
 	public void set(String use) {
@@ -57,7 +55,9 @@ public class TELGenerator {
 		}
 		if (use != null) {
 			TelecommunicationAddressUse telUse = TelecommunicationAddressUse.get(use);
-			Assert.assertNotNull("Translated use", telUse);
+			if (telUse == null) {
+				throw new TestSetupException("Invalid CDA TEL use enumeration.");
+			}
 			telecom.getUses().add(telUse);
 		}
 		if (start != null) {
@@ -118,6 +118,9 @@ public class TELGenerator {
 		} else {
 			String actual = contactPoint.getUse().toCode();
 			String expected = (String) contactPointUseMap.get(use);
+			if (expected == null) {
+				expected = "temp";
+			}
 			Assert.assertEquals("Contact point use", expected, actual);
 		}
 		/*
@@ -131,6 +134,37 @@ public class TELGenerator {
 		 * = end.substring(0, 4) + "-" + end.substring(4, 6) + "-" + end.substring(6,
 		 * 8); Assert.assertEquals("Contact point period end", expected, actual); }
 		 */
+	}
+
+	public Map<String, Object> toJson() {
+		Map<String, Object> result = new LinkedHashMap<>();
+
+		if (value != null) {
+			String[] valuePieces = value.split(":");
+
+			if (valuePieces.length > 1) {
+				String system = (String) contactPointSystemMap.get(valuePieces[0]);
+				if (system == null) {
+					system = Config.DEFAULT_CONTACT_POINT_SYSTEM.toCode();
+				}
+				result.put("system", system);
+				result.put("value", valuePieces[1]);
+			} else {
+				String system = Config.DEFAULT_CONTACT_POINT_SYSTEM.toCode();
+				result.put("system", system);
+				result.put("value", value);
+			}
+		}
+		if (use != null) {
+			String jsonUse = (String) contactPointUseMap.get(use);
+			if (jsonUse == null) {
+				jsonUse = "temp";
+			}
+			result.put("use", jsonUse);
+		}
+		if (result.isEmpty())
+			return null;
+		return result;
 	}
 
 	public static Set<String> getAvailableSystems() {

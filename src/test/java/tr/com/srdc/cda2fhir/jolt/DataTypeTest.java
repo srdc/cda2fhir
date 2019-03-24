@@ -14,8 +14,7 @@ import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
 
 public class DataTypeTest {
 	private static void runDataTypeTests(String dataType) throws Exception {
-		String templatePath = String.format("src/test/resources/jolt/data-type/%s.json", dataType);
-		List<Object> chainrSpecJSON = JsonUtils.filepathToList(templatePath);
+		List<Object> chainrSpecJSON = OrgJsonUtil.getDataTypeJoltTemplate(dataType);
 		Chainr chainr = Chainr.fromSpec(chainrSpecJSON);
 
 		JSONArray testCases = OrgJsonUtil.getDataTypeTestCases(dataType);
@@ -52,5 +51,10 @@ public class DataTypeTest {
 	@Test
 	public void testAD() throws Exception {
 		runDataTypeTests("AD");
+	}
+
+	@Test
+	public void testPN() throws Exception {
+		runDataTypeTests("PN");
 	}
 }

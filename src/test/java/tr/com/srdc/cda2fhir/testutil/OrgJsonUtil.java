@@ -3,12 +3,20 @@ package tr.com.srdc.cda2fhir.testutil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
+
+import com.bazaarvoice.jolt.Chainr;
+import com.bazaarvoice.jolt.JsonUtils;
 
 public class OrgJsonUtil {
 	final private static String[] SECTION_PATH = { "ClinicalDocument", "component", "structuredBody" };
@@ -122,5 +130,49 @@ public class OrgJsonUtil {
 		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
 		JSONArray testCases = new JSONArray(content);
 		return testCases;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void copyStringArray(Map<String, Object> source, List<String> target, String key) {
+		List<Object> sourceArray = (List<Object>) source.get(key);
+		if (sourceArray != null) {
+			sourceArray.forEach(e -> {
+				String value = (String) e;
+				if (value != null) {
+					target.add(value);
+				}
+			});
+		}
+	}
+
+	public static List<Object> getDataTypeJoltTemplate(String dataType) throws Exception {
+		String templatePath = String.format("src/test/resources/jolt/data-type/%s.json", dataType);
+		List<Object> template = JsonUtils.filepathToList(templatePath);
+		return template;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Map<String, Object>> getDataTypeGeneratorTestCases(String dataType) throws Exception {
+		String testCasesPath = String.format("src/test/resources/jolt-verify/data-type/%s.json", dataType);
+		List<Object> rawTestCases = JsonUtils.filepathToList(testCasesPath);
+		List<Object> template = getDataTypeJoltTemplate(dataType);
+		Map<String, Object> transform = (Map<String, Object>) template.get(0);
+		Chainr chainr = null;
+		if ("cardinality".equals(transform.get("operation"))) {
+			chainr = Chainr.fromSpec(Collections.singletonList(transform));
+		}
+		final Chainr loopChainr = chainr;
+		return rawTestCases.stream().map(rawCase -> {
+			Map<String, Object> testCase = (Map<String, Object>) rawCase;
+			Map<String, Object> input = (Map<String, Object>) testCase.get("input");
+			Map<String, Object> expected = (Map<String, Object>) testCase.get("expected");
+			if (loopChainr != null) {
+				input = (Map<String, Object>) loopChainr.transform(input);
+			}
+			Map<String, Object> result = new LinkedHashMap<>();
+			result.put("input", input);
+			result.put("expected", expected);
+			return result;
+		}).collect(Collectors.toList());
 	}
 }

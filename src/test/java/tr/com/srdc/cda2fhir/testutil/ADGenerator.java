@@ -1,13 +1,14 @@
 package tr.com.srdc.cda2fhir.testutil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.StringType;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
@@ -40,30 +41,21 @@ public class ADGenerator {
 	public ADGenerator() {
 	}
 
-	public ADGenerator(JSONObject json) {
-		city = json.optString("city");
-		if (city.isEmpty()) {
-			city = null;
-		}
-		postalCode = json.optString("postalCode");
-		if (postalCode.isEmpty()) {
-			postalCode = null;
-		}
-		county = json.optString("county");
-		if (county.isEmpty()) {
-			county = null;
-		}
-		state = json.optString("state");
-		if (state.isEmpty()) {
-			state = null;
-		}
-		JSONArray lineObject = json.optJSONArray("streetAddressLine");
+	@SuppressWarnings("unchecked")
+	public ADGenerator(Map<String, Object> json) {
+		city = (String) json.get("city");
+		Object rawPostalCode = json.get("postalCode");
+		postalCode = rawPostalCode == null ? null : rawPostalCode.toString();
+		county = (String) json.get("county");
+		state = (String) json.get("state");
+		List<Object> lineObject = (List<Object>) json.get("streetAddressLine");
 		if (lineObject != null) {
-			for (int index = 0; index < lineObject.length(); ++index) {
-				String line = (String) lineObject.opt(index);
-				lines.add(line);
-			}
+			lineObject.forEach(element -> lines.add((String) element));
 		}
+	}
+
+	public void setUse(String use) {
+		this.use = use;
 	}
 
 	public AD generate(CDAFactories factories) {
@@ -186,5 +178,50 @@ public class ADGenerator {
 				}
 			}
 		}
+	}
+
+	public Map<String, Object> toJson() {
+		Map<String, Object> result = new LinkedHashMap<>();
+
+		if (!lines.isEmpty()) {
+			result.put("line", new ArrayList<Object>(lines));
+		}
+		if (city != null) {
+			result.put("city", city);
+		}
+		if (county != null) {
+			result.put("district", county);
+		}
+		if (country != null) {
+			result.put("country", country);
+		}
+		if (state != null) {
+			result.put("state", state);
+		}
+		if (postalCode != null) {
+			result.put("postalCode", postalCode);
+		}
+		if (use != null) {
+			String addressType = (String) ADDRESS_TYPE.get(use);
+			if (addressType != null) {
+				result.put("type", addressType);
+			} else {
+				String addressUse = (String) ADDRESS_USE.get(use);
+				if (addressUse == null) {
+					addressUse = "temp";
+				}
+				result.put("use", addressUse);
+			}
+		}
+		if (result.isEmpty())
+			return null;
+		return result;
+	}
+
+	public static Set<String> getAvailableUses() {
+		Set<String> result = new HashSet<>();
+		result.addAll(ADDRESS_TYPE.keySet());
+		result.addAll(ADDRESS_USE.keySet());
+		return result;
 	}
 }

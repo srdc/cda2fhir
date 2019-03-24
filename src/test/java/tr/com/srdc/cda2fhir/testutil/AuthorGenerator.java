@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Organization;
-import org.openhealthtools.mdht.uml.cda.impl.PersonImpl;
+import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
@@ -21,19 +21,15 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 public class AuthorGenerator {
 	private static final String DEFAULT_CODE_CODE = "363LA2100X";
 	private static final String DEFAULT_CODE_PRINTNAME = "Nurse Practitioner - Acute Care";
-	private static final String DEFAULT_GIVEN_NAME = "JOE";
-	private static final String DEFAULT_FAMILY_NAME = "DOE";
 	private static final String DEFAULT_ID_ROOT = "2.5.6.77";
 	private static final String DEFAULT_ID_EXTENSION = "1234545";
 
 	private List<Pair<String, String>> ids = new ArrayList<Pair<String, String>>();
 
-	private String familyName;
-	private List<String> givenNames = new ArrayList<String>();
-
 	private String codeCode;
 	private String codePrintName;
 
+	private PNGenerator pnGenerator;
 	private OrganizationGenerator organizationGenerator;
 
 	public Author generate(CDAFactories factories) {
@@ -53,24 +49,17 @@ public class AuthorGenerator {
 			}
 		}
 
-		if (familyName != null || !givenNames.isEmpty()) {
-			PN pn = factories.datatype.createPN();
-
-			if (familyName != null) {
-				pn.addFamily(familyName);
-			}
-			givenNames.stream().forEach(r -> pn.addGiven(r));
-
-			PersonImpl person = (PersonImpl) factories.base.createPerson();
-			person.getNames().add(pn);
-
-			assignedAuthor.setAssignedPerson(person);
-		}
-
 		if (codeCode != null) {
 			CE ce = factories.datatype.createCE(codeCode, "2.16.840.1.11388 3.6.101",
 					"Healthcare Provider Taxonomy (HIPAA)", codePrintName);
 			assignedAuthor.setCode(ce);
+		}
+
+		if (pnGenerator != null) {
+			PN pn = pnGenerator.generate(factories);
+			Person person = factories.base.createPerson();
+			person.getNames().add(pn);
+			assignedAuthor.setAssignedPerson(person);
 		}
 
 		if (organizationGenerator != null) {
@@ -81,14 +70,6 @@ public class AuthorGenerator {
 		author.setAssignedAuthor(assignedAuthor);
 
 		return author;
-	}
-
-	public void setFamilyName(String familyName) {
-		this.familyName = familyName;
-	}
-
-	public void addGivenName(String givenName) {
-		givenNames.add(givenName);
 	}
 
 	public void setCode(String code, String printName) {
@@ -111,11 +92,10 @@ public class AuthorGenerator {
 	public static AuthorGenerator getDefaultInstance() {
 		AuthorGenerator aeg = new AuthorGenerator();
 
-		aeg.setFamilyName(DEFAULT_FAMILY_NAME);
-		aeg.addGivenName(DEFAULT_GIVEN_NAME);
 		aeg.addId(DEFAULT_ID_ROOT, DEFAULT_ID_EXTENSION);
 		aeg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
 
+		aeg.pnGenerator = PNGenerator.getDefaultInstance();
 		aeg.organizationGenerator = OrganizationGenerator.getDefaultInstance();
 
 		return aeg;
@@ -124,20 +104,22 @@ public class AuthorGenerator {
 	public static AuthorGenerator getFullInstance() {
 		AuthorGenerator aeg = new AuthorGenerator();
 
-		aeg.setFamilyName(DEFAULT_FAMILY_NAME);
-		aeg.addGivenName(DEFAULT_GIVEN_NAME);
 		aeg.addId(DEFAULT_ID_ROOT, DEFAULT_ID_EXTENSION);
 		aeg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
 
+		aeg.pnGenerator = PNGenerator.getFullInstance();
 		aeg.organizationGenerator = OrganizationGenerator.getFullInstance();
 
 		return aeg;
 	}
 
 	public void verify(Practitioner practitioner) {
-		HumanName humanName = practitioner.getName().get(0);
-		Assert.assertEquals("Expect the correct family name", familyName, humanName.getFamily());
-		Assert.assertEquals("Expect the correct given name", givenNames.get(0), humanName.getGiven().get(0).getValue());
+		if (pnGenerator == null) {
+			Assert.assertTrue("Missing practioner name", !practitioner.hasName());
+		} else {
+			HumanName humanName = practitioner.getName().get(0);
+			pnGenerator.verify(humanName);
+		}
 
 		if (!ids.isEmpty()) {
 			Identifier identifier = practitioner.getIdentifier().get(0);

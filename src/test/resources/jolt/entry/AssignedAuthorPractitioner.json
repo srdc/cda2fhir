@@ -16,10 +16,7 @@
 			},
 			"assignedPerson": {
 				"name": {
-					"*": {
-						"family": "name[&1].family",
-						"given": "name[&1].given[]"
-					}
+					"*": "name[].->PN"
 				}
 			}
 		}

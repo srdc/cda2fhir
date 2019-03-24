@@ -51,7 +51,7 @@
 	{
 		"input": {
 			"value": "fax:+1(555)666-1009",
-			"use": "UNK"
+			"use": "EC"
 		},
 		"expected": {
 			"system": "fax",
