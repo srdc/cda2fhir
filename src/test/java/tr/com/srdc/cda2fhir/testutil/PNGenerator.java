@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.HumanName;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
@@ -24,6 +25,7 @@ public class PNGenerator {
 	private static final String PREFIX = "Dr";
 	private static final String SUFFIX = "Jr";
 
+	private String nullFlavor;
 	private String use;
 
 	private String family;
@@ -46,8 +48,16 @@ public class PNGenerator {
 		OrgJsonUtil.copyStringArray(json, suffixes, "suffix");
 	}
 
+	public void setNullFlavor() {
+		nullFlavor = "UNK";
+	}
+
 	public void setUse(String use) {
 		this.use = use;
+	}
+
+	public boolean hasNullFlavor() {
+		return nullFlavor != null;
 	}
 
 	public PN generate(CDAFactories factories) {
@@ -68,6 +78,14 @@ public class PNGenerator {
 		givens.forEach(given -> pn.addGiven(given));
 		prefixes.forEach(prefix -> pn.addPrefix(prefix));
 		suffixes.forEach(suffix -> pn.addSuffix(suffix));
+
+		if (nullFlavor != null) {
+			NullFlavor nf = NullFlavor.get(nullFlavor);
+			if (nf == null) {
+				throw new TestSetupException("Invalid null flavor enumeration.");
+			}
+			pn.setNullFlavor(nf);
+		}
 
 		return pn;
 	}
@@ -97,6 +115,11 @@ public class PNGenerator {
 	}
 
 	public void verify(HumanName humanName) {
+		if (nullFlavor != null) {
+			Assert.assertNull("Human name", humanName);
+			return;
+		}
+
 		if (use != null) {
 			String expected = (String) NAME_USE.get(use);
 			String actual = humanName.getUse().toCode();
@@ -150,7 +173,7 @@ public class PNGenerator {
 	public Map<String, Object> toJson() {
 		Map<String, Object> result = new LinkedHashMap<>();
 
-		if (use != null) {
+		if (use != null && nullFlavor == null) {
 			String field = (String) NAME_USE.get(use);
 			if (field == null) {
 				field = "usual";
@@ -158,19 +181,19 @@ public class PNGenerator {
 			result.put("use", field);
 		}
 
-		if (family != null) {
+		if (family != null && nullFlavor == null) {
 			result.put("family", family);
 		}
 
-		if (!givens.isEmpty()) {
+		if (!givens.isEmpty() && nullFlavor == null) {
 			result.put("given", new ArrayList<>(givens));
 		}
 
-		if (!prefixes.isEmpty()) {
+		if (!prefixes.isEmpty() && nullFlavor == null) {
 			result.put("prefix", new ArrayList<>(prefixes));
 		}
 
-		if (!suffixes.isEmpty()) {
+		if (!suffixes.isEmpty() && nullFlavor == null) {
 			result.put("suffix", new ArrayList<>(suffixes));
 		}
 		if (result.isEmpty())

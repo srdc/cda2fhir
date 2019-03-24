@@ -8,18 +8,31 @@
 		}
 	},
 	{
+		"operation": "default",
+		"spec": {
+			"nullFlavor": ""
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
-			"use": "use",
-			"family": "family",
-			"given": {
-				"*": "given[]"
-			},
-			"prefix": {
-				"*": "prefix[]"
-			},
-			"suffix": {
-				"*": "suffix[]"
+			"nullFlavor": {
+				"": {
+					"@2": {
+						"use": "use",
+						"family": "family",
+						"given": {
+							"*": "given[]"
+						},
+						"prefix": {
+							"*": "prefix[]"
+						},
+						"suffix": {
+							"*": "suffix[]"
+						}
+					}
+				},
+				"*": null
 			}
 		}
 	},

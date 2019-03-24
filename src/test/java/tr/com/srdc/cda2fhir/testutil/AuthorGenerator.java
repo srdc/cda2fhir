@@ -89,6 +89,10 @@ public class AuthorGenerator {
 		ids.add(Pair.of(root, extension));
 	}
 
+	public PNGenerator getPNGenerator() {
+		return pnGenerator;
+	}
+
 	public static AuthorGenerator getDefaultInstance() {
 		AuthorGenerator aeg = new AuthorGenerator();
 
@@ -114,7 +118,7 @@ public class AuthorGenerator {
 	}
 
 	public void verify(Practitioner practitioner) {
-		if (pnGenerator == null) {
+		if (pnGenerator == null || pnGenerator.hasNullFlavor()) {
 			Assert.assertTrue("Missing practioner name", !practitioner.hasName());
 		} else {
 			HumanName humanName = practitioner.getName().get(0);

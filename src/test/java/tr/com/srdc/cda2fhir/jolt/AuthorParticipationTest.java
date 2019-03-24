@@ -111,4 +111,11 @@ public class AuthorParticipationTest {
 		AuthorGenerator authorGenerator = AuthorGenerator.getFullInstance();
 		runTest(authorGenerator, "fullCase");
 	}
+
+	@Test
+	public void testDefaultNameNullFlavor() throws Exception {
+		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
+		authorGenerator.getPNGenerator().setNullFlavor();
+		runTest(authorGenerator, "nameNullFlavorCase");
+	}
 }
