@@ -29,18 +29,20 @@ public class EMFUtil {
 		}
 		for (Entry entry : featureMap) {
 			EStructuralFeature feature = entry.getEStructuralFeature();
-
 			if (feature instanceof EReference) {
 				AnyType anyType = (AnyType) entry.getValue();
-				String id = findAttribute(anyType.getAnyAttribute(), "id");
-				if (id != null) {
-					FeatureMap idValueMap = anyType.getMixed();
-					if (idValueMap != null && !idValueMap.isEmpty()) {
-						Object value = idValueMap.get(0).getValue();
-						if (value != null) {
-							result.put(id, value.toString());
+				if ("content".equalsIgnoreCase(feature.getName())) {
+					String id = findAttribute(anyType.getAnyAttribute(), "id");
+					if (id != null) {
+						FeatureMap idValueMap = anyType.getMixed();
+						if (idValueMap != null && !idValueMap.isEmpty()) {
+							Object value = idValueMap.get(0).getValue();
+							if (value != null) {
+								result.put(id, value.toString());
+							}
 						}
 					}
+					continue;
 				}
 				putReferences(anyType.getMixed(), result);
 			}
