@@ -30,7 +30,7 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 public interface ICDATransformer {
 	/**
 	 * Returns a Reference for the patient of the CDA document
-	 * 
+	 *
 	 * @return A Reference that references the patient (i.e.
 	 *         recordTarget/patientRole) of the document
 	 */
@@ -38,7 +38,7 @@ public interface ICDATransformer {
 
 	/**
 	 * A consistent unique resource id generator
-	 * 
+	 *
 	 * @return a unique resource id
 	 */
 	String getUniqueId();
@@ -46,7 +46,7 @@ public interface ICDATransformer {
 	/**
 	 * Sets the resource id generator format, which is either an incremental COUNTER
 	 * or UUID
-	 * 
+	 *
 	 * @param idGen The id generator enumeration to be set
 	 */
 	void setIdGenerator(IdGeneratorEnum idGen);
@@ -54,12 +54,12 @@ public interface ICDATransformer {
 	/**
 	 * Transforms a Clinical Document Architecture (CDA) instance to a Bundle of
 	 * corresponding FHIR resources
-	 * 
+	 *
 	 * @param cda             A ContinuityOfCareDocument (CDA) instance to be
 	 *                        transformed
 	 * @param documentBody    The base64 decoded body from the original document
 	 * @param assemblerDevice An identifier with the name of the device doing the
-	 *                        assembling.
+	 * 
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CDA
 	 *         document and all other resources that are referenced within the
 	 *         Composition.

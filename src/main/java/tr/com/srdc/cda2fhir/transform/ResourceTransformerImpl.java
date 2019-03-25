@@ -48,6 +48,7 @@ import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
 import org.hl7.fhir.dstu3.model.Composition.DocumentConfidentiality;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Composition.SectionMode;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.DateTimeType;
@@ -263,6 +264,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		AllergyIntolerance fhirAllergyIntolerance = new AllergyIntolerance();
 		result.addResource(fhirAllergyIntolerance);
+//		fhirAllergyIntolerance
 
 		// resource id
 		IdType resourceId = new IdType("AllergyIntolerance", getUniqueId());
@@ -775,6 +777,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (fhirComp != null) {
 			fhirComp.setId(new IdType("Composition", getUniqueId()));
 			result.addResource(fhirComp);
+
+			CodeableConcept classConcept = new CodeableConcept();
+			Coding classCoding = new Coding("http://hl7.org/fhir/ValueSet/doc-classcodes", "LP173421-7", "Note");
+			classConcept.addCoding(classCoding);
+			fhirComp.setClass_(classConcept);
 
 			// id -> identifier
 			if (cdaClinicalDocument.getId() != null && !cdaClinicalDocument.getId().isSetNullFlavor()) {
@@ -1639,8 +1646,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// TODO: in STU3 this property at this level was removed. Figure out how
 		// to map this to STU3
 		// fhirImmunization.setReported(Config.DEFAULT_IMMUNIZATION_REPORTED);
-
 		return result;
+
 	}
 
 	@Override
@@ -3037,6 +3044,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (fhirText != null && Config.getGenerateNarrative())
 				fhirSec.setText(fhirText);
 		}
+
+		fhirSec.setMode(SectionMode.SNAPSHOT);
 
 		return fhirSec;
 	}
