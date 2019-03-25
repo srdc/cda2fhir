@@ -3,10 +3,8 @@ package tr.com.srdc.cda2fhir.testutil;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.HumanName;
-import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
@@ -21,10 +19,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 public class AuthorGenerator {
 	private static final String DEFAULT_CODE_CODE = "363LA2100X";
 	private static final String DEFAULT_CODE_PRINTNAME = "Nurse Practitioner - Acute Care";
-	private static final String DEFAULT_ID_ROOT = "2.5.6.77";
-	private static final String DEFAULT_ID_EXTENSION = "1234545";
 
-	private List<Pair<String, String>> ids = new ArrayList<Pair<String, String>>();
+	private List<IDGenerator> idGenerators = new ArrayList<>();
 
 	private String codeCode;
 	private String codePrintName;
@@ -37,17 +33,10 @@ public class AuthorGenerator {
 
 		AssignedAuthor assignedAuthor = factories.base.createAssignedAuthor();
 
-		for (Pair<String, String> id : ids) {
-			String left = id.getLeft();
-			String right = id.getRight();
-			if (right == null) {
-				II ii = factories.datatype.createII(left);
-				assignedAuthor.getIds().add(ii);
-			} else {
-				II ii = factories.datatype.createII(left, right);
-				assignedAuthor.getIds().add(ii);
-			}
-		}
+		idGenerators.forEach(idGenerator -> {
+			II ii = idGenerator.generate(factories);
+			assignedAuthor.getIds().add(ii);
+		});
 
 		if (codeCode != null) {
 			CE ce = factories.datatype.createCE(codeCode, "2.16.840.1.11388 3.6.101",
@@ -77,18 +66,6 @@ public class AuthorGenerator {
 		codePrintName = printName;
 	}
 
-	public void setCode() {
-		setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
-	}
-
-	public void addId(String root) {
-		ids.add(Pair.of(root, null));
-	}
-
-	public void addId(String root, String extension) {
-		ids.add(Pair.of(root, extension));
-	}
-
 	public PNGenerator getPNGenerator() {
 		return pnGenerator;
 	}
@@ -96,7 +73,8 @@ public class AuthorGenerator {
 	public static AuthorGenerator getDefaultInstance() {
 		AuthorGenerator aeg = new AuthorGenerator();
 
-		aeg.addId(DEFAULT_ID_ROOT, DEFAULT_ID_EXTENSION);
+		aeg.idGenerators.add(IDGenerator.getNextInstance());
+
 		aeg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
 
 		aeg.pnGenerator = PNGenerator.getDefaultInstance();
@@ -108,7 +86,11 @@ public class AuthorGenerator {
 	public static AuthorGenerator getFullInstance() {
 		AuthorGenerator aeg = new AuthorGenerator();
 
-		aeg.addId(DEFAULT_ID_ROOT, DEFAULT_ID_EXTENSION);
+		aeg.idGenerators.add(IDGenerator.getNextInstance());
+		aeg.idGenerators.add(IDGenerator.getNextInstance());
+		aeg.idGenerators.add(IDGenerator.getNextInstance());
+		aeg.idGenerators.add(IDGenerator.getNextInstance());
+
 		aeg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
 
 		aeg.pnGenerator = PNGenerator.getFullInstance();
@@ -125,18 +107,19 @@ public class AuthorGenerator {
 			pnGenerator.verify(humanName);
 		}
 
-		if (!ids.isEmpty()) {
-			Identifier identifier = practitioner.getIdentifier().get(0);
-			Pair<String, String> id = ids.get(0);
-			Assert.assertEquals("Expect the correct id system", "urn:oid:" + id.getLeft(), identifier.getSystem());
-			Assert.assertEquals("Expect the correct id value", id.getRight(), identifier.getValue());
+		if (!idGenerators.isEmpty()) {
+			for (int index = 0; index < idGenerators.size(); ++index) {
+				idGenerators.get(index).verify(practitioner.getIdentifier().get(index));
+			}
+		} else {
+			Assert.assertTrue("No practitioner identifier", !practitioner.hasIdentifier());
 		}
 	}
 
 	public void verify(PractitionerRole role) {
 		Coding code = role.getCode().get(0).getCoding().get(0);
-		Assert.assertEquals("Expect the role code", codeCode, code.getCode());
-		Assert.assertEquals("Expect the role print name", codePrintName, code.getDisplay());
+		Assert.assertEquals("Role code", codeCode, code.getCode());
+		Assert.assertEquals("Role print name", codePrintName, code.getDisplay());
 	}
 
 	public void verify(org.hl7.fhir.dstu3.model.Organization organization) {
