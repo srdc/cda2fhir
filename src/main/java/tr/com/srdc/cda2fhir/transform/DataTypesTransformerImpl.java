@@ -245,14 +245,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 
 		if (ed != null) {
 
-			// Getting Text Values.
-			String originalText = ed.getText();
-			if (!originalText.equals("")) {
-				return originalText;
-			}
-
 			if (idedAnnotations != null) {
-				// If no text try reference
+				// Try to pull the reference.
 				TEL tel = ed.getReference();
 				if (!tel.equals(null)) {
 					String value = tel.getValue();
@@ -263,6 +257,13 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 
 				}
 			}
+
+			// If not fall back on text value.
+			String originalText = ed.getText();
+			if (!originalText.equals("")) {
+				return originalText;
+			}
+
 		}
 		return null;
 	}
