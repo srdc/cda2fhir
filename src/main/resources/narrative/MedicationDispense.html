@@ -4,31 +4,32 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div>
-<table class="hapiPropertyTable" th:each="dosage: ${resource.dosageInstruction}">
-	<tbody>
-		<tr>
-			<th>Dosage Instruction</th>
-		</tr>
-		<tr th:if="${dosage.timing}">
-			<td>Timing</td>
-			<td th:narrative="${dosage.timing}"></td>
-		</tr>
-		<tr th:if="${dosage.dose}">
-			<td>Dose</td>
-			<td th:narrative="${dosage.timing}"></td>
-		</tr>
-	</tbody>
-</table>
+	<div>
+		<table class="hapiPropertyTable"
+			th:each="dosage: ${resource.dosageInstruction}">
+			<tbody>
+				<tr>
+					<th>Dosage Instruction</th>
+				</tr>
+				<tr th:if="${dosage.timing}">
+					<td>Timing</td>
+					<td th:narrative="${dosage.timing}"></td>
+				</tr>
+				<tr th:if="${dosage.dose}">
+					<td>Dose</td>
+					<td th:narrative="${dosage.timing}"></td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->

@@ -21,5 +21,5 @@ package tr.com.srdc.cda2fhir.util;
  */
 
 public enum IdGeneratorEnum {
-        COUNTER, UUID
+	COUNTER, UUID
 }

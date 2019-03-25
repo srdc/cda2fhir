@@ -20,54 +20,51 @@ package tr.com.srdc.cda2fhir;
  * #L%
  */
 
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.impl.ParticipantRoleImpl;
 import org.openhealthtools.mdht.uml.cda.impl.PlayingEntityImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
+import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+
 public class LocationTest {
 
-    private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
-    private static DatatypesFactory cdaTypeFactory;
+	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
+	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
-    @BeforeClass
+	@BeforeClass
 	public static void init() {
-		CDAUtil.loadPackages();			
+		CDAUtil.loadPackages();
 		cdaTypeFactory = DatatypesFactoryImpl.init();
-		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();		
-    }
- 
+		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
+	}
 
-    @Test
-    public void testLocations() throws Exception {
-      
-    	// Make a participant.
-    	ParticipantRoleImpl pr = (ParticipantRoleImpl) cdaFactory.createParticipantRole();
-    	PlayingEntityImpl	pe = (PlayingEntityImpl) cdaFactory.createPlayingEntity();
-    	
-    	II identifier = cdaTypeFactory.createII();
-    	identifier.setRoot("sampleRoot");
+	@Test
+	public void testLocations() throws Exception {
 
-    	pr.getIds().add(identifier);
-    	
-    	pr.setPlayingEntity(pe);
-    	
-        // Transform from CDA to FHIR.
-        org.hl7.fhir.dstu3.model.Location fhirLocation = rt.tParticipantRole2Location(pr);
+		// Make a participant.
+		ParticipantRoleImpl pr = (ParticipantRoleImpl) cdaFactory.createParticipantRole();
+		PlayingEntityImpl pe = (PlayingEntityImpl) cdaFactory.createPlayingEntity();
 
-        Assert.assertEquals("No identifier on FHIR object.",0,fhirLocation.getIdentifier().size());
-        
-    }
+		II identifier = cdaTypeFactory.createII();
+		identifier.setRoot("sampleRoot");
 
+		pr.getIds().add(identifier);
+
+		pr.setPlayingEntity(pe);
+
+		// Transform from CDA to FHIR.
+		org.hl7.fhir.dstu3.model.Location fhirLocation = rt.tParticipantRole2Location(pr);
+
+		Assert.assertEquals("No identifier on FHIR object.", 0, fhirLocation.getIdentifier().size());
+
+	}
 
 }

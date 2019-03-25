@@ -10,12 +10,12 @@ import tr.com.srdc.cda2fhir.transform.util.ICDAIIMap;
 import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 
 public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
-	private Map<String, T> rootMap; 
+	private Map<String, T> rootMap;
 	private Map<String, Map<String, T>> extensionMaps;
-	
+
 	public void put(II id, T value) {
 		String root = id.getRoot();
-		if (root != null) {		
+		if (root != null) {
 			String extension = id.getExtension();
 			if (extension != null) {
 				if (extensionMaps == null) {
@@ -37,11 +37,11 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	}
 
 	public void put(List<II> ids, T value) {
-		for (II id: ids) {
+		for (II id : ids) {
 			put(id, value);
 		}
 	}
-	
+
 	public void put(ICDAIIMapSource<T> source) {
 		if (rootMap == null) {
 			rootMap = new HashMap<String, T>();
@@ -52,9 +52,9 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 		}
 		source.putExtensionValuesTo(extensionMaps);
 	}
-		
+
 	private T get(String root, String extension) {
-		if (root != null) {		
+		if (root != null) {
 			if (extension != null) {
 				if (extensionMaps == null) {
 					return null;
@@ -71,7 +71,7 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public T get(II ii) {
 		if (ii == null) {
@@ -83,7 +83,7 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	@Override
 	public T get(List<II> iis) {
 		if (iis != null) {
-			for (II ii: iis) {
+			for (II ii : iis) {
 				T result = get(ii);
 				if (result != null) {
 					return result;

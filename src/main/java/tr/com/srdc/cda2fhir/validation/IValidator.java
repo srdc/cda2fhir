@@ -32,24 +32,36 @@ import ca.uhn.fhir.validation.ValidationResult;
 
 public interface IValidator {
 
-    /**
-     * Validates the FHIR resource(s) contained in the FHIR Bundle by using the validation engine supplied by hl7.org
-     * @param bundle A FHIR Bundle instance containing the FHIR resource(s) to be validated. If the (DAF) profile is supplied in meta.profile attribute of contained resources, then (DAF) profile validation is enable automatically.
-     * @return An output stream containing the validation result(s). The validation results are contained in separate div elements.
-     */
-    OutputStream validateBundle(Bundle bundle);
-    
-    /**
-     * Validates a FHIR IBaseResource instance by using the validation engine supplied by hl7.org
-     * @param resource A FHIR IBaseResource instance. If the (DAF) profile is supplied in meta.profile attribute, then (DAF) profile validation is enable automatically.
-     * @return An output stream containing the validation result. The validation result is contained in div element.
-     */
-    OutputStream validateResource(IBaseResource resource);
+	/**
+	 * Validates the FHIR resource(s) contained in the FHIR Bundle by using the
+	 * validation engine supplied by hl7.org
+	 *
+	 * @param bundle A FHIR Bundle instance containing the FHIR resource(s) to be
+	 *               validated. If the (DAF) profile is supplied in meta.profile
+	 *               attribute of contained resources, then (DAF) profile validation
+	 *               is enable automatically.
+	 * @return An output stream containing the validation result(s). The validation
+	 *         results are contained in separate div elements.
+	 */
+	OutputStream validateBundle(Bundle bundle);
 
-    /**
-     * Validates a FHIR File
-     * @param filepath The path of the file.
-     * @return An output object that contains validation results.
-     */
-    ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException;
+	/**
+	 * Validates a FHIR IBaseResource instance by using the validation engine
+	 * supplied by hl7.org
+	 *
+	 * @param resource A FHIR IBaseResource instance. If the (DAF) profile is
+	 *                 supplied in meta.profile attribute, then (DAF) profile
+	 *                 validation is enable automatically.
+	 * @return An output stream containing the validation result. The validation
+	 *         result is contained in div element.
+	 */
+	OutputStream validateResource(IBaseResource resource);
+
+	/**
+	 * Validates a FHIR File
+	 *
+	 * @param filepath The path of the file.
+	 * @return An output object that contains validation results.
+	 */
+	ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException;
 }

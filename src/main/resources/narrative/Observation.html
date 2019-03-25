@@ -4,44 +4,45 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div>
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${resource.category} and ${not resource.category.empty}">
-				<td>Category</td>
-				<td th:narrative="${resource.category[0]}"></td>
-			</tr>
-			<tr th:if="${resource.code} and ${not resource.code.empty}">
-				<td>Code</td>
-				<td th:narrative="${resource.code}"></td>
-			</tr>
-			<tr th:if="${resource.effective}">
-				<td>Date/Period</td>
-				<td th:narrative="${resource.effective}"></td>
-			</tr>
-			<tr th:if="${resource.bodySite} and ${not resource.bodySite.empty}">
-				<td>Body Site</td>
-				<td th:narrative="${resource.bodySite}"></td>
-			</tr>
-			<tr th:if="${resource.value} and ${not resource.value.empty}">
-				<td>Result</td>
-				<td th:narrative="${resource.value}"></td>
-			</tr>
-			<tr th:if="${resource.interpretation} and ${not resource.interpretation.empty}">
-				<td>Interpretation</td>
-				<td th:narrative="${resource.interpretation}"></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+	<div>
+		<table class="hapiPropertyTable">
+			<tbody>
+				<tr th:if="${resource.category} and ${not resource.category.empty}">
+					<td>Category</td>
+					<td th:narrative="${resource.category[0]}"></td>
+				</tr>
+				<tr th:if="${resource.code} and ${not resource.code.empty}">
+					<td>Code</td>
+					<td th:narrative="${resource.code}"></td>
+				</tr>
+				<tr th:if="${resource.effective}">
+					<td>Date/Period</td>
+					<td th:narrative="${resource.effective}"></td>
+				</tr>
+				<tr th:if="${resource.bodySite} and ${not resource.bodySite.empty}">
+					<td>Body Site</td>
+					<td th:narrative="${resource.bodySite}"></td>
+				</tr>
+				<tr th:if="${resource.value} and ${not resource.value.empty}">
+					<td>Result</td>
+					<td th:narrative="${resource.value}"></td>
+				</tr>
+				<tr
+					th:if="${resource.interpretation} and ${not resource.interpretation.empty}">
+					<td>Interpretation</td>
+					<td th:narrative="${resource.interpretation}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->
