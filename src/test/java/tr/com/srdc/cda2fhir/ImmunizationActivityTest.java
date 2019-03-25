@@ -5,6 +5,7 @@ import java.util.Map;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -19,10 +20,13 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationRefusalReasonImp
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
+import com.helger.commons.collection.attr.StringMap;
 
 import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
@@ -114,6 +118,17 @@ public class ImmunizationActivityTest {
 		Assert.assertEquals("Expect the correct immunization status", expected, actual);
 	}
 
+	static private void verifyImmunizationOriginalText(ImmunizationActivityImpl act, Map<String, String> annotations,
+			String expected) throws Exception {
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		bundleInfo.mergeIdedAnnotations(annotations);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
+		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
+
+		CodeableConcept code = immunization.getVaccineCode();
+		Assert.assertEquals("Expect the correct immunization original text", expected, code.getText());
+	}
+
 	@Test
 	public void testStatusCode() throws Exception {
 		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
@@ -147,6 +162,30 @@ public class ImmunizationActivityTest {
 
 			verifyImmunizationStatus(act, fhirStatus);
 		}
+	}
+
+	@Test
+	public void testCodeReference() throws Exception {
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
+		DiagnosticChain dxChain = new BasicDiagnostic();
+		verifyImmunizationStatus(act, null);
+
+		CD code = factories.datatype.createCD();
+		ED ed = factories.datatype.createED();
+		TEL tel = factories.datatype.createTEL();
+
+		tel.setValue("#fakeid1");
+		ed.setReference(tel);
+
+		code.setCode("code");
+		code.setCodeSystem("codeSystem");
+		code.setOriginalText(ed);
+
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put("fakeid1", "fakevalue2");
+
+		verifyImmunizationOriginalText(act, idedAnnotations, "fakevalue2");
+
 	}
 
 	@Test
