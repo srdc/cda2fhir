@@ -16,7 +16,7 @@ public interface IBundleInfo {
 	Map<String, String> getIdedAnnotations();
 
 	Reference getReferenceByIdentifier(String fhirType, Identifier identifier);
-	
+
 	IEntityInfo findEntityResult(II ii);
 
 	IEntityInfo findEntityResult(List<II> iis);

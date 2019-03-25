@@ -4,62 +4,65 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div>
-<span th:if="${resource.taken}" th:text="'Medication was not taken'"></span>
-	<table class="hapiPropertyTable" th:if="${resource.taken} and ${not resource.reasonNotTaken.empty} or ${resource.effective}">
-		<tbody>	
-			<tr th:if="${resource.taken} and ${not resource.reasonNotTaken.empty}">
-				<td>Reason Not Taken</td>
-				<td th:text="${resource.reasonNotTaken}"></td>
-			</tr>
-			<tr th:if="${resource.effective}">
-				<td>Period</td>
-				<td th:narrative="${resource.effective}"></td>
-			</tr>
-		</tbody>
-	</table>
-	<div th:if="${resource.dosage} and ${not resource.dosage.empty}">
-	<table class="hapiPropertyTable" th:each="dosage: ${resource.dosage}">
-		<tbody>
-			<tr>
-				<th th:text="Dosage"></th>
-			</tr>
-			<tr th:if="${dosage.timing}">
-				<td>Timing</td>
-				<td th:narrative="${dosage.timing}"></td>
-			</tr>
-			<tr th:if="${dosage.site}">
-				<td>Body Site</td>
-				<td th:narrative="${dosage.site}"></td>
-			</tr>
-			<tr th:if="${dosage.route}">
-				<td>Route</td>
-				<td th:narrative="${dosage.route}"></td>
-			</tr>
-			<tr th:if="${dosage.dose}">
-				<td>Quantity</td>
-				<td th:narrative="${dosage.dose}"></td>
-			</tr>
-			<tr th:if="${dosage.rate}">
-				<td>Rate</td>
-				<td th:narrative="${dosage.rate}"></td>
-			</tr>
-			<tr th:if="${dosage.maxDosePerPeriod} and ${not dosage.maxDosePerPeriod.empty}">
-				<td>Max Dose per Period</td>
-				<td th:narrative="${dosage.maxDosePerPeriod}"></td>
-			</tr>
-		</tbody>
-	</table>
+	<div>
+		<span th:if="${resource.taken}" th:text="'Medication was not taken'"></span>
+		<table class="hapiPropertyTable"
+			th:if="${resource.taken} and ${not resource.reasonNotTaken.empty} or ${resource.effective}">
+			<tbody>
+				<tr
+					th:if="${resource.taken} and ${not resource.reasonNotTaken.empty}">
+					<td>Reason Not Taken</td>
+					<td th:text="${resource.reasonNotTaken}"></td>
+				</tr>
+				<tr th:if="${resource.effective}">
+					<td>Period</td>
+					<td th:narrative="${resource.effective}"></td>
+				</tr>
+			</tbody>
+		</table>
+		<div th:if="${resource.dosage} and ${not resource.dosage.empty}">
+			<table class="hapiPropertyTable" th:each="dosage: ${resource.dosage}">
+				<tbody>
+					<tr>
+						<th th:text="Dosage"></th>
+					</tr>
+					<tr th:if="${dosage.timing}">
+						<td>Timing</td>
+						<td th:narrative="${dosage.timing}"></td>
+					</tr>
+					<tr th:if="${dosage.site}">
+						<td>Body Site</td>
+						<td th:narrative="${dosage.site}"></td>
+					</tr>
+					<tr th:if="${dosage.route}">
+						<td>Route</td>
+						<td th:narrative="${dosage.route}"></td>
+					</tr>
+					<tr th:if="${dosage.dose}">
+						<td>Quantity</td>
+						<td th:narrative="${dosage.dose}"></td>
+					</tr>
+					<tr th:if="${dosage.rate}">
+						<td>Rate</td>
+						<td th:narrative="${dosage.rate}"></td>
+					</tr>
+					<tr
+						th:if="${dosage.maxDosePerPeriod} and ${not dosage.maxDosePerPeriod.empty}">
+						<td>Max Dose per Period</td>
+						<td th:narrative="${dosage.maxDosePerPeriod}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
-</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->

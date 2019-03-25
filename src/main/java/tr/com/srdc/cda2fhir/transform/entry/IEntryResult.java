@@ -11,7 +11,7 @@ public interface IEntryResult extends ICDAIIMapSource<IEntityInfo> {
 	Bundle getBundle();
 
 	void copyTo(Bundle bundle);
-	
+
 	boolean hasDeferredReferences();
 	
 	boolean hasResult();

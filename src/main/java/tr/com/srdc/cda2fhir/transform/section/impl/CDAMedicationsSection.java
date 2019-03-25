@@ -14,39 +14,42 @@ import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDAMedicationsSection implements ICDASection {
 	private MedicationsSection section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAMedicationsSection() {};
-	
+	private CDAMedicationsSection() {
+	};
+
 	public CDAMedicationsSection(MedicationsSection section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<MedicationStatement> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
-		SectionResultSingular<MedicationStatement> result = SectionResultSingular.getInstance(MedicationStatement.class);
+		SectionResultSingular<MedicationStatement> result = SectionResultSingular
+				.getInstance(MedicationStatement.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
-		
-		for(Entry entry : section.getEntries()) {
-			if(entry.hasContent() && entry.getSupply() != null) {
-				if(entry.getSupply().getClassCode().toString().equalsIgnoreCase("SPLY") 
+
+		for (Entry entry : section.getEntries()) {
+			if (entry.hasContent() && entry.getSupply() != null) {
+				if (entry.getSupply().getClassCode().toString().equalsIgnoreCase("SPLY")
 						&& entry.getSupply().getMoodCode().toString().equalsIgnoreCase("INT")) {
-					IEntryResult medRequestResult = rt.medicationSupplyOrder2MedicationRequest((MedicationSupplyOrder)entry.getSupply(), localBundleInfo);
+					IEntryResult medRequestResult = rt.medicationSupplyOrder2MedicationRequest(
+							(MedicationSupplyOrder) entry.getSupply(), localBundleInfo);
 					result.updateFrom(medRequestResult);
-					
+
 				}
 			}
 		}
-		
+
 		for (MedicationActivity act : section.getMedicationActivities()) {
-    		IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, localBundleInfo);
-    		result.updateFrom(er);
-    		localBundleInfo.updateFrom(er);
-    	}
-		
-    	return result;
+
+			IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, localBundleInfo);
+			result.updateFrom(er);
+			localBundleInfo.updateFrom(er);
+		}
+		return result;
+
 	}
-	
-	
+
 }

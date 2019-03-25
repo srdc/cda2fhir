@@ -29,13 +29,13 @@ import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.impl.OrganizationImpl;
-import org.openhealthtools.mdht.uml.cda.impl.AuthorImpl;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.impl.AssignedAuthorImpl;
+import org.openhealthtools.mdht.uml.cda.impl.AuthorImpl;
+import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
+import org.openhealthtools.mdht.uml.cda.impl.OrganizationImpl;
 import org.openhealthtools.mdht.uml.cda.impl.PersonImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.cda.impl.CDAFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
@@ -49,100 +49,101 @@ import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class EntitiesTest {
 
-    private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
+	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
 	private static CDAFactories factories;
 
 	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
 
-    @BeforeClass
+	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 		factories = CDAFactories.init();
-		cdaTypeFactory = DatatypesFactoryImpl.init();		
-		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();		
-    }
+		cdaTypeFactory = DatatypesFactoryImpl.init();
+		cdaFactory = (CDAFactoryImpl) CDAFactoryImpl.init();
+	}
 
-    @Test
-    public void organizationNameAlias() throws Exception {
-        
-    	String orgStringOne = "Fake Organization One";
-    	String orgStringTwo = "Fake Organization Two";
-    	
-    	// Make an organization, add two names.
-    	OrganizationImpl org = (OrganizationImpl) cdaFactory.createOrganization();
+	@Test
+	public void organizationNameAlias() throws Exception {
 
-        ON orgNameOne = cdaTypeFactory.createON();
-        orgNameOne.addText(orgStringOne);
-        org.getNames().add(orgNameOne);
-        
-        ON orgNameTwo = cdaTypeFactory.createON();
-        orgNameTwo.addText(orgStringTwo);      
-        org.getNames().add(orgNameTwo);
+		String orgStringOne = "Fake Organization One";
+		String orgStringTwo = "Fake Organization Two";
 
-        // Transform from CDA to FHIR.
-        org.hl7.fhir.dstu3.model.Organization fhirOrganization = rt.tOrganization2Organization(org);
- 
-        // Make assertions.
-        Assert.assertEquals("Organization name was set",orgStringOne,fhirOrganization.getName());
-        Assert.assertEquals("Organization alias was set",orgStringTwo,fhirOrganization.getAlias().get(0).asStringValue());
-        Assert.assertEquals("Only one organization alias",1,fhirOrganization.getAlias().size());
-    }
-    
-    @Test
-    public void practitionerNameMultiple() throws Exception {
-        
-    	String authorStringOne = "Name One";
-    	String authorStringTwo = "Name Two";
-    	
-    	// Make an author, add two names.
-    	AuthorImpl auth = (AuthorImpl) cdaFactory.createAuthor();
-    	AssignedAuthorImpl assAuth = (AssignedAuthorImpl) cdaFactory.createAssignedAuthor();
-    	PersonImpl pers = (PersonImpl) cdaFactory.createPerson();
-    	
-    	auth.basicSetAssignedAuthor(assAuth, null);
-    	auth.getAssignedAuthor().setAssignedPerson(pers);
-    	
-    	
-    	PN authorNameOne = cdaTypeFactory.createPN();
-    	authorNameOne.addText(authorStringOne);
-    	auth.getAssignedAuthor().getAssignedPerson().getNames().add(authorNameOne);
-    	
-    	
-    	PN authorNameTwo = cdaTypeFactory.createPN();
-    	authorNameTwo.addText(authorStringTwo);
-    	auth.getAssignedAuthor().getAssignedPerson().getNames().add(authorNameTwo);
+		// Make an organization, add two names.
+		OrganizationImpl org = (OrganizationImpl) cdaFactory.createOrganization();
 
+		ON orgNameOne = cdaTypeFactory.createON();
+		orgNameOne.addText(orgStringOne);
+		org.getNames().add(orgNameOne);
 
-        // Transform from CDA to FHIR.
+		ON orgNameTwo = cdaTypeFactory.createON();
+		orgNameTwo.addText(orgStringTwo);
+		org.getNames().add(orgNameTwo);
+
+		// Transform from CDA to FHIR.
+		org.hl7.fhir.dstu3.model.Organization fhirOrganization = rt.tOrganization2Organization(org);
+
+		// Make assertions.
+		Assert.assertEquals("Organization name was set", orgStringOne, fhirOrganization.getName());
+		Assert.assertEquals("Organization alias was set", orgStringTwo,
+				fhirOrganization.getAlias().get(0).asStringValue());
+		Assert.assertEquals("Only one organization alias", 1, fhirOrganization.getAlias().size());
+	}
+
+	@Test
+	public void practitionerNameMultiple() throws Exception {
+
+		String authorStringOne = "Name One";
+		String authorStringTwo = "Name Two";
+
+		// Make an author, add two names.
+		AuthorImpl auth = (AuthorImpl) cdaFactory.createAuthor();
+		AssignedAuthorImpl assAuth = (AssignedAuthorImpl) cdaFactory.createAssignedAuthor();
+		PersonImpl pers = (PersonImpl) cdaFactory.createPerson();
+
+		auth.basicSetAssignedAuthor(assAuth, null);
+		auth.getAssignedAuthor().setAssignedPerson(pers);
+
+		PN authorNameOne = cdaTypeFactory.createPN();
+		authorNameOne.addText(authorStringOne);
+		auth.getAssignedAuthor().getAssignedPerson().getNames().add(authorNameOne);
+
+		PN authorNameTwo = cdaTypeFactory.createPN();
+		authorNameTwo.addText(authorStringTwo);
+		auth.getAssignedAuthor().getAssignedPerson().getNames().add(authorNameTwo);
+
+		// Transform from CDA to FHIR.
 		BundleInfo bundleInfo = new BundleInfo(rt);
-        IEntityResult entityResult = rt.tAuthor2Practitioner(auth, bundleInfo);
-        org.hl7.fhir.dstu3.model.Resource fhirResource = entityResult.getPractitioner();
-        List<Base> fhirNames = fhirResource.getNamedProperty("name").getValues();
-                
-        // Make assertions.
-        Assert.assertEquals("Multiple Name for Practitioner Supported",2,fhirNames.size());
-        Assert.assertEquals("Practitioner Name One Set",authorStringOne, fhirNames.get(0).getNamedProperty("text").getValues().get(0).toString());;
-        Assert.assertEquals("Practitioner Name Two Set",authorStringTwo, fhirNames.get(1).getNamedProperty("text").getValues().get(0).toString());;
-    }
+		IEntityResult entityResult = rt.tAuthor2Practitioner(auth, bundleInfo);
+		org.hl7.fhir.dstu3.model.Resource fhirResource = entityResult.getPractitioner();
+		List<Base> fhirNames = fhirResource.getNamedProperty("name").getValues();
 
+		// Make assertions.
+		Assert.assertEquals("Multiple Name for Practitioner Supported", 2, fhirNames.size());
+		Assert.assertEquals("Practitioner Name One Set", authorStringOne,
+				fhirNames.get(0).getNamedProperty("text").getValues().get(0).toString());
+		;
+		Assert.assertEquals("Practitioner Name Two Set", authorStringTwo,
+				fhirNames.get(1).getNamedProperty("text").getValues().get(0).toString());
+		;
+	}
 
-    @Test
-    public void testAssignedEntityBasic() throws Exception {    	
-    	AssignedEntityGenerator aeg = AssignedEntityGenerator.getDefaultInstance();
-    	
-    	AssignedEntity ae = aeg.generate(factories);
+	@Test
+	public void testAssignedEntityBasic() throws Exception {
+		AssignedEntityGenerator aeg = AssignedEntityGenerator.getDefaultInstance();
+
+		AssignedEntity ae = aeg.generate(factories);
 		BundleInfo bundleInfo = new BundleInfo(rt);
-    	IEntityResult entityResult = rt.tAssignedEntity2Practitioner(ae, bundleInfo);
-    	
-    	Practitioner practitioner = entityResult.getPractitioner();
-    	aeg.verify(practitioner);
-    	
-    	PractitionerRole role = entityResult.getPractitionerRole();
-    	aeg.verify(role);
- 
-    	Organization org = entityResult.getOrganization();
-    	aeg.verify(org);
-    }
+		IEntityResult entityResult = rt.tAssignedEntity2Practitioner(ae, bundleInfo);
+
+		Practitioner practitioner = entityResult.getPractitioner();
+		aeg.verify(practitioner);
+
+		PractitionerRole role = entityResult.getPractitionerRole();
+		aeg.verify(role);
+
+		Organization org = entityResult.getOrganization();
+		aeg.verify(org);
+	}
 }

@@ -1,0 +1,10 @@
+{
+	"act": {
+		"effectiveTime": "assertedDate.->EffectiveTimeLowOrValue",
+		"entryRelationship": {
+			"*": {
+				"observation": "->AllergyIntoleranceObservation"
+			}
+		}
+	}
+}

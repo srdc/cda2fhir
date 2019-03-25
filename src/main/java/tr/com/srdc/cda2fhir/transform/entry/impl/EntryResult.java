@@ -21,7 +21,7 @@ public class EntryResult implements IEntryResult {
 	private List<IDeferredReference> deferredReferences;
 
 	private CDAIIMap<IEntityInfo> entities;
-	
+
 	@Override
 	public Bundle getBundle() {
 		return bundle;
@@ -38,9 +38,9 @@ public class EntryResult implements IEntryResult {
 		if (bundle == null) {
 			bundle = new Bundle();
 		}
-		bundle.addEntry(new BundleEntryComponent().setResource(resource));		
+		bundle.addEntry(new BundleEntryComponent().setResource(resource));
 	}
-	
+
 	public void updateFrom(IEntityResult entityResult) {
 		List<II> iis = entityResult.getNewIds();
 		if (iis != null) {
@@ -56,19 +56,19 @@ public class EntryResult implements IEntryResult {
 			if (bundle == null) {
 				bundle = new Bundle();
 			}
-			entityResult.copyTo(bundle);			
+			entityResult.copyTo(bundle);
 		}
 	}
 
 	public void updateEntitiesFrom(IEntryResult entryResult) {
-   		if (entryResult.hasIIMapValues()) {
-   			if (entities == null) {
-   				entities = new CDAIIMap<IEntityInfo>();
-   			}
+		if (entryResult.hasIIMapValues()) {
+			if (entities == null) {
+				entities = new CDAIIMap<IEntityInfo>();
+			}
 			entities.put(entryResult);
-   		}
+		}
 	}
-		
+
 	public void addDeferredReference(IDeferredReference deferredReference) {
 		if (deferredReferences == null) {
 			deferredReferences = new ArrayList<IDeferredReference>();
@@ -97,9 +97,9 @@ public class EntryResult implements IEntryResult {
 	public void putExtensionValuesTo(Map<String, Map<String, IEntityInfo>> target) {
 		if (entities != null) {
 			entities.putExtensionValuesTo(target);
-		}		
+		}
 	}
-	
+
 	@Override
 	public boolean hasIIMapValues() {
 		return entities != null;

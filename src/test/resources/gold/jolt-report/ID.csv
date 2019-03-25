@@ -1,0 +1,5 @@
+CCDA Source,Target,Link,Format,Condition 1
+root,system,,"systemAdapter",extension isnotnull
+#official,use,,
+extension,value,,,extension isnotnull
+root,value,,,extension isnull

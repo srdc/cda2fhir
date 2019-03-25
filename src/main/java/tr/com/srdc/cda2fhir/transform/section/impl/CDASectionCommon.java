@@ -15,41 +15,44 @@ import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDASectionCommon {
-	public static SectionResultSingular<Immunization> transformImmunizationActivityList(EList<ImmunizationActivity> actList, IBundleInfo bundleInfo) {
+	public static SectionResultSingular<Immunization> transformImmunizationActivityList(
+			EList<ImmunizationActivity> actList, IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		SectionResultSingular<Immunization> result = SectionResultSingular.getInstance(Immunization.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
-		for(ImmunizationActivity act : actList) {
-    		IEntryResult er = rt.tImmunizationActivity2Immunization(act, localBundleInfo);
-    		result.updateFrom(er);
-    		localBundleInfo.updateFrom(er);
-    	}
-    	return result;
+		for (ImmunizationActivity act : actList) {
+			IEntryResult er = rt.tImmunizationActivity2Immunization(act, localBundleInfo);
+			result.updateFrom(er);
+			localBundleInfo.updateFrom(er);
+		}
+		return result;
 	}
 
-	public static SectionResultSingular<Observation> transformVitalSignsOrganizerList(EList<VitalSignsOrganizer> orgList, IBundleInfo bundleInfo) {
+	public static SectionResultSingular<Observation> transformVitalSignsOrganizerList(
+			EList<VitalSignsOrganizer> orgList, IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		SectionResultSingular<Observation> result = SectionResultSingular.getInstance(Observation.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
-    	for (VitalSignsOrganizer org : orgList) {
-    		for(VitalSignObservation obs : org.getVitalSignObservations()) {
-    	   		IEntryResult er = rt.tVitalSignObservation2Observation(obs, localBundleInfo);
-        		result.updateFrom(er);
-        		localBundleInfo.updateFrom(er);
-    		}
-    	}
-    	return result;
+		for (VitalSignsOrganizer org : orgList) {
+			for (VitalSignObservation obs : org.getVitalSignObservations()) {
+				IEntryResult er = rt.tVitalSignObservation2Observation(obs, localBundleInfo);
+				result.updateFrom(er);
+				localBundleInfo.updateFrom(er);
+			}
+		}
+		return result;
 	}
-	
-	public static SectionResultSingular<Encounter> transformEncounterActivitiesList(EList<EncounterActivities> encounterList, IBundleInfo bundleInfo) {
+
+	public static SectionResultSingular<Encounter> transformEncounterActivitiesList(
+			EList<EncounterActivities> encounterList, IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		SectionResultSingular<Encounter> result = SectionResultSingular.getInstance(Encounter.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		for (EncounterActivities act : encounterList) {
-    		IEntryResult er = rt.tEncounterActivity2Encounter(act, localBundleInfo);
-    		result.updateFrom(er);
-    		localBundleInfo.updateFrom(er);
-    	}
-    	return result;
+			IEntryResult er = rt.tEncounterActivity2Encounter(act, localBundleInfo);
+			result.updateFrom(er);
+			localBundleInfo.updateFrom(er);
+		}
+		return result;
 	}
 }

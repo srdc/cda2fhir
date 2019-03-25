@@ -6,8 +6,8 @@ import org.hl7.fhir.dstu3.model.PractitionerRole;
 
 public interface IEntityInfo {
 	Practitioner getPractitioner();
-	
+
 	PractitionerRole getPractitionerRole();
-	
+
 	Organization getOrganization();
 }
