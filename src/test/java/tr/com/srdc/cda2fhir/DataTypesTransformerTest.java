@@ -21,6 +21,7 @@ package tr.com.srdc.cda2fhir;
  */
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.hl7.fhir.dstu3.model.Address;
@@ -69,6 +70,8 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
+
+import com.helger.commons.collection.attr.StringMap;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
@@ -219,16 +222,35 @@ public class DataTypesTransformerTest {
 		CodeableConcept codeableConcept3 = dtt.tCD2CodeableConcept(cd3);
 		Assert.assertNull("CodeableConcept.nullFlavor set instance transform failed", codeableConcept3);
 
-		// originalText test
+		// originalText test with reference.
 		CD cd4 = DatatypesFactory.eINSTANCE.createCD();
-		ED ed1 = DatatypesFactory.eINSTANCE.createED();
-		ed1.addText("help me rhonda");
+		ED ed4 = DatatypesFactory.eINSTANCE.createED();
+		TEL tel4 = DatatypesFactory.eINSTANCE.createTEL();
+		tel4.setValue("#fakeid1");
+		ed4.setReference(tel4);
 
 		cd4.setCode("code");
 		cd4.setCodeSystem("codeSystem");
-		cd4.setOriginalText(ed1);
-		CodeableConcept codeableConcept4 = dtt.tCD2CodeableConcept(cd4);
-		Assert.assertNull("CodeableConcept.nullFlavor set instance transform failed", codeableConcept4);
+		cd4.setOriginalText(ed4);
+
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put("fakeid1", "fakevalue2");
+
+		CodeableConcept codeableConcept4 = dtt.tCD2CodeableConcept(cd4, idedAnnotations);
+		Assert.assertEquals("CodeableConcept sets text based on pointer and annotations", "fakevalue2",
+				codeableConcept4.getText());
+
+		// originalText test without reference.
+		CD cd5 = DatatypesFactory.eINSTANCE.createCD();
+		ED ed5 = DatatypesFactory.eINSTANCE.createED();
+		ed5.addText("originalText");
+		cd5.setCode("code");
+		cd5.setCodeSystem("codeSystem");
+		cd5.setOriginalText(ed5);
+
+		CodeableConcept codeableConcept5 = dtt.tCD2CodeableConcept(cd5);
+		Assert.assertEquals("CodeableConcept sets original text without references", "originalText",
+				codeableConcept5.getText());
 
 	}
 

@@ -242,12 +242,26 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 
 	@Override
 	public String tED2Annotation(ED ed, Map<String, String> idedAnnotations) {
-		if (ed != null && idedAnnotations != null) {
-			TEL tel = ed.getReference();
-			String value = tel.getValue();
-			if (value != null && value.charAt(0) == '#') {
-				String key = value.substring(1);
-				return idedAnnotations.get(key);
+
+		if (ed != null) {
+
+			// Getting Text Values.
+			String originalText = ed.getText();
+			if (!originalText.equals("")) {
+				return originalText;
+			}
+
+			if (idedAnnotations != null) {
+				// If no text try reference
+				TEL tel = ed.getReference();
+				if (!tel.equals(null)) {
+					String value = tel.getValue();
+					if (value != null && value.charAt(0) == '#') {
+						String key = value.substring(1);
+						return idedAnnotations.get(key);
+					}
+
+				}
 			}
 		}
 		return null;
