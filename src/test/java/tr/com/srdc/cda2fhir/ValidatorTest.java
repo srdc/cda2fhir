@@ -165,7 +165,7 @@ public class ValidatorTest {
 
 	// Person-RAKIA_TEST_DOC0001 (1).xml
 	@Ignore
-	public void testHannahBanana() throws Exception {
+	public void testRakia() throws Exception {
 		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Epic/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
 		String targetPathForResultFile = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).validation-result.html";

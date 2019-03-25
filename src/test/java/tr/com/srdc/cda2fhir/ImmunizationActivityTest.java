@@ -167,7 +167,6 @@ public class ImmunizationActivityTest {
 	@Test
 	public void testCodeReference() throws Exception {
 		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
-		DiagnosticChain dxChain = new BasicDiagnostic();
 		verifyImmunizationStatus(act, null);
 
 		CD code = factories.datatype.createCD();
