@@ -19,6 +19,7 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationRefusalReasonImp
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
@@ -146,5 +147,30 @@ public class ImmunizationActivityTest {
 
 			verifyImmunizationStatus(act, fhirStatus);
 		}
+	}
+
+	@Test
+	public void testImmunizationDosage() throws Exception {
+
+		// Make a imm activity.
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
+
+		IVL_PQ doseQuantity = factories.datatype.createIVL_PQ();
+
+		doseQuantity.setUnit("mg");
+		doseQuantity.setValue(100.000);
+		act.setDoseQuantity(doseQuantity);
+
+		// Transform from CDA to FHIR.
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle fhirBundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
+
+		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+
+		String systemString = fhirResource.getNamedProperty("doseQuantity").getValues().get(0)
+				.getNamedProperty("system").getValues().get(0).toString();
+
+		Assert.assertEquals("URI attached for ucum", "UriType[http://unitsofmeasure.org/ucum.html]", systemString);
+
 	}
 }
