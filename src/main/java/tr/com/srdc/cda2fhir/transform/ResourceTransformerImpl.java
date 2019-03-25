@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir.transform;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,6 +54,7 @@ import org.hl7.fhir.dstu3.model.Composition.SectionMode;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.DateTimeType;
+import org.hl7.fhir.dstu3.model.DateType;
 import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
@@ -164,7 +166,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;ProcedureEncounterReference;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
+import tr.com.srdc.cda2fhir.transform.entry.impl.DeferredProcedureEncounterReference;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
@@ -944,6 +947,26 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		return result;
+	}
+
+	public CompositionEventComponent tServiceEvent2Event(ServiceEvent cdaServiceEvent) {
+		if (cdaServiceEvent == null || cdaServiceEvent.isSetNullFlavor()) {
+			return null;
+		}
+
+		CompositionEventComponent event = new CompositionEventComponent();
+
+		Period period = new Period();
+		DateType low = dtt.tTS2Date(cdaServiceEvent.getEffectiveTime().getLow());
+		Date lowDate = new Date(low.getNanos());
+		if (cdaServiceEvent.getEffectiveTime().getHigh() != null) {
+			DateType high = dtt.tTS2Date(cdaServiceEvent.getEffectiveTime().getLow());
+			Date highDate = new Date(low.getNanos());
+			period.setEnd(highDate);
+		}
+
+		event.setPeriod(period);
+		return event;
 	}
 
 	@Override
