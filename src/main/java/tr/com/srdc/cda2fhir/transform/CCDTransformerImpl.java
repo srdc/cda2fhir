@@ -187,7 +187,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 *                           desired resource profiles. Used to set profile
 	 *                           URI's of bundle entries or omit unwanted entries.
 	 * @param documentBody       The decoded documentBody of the document, to be
-	 *                           included in a provenance object. >>>>>>> fhir-stu3
+	 *                           included in a provenance object.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
 	 *         document and all other resources that are referenced within the
 	 *         Composition.
