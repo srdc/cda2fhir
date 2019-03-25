@@ -44,5 +44,37 @@
 				"Jr_2"
 			]
 		}
+	},
+	{
+		"input": {
+			"content": "the text",
+			"given": [
+				"JOE_1",
+				"JOE_2"
+			],
+			"use": ["C", "P"],
+			"family": "DOE",
+			"validTime": {
+				"low": {
+					"value": "20180406"
+				},
+				"high": {
+					"value": "20190806"
+				}
+			}
+		},
+		"expected": {
+			"text": "the text",
+			"use": "nickname",
+			"family": "DOE",
+			"given": [
+				"JOE_1",
+				"JOE_2"
+			],
+			"period": {
+				"start": "2018-04-06",
+				"end": "2019-08-06"
+			}
+		}
 	}
 ]

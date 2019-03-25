@@ -214,6 +214,22 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class LastElement extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null) {
+				return Optional.empty();
+			}
+			for (int index = argList.size() - 1; index >= 0; --index) {
+				Object element = argList.get(index);
+				if (element != null) {
+					return Optional.of(element);
+				}
+			}
+			return Optional.of(null);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -226,6 +242,8 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("selectOnNull", new SelectOnNull());
 		AMIDA_FUNCTIONS.put("getId", new GetId());
 		AMIDA_FUNCTIONS.put("piece", new Piece());
+		AMIDA_FUNCTIONS.put("lastElement", new LastElement());
+
 	}
 
 	private Modifier.Overwritr modifier;

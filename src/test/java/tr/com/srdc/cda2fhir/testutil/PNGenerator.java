@@ -27,7 +27,8 @@ public class PNGenerator {
 	private static final String SUFFIX = "Jr";
 
 	private String nullFlavor;
-	private String use;
+	private List<String> uses = new ArrayList<>();;
+	private String text;
 
 	private String family;
 	private List<String> givens = new ArrayList<>();
@@ -40,8 +41,9 @@ public class PNGenerator {
 	public PNGenerator() {
 	}
 
+	@SuppressWarnings("unchecked")
 	public PNGenerator(Map<String, Object> json) {
-		use = (String) json.get("use");
+		OrgJsonUtil.copyStringArray(json, uses, "use");
 
 		family = (String) json.get("family");
 
@@ -49,14 +51,20 @@ public class PNGenerator {
 
 		OrgJsonUtil.copyStringArray(json, prefixes, "prefix");
 		OrgJsonUtil.copyStringArray(json, suffixes, "suffix");
+
+		text = (String) json.get("content");
+
+		if (json.containsKey("validTime")) {
+			ivlTsGenerator = new IVL_TSGenerator((Map<String, Object>) json.get("validTime"));
+		}
 	}
 
 	public void setNullFlavor() {
 		nullFlavor = "UNK";
 	}
 
-	public void setUse(String use) {
-		this.use = use;
+	public void addUse(String use) {
+		this.uses.add(use);
 	}
 
 	public boolean hasNullFlavor() {
@@ -66,13 +74,13 @@ public class PNGenerator {
 	public PN generate(CDAFactories factories) {
 		PN pn = factories.datatype.createPN();
 
-		if (use != null) {
+		uses.forEach(use -> {
 			EntityNameUse enu = EntityNameUse.get(use);
 			if (enu == null) {
 				throw new TestSetupException("Invalid 'use' value for PN.");
 			}
 			pn.getUses().add(enu);
-		}
+		});
 
 		if (family != null) {
 			pn.addFamily(family);
@@ -95,6 +103,10 @@ public class PNGenerator {
 			pn.setValidTime(ivlTs);
 		}
 
+		if (text != null) {
+			pn.addText(text);
+		}
+
 		return pn;
 	}
 
@@ -110,7 +122,7 @@ public class PNGenerator {
 	public static PNGenerator getFullInstance() {
 		PNGenerator pn = new PNGenerator();
 
-		pn.use = USE;
+		pn.uses.add(USE);
 		pn.family = FAMILY;
 		pn.givens.add(GIVEN + "_1");
 		pn.givens.add(GIVEN + "_2");
@@ -118,6 +130,7 @@ public class PNGenerator {
 		pn.prefixes.add(PREFIX + "_2");
 		pn.suffixes.add(SUFFIX + "_1");
 		pn.suffixes.add(SUFFIX + "_2");
+		pn.text = "The Text";
 
 		pn.ivlTsGenerator = IVL_TSGenerator.getFullInstance();
 
@@ -130,8 +143,11 @@ public class PNGenerator {
 			return;
 		}
 
-		if (use != null) {
-			String expected = (String) NAME_USE.get(use);
+		if (uses.isEmpty()) {
+			Assert.assertTrue("Missing name use", !humanName.hasUse());
+		} else {
+			String lastUse = uses.get(uses.size() - 1);
+			String expected = (String) NAME_USE.get(lastUse);
 			String actual = humanName.getUse().toCode();
 			if (expected == null) {
 				Assert.assertEquals("Name use", actual, "usual");
@@ -184,13 +200,21 @@ public class PNGenerator {
 		} else {
 			ivlTsGenerator.verify(humanName.getPeriod());
 		}
+
+		if (text == null) {
+			Assert.assertTrue("Missing name text", !humanName.hasText());
+		} else {
+			Assert.assertEquals("Name text", text, humanName.getText());
+
+		}
 	}
 
 	public Map<String, Object> toJson() {
 		Map<String, Object> result = new LinkedHashMap<>();
 
-		if (use != null && nullFlavor == null) {
-			String field = (String) NAME_USE.get(use);
+		if (!uses.isEmpty() && nullFlavor == null) {
+			String lastUse = uses.get(uses.size() - 1);
+			String field = (String) NAME_USE.get(lastUse);
 			if (field == null) {
 				field = "usual";
 			}
@@ -211,6 +235,13 @@ public class PNGenerator {
 
 		if (!suffixes.isEmpty() && nullFlavor == null) {
 			result.put("suffix", new ArrayList<>(suffixes));
+		}
+		if (text != null && nullFlavor == null) {
+			result.put("text", text);
+		}
+		if (ivlTsGenerator != null) {
+			Map<String, Object> ivlTsValue = ivlTsGenerator.toJson();
+			result.put("period", ivlTsValue);
 		}
 		if (result.isEmpty())
 			return null;

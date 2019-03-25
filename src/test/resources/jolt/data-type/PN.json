@@ -2,43 +2,49 @@
 	{
 		"operation": "cardinality",
 		"spec": {
+			"family": "ONE",
+			"text": "ONE",
 			"given": "MANY",
 			"prefix": "MANY",
-			"suffix": "MANY"
+			"suffix": "MANY",
+			"use": "MANY",
+			"validTime": "ONE"
 		}
 	},
 	{
-		"operation": "default",
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": ""
+			"nullFlavor": "*"
 		}
 	},
 	{
 		"operation": "shift",
 		"spec": {
-			"nullFlavor": {
-				"": {
-					"@2": {
-						"use": "use",
-						"family": "family",
-						"given": {
-							"*": "given[]"
-						},
-						"prefix": {
-							"*": "prefix[]"
-						},
-						"suffix": {
-							"*": "suffix[]"
-						},
-						"validTime": "period.->IVL_TS"
-					}
-				},
-				"*": null
-			}
+			"content": "text",
+			"use": {
+				"*": "use"
+			},
+			"family": "family",
+			"given": {
+				"*": "given[]"
+			},
+			"prefix": {
+				"*": "prefix[]"
+			},
+			"suffix": {
+				"*": "suffix[]"
+			},
+			"validTime": "period.->IVL_TS"
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"use": "=lastElement(@0)"
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",

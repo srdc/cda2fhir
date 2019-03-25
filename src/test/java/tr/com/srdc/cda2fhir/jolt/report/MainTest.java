@@ -50,4 +50,9 @@ public class MainTest {
 	public void testIVL_TS() throws Exception {
 		actualTest("IVL_TS");
 	}
+
+	@Test
+	public void testPN() throws Exception {
+		actualTest("PN");
+	}
 }
