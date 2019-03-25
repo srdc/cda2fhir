@@ -26,7 +26,7 @@
 				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
 			},
 			"value": {
-				"code": "category[]"
+				"code": ["category[]", "type"]
 			},
 			"participant": {
 				"participantRole": {
@@ -73,6 +73,12 @@
 		}
 	},
 	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"type": "=lastElement(@0)"
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
@@ -81,6 +87,7 @@
 			"category": {
 				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
 			},
+			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)",
 			"lastOccurrence": "=maxDateTime(@0)"
 		}
 	}
