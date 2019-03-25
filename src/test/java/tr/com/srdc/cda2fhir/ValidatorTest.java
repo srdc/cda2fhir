@@ -30,7 +30,6 @@ import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -154,11 +153,22 @@ public class ValidatorTest {
 	}
 
 	// HannahBanana_EpicCCD.xml
-	@Test
+	@Ignore
 	public void testHannahBanana() throws Exception {
 		String cdaResourcePath = "src/test/resources/Epic/HannahBanana_EpicCCD-pretty.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.fhir.xml";
 		String targetPathForResultFile = "src/test/resources/output/Cerner/HannahBanana_EpicCCD-pretty.validation-result.html";
+		boolean generateDAFProfileMetadata = true;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
+				generateDAFProfileMetadata, false);
+	}
+
+	// Person-RAKIA_TEST_DOC0001 (1).xml
+	@Ignore
+	public void testHannahBanana() throws Exception {
+		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).xml";
+		String targetPathForFHIRResource = "src/test/resources/output/Epic/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
+		String targetPathForResultFile = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).validation-result.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
 				generateDAFProfileMetadata, false);
