@@ -1,13 +1,14 @@
 package tr.com.srdc.cda2fhir.testutil;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.junit.Assert;
-import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 
@@ -23,13 +24,11 @@ public class TELGenerator {
 
 	private static final String VALUE = "tel:+1(555)555-1009";
 	private static final String USE = "WP";
-	// private static final String START = "20190106";
-	// private static final String END = "20190606";
 
 	private String value;
-	private String use;
-	private String start;
-	private String end;
+	private List<String> uses = new ArrayList<>();
+
+	String nullFlavor;
 
 	public TELGenerator() {
 	}
@@ -40,11 +39,18 @@ public class TELGenerator {
 
 	public TELGenerator(Map<String, Object> json) {
 		value = (String) json.get("value");
-		use = (String) json.get("use");
+		String multiUse = (String) json.get("use");
+		if (multiUse != null) {
+			String[] pieces = multiUse.split(" ");
+			for (int index = 0; index < pieces.length; ++index) {
+				uses.add(pieces[index]);
+			}
+		}
+		nullFlavor = (String) json.get("nullFlavor");
 	}
 
-	public void set(String use) {
-		this.use = use;
+	public void addUse(String use) {
+		uses.add(use);
 	}
 
 	public TEL generate(CDAFactories factories) {
@@ -53,23 +59,13 @@ public class TELGenerator {
 		if (value != null) {
 			telecom.setValue(value);
 		}
-		if (use != null) {
+		uses.forEach(use -> {
 			TelecommunicationAddressUse telUse = TelecommunicationAddressUse.get(use);
 			if (telUse == null) {
 				throw new TestSetupException("Invalid CDA TEL use enumeration.");
 			}
 			telecom.getUses().add(telUse);
-		}
-		if (start != null) {
-			SXCM_TS sxcm = factories.datatype.createSXCM_TS();
-			sxcm.setValue(start);
-			telecom.getUseablePeriods().add(sxcm);
-		}
-		if (end != null) {
-			SXCM_TS sxcm = factories.datatype.createSXCM_TS();
-			sxcm.setValue(end);
-			telecom.getUseablePeriods().add(sxcm);
-		}
+		});
 		return telecom;
 	}
 
@@ -85,15 +81,13 @@ public class TELGenerator {
 		TELGenerator tg = new TELGenerator();
 
 		tg.value = VALUE;
-		tg.use = USE;
-		// tg.start = START;
-		// tg.end = END;
+		tg.uses.add(USE);
 
 		return tg;
 	}
 
 	public void verify(ContactPoint contactPoint) {
-		if (value == null) {
+		if (value == null || nullFlavor != null) {
 			Assert.assertTrue("Contact point value missing", !contactPoint.hasValue());
 			Assert.assertTrue("Contact point system missing", !contactPoint.hasSystem());
 		} else {
@@ -113,30 +107,23 @@ public class TELGenerator {
 				Assert.assertEquals("Contact point value", value, contactPoint.getValue());
 			}
 		}
-		if (use == null) {
+		if (uses.isEmpty() || nullFlavor != null) {
 			Assert.assertTrue("Contact point use missing", !contactPoint.hasUse());
 		} else {
 			String actual = contactPoint.getUse().toCode();
-			String expected = (String) contactPointUseMap.get(use);
+			String expected = (String) contactPointUseMap.get(uses.get(uses.size() - 1));
 			if (expected == null) {
 				expected = "temp";
 			}
 			Assert.assertEquals("Contact point use", expected, actual);
 		}
-		/*
-		 * For some reason xml changes for use attribute when start/end is set. if
-		 * (start != null) { String actual =
-		 * contactPoint.getPeriod().getStartElement().getValueAsString(); String
-		 * expected = start.substring(0, 4) + "-" + start.substring(4, 6) + "-" +
-		 * start.substring(6, 8); Assert.assertEquals("Contact point period start",
-		 * expected, actual); } if (end != null) { String actual =
-		 * contactPoint.getPeriod().getEndElement().getValueAsString(); String expected
-		 * = end.substring(0, 4) + "-" + end.substring(4, 6) + "-" + end.substring(6,
-		 * 8); Assert.assertEquals("Contact point period end", expected, actual); }
-		 */
 	}
 
 	public Map<String, Object> toJson() {
+		if (nullFlavor != null) {
+			return null;
+		}
+
 		Map<String, Object> result = new LinkedHashMap<>();
 
 		if (value != null) {
@@ -155,7 +142,8 @@ public class TELGenerator {
 				result.put("value", value);
 			}
 		}
-		if (use != null) {
+		if (!uses.isEmpty()) {
+			String use = uses.get(uses.size() - 1);
 			String jsonUse = (String) contactPointUseMap.get(use);
 			if (jsonUse == null) {
 				jsonUse = "temp";

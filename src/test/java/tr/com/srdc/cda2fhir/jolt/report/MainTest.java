@@ -55,4 +55,9 @@ public class MainTest {
 	public void testPN() throws Exception {
 		actualTest("PN");
 	}
+
+	@Test
+	public void testTEL() throws Exception {
+		actualTest("TEL");
+	}
 }

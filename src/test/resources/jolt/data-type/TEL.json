@@ -1,8 +1,20 @@
 [
 	{
+		"operation": "cardinality",
+		"spec": {
+			"value": "ONE",
+			"use": "ONE"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
-			"nullFlavor": null,
 			"value": [
 				"system",
 				"value"
@@ -14,7 +26,8 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"system": "=piece(':',0,@0)",
-			"value": "=piece(':',1,@0)"
+			"value": "=piece(':',1,@0)",
+			"use": "=lastPiece(' ',@0)"
 		}
 	},
 	{

@@ -123,7 +123,7 @@ public class DataTypesGeneratorTest {
 		Set<String> availableUses = TELGenerator.getAvailableUses();
 		availableUses.forEach(use -> {
 			TELGenerator generator = TELGenerator.getDefaultInstance();
-			generator.set(use);
+			generator.addUse(use);
 			verify(generator);
 		});
 	}

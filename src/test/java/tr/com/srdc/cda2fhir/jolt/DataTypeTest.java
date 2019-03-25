@@ -60,7 +60,7 @@ public class DataTypeTest {
 
 	@Test
 	public void testTEL() throws Exception {
-		runDataTypeTests("TEL", false);
+		runDataTypeTests("TEL", true);
 	}
 
 	@Test

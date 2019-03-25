@@ -10,6 +10,17 @@
 	},
 	{
 		"input": {
+			"value": "tel:+1(555)555-1009",
+			"use": "H WP"
+		},
+		"expected": {
+			"system": "phone",
+			"value": "+1(555)555-1009",
+			"use": "work"
+		}
+	},
+	{
+		"input": {
 			"value": "tel:+1(555)666-1009",
 			"use": "WP"
 		},

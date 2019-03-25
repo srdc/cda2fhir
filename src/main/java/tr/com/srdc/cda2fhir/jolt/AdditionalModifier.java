@@ -230,6 +230,22 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class LastPiece extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null || argList.size() != 2) {
+				return Optional.empty();
+			}
+			String value = (String) argList.get(1);
+			if (value == null || value.isEmpty()) {
+				return Optional.empty();
+			}
+			String delimiter = (String) argList.get(0);
+			String[] pieces = value.split(delimiter);
+			return Optional.of(pieces[pieces.length - 1]);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -243,7 +259,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("getId", new GetId());
 		AMIDA_FUNCTIONS.put("piece", new Piece());
 		AMIDA_FUNCTIONS.put("lastElement", new LastElement());
-
+		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
 	}
 
 	private Modifier.Overwritr modifier;
