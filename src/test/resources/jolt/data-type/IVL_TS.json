@@ -1,14 +1,52 @@
 [
 	{
+		"operation": "default",
+		"spec": {
+			"high": {
+				"nullFlavor": "",
+				"value": ""
+			}
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
-			"low": {
-				"value": "start"
-			},
 			"high": {
-				"value": "end"
-			}		
+				"nullFlavor": {
+					"": {
+						"@3": {
+							"high": {
+								"value": {
+									"": {
+										"@3": "start.->EffectiveTimeLowOrValue"
+									},
+									"*": {
+										"@3": {
+											"high": {
+												"value": "end"
+											},
+											"low": {
+												"value": "start"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"*": {
+						"@3": {
+							"low": {
+								"value": "start"
+							}
+						}
+					}
+				}
+			}
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",

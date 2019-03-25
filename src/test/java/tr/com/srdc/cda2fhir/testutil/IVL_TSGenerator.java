@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.testutil;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Period;
@@ -22,7 +23,20 @@ public class IVL_TSGenerator {
 	public IVL_TSGenerator() {
 	}
 
+	@SuppressWarnings("unchecked")
 	public IVL_TSGenerator(Map<String, Object> json) {
+		nullFlavor = (String) json.get("nullFlavor");
+		value = (String) json.get("value");
+		Map<String, Object> low = (Map<String, Object>) json.get("low");
+		if (low != null) {
+			lowNullFlavor = (String) low.get("nullFlavor");
+			lowValue = (String) low.get("value");
+		}
+		Map<String, Object> high = (Map<String, Object>) json.get("high");
+		if (high != null) {
+			highNullFlavor = (String) high.get("nullFlavor");
+			highValue = (String) high.get("value");
+		}
 	}
 
 	public IVL_TS generate(CDAFactories factories) {
@@ -78,32 +92,49 @@ public class IVL_TSGenerator {
 	}
 
 	public void verify(Period period) {
-		boolean lowChecked = false;
-		if (lowNullFlavor == null && nullFlavor == null && lowValue != null) {
-			lowChecked = true;
+		if (nullFlavor != null) {
+			Assert.assertTrue("Missing period start", !period.hasStartElement());
+			Assert.assertTrue("Missing period end", !period.hasEndElement());
+			return;
+		}
+
+		if (lowNullFlavor == null && lowValue != null) {
 			String startValue = FHIRUtil.toCDADatetime(period.getStartElement().asStringValue());
 			Assert.assertEquals("Period start value", lowValue, startValue);
+		} else if (lowNullFlavor == null && lowValue == null && highNullFlavor == null && highValue == null
+				&& value != null) {
+			String startValue = FHIRUtil.toCDADatetime(period.getStartElement().asStringValue());
+			Assert.assertEquals("Period start value", value, startValue);
+		} else {
+			Assert.assertTrue("Missing period start", !period.hasStartElement());
 		}
-		boolean highChecked = false;
+
 		if (highNullFlavor == null && nullFlavor == null && highValue != null) {
-			highChecked = true;
 			String endValue = FHIRUtil.toCDADatetime(period.getEndElement().asStringValue());
 			Assert.assertEquals("Period end value", highValue, endValue);
 		} else {
 			Assert.assertTrue("Missing period end", !period.hasEndElement());
 		}
-		if (lowChecked)
-			return;
-
-		if (!highChecked && nullFlavor == null && value != null) {
-			String startValue = period.getStartElement().asStringValue();
-			Assert.assertEquals("Period start value", value, startValue);
-		} else {
-			Assert.assertTrue("Missing period start", !period.hasStartElement());
-		}
 	}
 
 	public Map<String, Object> toJson() {
-		return null;
+		if (nullFlavor != null) {
+			return null;
+		}
+
+		Map<String, Object> result = new LinkedHashMap<>();
+
+		if (lowNullFlavor == null && lowValue != null) {
+			result.put("start", FHIRUtil.toFHIRDatetime(lowValue));
+		}
+		if (highNullFlavor == null && highValue != null) {
+			result.put("end", FHIRUtil.toFHIRDatetime(highValue));
+		}
+		if (lowNullFlavor == null && lowValue == null && highNullFlavor == null && highValue == null && value != null) {
+			result.put("start", FHIRUtil.toFHIRDatetime(value));
+		}
+		if (result.isEmpty())
+			return null;
+		return result;
 	}
 }

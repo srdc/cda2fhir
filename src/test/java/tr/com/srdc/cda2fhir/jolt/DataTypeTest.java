@@ -22,15 +22,19 @@ public class DataTypeTest {
 		for (int index = 0; index < testCases.length(); ++index) {
 			JSONObject testCase = testCases.getJSONObject(index);
 			JSONObject inputJSON = testCase.getJSONObject("input");
-			JSONObject expectedJSON = testCase.getJSONObject("expected");
+			JSONObject expectedJSON = testCase.optJSONObject("expected");
 
 			String input = inputJSON.toString();
 			Object inputObject = JsonUtils.jsonToObject(input);
 			Object actualObject = chainr.transform(inputObject);
 
-			String actual = JsonUtils.toJsonString(actualObject);
-			String expected = expectedJSON.toString();
-			JSONAssert.assertEquals(dataType + " test case " + index, expected, actual, true);
+			if (expectedJSON == null) {
+				Assert.assertNull(dataType + " test case " + index, actualObject);
+			} else {
+				String actual = JsonUtils.toJsonString(actualObject);
+				String expected = expectedJSON.toString();
+				JSONAssert.assertEquals(dataType + " test case " + index, expected, actual, true);
+			}
 		}
 
 		if (checkNullflavor) {
@@ -67,5 +71,10 @@ public class DataTypeTest {
 	@Test
 	public void testPN() throws Exception {
 		runDataTypeTests("PN", true);
+	}
+
+	@Test
+	public void testIVL_TS() throws Exception {
+		runDataTypeTests("IVL_TS", false);
 	}
 }

@@ -176,4 +176,33 @@ public class FHIRUtil {
 		}
 		return result;
 	}
+
+	public static String toFHIRDatetime(String cdaDateTime) {
+		if (cdaDateTime.length() < 4) {
+			return null;
+		}
+		String[] pieces = cdaDateTime.split("-");
+		String datetime = pieces[0];
+		int length = datetime.length();
+		String result = datetime.substring(0, 4);
+		if (length > 5) {
+			result += "-" + datetime.substring(4, 6);
+			if (length > 7) {
+				result += "-" + datetime.substring(6, 8);
+				if (length > 11) {
+					result += "T" + datetime.substring(8, 10) + ":" + datetime.substring(10, 12);
+					if (length > 13) {
+						result += ":" + datetime.substring(12, 14);
+					} else {
+						result += ":00";
+					}
+				}
+			}
+		}
+		String zone = pieces.length > 1 ? pieces[1] : null;
+		if (zone != null && zone.length() > 0) {
+			result += "-" + zone.substring(0, 2) + ":" + zone.substring(2, 4);
+		}
+		return result;
+	}
 }

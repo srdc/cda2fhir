@@ -8,11 +8,13 @@ import java.util.Set;
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.hl7.fhir.dstu3.model.HumanName;
+import org.hl7.fhir.dstu3.model.Period;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -21,6 +23,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.ADGenerator;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.IVL_TSGenerator;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
 import tr.com.srdc.cda2fhir.testutil.PNGenerator;
 import tr.com.srdc.cda2fhir.testutil.TELGenerator;
@@ -60,6 +63,12 @@ public class DataTypesGeneratorTest {
 		generator.verify(humanName);
 	}
 
+	private static void verify(IVL_TSGenerator generator) {
+		IVL_TS ivlTs = generator.generate(factories);
+		Period period = dtt.tIVL_TS2Period(ivlTs);
+		generator.verify(period);
+	}
+
 	private static final Map<String, Verification> verifications = new HashMap<>();
 	static {
 		verifications.put("TEL", input -> {
@@ -77,6 +86,11 @@ public class DataTypesGeneratorTest {
 			verify(generator);
 			return generator.toJson();
 		});
+		verifications.put("IVL_TS", input -> {
+			IVL_TSGenerator generator = new IVL_TSGenerator(input);
+			verify(generator);
+			return generator.toJson();
+		});
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,9 +103,13 @@ public class DataTypesGeneratorTest {
 			Map<String, Object> input = (Map<String, Object>) testCase.get("input");
 			Map<String, Object> expectedRaw = (Map<String, Object>) testCase.get("expected");
 			Map<String, Object> output = verifications.get(name).verify(input);
-			String actual = JsonUtils.toJsonString(output);
-			String expected = JsonUtils.toJsonString(expectedRaw);
-			JSONAssert.assertEquals(name + " test case " + index, expected, actual, true);
+			if (expectedRaw == null) {
+				Assert.assertNull(name + " test case " + index, output);
+			} else {
+				String actual = JsonUtils.toJsonString(output);
+				String expected = JsonUtils.toJsonString(expectedRaw);
+				JSONAssert.assertEquals(name + " test case " + index, expected, actual, true);
+			}
 		}
 	}
 
@@ -128,5 +146,10 @@ public class DataTypesGeneratorTest {
 			generator.setUse(use);
 			verify(generator);
 		});
+	}
+
+	@Test
+	public void testIVL_TS() throws Exception {
+		runTestCases("IVL_TS");
 	}
 }
