@@ -2,13 +2,25 @@
 	{
 		"operation": "cardinality",
 		"spec": {
-			"streetAddressLine": "MANY"
+			"streetAddressLine": "MANY",
+			"city": "ONE",
+			"county": "ONE",
+			"country": "ONE",
+			"state": "ONE",
+			"postalCode": "ONE",
+			"use": "ONE",
+			"text": "ONE"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
 		}
 	},
 	{
 		"operation": "shift",
 		"spec": {
-			"nullFlavor": null,
 			"text": "text",
 			"streetAddressLine": {
 				"*": "line[]"

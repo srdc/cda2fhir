@@ -60,4 +60,9 @@ public class MainTest {
 	public void testTEL() throws Exception {
 		actualTest("TEL");
 	}
+
+	@Test
+	public void testAD() throws Exception {
+		actualTest("AD");
+	}
 }

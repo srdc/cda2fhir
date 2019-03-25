@@ -65,7 +65,7 @@ public class DataTypeTest {
 
 	@Test
 	public void testAD() throws Exception {
-		runDataTypeTests("AD", false);
+		runDataTypeTests("AD", true);
 	}
 
 	@Test
