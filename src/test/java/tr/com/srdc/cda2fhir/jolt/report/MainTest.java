@@ -45,4 +45,9 @@ public class MainTest {
 	public void testCD() throws Exception {
 		actualTest("CD");
 	}
+
+	@Test
+	public void testIVL_TS() throws Exception {
+		actualTest("IVL_TS");
+	}
 }

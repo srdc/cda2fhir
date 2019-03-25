@@ -14,6 +14,7 @@ public class JoltTemplate {
 		public Map<String, Object> assign;
 		public Map<String, Object> accumulator;
 		public Map<String, Object> modifier;
+		public Map<String, Object> removeWhen;
 
 		@SuppressWarnings("unchecked")
 		public static RawTemplate getInstance(List<Object> content) {
@@ -39,6 +40,10 @@ public class JoltTemplate {
 				}
 				if (operation.endsWith("AdditionalModifier")) {
 					result.modifier = spec;
+					return;
+				}
+				if (operation.endsWith("RemoveWhen")) {
+					result.removeWhen = spec;
 					return;
 				}
 			});
@@ -180,6 +185,9 @@ public class JoltTemplate {
 			result.format = JoltFormat.getInstance(rawTemplate.modifier);
 		}
 		result.rootNode = NodeFactory.getInstance(rawTemplate.shifts.get(0));
+		if (rawTemplate.removeWhen != null) {
+			result.rootNode.updateFromRemoveWhen(rawTemplate.removeWhen);
+		}
 		if (rawTemplate.shifts.size() > 1) {
 			result.supportRootNode = NodeFactory.getInstance(rawTemplate.shifts.get(1));
 		}

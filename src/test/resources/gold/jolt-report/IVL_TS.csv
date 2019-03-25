@@ -1,0 +1,4 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
+high.value,end,,"datetimeAdapter",high.nullFlavor isnull,nullFlavor isNull
+low.value,start,,"datetimeAdapter",low.nullFlavor isnull,nullFlavor isNull
+value,start,,"datetimeAdapter",nullFlavor isNull,value.high isNull,value.low isNull

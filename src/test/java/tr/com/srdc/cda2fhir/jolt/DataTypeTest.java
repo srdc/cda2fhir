@@ -75,6 +75,6 @@ public class DataTypeTest {
 
 	@Test
 	public void testIVL_TS() throws Exception {
-		runDataTypeTests("IVL_TS", false);
+		runDataTypeTests("IVL_TS", true);
 	}
 }

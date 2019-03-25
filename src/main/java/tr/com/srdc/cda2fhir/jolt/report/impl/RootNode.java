@@ -96,4 +96,27 @@ public class RootNode {
 		});
 		return result;
 	}
+
+	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
+		for (Map.Entry<String, Object> entry : updateInfo.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			JoltCondition condition = new JoltCondition(key, "isNull");
+			if ("*".equals(value)) {
+				root.children.forEach(base -> base.addCondition(condition));
+				continue;
+			}
+			if (value instanceof String) {
+				root.children.forEach(base -> {
+					((IParentNode) base).getChildren().forEach(grandChild -> {
+						if (grandChild.getPath().equals(value)) {
+							grandChild.addCondition(condition); // TODO: put this in base, requires seperation
+						}
+					});
+				});
+				continue;
+			}
+		}
+
+	}
 }

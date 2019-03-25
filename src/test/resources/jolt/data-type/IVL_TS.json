@@ -1,52 +1,27 @@
 [
 	{
-		"operation": "default",
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"high": {
-				"nullFlavor": "",
-				"value": ""
-			}
+			"nullFlavor": "*",
+			"low": "value",
+			"high": "value"
 		}
 	},
 	{
 		"operation": "shift",
 		"spec": {
-			"high": {
-				"nullFlavor": {
-					"": {
-						"@3": {
-							"high": {
-								"value": {
-									"": {
-										"@3": "start.->EffectiveTimeLowOrValue"
-									},
-									"*": {
-										"@3": {
-											"high": {
-												"value": "end"
-											},
-											"low": {
-												"value": "start"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"*": {
-						"@3": {
-							"low": {
-								"value": "start"
-							}
-						}
-					}
-				}
-			}
+			"low": "start.->NullFlavorableValue",
+			"high": "end.->NullFlavorableValue",
+			"value": "start"
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
