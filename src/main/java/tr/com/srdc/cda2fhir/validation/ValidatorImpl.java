@@ -46,11 +46,17 @@ public class ValidatorImpl implements IValidator {
 
 	private final Logger logger = LoggerFactory.getLogger(ValidatorImpl.class);
 
+	private FhirContext ctx = FhirContext.forDstu3();
+
+	public ValidatorImpl(FhirContext ctx) {
+		this.setCtx(ctx);
+	}
+
 	/**
 	 * Constructs a validator using the default configuration.
 	 */
 	public ValidatorImpl() {
-
+		this.setCtx(FhirContext.forDstu3());
 	}
 
 	@Override
@@ -94,7 +100,7 @@ public class ValidatorImpl implements IValidator {
 							e);
 				}
 			} else {
-				logger.warn("An entry of the bundle validator was running on was found null. Ignoring the entry.");
+				logger.warn("Null bundle entry found. Ignoring the entry.");
 			}
 		}
 
@@ -156,7 +162,6 @@ public class ValidatorImpl implements IValidator {
 
 		logger.info("Validating resource " + resource.getIdElement());
 
-		FhirContext ctx = FhirContext.forDstu3();
 		FhirValidator validator = ctx.newValidator();
 
 		IValidatorModule schemaModule = new SchemaBaseValidator(ctx);
@@ -186,8 +191,29 @@ public class ValidatorImpl implements IValidator {
 	}
 
 	@Override
-	public ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException {
+	public ValidationResult validateResourceResultOnly(IBaseResource resource) {
+		if (resource == null) {
+			logger.warn("The resource to be validated is null. Returning null");
+			return null;
+		}
+
+		logger.info("Validating resource " + resource.getIdElement());
+
 		FhirContext ctx = FhirContext.forDstu3();
+		FhirValidator validator = ctx.newValidator();
+
+		IValidatorModule schemaModule = new SchemaBaseValidator(ctx);
+		IValidatorModule schematronModule = new SchematronBaseValidator(ctx);
+		validator.registerValidatorModule(schemaModule);
+		validator.registerValidatorModule(schematronModule);
+
+		return validator.validateWithResult(resource);
+
+	}
+
+	@Override
+	public ValidationResult validateFile(String filepath) throws IOException, FileNotFoundException {
+
 		FhirValidator validator = ctx.newValidator();
 		validator.setValidateAgainstStandardSchema(true);
 		validator.setValidateAgainstStandardSchematron(true);
@@ -199,4 +225,11 @@ public class ValidatorImpl implements IValidator {
 		return result;
 	}
 
+	public FhirContext getCtx() {
+		return ctx;
+	}
+
+	public void setCtx(FhirContext ctx) {
+		this.ctx = ctx;
+	}
 }
