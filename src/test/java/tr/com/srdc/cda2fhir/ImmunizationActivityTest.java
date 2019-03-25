@@ -12,6 +12,9 @@ import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.Consumable;
+import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.Material;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationRefusalReason;
@@ -19,6 +22,7 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationRefusalReasonImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
@@ -169,7 +173,7 @@ public class ImmunizationActivityTest {
 		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
 		verifyImmunizationStatus(act, null);
 
-		CD code = factories.datatype.createCD();
+		CE code = factories.datatype.createCE();
 		ED ed = factories.datatype.createED();
 		TEL tel = factories.datatype.createTEL();
 
@@ -179,6 +183,14 @@ public class ImmunizationActivityTest {
 		code.setCode("code");
 		code.setCodeSystem("codeSystem");
 		code.setOriginalText(ed);
+
+		Consumable cons = factories.base.createConsumable();
+		ManufacturedProduct manProd = factories.base.createManufacturedProduct();
+		Material mat = factories.base.createMaterial();
+		mat.setCode(code);
+		manProd.setManufacturedMaterial(mat);
+		cons.setManufacturedProduct(manProd);
+		act.setConsumable(cons);
 
 		Map<String, String> idedAnnotations = new StringMap();
 		idedAnnotations.put("fakeid1", "fakevalue2");
