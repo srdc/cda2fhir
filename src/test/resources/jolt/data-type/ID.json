@@ -1,0 +1,39 @@
+[
+	{
+		"operation": "default",
+		"spec": {
+			"extension": ""
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"extension": {
+				"": {
+					"@2": {
+						"root": "value"
+					}
+				},
+				"*": {
+					"@2": {
+						"root": "system",
+						"extension": "value"
+					}
+				}
+			},
+			"#official": "use"
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"value": "=toString(@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec" : {
+			"system": "=systemAdapter(@0)"
+		}
+	}
+]

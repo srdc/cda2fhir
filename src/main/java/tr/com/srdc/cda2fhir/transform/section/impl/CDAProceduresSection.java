@@ -12,24 +12,25 @@ import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDAProceduresSection implements ICDASection {
 	private ProceduresSection section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAProceduresSection() {};
-	
+	private CDAProceduresSection() {
+	};
+
 	public CDAProceduresSection(ProceduresSection section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<Procedure> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
 		SectionResultSingular<Procedure> result = SectionResultSingular.getInstance(Procedure.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
-		for(ProcedureActivityProcedure act : section.getConsolProcedureActivityProcedures()) {
-    		IEntryResult er = rt.tProcedure2Procedure(act, localBundleInfo);
-    		result.updateFrom(er);
-    		localBundleInfo.updateFrom(er);
-    	}
-    	return result;
+		for (ProcedureActivityProcedure act : section.getConsolProcedureActivityProcedures()) {
+			IEntryResult er = rt.tProcedure2Procedure(act, localBundleInfo);
+			result.updateFrom(er);
+			localBundleInfo.updateFrom(er);
+		}
+		return result;
 	}
 }

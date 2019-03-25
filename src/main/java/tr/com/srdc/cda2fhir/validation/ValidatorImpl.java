@@ -52,6 +52,9 @@ public class ValidatorImpl implements IValidator {
 		this.setCtx(ctx);
 	}
 
+	/**
+	 * Constructs a validator using the default configuration.
+	 */
 	public ValidatorImpl() {
 		this.setCtx(FhirContext.forDstu3());
 	}
@@ -229,5 +232,4 @@ public class ValidatorImpl implements IValidator {
 	public void setCtx(FhirContext ctx) {
 		this.ctx = ctx;
 	}
-
 }

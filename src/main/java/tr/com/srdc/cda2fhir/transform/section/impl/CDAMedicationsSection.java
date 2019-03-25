@@ -12,24 +12,26 @@ import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
 
 public class CDAMedicationsSection implements ICDASection {
 	private MedicationsSection section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAMedicationsSection() {};
-	
+	private CDAMedicationsSection() {
+	};
+
 	public CDAMedicationsSection(MedicationsSection section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<MedicationStatement> transform(IBundleInfo bundleInfo) {
 		IResourceTransformer rt = bundleInfo.getResourceTransformer();
-		SectionResultSingular<MedicationStatement> result = SectionResultSingular.getInstance(MedicationStatement.class);
+		SectionResultSingular<MedicationStatement> result = SectionResultSingular
+				.getInstance(MedicationStatement.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		for (MedicationActivity act : section.getMedicationActivities()) {
-    		IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, localBundleInfo);
-    		result.updateFrom(er);
-    		localBundleInfo.updateFrom(er);
-    	}
-    	return result;
+			IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, localBundleInfo);
+			result.updateFrom(er);
+			localBundleInfo.updateFrom(er);
+		}
+		return result;
 	}
 }

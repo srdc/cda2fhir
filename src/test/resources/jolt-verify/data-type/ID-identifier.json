@@ -1,0 +1,57 @@
+[
+	{
+		"input": {
+			"id": [
+				{
+					"root": "36e3e930-7b14-11db-9fe1-0800200c9a66",
+					"extension": "0246810"
+				},
+				{
+					"root": "46e3e930-7b14-11db-9fe1-0800200c9a66",
+					"extension": "1236810"
+				}
+			]
+		},
+		"template": [
+			{
+				"operation": "cardinality",
+				"spec": {
+					"id": "MANY"
+				}
+			},
+			{
+				"operation": "shift",
+				"spec": {
+					"id": {
+						"*": "identifier[].->ID"
+					}
+				}
+			},
+			{
+				"operation": "cardinality",
+				"spec": {
+					"identifier": "MANY"
+				}
+			},
+			{
+				"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+				"spec": {
+					"name": "data-type/ID.json",
+					"path": "identifier"
+				}
+			}
+		],
+		"expected": {
+			"identifier": [
+				{
+					"system": "urn:oid:36e3e930-7b14-11db-9fe1-0800200c9a66",
+					"value": "0246810"
+				},
+				{
+					"system": "urn:oid:46e3e930-7b14-11db-9fe1-0800200c9a66",
+					"value": "1236810"
+				}
+			]
+		}
+	}
+]

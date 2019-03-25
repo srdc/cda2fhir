@@ -17,37 +17,38 @@ public class EntityResult implements IEntityResult {
 	private IEntityInfo info;
 	private List<II> ids;
 	private boolean fromExisting;
-	
+
 	public EntityResult() {
 		info = new EntityInfo();
 		fromExisting = true;
 	}
-	
+
 	public EntityResult(IEntityInfo info) {
 		this.info = info;
 		fromExisting = true;
 	}
-	
+
 	public EntityResult(IEntityInfo info, List<II> ids) {
 		this.info = info;
 		this.ids = ids;
 		fromExisting = false;
 	}
-	
+
 	@Override
 	public boolean isFromExisting() {
 		return fromExisting;
 	}
-	
+
 	@Override
 	public List<II> getNewIds() {
 		return ids;
 	}
-	
+
+	@Override
 	public IEntityInfo getInfo() {
 		return info;
 	}
-	
+
 	@Override
 	public void copyTo(Bundle bundle) {
 		Practitioner practitioner = info.getPractitioner();
@@ -73,7 +74,7 @@ public class EntityResult implements IEntityResult {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public boolean isEmpty() {
 		return info.getPractitioner() == null && info.getPractitionerRole() == null && info.getOrganization() == null;
@@ -104,12 +105,12 @@ public class EntityResult implements IEntityResult {
 	public Practitioner getPractitioner() {
 		return info.getPractitioner();
 	}
-	
+
 	@Override
 	public PractitionerRole getPractitionerRole() {
 		return info.getPractitionerRole();
 	}
-	
+
 	@Override
 	public Organization getOrganization() {
 		return info.getOrganization();

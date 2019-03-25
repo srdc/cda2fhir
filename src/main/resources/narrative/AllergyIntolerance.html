@@ -4,34 +4,35 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div>
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${resource.code}">
-				<td>Substance</td>
-				<td th:narrative="${resource.code}"></td>
-			</tr>
-			<tr th:if="${resource.onset}">
-				<td>Onset</td>
-				<td th:narrative="${resource.onset}"></td>
-			</tr>
-			<tr th:if="${resource.reaction} and ${not resource.reaction.empty}" th:each="reaction : ${resource.reaction}">
-				<td>Reaction</td>
-				<td th:each="mani : ${reaction.manifestation}">
-				<div th:narrative="${mani}"/>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+	<div>
+		<table class="hapiPropertyTable">
+			<tbody>
+				<tr th:if="${resource.code}">
+					<td>Substance</td>
+					<td th:narrative="${resource.code}"></td>
+				</tr>
+				<tr th:if="${resource.onset}">
+					<td>Onset</td>
+					<td th:narrative="${resource.onset}"></td>
+				</tr>
+				<tr th:if="${resource.reaction} and ${not resource.reaction.empty}"
+					th:each="reaction : ${resource.reaction}">
+					<td>Reaction</td>
+					<td th:each="mani : ${reaction.manifestation}">
+						<div th:narrative="${mani}" />
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->

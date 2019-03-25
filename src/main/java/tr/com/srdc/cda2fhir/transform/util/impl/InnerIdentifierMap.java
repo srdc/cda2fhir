@@ -6,13 +6,11 @@ import java.util.Map;
 import org.hl7.fhir.dstu3.model.Identifier;
 
 public class InnerIdentifierMap<T> {
-	private Map<String, T> genericMap; 
+	private Map<String, T> genericMap;
 	private Map<String, Map<String, T>> systemMaps;
-	
-	public void put(Identifier identifier, T identifiedValue) {
-		String value = identifier.getValue();
-		if (value != null) {		
-			String system = identifier.getSystem();
+
+	public void put(String system, String value, T identifiedValue) {
+		if (value != null) {
 			if (system != null) {
 				if (systemMaps == null) {
 					systemMaps = new HashMap<String, Map<String, T>>();
@@ -32,8 +30,14 @@ public class InnerIdentifierMap<T> {
 		}
 	}
 
+	public void put(Identifier identifier, T identifiedValue) {
+		String value = identifier.getValue();
+		String system = identifier.getSystem();
+		put(system, value, identifiedValue);
+	}
+
 	public T get(String system, String value) {
-		if (value != null) {		
+		if (value != null) {
 			if (system != null) {
 				if (systemMaps == null) {
 					return null;
@@ -50,8 +54,7 @@ public class InnerIdentifierMap<T> {
 		}
 		return null;
 	}
-	
-	
+
 	public T get(Identifier identifier) {
 		return get(identifier.getSystem(), identifier.getValue());
 	}

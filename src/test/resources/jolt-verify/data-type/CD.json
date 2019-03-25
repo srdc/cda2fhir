@@ -1,0 +1,86 @@
+[
+	{
+		"input": {
+			"code": "Unknown",
+			"codeSystem": "2.16.840.1.113883.4.9",
+			"codeSystemName": "UNII",
+			"displayName": "Ragweed"
+		},
+		"expected": {
+			"coding": [
+				{
+					"code": "Unknown",
+					"system": "http://fdasis.nlm.nih.gov",
+					"display": "Ragweed"
+				}
+			]
+		}
+	},
+	{
+		"input": {
+			"code": 309471,
+			"codeSystem": "2.16.840.1.113883.6.88",
+			"codeSystemName": "RxNorm",
+			"displayName": "Aspirin 325 MG \/ butalbital 50 MG \/ Caffeine 40 MG \/ Codeine 30 MG Oral Capsule",
+			"translation": [{
+				"code": 8430,
+				"codeSystem": "2.16.840.1.113883.6.253",
+				"codeSystemName": "MediSpan DDID",
+				"displayName": "Fiorinal\/Codeine #3"
+			}]
+		},
+		"expected": {
+			"coding": [
+				{
+					"code": "309471",
+					"system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+					"display": "Aspirin 325 MG \/ butalbital 50 MG \/ Caffeine 40 MG \/ Codeine 30 MG Oral Capsule"
+				},
+				{
+					"code": "8430",
+					"system": "urn:oid:2.16.840.1.113883.6.253",
+					"display": "Fiorinal\/Codeine #3"
+				}
+			]
+		}
+	},
+	{
+		"input": {
+			"code": 309471,
+			"codeSystem": "2.16.840.1.113883.6.88",
+			"codeSystemName": "RxNorm",
+			"displayName": "Aspirin 325 MG \/ butalbital 50 MG \/ Caffeine 40 MG \/ Codeine 30 MG Oral Capsule",
+			"translation": [{
+				"code": 8430,
+				"codeSystem": "2.16.840.1.113883.6.253",
+				"codeSystemName": "MediSpan DDID",
+				"displayName": "Fiorinal\/Codeine #3"
+			}, {
+				"code": 8431,
+				"codeSystem": "2.16.840.1.113883.6.253",
+				"codeSystemName": "MediSpan DDID",
+				"displayName": "Fiorinal\/Codeine #4"
+			}]
+		},
+		"expected": {
+			"coding": [
+				{
+					"code": "309471",
+					"system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+					"display": "Aspirin 325 MG \/ butalbital 50 MG \/ Caffeine 40 MG \/ Codeine 30 MG Oral Capsule"
+				},
+				{
+					"code": "8430",
+					"system": "urn:oid:2.16.840.1.113883.6.253",
+					"display": "Fiorinal\/Codeine #3"
+				},
+				{
+					"code": "8431",
+					"system": "urn:oid:2.16.840.1.113883.6.253",
+					"display": "Fiorinal\/Codeine #4"
+				}
+			]
+		}
+	}
+	
+]

@@ -78,4 +78,5 @@ public interface IValidator {
 	 */
 
 	ValidationResult validateResourceResultOnly(IBaseResource resource);
+
 }
