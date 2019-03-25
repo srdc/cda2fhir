@@ -29,12 +29,16 @@
 						},
 						"suffix": {
 							"*": "suffix[]"
-						}
+						},
+						"validTime": "period.->IVL_TS"
 					}
 				},
 				"*": null
 			}
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",

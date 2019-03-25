@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
@@ -33,6 +34,8 @@ public class PNGenerator {
 
 	private List<String> prefixes = new ArrayList<>();
 	private List<String> suffixes = new ArrayList<>();
+
+	private IVL_TSGenerator ivlTsGenerator;
 
 	public PNGenerator() {
 	}
@@ -87,6 +90,11 @@ public class PNGenerator {
 			pn.setNullFlavor(nf);
 		}
 
+		if (ivlTsGenerator != null) {
+			IVL_TS ivlTs = ivlTsGenerator.generate(factories);
+			pn.setValidTime(ivlTs);
+		}
+
 		return pn;
 	}
 
@@ -110,6 +118,8 @@ public class PNGenerator {
 		pn.prefixes.add(PREFIX + "_2");
 		pn.suffixes.add(SUFFIX + "_1");
 		pn.suffixes.add(SUFFIX + "_2");
+
+		pn.ivlTsGenerator = IVL_TSGenerator.getFullInstance();
 
 		return pn;
 	}
@@ -168,6 +178,12 @@ public class PNGenerator {
 				Assert.assertEquals(msg, suffix, actual);
 				++index;
 			}
+
+		if (ivlTsGenerator == null) {
+			Assert.assertTrue("Missing name valid time", !humanName.hasPeriod());
+		} else {
+			ivlTsGenerator.verify(humanName.getPeriod());
+		}
 	}
 
 	public Map<String, Object> toJson() {

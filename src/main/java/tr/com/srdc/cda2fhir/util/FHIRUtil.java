@@ -154,4 +154,26 @@ public class FHIRUtil {
 	interface ResourcePredicate {
 		boolean get(Resource resource);
 	}
+
+	public static String toCDADatetime(String fhirDatetime) {
+		String noColon = fhirDatetime.replace(":", "");
+		String[] pieces = noColon.split("T");
+		String result = pieces[0].replace("-", "");
+		if (pieces.length > 1) {
+			String timezone = null;
+			if (pieces[1].indexOf('-') >= 0) {
+				String[] pieces2 = pieces[1].split("-");
+				result += pieces2[0].replace(":", "");
+				timezone = "-" + pieces2[1];
+			} else if (pieces[1].indexOf('+') >= 0) {
+				String[] pieces2 = pieces[1].split("+");
+				result += pieces2[0].replace(":", "");
+				timezone = "+" + pieces2[1];
+			}
+			if (timezone != null) {
+				result += timezone;
+			}
+		}
+		return result;
+	}
 }

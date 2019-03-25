@@ -1,0 +1,20 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"low": {
+				"value": "start"
+			},
+			"high": {
+				"value": "end"
+			}		
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"start": "=datetimeAdapter(@0)",
+			"end": "=datetimeAdapter(@0)"
+		}
+	}
+]
