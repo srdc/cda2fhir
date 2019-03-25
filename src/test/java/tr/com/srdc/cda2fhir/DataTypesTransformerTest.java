@@ -218,6 +218,18 @@ public class DataTypesTransformerTest {
 		cd3.setNullFlavor(NullFlavor.NI);
 		CodeableConcept codeableConcept3 = dtt.tCD2CodeableConcept(cd3);
 		Assert.assertNull("CodeableConcept.nullFlavor set instance transform failed", codeableConcept3);
+
+		// originalText test
+		CD cd4 = DatatypesFactory.eINSTANCE.createCD();
+		ED ed1 = DatatypesFactory.eINSTANCE.createED();
+		ed1.addText("help me rhonda");
+
+		cd4.setCode("code");
+		cd4.setCodeSystem("codeSystem");
+		cd4.setOriginalText(ed1);
+		CodeableConcept codeableConcept4 = dtt.tCD2CodeableConcept(cd4);
+		Assert.assertNull("CodeableConcept.nullFlavor set instance transform failed", codeableConcept4);
+
 	}
 
 	@Test
