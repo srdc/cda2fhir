@@ -46,6 +46,7 @@ import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
+import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
 import org.hl7.fhir.dstu3.model.Composition.DocumentConfidentiality;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Composition.SectionMode;
@@ -99,6 +100,7 @@ import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.DocumentationOf;
 import org.openhealthtools.mdht.uml.cda.Entity;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Guardian;
@@ -113,6 +115,7 @@ import org.openhealthtools.mdht.uml.cda.Performer1;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.ServiceEvent;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyStatusObservation;
@@ -161,8 +164,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
-import tr.com.srdc.cda2fhir.transform.entry.impl.DeferredProcedureEncounterReference;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;ProcedureEncounterReference;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
@@ -898,6 +900,29 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
+		// documentationOf.serviceEvent.assignedEntity -> attester[mode = professional]
+		for (DocumentationOf docOf : cdaClinicalDocument.getDocumentationOfs()) {
+			if (docOf.getServiceEvent() != null && !docOf.getServiceEvent().getPerformers().isEmpty()) {
+				for (Performer1 performer : docOf.getServiceEvent().getPerformers()) {
+					// servicEvent has a cardinality of 0..* so we add an attester for each
+					// performer
+					CompositionAttesterComponent attester = fhirComp != null ? fhirComp.addAttester() : null;
+					if (attester != null) {
+						ServiceEvent serviceEvent = docOf.getServiceEvent();
+						attester.addMode(CompositionAttestationMode.PROFESSIONAL);
+						attester.setTimeElement(dtt.tTS2DateTime(serviceEvent.getEffectiveTime()));
+						EntityResult entityResult = tAssignedEntity2Practitioner(performer.getAssignedEntity(),
+								bundleInfo);
+						result.updateFrom(entityResult);
+						bundleInfo.updateFrom(entityResult);
+						Reference reference = entityResult.getPractitionerReference();
+						if (attester != null && reference != null) {
+							attester.setParty(reference);
+						}
+					}
+				}
+			}
+		}
 		// custodian.assignedCustodian.representedCustodianOrganization -> custodian
 		if (cdaClinicalDocument.getCustodian() != null && !cdaClinicalDocument.getCustodian().isSetNullFlavor()) {
 			if (cdaClinicalDocument.getCustodian().getAssignedCustodian() != null
@@ -920,33 +945,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		return result;
 	}
-
-//	private CompositionAttesterComponent getAttesterFromEvent(ServiceEvent cdaServiceEvent) {
-//		if (cdaServiceEvent == null || cdaServiceEvent.isSetNullFlavor()) {
-//			return null;
-//		}
-//
-//		CompositionAttesterComponent attester = new CompositionAttesterComponent();
-//
-//		if (cdaServiceEvent.hasContent() && !cdaServiceEvent.getPerformers().isEmpty()) {
-//			Performer1 performer = cdaServiceEvent.getPerformers().get(0);
-//			if (performer.hasContent() && !performer.isSetNullFlavor()) {
-//				Practitioner practitioner = tPerformer12Practitioner(performer);
-//			}
-//
-//			attester.addMode(Composition.CompositionAttestationMode.PROFESSIONAL);
-//
-//		}
-//	}
-//
-//	public CompositionEventComponent tServiceEvent2Event(ServiceEvent cdaServiceEvent) {
-//		if (cdaServiceEvent == null || cdaServiceEvent.isSetNullFlavor()) {
-//			return null;
-//		}
-//
-//		CompositionEventComponent event = new CompositionEventComponent();
-//
-//	}
 
 	@Override
 	public org.hl7.fhir.dstu3.model.Organization tCustodianOrganization2Organization(
