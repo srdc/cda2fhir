@@ -99,7 +99,7 @@ public class ValidatorTest {
 	}
 
 	// C-CDA_R2-1_CCD.xml without DAF profile
-	@Ignore
+	@Test
 	public void testReferenceCCDBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-wo-profile-validation.xml";
@@ -110,7 +110,7 @@ public class ValidatorTest {
 	}
 
 	// C-CDA_R2-1_CCD.xml with provenance
-	@Ignore
+	@Test
 	public void testReferenceCCDBundleWithProvenance() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-provenance.xml";
@@ -153,12 +153,12 @@ public class ValidatorTest {
 				generateDAFProfileMetadata, false);
 	}
 
-	// HannahBanana_EpicCCD.xml
-	@Test
+	// Vitera_CCDA_SMART_Sample.xml with profile
+	@Ignore
 	public void testRakiaBundle() throws Exception {
-		String cdaResourcePath = "src/test/resources/Epic/HannahBanana_EpicCCD-pretty.xml";
-		String targetPathForFHIRResource = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.fhir.xml";
-		String targetPathForResultFile = "src/test/resources/output/Cerner/HannahBanana_EpicCCD-pretty.validation-result.html";
+		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
+		String targetPathForFHIRResource = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
+		String targetPathForResultFile = "src/test/resources/output/Cerner/validation-result-Person-RAKIA_TEST_DOC00001 (1).html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
 				generateDAFProfileMetadata, false);

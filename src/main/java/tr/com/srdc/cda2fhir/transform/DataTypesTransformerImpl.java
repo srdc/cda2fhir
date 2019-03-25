@@ -351,10 +351,6 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 			}
 		}
 
-		if (idedAnnotations != null) {
-			System.out.println(idedAnnotations);
-		}
-
 		String annotation = tED2Annotation(cd.getOriginalText(), idedAnnotations);
 		if (annotation != null) {
 			if (myCodeableConcept == null) {
