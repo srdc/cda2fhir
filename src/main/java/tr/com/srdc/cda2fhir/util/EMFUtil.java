@@ -53,6 +53,12 @@ public class EMFUtil {
 		}
 	}
 
+	/***
+	 * Pulls text references out of source HTML for later use.
+	 * 
+	 * @param text the structured text portion of the CCD document.
+	 * @return map of ids and values from that section.
+	 */
 	static public Map<String, String> findReferences(StrucDocText text) {
 		Map<String, String> result = new HashMap<String, String>();
 		FeatureMap featureMap = text.getMixed();

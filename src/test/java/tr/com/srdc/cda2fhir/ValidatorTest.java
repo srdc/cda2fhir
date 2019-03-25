@@ -155,7 +155,7 @@ public class ValidatorTest {
 
 	// HannahBanana_EpicCCD.xml
 	@Test
-	public void testRakiaBundle() throws Exception {
+	public void testHannahBanana() throws Exception {
 		String cdaResourcePath = "src/test/resources/Epic/HannahBanana_EpicCCD-pretty.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.fhir.xml";
 		String targetPathForResultFile = "src/test/resources/output/Cerner/HannahBanana_EpicCCD-pretty.validation-result.html";
