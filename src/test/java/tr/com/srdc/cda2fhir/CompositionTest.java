@@ -40,7 +40,7 @@ public class CompositionTest {
 	@Test
 	public void testComposition() throws Exception {
 
-		ClinicalDocument clinicalDoc = metadataGenerator.getDefaultInstance(factories);
+		ClinicalDocument clinicalDoc = metadataGenerator.generateClinicalDoc(factories);
 		EntryResult entryResult = rt.tClinicalDocument2Composition(clinicalDoc);
 		Bundle bundle = entryResult.getBundle();
 		Composition comp = BundleUtil.findOneResource(bundle, Composition.class);
