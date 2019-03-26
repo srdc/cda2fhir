@@ -16,7 +16,8 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class ProblemConcernActGenerator {
 	private List<IDGenerator> idGenerators = new ArrayList<>();
-	private CDGenerator cdGenerator;
+	private CDGenerator codeGenerator;
+	private List<CDGenerator> valueGenerators = new ArrayList<>();
 
 	public ProblemConcernAct generate(CDAFactories factories) {
 		ProblemConcernAct pca = factories.consol.createProblemConcernAct();
@@ -32,10 +33,15 @@ public class ProblemConcernActGenerator {
 			po.getIds().add(ii);
 		});
 
-		if (cdGenerator != null) {
-			CD code = cdGenerator.generate(factories);
+		if (codeGenerator != null) {
+			CD code = codeGenerator.generate(factories);
 			po.setCode(code);
 		}
+
+		valueGenerators.forEach(vg -> {
+			CD value = vg.generate(factories);
+			po.getValues().add(value);
+		});
 
 		return pca;
 	}
@@ -44,7 +50,8 @@ public class ProblemConcernActGenerator {
 		ProblemConcernActGenerator pcag = new ProblemConcernActGenerator();
 
 		pcag.idGenerators.add(IDGenerator.getNextInstance());
-		pcag.cdGenerator = CDGenerator.getNextInstance();
+		pcag.codeGenerator = CDGenerator.getNextInstance();
+		pcag.valueGenerators.add(CDGenerator.getNextInstance());
 
 		return pcag;
 	}
@@ -58,11 +65,18 @@ public class ProblemConcernActGenerator {
 			Assert.assertTrue("No condition identifier", !condition.hasIdentifier());
 		}
 
-		if (cdGenerator != null) {
+		if (codeGenerator != null) {
 			Assert.assertEquals("COndition category cpunt", 1, condition.getCategory().size());
-			cdGenerator.verify(condition.getCategory().get(0));
+			codeGenerator.verify(condition.getCategory().get(0));
 		} else {
 			Assert.assertTrue("No condition category", !condition.hasCategory());
+		}
+
+		if (valueGenerators.isEmpty()) {
+			Assert.assertTrue("No condition code", !condition.hasCode());
+		} else {
+			CDGenerator valueGenerator = valueGenerators.get(valueGenerators.size() - 1);
+			valueGenerator.verify(condition.getCode());
 		}
 	}
 }

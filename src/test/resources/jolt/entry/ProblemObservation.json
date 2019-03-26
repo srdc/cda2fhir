@@ -2,7 +2,9 @@
 	{
 		"operation": "cardinality",
 		"spec": {
-			"id": "MANY"
+			"id": "MANY",
+			"code": "ONE",
+			"value": "MANY"
 		}
 	},
 	{
@@ -11,7 +13,10 @@
 			"id": {
 				"*": "identifier[].->ID"
 			},
-			"code": "category[].->CD" 
+			"code": "category[].->CD",
+			"value": {
+				"*": "code.->CD"			
+			} 
 		}
 	},
 	{
@@ -26,7 +31,8 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"clinicalStatus": "=selectOnNull('active','inactive',@0)"
+			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
+			"code": "=lastElement(@0)"
 		}
 	},
 	{
