@@ -128,6 +128,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+  @Override
 	public AllergyIntoleranceType tAllergyCategoryCode2AllergyIntoleranceType(String cdaAllergyCategoryCode) {
 		if (cdaAllergyCategoryCode == null)
 			return null;
@@ -553,6 +554,9 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			break;
 		case "2.16.840.1.113883.3.26.1.1":
 			system = UMLS_ROOT + "nci";
+			break;
+		case "2.16.840.1.113883.1.11.12839":
+			system = "http://unitsofmeasure.org/ucum.html";
 			break;
 		default:
 			system = "urn:oid:" + codeSystem;

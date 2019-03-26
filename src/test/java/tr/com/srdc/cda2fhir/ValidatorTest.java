@@ -55,7 +55,7 @@ public class ValidatorTest {
 	}
 
 	// 170.315_b1_toc_gold_sample2_v1.xml without profile
-	@Ignore
+	@Test
 	public void testGoldSampleBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-wo-profile-validation.xml";
