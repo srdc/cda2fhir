@@ -259,7 +259,7 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 			}
 
 			// If not fall back on text value.
-			String originalText = ed.getText();
+			String originalText = ed.getText().trim();
 			if (!originalText.equals("")) {
 				return originalText;
 			}

@@ -252,6 +252,17 @@ public class DataTypesTransformerTest {
 		Assert.assertEquals("CodeableConcept sets original text without references", "originalText",
 				codeableConcept5.getText());
 
+		// empty padded strings don't create ref.
+		CD cd6 = DatatypesFactory.eINSTANCE.createCD();
+		ED ed6 = DatatypesFactory.eINSTANCE.createED();
+		ed6.addText("   ");
+		cd6.setCode("code");
+		cd6.setCodeSystem("codeSystem");
+		cd6.setOriginalText(ed6);
+
+		CodeableConcept codeableConcept6 = dtt.tCD2CodeableConcept(cd6);
+		Assert.assertEquals("CodeableConcept sets original text without references", null, codeableConcept6.getText());
+
 	}
 
 	@Test
