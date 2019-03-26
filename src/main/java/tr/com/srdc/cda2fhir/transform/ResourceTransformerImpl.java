@@ -444,7 +444,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 												}
 											}
 										}
-
 										// reactionObservation/low -> reaction.onset
 										if (cdaReactionObs.getEffectiveTime() != null
 												&& !cdaReactionObs.getEffectiveTime().isSetNullFlavor()) {
@@ -1905,7 +1904,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationActivity.getConsumable());
 			if (fhirMedicationResult.hasResult()) {
 				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
-					if (entry.getResource().fhirType().contentEquals("Medication")) {
+					if (entry.getResource() instanceof Medication) {
 						fhirMedSt.setMedication(new Reference(entry.getResource().getId()));
 					}
 					result.addResource(entry.getResource());
@@ -2133,17 +2132,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// effectiveTime.low -> authoredOn
-		if (cdaSupplyOrder.getEffectiveTimes() != null && !cdaSupplyOrder.getEffectiveTimes().isEmpty()) {
-			for (SXCM_TS ts : cdaSupplyOrder.getEffectiveTimes()) {
-				if (ts instanceof IVL_TS) {
-					if (((IVL_TS) ts).getLow() != null && !((IVL_TS) ts).getLow().isSetNullFlavor()) {
-						medRequest.setAuthoredOnElement(dtt.tTS2DateTime(((IVL_TS) ts).getLow()));
-					}
-				}
-			}
-		}
-
 		// statusCode -> status
 		if (cdaSupplyOrder.getStatusCode() != null && !cdaSupplyOrder.getStatusCode().isSetNullFlavor()) {
 			medRequest.setStatus(vst.tActStatus2MedicationRequestStatus(cdaSupplyOrder.getStatusCode().getCode()));
@@ -2166,19 +2154,30 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		if (cdaSupplyOrder.getQuantity() != null) {
+		if (cdaSupplyOrder.getQuantity() != null || cdaSupplyOrder.getRepeatNumber() != null
+				|| cdaSupplyOrder.getEffectiveTimes() != null) {
 			MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
 			medRequest.setDispenseRequest(dispenseRequest);
-
-			if (cdaSupplyOrder.getQuantity().getValue() != null) {
+			// quantity -> dosageRequest.quantity
+			if (cdaSupplyOrder.getQuantity().getValue() != null && !cdaSupplyOrder.getQuantity().isSetNullFlavor()) {
 				SimpleQuantity sq = new SimpleQuantity();
 				sq.setValue(cdaSupplyOrder.getQuantity().getValue());
 				sq.setUnit(cdaSupplyOrder.getQuantity().getUnit());
 				dispenseRequest.setQuantity(sq);
 			}
-
-			if (cdaSupplyOrder.getRepeatNumber() != null) {
+			// repeatNumber -> dosageRequest.numberOfRepeatsAllowed
+			if (cdaSupplyOrder.getRepeatNumber() != null && !cdaSupplyOrder.isSetNullFlavor()) {
 				dispenseRequest.setNumberOfRepeatsAllowed(cdaSupplyOrder.getRepeatNumber().getValue().intValue());
+			}
+
+			// effectiveTime -> dispenseRequest.validityPeriod
+			if (cdaSupplyOrder.getEffectiveTimes() != null && !cdaSupplyOrder.getEffectiveTimes().isEmpty()) {
+				for (SXCM_TS ts : cdaSupplyOrder.getEffectiveTimes()) {
+					if (ts instanceof IVL_TS) {
+						Period period = dtt.tIVL_TS2Period((IVL_TS) ts);
+						dispenseRequest.setValidityPeriod(period);
+					}
+				}
 			}
 		}
 
