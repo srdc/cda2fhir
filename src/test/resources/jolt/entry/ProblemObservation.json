@@ -15,24 +15,26 @@
 			},
 			"code": "category[].->CD",
 			"value": {
-				"*": "code.->CD"			
-			} 
+				"*": "code[].->CD"			
+			},
+			"effectiveTime": {
+				"high": {
+					"value": ["clinicalStatus", "abatementDateTime"]
+				},
+				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
+			}
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
-		"spec": {
-			"abatement": "clinicalStatus"
-		}
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
-			"code": "=lastElement(@0)"
+			"code": "=lastElement(@0)",
+			"onsetDateTime": "=datetimeAdapter(@0)",
+			"abatementDateTime": "=datetimeAdapter(@0)"
 		}
 	},
 	{

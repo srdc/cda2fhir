@@ -10,14 +10,18 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ProblemConcernActGenerator {
 	private List<IDGenerator> idGenerators = new ArrayList<>();
 	private CDGenerator codeGenerator;
 	private List<CDGenerator> valueGenerators = new ArrayList<>();
+
+	private EffectiveTimeGenerator effectiveTimeGenerator;
 
 	public ProblemConcernAct generate(CDAFactories factories) {
 		ProblemConcernAct pca = factories.consol.createProblemConcernAct();
@@ -43,6 +47,11 @@ public class ProblemConcernActGenerator {
 			po.getValues().add(value);
 		});
 
+		if (effectiveTimeGenerator != null) {
+			IVL_TS ivlTs = effectiveTimeGenerator.generate(factories);
+			po.setEffectiveTime(ivlTs);
+		}
+
 		return pca;
 	}
 
@@ -52,6 +61,22 @@ public class ProblemConcernActGenerator {
 		pcag.idGenerators.add(IDGenerator.getNextInstance());
 		pcag.codeGenerator = CDGenerator.getNextInstance();
 		pcag.valueGenerators.add(CDGenerator.getNextInstance());
+		pcag.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008");
+
+		return pcag;
+	}
+
+	public static ProblemConcernActGenerator getFullInstance() {
+		ProblemConcernActGenerator pcag = new ProblemConcernActGenerator();
+
+		pcag.idGenerators.add(IDGenerator.getNextInstance());
+		pcag.idGenerators.add(IDGenerator.getNextInstance());
+		pcag.idGenerators.add(IDGenerator.getNextInstance());
+		pcag.idGenerators.add(IDGenerator.getNextInstance());
+		pcag.codeGenerator = CDGenerator.getNextInstance();
+		pcag.valueGenerators.add(CDGenerator.getNextInstance());
+		pcag.valueGenerators.add(CDGenerator.getNextInstance());
+		pcag.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008", "20181123");
 
 		return pcag;
 	}
@@ -77,6 +102,18 @@ public class ProblemConcernActGenerator {
 		} else {
 			CDGenerator valueGenerator = valueGenerators.get(valueGenerators.size() - 1);
 			valueGenerator.verify(condition.getCode());
+		}
+
+		if (effectiveTimeGenerator == null) {
+			Assert.assertTrue("No condition onset", !condition.hasOnset());
+		} else {
+			String value = effectiveTimeGenerator.getLowOrValue();
+			if (value == null) {
+				Assert.assertTrue("No condition onset", !condition.hasOnset());
+			} else {
+				String actual = FHIRUtil.toCDADatetime(condition.getOnsetDateTimeType().asStringValue());
+				Assert.assertEquals("Condition offset", value, actual);
+			}
 		}
 	}
 }

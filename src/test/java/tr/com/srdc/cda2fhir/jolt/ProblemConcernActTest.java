@@ -114,4 +114,10 @@ public class ProblemConcernActTest {
 		ProblemConcernActGenerator generator = ProblemConcernActGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
 	}
+
+	@Test
+	public void testFull() throws Exception {
+		ProblemConcernActGenerator generator = ProblemConcernActGenerator.getFullInstance();
+		runTest(generator, "fullCase");
+	}
 }

@@ -177,7 +177,8 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			if (argList == null || argList.size() != 3) {
 				return Optional.empty();
 			}
-			String value = (String) argList.get(2);
+			Object valueObject = argList.get(2);
+			String value = valueObject == null ? "" : valueObject.toString();
 			int index = value.isEmpty() ? 0 : 1;
 			String result = (String) argList.get(index);
 			return Optional.of(result);
