@@ -113,7 +113,7 @@ public class AllergyConcernActTest {
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 
 		AllergyIntolerance.AllergyIntoleranceType type = allergyIntolerance.getType();
-		String actual = type == null ? null : type.toString();
+		String actual = type == null ? null : type.toString().toLowerCase();
 		Assert.assertEquals("Unexpected AllergyIntolerance type", expected, actual);
 	}
 
