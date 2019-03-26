@@ -340,7 +340,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 										&& !participant.getParticipantRole().isSetNullFlavor()) {
 									if (participant.getParticipantRole().getPlayingEntity() != null
 											&& !participant.getParticipantRole().getPlayingEntity().isSetNullFlavor()) {
-										if (participant.getParticipantRole().getPlayingEntity().getCode() != null) {
+										if (participant.getParticipantRole().getPlayingEntity().getCode() != null
+												&& !participant.getParticipantRole().getPlayingEntity().getCode()
+														.isSetNullFlavor()) {
 											fhirAllergyIntolerance.setCode(dtt.tCD2CodeableConcept(
 													participant.getParticipantRole().getPlayingEntity().getCode(),
 													bundleInfo.getIdedAnnotations()));
