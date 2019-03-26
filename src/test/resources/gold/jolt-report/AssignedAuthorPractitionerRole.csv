@@ -1,0 +1,4 @@
+CCDA Source,Target,Link,Format
+code,PractitionerRole.code,CD,
+representedOrganization.id.0,PractitionerRole.organization.reference,ID,"referenceAdapter('Organization')"
+id,PractitionerRole.practitioner.reference,ID,"referenceAdapter('Practitioner')"

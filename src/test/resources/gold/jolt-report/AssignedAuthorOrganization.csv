@@ -1,0 +1,5 @@
+CCDA Source,Target,Link,Format
+representedOrganization.addr[*],Organization.address[],AD,
+representedOrganization.id[*],Organization.identifier[],ID,
+representedOrganization.name,Organization.name,,
+representedOrganization.telecom[*],Organization.telecom[],TEL,

@@ -65,4 +65,24 @@ public class MainTest {
 	public void testAD() throws Exception {
 		actualTest("AD");
 	}
+
+	@Test
+	public void testAuthorParticipation() throws Exception {
+		actualTest("AuthorParticipation");
+	}
+
+	@Test
+	public void testAssignedAuthorPractitioner() throws Exception {
+		actualTest("AssignedAuthorPractitioner");
+	}
+
+	@Test
+	public void testAssignedAuthorPractitionerRole() throws Exception {
+		actualTest("AssignedAuthorPractitionerRole");
+	}
+
+	@Test
+	public void testAssignedAuthorOrganization() throws Exception {
+		actualTest("AssignedAuthorOrganization");
+	}
 }
