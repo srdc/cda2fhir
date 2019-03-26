@@ -15,7 +15,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.IDGenerator;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 
 public class OrganizationGenerator {

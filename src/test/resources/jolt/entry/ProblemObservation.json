@@ -10,7 +10,8 @@
 		"spec": {
 			"id": {
 				"*": "identifier[].->ID"
-			}
+			},
+			"code": "category[].->CD" 
 		}
 	},
 	{

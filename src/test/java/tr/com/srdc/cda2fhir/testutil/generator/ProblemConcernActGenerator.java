@@ -8,14 +8,15 @@ import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.IDGenerator;
 
 public class ProblemConcernActGenerator {
 	private List<IDGenerator> idGenerators = new ArrayList<>();
+	private CDGenerator cdGenerator;
 
 	public ProblemConcernAct generate(CDAFactories factories) {
 		ProblemConcernAct pca = factories.consol.createProblemConcernAct();
@@ -31,6 +32,11 @@ public class ProblemConcernActGenerator {
 			po.getIds().add(ii);
 		});
 
+		if (cdGenerator != null) {
+			CD code = cdGenerator.generate(factories);
+			po.setCode(code);
+		}
+
 		return pca;
 	}
 
@@ -38,6 +44,7 @@ public class ProblemConcernActGenerator {
 		ProblemConcernActGenerator pcag = new ProblemConcernActGenerator();
 
 		pcag.idGenerators.add(IDGenerator.getNextInstance());
+		pcag.cdGenerator = CDGenerator.getNextInstance();
 
 		return pcag;
 	}
@@ -49,6 +56,13 @@ public class ProblemConcernActGenerator {
 			}
 		} else {
 			Assert.assertTrue("No condition identifier", !condition.hasIdentifier());
+		}
+
+		if (cdGenerator != null) {
+			Assert.assertEquals("COndition category cpunt", 1, condition.getCategory().size());
+			cdGenerator.verify(condition.getCategory().get(0));
+		} else {
+			Assert.assertTrue("No condition category", !condition.hasCategory());
 		}
 	}
 }
