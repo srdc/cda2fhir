@@ -24,7 +24,7 @@ public class EntityIdDefault implements ContextualTransform, SpecDriven {
 		++counter;
 		Map<String, Object> id = new LinkedHashMap<String, Object>();
 		id.put("root", "0.0.0.0.0.0");
-		id.put("extention", Integer.toString(counter));
+		id.put("extension", Integer.toString(counter));
 		return id;
 	}
 
@@ -34,23 +34,22 @@ public class EntityIdDefault implements ContextualTransform, SpecDriven {
 		if (input == null) {
 			return null;
 		}
-		Map<String, Object> mapTop = (Map<String, Object>) input;
-		Map<String, Object> map = (Map<String, Object>) mapTop.get(path);
-		if (map == null) {
-			return input;
-		}		
-		if (map.containsKey("id")) {
+		Map<String, Object> inputAsMap = (Map<String, Object>) input;
+		Map<String, Object> content = (Map<String, Object>) inputAsMap.get(path);
+		if (content == null) {
 			return input;
 		}
-		map.put("id", nextId());
-		if (!map.containsKey("representedOrganization")) {
-			return map;
+		if (!content.containsKey("id")) {
+			content.put("id", nextId());
 		}
-		Map<String, Object> org = (Map<String, Object>) map.get("representedOrganization");
+		if (!content.containsKey("representedOrganization")) {
+			return input;
+		}
+		Map<String, Object> org = (Map<String, Object>) content.get("representedOrganization");
 		if (org.containsKey("id")) {
-			return map;
+			return input;
 		}
 		org.put("id", nextId());
-		return map;
+		return input;
 	}
 }
