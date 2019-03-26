@@ -1,0 +1,31 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"act": {
+				"entryRelationship": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"act": {
+				"entryRelationship": {
+					"*": {
+						"typeCode": {
+							"SUBJ": {
+								"@2": {
+									"observation": "Condition[].->ProblemObservation"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	}
+]
