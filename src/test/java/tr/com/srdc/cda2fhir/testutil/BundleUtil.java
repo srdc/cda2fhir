@@ -50,7 +50,7 @@ public class BundleUtil {
 	public Bundle getBundle() {
 		return bundle;
 	}
-	
+
 	public Resource getFromJSONArray(String fhirType, List<Object> identifiers) {
 		return identifierMap.getFromJSONArray(fhirType, identifiers);
 	}

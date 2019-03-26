@@ -4,7 +4,8 @@
 		"spec": {
 			"id": "MANY",
 			"code": "ONE",
-			"value": "MANY"
+			"value": "MANY",
+			"author": "ONE"
 		}
 	},
 	{
@@ -22,11 +23,18 @@
 					"value": ["clinicalStatus", "abatementDateTime"]
 				},
 				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
-			}
+			},
+			"author": "->AuthorParticipation"
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": "asserter.reference"
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
@@ -42,6 +50,14 @@
 		"spec": {
 			"clinicalStatus": "active",
 			"verificationStatus": "unknown"
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	},
 	{

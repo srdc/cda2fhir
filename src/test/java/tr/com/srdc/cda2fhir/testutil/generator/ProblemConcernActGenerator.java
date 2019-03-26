@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
@@ -22,6 +26,8 @@ public class ProblemConcernActGenerator {
 	private List<CDGenerator> valueGenerators = new ArrayList<>();
 
 	private EffectiveTimeGenerator effectiveTimeGenerator;
+
+	private AuthorGenerator authorGenerator;
 
 	public ProblemConcernAct generate(CDAFactories factories) {
 		ProblemConcernAct pca = factories.consol.createProblemConcernAct();
@@ -52,6 +58,11 @@ public class ProblemConcernActGenerator {
 			po.setEffectiveTime(ivlTs);
 		}
 
+		if (authorGenerator != null) {
+			Author author = authorGenerator.generate(factories);
+			po.getAuthors().add(author);
+		}
+
 		return pca;
 	}
 
@@ -77,6 +88,7 @@ public class ProblemConcernActGenerator {
 		pcag.valueGenerators.add(CDGenerator.getNextInstance());
 		pcag.valueGenerators.add(CDGenerator.getNextInstance());
 		pcag.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008", "20181123");
+		pcag.authorGenerator = AuthorGenerator.getDefaultInstance();
 
 		return pcag;
 	}
@@ -114,6 +126,33 @@ public class ProblemConcernActGenerator {
 				String actual = FHIRUtil.toCDADatetime(condition.getOnsetDateTimeType().asStringValue());
 				Assert.assertEquals("Condition offset", value, actual);
 			}
+		}
+	}
+
+	public void verifyPractitioners(List<Practitioner> practitioners) {
+		if (authorGenerator == null) {
+			Assert.assertTrue("No practitioner", practitioners.size() == 0);
+		} else {
+			Assert.assertTrue("One practitioner", practitioners.size() == 1);
+			authorGenerator.verify(practitioners.get(0));
+		}
+	}
+
+	public void verifyPractitionerRoles(List<PractitionerRole> practitionerRoles) {
+		if (authorGenerator == null) {
+			Assert.assertTrue("No practitioner role", practitionerRoles.size() == 0);
+		} else {
+			Assert.assertTrue("One practitioner role", practitionerRoles.size() == 1);
+			authorGenerator.verify(practitionerRoles.get(0));
+		}
+	}
+
+	public void verifyOrganizations(List<Organization> organizations) {
+		if (authorGenerator == null) {
+			Assert.assertTrue("No organization", organizations.size() == 0);
+		} else {
+			Assert.assertTrue("One organization", organizations.size() == 1);
+			authorGenerator.verify(organizations.get(0));
 		}
 	}
 }
