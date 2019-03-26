@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.testutil;
+package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +15,8 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 
 public class TELGenerator {
 	private static Map<String, Object> contactPointSystemMap = JsonUtils

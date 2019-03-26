@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.testutil;
+package tr.com.srdc.cda2fhir.testutil.generator;
 
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
@@ -7,6 +7,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.INT;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
+
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class ClinicalDocumentMetadataGenerator {
 	ClinicalDocument doc;

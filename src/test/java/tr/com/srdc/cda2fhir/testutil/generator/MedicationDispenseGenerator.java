@@ -1,9 +1,11 @@
-package tr.com.srdc.cda2fhir.testutil;
+package tr.com.srdc.cda2fhir.testutil.generator;
 
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationDispense;
+
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class MedicationDispenseGenerator {
 	private PerformerGenerator performerGenerator;

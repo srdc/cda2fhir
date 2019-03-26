@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.testutil;
+package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,6 +14,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 
 import com.bazaarvoice.jolt.JsonUtils;
+
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class ADGenerator {
 	private static Map<String, Object> ADDRESS_TYPE = JsonUtils

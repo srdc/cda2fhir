@@ -1,4 +1,4 @@
-package tr.com.srdc.cda2fhir.testutil;
+package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,6 +9,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class IVL_TSGenerator {

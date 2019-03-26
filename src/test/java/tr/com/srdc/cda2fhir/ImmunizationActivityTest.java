@@ -24,10 +24,10 @@ import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
-import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
