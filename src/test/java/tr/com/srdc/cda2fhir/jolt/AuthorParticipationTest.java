@@ -21,10 +21,10 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.testutil.AuthorGenerator;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
-import tr.com.srdc.cda2fhir.testutil.OrganizationGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.AuthorGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.OrganizationGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;

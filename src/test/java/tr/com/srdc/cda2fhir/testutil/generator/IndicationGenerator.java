@@ -1,7 +1,9 @@
-package tr.com.srdc.cda2fhir.testutil;
+package tr.com.srdc.cda2fhir.testutil.generator;
 
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class IndicationGenerator {
 	static final public String DEFAULT_ID = "db734647-fc99-424c-a864-7e3cda82e703";

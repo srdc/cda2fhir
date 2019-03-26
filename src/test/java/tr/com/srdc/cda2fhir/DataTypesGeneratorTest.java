@@ -21,12 +21,12 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
-import tr.com.srdc.cda2fhir.testutil.ADGenerator;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.IVL_TSGenerator;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
-import tr.com.srdc.cda2fhir.testutil.PNGenerator;
-import tr.com.srdc.cda2fhir.testutil.TELGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.ADGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.IVL_TSGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.PNGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.TELGenerator;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.IDataTypesTransformer;
 
