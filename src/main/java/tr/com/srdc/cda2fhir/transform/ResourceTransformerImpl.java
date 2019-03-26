@@ -1780,7 +1780,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct) {
+	public Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct, IBundleInfo bundleInfo) {
 		if (cdaManufacturedProduct == null || cdaManufacturedProduct.isSetNullFlavor())
 			return null;
 
@@ -1803,8 +1803,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null
 					&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
 				// manufacturedMaterial.code -> code
-				fhirMedication
-						.setCode(dtt.tCD2CodeableConcept(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
+				fhirMedication.setCode(dtt.tCD2CodeableConcept(
+						cdaManufacturedProduct.getManufacturedMaterial().getCode(), bundleInfo.getIdedAnnotations()));
 			}
 		}
 
@@ -1881,7 +1881,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (cdaMedicationActivity.getConsumable().getManufacturedProduct() != null
 					&& !cdaMedicationActivity.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
 				Bundle fhirMedicationBundle = tManufacturedProduct2Medication(
-						cdaMedicationActivity.getConsumable().getManufacturedProduct());
+						cdaMedicationActivity.getConsumable().getManufacturedProduct(), bundleInfo);
 				for (BundleEntryComponent entry : fhirMedicationBundle.getEntry()) {
 					result.addResource(entry.getResource());
 					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
@@ -2007,7 +2007,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					MedicationInformation cdaMedicationInformation = (MedicationInformation) cdaMedicationDispense
 							.getProduct().getManufacturedProduct();
 					Medication fhirMedication = null;
-					Bundle fhirMedicationBundle = tMedicationInformation2Medication(cdaMedicationInformation);
+					Bundle fhirMedicationBundle = tMedicationInformation2Medication(cdaMedicationInformation,
+							bundleInfo);
 
 					for (BundleEntryComponent entry : fhirMedicationBundle.getEntry()) {
 						result.addResource(entry.getResource());
@@ -2094,13 +2095,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation) {
+	public Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation,
+			IBundleInfo bundleInfo) {
 		/*
 		 * Since MedicationInformation is a ManufacturedProduct instance with a specific
 		 * templateId, tManufacturedProduct2Medication should satisfy the required
 		 * mapping for MedicationInformation
 		 */
-		return tManufacturedProduct2Medication(cdaMedicationInformation);
+		return tManufacturedProduct2Medication(cdaMedicationInformation, bundleInfo);
 	}
 
 	@Override
@@ -2620,7 +2622,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			for (ANY value : cdaProbObs.getValues()) {
 				if (value != null && !value.isSetNullFlavor()) {
 					if (value instanceof CD) {
-						fhirCondition.setCode(dtt.tCD2CodeableConcept((CD) value));
+						fhirCondition.setCode(dtt.tCD2CodeableConcept((CD) value, bundleInfo.getIdedAnnotations()));
 					}
 				}
 			}

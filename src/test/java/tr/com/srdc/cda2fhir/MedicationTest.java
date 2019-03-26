@@ -36,6 +36,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class MedicationTest {
 
@@ -53,6 +54,8 @@ public class MedicationTest {
 
 	@Test
 	public void testMedications() throws Exception {
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
 		// Make a manufactured product.
 		ManufacturedProductImpl product = (ManufacturedProductImpl) cdaFactory.createManufacturedProduct();
@@ -78,7 +81,7 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product);
+		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
 		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
@@ -94,6 +97,8 @@ public class MedicationTest {
 
 	@Test // UPMCFHIR-216
 	public void testMultumMedications() {
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
 		// Make a manufactured product.
 		ManufacturedProductImpl product = (ManufacturedProductImpl) cdaFactory.createManufacturedProduct();
@@ -111,7 +116,7 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product);
+		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
 		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
@@ -126,6 +131,8 @@ public class MedicationTest {
 
 	@Test // UPMCFHIR-216
 	public void testNCIMedications() {
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
 
 		// Make a manufactured product.
 		ManufacturedProductImpl product = (ManufacturedProductImpl) cdaFactory.createManufacturedProduct();
@@ -142,7 +149,7 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product);
+		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
 		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
