@@ -2921,7 +2921,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// code -> code
 		if (cdaResultOrganizer.getCode() != null && !cdaResultOrganizer.getCode().isSetNullFlavor()) {
-			fhirDiagReport.setCode(dtt.tCD2CodeableConcept(cdaResultOrganizer.getCode()));
+			fhirDiagReport
+					.setCode(dtt.tCD2CodeableConcept(cdaResultOrganizer.getCode(), bundleInfo.getIdedAnnotations()));
 		}
 
 		// statusCode -> status
