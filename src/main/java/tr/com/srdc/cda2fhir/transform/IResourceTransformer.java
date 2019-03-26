@@ -77,6 +77,8 @@ public interface IResourceTransformer {
 	 * resource.
 	 *
 	 * @param cdaAllergyProblemAct A CDA AllergyProblemAct instance
+	 * @param bundleInfo           A BundleInfo object which acts as a context for
+	 *                             the current transformation bundle.
 	 * @return A FHIR Bundle that contains the AllergyIntolerance as the first
 	 *         entry, which can also include other referenced resources such as
 	 *         Practitioner
@@ -87,6 +89,8 @@ public interface IResourceTransformer {
 	 * Transforms a CDA AssignedAuthor instance to a FHIR Practitioner resource.
 	 *
 	 * @param cdaAssignedAuthor A CDA AssignedAuthor instance
+	 * @param bundleInfo        A BundleInfo object which acts as a context for the
+	 *                          current transformation bundle.
 	 * @return A result object that might include FHIR Bundle and/or a reference to
 	 *         a Practitioner
 	 */
@@ -96,6 +100,8 @@ public interface IResourceTransformer {
 	 * Transforms a CDA AssignedEntity instance to a FHIR Practitioner resource.
 	 *
 	 * @param cdaAssignedEntity A CDA AssignedEntity instance
+	 * @param bundleInfo        A BundleInfo object which acts as a context for the
+	 *                          current transformation bundle.
 	 * @return A result object that might include FHIR Bundle and/or a reference to
 	 *         a Practitioner
 	 */
@@ -104,7 +110,9 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA Author instance to a FHIR Practitioner resource.
 	 *
-	 * @param cdaAuthor A CDA Author instance
+	 * @param cdaAuthor  A CDA Author instance
+	 * @param bundleInfo A BundleInfo object which acts as a context for the current
+	 *                   transformation bundle.
 	 * @return A result object that might include FHIR Bundle and/or a reference to
 	 *         a Practitioner
 	 */
@@ -152,6 +160,8 @@ public interface IResourceTransformer {
 	 * Transforms a CDA EncounterActivity instance to a FHIR Encounter resource.
 	 *
 	 * @param cdaEncounterActivity A CDA EncounterActivity instance
+	 * @param bundleInfo           A BundleInfo object which acts as a context for
+	 *                             the current transformation bundle.
 	 * @return A FHIR Bundle that contains the Encounter as the first entry, which
 	 *         can also include other referenced resources such as Practitioner,
 	 *         Location
@@ -182,6 +192,8 @@ public interface IResourceTransformer {
 	 *
 	 * @param cdaObservation A CDA Observation instance that is included in
 	 *                       Functional Status Section
+	 * @param bundleInfo     A BundleInfo object which acts as a context for the
+	 *                       current transformation bundle.
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which
 	 *         can also include other referenced resources such as Practitioner
 	 */
@@ -241,6 +253,8 @@ public interface IResourceTransformer {
 	 * resource.
 	 *
 	 * @param cdaMedicationActivity A CDA MedicationActivity instance
+	 * @param bundleInfo            A BundleInfo object which acts as a context for
+	 *                              the current transformation bundle.
 	 * @return A FHIR Bundle that contains the MedicationStatement as the first
 	 *         entry, which can also include other referenced resources such as
 	 *         Practitioner, Medication, Condition
@@ -253,6 +267,8 @@ public interface IResourceTransformer {
 	 * resource.
 	 *
 	 * @param cdaMedicationDispense A CDA MedicationDispense instance
+	 * @param bundleInfo            A BundleInfo object which acts as a context for
+	 *                              the current transformation bundle.
 	 * @return A FHIR Bundle that contains the MedicationDispense as the first
 	 *         entry, which can also include other referenced resources such as
 	 *         Medication, Practitioner
@@ -312,6 +328,8 @@ public interface IResourceTransformer {
 	 * Transforms a CDA Performer2 instance to a FHIR Practitioner resource.
 	 *
 	 * @param cdaPerformer2 A CDA Performer2 instance
+	 * @param bundleInfo    A BundleInfo object which acts as a context for the
+	 *                      current transformation bundle.
 	 * @return A FHIR Bundle that contains the Practitioner as the first entry,
 	 *         which can also include other referenced resources such as
 	 *         Organization
@@ -325,6 +343,8 @@ public interface IResourceTransformer {
 	 * Bundle can contain several FHIR Conditions.
 	 *
 	 * @param cdaProblemConcernAct A CDA ProblemConcernAct instance
+	 * @param bundleInfo           A BundleInfo object which acts as a context for
+	 *                             the current transformation bundle.
 	 * @return A FHIR Bundle that contains the corresponding Condition(s), and
 	 *         further referenced resources such as Encounter, Practitioner
 	 */
@@ -334,6 +354,8 @@ public interface IResourceTransformer {
 	 * Transforms a CDA ProblemObservation instance to FHIR Condition resource.
 	 *
 	 * @param cdaProbObs A CDA ProblemObservation instance
+	 * @param bundleInfo A BundleInfo object which acts as a context for the current
+	 *                   transformation bundle.
 	 * @return A FHIR Bundle that contains the Condition as the first entry, which
 	 *         can also include other referenced resources such as Encounter,
 	 *         Practitioner
@@ -355,6 +377,8 @@ public interface IResourceTransformer {
 	 * Transforms a CDA ReactionObservation instance to a FHIR Observation resource.
 	 *
 	 * @param cdaReactionObservation A CDA ReactionObservation instance
+	 * @param bundleInfo             A BundleInfo object which acts as a context for
+	 *                               the current transformation bundle.
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which
 	 *         can also include other referenced resources such as Encounter,
 	 *         Practitioner
@@ -386,6 +410,8 @@ public interface IResourceTransformer {
 	 * resource.
 	 *
 	 * @param cdaResultOrganizer A CDA ResultOrganizer instance
+	 * @param bundleInfo         A BundleInfo object which acts as a context for the
+	 *                           current transformation bundle.
 	 * @return A FHIR Bundle that contains the DiagnosticReport as the first entry,
 	 *         which can also include other referenced resources such as
 	 *         Practitioner, Observation
@@ -421,6 +447,8 @@ public interface IResourceTransformer {
 	 * Transforms a CDA VitalSignObservation to a FHIR Observation resource.
 	 *
 	 * @param cdaVitalSignObservation A CDA VitalSignObservation instance
+	 * @param bundleInfo              A BundleInfo object which acts as a context
+	 *                                for the current transformation bundle.
 	 * @return An EntryResult object containing a FHIR Bundle with the Observation
 	 *         as the first entry, which can also include other referenced resources
 	 *         such as Encounter, Practitioner
