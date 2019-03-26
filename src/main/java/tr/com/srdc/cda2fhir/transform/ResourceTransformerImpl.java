@@ -1018,8 +1018,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> type
-		if (cdaEncounterActivity.getCode() != null && !cdaEncounterActivity.getCode().isSetNullFlavor()) {
-			fhirEncounter.addType(dtt.tCD2CodeableConcept(cdaEncounterActivity.getCode()));
+		if (cdaEncounterActivity.getCode() != null) {
+			fhirEncounter
+					.addType(dtt.tCD2CodeableConcept(cdaEncounterActivity.getCode(), bundleInfo.getIdedAnnotations()));
 		}
 
 		// code.translation -> classElement
@@ -1507,8 +1508,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					Material manufacturedMaterial = manufacturedProduct.getManufacturedMaterial();
 
 					// consumable.manufacturedProduct.manufacturedMaterial.code -> vaccineCode
-					if (manufacturedProduct.getManufacturedMaterial().getCode() != null
-							&& !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor()) {
+					if (manufacturedProduct.getManufacturedMaterial().getCode() != null)) {
 						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode(),
 								bundleInfo.getIdedAnnotations()));
 					}
@@ -1801,8 +1801,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// manufacturedMaterial -> code and ingredient
 		if (cdaManufacturedProduct.getManufacturedMaterial() != null
 				&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
-			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null
-					&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
+			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null) {
 				// manufacturedMaterial.code -> code
 				fhirMedication.setCode(dtt.tCD2CodeableConcept(
 						cdaManufacturedProduct.getManufacturedMaterial().getCode(), bundleInfo.getIdedAnnotations()));
@@ -2135,8 +2134,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> code
-		if (cdaObservation.getCode() != null && !cdaObservation.getCode().isSetNullFlavor()) {
-			fhirObs.setCode(dtt.tCD2CodeableConcept(cdaObservation.getCode()));
+		if (cdaObservation.getCode() != null) {
+			fhirObs.setCode(dtt.tCD2CodeableConcept(cdaObservation.getCode(), bundleInfo.getIdedAnnotations()));
 		}
 
 		// statusCode -> status
@@ -2621,7 +2620,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// value -> code
 		if (cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
 			for (ANY value : cdaProbObs.getValues()) {
-				if (value != null && !value.isSetNullFlavor()) {
+				if (value != null) {
 					if (value instanceof CD) {
 						fhirCondition.setCode(dtt.tCD2CodeableConcept((CD) value, bundleInfo.getIdedAnnotations()));
 					}
@@ -2920,7 +2919,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> code
-		if (cdaResultOrganizer.getCode() != null && !cdaResultOrganizer.getCode().isSetNullFlavor()) {
+		if (cdaResultOrganizer.getCode() != null) {
 			fhirDiagReport
 					.setCode(dtt.tCD2CodeableConcept(cdaResultOrganizer.getCode(), bundleInfo.getIdedAnnotations()));
 		}
