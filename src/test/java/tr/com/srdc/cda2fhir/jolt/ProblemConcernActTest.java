@@ -25,7 +25,7 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
-import tr.com.srdc.cda2fhir.testutil.ProblemConcernActGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.ProblemConcernActGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
