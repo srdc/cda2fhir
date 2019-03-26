@@ -12,6 +12,14 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"representedOrganization": {
+				"nullFlavor": "*"
+			}
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
 			"representedOrganization": {
@@ -24,7 +32,7 @@
 				},
 				"telecom": {
 					"*": "telecom[].->TEL"
-				}				
+				}
 			}
 		}
 	},

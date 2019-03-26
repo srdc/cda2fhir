@@ -70,6 +70,10 @@ public class AuthorGenerator {
 		return pnGenerator;
 	}
 
+	public OrganizationGenerator getOrganizationGenerator() {
+		return organizationGenerator;
+	}
+
 	public static AuthorGenerator getDefaultInstance() {
 		AuthorGenerator aeg = new AuthorGenerator();
 
@@ -117,13 +121,17 @@ public class AuthorGenerator {
 	}
 
 	public void verify(PractitionerRole role) {
-		Coding code = role.getCode().get(0).getCoding().get(0);
-		Assert.assertEquals("Role code", codeCode, code.getCode());
-		Assert.assertEquals("Role print name", codePrintName, code.getDisplay());
+		if (organizationGenerator.isNullFlavor()) {
+			Assert.assertNull("Role when null flavored org", role);
+		} else {
+			Coding code = role.getCode().get(0).getCoding().get(0);
+			Assert.assertEquals("Role code", codeCode, code.getCode());
+			Assert.assertEquals("Role print name", codePrintName, code.getDisplay());
+		}
 	}
 
 	public void verify(org.hl7.fhir.dstu3.model.Organization organization) {
-		if (organizationGenerator == null) {
+		if (organizationGenerator == null || organizationGenerator.isNullFlavor()) {
 			Assert.assertNull("Author organization", organization);
 			return;
 		}

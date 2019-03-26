@@ -24,6 +24,7 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.AuthorGenerator;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
+import tr.com.srdc.cda2fhir.testutil.OrganizationGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -132,8 +133,12 @@ public class AuthorParticipationTest {
 		File xmlFile = writeAuthorAsXML(caseName, author);
 
 		FHIRUtil.printJSON(practitioner, OUTPUT_PATH + caseName + "CDA2FHIRPractitioner.json");
-		FHIRUtil.printJSON(practitionerRole, OUTPUT_PATH + caseName + "CDA2FHIRPractitionerRole.json");
-		FHIRUtil.printJSON(organization, OUTPUT_PATH + caseName + "CDA2FHIROrganization.json");
+		if (practitionerRole != null) {
+			FHIRUtil.printJSON(practitionerRole, OUTPUT_PATH + caseName + "CDA2FHIRPractitionerRole.json");
+		}
+		if (organization != null) {
+			FHIRUtil.printJSON(organization, OUTPUT_PATH + caseName + "CDA2FHIROrganization.json");
+		}
 
 		List<Object> joltResult = findJoltResult(xmlFile, caseName);
 
@@ -142,12 +147,20 @@ public class AuthorParticipationTest {
 		comparePractitioners(caseName, practitioner, joltPractitioner);
 
 		Map<String, Object> joltOrganization = TransformManager.chooseResource(joltResult, "Organization");
-		String organizationId = "Organization/" + joltOrganization.get("id");
-		compareOrganizations(caseName, organization, joltOrganization);
+		String organizationId = null;
+		if (organization == null) {
+			Assert.assertNull("Jolt organization", joltOrganization);
+		} else {
+			organizationId = "Organization/" + joltOrganization.get("id");
+			compareOrganizations(caseName, organization, joltOrganization);
+		}
 
 		Map<String, Object> joltPractitionerRole = TransformManager.chooseResource(joltResult, "PractitionerRole");
-		compareRoles(caseName, practitionerRole, joltPractitionerRole, practitionerId, organizationId);
-
+		if (practitionerRole == null) {
+			Assert.assertNull("Jolt practitioner role", joltPractitionerRole);
+		} else {
+			compareRoles(caseName, practitionerRole, joltPractitionerRole, practitionerId, organizationId);
+		}
 	}
 
 	@Test
@@ -167,5 +180,14 @@ public class AuthorParticipationTest {
 		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
 		authorGenerator.getPNGenerator().setNullFlavor();
 		runTest(authorGenerator, "nameNullFlavorCase");
+	}
+
+	@Test
+	public void testNullFlavoredOrganization() throws Exception {
+		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
+		OrganizationGenerator og = authorGenerator.getOrganizationGenerator();
+		og.setNullFlavor();
+
+		runTest(authorGenerator, "orgNullFlavorCase");
 	}
 }

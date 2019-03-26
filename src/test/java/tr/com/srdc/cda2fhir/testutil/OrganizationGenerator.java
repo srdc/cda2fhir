@@ -12,15 +12,26 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 public class OrganizationGenerator {
 	private static final String NAME = "The Organization";
+
+	private String nullFlavor;
 
 	private String name;
 
 	private List<IDGenerator> idGenerators = new ArrayList<>();
 	private List<ADGenerator> adGenerators = new ArrayList<>();
 	private List<TELGenerator> telGenerators = new ArrayList<>();
+
+	public void setNullFlavor() {
+		nullFlavor = "UNK";
+	}
+
+	public boolean isNullFlavor() {
+		return nullFlavor != null;
+	}
 
 	public Organization generate(CDAFactories factories) {
 		Organization organization = factories.base.createOrganization();
@@ -45,6 +56,14 @@ public class OrganizationGenerator {
 			TEL tel = telGenerator.generate(factories);
 			organization.getTelecoms().add(tel);
 		});
+
+		if (nullFlavor != null) {
+			NullFlavor nf = NullFlavor.get(nullFlavor);
+			if (nf == null) {
+				throw new TestSetupException("Invalid null flavor enumeration.");
+			}
+			organization.setNullFlavor(nf);
+		}
 
 		return organization;
 	}

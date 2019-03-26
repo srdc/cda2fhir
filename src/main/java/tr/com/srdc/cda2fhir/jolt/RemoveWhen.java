@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,32 @@ public class RemoveWhen implements ContextualTransform, SpecDriven {
 		this.spec = (Map<String, Object>) spec;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> findMatches(Map<String, Object> source, Map<String, Object> input, String path) {
+		Map<String, Object> result = new HashMap<>();
+		for (Map.Entry<String, Object> entry : source.entrySet()) {
+			String key = entry.getKey();
+			if (!input.containsKey(key)) {
+				continue;
+			}
+			Object value = entry.getValue();
+			String newPath = path.isEmpty() ? key : path + "." + key;
+			if (!(value instanceof Map)) {
+				result.put(newPath, value);
+				continue;
+			}
+			Object inputBranch = input.get(key);
+			if (!(inputBranch instanceof Map)) {
+				continue;
+			}
+			Map<String, Object> newSource = (Map<String, Object>) value;
+			Map<String, Object> newInput = (Map<String, Object>) inputBranch;
+			Map<String, Object> newResult = findMatches(newSource, newInput, newPath);
+			result.putAll(newResult);
+		}
+		return result;
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object transform(Object input, Map<String, Object> context) {
@@ -24,12 +51,9 @@ public class RemoveWhen implements ContextualTransform, SpecDriven {
 			return null;
 		}
 		Map<String, Object> inputAsMap = (Map<String, Object>) input;
-		for (Map.Entry<String, Object> entry : this.spec.entrySet()) {
-			String key = entry.getKey();
-			if (!inputAsMap.containsKey(key)) {
-				continue;
-			}
-			Object value = entry.getValue();
+		Map<String, Object> matches = findMatches(this.spec, inputAsMap, "");
+		for (Map.Entry<String, Object> match : matches.entrySet()) {
+			Object value = match.getValue();
 			if ("*".equals(value)) {
 				return null;
 			}

@@ -97,11 +97,13 @@ public class RootNode {
 		return result;
 	}
 
-	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
+	@SuppressWarnings("unchecked")
+	private void updateFromRemoveWhen(Map<String, Object> updateInfo, String path) {
 		for (Map.Entry<String, Object> entry : updateInfo.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue();
-			JoltCondition condition = new JoltCondition(key, "isNull");
+			String conditionKey = path.isEmpty() ? key : path + "." + key;
+			JoltCondition condition = new JoltCondition(conditionKey, "isNull");
 			if ("*".equals(value)) {
 				root.children.forEach(base -> base.addCondition(condition));
 				continue;
@@ -116,7 +118,13 @@ public class RootNode {
 				});
 				continue;
 			}
+			if (value instanceof Map) {
+				updateFromRemoveWhen((Map<String, Object>) value, conditionKey);
+			}
 		}
+	}
 
+	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
+		updateFromRemoveWhen(updateInfo, "");
 	}
 }
