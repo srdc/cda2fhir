@@ -128,7 +128,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
-  @Override
+	@Override
 	public AllergyIntoleranceType tAllergyCategoryCode2AllergyIntoleranceType(String cdaAllergyCategoryCode) {
 		if (cdaAllergyCategoryCode == null)
 			return null;
@@ -136,6 +136,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		case "419199007":
 		case "416098002":
 		case "414285001":
+		case "232347008":
 			return AllergyIntoleranceType.ALLERGY;
 		case "59037007":
 		case "235719002":
