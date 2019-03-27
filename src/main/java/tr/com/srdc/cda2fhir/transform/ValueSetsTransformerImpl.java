@@ -28,6 +28,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceType;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -123,6 +124,29 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			return AllergyIntoleranceCategory.ENVIRONMENT;
 		default:
 			LOGGER.error("Unmapped allergy category code: {}", cdaAllergyCategoryCode);
+			return null;
+		}
+	}
+
+	@Override
+	public AllergyIntoleranceType tAllergyCategoryCode2AllergyIntoleranceType(String cdaAllergyCategoryCode) {
+		if (cdaAllergyCategoryCode == null)
+			return null;
+		switch (cdaAllergyCategoryCode) {
+		case "419199007":
+		case "416098002":
+		case "414285001":
+		case "232347008":
+			return AllergyIntoleranceType.ALLERGY;
+		case "59037007":
+		case "235719002":
+		case "420134006":
+		case "419511003":
+		case "418471000":
+		case "418038007":
+			return AllergyIntoleranceType.INTOLERANCE;
+		default:
+			LOGGER.error("Unmapped allergy type code: {}", cdaAllergyCategoryCode);
 			return null;
 		}
 	}

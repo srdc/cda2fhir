@@ -62,6 +62,8 @@ public class AllergyConcernActTest {
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceVerificationStatus.json");
 	private static Map<String, Object> categoryMap = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
+	private static Map<String, Object> typeMap = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceType.json");
 
 	@BeforeClass
 	public static void init() {
@@ -103,6 +105,16 @@ public class AllergyConcernActTest {
 		Enumeration<AllergyIntolerance.AllergyIntoleranceCategory> category = allergyIntolerance.getCategory().get(0);
 		String actual = category == null ? null : category.asStringValue();
 		Assert.assertEquals("Unexpected AllergyIntolerance category", expected, actual);
+	}
+
+	static private void verifyAllergyIntoleranceType(AllergyProblemAct act, String expected) throws Exception {
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+
+		AllergyIntolerance.AllergyIntoleranceType type = allergyIntolerance.getType();
+		String actual = type == null ? null : type.toString().toLowerCase();
+		Assert.assertEquals("Unexpected AllergyIntolerance type", expected, actual);
 	}
 
 	static private AllergyStatusObservationImpl createAllergyStatusObservation(String cdaProblemStatusCode) {
@@ -220,7 +232,7 @@ public class AllergyConcernActTest {
 	}
 
 	@Test
-	public void testAllergyAndIntoleranceType() throws Exception {
+	public void testAllergyAndIntoleranceCategory() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0)
 				.getObservation();
@@ -241,6 +253,31 @@ public class AllergyConcernActTest {
 			Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 
 			verifyAllergyIntoleranceCategory(act, fhirCategory);
+		}
+	}
+
+	@Test
+	public void testAllergyAndIntoleranceType() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0)
+				.getObservation();
+		verifyAllergyIntoleranceVerificationStatus(act, null);
+
+		for (Map.Entry<String, Object> entry : typeMap.entrySet()) {
+			String cdaType = entry.getKey();
+			String fhirCategory = (String) entry.getValue();
+			String cdaTypeName = cdaAllergyIntoleranceTypeCodeToName.get(cdaType);
+
+			CE ce = cdaTypeFactory.createCE(cdaType, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaTypeName);
+
+			observationTop.getValues().clear();
+			observationTop.getValues().add(ce);
+
+			DiagnosticChain dxChain = new BasicDiagnostic();
+			Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+			Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
+
+			verifyAllergyIntoleranceType(act, fhirCategory);
 		}
 	}
 
