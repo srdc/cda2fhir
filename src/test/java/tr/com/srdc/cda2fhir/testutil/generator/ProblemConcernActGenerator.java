@@ -15,6 +15,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -28,6 +29,8 @@ public class ProblemConcernActGenerator {
 	private EffectiveTimeGenerator effectiveTimeGenerator;
 
 	private AuthorGenerator authorGenerator;
+
+	private String authorTime;
 
 	public ProblemConcernAct generate(CDAFactories factories) {
 		ProblemConcernAct pca = factories.consol.createProblemConcernAct();
@@ -60,6 +63,12 @@ public class ProblemConcernActGenerator {
 
 		if (authorGenerator != null) {
 			Author author = authorGenerator.generate(factories);
+
+			if (authorTime != null) {
+				TS ts = factories.datatype.createTS(authorTime);
+				author.setTime(ts);
+			}
+
 			po.getAuthors().add(author);
 		}
 
@@ -89,6 +98,7 @@ public class ProblemConcernActGenerator {
 		pcag.valueGenerators.add(CDGenerator.getNextInstance());
 		pcag.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008", "20181123");
 		pcag.authorGenerator = AuthorGenerator.getDefaultInstance();
+		pcag.authorTime = "20190101203500-0500";
 
 		return pcag;
 	}
@@ -126,6 +136,13 @@ public class ProblemConcernActGenerator {
 				String actual = FHIRUtil.toCDADatetime(condition.getOnsetDateTimeType().asStringValue());
 				Assert.assertEquals("Condition offset", value, actual);
 			}
+		}
+
+		if (authorTime != null) {
+			Assert.assertTrue("Condition asserter date", condition.hasAssertedDate());
+			String datetime = condition.getAssertedDateElement().asStringValue();
+			String actual = FHIRUtil.toCDADatetime(datetime);
+			Assert.assertEquals("Condition asserter date", authorTime, actual);
 		}
 	}
 

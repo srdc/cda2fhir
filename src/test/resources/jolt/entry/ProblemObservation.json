@@ -24,7 +24,12 @@
 				},
 				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
 			},
-			"author": "->AuthorParticipation"
+			"author": {
+				"time": {
+					"value": "assertedDate"
+				},
+				"@0": "->AuthorParticipation"
+			}
 		}
 	},
 	{
@@ -42,7 +47,8 @@
 			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
 			"code": "=lastElement(@0)",
 			"onsetDateTime": "=datetimeAdapter(@0)",
-			"abatementDateTime": "=datetimeAdapter(@0)"
+			"abatementDateTime": "=datetimeAdapter(@0)",
+			"assertedDate": "=datetimeAdapter(@0)"
 		}
 	},
 	{
