@@ -28,6 +28,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceType;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -43,8 +44,8 @@ import org.hl7.fhir.dstu3.model.Group.GroupType;
 import org.hl7.fhir.dstu3.model.HumanName.NameUse;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
-import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestStatus;
+import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Timing.UnitsOfTime;
@@ -61,34 +62,35 @@ import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String UMLS_ROOT = "http://www.nlm.nih.gov/research/umls/";
 	private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ValueSetsTransformerImpl.class);
 
-	
+	@Override
 	public MedicationRequestStatus tActStatus2MedicationRequestStatus(String medicationRequestStatusCode) {
-		switch(medicationRequestStatusCode) {
-			case "cancelled":
-				return MedicationRequestStatus.CANCELLED;
-			case "aborted":
-				return MedicationRequestStatus.CANCELLED;
-			case "nullified":
-				return MedicationRequestStatus.CANCELLED;
-			case "active":
-				return MedicationRequestStatus.ACTIVE;
-			case "held":
-				return MedicationRequestStatus.ONHOLD;
-			case "suspended":
-				return MedicationRequestStatus.ONHOLD;
-			case "completed":
-				return MedicationRequestStatus.COMPLETED;
-			default:
-				return MedicationRequestStatus.UNKNOWN;
+		switch (medicationRequestStatusCode) {
+		case "cancelled":
+			return MedicationRequestStatus.CANCELLED;
+		case "aborted":
+			return MedicationRequestStatus.CANCELLED;
+		case "nullified":
+			return MedicationRequestStatus.CANCELLED;
+		case "active":
+			return MedicationRequestStatus.ACTIVE;
+		case "held":
+			return MedicationRequestStatus.ONHOLD;
+		case "suspended":
+			return MedicationRequestStatus.ONHOLD;
+		case "completed":
+			return MedicationRequestStatus.COMPLETED;
+		default:
+			return MedicationRequestStatus.UNKNOWN;
 		}
 	}
-	
+
+	@Override
 	public AdministrativeGender tAdministrativeGenderCode2AdministrativeGender(String cdaAdministrativeGenderCode) {
 		switch (cdaAdministrativeGenderCode.toLowerCase()) {
 		case "f":
@@ -102,6 +104,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public String tAgeObservationUnit2AgeUnit(String cdaAgeObservationUnit) {
 		if (cdaAgeObservationUnit == null || cdaAgeObservationUnit.isEmpty())
 			return null;
@@ -124,6 +127,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public AllergyIntoleranceCategory tAllergyCategoryCode2AllergyIntoleranceCategory(String cdaAllergyCategoryCode) {
 		if (cdaAllergyCategoryCode == null)
 			return null;
@@ -147,6 +151,30 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
+	public AllergyIntoleranceType tAllergyCategoryCode2AllergyIntoleranceType(String cdaAllergyCategoryCode) {
+		if (cdaAllergyCategoryCode == null)
+			return null;
+		switch (cdaAllergyCategoryCode) {
+		case "419199007":
+		case "416098002":
+		case "414285001":
+		case "232347008":
+			return AllergyIntoleranceType.ALLERGY;
+		case "59037007":
+		case "235719002":
+		case "420134006":
+		case "419511003":
+		case "418471000":
+		case "418038007":
+			return AllergyIntoleranceType.INTOLERANCE;
+		default:
+			LOGGER.error("Unmapped allergy type code: {}", cdaAllergyCategoryCode);
+			return null;
+		}
+	}
+
+	@Override
 	public AllergyIntoleranceCriticality tCriticalityObservationValue2AllergyIntoleranceCriticality(
 			String cdaCriticalityObservationValue) {
 		if (cdaCriticalityObservationValue == null || cdaCriticalityObservationValue.isEmpty())
@@ -163,6 +191,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public Coding tEncounterCode2EncounterCode(String cdaEncounterCode) {
 		if (cdaEncounterCode == null)
 			return null;
@@ -218,6 +247,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		return new Coding().setSystem(a.getSystem()).setCode(a.toCode()).setDisplay(a.getDisplay());
 	}
 
+	@Override
 	public GroupType tEntityClassRoot2GroupType(EntityClassRoot cdaEntityClassRoot) {
 		switch (cdaEntityClassRoot) {
 		case PSN:
@@ -233,6 +263,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public NameUse tEntityNameUse2NameUse(EntityNameUse cdaEntityNameUse) {
 		switch (cdaEntityNameUse) {
 		case C:
@@ -244,6 +275,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public FamilyHistoryStatus tFamilyHistoryOrganizerStatusCode2FamilyHistoryStatus(
 			String cdaFamilyHistoryOrganizerStatusCode) {
 		switch (cdaFamilyHistoryOrganizerStatusCode.toLowerCase()) {
@@ -260,6 +292,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public Coding tMaritalStatusCode2MaritalStatusCode(String cdaMaritalStatusCode) {
 
 		switch (cdaMaritalStatusCode.toUpperCase()) {
@@ -295,6 +328,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		return new Coding().setSystem(a.getSystem()).setCode(a.toCode()).setDisplay(a.getDisplay());
 	}
 
+	@Override
 	public Coding tNullFlavor2DataAbsentReasonCode(NullFlavor cdaNullFlavor) {
 		Coding DataAbsentReasonCode = new Coding();
 		String code = null;
@@ -360,6 +394,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		return DataAbsentReasonCode;
 	}
 
+	@Override
 	public CodeableConcept tObservationInterpretationCode2ObservationInterpretationCode(
 			CD cdaObservationInterpretationCode) {
 		if (cdaObservationInterpretationCode == null)
@@ -423,6 +458,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		return new CodeableConcept().addCoding(obsIntCode);
 	}
 
+	@Override
 	public ObservationStatus tObservationStatusCode2ObservationStatus(String cdaObservationStatusCode) {
 		switch (cdaObservationStatusCode.toLowerCase()) {
 		// TODO: https://www.hl7.org/fhir/valueset-observation-status.html and pdf page
@@ -449,6 +485,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public String tOid2Url(String codeSystem) {
 		String system = null;
 		switch (codeSystem) {
@@ -542,6 +579,9 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		case "2.16.840.1.113883.3.26.1.1":
 			system = UMLS_ROOT + "nci";
 			break;
+		case "2.16.840.1.113883.1.11.12839":
+			system = "http://unitsofmeasure.org/ucum.html";
+			break;
 		default:
 			system = "urn:oid:" + codeSystem;
 			break;
@@ -549,6 +589,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		return system;
 	}
 
+	@Override
 	public Coding tParticipationType2ParticipationTypeCode(
 			org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType cdaParticipationType) {
 		Coding fhirParticipationType = new Coding();
@@ -759,6 +800,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		return fhirParticipationType;
 	}
 
+	@Override
 	public UnitsOfTime tPeriodUnit2UnitsOfTime(String cdaPeriodUnit) {
 		switch (cdaPeriodUnit.toLowerCase()) {
 		case "a":
@@ -780,6 +822,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public AddressType tPostalAddressUse2AddressType(PostalAddressUse cdaPostalAddressUse) {
 		switch (cdaPostalAddressUse) {
 		case PHYS:
@@ -791,6 +834,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public AddressUse tPostalAdressUse2AddressUse(PostalAddressUse cdaPostalAddressUse) {
 		switch (cdaPostalAddressUse) {
 		case HP:
@@ -807,6 +851,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public Coding tProblemType2ConditionCategoryCodes(String cdaProblemType) {
 		// TODO: find a defined enum/valueset/codesystem for this.
 		// STU3 doesn't seem to have this so use DSTU2 definitions instead.
@@ -848,6 +893,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public DiagnosticReportStatus tResultOrganizerStatusCode2DiagnosticReportStatus(
 			String cdaResultOrganizerStatusCode) {
 		if (cdaResultOrganizerStatusCode == null)
@@ -871,6 +917,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public Coding tRoleCode2PatientContactRelationshipCode(String cdaRoleCode) {
 		if (cdaRoleCode == null)
 			return null;
@@ -923,6 +970,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		return fhirPatientContactRelationshipCode;
 	}
 
+	@Override
 	public AllergyIntoleranceSeverity tSeverityCode2AllergyIntoleranceSeverity(String cdaSeverityCode) {
 		if (cdaSeverityCode == null)
 			return null;
@@ -944,6 +992,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public AllergyIntoleranceVerificationStatus tStatusCode2AllergyIntoleranceVerificationStatus(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
 		case "completed":
@@ -959,6 +1008,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public ConditionVerificationStatus tStatusCode2ConditionVerificationStatus(String cdaStatusCode) {
 		if (cdaStatusCode == null) {
 			return ConditionVerificationStatus.UNKNOWN;
@@ -977,6 +1027,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public EncounterStatus tStatusCode2EncounterStatusEnum(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
 		case "in-progress":
@@ -998,6 +1049,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public MedicationDispenseStatus tStatusCode2MedicationDispenseStatus(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
 		case "active":
@@ -1021,6 +1073,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public MedicationStatementStatus tStatusCode2MedicationStatementStatus(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
 		case "active":
@@ -1036,6 +1089,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public ImmunizationStatus tStatusCode2ImmunizationStatus(String cdaStatusCode) {
 		if (cdaStatusCode == null) {
 			return null;
@@ -1068,6 +1122,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public ProcedureStatus tStatusCode2ProcedureStatus(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
 		case "active":
@@ -1083,6 +1138,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public ContactPointUse tTelecommunicationAddressUse2ContactPointUse(
 			TelecommunicationAddressUse cdaTelecommunicationAddressUse) {
 		switch (cdaTelecommunicationAddressUse) {
@@ -1103,6 +1159,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 
 	}
 
+	@Override
 	public ContactPointSystem tTelValue2ContactPointSystem(String cdaTelValue) {
 		if (cdaTelValue == null)
 			return null;
@@ -1124,6 +1181,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public AllergyIntoleranceClinicalStatus tProblemStatus2AllergyIntoleranceClinicalStatus(String code) {
 		if (code == null) {
 			return AllergyIntoleranceClinicalStatus.NULL;
@@ -1140,6 +1198,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 		}
 	}
 
+	@Override
 	public ConditionClinicalStatus tProblemStatus2ConditionClinicalStatus(String code) {
 		if (code == null) {
 			return ConditionClinicalStatus.NULL;

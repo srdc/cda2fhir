@@ -29,8 +29,10 @@ import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
-import tr.com.srdc.cda2fhir.testutil.MedicationSupplyOrderGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
@@ -39,12 +41,13 @@ public class MedicationStatementTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
 	private static ConsolFactoryImpl consolFactory;
-	private static MedicationSupplyOrderGenerator medSupplyOrderGenerator;
+	private static DatatypesFactory cdaTypeFactory;
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 		consolFactory = (ConsolFactoryImpl) ConsolFactoryImpl.init();
+		cdaTypeFactory = DatatypesFactoryImpl.init();
 	}
 
 	@Test
@@ -66,10 +69,30 @@ public class MedicationStatementTest {
 
 	}
 
-	@Test
-	public void testAllResourcesIncluded() {
+	public void testMedicationDosage() throws Exception {
+
 		// Make a medication activity.
 		MedicationActivityImpl medAct = (MedicationActivityImpl) consolFactory.createMedicationActivity();
+
+		IVL_PQ doseQuantity = cdaTypeFactory.createIVL_PQ();
+		doseQuantity.setUnit("mg");
+		doseQuantity.setValue(100.000);
+		medAct.setDoseQuantity(doseQuantity);
+
+		// Transform from CDA to FHIR.
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tMedicationActivity2MedicationStatement(medAct, bundleInfo)
+				.getBundle();
+
+		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+
+		List<Base> doses = fhirResource.getNamedProperty("dosage").getValues().get(0).getNamedProperty("dose")
+				.getValues();
+
+		// Make assertions.
+		Assert.assertEquals("URI attached for ucum", "UriType[http://unitsofmeasure.org/ucum.html]",
+				doses.get(0).getNamedProperty("system").getValues().get(0).toString());
+
 	}
 
 }

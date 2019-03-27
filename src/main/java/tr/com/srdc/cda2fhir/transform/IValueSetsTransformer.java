@@ -26,6 +26,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceType;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -80,6 +81,14 @@ public interface IValueSetsTransformer {
 	 * @return A value from the FHIR valueset AllergyIntoleranceCategory
 	 */
 	AllergyIntoleranceCategory tAllergyCategoryCode2AllergyIntoleranceCategory(String cdaAllergyCategoryCode);
+
+	/**
+	 * Transforms a CDA AllergyCategoryCode string to a FHIR AllergyIntoleranceType.
+	 *
+	 * @param cdaAllergyCategoryCode A CDA AllergyCategoryCode string
+	 * @return A value from the FHIR valueset AllergyIntoleranceType
+	 */
+	AllergyIntoleranceType tAllergyCategoryCode2AllergyIntoleranceType(String cdaAllergyCategoryCode);
 
 	/**
 	 * Transforms a CDA CriticalityObservation's value's code string to a FHIR
