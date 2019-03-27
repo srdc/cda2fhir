@@ -30,6 +30,6 @@ public class RawConditionNode extends ParentNode implements IConditionNode {
 		IParentNode parent = getParent();
 		parent.addChildren(this.getChildren());
 		this.getChildren().forEach(child -> child.setParent(parent));
-		parent.removeChild(this);	
+		parent.removeChild(this);
 	}
 }

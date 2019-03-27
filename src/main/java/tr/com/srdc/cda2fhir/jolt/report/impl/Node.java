@@ -37,6 +37,7 @@ public abstract class Node implements INode {
 		return path;
 	}
 
+	@Override
 	public void setPath(String path) {
 		this.path = path;
 	}

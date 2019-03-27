@@ -1,0 +1,2 @@
+CCDA Source,Target,Link,Format,Condition 1
+act.entryRelationship[].observation,Condition[],,,act.entryRelationship[].typeCode equal SUBJ

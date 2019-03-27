@@ -37,6 +37,16 @@ public class MainTest {
 	}
 
 	@Test
+	public void testProblemConcernAct() throws Exception {
+		actualTest("ProblemConcernAct");
+	}
+
+	@Test
+	public void testProblemObservation() throws Exception {
+		actualTest("ProblemObservation");
+	}
+
+	@Test
 	public void testID() throws Exception {
 		actualTest("ID");
 	}

@@ -87,16 +87,16 @@ public class NodeFactory {
 
 	@SuppressWarnings("unchecked")
 	private static boolean isValueBranching(Map<String, Object> map) {
-		for (Map.Entry<String, Object> entry: map.entrySet()) {
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			Object value = entry.getValue();
 			if (value != null && value instanceof Map) {
 				Map<String, Object> valueAsMap = (Map<String, Object>) value;
-				for (String key: valueAsMap.keySet()) {
+				for (String key : valueAsMap.keySet()) {
 					if (!key.isEmpty() && key.charAt(0) == '@' && !key.contentEquals("@0")) {
 						return true;
 					}
 				}
-				
+
 			}
 		}
 		return false;
@@ -105,24 +105,25 @@ public class NodeFactory {
 	@SuppressWarnings("unchecked")
 	private static void fillConditionNode(IParentNode parent, Map<String, Object> map) {
 		map.forEach((nodeValue, conditionSpec) -> {
-			if (conditionSpec == null) return;
+			if (conditionSpec == null)
+				return;
 
 			if (!(conditionSpec instanceof Map)) {
 				throw new ReportException("Value based branch can only be an object or null.");
 			}
-			
+
 			Map<String, Object> conditionSpecAsMap = (Map<String, Object>) conditionSpec;
 
 			Set<Map.Entry<String, Object>> conditionSpecs = conditionSpecAsMap.entrySet();
-			
+
 			if (conditionSpecs.size() > 1) {
-				throw new ReportException("'@' nodes cannot have siblings.");				
+				throw new ReportException("'@' nodes cannot have siblings.");
 			}
-			
+
 			Map.Entry<String, Object> entry = conditionSpecs.iterator().next();
-			
+
 			List<JoltCondition> conditions = childToCondition(nodeValue, parent);
-			
+
 			int rank = Integer.valueOf(entry.getKey().substring(1));
 
 			Object conditionChilren = entry.getValue();
@@ -145,14 +146,14 @@ public class NodeFactory {
 			parent.addChild(conditionNode);
 		});
 	}
-		
+
 	@SuppressWarnings("unchecked")
 	private static void fillNode(IParentNode node, Map<String, Object> map) {
 		if (isValueBranching(map)) {
 			fillConditionNode(node, map);
 			return;
 		}
-				
+
 		map.forEach((key, value) -> {
 			if (value == null) {
 				JoltCondition condition = new JoltCondition(key, "isnull");
