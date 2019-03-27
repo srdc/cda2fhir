@@ -3,7 +3,6 @@ package tr.com.srdc.cda2fhir.jolt;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.Charset;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +12,6 @@ import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,7 +23,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
+import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.ProblemConcernActGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
@@ -46,12 +43,6 @@ public class ProblemConcernActTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	private static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
-		Map<String, Object> r = new LinkedHashMap<String, Object>();
-		r.put("reference", reference.getReference());
-		joltResult.put(property, r);
-	}
-
 	@SuppressWarnings("unchecked")
 	private static void compareConditions(String caseName, Condition condition, Map<String, Object> joltCondition)
 			throws Exception {
@@ -59,7 +50,7 @@ public class ProblemConcernActTest {
 		Assert.assertNotNull("Jolt condition id", joltCondition.get("id"));
 
 		joltCondition.put("id", condition.getIdElement().getIdPart()); // ids do not have to match
-		putReference(joltCondition, "subject", condition.getSubject()); // patient is not yet implemented
+		JoltUtil.putReference(joltCondition, "subject", condition.getSubject()); // patient is not yet implemented
 
 		if (condition.hasAsserter()) {
 			Map<String, Object> asserter = (Map<String, Object>) joltCondition.get("asserter");
@@ -67,7 +58,7 @@ public class ProblemConcernActTest {
 			Object reference = asserter.get("reference");
 			Assert.assertNotNull("Jolt condition asserter reference", reference);
 			Assert.assertTrue("Reference is string", reference instanceof String);
-			putReference(joltCondition, "asserter", condition.getAsserter()); // reference values may not match
+			JoltUtil.putReference(joltCondition, "asserter", condition.getAsserter()); // reference values may not match
 		} else {
 			Assert.assertNull("No jolt condition asserter", joltCondition.get("asserter"));
 		}
@@ -110,16 +101,20 @@ public class ProblemConcernActTest {
 		Object practitionerReference = practitioner.get("reference");
 		Assert.assertNotNull("Jolt role practitioner reference", practitionerReference);
 		Assert.assertTrue("practitioner reference is string", practitionerReference instanceof String);
-		putReference(joltPractitionerRole, "practitioner", practitionerRole.getPractitioner()); // reference values may
-																								// not match
+		JoltUtil.putReference(joltPractitionerRole, "practitioner", practitionerRole.getPractitioner()); // reference
+																											// values
+																											// may
+		// not match
 
 		Map<String, Object> organization = (Map<String, Object>) joltPractitionerRole.get("organization");
 		Assert.assertNotNull("Jolt role organization", organization);
 		Object organizationReference = organization.get("reference");
 		Assert.assertNotNull("Jolt role organization reference", organizationReference);
 		Assert.assertTrue("organization reference is string", organizationReference instanceof String);
-		putReference(joltPractitionerRole, "organization", practitionerRole.getOrganization()); // reference values may
-																								// not match
+		JoltUtil.putReference(joltPractitionerRole, "organization", practitionerRole.getOrganization()); // reference
+																											// values
+																											// may
+		// not match
 
 		String joltPractitionerJson = JsonUtils.toPrettyJsonString(joltPractitionerRole);
 		File joltPractitionerFile = new File(OUTPUT_PATH + caseName + "JoltPractitionerRole.json");
@@ -133,16 +128,6 @@ public class ProblemConcernActTest {
 		CDAUtil.saveSnippet(pca, fw);
 		fw.close();
 		return xmlFile;
-	}
-
-	private static List<Object> findJoltResult(File xmlFile, String caseName) throws Exception {
-		OrgJsonUtil util = OrgJsonUtil.readXML(xmlFile.toString());
-		JSONObject json = util.getJSONObject();
-		File jsonFile = new File(OUTPUT_PATH + caseName + ".json");
-		FileUtils.writeStringToFile(jsonFile, json.toString(4), Charset.defaultCharset());
-
-		List<Object> joltResult = TransformManager.transformEntryInFile("ProblemConcernAct", jsonFile.toString());
-		return joltResult;
 	}
 
 	private static void runTest(ProblemConcernActGenerator generator, String caseName) throws Exception {
@@ -170,7 +155,7 @@ public class ProblemConcernActTest {
 
 		File xmlFile = writeProblemConcernActAsXML(caseName, pca);
 
-		List<Object> joltResult = findJoltResult(xmlFile, caseName);
+		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "ProblemConcernAct", caseName);
 
 		List<Map<String, Object>> joltOrganizations = TransformManager.chooseResources(joltResult, "Organization");
 		if (organizations.isEmpty()) {
