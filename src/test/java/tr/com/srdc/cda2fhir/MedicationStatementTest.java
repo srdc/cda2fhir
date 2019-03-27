@@ -30,6 +30,7 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
+import tr.com.srdc.cda2fhir.testutil.MedicationSupplyOrderGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
@@ -38,6 +39,7 @@ public class MedicationStatementTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 
 	private static ConsolFactoryImpl consolFactory;
+	private static MedicationSupplyOrderGenerator medSupplyOrderGenerator;
 
 	@BeforeClass
 	public static void init() {
@@ -62,6 +64,12 @@ public class MedicationStatementTest {
 		// Make assertions.
 		Assert.assertEquals("Taken code defaults to UNK", "unk", takenCodes.get(0).primitiveValue());
 
+	}
+
+	@Test
+	public void testAllResourcesIncluded() {
+		// Make a medication activity.
+		MedicationActivityImpl medAct = (MedicationActivityImpl) consolFactory.createMedicationActivity();
 	}
 
 }

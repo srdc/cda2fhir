@@ -16,6 +16,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminerDetermined;
 public class ManufacturedProductGenerator {
 
 	private BasicObjectGenerator basicObjectGenerator;
+	private CdaOrganizationGenerator orgGenerator;
 	private CDAFactories factories;
 
 	private String manuMaterialCodeCode;
@@ -39,18 +40,17 @@ public class ManufacturedProductGenerator {
 
 	private List<CE> translationCodes = new ArrayList<CE>();
 
-	public ManufacturedProductGenerator(CDAFactories factories, BasicObjectGenerator basicObjectGenerator) {
+	public ManufacturedProductGenerator(CDAFactories factories) {
 		this.factories = factories;
-		this.basicObjectGenerator = basicObjectGenerator;
-	}
+		this.basicObjectGenerator = new BasicObjectGenerator(factories);
+		this.orgGenerator = new CdaOrganizationGenerator(factories);
 
-	public ManufacturedProductGenerator(BasicObjectGenerator basicObjectGenerator) {
-		this.basicObjectGenerator = basicObjectGenerator;
 	}
 
 	public ManufacturedProductGenerator() {
 		this.factories = CDAFactories.init();
 		this.basicObjectGenerator = new BasicObjectGenerator(factories);
+		this.orgGenerator = new CdaOrganizationGenerator(factories);
 	}
 
 	public ManufacturedProduct generateManufacturedProduct() {
@@ -66,6 +66,9 @@ public class ManufacturedProductGenerator {
 		manProd.getTemplateIds().add(basicObjectGenerator.genTemplateId(DEFAULT_TEMPLATE_ID, DEFAULT_TEMPLATE_ID_EXT));
 		manProd.getIds().add(factories.datatype.createII(DEFAULT_ROOT_ID));
 		manProd.setManufacturedMaterial(generateDefautManuMaterial());
+		if (orgGenerator != null) {
+			manProd.setManufacturerOrganization(orgGenerator.generateDefault());
+		}
 		return manProd;
 	}
 
@@ -87,8 +90,8 @@ public class ManufacturedProductGenerator {
 		CE manuMaterialCode = factories.datatype.createCE();
 
 		manuMaterialCode.setCode(manuMaterialCodeCode != null ? manuMaterialCodeCode : DEFAULT_MANU_MATERIAL_CODE_CODE);
-		manuMaterialCode
-				.setCodeSystem(manuMaterialCodeSystem != null ? manuMaterialCodeSystem : DEFAULT_MANU_MATERIAL_CODE_SYSTEM);
+		manuMaterialCode.setCodeSystem(
+				manuMaterialCodeSystem != null ? manuMaterialCodeSystem : DEFAULT_MANU_MATERIAL_CODE_SYSTEM);
 		manuMaterialCode.setDisplayName(
 				manuMaterialDisplayName != null ? manuMaterialDisplayName : DEFAULT_MANU_MATERIAL_DISPLAY_NAME);
 
@@ -97,7 +100,8 @@ public class ManufacturedProductGenerator {
 		ED originalText = basicObjectGenerator.generateOriginalText(ref);
 		manuMaterialCode.setOriginalText(originalText);
 
-		II tempId = basicObjectGenerator.genTemplateId(DEFAULT_MANU_MATERIAL_TEMPLATE_ID, DEFAULT_MANU_MATERIAL_TEMPLATE_ID_EXT);
+		II tempId = basicObjectGenerator.genTemplateId(DEFAULT_MANU_MATERIAL_TEMPLATE_ID,
+				DEFAULT_MANU_MATERIAL_TEMPLATE_ID_EXT);
 
 		Material manuMaterial;
 		if (translationCodes == null && !translationCodes.isEmpty()) {
@@ -144,5 +148,9 @@ public class ManufacturedProductGenerator {
 
 	public void clearTranslationCodes() {
 		translationCodes.clear();
+	}
+
+	public void setOrganizationGenerator(CdaOrganizationGenerator orgGenerator) {
+		this.orgGenerator = orgGenerator;
 	}
 }

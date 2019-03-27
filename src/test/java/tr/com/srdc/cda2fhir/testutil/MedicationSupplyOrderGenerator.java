@@ -1,12 +1,19 @@
 package tr.com.srdc.cda2fhir.testutil;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openhealthtools.mdht.uml.cda.Act;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.Product;
+import org.openhealthtools.mdht.uml.cda.consol.Instructions;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_INT;
-import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.ActClassSupply;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActClassDocumentEntryAct;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentActMood;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 
 public class MedicationSupplyOrderGenerator {
@@ -14,6 +21,7 @@ public class MedicationSupplyOrderGenerator {
 	private ManufacturedProductGenerator manProductGenerator;
 	private CDAFactories factories;
 	private BasicObjectGenerator basicObjectGenerator;
+	private AuthorGenerator authorGenerator;
 
 	private NullFlavor highNullFlvr;
 	private NullFlavor lowNullFlvr;
@@ -29,6 +37,7 @@ public class MedicationSupplyOrderGenerator {
 	private String quantityUnit;
 	private String repeatNumber;
 	private ManufacturedProduct manuProduct;
+	private List<String> instructions;
 
 	static final public String DEFAULT_TEMPLATE_ID = "2.16.840.1.113883.10.20.22.4.17";
 	static final public String DEFAULT_TEMPLATE_ID_EXT = "2019-01-01";
@@ -39,51 +48,56 @@ public class MedicationSupplyOrderGenerator {
 	static final public String DEFAULT_QUANTITY_VALUE = "30.0";
 	static final public String DEFAULT_QUANTITY_UNIT = "caps";
 	static final public String DEFAULT_REPEAT_NUMBER = "1";
+	static final public String DEFAULT_INSTRUCTION = "Toss pills into patients' mouth from a minimum of 5 feet away";
 
 	public MedicationSupplyOrderGenerator(ManufacturedProductGenerator manProductGenerator, CDAFactories factories) {
 		this.factories = factories;
 		this.manProductGenerator = manProductGenerator;
 		this.basicObjectGenerator = new BasicObjectGenerator(factories);
-
+		this.authorGenerator = new AuthorGenerator();
 	}
 
 	public MedicationSupplyOrderGenerator(CDAFactories factories) {
 		this.factories = factories;
 		this.basicObjectGenerator = new BasicObjectGenerator(factories);
-		this.manProductGenerator = new ManufacturedProductGenerator(factories, basicObjectGenerator);
-
+		this.manProductGenerator = new ManufacturedProductGenerator(factories);
+		this.authorGenerator = new AuthorGenerator();
 	}
 
 	public MedicationSupplyOrderGenerator() {
 		this.factories = CDAFactories.init();
 		this.basicObjectGenerator = new BasicObjectGenerator(factories);
-		this.manProductGenerator = new ManufacturedProductGenerator(factories, basicObjectGenerator);
+		this.manProductGenerator = new ManufacturedProductGenerator(factories);
+		this.authorGenerator = new AuthorGenerator();
 
 	}
 
 	public MedicationSupplyOrder generateDefaultMedicationSupplyOrder() {
-		
+
 		MedicationSupplyOrder supplyOrder = factories.consol.createMedicationSupplyOrder();
-		
+
 		supplyOrder.setClassCode(ActClassSupply.SPLY);
 		supplyOrder.setMoodCode(x_DocumentSubstanceMood.INT);
 
 		supplyOrder.getTemplateIds()
-			.add(basicObjectGenerator.genTemplateId(DEFAULT_TEMPLATE_ID, DEFAULT_TEMPLATE_ID_EXT));
+				.add(basicObjectGenerator.genTemplateId(DEFAULT_TEMPLATE_ID, DEFAULT_TEMPLATE_ID_EXT));
 		supplyOrder.getIds().add(generateId(DEFAULT_ROOT_ID));
 		supplyOrder.setStatusCode(factories.datatype.createCS(DEFAULT_STATUS_CODE));
-		supplyOrder.getEffectiveTimes()
-			.add(basicObjectGenerator.generateEffectiveTime(DEFAULT_EFFECTIVE_TIME_LOW, DEFAULT_EFFECTIVE_TIME_HIGH));
+		supplyOrder.getEffectiveTimes().add(
+				basicObjectGenerator.generateEffectiveTime(DEFAULT_EFFECTIVE_TIME_LOW, DEFAULT_EFFECTIVE_TIME_HIGH));
 		supplyOrder.setRepeatNumber(genRepeatValue(DEFAULT_REPEAT_NUMBER));
 		supplyOrder.setQuantity(basicObjectGenerator.genQuantity(DEFAULT_QUANTITY_VALUE, DEFAULT_QUANTITY_UNIT));
 		supplyOrder.setProduct(generateProduct(manProductGenerator.generateDefaultManufacturedProduct()));
+		supplyOrder.getAuthors().add(authorGenerator.generateDefaultAuthor());
+
+		supplyOrder.addAct(generateInstruction(DEFAULT_INSTRUCTION));
 		return supplyOrder;
 	}
 
 	public MedicationSupplyOrder generateMedicationSupplyOrder() {
 
 		MedicationSupplyOrder supplyOrder = factories.consol.createMedicationSupplyOrder();
-		
+
 		supplyOrder.setClassCode(ActClassSupply.SPLY);
 		supplyOrder.setMoodCode(x_DocumentSubstanceMood.INT);
 		if (templateId != null && templateIdExt != null) {
@@ -94,7 +108,7 @@ public class MedicationSupplyOrderGenerator {
 			supplyOrder.getTemplateIds().add(basicObjectGenerator.genTemplateId(DEFAULT_TEMPLATE_ID, templateIdExt));
 		} else {
 			supplyOrder.getTemplateIds()
-				.add(basicObjectGenerator.genTemplateId(DEFAULT_TEMPLATE_ID, DEFAULT_TEMPLATE_ID_EXT));
+					.add(basicObjectGenerator.genTemplateId(DEFAULT_TEMPLATE_ID, DEFAULT_TEMPLATE_ID_EXT));
 		}
 
 		supplyOrder.getIds().add(generateId(rootId == null ? DEFAULT_ROOT_ID : rootId));
@@ -109,12 +123,12 @@ public class MedicationSupplyOrderGenerator {
 			supplyOrder.getEffectiveTimes().add(basicObjectGenerator.generateEffectiveTime());
 		} else if (effectiveTimeLow != null && effectiveTimeHigh != null) {
 			supplyOrder.getEffectiveTimes()
-			.add(basicObjectGenerator.generateEffectiveTime(effectiveTimeLow, effectiveTimeHigh));
+					.add(basicObjectGenerator.generateEffectiveTime(effectiveTimeLow, effectiveTimeHigh));
 		} else if (effectiveTimeLow != null && effectiveTimeHigh == null) {
 			supplyOrder.getEffectiveTimes().add(basicObjectGenerator.generateEffectiveTime(effectiveTimeLow));
 		} else if (effectiveTimeLow == null && effectiveTimeHigh == null) {
-			supplyOrder.getEffectiveTimes()
-			.add(basicObjectGenerator.generateEffectiveTime(DEFAULT_EFFECTIVE_TIME_LOW, DEFAULT_EFFECTIVE_TIME_HIGH));
+			supplyOrder.getEffectiveTimes().add(basicObjectGenerator.generateEffectiveTime(DEFAULT_EFFECTIVE_TIME_LOW,
+					DEFAULT_EFFECTIVE_TIME_HIGH));
 		}
 
 		supplyOrder.setRepeatNumber(genRepeatValue(repeatNumber != null ? repeatNumber : DEFAULT_REPEAT_NUMBER));
@@ -127,7 +141,34 @@ public class MedicationSupplyOrderGenerator {
 		supplyOrder.setProduct(generateProduct(
 				manuProduct == null ? manProductGenerator.generateDefaultManufacturedProduct() : manuProduct));
 
+		supplyOrder.getAuthors().add(authorGenerator.generateAuthor());
+
+		if (instructions != null) {
+			supplyOrder.addAct(generateInstruction(instructions));
+		}
 		return supplyOrder;
+	}
+
+	public Instructions generateInstruction(String instruction) {
+		Instructions instructions = factories.consol.createInstructions();
+		Act act = factories.base.createAct();
+		act.setClassCode(x_ActClassDocumentEntryAct.ACT);
+		act.setMoodCode(x_DocumentActMood.INT);
+		act.setText(factories.datatype.createED(instruction));
+		instructions.addAct(act);
+		return instructions;
+	}
+
+	public Instructions generateInstruction(List<String> instructionsStrArr) {
+		Instructions instructions = factories.consol.createInstructions();
+		for (String instructionStr : instructionsStrArr) {
+			Act act = factories.base.createAct();
+			act.setClassCode(x_ActClassDocumentEntryAct.ACT);
+			act.setMoodCode(x_DocumentActMood.INT);
+			act.setText(factories.datatype.createED(instructionStr));
+			instructions.addAct(act);
+		}
+		return instructions;
 	}
 
 	public II generateId(String id) {
@@ -265,7 +306,27 @@ public class MedicationSupplyOrderGenerator {
 	public void setEffectiveTimeNull(Boolean effectiveTimeNull) {
 		this.effectiveTimeNull = effectiveTimeNull;
 	}
-	
-	
 
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		this.authorGenerator = authorGenerator;
+	}
+
+	public void setManufacturedProductGenerator(ManufacturedProductGenerator manufacturedProductGenerator) {
+		this.manProductGenerator = manufacturedProductGenerator;
+	}
+
+	public List<String> getInstructions() {
+		return this.instructions;
+	}
+
+	public void setInstructions(List<String> instructions) {
+		this.instructions = instructions;
+	}
+
+	public void addInstruction(String instruction) {
+		if (this.instructions == null) {
+			this.instructions = new ArrayList<String>();
+		}
+		this.instructions.add(instruction);
+	}
 }
