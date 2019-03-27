@@ -112,13 +112,16 @@ public class FHIRUtil {
 		}
 	}
 
-	public static void printXML(IBaseResource res, String filePath) {
+	public static void printXML(IBaseResource res, String filePath) throws IOException {
 		File f = new File(filePath);
 		f.getParentFile().mkdirs();
+		FileWriter fw = new FileWriter(f);
 		try {
-			xmlParser.encodeResourceToWriter(res, new FileWriter(f));
+			xmlParser.encodeResourceToWriter(res, fw);
 		} catch (IOException e) {
 			logger.error("Could not print FHIR XML to file", e);
+		} finally {
+			fw.close();
 		}
 	}
 
