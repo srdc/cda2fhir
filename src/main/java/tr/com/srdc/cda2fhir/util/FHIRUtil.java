@@ -37,6 +37,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import tr.com.srdc.cda2fhir.conf.Config;
 
@@ -79,13 +80,17 @@ public class FHIRUtil {
 		System.out.println(xmlParser.encodeResourceToString(res));
 	}
 
-	public static void printJSON(IBaseResource res, String filePath) {
+	public static void printJSON(IBaseResource res, String filePath) throws IOException {
 		File f = new File(filePath);
 		f.getParentFile().mkdirs();
 		try {
 			jsonParser.encodeResourceToWriter(res, new FileWriter(f));
-		} catch (IOException e) {
-			logger.error("Could not print FHIR JSON to file", e);
+		} catch (IOException ie) {
+			logger.error("Could not print FHIR JSON to file", ie);
+			throw new IOException(ie);
+		} catch (DataFormatException de) {
+			logger.error("Could not print FHIR JSON to file", de);
+			throw new DataFormatException(de);
 		}
 	}
 
