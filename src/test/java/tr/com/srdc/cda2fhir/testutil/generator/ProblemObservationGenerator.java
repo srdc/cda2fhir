@@ -137,30 +137,27 @@ public class ProblemObservationGenerator {
 		}
 	}
 
-	public void verifyPractitioners(List<Practitioner> practitioners) {
+	public void verify(Practitioner practitioner) {
 		if (authorGenerator == null) {
-			Assert.assertTrue("No practitioner", practitioners.size() == 0);
+			Assert.assertNull("Practitioner", practitioner);
 		} else {
-			Assert.assertTrue("One practitioner", practitioners.size() == 1);
-			authorGenerator.verify(practitioners.get(0));
+			authorGenerator.verify(practitioner);
 		}
 	}
 
-	public void verifyPractitionerRoles(List<PractitionerRole> practitionerRoles) {
+	public void verify(PractitionerRole practitionerRole) {
 		if (authorGenerator == null) {
-			Assert.assertTrue("No practitioner role", practitionerRoles.size() == 0);
+			Assert.assertNull("Practitioner role", practitionerRole);
 		} else {
-			Assert.assertTrue("One practitioner role", practitionerRoles.size() == 1);
-			authorGenerator.verify(practitionerRoles.get(0));
+			authorGenerator.verify(practitionerRole);
 		}
 	}
 
-	public void verifyOrganizations(List<Organization> organizations) {
+	public void verify(Organization organization) {
 		if (authorGenerator == null) {
-			Assert.assertTrue("No organization", organizations.size() == 0);
+			Assert.assertNull("Organization", organization);
 		} else {
-			Assert.assertTrue("One organization", organizations.size() == 1);
-			authorGenerator.verify(organizations.get(0));
+			authorGenerator.verify(organization);
 		}
 	}
 }

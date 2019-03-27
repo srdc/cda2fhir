@@ -10,15 +10,21 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 public class TransformManager {
 	@SuppressWarnings("unchecked")
-	public static Map<String, Object> chooseResource(List<Object> resources, String resourceType) {
+	public static List<Map<String, Object>> chooseResources(List<Object> resources, String resourceType) {
+		List<Map<String, Object>> result = new ArrayList<>();
 		for (Object resource : resources) {
 			Map<String, Object> map = (Map<String, Object>) resource;
 			String actualResourceType = (String) map.get("resourceType");
 			if (resourceType.equals(actualResourceType)) {
-				return map;
+				result.add(map);
 			}
 		}
-		return null;
+		return result;
+	}
+
+	public static Map<String, Object> chooseResource(List<Object> resources, String resourceType) {
+		List<Map<String, Object>> results = chooseResources(resources, resourceType);
+		return results.size() == 0 ? null : results.get(0);
 	}
 
 	private static Map<String, Object> getInitialContext() {

@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -13,7 +14,9 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ProblemConcernActGenerator {
 	private List<ProblemObservationGenerator> problemObservationGenerators = new ArrayList<>();
@@ -45,41 +48,44 @@ public class ProblemConcernActGenerator {
 	public static ProblemConcernActGenerator getFullInstance() {
 		ProblemConcernActGenerator pcag = new ProblemConcernActGenerator();
 
-		ProblemObservationGenerator pog = ProblemObservationGenerator.getFullInstance();
-		pcag.problemObservationGenerators.add(pog);
+		ProblemObservationGenerator pog0 = ProblemObservationGenerator.getDefaultInstance();
+		ProblemObservationGenerator pog1 = ProblemObservationGenerator.getFullInstance();
+		pcag.problemObservationGenerators.add(pog0);
+		pcag.problemObservationGenerators.add(pog1);
 
 		return pcag;
 	}
 
-	public void verify(Condition condition) {
-		if (problemObservationGenerators.isEmpty()) {
-			Assert.assertNull("No conditions", condition);
-		} else {
-			problemObservationGenerators.get(0).verify(condition);
-		}
-	}
+	public void verify(Bundle bundle) {
+		BundleUtil util = new BundleUtil(bundle);
+		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
+		int count = problemObservationGenerators == null ? 0 : problemObservationGenerators.size();
+		Assert.assertEquals("Num of condition resources", count, conditions.size());
+		for (int index = 0; index < 1; ++index) { // assume in order until proven otherwise
+			Condition condition = conditions.get(index);
+			ProblemObservationGenerator pog = problemObservationGenerators.get(index);
+			pog.verify(condition);
 
-	public void verifyPractitioners(List<Practitioner> practitioners) {
-		if (problemObservationGenerators.isEmpty()) {
-			Assert.assertTrue("No practitioner", practitioners.size() == 0);
-		} else {
-			problemObservationGenerators.get(0).verifyPractitioners(practitioners);
-		}
-	}
+			if (!condition.hasAsserter()) {
+				pog.verify((Organization) null);
+				pog.verify((PractitionerRole) null);
+				pog.verify((Organization) null);
+				continue;
+			}
+			String practitionerId = condition.getAsserter().getReference();
+			Practitioner practitioner = util.getResourceFromReference(practitionerId, Practitioner.class);
+			pog.verify(practitioner);
 
-	public void verifyPractitionerRoles(List<PractitionerRole> practitionerRoles) {
-		if (problemObservationGenerators.isEmpty()) {
-			Assert.assertTrue("No practitioner role", practitionerRoles.size() == 0);
-		} else {
-			problemObservationGenerators.get(0).verifyPractitionerRoles(practitionerRoles);
-		}
-	}
+			PractitionerRole role = util.getPractitionerRole(practitionerId);
+			pog.verify(role);
 
-	public void verifyOrganizations(List<Organization> organizations) {
-		if (problemObservationGenerators.isEmpty()) {
-			Assert.assertTrue("No organization", organizations.size() == 0);
-		} else {
-			problemObservationGenerators.get(0).verifyOrganizations(organizations);
+			if (!role.hasOrganization()) {
+				pog.verify((Organization) null);
+			} else {
+				String reference = role.getOrganization().getReference();
+				Organization organization = util.getResourceFromReference(reference, Organization.class);
+				pog.verify(organization);
+			}
 		}
 	}
 }

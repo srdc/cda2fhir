@@ -25,7 +25,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.ProblemConcernActGenerator;
@@ -54,14 +53,6 @@ public class ProblemConcernActTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void checkReference(Map<String, Object> resource, String path, String id) {
-		Map<String, Object> parent = (Map<String, Object>) resource.get(path);
-		Assert.assertNotNull("Jolt role " + path, parent);
-		String actualId = (String) parent.get("reference");
-		Assert.assertEquals("Id for " + path, id, actualId);
-	}
-
-	@SuppressWarnings("unchecked")
 	private static void compareConditions(String caseName, Condition condition, Map<String, Object> joltCondition)
 			throws Exception {
 		Assert.assertNotNull("Jolt condition", joltCondition);
@@ -77,7 +68,6 @@ public class ProblemConcernActTest {
 			Assert.assertNotNull("Jolt condition asserter reference", reference);
 			Assert.assertTrue("Reference is string", reference instanceof String);
 			putReference(joltCondition, "asserter", condition.getAsserter()); // reference values may not match
-
 		} else {
 			Assert.assertNull("No jolt condition asserter", joltCondition.get("asserter"));
 		}
@@ -108,18 +98,32 @@ public class ProblemConcernActTest {
 		JSONAssert.assertEquals("Jolt organization", expected, actual, true);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void compareRoles(String caseName, PractitionerRole practitionerRole,
-			Map<String, Object> joltPractitionerRole, String practitionerId, String organizationId) throws Exception {
+			Map<String, Object> joltPractitionerRole) throws Exception {
 		Assert.assertNotNull("Jolt practitioner", joltPractitionerRole);
 		Assert.assertNotNull("Jolt practitioner id", joltPractitionerRole.get("id"));
 		joltPractitionerRole.put("id", practitionerRole.getIdElement().getIdPart()); // ids do not have to match
 
+		Map<String, Object> practitioner = (Map<String, Object>) joltPractitionerRole.get("practitioner");
+		Assert.assertNotNull("Jolt role practitioner", practitioner);
+		Object practitionerReference = practitioner.get("reference");
+		Assert.assertNotNull("Jolt role practitioner reference", practitionerReference);
+		Assert.assertTrue("practitioner reference is string", practitionerReference instanceof String);
+		putReference(joltPractitionerRole, "practitioner", practitionerRole.getPractitioner()); // reference values may
+																								// not match
+
+		Map<String, Object> organization = (Map<String, Object>) joltPractitionerRole.get("organization");
+		Assert.assertNotNull("Jolt role organization", organization);
+		Object organizationReference = organization.get("reference");
+		Assert.assertNotNull("Jolt role organization reference", organizationReference);
+		Assert.assertTrue("organization reference is string", organizationReference instanceof String);
+		putReference(joltPractitionerRole, "organization", practitionerRole.getOrganization()); // reference values may
+																								// not match
+
 		String joltPractitionerJson = JsonUtils.toPrettyJsonString(joltPractitionerRole);
 		File joltPractitionerFile = new File(OUTPUT_PATH + caseName + "JoltPractitionerRole.json");
 		FileUtils.writeStringToFile(joltPractitionerFile, joltPractitionerJson, Charset.defaultCharset());
-
-		checkReference(joltPractitionerRole, "practitioner", practitionerId);
-		checkReference(joltPractitionerRole, "organization", organizationId);
 	}
 
 	private static File writeProblemConcernActAsXML(String caseName, ProblemConcernAct pca) throws Exception {
@@ -151,51 +155,63 @@ public class ProblemConcernActTest {
 
 		Bundle bundle = cda2FhirResult.getBundle();
 		Assert.assertNotNull("Problem bundle", bundle);
-
-		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
-		generator.verify(condition);
+		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
+		for (int index = 0; index < conditions.size(); ++index) {
+			Condition condition = conditions.get(index);
+			String filepath = String.format("%s%s%s%s%s", OUTPUT_PATH, caseName, "CDA2FHIRCondition",
+					index == 0 ? "" : index, "json");
+			FHIRUtil.printJSON(condition, filepath);
+		}
+		generator.verify(bundle);
 
 		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
 		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
 		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-		generator.verifyPractitioners(practitioners);
-		generator.verifyPractitionerRoles(practitionerRoles);
-		generator.verifyOrganizations(organizations);
 
 		File xmlFile = writeProblemConcernActAsXML(caseName, pca);
 
-		FHIRUtil.printJSON(condition, OUTPUT_PATH + caseName + "CDA2FHIRCondition.json");
-
 		List<Object> joltResult = findJoltResult(xmlFile, caseName);
 
-		Map<String, Object> joltPractitioner = TransformManager.chooseResource(joltResult, "Practitioner");
-		String practitionerId = null;
-		if (practitioners.isEmpty()) {
-			Assert.assertNull("No practitioner", joltPractitioner);
-		} else {
-			practitionerId = "Practitioner/" + joltPractitioner.get("id");
-			comparePractitioner(caseName, practitioners.get(0), joltPractitioner);
-		}
-
-		Map<String, Object> joltOrganization = TransformManager.chooseResource(joltResult, "Organization");
-		String organizationId = null;
+		List<Map<String, Object>> joltOrganizations = TransformManager.chooseResources(joltResult, "Organization");
 		if (organizations.isEmpty()) {
-			Assert.assertNull("No organizations", joltOrganization);
+			Assert.assertTrue("No organizations", joltOrganizations.isEmpty());
 		} else {
-			organizationId = "Organization/" + joltOrganization.get("id");
-			compareOrganization(caseName, organizations.get(0), joltOrganization);
+			for (int index = 0; index < organizations.size(); ++index) {
+				String indexStr = index == 0 ? "" : String.valueOf(index);
+				compareOrganization(caseName + indexStr, organizations.get(index), joltOrganizations.get(index));
+			}
 		}
 
-		Map<String, Object> joltPractitionerRole = TransformManager.chooseResource(joltResult, "PractitionerRole");
+		List<Map<String, Object>> joltPractitioners = TransformManager.chooseResources(joltResult, "Practitioner");
+		if (practitioners.isEmpty()) {
+			Assert.assertTrue("No practitioner", joltPractitioners.isEmpty());
+		} else {
+			for (int index = 0; index < practitioners.size(); ++index) {
+				String indexStr = index == 0 ? "" : String.valueOf(index);
+				comparePractitioner(caseName + indexStr, practitioners.get(index), joltPractitioners.get(index));
+			}
+		}
+
+		List<Map<String, Object>> joltPractitionerRoles = TransformManager.chooseResources(joltResult,
+				"PractitionerRole");
 		if (practitionerRoles.isEmpty()) {
-			Assert.assertNull("Jolt practitioner role", joltPractitionerRole);
+			Assert.assertTrue("No jolt practitioner role", joltPractitionerRoles.isEmpty());
 		} else {
-			PractitionerRole practitionerRole = practitionerRoles.get(0);
-			compareRoles(caseName, practitionerRole, joltPractitionerRole, practitionerId, organizationId);
+			for (int index = 0; index < practitionerRoles.size(); ++index) {
+				String indexStr = index == 0 ? "" : String.valueOf(index);
+				compareRoles(caseName + indexStr, practitionerRoles.get(index), joltPractitionerRoles.get(index));
+			}
 		}
 
-		Map<String, Object> joltCondition = TransformManager.chooseResource(joltResult, "Condition");
-		compareConditions(caseName, condition, joltCondition);
+		List<Map<String, Object>> joltConditions = TransformManager.chooseResources(joltResult, "Condition");
+		if (conditions.isEmpty()) {
+			Assert.assertTrue("No conditions", joltConditions.isEmpty());
+		} else {
+			for (int index = 0; index < conditions.size(); ++index) {
+				String indexStr = index == 0 ? "" : String.valueOf(index);
+				compareConditions(caseName + indexStr, conditions.get(index), joltConditions.get(index));
+			}
+		}
 	}
 
 	@Test

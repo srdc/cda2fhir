@@ -59,6 +59,26 @@ public class BundleUtil {
 		return identifierMap;
 	}
 
+	public <T extends Resource> T getResourceFromReference(String reference, Class<T> type) {
+		Resource resource = idMap.get(reference);
+		if (resource == null) {
+			return null;
+		}
+		return type.cast(resource);
+	}
+
+	public PractitionerRole getPractitionerRole(String practitionerId) {
+		List<PractitionerRole> roles = FHIRUtil.findResources(bundle, PractitionerRole.class);
+		Optional<PractitionerRole> result = roles.stream().filter(role -> {
+			if (!role.hasOrganization() || !role.hasPractitioner()) {
+				return false;
+			}
+			String localPractitionerId = role.getPractitioner().getReference();
+			return practitionerId.equals(localPractitionerId);
+		}).findFirst();
+		return result.orElse(null);
+	}
+
 	public void spotCheckAssignedPractitioner(String reference, String familyName, String roleCode,
 			String organizationName) {
 		Practitioner p = (Practitioner) idMap.get(reference);
