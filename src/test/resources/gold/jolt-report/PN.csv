@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format,Condition 1
 family,family,,,nullFlavor isNull
 given[],given[],,,nullFlavor isNull
-validTime,period,IVL_TS,,nullFlavor isNull
+validTime,period,IVL_TSPeriod,,nullFlavor isNull
 prefix[],prefix[],,,nullFlavor isNull
 suffix[],suffix[],,,nullFlavor isNull
 content,text,,,nullFlavor isNull

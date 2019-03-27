@@ -34,7 +34,7 @@
 			"suffix": {
 				"*": "suffix[]"
 			},
-			"validTime": "period.->IVL_TS"
+			"validTime": "period.->IVL_TSPeriod"
 		}
 	},
 	{

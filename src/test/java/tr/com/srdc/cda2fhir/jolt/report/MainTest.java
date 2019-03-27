@@ -57,8 +57,8 @@ public class MainTest {
 	}
 
 	@Test
-	public void testIVL_TS() throws Exception {
-		actualTest("IVL_TS");
+	public void testIVL_TSPeriod() throws Exception {
+		actualTest("IVL_TSPeriod");
 	}
 
 	@Test

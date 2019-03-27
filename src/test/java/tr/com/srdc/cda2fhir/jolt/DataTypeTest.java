@@ -74,7 +74,7 @@ public class DataTypeTest {
 	}
 
 	@Test
-	public void testIVL_TS() throws Exception {
-		runDataTypeTests("IVL_TS", true);
+	public void testIVL_TSPeriod() throws Exception {
+		runDataTypeTests("IVL_TSPeriod", true);
 	}
 }

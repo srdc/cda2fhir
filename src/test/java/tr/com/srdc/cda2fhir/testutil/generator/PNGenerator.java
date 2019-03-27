@@ -40,7 +40,7 @@ public class PNGenerator {
 	private List<String> prefixes = new ArrayList<>();
 	private List<String> suffixes = new ArrayList<>();
 
-	private IVL_TSGenerator ivlTsGenerator;
+	private IVL_TSPeriodGenerator ivlTsGenerator;
 
 	public PNGenerator() {
 	}
@@ -59,7 +59,7 @@ public class PNGenerator {
 		text = (String) json.get("content");
 
 		if (json.containsKey("validTime")) {
-			ivlTsGenerator = new IVL_TSGenerator((Map<String, Object>) json.get("validTime"));
+			ivlTsGenerator = new IVL_TSPeriodGenerator((Map<String, Object>) json.get("validTime"));
 		}
 	}
 
@@ -136,7 +136,7 @@ public class PNGenerator {
 		pn.suffixes.add(SUFFIX + "_2");
 		pn.text = "The Text";
 
-		pn.ivlTsGenerator = IVL_TSGenerator.getFullInstance();
+		pn.ivlTsGenerator = IVL_TSPeriodGenerator.getFullInstance();
 
 		return pn;
 	}

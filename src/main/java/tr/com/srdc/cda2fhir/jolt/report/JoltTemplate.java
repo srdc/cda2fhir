@@ -187,7 +187,7 @@ public class JoltTemplate {
 
 	public static JoltTemplate getInstance(String name, List<Object> content) {
 		JoltTemplate result = new JoltTemplate(name);
-		result.leafTemplate = name.equals(name.toUpperCase());
+		result.leafTemplate = name.equals(name.toUpperCase()) || name.equals("IVL_TSPeriod");
 
 		RawTemplate rawTemplate = RawTemplate.getInstance(content);
 

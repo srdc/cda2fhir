@@ -24,7 +24,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.ADGenerator;
-import tr.com.srdc.cda2fhir.testutil.generator.IVL_TSGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.IVL_TSPeriodGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.PNGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.TELGenerator;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
@@ -63,7 +63,7 @@ public class DataTypesGeneratorTest {
 		generator.verify(humanName);
 	}
 
-	private static void verify(IVL_TSGenerator generator) {
+	private static void verify(IVL_TSPeriodGenerator generator) {
 		IVL_TS ivlTs = generator.generate(factories);
 		Period period = dtt.tIVL_TS2Period(ivlTs);
 		generator.verify(period);
@@ -86,8 +86,8 @@ public class DataTypesGeneratorTest {
 			verify(generator);
 			return generator.toJson();
 		});
-		verifications.put("IVL_TS", input -> {
-			IVL_TSGenerator generator = new IVL_TSGenerator(input);
+		verifications.put("IVL_TSPeriod", input -> {
+			IVL_TSPeriodGenerator generator = new IVL_TSPeriodGenerator(input);
 			verify(generator);
 			return generator.toJson();
 		});
@@ -149,7 +149,7 @@ public class DataTypesGeneratorTest {
 	}
 
 	@Test
-	public void testIVL_TS() throws Exception {
-		runTestCases("IVL_TS");
+	public void testIVL_TSPeriod() throws Exception {
+		runTestCases("IVL_TSPeriod");
 	}
 }

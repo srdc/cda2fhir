@@ -13,7 +13,7 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
-public class IVL_TSGenerator {
+public class IVL_TSPeriodGenerator {
 	private String lowNullFlavor;
 	private String highNullFlavor;
 	private String nullFlavor;
@@ -22,11 +22,11 @@ public class IVL_TSGenerator {
 	private String highValue;
 	private String value;
 
-	public IVL_TSGenerator() {
+	public IVL_TSPeriodGenerator() {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IVL_TSGenerator(Map<String, Object> json) {
+	public IVL_TSPeriodGenerator(Map<String, Object> json) {
 		nullFlavor = (String) json.get("nullFlavor");
 		value = (String) json.get("value");
 		Map<String, Object> low = (Map<String, Object>) json.get("low");
@@ -80,8 +80,8 @@ public class IVL_TSGenerator {
 		return ivlTs;
 	}
 
-	public static IVL_TSGenerator getDefaultInstance() {
-		IVL_TSGenerator ivlTs = new IVL_TSGenerator();
+	public static IVL_TSPeriodGenerator getDefaultInstance() {
+		IVL_TSPeriodGenerator ivlTs = new IVL_TSPeriodGenerator();
 
 		ivlTs.lowValue = "20080501114500-0800";
 		ivlTs.highValue = "20110812170500-0800";
@@ -89,7 +89,7 @@ public class IVL_TSGenerator {
 		return ivlTs;
 	}
 
-	public static IVL_TSGenerator getFullInstance() {
+	public static IVL_TSPeriodGenerator getFullInstance() {
 		return getDefaultInstance();
 	}
 
