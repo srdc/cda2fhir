@@ -83,17 +83,17 @@ public class FHIRUtil {
 	public static void printJSON(IBaseResource res, String filePath) throws IOException {
 		File f = new File(filePath);
 		f.getParentFile().mkdirs();
+		FileWriter fw = new FileWriter(f);
 		try {
-			FileWriter fw = new FileWriter(f);
 			jsonParser.encodeResourceToWriter(res, fw);
-			fw.close();
-
 		} catch (IOException ie) {
 			logger.error("Could not print FHIR JSON to file", ie);
 			throw new IOException(ie);
 		} catch (DataFormatException de) {
 			logger.error("Could not print FHIR JSON to file", de);
 			throw new DataFormatException(de);
+		} finally {
+			fw.close();
 		}
 	}
 
