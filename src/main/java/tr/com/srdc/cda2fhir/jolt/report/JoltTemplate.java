@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,7 @@ public class JoltTemplate {
 		public Map<String, Object> accumulator;
 		public List<Map<String, Object>> modifiers = new ArrayList<>();
 		public Map<String, Object> removeWhen;
+		public Map<String, Object> move;
 
 		@SuppressWarnings("unchecked")
 		public static RawTemplate getInstance(List<Object> content) {
@@ -46,6 +48,10 @@ public class JoltTemplate {
 					result.removeWhen = spec;
 					return;
 				}
+				if (operation.endsWith("Move")) {
+					result.move = spec;
+					return;
+				}
 			});
 
 			if (result.shifts.isEmpty()) {
@@ -63,6 +69,7 @@ public class JoltTemplate {
 	private RootNode rootNode;
 	private RootNode supportRootNode;
 	private JoltFormat format;
+	private Map<String, String> moveMap;
 
 	private boolean leafTemplate = false;
 	private String resourceType;
@@ -171,6 +178,9 @@ public class JoltTemplate {
 			}
 			table.addTable(assignTable);
 		}
+		if (moveMap != null) {
+			table.moveTargets(moveMap);
+		}
 
 		return table;
 	}
@@ -198,6 +208,14 @@ public class JoltTemplate {
 			RootNode assignRootNode = NodeFactory.getInstance(rawTemplate.assign);
 			Templates templates = new Templates(result.format);
 			result.assignTable = assignRootNode.toTable(templates);
+		}
+		if (rawTemplate.move != null) {
+			result.moveMap = new HashMap<String, String>();
+			rawTemplate.move.entrySet().forEach(entry -> {
+				String key = entry.getKey();
+				String value = (String) entry.getValue();
+				result.moveMap.put(key, value);
+			});
 		}
 
 		return result;

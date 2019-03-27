@@ -208,8 +208,11 @@ public class ProblemConcernActTest {
 			Assert.assertTrue("No conditions", joltConditions.isEmpty());
 		} else {
 			for (int index = 0; index < conditions.size(); ++index) {
+				Condition condition = conditions.get(index);
+				int joltIndex = condition.hasAsserter() ? 1 : 0; // TODO: fix, this is hack
+
 				String indexStr = index == 0 ? "" : String.valueOf(index);
-				compareConditions(caseName + indexStr, conditions.get(index), joltConditions.get(index));
+				compareConditions(caseName + indexStr, condition, joltConditions.get(joltIndex));
 			}
 		}
 	}

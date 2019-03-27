@@ -19,6 +19,20 @@ public class IDGenerator {
 		this.extension = extension;
 	}
 
+	public String getSystem() {
+		if (root != null && extension != null) {
+			return "urn:oid:" + root;
+		}
+		return null;
+	}
+
+	public String getValue() {
+		if (root != null && extension != null) {
+			return extension;
+		}
+		return root;
+	}
+
 	public II generate(CDAFactories factories) {
 		if (extension == null) {
 			return factories.datatype.createII(root);
@@ -43,7 +57,7 @@ public class IDGenerator {
 		++NEXT_INDEX;
 
 		String root = ROOTS[rootIndex];
-		String extension = String.valueOf(1000 + rootIndex);
+		String extension = String.valueOf(1000 + NEXT_INDEX);
 
 		return new IDGenerator(root, extension);
 	}

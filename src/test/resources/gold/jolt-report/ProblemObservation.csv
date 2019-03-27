@@ -1,12 +1,12 @@
-CCDA Source,Target,Link,Format,Condition 1,Condition 2
-effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapter"
-Practitioner,Condition.asserter.reference,,
-code,Condition.category[],CD,
-effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')"
-value[*],Condition.code[],CD,"lastElement"
-id[*],Condition.identifier[],ID,
-effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.nullFlavor isnull,effectiveTime.low.value isnotnull
-effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.value isnull,effectiveTime.nullFlavor isnull
-author.assignedAuthor,Organization,,
-author.assignedAuthor,Practitioner,,
-author.assignedAuthor,PractitionerRole,,
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
+effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapter",nullFlavor isNull
+Practitioner,Condition.asserter.reference,,"getId"
+code,Condition.category[],CD,,nullFlavor isNull
+effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')",nullFlavor isNull
+value[*],Condition.code[],CD,"lastElement",nullFlavor isNull
+id[*],Condition.identifier[],ID,,nullFlavor isNull
+effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.nullFlavor isnull,effectiveTime.low.value isnotnull,nullFlavor isNull
+effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.value isnull,effectiveTime.nullFlavor isnull,nullFlavor isNull
+author.assignedAuthor,Organization,,,nullFlavor isNull
+author.assignedAuthor,Practitioner,,,nullFlavor isNull
+author.assignedAuthor,PractitionerRole,,,nullFlavor isNull

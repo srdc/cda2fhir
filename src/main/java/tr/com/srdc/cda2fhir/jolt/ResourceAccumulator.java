@@ -41,7 +41,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		String reference = String.format("%s/%s", resourceType, id);
 		List<Object> identifiers = (List<Object>) resource.get("identifier");
 		if (identifiers == null) {
-			return reference;
+			return resource;
 		}
 		IdentifierMap<String> refsByIdentifier = (IdentifierMap<String>) context.get("RefsByIdentifier");
 		if (refsByIdentifier == null) {
@@ -63,6 +63,6 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		if (identifiers.size() == 0) {
 			resource.remove("identifier");
 		}
-		return reference;
+		return resource;
 	}
 }

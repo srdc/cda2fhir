@@ -185,13 +185,22 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static final class GetId extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
 			if (arg == null) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
-			return Optional.of(arg);
+			if (!(arg instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> map = (Map<String, Object>) arg;
+			String resourceType = (String) map.get("resourceType");
+			Object id = map.get("id");
+			String result = String.format("%s/%s", resourceType, id.toString());
+
+			return Optional.of(result);
 		}
 	}
 

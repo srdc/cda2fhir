@@ -94,6 +94,10 @@ public class ProblemObservationGenerator {
 		return pcag;
 	}
 
+	public IDGenerator getIDGenerator(int index) {
+		return idGenerators.get(index);
+	}
+
 	public void verify(Condition condition) {
 		if (!idGenerators.isEmpty()) {
 			for (int index = 0; index < idGenerators.size(); ++index) {
