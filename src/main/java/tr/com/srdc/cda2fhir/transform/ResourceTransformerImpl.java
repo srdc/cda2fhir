@@ -89,6 +89,7 @@ import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
@@ -263,7 +264,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		AllergyIntolerance fhirAllergyIntolerance = new AllergyIntolerance();
 		result.addResource(fhirAllergyIntolerance);
-//		fhirAllergyIntolerance
 
 		// resource id
 		IdType resourceId = new IdType("AllergyIntolerance", getUniqueId());
@@ -360,6 +360,21 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 										fhirAllergyIntolerance
 												.addCategory(vst.tAllergyCategoryCode2AllergyIntoleranceCategory(
 														((CD) value).getCode()));
+									}
+								}
+							}
+						}
+					}
+
+					// allergyObservation.value[@xsi:type='CD'] -> type
+					if (cdaAllergyObs.getValues() != null && !cdaAllergyObs.getValues().isEmpty()) {
+						for (ANY value : cdaAllergyObs.getValues()) {
+							if (value != null && !value.isSetNullFlavor()) {
+								if (value instanceof CD) {
+									if (vst.tAllergyCategoryCode2AllergyIntoleranceType(
+											((CD) value).getCode()) != null) {
+										fhirAllergyIntolerance.setType(vst
+												.tAllergyCategoryCode2AllergyIntoleranceType(((CD) value).getCode()));
 									}
 								}
 							}
@@ -1506,7 +1521,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					// consumable.manufacturedProduct.manufacturedMaterial.code -> vaccineCode
 					if (manufacturedProduct.getManufacturedMaterial().getCode() != null
 							&& !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor()) {
-						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode()));
+						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode(),
+								bundleInfo.getIdedAnnotations()));
 					}
 
 					// consumable.manufacturedProduct.manufacturedMaterial.lotNumberText ->
@@ -1564,7 +1580,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// doseQuantity -> doseQuantity
 		if (cdaImmunizationActivity.getDoseQuantity() != null
 				&& !cdaImmunizationActivity.getDoseQuantity().isSetNullFlavor()) {
-			fhirImmunization.setDoseQuantity(dtt.tPQ2SimpleQuantity(cdaImmunizationActivity.getDoseQuantity()));
+
+			SimpleQuantity dose = dtt.tPQ2SimpleQuantity(cdaImmunizationActivity.getDoseQuantity());
+			// manually set dose system, source object doesn't support it.
+			dose.setSystem(vst.tOid2Url("2.16.840.1.113883.1.11.12839"));
+
+			fhirImmunization.setDoseQuantity(dose);
 		}
 
 		// statusCode -> status
@@ -1902,7 +1923,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// doseQuantity -> dosage.quantity
 		if (cdaMedicationActivity.getDoseQuantity() != null
 				&& !cdaMedicationActivity.getDoseQuantity().isSetNullFlavor()) {
-			fhirDosage.setDose(dtt.tPQ2SimpleQuantity(cdaMedicationActivity.getDoseQuantity()));
+			SimpleQuantity dose = dtt.tPQ2SimpleQuantity(cdaMedicationActivity.getDoseQuantity());
+			// manually set dose system, source object doesn't support it.
+			dose.setSystem(vst.tOid2Url("2.16.840.1.113883.1.11.12839"));
+			fhirDosage.setDose(dose);
 		}
 
 		// routeCode -> dosage.route

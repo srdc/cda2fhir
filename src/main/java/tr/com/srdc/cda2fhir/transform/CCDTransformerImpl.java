@@ -90,6 +90,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		supportedSectionTypes.add(CDASectionTypeEnum.ENCOUNTERS_SECTION);
 		supportedSectionTypes.add(CDASectionTypeEnum.ENCOUNTERS_SECTION_ENTRIES_OPTIONAL);
 		supportedSectionTypes.add(CDASectionTypeEnum.RESULTS_SECTION);
+		supportedSectionTypes.add(CDASectionTypeEnum.VITAL_SIGNS_SECTION);
 	}
 
 	/**
