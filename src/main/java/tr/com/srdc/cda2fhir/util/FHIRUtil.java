@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -131,6 +132,13 @@ public class FHIRUtil {
 	public static <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type) {
 		return bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
 				.map(r -> type.cast(r)).collect(Collectors.toList());
+	}
+
+	public static <T extends Resource> T findFirstResource(Bundle bundle, Class<T> type) {
+		Optional<T> result = bundle.getEntry().stream().map(b -> b.getResource()).filter(r -> type.isInstance(r))
+				.map(r -> type.cast(r)).findFirst();
+		return result.orElse(null);
+
 	}
 
 	public static void mergeBundle(Bundle source, Bundle target) {

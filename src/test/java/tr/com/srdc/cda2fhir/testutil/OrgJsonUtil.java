@@ -58,6 +58,11 @@ public class OrgJsonUtil {
 		return section.optJSONArray("entry");
 	}
 
+	public JSONArray getProblemSectionEntries() throws JSONException {
+		JSONObject section = getSection("11450-4");
+		return section.optJSONArray("entry");
+	}
+
 	public static OrgJsonUtil readXML(String filepath) throws JSONException, IOException {
 		File file = new File(filepath);
 		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
