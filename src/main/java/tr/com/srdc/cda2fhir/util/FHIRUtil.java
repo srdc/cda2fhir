@@ -84,7 +84,10 @@ public class FHIRUtil {
 		File f = new File(filePath);
 		f.getParentFile().mkdirs();
 		try {
-			jsonParser.encodeResourceToWriter(res, new FileWriter(f));
+			FileWriter fw = new FileWriter(f);
+			jsonParser.encodeResourceToWriter(res, fw);
+			fw.close();
+
 		} catch (IOException ie) {
 			logger.error("Could not print FHIR JSON to file", ie);
 			throw new IOException(ie);
