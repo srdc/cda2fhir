@@ -1,0 +1,41 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"encounter": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"encounter": {
+				"id": {
+					"*": "identifier[].->ID"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "default",
+		"spec": {
+			"status": "finished"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Encounter"
+		}
+	}
+]
