@@ -26,7 +26,6 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -54,13 +53,7 @@ public class ImmunizationActivityTest {
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		Assert.assertEquals("Unexpected positive primary source", false, immunization.getPrimarySource());
 
-		String lastName = "Doe";
-		String firstName = "Joe";
-		AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
-		assignedEntityGenerator.setFamilyName(lastName);
-		assignedEntityGenerator.addGivenName(firstName);
-
-		PerformerGenerator performerGenerator = new PerformerGenerator(assignedEntityGenerator);
+		PerformerGenerator performerGenerator = PerformerGenerator.getDefaultInstance();
 		Performer2 performer = performerGenerator.generate(factories);
 		act.getPerformers().add(performer);
 
@@ -71,7 +64,7 @@ public class ImmunizationActivityTest {
 		String reference = immunization1.getPractitioner().get(0).getActor().getReference();
 		Practitioner practitioner = BundleUtil.findOneResource(bundle1, Practitioner.class);
 		Assert.assertEquals("Unexpected Reference", reference, practitioner.getId());
-		assignedEntityGenerator.verify(practitioner);
+		performerGenerator.verify(practitioner);
 	}
 
 	static private void verifyNotGiven(ImmunizationActivity act, ImmunizationRefusalReason refusal, Boolean value)

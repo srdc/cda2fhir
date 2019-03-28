@@ -14,16 +14,15 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.EntryRelationship;
+import org.openhealthtools.mdht.uml.cda.Performer2;
+import org.openhealthtools.mdht.uml.cda.consol.Indication;
+import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
-
-import org.openhealthtools.mdht.uml.cda.EntryRelationship;
-import org.openhealthtools.mdht.uml.cda.Performer2;
-import org.openhealthtools.mdht.uml.cda.consol.Indication;
-import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -52,10 +51,7 @@ public class ProcedureActivityProcedureTest {
 	public void testPerformer() throws Exception {
 		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
 
-		AssignedEntityGenerator aeg = new AssignedEntityGenerator();
-		aeg.setCode();
-		aeg.setOrganizationName("PAP Organization");
-		PerformerGenerator performerGenerator = new PerformerGenerator(aeg);
+		PerformerGenerator performerGenerator = PerformerGenerator.getDefaultInstance();
 		Performer2 performer = performerGenerator.generate(factories);
 		pap.getPerformers().add(performer);
 
@@ -64,7 +60,7 @@ public class ProcedureActivityProcedureTest {
 		Bundle bundle = entryResult.getBundle();
 
 		Organization organization = BundleUtil.findOneResource(bundle, Organization.class);
-		aeg.verify(organization);
+		performerGenerator.verify(organization);
 
 		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
 

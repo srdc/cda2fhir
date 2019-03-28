@@ -3,16 +3,14 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.HumanName;
-import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Organization;
-import org.openhealthtools.mdht.uml.cda.impl.PersonImpl;
+import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
@@ -21,50 +19,32 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class AssignedEntityGenerator {
-	private List<Pair<String, String>> ids = new ArrayList<Pair<String, String>>();
+	static final public String DEFAULT_CODE_CODE = "363LA2100X";
+	static final public String DEFAULT_CODE_PRINTNAME = "Nurse Practitioner - Acute Care";
 
-	private String familyName;
-	private List<String> givenNames = new ArrayList<String>();
+	private List<IDGenerator> idGenerators = new ArrayList<>();
 
 	private String codeCode;
 	private String codePrintName;
 
+	private PNGenerator pnGenerator;
+
 	private String organizationName;
 
-	static final public String DEFAULT_CODE_CODE = "363LA2100X";
-	static final public String DEFAULT_CODE_PRINTNAME = "Nurse Practitioner - Acute Care";
-	static final public String DEFAULT_GIVEN_NAME = "JOE";
-	static final public String DEFAULT_FAMILY_NAME = "DOE";
 	static final public String DEFAULT_ORGANIZATION_NAME = "The Organization";
-	static final public String DEFAULT_ID_ROOT = "2.5.6.77";
-	static final public String DEFAULT_ID_EXTENSION = "1234545";
 
 	public AssignedEntity generate(CDAFactories factories) {
 		AssignedEntity entity = factories.base.createAssignedEntity();
 
-		for (Pair<String, String> id : ids) {
-			String left = id.getLeft();
-			String right = id.getRight();
-			if (right == null) {
-				II ii = factories.datatype.createII(left);
-				entity.getIds().add(ii);
-			} else {
-				II ii = factories.datatype.createII(left, right);
-				entity.getIds().add(ii);
-			}
-		}
+		idGenerators.forEach(idGenerator -> {
+			II ii = idGenerator.generate(factories);
+			entity.getIds().add(ii);
+		});
 
-		if (familyName != null || !givenNames.isEmpty()) {
-			PN pn = factories.datatype.createPN();
-
-			if (familyName != null) {
-				pn.addFamily(familyName);
-			}
-			givenNames.stream().forEach(r -> pn.addGiven(r));
-
-			PersonImpl person = (PersonImpl) factories.base.createPerson();
+		if (pnGenerator != null) {
+			PN pn = pnGenerator.generate(factories);
+			Person person = factories.base.createPerson();
 			person.getNames().add(pn);
-
 			entity.setAssignedPerson(person);
 		}
 
@@ -85,14 +65,6 @@ public class AssignedEntityGenerator {
 		return entity;
 	}
 
-	public void setFamilyName(String familyName) {
-		this.familyName = familyName;
-	}
-
-	public void addGivenName(String givenName) {
-		givenNames.add(givenName);
-	}
-
 	public void setCode(String code, String printName) {
 		codeCode = code;
 		codePrintName = printName;
@@ -102,12 +74,8 @@ public class AssignedEntityGenerator {
 		setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
 	}
 
-	public void addId(String root) {
-		ids.add(Pair.of(root, null));
-	}
-
-	public void addId(String root, String extension) {
-		ids.add(Pair.of(root, extension));
+	public PNGenerator getPNGenerator() {
+		return pnGenerator;
 	}
 
 	public void setOrganizationName(String organizationName) {
@@ -117,9 +85,10 @@ public class AssignedEntityGenerator {
 	public static AssignedEntityGenerator getDefaultInstance() {
 		AssignedEntityGenerator aeg = new AssignedEntityGenerator();
 
-		aeg.setFamilyName(DEFAULT_FAMILY_NAME);
-		aeg.addGivenName(DEFAULT_GIVEN_NAME);
-		aeg.addId(DEFAULT_ID_ROOT, DEFAULT_ID_EXTENSION);
+		aeg.idGenerators.add(IDGenerator.getNextInstance());
+
+		aeg.pnGenerator = PNGenerator.getDefaultInstance();
+
 		aeg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
 		aeg.setOrganizationName(DEFAULT_ORGANIZATION_NAME);
 
@@ -127,15 +96,19 @@ public class AssignedEntityGenerator {
 	}
 
 	public void verify(Practitioner practitioner) {
-		HumanName humanName = practitioner.getName().get(0);
-		Assert.assertEquals("Expect the correct family name", familyName, humanName.getFamily());
-		Assert.assertEquals("Expect the correct given name", givenNames.get(0), humanName.getGiven().get(0).getValue());
+		if (pnGenerator == null || pnGenerator.hasNullFlavor()) {
+			Assert.assertTrue("Missing practioner name", !practitioner.hasName());
+		} else {
+			HumanName humanName = practitioner.getName().get(0);
+			pnGenerator.verify(humanName);
+		}
 
-		if (!ids.isEmpty()) {
-			Identifier identifier = practitioner.getIdentifier().get(0);
-			Pair<String, String> id = ids.get(0);
-			Assert.assertEquals("Expect the correct id system", "urn:oid:" + id.getLeft(), identifier.getSystem());
-			Assert.assertEquals("Expect the correct id value", id.getRight(), identifier.getValue());
+		if (!idGenerators.isEmpty()) {
+			for (int index = 0; index < idGenerators.size(); ++index) {
+				idGenerators.get(index).verify(practitioner.getIdentifier().get(index));
+			}
+		} else {
+			Assert.assertTrue("No practitioner identifier", !practitioner.hasIdentifier());
 		}
 	}
 
