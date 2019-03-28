@@ -55,7 +55,7 @@ public class ValidatorTest {
 	}
 
 	// 170.315_b1_toc_gold_sample2_v1.xml without profile
-	@Ignore
+	@Test
 	public void testGoldSampleBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-wo-profile-validation.xml";
@@ -154,7 +154,7 @@ public class ValidatorTest {
 	}
 
 	// HannahBanana_EpicCCD.xml
-	@Test
+	@Ignore
 	public void testHannahBanana() throws Exception {
 		String cdaResourcePath = "src/test/resources/Epic/HannahBanana_EpicCCD-pretty.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.fhir.xml";
@@ -165,7 +165,7 @@ public class ValidatorTest {
 	}
 
 	// Person-RAKIA_TEST_DOC0001 (1).xml
-	@Test
+	@Ignore
 	public void testRakia() throws Exception {
 		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
