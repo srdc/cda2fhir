@@ -21,8 +21,12 @@ package tr.com.srdc.cda2fhir;
  */
 
 import java.util.List;
+import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Base;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.UriType;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -33,8 +37,13 @@ import org.openhealthtools.mdht.uml.cda.impl.MaterialImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
+import com.helger.commons.collection.attr.StringMap;
+
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
@@ -160,6 +169,37 @@ public class MedicationTest {
 				fhirCodings.get(0).getNamedProperty("code").getValues().get(0).toString());
 		Assert.assertEquals("Medication System set on FHIR Object", "http://www.nlm.nih.gov/research/umls/nci",
 				systemUri.asStringValue());
+	}
+
+	@Test
+	public void testMedicationOriginalText() throws Exception {
+
+		// Make a manufactured product.
+		ManufacturedProductImpl product = (ManufacturedProductImpl) cdaFactory.createManufacturedProduct();
+		MaterialImpl material = (MaterialImpl) cdaFactory.createMaterial();
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		String expectedValue = "freetext entry";
+		String referenceValue = "fakeid1";
+		CE ce = cdaTypeFactory.createCE();
+		ED ed = cdaTypeFactory.createED();
+		TEL tel = cdaTypeFactory.createTEL();
+		tel.setValue("#" + referenceValue);
+		ed.setReference(tel);
+		ce.setCode("code");
+		ce.setCodeSystem("codeSystem");
+		ce.setOriginalText(ed);
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put(referenceValue, expectedValue);
+		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+
+		material.setCode(ce);
+		product.setManufacturedMaterial(material);
+		Bundle bundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
+		Medication medication = BundleUtil.findOneResource(bundle, Medication.class);
+		CodeableConcept cc = medication.getCode();
+		Assert.assertEquals("Medication Code text value assigned", expectedValue, cc.getText());
+
 	}
 
 }

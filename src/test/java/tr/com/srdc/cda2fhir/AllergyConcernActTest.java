@@ -205,9 +205,9 @@ public class AllergyConcernActTest {
 		BundleInfo bundleInfo = new BundleInfo(rt);
 		String expectedValue = "freetext entry";
 		String referenceValue = "fakeid1";
-		CE ce = DatatypesFactory.eINSTANCE.createCE();
-		ED ed = DatatypesFactory.eINSTANCE.createED();
-		TEL tel = DatatypesFactory.eINSTANCE.createTEL();
+		CE ce = cdaTypeFactory.createCE();
+		ED ed = cdaTypeFactory.createED();
+		TEL tel = cdaTypeFactory.createTEL();
 		tel.setValue("#" + referenceValue);
 		ed.setReference(tel);
 		ce.setCode("code");
@@ -226,7 +226,6 @@ public class AllergyConcernActTest {
 		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
 		CodeableConcept cc = allergyIntolerance.getCode();
 		Assert.assertEquals("AllergyIntolerance Code text value assigned", expectedValue, cc.getText());
-
 	}
 
 	@Test
