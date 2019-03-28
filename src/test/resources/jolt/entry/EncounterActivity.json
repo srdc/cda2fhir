@@ -3,7 +3,8 @@
 		"operation": "cardinality",
 		"spec": {
 			"encounter": {
-				"id": "MANY"
+				"id": "MANY",
+				"performer": "MANY"
 			}
 		}
 	},
@@ -23,7 +24,10 @@
 				"statusCode": "status.->NullFlavorableCode",
 				"code": "type[].->CD",
 				"priorityCode": "priority.->CD",
-				"effectiveTime": "period.->IVL_TSPeriod"
+				"effectiveTime": "period.->IVL_TSPeriod",
+				"performer": {
+					"*": "->AssignedEntity"
+				}
 			}
 		}
 	},
@@ -31,15 +35,39 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": "participant[0].individual.reference",
+			"#http://hl7.org/fhir/v3/ParticipationType": "participant[0].type[0].coding[0].system",
+			"#PART": "participant[0].type[0].coding[0].code",
+			"#Participation": "participant[0].type[0].coding[0].display"
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"status": "=valueSetAdapter('EncounterStatus',@0)"
+			"status": "=valueSetAdapter('EncounterStatus',@0)",
+			"participant": {
+				"*": {
+					"individual": {
+						"reference": "=getId(@0)"
+					}
+				}
+			}
 		}
 	},
 	{
 		"operation": "default",
 		"spec": {
 			"status": "finished"
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	},
 	{

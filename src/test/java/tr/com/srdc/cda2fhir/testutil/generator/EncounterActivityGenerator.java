@@ -5,8 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
@@ -17,6 +23,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
@@ -34,6 +41,8 @@ public class EncounterActivityGenerator {
 	private CEGenerator priorityCodeGenerator;
 
 	private IVL_TSPeriodGenerator effectiveTimeGenerator;
+
+	private List<PerformerGenerator> performerGenerators = new ArrayList<>();
 
 	public EncounterActivities generate(CDAFactories factories) {
 		EncounterActivities ec = factories.consol.createEncounterActivities();
@@ -73,6 +82,11 @@ public class EncounterActivityGenerator {
 			ec.setEffectiveTime(ivlTs);
 		}
 
+		performerGenerators.forEach(pg -> {
+			Performer2 performer = pg.generate(factories);
+			ec.getPerformers().add(performer);
+		});
+
 		return ec;
 	}
 
@@ -84,6 +98,7 @@ public class EncounterActivityGenerator {
 		ecg.codeGenerator = CDGenerator.getNextInstance();
 		ecg.priorityCodeGenerator = CEGenerator.getNextInstance();
 		ecg.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
+		ecg.performerGenerators.add(PerformerGenerator.getDefaultInstance());
 
 		return ecg;
 	}
@@ -104,7 +119,7 @@ public class EncounterActivityGenerator {
 			if (expected == null) {
 				Assert.assertTrue("Missing encounter status", !encounter.hasStatus());
 			} else {
-				Assert.assertEquals("Ecnounter status", expected, encounter.getStatus().toCode());
+				Assert.assertEquals("Encounter status", expected, encounter.getStatus().toCode());
 			}
 		}
 
@@ -126,11 +141,53 @@ public class EncounterActivityGenerator {
 		} else {
 			effectiveTimeGenerator.verify(encounter.getPeriod());
 		}
+
+		if (performerGenerators.isEmpty()) {
+			Assert.assertTrue("Missing encounter participant individual", !encounter.hasParticipant());
+		} else {
+			Assert.assertEquals("Encounter performer count", performerGenerators.size(),
+					encounter.getParticipant().size());
+		}
 	}
 
 	public void verify(Bundle bundle) throws Exception {
 		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);
 
 		verify(encounter);
+
+		if (performerGenerators.isEmpty()) {
+			Assert.assertTrue("Missing encounter participant", !encounter.hasParticipant());
+		} else {
+			BundleUtil util = new BundleUtil(bundle);
+
+			for (int index = 0; index < performerGenerators.size(); ++index) {
+				PerformerGenerator pg = performerGenerators.get(index);
+				EncounterParticipantComponent epc = encounter.getParticipant().get(index);
+
+				String practitionerId = epc.getIndividual().getReference();
+				Practitioner practitioner = util.getResourceFromReference(practitionerId, Practitioner.class);
+				pg.verify(practitioner);
+
+				PractitionerRole role = util.getPractitionerRole(practitionerId);
+				pg.verify(role);
+
+				if (!role.hasOrganization()) {
+					pg.verify((Organization) null);
+				} else {
+					String reference = role.getOrganization().getReference();
+					Organization organization = util.getResourceFromReference(reference, Organization.class);
+					pg.verify(organization);
+				}
+
+				Coding coding = epc.getType().get(0).getCoding().get(0);
+				Coding expectedCoding = Config.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE;
+				Assert.assertEquals("Encounter participant type code", expectedCoding.getCode(), coding.getCode());
+				Assert.assertEquals("Encounter participant type system", expectedCoding.getSystem(),
+						coding.getSystem());
+				Assert.assertEquals("Encounter participant type display", expectedCoding.getDisplay(),
+						coding.getDisplay());
+			}
+		}
+
 	}
 }
