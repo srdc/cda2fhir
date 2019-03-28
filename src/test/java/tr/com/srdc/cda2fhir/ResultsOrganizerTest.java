@@ -56,7 +56,7 @@ public class ResultsOrganizerTest {
 
 		DiagnosticReport report = BundleUtil.findOneResource(bundle, DiagnosticReport.class);
 		CodeableConcept cc = report.getCode();
-		Assert.assertEquals("Encounter Activity Code text value assigned", expectedValue, cc.getText());
+		Assert.assertEquals("Diagnostic Report Code text value assigned", expectedValue, cc.getText());
 
 	}
 
