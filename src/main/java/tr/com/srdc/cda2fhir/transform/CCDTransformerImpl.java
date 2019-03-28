@@ -279,7 +279,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * instance to a Bundle of corresponding FHIR resources
 	 *
 	 * @param cda          A Consolidated CDA (C-CDA) 2.1 Continuity of Care
-	 *                     Document (CCD) instance to be transformed
+	 *                     Document (CCD) instance to be transformed.
 	 * @param documentBody The decoded base64 document that would be included in the
 	 *                     provenance object if provided.
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CCD
