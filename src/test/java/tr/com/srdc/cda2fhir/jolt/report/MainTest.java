@@ -95,4 +95,9 @@ public class MainTest {
 	public void testAssignedAuthorOrganization() throws Exception {
 		actualTest("AssignedAuthorOrganization");
 	}
+
+	@Test
+	public void testProcedureActivityProcedure() throws Exception {
+		actualTest("ProcedureActivityProcedure");
+	}
 }

@@ -1,0 +1,13 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2
+procedure.performer[*].assignedEntity,Organization,,,nullFlavor isNull
+procedure.performer[*].assignedEntity,Practitioner,,,nullFlavor isNull
+procedure.performer[*].assignedEntity,PractitionerRole,,,nullFlavor isNull
+procedure.targetSiteCode[*],Procedure.bodySite[],CD,,nullFlavor isNull
+procedure.code,Procedure.code,CD,,nullFlavor isNull
+procedure.id[*],Procedure.identifier[],ID,,nullFlavor isNull
+procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,nullFlavor isNull
+Practitioner,Procedure.performer[0].actor.reference,,
+Organization,Procedure.performer[0].onBehalfOf.reference,,
+Procedure.PractitionerRole.code,Procedure.performer[0].role,,
+procedure.entryRelationship[].observation.code,Procedure.reasonCode[],CD,,nullFlavor isNull,procedure.entryRelationship[].typeCode equal RSON
+procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",nullFlavor isNull,procedure.statusCode.nullFlavor isnull
