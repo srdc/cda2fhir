@@ -4,9 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
+import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
@@ -18,6 +25,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 
@@ -35,6 +43,8 @@ public class ProcedureActivityProcedureGenerator {
 	private CDGenerator codeGenerator;
 
 	private List<CDGenerator> reasonCodeGenerators = new ArrayList<>();
+
+	private List<PerformerGenerator> performerGenerators = new ArrayList<>();
 
 	public ProcedureActivityProcedure generate(CDAFactories factories) {
 		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
@@ -84,6 +94,11 @@ public class ProcedureActivityProcedureGenerator {
 			indication.setCode(cd);
 		});
 
+		performerGenerators.forEach(pg -> {
+			Performer2 performer = pg.generate(factories);
+			pap.getPerformers().add(performer);
+		});
+
 		return pap;
 	}
 
@@ -96,6 +111,7 @@ public class ProcedureActivityProcedureGenerator {
 		papg.statusCode = "active";
 		papg.codeGenerator = CDGenerator.getNextInstance();
 		papg.reasonCodeGenerators.add(CDGenerator.getNextInstance());
+		papg.performerGenerators.add(PerformerGenerator.getDefaultInstance());
 
 		return papg;
 	}
@@ -148,6 +164,53 @@ public class ProcedureActivityProcedureGenerator {
 		} else {
 			for (int index = 0; index < reasonCodeGenerators.size(); ++index) {
 				reasonCodeGenerators.get(index).verify(procedure.getReasonCode().get(index));
+			}
+		}
+
+		if (performerGenerators.isEmpty()) {
+			Assert.assertTrue("Missing procedure performer", !procedure.hasPerformer());
+		} else {
+			Assert.assertEquals("Procedure performer count", performerGenerators.size(),
+					procedure.getPerformer().size());
+		}
+	}
+
+	public void verify(Bundle bundle) throws Exception {
+		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
+
+		verify(procedure);
+
+		if (performerGenerators.isEmpty()) {
+			Assert.assertTrue("Missing procedure performer", !procedure.hasPerformer());
+		} else {
+			BundleUtil util = new BundleUtil(bundle);
+
+			for (int index = 0; index < performerGenerators.size(); ++index) {
+				PerformerGenerator pg = performerGenerators.get(index);
+				ProcedurePerformerComponent ppc = procedure.getPerformer().get(index);
+
+				String practitionerId = ppc.getActor().getReference();
+				Practitioner practitioner = util.getResourceFromReference(practitionerId, Practitioner.class);
+				pg.verify(practitioner);
+
+				PractitionerRole role = util.getPractitionerRole(practitionerId);
+				pg.verify(role);
+
+				Assert.assertTrue("Procedure performer has role", ppc.hasRole());
+				Coding ppcRole = ppc.getRole().getCoding().get(0);
+				Assert.assertEquals("Procedure performer has role", pg.getCodeCode(), ppcRole.getCode());
+
+				if (!role.hasOrganization()) {
+					pg.verify((Organization) null);
+					Assert.assertTrue("No on behalf organization", !ppc.hasOnBehalfOf());
+				} else {
+					String reference = role.getOrganization().getReference();
+					Organization organization = util.getResourceFromReference(reference, Organization.class);
+					pg.verify(organization);
+					Assert.assertEquals("Procedure on behalf organization", reference,
+							ppc.getOnBehalfOf().getReference());
+				}
+
 			}
 		}
 	}

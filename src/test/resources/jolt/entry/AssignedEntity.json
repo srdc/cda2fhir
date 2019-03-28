@@ -1,0 +1,21 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdDefault",
+		"spec": {
+			"path": "assignedEntity"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"assignedEntity": [
+				"Practitioner.->AssignedAuthorPractitioner",
+				"Organization.->AssignedAuthorOrganization",
+				"PractitionerRole.->AssignedAuthorPractitionerRole"
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	}
+]

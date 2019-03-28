@@ -4,7 +4,8 @@
 		"spec": {
 			"procedure": {
 				"id": "MANY",
-				"targetSiteCode": "MANY"
+				"targetSiteCode": "MANY",
+				"performer": "MANY"
 			}
 		}
 	},
@@ -39,6 +40,9 @@
 							}
 						}
 					}
+				},
+				"performer": {
+					"*": "->AssignedEntity"
 				}
 			}
 		}
@@ -47,9 +51,37 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": "performer[0].actor.reference",
+			"Organization": "performer[0].onBehalfOf.reference",
+			"PractitionerRole": {
+				"code": "performer[0].role"
+			}
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"status": "=valueSetAdapter('ProcedureStatus','unknown',@0)"
+			"status": "=valueSetAdapter('ProcedureStatus','unknown',@0)",
+			"performer": {
+				"*": {
+					"actor": {
+						"reference": "=getId(@0)"
+					},
+					"onBehalfOf": {
+						"reference": "=getId(@0)"
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	},
 	{
