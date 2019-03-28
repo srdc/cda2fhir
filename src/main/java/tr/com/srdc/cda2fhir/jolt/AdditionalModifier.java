@@ -75,7 +75,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 			Map<String, Object> map = JsonUtils
 					.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");
-			String mappedValue = (String) map.get(value);
+			Object mappedValue = map.get(value);
 			if (mappedValue == null) {
 				mappedValue = defaultValue;
 			}
@@ -256,6 +256,29 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class ConditionClinicalStatusAdapter extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return null;
+			}
+			if (!(arg instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> map = (Map<String, Object>) arg;
+			Object low = map.get("low");
+			Object high = map.get("high");
+			if (low != null && high != null) {
+				return Optional.of("resolved");
+			}
+			if (low != null) {
+				return Optional.of("active");
+			}
+			return Optional.of(null);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -270,6 +293,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("piece", new Piece());
 		AMIDA_FUNCTIONS.put("lastElement", new LastElement());
 		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
+		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
 	}
 
 	private Modifier.Overwritr modifier;

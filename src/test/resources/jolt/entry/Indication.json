@@ -1,0 +1,75 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"observation": {
+				"id": "MANY",
+				"code": "ONE",
+				"value": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"observation": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"code": {
+					"code": "category[].coding[]"
+				},
+				"value": {
+					"*": "code.->CD"
+				},
+				"effectiveTime": {
+					"high": {
+						"value": "abatementDateTime"
+					},
+					"*": "onsetDateTime.->EffectiveTimeLowOrValue"
+				},
+				"statusCode": {
+					"code": "verificationStatus"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"abatementDateTime": "clinicalStatus.high",
+			"onsetDateTime": "clinicalStatus.low"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"verificationStatus": "=valueSetAdapter('ConditionVerificationStatus','unknown',@0)",
+			"category": {
+				"*": {
+					"coding": {
+						"*": "=valueSetAdapter('ConditionCategory',@0)"
+					}
+				}
+			},
+			"onsetDateTime": "=datetimeAdapter(@0)",
+			"abatementDateTime": "=datetimeAdapter(@0)",
+			"clinicalStatus": "=conditionClinicalStatusAdapter(@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Condition"
+		}
+	}
+]
