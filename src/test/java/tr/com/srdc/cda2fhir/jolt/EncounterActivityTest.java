@@ -79,11 +79,11 @@ public class EncounterActivityTest {
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "EncounterActivity", caseName);
 		// JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
 
-		Map<String, Object> joltProcedure = TransformManager.chooseResource(joltResult, "Encounter");
+		Map<String, Object> joltEncounter = TransformManager.chooseResource(joltResult, "Encounter");
 		if (encounter == null) {
-			Assert.assertNull("No procedure", joltProcedure);
+			Assert.assertNull("No encounter", joltEncounter);
 		} else {
-			compareEncounters(caseName, encounter, joltProcedure);
+			compareEncounters(caseName, encounter, joltEncounter);
 		}
 	}
 

@@ -19,12 +19,22 @@
 			"encounter": {
 				"id": {
 					"*": "identifier[].->ID"
-				}
+				},
+				"statusCode": "status.->NullFlavorableCode",
+				"code": "type[].->CD",
+				"priorityCode": "priority.->CD",
+				"effectiveTime": "period.->IVL_TSPeriod"
 			}
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('EncounterStatus',@0)"
+		}
 	},
 	{
 		"operation": "default",
