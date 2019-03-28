@@ -3,7 +3,8 @@
 		"operation": "cardinality",
 		"spec": {
 			"procedure": {
-				"id": "MANY"
+				"id": "MANY",
+				"targetSiteCode": "MANY"
 			}
 		}
 	},
@@ -19,12 +20,37 @@
 			"procedure": {
 				"id": {
 					"*": "identifier[].->ID"
+				},
+				"effectiveTime": "performedPeriod.->IVL_TSPeriod",
+				"targetSiteCode": {
+					"*": "bodySite[].->CD"
+				},
+				"statusCode": "status.->NullFlavorableCode",
+				"code": "code.->CD",
+				"entryRelationship": {
+					"*": {
+						"typeCode": {
+							"RSON": {
+								"@2": {
+									"observation": {
+										"code": "reasonCode[].->CD"
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('ProcedureStatus','unknown',@0)"
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",

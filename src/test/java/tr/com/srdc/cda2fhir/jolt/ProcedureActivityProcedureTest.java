@@ -54,7 +54,7 @@ public class ProcedureActivityProcedureTest {
 		FileUtils.writeStringToFile(joltProcedureFile, joltProcedureJson, Charset.defaultCharset());
 
 		String procedureJson = FHIRUtil.encodeToJSON(procedure);
-		JSONAssert.assertEquals("Jolt condition", procedureJson, joltProcedureJson, true);
+		JSONAssert.assertEquals("Jolt procedure", procedureJson, joltProcedureJson, true);
 	}
 
 	private static File writeProcedureActivityProcedureAsXML(String caseName, ProcedureActivityProcedure pap)

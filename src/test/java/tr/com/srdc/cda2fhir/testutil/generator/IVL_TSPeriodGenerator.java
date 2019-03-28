@@ -25,6 +25,11 @@ public class IVL_TSPeriodGenerator {
 	public IVL_TSPeriodGenerator() {
 	}
 
+	public IVL_TSPeriodGenerator(String lowValue, String highValue) {
+		this.lowValue = lowValue;
+		this.highValue = highValue;
+	}
+
 	@SuppressWarnings("unchecked")
 	public IVL_TSPeriodGenerator(Map<String, Object> json) {
 		nullFlavor = (String) json.get("nullFlavor");
