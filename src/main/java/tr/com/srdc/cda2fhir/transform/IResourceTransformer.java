@@ -64,7 +64,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA AgeObservation instance to a FHIR Age composite datatype
 	 * instance
-	 * 
+	 *
 	 * @param cdaAgeObservation A CDA AgeObservation instance
 	 * @return A FHIR Age composite datatype instance
 	 */
@@ -73,7 +73,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA AllergyProblemAct instance to a FHIR AllergyIntolerance
 	 * resource.
-	 * 
+	 *
 	 * @param cdaAllergyProblemAct A CDA AllergyProblemAct instance
 	 * @return A FHIR Bundle that contains the AllergyIntolerance as the first
 	 *         entry, which can also include other referenced resources such as
@@ -83,7 +83,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA AssignedAuthor instance to a FHIR Practitioner resource.
-	 * 
+	 *
 	 * @param cdaAssignedAuthor A CDA AssignedAuthor instance
 	 * @return A result object that might include FHIR Bundle and/or a reference to
 	 *         a Practitioner
@@ -92,7 +92,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA AssignedEntity instance to a FHIR Practitioner resource.
-	 * 
+	 *
 	 * @param cdaAssignedEntity A CDA AssignedEntity instance
 	 * @return A result object that might include FHIR Bundle and/or a reference to
 	 *         a Practitioner
@@ -101,7 +101,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Author instance to a FHIR Practitioner resource.
-	 * 
+	 *
 	 * @param cdaAuthor A CDA Author instance
 	 * @return A result object that might include FHIR Bundle and/or a reference to
 	 *         a Practitioner
@@ -110,7 +110,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA CD instance to a FHIR Substance resource.
-	 * 
+	 *
 	 * @param cdaSubstanceCode A CDA CD instance
 	 * @return A FHIR Substance resource
 	 */
@@ -118,7 +118,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA ClicinalDocument instance to a FHIR Composition resource.
-	 * 
+	 *
 	 * @param cdaClinicalDocument A CDA ClicinalDocument instance
 	 * @return A FHIR Bundle that contains the Composition as the first entry, which
 	 *         can also include other referenced resources such as Patient,
@@ -128,7 +128,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA ClicinalDocument instance to a FHIR Bundle resource.
-	 * 
+	 *
 	 * @param cdaClinicalDocument A CDA ClicinalDocument instance
 	 * @param includeComposition  Include composition resource or not
 	 * @return A FHIR Bundle
@@ -139,7 +139,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA CustodianOrganization instance to a FHIR Organization
 	 * resource.
-	 * 
+	 *
 	 * @param cdaCustodianOrganization A CDA CustodianOrganization instance
 	 * @return A FHIR Organization resource
 	 */
@@ -148,7 +148,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA EncounterActivity instance to a FHIR Encounter resource.
-	 * 
+	 *
 	 * @param cdaEncounterActivity A CDA EncounterActivity instance
 	 * @return A FHIR Bundle that contains the Encounter as the first entry, which
 	 *         can also include other referenced resources such as Practitioner,
@@ -159,7 +159,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Entity instance to a FHIR Group resource.
-	 * 
+	 *
 	 * @param cdaEntity A CDA Entity instance
 	 * @return A FHIR Group resource
 	 */
@@ -168,7 +168,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA FamilyHistoryOrganizer instance to a FHIR
 	 * FamilyMemberHistory resource.
-	 * 
+	 *
 	 * @param cdaFamilyHistoryOrganizer A CDA FamilyHistoryOrganizer instance
 	 * @return A FHIR FamilyMemberHistory resource
 	 */
@@ -177,7 +177,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA Observation instance that is included in Functional Status
 	 * Section to a FHIR Observation resource.
-	 * 
+	 *
 	 * @param cdaObservation A CDA Observation instance that is included in
 	 *                       Functional Status Section
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which
@@ -188,7 +188,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Guardian instance to a FHIR Patient.Contact resource.
-	 * 
+	 *
 	 * @param cdaGuardian A CDA Guardian instance
 	 * @return A FHIR Patient.Contact resource
 	 */
@@ -198,7 +198,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA ImmunizationActivity instance to a FHIR Immunization
 	 * resource.
-	 * 
+	 *
 	 * @param cdaImmunizationActivity A CDA ImmunizationActivity instance
 	 * @return A FHIR Bundle that contains the Immunization as the first entry,
 	 *         which can also include other referenced resources such as
@@ -209,7 +209,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Indication instance to a FHIR Condition resource.
-	 * 
+	 *
 	 * @param cdaIndication A CDA Indication instance
 	 * @return A FHIR Condition resource
 	 */
@@ -218,7 +218,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA LanguageCommunication instance to a FHIR Communication
 	 * resource.
-	 * 
+	 *
 	 * @param cdaLanguageCommunication A CDA LanguageCommunication instance
 	 * @return A FHIR Communication resource
 	 */
@@ -226,7 +226,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA ManufacturedProduct instance to a FHIR Medication resource.
-	 * 
+	 *
 	 * @param cdaManufacturedProduct A CDA ManufacturedProduct instance
 	 * @return A FHIR Bundle that contains the Medication as the first entry, which
 	 *         can also include other referenced resources such as Substance,
@@ -237,7 +237,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA MedicationActivity instance to a FHIR MedicationStatement
 	 * resource.
-	 * 
+	 *
 	 * @param cdaMedicationActivity A CDA MedicationActivity instance
 	 * @return A FHIR Bundle that contains the MedicationStatement as the first
 	 *         entry, which can also include other referenced resources such as
@@ -249,7 +249,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA MedicationDispense instance to a FHIR MedicationDispense
 	 * resource.
-	 * 
+	 *
 	 * @param cdaMedicationDispense A CDA MedicationDispense instance
 	 * @return A FHIR Bundle that contains the MedicationDispense as the first
 	 *         entry, which can also include other referenced resources such as
@@ -261,7 +261,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA MedicationInformation instance to a FHIR Medication
 	 * resource.
-	 * 
+	 *
 	 * @param cdaMedicationInformation A CDA MedicationInformation instance
 	 * @return A FHIR Bundle that contains the Medication as the first entry, which
 	 *         can also include other referenced resources such as Substance,
@@ -271,7 +271,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Observation instance to a FHIR Observation resource.
-	 * 
+	 *
 	 * @param cdaObservation A CDA Observation instance
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which
 	 *         can also include other referenced resources such as Encounter,
@@ -282,7 +282,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Organization instance to a FHIR Organization resource.
-	 * 
+	 *
 	 * @param cdaOrganization A CDA Organization instance
 	 * @return A FHIR Organization resource
 	 */
@@ -291,7 +291,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA ParticipantRole instance to a FHIR Location resource.
-	 * 
+	 *
 	 * @param cdaParticipantRole A CDA ParticipantRole instance
 	 * @return A FHIR Location Resource
 	 */
@@ -299,7 +299,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA PatientRole instance to a FHIR Patient resource.
-	 * 
+	 *
 	 * @param cdaPatientRole A CDA PatientRole instance
 	 * @return A FHIR Bundle that contains the PatientRole as the first entry, which
 	 *         can also include other referenced resources such as Organization
@@ -308,7 +308,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Performer2 instance to a FHIR Practitioner resource.
-	 * 
+	 *
 	 * @param cdaPerformer2 A CDA Performer2 instance
 	 * @return A FHIR Bundle that contains the Practitioner as the first entry,
 	 *         which can also include other referenced resources such as
@@ -321,7 +321,7 @@ public interface IResourceTransformer {
 	 * ProblemConcernAct might include several Problem Observations, and each
 	 * Problem Observation corresponds to a FHIR Condition. Therefore, the returning
 	 * Bundle can contain several FHIR Conditions.
-	 * 
+	 *
 	 * @param cdaProblemConcernAct A CDA ProblemConcernAct instance
 	 * @return A FHIR Bundle that contains the corresponding Condition(s), and
 	 *         further referenced resources such as Encounter, Practitioner
@@ -330,7 +330,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA ProblemObservation instance to FHIR Condition resource.
-	 * 
+	 *
 	 * @param cdaProbObs A CDA ProblemObservation instance
 	 * @return A FHIR Bundle that contains the Condition as the first entry, which
 	 *         can also include other referenced resources such as Encounter,
@@ -341,7 +341,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA Procedure instance to a FHIR Procedure and supporting
 	 * resources.
-	 * 
+	 *
 	 * @param cdaProcedure    A CDA Procedure instance
 	 * @param idedAnnotations Annotations that can be referenced
 	 * @return A result object that contains a FHIR Bundle and supporting
@@ -351,7 +351,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA ReactionObservation instance to a FHIR Observation resource.
-	 * 
+	 *
 	 * @param cdaReactionObservation A CDA ReactionObservation instance
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which
 	 *         can also include other referenced resources such as Encounter,
@@ -362,7 +362,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA ReferenceRange instance to a FHIR
 	 * ObservationReferenceRangeComponent resource.
-	 * 
+	 *
 	 * @param cdaReferenceRange A CDA ReferenceRange instance
 	 * @return A FHIR ObservationReferenceRangeComponent resource
 	 */
@@ -371,7 +371,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA ResultObservation instance to a FHIR Observation resource.
-	 * 
+	 *
 	 * @param cdaResultObservation A CDA ResultObservation instance
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which
 	 *         can also include other referenced resources such as Encounter,
@@ -382,7 +382,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA ResultOrganizer instance to a FHIR DiagnosticReport
 	 * resource.
-	 * 
+	 *
 	 * @param cdaResultOrganizer A CDA ResultOrganizer instance
 	 * @return A FHIR Bundle that contains the DiagnosticReport as the first entry,
 	 *         which can also include other referenced resources such as
@@ -392,7 +392,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Section instance to a FHIR SectionComponent resource.
-	 * 
+	 *
 	 * @param cdaSection A CDA Section instance
 	 * @return A FHIR SectionComponent resource
 	 */
@@ -401,7 +401,7 @@ public interface IResourceTransformer {
 	/**
 	 * Transforms a CDA ServiceDeliveryLocation instance to a FHIR Location
 	 * resource.
-	 * 
+	 *
 	 * @param cdaSDLOC A CDA ServiceDeliveryLocation instance
 	 * @return A FHIR Location resource
 	 */
@@ -409,7 +409,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA Supply instance to a FHIR Device resource.
-	 * 
+	 *
 	 * @param cdaSupply A CDA Supply instance
 	 * @return A FHIR Device resource
 	 */
@@ -417,7 +417,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Transforms a CDA VitalSignObservation to a FHIR Observation resource.
-	 * 
+	 *
 	 * @param cdaVitalSignObservation A CDA VitalSignObservation instance
 	 * @return A FHIR Bundle that contains the Observation as the first entry, which
 	 *         can also include other referenced resources such as Encounter,
@@ -428,7 +428,7 @@ public interface IResourceTransformer {
 
 	/**
 	 * Provides a provenance file to store the targeted references.
-	 * 
+	 *
 	 * @param bundle          The built bundle, needed to parse for references.
 	 * @param encodedBody     A string with the encoded document body.
 	 * @param assemblerDevice An Identifier of the original assembling device.
@@ -436,4 +436,24 @@ public interface IResourceTransformer {
 	 *         device.
 	 */
 	Bundle tProvenance(Bundle bundle, String encodedBody, Identifier assemblerDevice);
+
+	/**
+	 * Creates a FHIR Condition object of category problem-list-item from a CDA
+	 * Indication object.
+	 *
+	 * @param cdaIndication a CDA Indication object
+	 *
+	 * @return Condition object.
+	 */
+	Condition tIndication2ConditionProblemListItem(Indication cdaIndication);
+
+	/**
+	 * Creates a FHIR Condition object of category encounter-diagnosis from a CDA
+	 * Indication object.
+	 *
+	 * @param cdaIndication a CDA Indication object
+	 *
+	 * @return Condition object.
+	 */
+	Condition tIndication2ConditionEncounter(Indication cdaIndication);
 }
