@@ -23,6 +23,7 @@ package tr.com.srdc.cda2fhir;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Base;
+import org.hl7.fhir.dstu3.model.Dosage;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +31,9 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.ConsolFactoryImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.MedicationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -72,6 +75,12 @@ public class MedicationStatementTest {
 	@Test
 	public void testMedicationDosage() throws Exception {
 
+		String sig1 = "sig1";
+		String freeTextInstruction1 = "Take with 4 pints of rocky road icream and 3 cupcakes right before breakfast";
+		ED text = cdaTypeFactory.createED();
+		TEL sigRef = cdaTypeFactory.createTEL("#" + sig1);
+		text.setReference(sigRef);
+
 		// Make a medication activity.
 		MedicationActivityImpl medAct = (MedicationActivityImpl) consolFactory.createMedicationActivity();
 
@@ -79,9 +88,13 @@ public class MedicationStatementTest {
 		doseQuantity.setUnit("mg");
 		doseQuantity.setValue(100.000);
 		medAct.setDoseQuantity(doseQuantity);
+		medAct.setText(text);
 
 		// Transform from CDA to FHIR.
 		BundleInfo bundleInfo = new BundleInfo(rt);
+
+		bundleInfo.getIdedAnnotations().put(sig1, freeTextInstruction1);
+
 		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tMedicationActivity2MedicationStatement(medAct, bundleInfo)
 				.getBundle();
 
@@ -89,10 +102,17 @@ public class MedicationStatementTest {
 
 		List<Base> doses = fhirResource.getNamedProperty("dosage").getValues().get(0).getNamedProperty("dose")
 				.getValues();
+		Dosage dosage = (Dosage) fhirResource.getNamedProperty("dosage").getValues().get(0);
 
 		// Make assertions.
 		Assert.assertEquals("URI attached for ucum", "UriType[http://unitsofmeasure.org/ucum.html]",
 				doses.get(0).getNamedProperty("system").getValues().get(0).toString());
+
+		Assert.assertEquals("sig1 free text instruction included in dosage text", freeTextInstruction1,
+				dosage.getText());
+
+		Assert.assertEquals("sig1 free text instruction included in dosage patientInstruction", freeTextInstruction1,
+				dosage.getPatientInstruction());
 
 	}
 

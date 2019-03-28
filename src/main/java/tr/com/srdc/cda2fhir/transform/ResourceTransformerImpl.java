@@ -1948,6 +1948,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio((RTO) cdaMedicationActivity.getMaxDoseQuantity()));
 		}
 
+		if (cdaMedicationActivity.getText() != null && !cdaMedicationActivity.getText().isSetNullFlavor()) {
+			String freeTextInstruction = dtt.tED2Annotation(cdaMedicationActivity.getText(),
+					bundleInfo.getIdedAnnotations());
+			if (freeTextInstruction != null) {
+				fhirDosage.setText(freeTextInstruction);
+				fhirDosage.setPatientInstruction(freeTextInstruction);
+			}
+		}
+
 		// taken -> UNK
 		fhirMedSt.setTaken(MedicationStatementTaken.UNK);
 
