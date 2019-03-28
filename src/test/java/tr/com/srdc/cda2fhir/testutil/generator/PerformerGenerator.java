@@ -35,6 +35,10 @@ public class PerformerGenerator {
 		return new PerformerGenerator(aeg);
 	}
 
+	public String getCodeCode() {
+		return assignedEntityGenerator.getCodeCode();
+	}
+
 	public void verify(Practitioner practitioner) {
 		assignedEntityGenerator.verify(practitioner);
 	}

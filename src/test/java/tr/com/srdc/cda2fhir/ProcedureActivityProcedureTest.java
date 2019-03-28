@@ -26,7 +26,6 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.IndicationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -72,7 +71,7 @@ public class ProcedureActivityProcedureTest {
 				organizationReference.getReference());
 		Assert.assertTrue("Expect a performer role", fhirPerformer.hasRole());
 		Coding role = fhirPerformer.getRole().getCoding().get(0);
-		Assert.assertEquals("Expect the default role code", AssignedEntityGenerator.DEFAULT_CODE_CODE, role.getCode());
+		Assert.assertEquals("Expect the default role code", performerGenerator.getCodeCode(), role.getCode());
 	}
 
 	static private void verifyProcedureStatus(ProcedureActivityProcedure pap, String expected) throws Exception {
