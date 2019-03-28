@@ -1506,7 +1506,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					Material manufacturedMaterial = manufacturedProduct.getManufacturedMaterial();
 
 					// consumable.manufacturedProduct.manufacturedMaterial.code -> vaccineCode
-					if (manufacturedProduct.getManufacturedMaterial().getCode() != null)) {
+					if (manufacturedProduct.getManufacturedMaterial().getCode() != null) {
 						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode(),
 								bundleInfo.getIdedAnnotations()));
 					}
