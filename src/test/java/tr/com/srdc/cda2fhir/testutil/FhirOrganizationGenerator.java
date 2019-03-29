@@ -8,7 +8,7 @@ import org.hl7.fhir.dstu3.model.Organization.OrganizationContactComponent;
 import org.hl7.fhir.dstu3.model.codesystems.ContactentityType;
 import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
 
-public class OrganizationGenerator {
+public class FhirOrganizationGenerator {
 	public Organization generate() {
 		Organization organization = new Organization();
 		organization.setName("Aperture Science");

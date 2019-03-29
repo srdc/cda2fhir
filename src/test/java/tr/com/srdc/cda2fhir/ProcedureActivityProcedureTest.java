@@ -5,6 +5,7 @@ import java.util.Map;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Procedure;
@@ -14,16 +15,19 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
-
-import com.bazaarvoice.jolt.JsonUtils;
-
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
+import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
+
+import com.bazaarvoice.jolt.JsonUtils;
+import com.helger.commons.collection.attr.StringMap;
 
 import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
@@ -140,5 +144,34 @@ public class ProcedureActivityProcedureTest {
 		Assert.assertEquals("Expect the default code", IndicationGenerator.DEFAULT_CODE_CODE, coding.getCode());
 		Assert.assertEquals("Expect the default display name", IndicationGenerator.DEFAULT_CODE_DISPLAYNAME,
 				coding.getDisplay());
+	}
+
+	@Test
+	public void testProcedureOriginalText() throws Exception {
+
+		ProcedureActivityProcedure pap = factories.consol.createProcedureActivityProcedure();
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		String expectedValue = "freetext entry";
+		String referenceValue = "fakeid1";
+		CD cd = factories.datatype.createCD();
+		ED ed = factories.datatype.createED();
+		TEL tel = factories.datatype.createTEL();
+		tel.setValue("#" + referenceValue);
+		ed.setReference(tel);
+		cd.setCode("code");
+		cd.setCodeSystem("codeSystem");
+		cd.setOriginalText(ed);
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put(referenceValue, expectedValue);
+		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+
+		pap.setCode(cd);
+		Bundle bundle = rt.tProcedure2Procedure(pap, bundleInfo).getBundle();
+
+		Procedure proc = BundleUtil.findOneResource(bundle, Procedure.class);
+		CodeableConcept cc = proc.getCode();
+		Assert.assertEquals("Procedure Code text value assigned", expectedValue, cc.getText());
+
 	}
 }

@@ -37,6 +37,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import tr.com.srdc.cda2fhir.conf.Config;
 
@@ -79,36 +80,69 @@ public class FHIRUtil {
 		System.out.println(xmlParser.encodeResourceToString(res));
 	}
 
-	public static void printJSON(IBaseResource res, String filePath) {
+	public static void printJSON(IBaseResource res, String filePath) throws IOException {
 		File f = new File(filePath);
 		f.getParentFile().mkdirs();
+		FileWriter fw = null;
 		try {
-			jsonParser.encodeResourceToWriter(res, new FileWriter(f));
-		} catch (IOException e) {
-			logger.error("Could not print FHIR JSON to file", e);
+			fw = new FileWriter(f);
+			jsonParser.encodeResourceToWriter(res, fw);
+		} catch (IOException ie) {
+			logger.error("Could not print FHIR JSON to file", ie);
+			throw new IOException(ie);
+		} catch (DataFormatException de) {
+			logger.error("Could not print FHIR JSON to file", de);
+			throw new DataFormatException(de);
+		} finally {
+			if (fw != null) {
+				try {
+					fw.close();
+				} catch (IOException ie) {
+					logger.error("Could not close writer for function \"printJSON.\" with IBaseResource.");
+				}
+			}
 		}
 	}
 
-	public static <T extends IBaseResource> void printJSON(Collection<T> resources, String filePath) {
+	public static <T extends IBaseResource> void printJSON(Collection<T> resources, String filePath)
+			throws IOException {
 		File f = new File(filePath);
 		f.getParentFile().mkdirs();
+		FileWriter fw = null;
 		try {
+			fw = new FileWriter(f);
 			String json = encodeToJSON(resources);
-			FileWriter fw = new FileWriter(f);
 			fw.write(json);
-			fw.close();
 		} catch (IOException e) {
 			logger.error("Could not print FHIR JSON to file", e);
+		} finally {
+			if (fw != null) {
+				try {
+					fw.close();
+				} catch (IOException ie) {
+					logger.error("Could not close writer for function \"printJSON.\" with Collection.");
+				}
+			}
 		}
 	}
 
-	public static void printXML(IBaseResource res, String filePath) {
+	public static void printXML(IBaseResource res, String filePath) throws IOException {
 		File f = new File(filePath);
 		f.getParentFile().mkdirs();
+		FileWriter fw = null;
 		try {
-			xmlParser.encodeResourceToWriter(res, new FileWriter(f));
+			fw = new FileWriter(f);
+			xmlParser.encodeResourceToWriter(res, fw);
 		} catch (IOException e) {
 			logger.error("Could not print FHIR XML to file", e);
+		} finally {
+			if (fw != null) {
+				try {
+					fw.close();
+				} catch (IOException ie) {
+					logger.error("Could not close writer for function \"printJSON.\" with Collection.");
+				}
+			}
 		}
 	}
 
