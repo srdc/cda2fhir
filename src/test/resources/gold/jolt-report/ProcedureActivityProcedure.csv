@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-procedure.performer[*].assignedEntity,Organization,AssignedAuthorOrganization,,nullFlavor isNull
-procedure.performer[*].assignedEntity,Practitioner,AssignedAuthorPractitioner,,nullFlavor isNull
-procedure.performer[*].assignedEntity,PractitionerRole,AssignedAuthorPractitionerRole,,nullFlavor isNull
+procedure.performer[*].assignedEntity,Organization,EntityOrganization,,nullFlavor isNull
+procedure.performer[*].assignedEntity,Practitioner,EntityPractitioner,,nullFlavor isNull
+procedure.performer[*].assignedEntity,PractitionerRole,EntityPractitionerRole,,nullFlavor isNull
 procedure.targetSiteCode[*],Procedure.bodySite[],CD,,nullFlavor isNull
 procedure.code,Procedure.code,CD,,nullFlavor isNull
 procedure.id[*],Procedure.identifier[],ID,,nullFlavor isNull

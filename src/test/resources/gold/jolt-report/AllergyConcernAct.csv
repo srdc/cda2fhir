@@ -14,6 +14,6 @@ act.entryRelationship[].observation.entryRelationship[].observation.effectiveTim
 act.entryRelationship[].observation.entryRelationship[].observation.entryRelationship[].observation.value.code,AllergyIntolerance.reaction[].severity,,"valueSetAdapter('AllergyIntoleranceSeverity')",act.entryRelationship[].observation.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.8,act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 Practitioner,AllergyIntolerance.recorder.reference,,"getId"
 act.statusCode.code,AllergyIntolerance.verificationStatus,,"valueSetAdapter('AllergyIntoleranceVerificationStatus')"
-act.author.assignedAuthor,Organization,AssignedAuthorOrganization,
-act.author.assignedAuthor,Practitioner,AssignedAuthorPractitioner,
-act.author.assignedAuthor,PractitionerRole,AssignedAuthorPractitionerRole,
+act.author.assignedAuthor,Organization,EntityOrganization,
+act.author.assignedAuthor,Practitioner,EntityPractitioner,
+act.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,

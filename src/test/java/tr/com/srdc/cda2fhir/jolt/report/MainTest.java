@@ -82,18 +82,18 @@ public class MainTest {
 	}
 
 	@Test
-	public void testAssignedAuthorPractitioner() throws Exception {
-		actualTest("AssignedAuthorPractitioner");
+	public void testEntityPractitioner() throws Exception {
+		actualTest("EntityPractitioner");
 	}
 
 	@Test
-	public void testAssignedAuthorPractitionerRole() throws Exception {
-		actualTest("AssignedAuthorPractitionerRole");
+	public void testEntityPractitionerRole() throws Exception {
+		actualTest("EntityPractitionerRole");
 	}
 
 	@Test
-	public void testAssignedAuthorOrganization() throws Exception {
-		actualTest("AssignedAuthorOrganization");
+	public void testEntityOrganization() throws Exception {
+		actualTest("EntityOrganization");
 	}
 
 	@Test

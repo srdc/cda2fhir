@@ -14,6 +14,6 @@ encounter.priorityCode,Encounter.priority,CD,,nullFlavor isNull
 encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.statusCode.nullFlavor isnull,nullFlavor isNull
 encounter.code,Encounter.type[],CD,,nullFlavor isNull
 encounter.participant[*],Location[],ServiceDeliveryLocation,,nullFlavor isNull
-encounter.performer[*].assignedEntity,Organization,AssignedAuthorOrganization,,nullFlavor isNull
-encounter.performer[*].assignedEntity,Practitioner,AssignedAuthorPractitioner,,nullFlavor isNull
-encounter.performer[*].assignedEntity,PractitionerRole,AssignedAuthorPractitionerRole,,nullFlavor isNull
+encounter.performer[*].assignedEntity,Organization,EntityOrganization,,nullFlavor isNull
+encounter.performer[*].assignedEntity,Practitioner,EntityPractitioner,,nullFlavor isNull
+encounter.performer[*].assignedEntity,PractitionerRole,EntityPractitionerRole,,nullFlavor isNull
