@@ -1091,7 +1091,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// indication -> diagnosis.condition
 		for (Indication cdaIndication : cdaEncounterActivity.getIndications()) {
 			if (!cdaIndication.isSetNullFlavor()) {
-				Condition fhirIndication = tIndication2ConditionEncounter(cdaIndication);
+				Condition fhirIndication = tIndication2ConditionEncounter(cdaIndication, bundleInfo);
 				result.addResource(fhirIndication);
 				// TODO: check if this is correct mapping
 				// Reference indicationRef = fhirEncounter.addIndication();
@@ -1679,8 +1679,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Condition tIndication2ConditionEncounter(Indication cdaIndication) {
-		Condition cond = tIndication2Condition(cdaIndication);
+	public Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
+		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
 		Coding conditionCategory = new Coding().setSystem("http://hl7.org/fhir/condition-category");
 		conditionCategory.setCode("encounter-diagnosis");
 		conditionCategory.setDisplay("Encounter Diagnosis");
@@ -1689,8 +1689,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Condition tIndication2ConditionProblemListItem(Indication cdaIndication) {
-		Condition cond = tIndication2Condition(cdaIndication);
+	public Condition tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
+		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
 		Coding conditionCategory = new Coding().setSystem("http://hl7.org/fhir/condition-category");
 		conditionCategory.setCode("problem-list-item");
 		conditionCategory.setDisplay("Problem List Item");
@@ -1699,8 +1699,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	}
 
-	@Override
-	public Condition tIndication2Condition(Indication cdaIndication) {
+	private Condition tIndication2Condition(Indication cdaIndication, IBundleInfo bundleInfo) {
 		if (cdaIndication == null || cdaIndication.isSetNullFlavor())
 			return null;
 
@@ -1993,7 +1992,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// indication -> reason
 		for (Indication indication : cdaMedicationActivity.getIndications()) {
-			Condition cond = tIndication2ConditionProblemListItem(indication);
+			Condition cond = tIndication2ConditionProblemListItem(indication, bundleInfo);
 
 			result.addResource(cond);
 			fhirMedSt.addReasonReference(new Reference(cond.getId()));
@@ -3312,4 +3311,5 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		return bundle;
 	}
+
 }
