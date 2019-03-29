@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isNull
-Encounter.abatementDateTime,Encounter.Condition[].clinicalStatus.high,,
-Encounter.onsetDateTime,Encounter.Condition[].clinicalStatus.low,,
+Encounter.abatementDateTime,Condition[].clinicalStatus.high,,
+Encounter.onsetDateTime,Condition[].clinicalStatus.low,,
 Condition[],Encounter.diagnosis[].condition.reference,,"getId"
 encounter.id[],Encounter.identifier[],ID,,nullFlavor isNull
 Location[],Encounter.location[].location.reference,,"getId"
