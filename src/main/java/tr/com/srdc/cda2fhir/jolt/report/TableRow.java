@@ -46,7 +46,7 @@ public class TableRow implements Comparable<TableRow> {
 	}
 
 	public void promotePath(String parentPath) {
-		if (path.charAt(0) != '\'') {
+		if (path.charAt(0) != '\'' && path.charAt(0) != '#') {
 			path = parentPath + "." + path;
 		}
 
@@ -103,7 +103,7 @@ public class TableRow implements Comparable<TableRow> {
 		if (!exceptions.contains(target)) {
 			target = resourceType + "." + target;
 		}
-		if (!exceptions.contains(path)) {
+		if (!exceptions.contains(path) && path.charAt(0) != '#') {
 			path = resourceType + "." + path;
 		}
 	}

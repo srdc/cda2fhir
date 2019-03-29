@@ -6,9 +6,9 @@ Condition[],Encounter.diagnosis[].condition.reference,,"getId"
 encounter.id[],Encounter.identifier[],ID,,nullFlavor isNull
 Location[],Encounter.location[].location.reference,,"getId"
 Practitioner,Encounter.participant[0].individual.reference,,
-Encounter.#PART,Encounter.participant[0].type[0].coding[0].code,,
-Encounter.#Participation,Encounter.participant[0].type[0].coding[0].display,,
-Encounter.#http://hl7.org/fhir/v3/ParticipationType,Encounter.participant[0].type[0].coding[0].system,,
+#PART,Encounter.participant[0].type[0].coding[0].code,,
+#Participation,Encounter.participant[0].type[0].coding[0].display,,
+#http://hl7.org/fhir/v3/ParticipationType,Encounter.participant[0].type[0].coding[0].system,,
 encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,nullFlavor isNull
 encounter.priorityCode,Encounter.priority,CD,,nullFlavor isNull
 encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.statusCode.nullFlavor isnull,nullFlavor isNull
