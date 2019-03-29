@@ -47,7 +47,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		String output = transformationCSV("EncounterActivity");
+		String output = transformationCSV("ProcedureActivityProcedure");
 		System.out.print(output);
 	}
 }

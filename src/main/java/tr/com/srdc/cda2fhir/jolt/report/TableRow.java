@@ -100,10 +100,12 @@ public class TableRow implements Comparable<TableRow> {
 	}
 
 	public void updateResourceType(String resourceType, Set<String> exceptions) {
-		if (!exceptions.contains(target)) {
+		String targetPiece = target.split("\\.")[0];
+		if (!exceptions.contains(targetPiece)) {
 			target = resourceType + "." + target;
 		}
-		if (!exceptions.contains(path) && path.charAt(0) != '#') {
+		String pathPiece = path.split("\\.")[0];
+		if (!exceptions.contains(pathPiece) && path.charAt(0) != '#') {
 			path = resourceType + "." + path;
 		}
 	}

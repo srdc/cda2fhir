@@ -8,6 +8,6 @@ procedure.id[],Procedure.identifier[],ID,,nullFlavor isNull
 procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,nullFlavor isNull
 Practitioner[],Procedure.performer[].actor.reference,,"getId"
 Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
-Procedure.PractitionerRole[].code,Procedure.performer[].role,,
+PractitionerRole[].code,Procedure.performer[].role,,
 procedure.entryRelationship[].observation.code,Procedure.reasonCode[],CD,,nullFlavor isNull,procedure.entryRelationship[].typeCode equal RSON
 procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",nullFlavor isNull,procedure.statusCode.nullFlavor isnull
