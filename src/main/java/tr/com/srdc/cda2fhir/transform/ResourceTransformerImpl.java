@@ -1922,13 +1922,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// consumable.manufacturedProduct -> medication
-
 		if (cdaMedicationActivity.getConsumable() != null && !cdaMedicationActivity.getConsumable().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationActivity.getConsumable());
 			if (fhirMedicationResult.hasResult()) {
 				result.updateFrom(fhirMedicationResult);
 				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
-					if (entry.getResource() instanceof Medication) {
+					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
 						fhirMedSt.setMedication(new Reference(entry.getResource().getId()));
 					}
 				}
@@ -2049,12 +2048,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirMediDisp.setType(dtt.tCD2CodeableConcept(cdaMedicationDispense.getCode()));
 		}
 
-		// product.manufacturedProduct(MedicationInformation) -> medication
+		// product.manufacturedProduct(MedicationInformation ||
+		// ImmunizationMedicationInformation) -> medication
 		if (cdaMedicationDispense.getProduct() != null && !cdaMedicationDispense.getProduct().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationDispense.getProduct());
 			if (fhirMedicationResult.hasResult()) {
 				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
-					if (entry.getResource() instanceof Medication) {
+					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
 						Medication medicationResource = (Medication) entry.getResource();
 						fhirMediDisp.setMedication(new Reference(medicationResource.getId()));
 					}
@@ -2174,7 +2174,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// hardcoded to "instance-order"
 		medRequest.setIntent(MedicationRequestIntent.INSTANCEORDER);
 
-		// product.manufacturedProduct(MedicationInformation) -> medication
+		// product.manufacturedProduct(MedicationInformation ||
+		// ImmunizationMedicationInformation) -> medication
 		if (cdaSupplyOrder.getProduct() != null && !cdaSupplyOrder.getProduct().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaSupplyOrder.getProduct());
 			if (fhirMedicationResult.hasResult()) {
