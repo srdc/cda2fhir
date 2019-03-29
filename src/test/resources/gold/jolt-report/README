@@ -1,0 +1,37 @@
+This directory includes report files for CCDA2FHIR field transformations.
+
+The files are named after their CDA template or data type names. This choice is made (as opposed to FHIR resource or data type names) because each CDA template can generate multiple FHIR resource types and multiple CDA templates can generate the same resource type.
+
+The following is a listing of CDA data types and the corresponding FHIR data types:
+
+AD -> Address
+CD -> CodeableConcept
+ID -> Identifier
+TEL -> ContactPoint
+PN -> HumanName
+IVL_TSPeriod -> Period
+
+Each of CDA data types have their own report. In other reports data types are not expanded and are shown in link column. That means that CDA path shown in CCDA Source column is of data type and transforms to a FHIR data type as listed above (using the mapping in data type report).
+
+The following are the top level CDA templates for reports and FHIR resources they generate
+
+AllergyConcernAct: AllergyIntolerance, Practitioner, PractitionerRole, Organization
+EncounterActivity: Encounter, Condition (multiple), Location (multiple), Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
+ProblemConcernAct: Condition (multiple), Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
+ProcedureActivityProcedure: Procedure, Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
+
+Each of the top level CDA template is primarily responsible for the first FHIR resource in the list.  The reports for these templates show the mapping explicitly for that resource. For other resources only the local path is shown.
+
+Format column shows formatting functions applied after mapping. There might be multiple formatting functions and they are shown as space delimited. The following are the format functions
+
+datetimeAdapter: Converts CDA datetime to FHIR datetime
+valueSetAdapter: Converts a value in CDA value set to a value in FHIR value sets.
+systemAdapter: Converts a CDA OID to FHIR system.
+maxDateTime: Returns the most recent date time in an array of date times.
+getId: Returns the id of a resource to be used in a reference field.
+piece: Returns a piece of a delimited string.
+lastElement: Returns the last element of an array.
+lastPiece: Returns the last piece of a delimited string.
+selectOnNull: Returns the first entry if the source is null or the latter if it is not.
+conditionClinicalStatusAdapter: This is a custom logic for Condition resource clinical status
+ 
