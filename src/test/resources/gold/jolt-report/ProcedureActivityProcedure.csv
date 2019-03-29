@@ -1,10 +1,10 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-procedure.performer[*].assignedEntity,Organization,EntityOrganization,,nullFlavor isNull
-procedure.performer[*].assignedEntity,Practitioner,EntityPractitioner,,nullFlavor isNull
-procedure.performer[*].assignedEntity,PractitionerRole,EntityPractitionerRole,,nullFlavor isNull
-procedure.targetSiteCode[*],Procedure.bodySite[],CD,,nullFlavor isNull
+procedure.performer[].assignedEntity,Organization,EntityOrganization,,nullFlavor isNull
+procedure.performer[].assignedEntity,Practitioner,EntityPractitioner,,nullFlavor isNull
+procedure.performer[].assignedEntity,PractitionerRole,EntityPractitionerRole,,nullFlavor isNull
+procedure.targetSiteCode[],Procedure.bodySite[],CD,,nullFlavor isNull
 procedure.code,Procedure.code,CD,,nullFlavor isNull
-procedure.id[*],Procedure.identifier[],ID,,nullFlavor isNull
+procedure.id[],Procedure.identifier[],ID,,nullFlavor isNull
 procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,nullFlavor isNull
 Practitioner,Procedure.performer[0].actor.reference,,
 Organization,Procedure.performer[0].onBehalfOf.reference,,

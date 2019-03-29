@@ -3,8 +3,8 @@ observation.effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapt
 observation.code.code,Condition.category[].coding[],,"valueSetAdapter('ConditionCategory')",nullFlavor isNull
 Condition.abatementDateTime,Condition.clinicalStatus.high,,
 Condition.onsetDateTime,Condition.clinicalStatus.low,,
-observation.value[*],Condition.code,CD,,nullFlavor isNull
-observation.id[*],Condition.identifier[],ID,,nullFlavor isNull
+observation.value[],Condition.code,CD,,nullFlavor isNull
+observation.id[],Condition.identifier[],ID,,nullFlavor isNull
 observation.effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",nullFlavor isNull,observation.effectiveTime.low.nullFlavor isnull,observation.effectiveTime.low.value isnotnull
 observation.effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",nullFlavor isNull,observation.effectiveTime.low.value isnull,observation.effectiveTime.nullFlavor isnull
 observation.statusCode.code,Condition.verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",nullFlavor isNull

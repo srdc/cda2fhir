@@ -3,7 +3,7 @@ encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationshi
 Encounter.abatementDateTime,Encounter.Condition[].clinicalStatus.high,,
 Encounter.onsetDateTime,Encounter.Condition[].clinicalStatus.low,,
 Condition[],Encounter.diagnosis[].condition.reference,,"getId"
-encounter.id[*],Encounter.identifier[],ID,,nullFlavor isNull
+encounter.id[],Encounter.identifier[],ID,,nullFlavor isNull
 Location[],Encounter.location[].location.reference,,"getId"
 Practitioner,Encounter.participant[0].individual.reference,,
 Encounter.#PART,Encounter.participant[0].type[0].coding[0].code,,
@@ -13,7 +13,7 @@ encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,nullFlavor isNull
 encounter.priorityCode,Encounter.priority,CD,,nullFlavor isNull
 encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.statusCode.nullFlavor isnull,nullFlavor isNull
 encounter.code,Encounter.type[],CD,,nullFlavor isNull
-encounter.participant[*],Location[],ServiceDeliveryLocation,,nullFlavor isNull
-encounter.performer[*].assignedEntity,Organization,EntityOrganization,,nullFlavor isNull
-encounter.performer[*].assignedEntity,Practitioner,EntityPractitioner,,nullFlavor isNull
-encounter.performer[*].assignedEntity,PractitionerRole,EntityPractitionerRole,,nullFlavor isNull
+encounter.participant[],Location[],ServiceDeliveryLocation,,nullFlavor isNull
+encounter.performer[].assignedEntity,Organization,EntityOrganization,,nullFlavor isNull
+encounter.performer[].assignedEntity,Practitioner,EntityPractitioner,,nullFlavor isNull
+encounter.performer[].assignedEntity,PractitionerRole,EntityPractitionerRole,,nullFlavor isNull

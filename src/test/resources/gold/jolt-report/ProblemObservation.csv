@@ -3,8 +3,8 @@ effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapter",nullFlav
 Practitioner,Condition.asserter.reference,,"getId"
 code,Condition.category[],CD,,nullFlavor isNull
 effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')",nullFlavor isNull
-value[*],Condition.code[],CD,"lastElement",nullFlavor isNull
-id[*],Condition.identifier[],ID,,nullFlavor isNull
+value[],Condition.code[],CD,"lastElement",nullFlavor isNull
+id[],Condition.identifier[],ID,,nullFlavor isNull
 effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.nullFlavor isnull,effectiveTime.low.value isnotnull,nullFlavor isNull
 effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.value isnull,effectiveTime.nullFlavor isnull,nullFlavor isNull
 author.assignedAuthor,Organization,EntityOrganization,,nullFlavor isNull
