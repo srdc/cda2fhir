@@ -11,7 +11,7 @@ TEL -> ContactPoint
 PN -> HumanName
 IVL_TSPeriod -> Period
 
-Each of CDA data types have their own report. In other reports data types are not expanded and are shown in link column. That means that CDA path shown in CCDA Source column is of data type and transforms to a FHIR data type as listed above (using the mapping in data type report).
+Each of the CDA data types have their own report. In other reports data types are not expanded and are shown in link column.
 
 The following are the top level CDA templates for reports and FHIR resources they generate
 
@@ -20,18 +20,44 @@ EncounterActivity: Encounter, Condition (multiple), Location (multiple), Practit
 ProblemConcernAct: Condition (multiple), Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
 ProcedureActivityProcedure: Procedure, Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
 
-Each of the top level CDA template is primarily responsible for the first FHIR resource in the list.  The reports for these templates show the mapping explicitly for that resource. For other resources only the local path is shown.
+Each of the top level CDA template is primarily responsible for the first FHIR resource in the list.
 
-Format column shows formatting functions applied after mapping. There might be multiple formatting functions and they are shown as space delimited. The following are the format functions
+Other files listed here also generate resources and listed in the link column when they are used from other files
+
+EntityOrganization: Organization
+EntityPractitioner: Practitioner
+EntityPractitionerRole: PractitionerRole
+Indication: Condition
+ProblemObservation: Condition, Practitioner, PractitionerRole, Organization
+ServiceDeliveryLocation: Location
+
+All files are csv files with 5 types of columns
+
+1. CCDA Source
+
+This columns shows the CCDA Source path. This can be either a direct CCDA path (observation.effectiveTime.value) or a path that starts with a target described in a different row in the same table (Practitioner, AllergyIntolerance.reaction[].onset). The latter is necessary since multiple resources can be created from a single template and resource fields that are mapped from CCDA can themselves be used as source for other fields. There are also few instances of paths that start with '#'; these sources are literal strings that are put into the target.
+
+2/3. Target & Link
+
+This column shows the FHIR target of the CCDA Source colunmn. This is a FHIR path that starts with a Resource Type (AllergyIntolerance.code, AllergyIntolerance.code). Path can be either to a leaf field (AllergyIntolerance.assertedDate), to a data type like Codeable Concept (AllergyIntolerance.code), or a standalone Resource (Organization). In the latter two cases an entry in the link column show how futher mapping is to be accomplished. Each link corresponds to a report file in this directory.
+
+4. Format
+
+The first three columns show the mapping between the fields. The fourh column includes functions that format the data after the mapping. These can be transforms such as CDA DateTime format to FHIR DateTime format (datetimeAdapter), select an element from the list (maxDateTime) or other custom functions.
 
 datetimeAdapter: Converts CDA datetime to FHIR datetime
-valueSetAdapter: Converts a value in CDA value set to a value in FHIR value sets.
+valueSetAdapter: Converts a value in CDA value set to a value in FHIR value sets. This function accepts a json file parameter which provides the actual mapping. A default can also be specified as a parameter. All the value set maps are in the value-maps directory.
 systemAdapter: Converts a CDA OID to FHIR system.
 maxDateTime: Returns the most recent date time in an array of date times.
-getId: Returns the id of a resource to be used in a reference field.
+getId: Returns the id of a resource to be used in a reference field. This is used when a CCDA source in the same table results in a Resource and the id of that resource is to be a source in another resource field
 piece: Returns a piece of a delimited string.
 lastElement: Returns the last element of an array.
 lastPiece: Returns the last piece of a delimited string.
 selectOnNull: Returns the first entry if the source is null or the latter if it is not.
-conditionClinicalStatusAdapter: This is a custom logic for Condition resource clinical status
+conditionClinicalStatusAdapter: This is a custom logic for Condition resource clinical status based on effective time.
+referenceAdapter: This accepts an identifier and converts it to a resource id to be used in a reference.
+
+5. Conditions
+
+This lists the conditions under which the mapping is done. There might be multiple conditions.  
  
