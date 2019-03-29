@@ -22,7 +22,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
+import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.ADGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.IVL_TSPeriodGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.PNGenerator;
@@ -95,7 +95,7 @@ public class DataTypesGeneratorTest {
 
 	@SuppressWarnings("unchecked")
 	private static void runTestCases(String name) throws Exception {
-		List<Map<String, Object>> testCases = OrgJsonUtil.getDataTypeGeneratorTestCases(name);
+		List<Map<String, Object>> testCases = JoltUtil.getDataTypeGeneratorTestCases(name);
 		int numTestCases = testCases.size();
 		Assert.assertTrue("Test cases exist", numTestCases > 0);
 		for (int index = 0; index < numTestCases; ++index) {

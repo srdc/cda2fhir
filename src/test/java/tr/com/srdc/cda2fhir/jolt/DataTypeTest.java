@@ -11,14 +11,14 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.JsonUtils;
 
-import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
+import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 
 public class DataTypeTest {
 	private static void runDataTypeTests(String dataType, boolean checkNullflavor) throws Exception {
-		List<Object> chainrSpecJSON = OrgJsonUtil.getDataTypeJoltTemplate(dataType);
+		List<Object> chainrSpecJSON = JoltUtil.getDataTypeJoltTemplate(dataType);
 		Chainr chainr = Chainr.fromSpec(chainrSpecJSON);
 
-		JSONArray testCases = OrgJsonUtil.getDataTypeTestCases(dataType);
+		JSONArray testCases = JoltUtil.getDataTypeTestCases(dataType);
 		for (int index = 0; index < testCases.length(); ++index) {
 			JSONObject testCase = testCases.getJSONObject(index);
 			JSONObject inputJSON = testCase.getJSONObject("input");
