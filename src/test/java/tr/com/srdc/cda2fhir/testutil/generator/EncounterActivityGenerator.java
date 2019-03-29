@@ -139,6 +139,24 @@ public class EncounterActivityGenerator {
 		return ecg;
 	}
 
+	public static EncounterActivityGenerator getFullInstance() {
+		EncounterActivityGenerator ecg = new EncounterActivityGenerator();
+
+		ecg.idGenerators.add(IDGenerator.getNextInstance());
+		ecg.statusCode = "active";
+		ecg.codeGenerator = CDGenerator.getNextInstance();
+		ecg.priorityCodeGenerator = CEGenerator.getNextInstance();
+		ecg.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
+
+		ecg.performerGenerators.add(PerformerGenerator.getDefaultInstance());
+		ecg.performerGenerators.add(PerformerGenerator.getFullInstance());
+
+		ecg.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
+		ecg.serviceDeliveryLocationGenerators.add(ServiceDeliveryLocationGenerator.getDefaultInstance());
+
+		return ecg;
+	}
+
 	public void verify(Encounter encounter) {
 		if (!idGenerators.isEmpty()) {
 			for (int index = 0; index < idGenerators.size(); ++index) {

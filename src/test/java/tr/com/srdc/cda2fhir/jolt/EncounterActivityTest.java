@@ -173,4 +173,11 @@ public class EncounterActivityTest {
 		EncounterActivityGenerator generator = EncounterActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
 	}
+
+	@Test
+	public void testFull() throws Exception {
+		EncounterActivityGenerator generator = EncounterActivityGenerator.getFullInstance();
+		runTest(generator, "fullCase");
+	}
+
 }

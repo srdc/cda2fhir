@@ -3,8 +3,10 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
+import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
@@ -126,5 +128,27 @@ public class RootNode {
 
 	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
 		updateFromRemoveWhen(updateInfo, "");
+	}
+
+	public void distributeArrays(Set<String> topPaths) {
+		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
+		linkedNodes.forEach(linkedNode -> {
+			String target = linkedNode.getTarget();
+			String[] targetArrayPieces = target.split("\\[");
+			if (targetArrayPieces.length < 2) {
+				return;
+			}
+			String targetArrayName = targetArrayPieces[0];
+			if (!topPaths.contains(targetArrayName)) {
+				return;
+			}
+			String[] targetPieces = target.split("\\.");
+			if (targetPieces.length != 2) {
+				return;
+			}
+			String newTarget = targetPieces[1] + "[]";
+			ILeafNode nodeAsLeaf = (ILeafNode) linkedNode;
+			nodeAsLeaf.setTarget(newTarget);
+		});
 	}
 }

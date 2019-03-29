@@ -17,6 +17,7 @@ public class JoltTemplate {
 		public List<Map<String, Object>> modifiers = new ArrayList<>();
 		public Map<String, Object> removeWhen;
 		public Map<String, Object> move;
+		public Map<String, Object> distributeArray;
 
 		@SuppressWarnings("unchecked")
 		public static RawTemplate getInstance(List<Object> content) {
@@ -52,6 +53,10 @@ public class JoltTemplate {
 					result.move = spec;
 					return;
 				}
+				if (operation.endsWith("DistributeArray")) {
+					result.distributeArray = spec;
+					return;
+				}
 			});
 
 			if (result.shifts.isEmpty()) {
@@ -75,6 +80,8 @@ public class JoltTemplate {
 	private String resourceType;
 
 	private Table assignTable;
+
+	private Set<String> distributeArrays;
 
 	private JoltTemplate(String name) {
 		this.name = name;
@@ -161,6 +168,10 @@ public class JoltTemplate {
 
 		rootNode.expandLinks(intermediateTemplates);
 
+		if (distributeArrays != null) {
+			rootNode.distributeArrays(distributeArrays);
+		}
+
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
 		Table table = rootNode.toTable(templates);
 
@@ -216,6 +227,9 @@ public class JoltTemplate {
 				String value = (String) entry.getValue();
 				result.moveMap.put(key, value);
 			});
+		}
+		if (rawTemplate.distributeArray != null) {
+			result.distributeArrays = rawTemplate.distributeArray.keySet();
 		}
 
 		return result;

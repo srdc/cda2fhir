@@ -42,7 +42,7 @@
 					}
 				},
 				"performer": {
-					"*": "->AssignedEntity"
+					"*": "Performer[].->AssignedEntity"
 				}
 			}
 		}
@@ -51,12 +51,24 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "performer[0].actor.reference",
-			"Organization": "performer[0].onBehalfOf.reference",
+			"Practitioner": {
+				"*": "performer[&].actor.reference"
+			},
+			"Organization": {
+				"*": "performer[&].onBehalfOf.reference"
+			},
 			"PractitionerRole": {
-				"code": "performer[0].role"
+				"*": {
+					"code": "performer[&1].role"
+				}
 			}
 		}
 	},

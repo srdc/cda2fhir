@@ -1,0 +1,11 @@
+[
+	{
+		"coding": [
+			{
+				"system": "http://hl7.org/fhir/v3/ParticipationType",
+				"code": "PART",
+				"display": "Participation"
+			}
+		]
+	}
+]

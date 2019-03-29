@@ -35,6 +35,11 @@ public class PerformerGenerator {
 		return new PerformerGenerator(aeg);
 	}
 
+	public static PerformerGenerator getFullInstance() {
+		AssignedEntityGenerator aeg = AssignedEntityGenerator.getFullInstance();
+		return new PerformerGenerator(aeg);
+	}
+
 	public String getCodeCode() {
 		return assignedEntityGenerator.getCodeCode();
 	}

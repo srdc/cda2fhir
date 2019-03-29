@@ -279,6 +279,32 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class PutConstantValue extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			int size = argList.size();
+			if (argList == null || size != 3) {
+				return Optional.empty();
+			}
+			String filename = (String) argList.get(0);
+			String key = (String) argList.get(1);
+			Object object = argList.get(2);
+			if (object == null) {
+				return Optional.empty();
+			}
+			if (!(object instanceof Map)) {
+				return Optional.empty();
+			}
+			Map<String, Object> target = (Map<String, Object>) object;
+
+			Object constantValue = JsonUtils
+					.filepathToObject("src/test/resources/jolt/value-maps/" + filename + ".json");
+			target.put(key, constantValue);
+			return Optional.of(object);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -294,6 +320,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("lastElement", new LastElement());
 		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
 		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
+		AMIDA_FUNCTIONS.put("putConstantValue", new PutConstantValue());
 	}
 
 	private Modifier.Overwritr modifier;

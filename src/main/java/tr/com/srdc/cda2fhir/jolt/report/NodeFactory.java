@@ -26,11 +26,11 @@ public class NodeFactory {
 		public String link;
 
 		private ParsedTarget(String target) {
-			this.target = target;
+			this.target = target.replace("[&]", "[]").replace("[&1]", "[]");
 		}
 
 		private ParsedTarget(String target, String link) {
-			this.target = target;
+			this.target = target.replace("[&]", "[]").replace("[&1]", "[]");
 			this.link = link;
 		}
 
@@ -154,7 +154,8 @@ public class NodeFactory {
 			return;
 		}
 
-		map.forEach((key, value) -> {
+		map.forEach((keyIn, value) -> {
+			final String key = keyIn.replace("[&]", "[]");
 			if (value == null) {
 				JoltCondition condition = new JoltCondition(key, "isnull");
 				node.addCondition(condition);

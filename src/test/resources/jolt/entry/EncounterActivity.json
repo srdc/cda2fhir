@@ -27,7 +27,7 @@
 				"priorityCode": "priority.->CD",
 				"effectiveTime": "period.->IVL_TSPeriod",
 				"performer": {
-					"*": "->AssignedEntity"
+					"*": "Performer[].->AssignedEntity"
 				},
 				"entryRelationship": {
 					"*": {
@@ -48,17 +48,22 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "participant[0].individual.reference",
-			"#http://hl7.org/fhir/v3/ParticipationType": "participant[0].type[0].coding[0].system",
-			"#PART": "participant[0].type[0].coding[0].code",
-			"#Participation": "participant[0].type[0].coding[0].display",
+			"Practitioner": {
+				"*": "participant[&].individual.reference"
+			},
 			"Condition": {
-				"*": "diagnosis[].condition.reference"
+				"*": "diagnosis[&].condition.reference"
 			},
 			"Location": {
-				"*": "location[].location.reference"
+				"*": "location[&].location.reference"
 			}
 		}
 	},
@@ -87,6 +92,14 @@
 					}
 				}
 			}			
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"participant": {
+				"*": "=putConstantValue('ParticipantTypeConstant','type',@0)"
+			}
 		}
 	},
 	{

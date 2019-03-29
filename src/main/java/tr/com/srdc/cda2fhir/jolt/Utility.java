@@ -21,6 +21,10 @@ public class Utility {
 			Map<String, List<Object>> result = new HashMap<>();
 			List<Path> jsonPaths = walk.filter(f -> f.toString().endsWith(".json")).collect(Collectors.toList());
 			jsonPaths.forEach(jsonPath -> {
+				String parentPath = jsonPath.getParent().toString();
+				if (parentPath.endsWith("value-maps")) {
+					return;
+				}
 				String filename = jsonPath.getFileName().toString();
 				String name = filename.substring(0, filename.length() - 5);
 				Object content = JsonUtils.filepathToObject(jsonPath.toString());
