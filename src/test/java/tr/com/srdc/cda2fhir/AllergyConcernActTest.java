@@ -163,6 +163,18 @@ public class AllergyConcernActTest {
 	}
 
 	@Test
+	public void testAllergyIntoleranceObservationAuthor2Recorder() {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0)
+				.getObservation();
+		BundleInfo bundleInfo = new BundleInfo(rt);
+
+		PN name = cdaTypeFactory.createPN();
+		name.setText()
+
+	}
+
+	@Test
 	public void testAllergyIntoleranceObservationEffectiveTime() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0)

@@ -59,7 +59,7 @@ public class IntegrationTest {
 
 	@Test
 	public void rakiaIntegration() throws Exception {
-		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
+		String sourceName = "Epic/DOC0001 15.XML";
 		String documentBody = "<ClinicalDoc>\n</ClinicalDoc>";
 		Identifier assemblerDevice = new Identifier();
 		assemblerDevice.setValue("Higgs");
@@ -70,7 +70,7 @@ public class IntegrationTest {
 				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
 		// print pre-post bundle
-		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia_bundle.json");
+		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/doc_001_15.json");
 
 		// Send transaction bundle to server.
 		Bundle resp = client.transaction().withBundle(transactionBundle).execute();
