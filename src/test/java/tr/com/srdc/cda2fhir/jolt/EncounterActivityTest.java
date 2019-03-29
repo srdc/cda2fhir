@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -70,6 +71,28 @@ public class EncounterActivityTest {
 					JoltUtil.putReference(joltParticipant, "individual", participant.getIndividual());
 				} else {
 					Assert.assertNull("No performer actor", joltParticipant.get("individual"));
+				}
+			}
+		} else {
+			Assert.assertNull("No jolt procedure performer", joltEncounter.get("participant"));
+		}
+
+		if (encounter.hasDiagnosis()) {
+			List<Object> joltDiagnoses = (List<Object>) joltEncounter.get("diagnosis");
+			List<DiagnosisComponent> diagnoses = encounter.getDiagnosis();
+			Assert.assertEquals("Encounter diagnosis count", diagnoses.size(), joltDiagnoses.size());
+			for (int index = 0; index < diagnoses.size(); ++index) {
+				DiagnosisComponent diagnosis = diagnoses.get(index);
+				Map<String, Object> joltDiagnosis = (Map<String, Object>) joltDiagnoses.get(index);
+				if (diagnosis.hasCondition()) {
+					Map<String, Object> joltECondition = (Map<String, Object>) joltDiagnosis.get("condition");
+					Assert.assertNotNull("Participant condition", joltECondition);
+					Object reference = joltECondition.get("reference");
+					Assert.assertNotNull("Participant condition reference", reference);
+					Assert.assertTrue("Reference is string", reference instanceof String);
+					JoltUtil.putReference(joltDiagnosis, "condition", diagnosis.getCondition());
+				} else {
+					Assert.assertNull("No encounter diagnosis", joltDiagnosis.get("condition"));
 				}
 			}
 		} else {

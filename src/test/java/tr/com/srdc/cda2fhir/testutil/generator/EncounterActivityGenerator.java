@@ -6,20 +6,25 @@ import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
+import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
@@ -43,6 +48,8 @@ public class EncounterActivityGenerator {
 	private IVL_TSPeriodGenerator effectiveTimeGenerator;
 
 	private List<PerformerGenerator> performerGenerators = new ArrayList<>();
+
+	private List<IndicationGenerator> indicationGenerators = new ArrayList<>();
 
 	public EncounterActivities generate(CDAFactories factories) {
 		EncounterActivities ec = factories.consol.createEncounterActivities();
@@ -87,6 +94,14 @@ public class EncounterActivityGenerator {
 			ec.getPerformers().add(performer);
 		});
 
+		indicationGenerators.forEach(ig -> {
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ec.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.RSON);
+			Indication indication = ig.generate(factories);
+			er.setObservation(indication);
+		});
+
 		return ec;
 	}
 
@@ -99,6 +114,7 @@ public class EncounterActivityGenerator {
 		ecg.priorityCodeGenerator = CEGenerator.getNextInstance();
 		ecg.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		ecg.performerGenerators.add(PerformerGenerator.getDefaultInstance());
+		ecg.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
 
 		return ecg;
 	}
@@ -155,11 +171,11 @@ public class EncounterActivityGenerator {
 
 		verify(encounter);
 
+		BundleUtil util = new BundleUtil(bundle);
+
 		if (performerGenerators.isEmpty()) {
 			Assert.assertTrue("Missing encounter participant", !encounter.hasParticipant());
 		} else {
-			BundleUtil util = new BundleUtil(bundle);
-
 			for (int index = 0; index < performerGenerators.size(); ++index) {
 				PerformerGenerator pg = performerGenerators.get(index);
 				EncounterParticipantComponent epc = encounter.getParticipant().get(index);
@@ -189,5 +205,17 @@ public class EncounterActivityGenerator {
 			}
 		}
 
+		if (indicationGenerators.isEmpty()) {
+			Assert.assertTrue("Missing encounter diagnosis", !encounter.hasDiagnosis());
+		} else {
+			for (int index = 0; index < indicationGenerators.size(); ++index) {
+				IndicationGenerator ig = indicationGenerators.get(index);
+				DiagnosisComponent dxComponent = encounter.getDiagnosis().get(index);
+
+				String conditionId = dxComponent.getCondition().getReference();
+				Condition condition = util.getResourceFromReference(conditionId, Condition.class);
+				ig.verify(condition);
+			}
+		}
 	}
 }
