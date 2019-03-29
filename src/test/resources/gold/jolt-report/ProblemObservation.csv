@@ -7,6 +7,6 @@ value[*],Condition.code[],CD,"lastElement",nullFlavor isNull
 id[*],Condition.identifier[],ID,,nullFlavor isNull
 effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.nullFlavor isnull,effectiveTime.low.value isnotnull,nullFlavor isNull
 effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.value isnull,effectiveTime.nullFlavor isnull,nullFlavor isNull
-author.assignedAuthor,Organization,,,nullFlavor isNull
-author.assignedAuthor,Practitioner,,,nullFlavor isNull
-author.assignedAuthor,PractitionerRole,,,nullFlavor isNull
+author.assignedAuthor,Organization,AssignedAuthorOrganization,,nullFlavor isNull
+author.assignedAuthor,Practitioner,AssignedAuthorPractitioner,,nullFlavor isNull
+author.assignedAuthor,PractitionerRole,AssignedAuthorPractitionerRole,,nullFlavor isNull

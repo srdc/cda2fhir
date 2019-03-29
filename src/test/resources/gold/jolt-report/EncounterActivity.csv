@@ -1,5 +1,5 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-encounter.entryRelationship[],Condition[],,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isNull
+encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isNull
 Encounter.abatementDateTime,Encounter.Condition[].clinicalStatus.high,,
 Encounter.onsetDateTime,Encounter.Condition[].clinicalStatus.low,,
 Condition[],Encounter.diagnosis[].condition.reference,,"getId"
@@ -13,7 +13,7 @@ encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,nullFlavor isNull
 encounter.priorityCode,Encounter.priority,CD,,nullFlavor isNull
 encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.statusCode.nullFlavor isnull,nullFlavor isNull
 encounter.code,Encounter.type[],CD,,nullFlavor isNull
-encounter.participant[*],Location[],,,nullFlavor isNull
-encounter.performer[*].assignedEntity,Organization,,,nullFlavor isNull
-encounter.performer[*].assignedEntity,Practitioner,,,nullFlavor isNull
-encounter.performer[*].assignedEntity,PractitionerRole,,,nullFlavor isNull
+encounter.participant[*],Location[],ServiceDeliveryLocation,,nullFlavor isNull
+encounter.performer[*].assignedEntity,Organization,AssignedAuthorOrganization,,nullFlavor isNull
+encounter.performer[*].assignedEntity,Practitioner,AssignedAuthorPractitioner,,nullFlavor isNull
+encounter.performer[*].assignedEntity,PractitionerRole,AssignedAuthorPractitionerRole,,nullFlavor isNull

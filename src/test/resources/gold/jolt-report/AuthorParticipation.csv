@@ -1,4 +1,4 @@
 CCDA Source,Target,Link,Format
-assignedAuthor,Organization,,
-assignedAuthor,Practitioner,,
-assignedAuthor,PractitionerRole,,
+assignedAuthor,Organization,AssignedAuthorOrganization,
+assignedAuthor,Practitioner,AssignedAuthorPractitioner,
+assignedAuthor,PractitionerRole,AssignedAuthorPractitionerRole,

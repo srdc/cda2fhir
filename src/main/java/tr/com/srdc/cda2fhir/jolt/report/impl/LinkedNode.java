@@ -50,6 +50,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		}
 	}
 
+	@Override
 	public List<TableRow> toTableRows(Templates templates) {
 		String path = getPath();
 		String target = getTarget();
@@ -61,7 +62,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 
 		String actualTarget = rootResourceType == null || isResourceLink ? target : rootResourceType + "." + target;
 
-		TableRow row = isResourceLink ? new TableRow(path, actualTarget) : new TableRow(path, actualTarget, link);
+		TableRow row = new TableRow(path, actualTarget, link);
 		row.setFormat(format);
 		getConditions().forEach(condition -> {
 			String conditionAsString = condition.toString(path);
