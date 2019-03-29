@@ -338,11 +338,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 										&& !participant.getParticipantRole().isSetNullFlavor()) {
 									if (participant.getParticipantRole().getPlayingEntity() != null
 											&& !participant.getParticipantRole().getPlayingEntity().isSetNullFlavor()) {
-										if (participant.getParticipantRole().getPlayingEntity().getCode() != null
-												&& !participant.getParticipantRole().getPlayingEntity().getCode()
-														.isSetNullFlavor()) {
+										if (participant.getParticipantRole().getPlayingEntity().getCode() != null) {
 											fhirAllergyIntolerance.setCode(dtt.tCD2CodeableConcept(
-													participant.getParticipantRole().getPlayingEntity().getCode()));
+													participant.getParticipantRole().getPlayingEntity().getCode(),
+													bundleInfo.getIdedAnnotations()));
 										}
 									}
 								}
@@ -1030,8 +1029,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> type
-		if (cdaEncounterActivity.getCode() != null && !cdaEncounterActivity.getCode().isSetNullFlavor()) {
-			fhirEncounter.addType(dtt.tCD2CodeableConcept(cdaEncounterActivity.getCode()));
+		if (cdaEncounterActivity.getCode() != null) {
+			fhirEncounter
+					.addType(dtt.tCD2CodeableConcept(cdaEncounterActivity.getCode(), bundleInfo.getIdedAnnotations()));
 		}
 
 		// code.translation -> classElement
@@ -1519,8 +1519,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					Material manufacturedMaterial = manufacturedProduct.getManufacturedMaterial();
 
 					// consumable.manufacturedProduct.manufacturedMaterial.code -> vaccineCode
-					if (manufacturedProduct.getManufacturedMaterial().getCode() != null
-							&& !manufacturedProduct.getManufacturedMaterial().getCode().isSetNullFlavor()) {
+					if (manufacturedProduct.getManufacturedMaterial().getCode() != null) {
 						fhirImmunization.setVaccineCode(dtt.tCD2CodeableConcept(manufacturedMaterial.getCode(),
 								bundleInfo.getIdedAnnotations()));
 					}
@@ -1793,7 +1792,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct) {
+	public Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct, IBundleInfo bundleInfo) {
 		if (cdaManufacturedProduct == null || cdaManufacturedProduct.isSetNullFlavor())
 			return null;
 
@@ -1813,11 +1812,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// manufacturedMaterial -> code and ingredient
 		if (cdaManufacturedProduct.getManufacturedMaterial() != null
 				&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
-			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null
-					&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
+			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null) {
 				// manufacturedMaterial.code -> code
-				fhirMedication
-						.setCode(dtt.tCD2CodeableConcept(cdaManufacturedProduct.getManufacturedMaterial().getCode()));
+				fhirMedication.setCode(dtt.tCD2CodeableConcept(
+						cdaManufacturedProduct.getManufacturedMaterial().getCode(), bundleInfo.getIdedAnnotations()));
 			}
 		}
 
@@ -1894,7 +1892,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (cdaMedicationActivity.getConsumable().getManufacturedProduct() != null
 					&& !cdaMedicationActivity.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
 				Bundle fhirMedicationBundle = tManufacturedProduct2Medication(
-						cdaMedicationActivity.getConsumable().getManufacturedProduct());
+						cdaMedicationActivity.getConsumable().getManufacturedProduct(), bundleInfo);
 				for (BundleEntryComponent entry : fhirMedicationBundle.getEntry()) {
 					result.addResource(entry.getResource());
 					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
@@ -2020,7 +2018,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					MedicationInformation cdaMedicationInformation = (MedicationInformation) cdaMedicationDispense
 							.getProduct().getManufacturedProduct();
 					Medication fhirMedication = null;
-					Bundle fhirMedicationBundle = tMedicationInformation2Medication(cdaMedicationInformation);
+					Bundle fhirMedicationBundle = tMedicationInformation2Medication(cdaMedicationInformation,
+							bundleInfo);
 
 					for (BundleEntryComponent entry : fhirMedicationBundle.getEntry()) {
 						result.addResource(entry.getResource());
@@ -2107,13 +2106,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation) {
+	public Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation,
+			IBundleInfo bundleInfo) {
 		/*
 		 * Since MedicationInformation is a ManufacturedProduct instance with a specific
 		 * templateId, tManufacturedProduct2Medication should satisfy the required
 		 * mapping for MedicationInformation
 		 */
-		return tManufacturedProduct2Medication(cdaMedicationInformation);
+		return tManufacturedProduct2Medication(cdaMedicationInformation, bundleInfo);
 	}
 
 	@Override
@@ -2145,8 +2145,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> code
-		if (cdaObservation.getCode() != null && !cdaObservation.getCode().isSetNullFlavor()) {
-			fhirObs.setCode(dtt.tCD2CodeableConcept(cdaObservation.getCode()));
+		if (cdaObservation.getCode() != null) {
+			fhirObs.setCode(dtt.tCD2CodeableConcept(cdaObservation.getCode(), bundleInfo.getIdedAnnotations()));
 		}
 
 		// statusCode -> status
@@ -2631,9 +2631,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// value -> code
 		if (cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
 			for (ANY value : cdaProbObs.getValues()) {
-				if (value != null && !value.isSetNullFlavor()) {
+				if (value != null) {
 					if (value instanceof CD) {
-						fhirCondition.setCode(dtt.tCD2CodeableConcept((CD) value));
+						fhirCondition.setCode(dtt.tCD2CodeableConcept((CD) value, bundleInfo.getIdedAnnotations()));
 					}
 				}
 			}
@@ -2930,8 +2930,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// code -> code
-		if (cdaResultOrganizer.getCode() != null && !cdaResultOrganizer.getCode().isSetNullFlavor()) {
-			fhirDiagReport.setCode(dtt.tCD2CodeableConcept(cdaResultOrganizer.getCode()));
+		if (cdaResultOrganizer.getCode() != null) {
+			fhirDiagReport
+					.setCode(dtt.tCD2CodeableConcept(cdaResultOrganizer.getCode(), bundleInfo.getIdedAnnotations()));
 		}
 
 		// statusCode -> status

@@ -158,7 +158,7 @@ public class ValidatorTest {
 	public void testHannahBanana() throws Exception {
 		String cdaResourcePath = "src/test/resources/Epic/HannahBanana_EpicCCD-pretty.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.fhir.xml";
-		String targetPathForResultFile = "src/test/resources/output/Cerner/HannahBanana_EpicCCD-pretty.validation-result.html";
+		String targetPathForResultFile = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.validation-result.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
 				generateDAFProfileMetadata, false);
@@ -168,7 +168,7 @@ public class ValidatorTest {
 	@Ignore
 	public void testRakia() throws Exception {
 		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).xml";
-		String targetPathForFHIRResource = "src/test/resources/output/Epic/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
 		String targetPathForResultFile = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).validation-result.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
