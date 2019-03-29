@@ -90,8 +90,9 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
-		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		org.hl7.fhir.dstu3.model.Resource fhirResource = rt.tManufacturedProduct2Medication(product, bundleInfo)
+				.getBundle().getEntryFirstRep().getResource();
+
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
 
@@ -125,8 +126,9 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
-		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		org.hl7.fhir.dstu3.model.Resource fhirResource = rt.tManufacturedProduct2Medication(product, bundleInfo)
+				.getBundle().getEntryFirstRep().getResource();
+
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
 
@@ -158,8 +160,9 @@ public class MedicationTest {
 		product.setManufacturedMaterial(material);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Bundle fhirBundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
-		org.hl7.fhir.dstu3.model.Resource fhirResource = fhirBundle.getEntry().get(0).getResource();
+		org.hl7.fhir.dstu3.model.Resource fhirResource = rt.tManufacturedProduct2Medication(product, bundleInfo)
+				.getBundle().getEntryFirstRep().getResource();
+
 		List<Base> fhirCodes = fhirResource.getNamedProperty("code").getValues();
 		List<Base> fhirCodings = fhirCodes.get(0).getNamedProperty("coding").getValues();
 
@@ -195,7 +198,7 @@ public class MedicationTest {
 
 		material.setCode(ce);
 		product.setManufacturedMaterial(material);
-		Bundle bundle = rt.tManufacturedProduct2Medication(product, bundleInfo);
+		Bundle bundle = rt.tManufacturedProduct2Medication(product, bundleInfo).getBundle();
 		Medication medication = BundleUtil.findOneResource(bundle, Medication.class);
 		CodeableConcept cc = medication.getCode();
 		Assert.assertEquals("Medication Code text value assigned", expectedValue, cc.getText());

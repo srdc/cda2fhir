@@ -70,6 +70,10 @@ import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
+import org.hl7.fhir.dstu3.model.MedicationRequest;
+import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispenseRequestComponent;
+import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestIntent;
+import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestRequesterComponent;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
@@ -100,6 +104,7 @@ import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.Consumable;
 import org.openhealthtools.mdht.uml.cda.Entity;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Guardian;
@@ -111,6 +116,7 @@ import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.Performer2;
+import org.openhealthtools.mdht.uml.cda.Product;
 import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
@@ -120,8 +126,10 @@ import org.openhealthtools.mdht.uml.cda.consol.CommentActivity;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
+import org.openhealthtools.mdht.uml.cda.consol.Instructions;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
@@ -161,6 +169,7 @@ import org.slf4j.LoggerFactory;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.entry.impl.DeferredProcedureEncounterReference;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntityResult;
@@ -450,7 +459,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 												}
 											}
 										}
-
 										// reactionObservation/low -> reaction.onset
 										if (cdaReactionObs.getEffectiveTime() != null
 												&& !cdaReactionObs.getEffectiveTime().isSetNullFlavor()) {
@@ -1507,6 +1515,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		// lotNumber, vaccineCode, organization
+
 		if (cdaImmunizationActivity.getConsumable() != null
 				&& !cdaImmunizationActivity.getConsumable().isSetNullFlavor()) {
 			if (cdaImmunizationActivity.getConsumable().getManufacturedProduct() != null
@@ -1789,17 +1798,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		return fhirCommunication;
+
 	}
 
 	@Override
-	public Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct, IBundleInfo bundleInfo) {
+	public EntryResult tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct,
+			IBundleInfo bundleInfo) {
+		EntryResult result = new EntryResult();
+
 		if (cdaManufacturedProduct == null || cdaManufacturedProduct.isSetNullFlavor())
-			return null;
+			return result;
 
 		Medication fhirMedication = new Medication();
-
-		Bundle fhirMedicationBundle = new Bundle();
-		fhirMedicationBundle.addEntry(new BundleEntryComponent().setResource(fhirMedication));
+		result.addResource(fhirMedication);
 
 		// resource id
 		IdType resourceId = new IdType("Medication", getUniqueId());
@@ -1825,15 +1836,37 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			org.hl7.fhir.dstu3.model.Organization org = tOrganization2Organization(
 					cdaManufacturedProduct.getManufacturerOrganization());
 			fhirMedication.setManufacturer(new Reference(org.getId()));
-			fhirMedicationBundle.addEntry(new BundleEntryComponent().setResource(org));
+			result.addResource(org);
 		}
 
-		return fhirMedicationBundle;
+		return result;
+	}
+
+	@Override
+	public EntryResult tManufacturedProduct2Medication(Product cdaProduct, IBundleInfo bundleInfo) {
+
+		if (cdaProduct == null || cdaProduct.isSetNullFlavor()) {
+			return new EntryResult();
+		}
+
+		return tManufacturedProduct2Medication(cdaProduct.getManufacturedProduct(), bundleInfo);
+	}
+
+	@Override
+	public EntryResult tManufacturedProduct2Medication(Consumable cdaConsumable, IBundleInfo bundleInfo) {
+
+		if (cdaConsumable == null || cdaConsumable.isSetNullFlavor()) {
+			return new EntryResult();
+		}
+
+		return tManufacturedProduct2Medication(cdaConsumable.getManufacturedProduct(), bundleInfo);
+
 	}
 
 	@Override
 	public EntryResult tMedicationActivity2MedicationStatement(MedicationActivity cdaMedicationActivity,
 			IBundleInfo bundleInfo) {
+
 		EntryResult result = new EntryResult();
 
 		if (cdaMedicationActivity == null || cdaMedicationActivity.isSetNullFlavor()) {
@@ -1889,12 +1922,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// consumable.manufacturedProduct -> medication
 		if (cdaMedicationActivity.getConsumable() != null && !cdaMedicationActivity.getConsumable().isSetNullFlavor()) {
-			if (cdaMedicationActivity.getConsumable().getManufacturedProduct() != null
-					&& !cdaMedicationActivity.getConsumable().getManufacturedProduct().isSetNullFlavor()) {
-				Bundle fhirMedicationBundle = tManufacturedProduct2Medication(
-						cdaMedicationActivity.getConsumable().getManufacturedProduct(), bundleInfo);
-				for (BundleEntryComponent entry : fhirMedicationBundle.getEntry()) {
-					result.addResource(entry.getResource());
+			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationActivity.getConsumable(),
+					bundleInfo);
+			if (fhirMedicationResult.hasResult()) {
+				result.updateFrom(fhirMedicationResult);
+				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
 					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
 						fhirMedSt.setMedication(new Reference(entry.getResource().getId()));
 					}
@@ -1955,6 +1987,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirMedSt.addReasonReference(new Reference(cond.getId()));
 		}
 
+		if (cdaMedicationActivity.getMedicationSupplyOrder() != null) {
+			IEntryResult medRequestResult = medicationSupplyOrder2MedicationRequest(
+					cdaMedicationActivity.getMedicationSupplyOrder(), bundleInfo);
+			result.updateFrom(medRequestResult);
+		}
+
 		return result;
 	}
 
@@ -2010,24 +2048,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirMediDisp.setType(dtt.tCD2CodeableConcept(cdaMedicationDispense.getCode()));
 		}
 
-		// product.manufacturedProduct(MedicationInformation) -> medication
+		// product.manufacturedProduct(MedicationInformation ||
+		// ImmunizationMedicationInformation) -> medication
 		if (cdaMedicationDispense.getProduct() != null && !cdaMedicationDispense.getProduct().isSetNullFlavor()) {
-			if (cdaMedicationDispense.getProduct().getManufacturedProduct() != null
-					&& !cdaMedicationDispense.getProduct().getManufacturedProduct().isSetNullFlavor()) {
-				if (cdaMedicationDispense.getProduct().getManufacturedProduct() instanceof MedicationInformation) {
-					MedicationInformation cdaMedicationInformation = (MedicationInformation) cdaMedicationDispense
-							.getProduct().getManufacturedProduct();
-					Medication fhirMedication = null;
-					Bundle fhirMedicationBundle = tMedicationInformation2Medication(cdaMedicationInformation,
-							bundleInfo);
+			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationDispense.getProduct(),
+					bundleInfo);
+			if (fhirMedicationResult.hasResult()) {
+				result.updateFrom(fhirMedicationResult);
+				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
+					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
+						Medication medicationResource = (Medication) entry.getResource();
+						fhirMediDisp.setMedication(new Reference(medicationResource.getId()));
 
-					for (BundleEntryComponent entry : fhirMedicationBundle.getEntry()) {
-						result.addResource(entry.getResource());
-						if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
-							fhirMedication = (org.hl7.fhir.dstu3.model.Medication) entry.getResource();
-						}
 					}
-					fhirMediDisp.setMedication(new Reference(fhirMedication.getId()));
 				}
 			}
 		}
@@ -2106,7 +2139,121 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation,
+	public EntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder cdaSupplyOrder,
+			IBundleInfo localBundleInfo) {
+		EntryResult result = new EntryResult();
+
+		if (cdaSupplyOrder == null || cdaSupplyOrder.isSetNullFlavor())
+			return result;
+
+		MedicationRequest medRequest = new MedicationRequest();
+		result.addResource(medRequest);
+
+		// patient
+		medRequest.setSubject(getPatientRef());
+
+		// resource id
+		IdType resourceId = new IdType("MedicationRequest", getUniqueId());
+		medRequest.setId(resourceId);
+
+		// meta.profile
+		if (Config.isGenerateDafProfileMetadata())
+			medRequest.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION_REQUEST);
+
+		// id -> identifier
+		if (cdaSupplyOrder.getIds() != null && !cdaSupplyOrder.getIds().isEmpty()) {
+			for (II ii : cdaSupplyOrder.getIds()) {
+				if (ii != null && !ii.isSetNullFlavor()) {
+					medRequest.addIdentifier(dtt.tII2Identifier(ii));
+				}
+			}
+		}
+
+		// statusCode -> status
+		if (cdaSupplyOrder.getStatusCode() != null && !cdaSupplyOrder.getStatusCode().isSetNullFlavor()) {
+			medRequest.setStatus(vst.tActStatus2MedicationRequestStatus(cdaSupplyOrder.getStatusCode().getCode()));
+		}
+
+		// hardcoded to "instance-order"
+		medRequest.setIntent(MedicationRequestIntent.INSTANCEORDER);
+
+		// product.manufacturedProduct(MedicationInformation ||
+		// ImmunizationMedicationInformation) -> medication
+		if (cdaSupplyOrder.getProduct() != null && !cdaSupplyOrder.getProduct().isSetNullFlavor()) {
+			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaSupplyOrder.getProduct(),
+					localBundleInfo);
+			if (fhirMedicationResult.hasResult()) {
+				result.updateFrom(fhirMedicationResult);
+				for (BundleEntryComponent resultEntry : fhirMedicationResult.getBundle().getEntry()) {
+					if (resultEntry.getResource() instanceof Medication) {
+						Medication medicationResult = (Medication) resultEntry.getResource();
+						// We can only add either a reference here or a codeableconcept. Opting for
+						// Reference.
+						medRequest.setMedication(new Reference(medicationResult.getId()));
+					}
+				}
+			}
+		}
+
+		if (cdaSupplyOrder.getQuantity() != null || cdaSupplyOrder.getRepeatNumber() != null
+				|| cdaSupplyOrder.getEffectiveTimes() != null) {
+			MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
+			medRequest.setDispenseRequest(dispenseRequest);
+			// quantity -> dosageRequest.quantity
+			if (cdaSupplyOrder.getQuantity() != null && cdaSupplyOrder.getQuantity().getValue() != null
+					&& !cdaSupplyOrder.getQuantity().isSetNullFlavor()) {
+				SimpleQuantity sq = new SimpleQuantity();
+				sq.setValue(cdaSupplyOrder.getQuantity().getValue());
+				sq.setUnit(cdaSupplyOrder.getQuantity().getUnit());
+				dispenseRequest.setQuantity(sq);
+			}
+			// repeatNumber -> dosageRequest.numberOfRepeatsAllowed
+			if (cdaSupplyOrder.getRepeatNumber() != null && !cdaSupplyOrder.isSetNullFlavor()) {
+				dispenseRequest.setNumberOfRepeatsAllowed(cdaSupplyOrder.getRepeatNumber().getValue().intValue());
+			}
+
+			// effectiveTime -> dispenseRequest.validityPeriod
+			if (cdaSupplyOrder.getEffectiveTimes() != null && !cdaSupplyOrder.getEffectiveTimes().isEmpty()) {
+				for (SXCM_TS ts : cdaSupplyOrder.getEffectiveTimes()) {
+					if (ts instanceof IVL_TS) {
+						Period period = dtt.tIVL_TS2Period((IVL_TS) ts);
+						dispenseRequest.setValidityPeriod(period);
+					}
+				}
+			}
+		}
+
+		// instructions -> notes
+		if (cdaSupplyOrder.getInstructions() != null && !cdaSupplyOrder.getInstructions().isSetNullFlavor()) {
+			Instructions instructions = cdaSupplyOrder.getInstructions();
+			List<Annotation> annotations = new ArrayList<Annotation>();
+			for (Act act : instructions.getActs()) {
+				Annotation annotation = new Annotation();
+				if (act.getText() != null) {
+					annotation.setText(act.getText().getText());
+					annotations.add(annotation);
+				}
+			}
+			medRequest.setNote(annotations);
+		}
+
+		// author -> requester
+		if (!cdaSupplyOrder.getAuthors().isEmpty()) {
+			Author author = cdaSupplyOrder.getAuthors().get(0);
+			EntityResult entityResult = tAuthor2Practitioner(author, localBundleInfo);
+			result.updateFrom(entityResult);
+			if (entityResult.hasPractitioner()) {
+				MedicationRequestRequesterComponent requester = new MedicationRequestRequesterComponent();
+				requester.setAgent(entityResult.getPractitionerReference());
+				medRequest.setRequester(requester);
+			}
+		}
+
+		return result;
+	}
+
+	@Override
+	public EntryResult tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation,
 			IBundleInfo bundleInfo) {
 		/*
 		 * Since MedicationInformation is a ManufacturedProduct instance with a specific

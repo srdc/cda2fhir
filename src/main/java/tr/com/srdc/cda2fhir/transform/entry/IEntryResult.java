@@ -14,5 +14,9 @@ public interface IEntryResult extends ICDAIIMapSource<IEntityInfo> {
 
 	boolean hasDeferredReferences();
 
+	boolean hasResult();
+
 	List<IDeferredReference> getDeferredReferences();
+
+	void updateFrom(IEntryResult entryResult);
 }
