@@ -100,4 +100,19 @@ public class MainTest {
 	public void testProcedureActivityProcedure() throws Exception {
 		actualTest("ProcedureActivityProcedure");
 	}
+
+	@Test
+	public void testIndication() throws Exception {
+		actualTest("Indication");
+	}
+
+	@Test
+	public void testServiceDeliveryLocation() throws Exception {
+		actualTest("ServiceDeliveryLocation");
+	}
+
+	@Test
+	public void testEncounterActivity() throws Exception {
+		actualTest("EncounterActivity");
+	}
 }

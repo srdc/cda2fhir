@@ -4,7 +4,8 @@
 		"spec": {
 			"encounter": {
 				"id": "MANY",
-				"performer": "MANY"
+				"performer": "MANY",
+				"participant": "MANY"
 			}
 		}
 	},
@@ -36,6 +37,9 @@
 							}
 						}
 					}
+				},
+				"participant": {
+					"*": "Location[].->ServiceDeliveryLocation"
 				}
 			}
 		}
@@ -52,6 +56,9 @@
 			"#Participation": "participant[0].type[0].coding[0].display",
 			"Condition": {
 				"*": "diagnosis[].condition.reference"
+			},
+			"Location": {
+				"*": "location[].location.reference"
 			}
 		}
 	},
@@ -72,6 +79,13 @@
 						"reference": "=getId(@0)"
 					}
 				}
+			},
+			"location": {
+				"*": {
+					"location": {
+						"reference": "=getId(@0)"
+					}
+				}
 			}			
 		}
 	},
@@ -87,7 +101,8 @@
 			"Practitioner": "",
 			"PractitionerRole": "",
 			"Organization": "",
-			"Condition": ""
+			"Condition": "",
+			"Location": ""
 		}
 	},
 	{

@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -93,6 +94,28 @@ public class EncounterActivityTest {
 					JoltUtil.putReference(joltDiagnosis, "condition", diagnosis.getCondition());
 				} else {
 					Assert.assertNull("No encounter diagnosis", joltDiagnosis.get("condition"));
+				}
+			}
+		} else {
+			Assert.assertNull("No jolt procedure performer", joltEncounter.get("participant"));
+		}
+
+		if (encounter.hasLocation()) {
+			List<Object> joltLocations = (List<Object>) joltEncounter.get("location");
+			List<EncounterLocationComponent> locations = encounter.getLocation();
+			Assert.assertEquals("Encounter location count", locations.size(), joltLocations.size());
+			for (int index = 0; index < locations.size(); ++index) {
+				EncounterLocationComponent location = locations.get(index);
+				Map<String, Object> joltLocation = (Map<String, Object>) joltLocations.get(index);
+				if (location.hasLocation()) {
+					Map<String, Object> joltLLocation = (Map<String, Object>) joltLocation.get("location");
+					Assert.assertNotNull("Participant location", joltLLocation);
+					Object reference = joltLLocation.get("reference");
+					Assert.assertNotNull("Participant location reference", reference);
+					Assert.assertTrue("Reference is string", reference instanceof String);
+					JoltUtil.putReference(joltLocation, "location", location.getLocation());
+				} else {
+					Assert.assertNull("No encounter diagnosis", joltLocation.get("location"));
 				}
 			}
 		} else {

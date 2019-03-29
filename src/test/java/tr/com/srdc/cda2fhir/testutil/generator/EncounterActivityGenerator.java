@@ -9,12 +9,16 @@ import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
+import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
+import org.openhealthtools.mdht.uml.cda.Participant2;
+import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
@@ -24,6 +28,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
+import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
@@ -50,6 +56,8 @@ public class EncounterActivityGenerator {
 	private List<PerformerGenerator> performerGenerators = new ArrayList<>();
 
 	private List<IndicationGenerator> indicationGenerators = new ArrayList<>();
+
+	private List<ServiceDeliveryLocationGenerator> serviceDeliveryLocationGenerators = new ArrayList<>();
 
 	public EncounterActivities generate(CDAFactories factories) {
 		EncounterActivities ec = factories.consol.createEncounterActivities();
@@ -102,6 +110,17 @@ public class EncounterActivityGenerator {
 			er.setObservation(indication);
 		});
 
+		serviceDeliveryLocationGenerators.forEach(sdlg -> {
+			Participant2 p2 = factories.base.createParticipant2();
+			ParticipationType pt = ParticipationType.LOC;
+			p2.setTypeCode(pt);
+			ParticipantRole pr = sdlg.generate(factories);
+			p2.setParticipantRole(pr);
+			RoleClassRoot rcr = RoleClassRoot.SDLOC;
+			pr.setClassCode(rcr);
+			ec.getParticipants().add(p2);
+		});
+
 		return ec;
 	}
 
@@ -115,6 +134,7 @@ public class EncounterActivityGenerator {
 		ecg.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		ecg.performerGenerators.add(PerformerGenerator.getDefaultInstance());
 		ecg.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
+		ecg.serviceDeliveryLocationGenerators.add(ServiceDeliveryLocationGenerator.getDefaultInstance());
 
 		return ecg;
 	}
@@ -215,6 +235,19 @@ public class EncounterActivityGenerator {
 				String conditionId = dxComponent.getCondition().getReference();
 				Condition condition = util.getResourceFromReference(conditionId, Condition.class);
 				ig.verify(condition);
+			}
+		}
+
+		if (serviceDeliveryLocationGenerators.isEmpty()) {
+			Assert.assertTrue("Missing encounter locations", !encounter.hasLocation());
+		} else {
+			for (int index = 0; index < serviceDeliveryLocationGenerators.size(); ++index) {
+				ServiceDeliveryLocationGenerator sdlg = serviceDeliveryLocationGenerators.get(index);
+				EncounterLocationComponent locationComponent = encounter.getLocation().get(index);
+
+				String locationId = locationComponent.getLocation().getReference();
+				Location location = util.getResourceFromReference(locationId, Location.class);
+				sdlg.verify(location);
 			}
 		}
 	}

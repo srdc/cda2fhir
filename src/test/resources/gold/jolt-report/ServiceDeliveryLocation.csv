@@ -1,0 +1,4 @@
+CCDA Source,Target,Link,Format,Condition 1
+participantRole.addr[*],Location.address,AD,"lastElement",nullFlavor isNull
+participantRole.playingEntity.name[],Location.name,,"lastElement",nullFlavor isNull
+participantRole.telecom[*],Location.telecom[],TEL,,nullFlavor isNull
