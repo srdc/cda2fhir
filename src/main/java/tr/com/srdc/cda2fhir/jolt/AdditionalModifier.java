@@ -13,6 +13,7 @@ import com.bazaarvoice.jolt.SpecDriven;
 import com.bazaarvoice.jolt.common.Optional;
 import com.bazaarvoice.jolt.modifier.function.Function;
 
+import tr.com.srdc.cda2fhir.jolt.report.ReportException;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 import tr.com.srdc.cda2fhir.util.StringUtil;
@@ -279,29 +280,17 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final class PutConstantValue extends Function.ListFunction {
+	public static final class ConstantValue extends Function.SingleFunction<Object> {
 		@Override
-		protected Optional<Object> applyList(List<Object> argList) {
-			int size = argList.size();
-			if (argList == null || size != 3) {
-				return Optional.empty();
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null || !(arg instanceof String)) {
+				throw new ReportException("Invalid argument for ConstantValue modifier.");
 			}
-			String filename = (String) argList.get(0);
-			String key = (String) argList.get(1);
-			Object object = argList.get(2);
-			if (object == null) {
-				return Optional.empty();
-			}
-			if (!(object instanceof Map)) {
-				return Optional.empty();
-			}
-			Map<String, Object> target = (Map<String, Object>) object;
+			String filename = (String) arg;
 
 			Object constantValue = JsonUtils
 					.filepathToObject("src/test/resources/jolt/value-maps/" + filename + ".json");
-			target.put(key, constantValue);
-			return Optional.of(object);
+			return Optional.of(constantValue);
 		}
 	}
 
@@ -320,7 +309,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("lastElement", new LastElement());
 		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
 		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
-		AMIDA_FUNCTIONS.put("putConstantValue", new PutConstantValue());
+		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
 	}
 
 	private Modifier.Overwritr modifier;

@@ -5,7 +5,8 @@ Encounter.onsetDateTime,Condition[].clinicalStatus.low,,
 Condition[],Encounter.diagnosis[].condition.reference,,"getId"
 encounter.id[],Encounter.identifier[],ID,,nullFlavor isNull
 Location[],Encounter.location[].location.reference,,"getId"
-Practitioner[],Encounter.participant[].individual.reference,,"getId"
+Encounter.Practitioner,Encounter.participant[].individual.reference,,"getId"
+Practitioner[],Encounter.participant[].type,,"constantValue('ParticipantTypeConstant')"
 encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,nullFlavor isNull
 encounter.priorityCode,Encounter.priority,CD,,nullFlavor isNull
 encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.statusCode.nullFlavor isnull,nullFlavor isNull

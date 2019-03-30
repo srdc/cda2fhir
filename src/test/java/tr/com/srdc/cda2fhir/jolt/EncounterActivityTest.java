@@ -53,6 +53,10 @@ public class EncounterActivityTest {
 		Assert.assertNotNull("Jolt encounter exists", joltEncounter);
 		Assert.assertNotNull("Jolt encounter id exists", joltEncounter.get("id"));
 
+		String joltEncounterJsonPre = JsonUtils.toPrettyJsonString(joltEncounter);
+		File joltEncounterFilePre = new File(OUTPUT_PATH + caseName + "JoltEncounterPre.json");
+		FileUtils.writeStringToFile(joltEncounterFilePre, joltEncounterJsonPre, Charset.defaultCharset());
+
 		joltEncounter.put("id", encounter.getIdElement().getIdPart()); // ids do not have to match
 		JoltUtil.putReference(joltEncounter, "subject", encounter.getSubject()); // patient is not yet implemented
 
@@ -123,7 +127,7 @@ public class EncounterActivityTest {
 		}
 
 		String joltEncounterJson = JsonUtils.toPrettyJsonString(joltEncounter);
-		File joltEncounterFile = new File(OUTPUT_PATH + caseName + "JoltProcedure.json");
+		File joltEncounterFile = new File(OUTPUT_PATH + caseName + "JoltEncounter.json");
 		FileUtils.writeStringToFile(joltEncounterFile, joltEncounterJson, Charset.defaultCharset());
 
 		String procedureJson = FHIRUtil.encodeToJSON(encounter);

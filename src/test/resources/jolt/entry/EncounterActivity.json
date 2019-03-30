@@ -57,7 +57,7 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": "participant[&].individual.reference"
+				"*": ["participant[&].individual.reference", "participant[&].type"]
 			},
 			"Condition": {
 				"*": "diagnosis[&].condition.reference"
@@ -75,7 +75,8 @@
 				"*": {
 					"individual": {
 						"reference": "=getId(@0)"
-					}
+					},
+					"type": "=constantValue('ParticipantTypeConstant')"
 				}
 			},
 			"diagnosis": {
@@ -92,14 +93,6 @@
 					}
 				}
 			}			
-		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
-		"spec": {
-			"participant": {
-				"*": "=putConstantValue('ParticipantTypeConstant','type',@0)"
-			}
 		}
 	},
 	{
