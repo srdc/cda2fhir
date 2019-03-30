@@ -113,6 +113,7 @@ import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyStatusObservation;
@@ -154,9 +155,14 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
+import org.openhealthtools.mdht.uml.hl7.vocab.ActClass;
+import org.openhealthtools.mdht.uml.hl7.vocab.ActClassObservation;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityDeterminer;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActMoodDocumentObservation;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1948,12 +1954,61 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirDosage.setMaxDosePerPeriod(dtt.tRTO2Ratio((RTO) cdaMedicationActivity.getMaxDoseQuantity()));
 		}
 
-		if (cdaMedicationActivity.getText() != null && !cdaMedicationActivity.getText().isSetNullFlavor()) {
-			String freeTextInstruction = dtt.tED2Annotation(cdaMedicationActivity.getText(),
-					bundleInfo.getIdedAnnotations());
-			if (freeTextInstruction != null) {
-				fhirDosage.setText(freeTextInstruction);
-				fhirDosage.setPatientInstruction(freeTextInstruction);
+		if (cdaMedicationActivity.getEntryRelationships() != null
+				&& !cdaMedicationActivity.getEntryRelationships().isEmpty()) {
+
+			for (EntryRelationship er : cdaMedicationActivity.getEntryRelationships()) {
+
+				if (er.getTypeCode() != null && er.getInversionInd() != null) {
+					// If entry relationship contains frequency observation instruction
+					if (er.getTypeCode().equals(x_ActRelationshipEntryRelationship.SUBJ) && er.getInversionInd()) {
+						if (er.getObservation() != null && !er.getObservation().isSetNullFlavor()) {
+							Observation obs = er.getObservation();
+							if (obs.getClassCode() != null && obs.getMoodCode() != null) {
+								if (obs.getClassCode().equals(ActClassObservation.OBS)
+										&& obs.getMoodCode().equals(x_ActMoodDocumentObservation.EVN)) {
+									if (obs.getCode() != null && obs.getCode().getCode().contentEquals("FREQUENCY")) {
+										if (!obs.getValues().isEmpty()) {
+											ANY valueElement = obs.getValues().get(0);
+											// Instruction.Frequency -> Dosage.timing
+											if (((ED) valueElement).getText() != null) {
+												CodeableConcept timingCoding = new CodeableConcept();
+												Timing timing = new Timing();
+												fhirDosage.setTiming(timing);
+												timingCoding.setText(((ED) valueElement).getText());
+												timing.setCode(timingCoding);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				} else if (er.getTypeCode() != null) {
+					// if entry relationship contains Medication Free Text Signature
+					if (er.getTypeCode().equals(x_ActRelationshipEntryRelationship.COMP)) {
+						if (er.getSubstanceAdministration() != null
+								&& !er.getSubstanceAdministration().isSetNullFlavor()) {
+							SubstanceAdministration sa = er.getSubstanceAdministration();
+							if (sa.getClassCode() != null && sa.getMoodCode() != null) {
+								// substance administration is a Medication Free Text Sig
+								if (sa.getClassCode().equals(ActClass.SBADM)
+										&& (sa.getMoodCode().equals(x_DocumentSubstanceMood.EVN)
+												|| sa.getMoodCode().equals(x_DocumentSubstanceMood.INT))) {
+
+									String freeTextInstruction = dtt.tED2Annotation(sa.getText(),
+											bundleInfo.getIdedAnnotations());
+
+									if (freeTextInstruction != null) {
+										// Medication Free Text Sig -> Dosage.text/Dosage.PatientInstructions
+										fhirDosage.setText(freeTextInstruction);
+										fhirDosage.setPatientInstruction(freeTextInstruction);
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
