@@ -1681,7 +1681,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	@Override
 	public Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
 		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
-		Coding conditionCategory = new Coding().setSystem("2.16.840.1.113883.4.642.3.153");
+		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("encounter-diagnosis");
 		conditionCategory.setDisplay("Encounter Diagnosis");
 		cond.addCategory().addCoding(conditionCategory);
@@ -1691,7 +1691,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	@Override
 	public Condition tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
 		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
-		Coding conditionCategory = new Coding().setSystem("2.16.840.1.113883.4.642.3.153");
+		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("problem-list-item");
 		conditionCategory.setDisplay("Problem List Item");
 		cond.addCategory().addCoding(conditionCategory);
