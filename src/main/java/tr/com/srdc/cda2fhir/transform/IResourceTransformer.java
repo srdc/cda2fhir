@@ -424,8 +424,7 @@ public interface IResourceTransformer {
 			IBundleInfo bundleInfo);
 
 	/**
-	 * s Transforms a CDA MedicationSupplyOrder to a FHIR MedicationRequest
-	 * resource.
+	 * Transforms a CDA MedicationSupplyOrder to a FHIR MedicationRequest resource.
 	 *
 	 * @param supply A CDA MedicationSupplyOrder instance
 	 * @return An Entry result that contains a FHIR Bundle with the MedicatinRequest
