@@ -469,6 +469,7 @@ public interface IResourceTransformer {
 	Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo);
 
 	/**
+	 * Turns a CDA manufactured product object into a FHIR medication.
 	 *
 	 * @param cdaProduct CDA Product object.
 	 * @param bundleInfo A BundleInfo object which acts as a context for the current
@@ -480,7 +481,8 @@ public interface IResourceTransformer {
 	EntryResult tManufacturedProduct2Medication(Product cdaProduct, IBundleInfo bundleInfo);
 
 	/**
-	 *
+	 * Turns a CDA manufactured product object into a FHIR medication.
+	 * 
 	 * @param cdaProduct CDA Product object.
 	 * @param bundleInfo A BundleInfo object which acts as a context for the current
 	 *                   transformation.
