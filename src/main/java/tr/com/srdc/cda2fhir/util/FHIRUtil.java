@@ -22,7 +22,6 @@ package tr.com.srdc.cda2fhir.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -192,9 +191,10 @@ public class FHIRUtil {
 		boolean get(Resource resource);
 	}
 
-	public static Bundle bundleJSON(File file) throws FileNotFoundException {
+	public static Bundle bundleJSON(File file) throws IOException {
 		InputStream targetStream = new FileInputStream(file);
 		Bundle resultBundle = (Bundle) jsonParser.parseResource(targetStream);
+		targetStream.close();
 		return resultBundle;
 	}
 }
