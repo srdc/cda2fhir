@@ -42,6 +42,7 @@ import org.hl7.fhir.dstu3.model.Group.GroupType;
 import org.hl7.fhir.dstu3.model.HumanName.NameUse;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
+import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
@@ -356,4 +357,6 @@ public interface IValueSetsTransformer {
 	 * @return A value from the FHIR ConditionClinicalStatus
 	 */
 	ConditionClinicalStatus tProblemStatus2ConditionClinicalStatus(String code);
+
+	MedicationRequestStatus tActStatus2MedicationRequestStatus(String string);
 }

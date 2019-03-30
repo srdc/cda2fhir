@@ -69,7 +69,6 @@ public class MedicationStatementTest {
 
 	}
 
-	@Test
 	public void testMedicationDosage() throws Exception {
 
 		// Make a medication activity.
