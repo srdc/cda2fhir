@@ -28,6 +28,7 @@ public class ClinicalDocumentMetadataGenerator {
 	static final public String DEFAULT_VERSION_NUMBER = "1";
 
 	public ClinicalDocument generateClinicalDoc(CDAFactories factories) {
+
 		ClinicalDocument doc = factories.base.createClinicalDocument();
 
 		// No way to set realm code?

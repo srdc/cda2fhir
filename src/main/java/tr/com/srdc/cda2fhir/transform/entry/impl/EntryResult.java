@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
@@ -39,6 +39,22 @@ public class EntryResult implements IEntryResult {
 			bundle = new Bundle();
 		}
 		bundle.addEntry(new BundleEntryComponent().setResource(resource));
+	}
+
+	@Override
+	public void updateFrom(IEntryResult entryResult) {
+		entryResult.copyTo(bundle);
+		if (entryResult.hasDeferredReferences()) {
+			addDeferredReferences(entryResult.getDeferredReferences());
+		}
+		updateEntitiesFrom(entryResult);
+	}
+
+	public void addDeferredReferences(List<IDeferredReference> references) {
+		if (deferredReferences == null) {
+			deferredReferences = new ArrayList<IDeferredReference>();
+		}
+		deferredReferences.addAll(references);
 	}
 
 	public void updateFrom(IEntityResult entityResult) {
@@ -103,5 +119,10 @@ public class EntryResult implements IEntryResult {
 	@Override
 	public boolean hasIIMapValues() {
 		return entities != null;
+	}
+
+	@Override
+	public boolean hasResult() {
+		return this.bundle != null && this.bundle.hasEntry();
 	}
 }
