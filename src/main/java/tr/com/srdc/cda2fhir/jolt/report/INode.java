@@ -9,6 +9,8 @@ public interface INode {
 
 	void addConditions(List<JoltCondition> conditions);
 
+	void copyConditions(INode source);
+
 	IParentNode getParent();
 
 	void setParent(IParentNode parent);

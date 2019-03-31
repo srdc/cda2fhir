@@ -257,23 +257,16 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final class ConditionClinicalStatusAdapter extends Function.SingleFunction<Object> {
+	public static final class ConditionClinicalStatusAdapter extends Function.ListFunction {
 		@Override
-		protected Optional<Object> applySingle(final Object arg) {
-			if (arg == null) {
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null) {
 				return null;
 			}
-			if (!(arg instanceof Map)) {
-				return Optional.of(null);
-			}
-			Map<String, Object> map = (Map<String, Object>) arg;
-			Object low = map.get("low");
-			Object high = map.get("high");
-			if (low != null && high != null) {
+			if (argList.indexOf("high") >= 0 && argList.indexOf("low") >= 0) {
 				return Optional.of("resolved");
 			}
-			if (low != null) {
+			if (argList.indexOf("value") >= 0 || argList.indexOf("low") >= 0) {
 				return Optional.of("active");
 			}
 			return Optional.of(null);

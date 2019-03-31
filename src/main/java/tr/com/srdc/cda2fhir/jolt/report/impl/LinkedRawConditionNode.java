@@ -34,6 +34,5 @@ public class LinkedRawConditionNode extends LinkedNode implements IConditionNode
 		result.addConditions(parent.getConditions());
 		grandParent.addChild(result);
 		parent.removeChild(this);
-		grandParent.removeChild(parent);
 	}
 }

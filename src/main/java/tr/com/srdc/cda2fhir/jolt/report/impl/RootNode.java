@@ -1,9 +1,12 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
@@ -99,35 +102,88 @@ public class RootNode {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void updateFromRemoveWhen(Map<String, Object> updateInfo, String path) {
-		for (Map.Entry<String, Object> entry : updateInfo.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			String conditionKey = path.isEmpty() ? key : path + "." + key;
-			JoltCondition condition = new JoltCondition(conditionKey, "isNull");
-			if ("*".equals(value)) {
-				root.children.forEach(base -> base.addCondition(condition));
-				continue;
-			}
-			if (value instanceof String) {
-				root.children.forEach(base -> {
-					((IParentNode) base).getChildren().forEach(grandChild -> {
-						if (grandChild.getPath().equals(value)) {
-							grandChild.addCondition(condition); // TODO: put this in base, requires seperation
-						}
-					});
-				});
-				continue;
-			}
-			if (value instanceof Map) {
-				updateFromRemoveWhen((Map<String, Object>) value, conditionKey);
-			}
+	private void updateBase(Consumer<IParentNode> consumer) {
+		List<IParentNode> children = root.children.stream().map(c -> (IParentNode) c).collect(Collectors.toList());
+		children.forEach(base -> {
+			consumer.accept(base);
+		});
+	}
+
+	private static final class RemoveWhenResolution {
+		public String target;
+		public String path;
+
+		RemoveWhenResolution(String target, String path) {
+			this.target = target;
+			this.path = path;
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private List<RemoveWhenResolution> resolveRemoveWhen(Object updateInfo, String parentPath) {
+		Map<String, Object> updateInfoAsMap = (Map<String, Object>) updateInfo;
+		return resolveRemoveWhen(updateInfoAsMap, parentPath);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<RemoveWhenResolution> resolveRemoveWhen(Map<String, Object> updateInfo, String parentPath) {
+		List<RemoveWhenResolution> result = new ArrayList<>();
+		for (Map.Entry<String, Object> entry : updateInfo.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			String path = parentPath.isEmpty() ? key : parentPath + "." + key;
+			if (value instanceof String) {
+				result.add(new RemoveWhenResolution((String) value, path));
+				continue;
+			}
+			if (value instanceof List) {
+				List<Object> valueAsList = (List<Object>) value;
+				for (Object valueElement : valueAsList) {
+					if (valueElement instanceof String) {
+						result.add(new RemoveWhenResolution((String) valueElement, path));
+						continue;
+					}
+					List<RemoveWhenResolution> elementResult = resolveRemoveWhen(valueElement, path);
+					result.addAll(elementResult);
+				}
+				continue;
+			}
+			List<RemoveWhenResolution> elementResult = resolveRemoveWhen(value, path);
+			result.addAll(elementResult);
+		}
+		return result;
+	}
+
 	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
-		updateFromRemoveWhen(updateInfo, "");
+		List<RemoveWhenResolution> rwrs = resolveRemoveWhen(updateInfo, "");
+		final Map<String, JoltCondition> alreadySeen = new HashMap<>();
+		rwrs.forEach(rwr -> {
+			final String target = rwr.target;
+			final String path = rwr.path;
+			if ("*".equals(target)) {
+				updateBase(base -> {
+					JoltCondition condition = new JoltCondition(path, "isnull");
+					base.addCondition(condition);
+				});
+				return;
+			}
+			updateBase(base -> {
+				List<IParentNode> newBases = base.separateChildLines(target);
+				newBases.forEach(newBase -> {
+					JoltCondition condition = new JoltCondition(path, "isnull");
+					// String rootPath = path.split("\\.")[0];
+					// JoltCondition prevCondition = alreadySeen.get(rootPath);
+					// if (prevCondition != null) {
+					// condition = new JoltCondition()
+					// }
+					newBase.addCondition(condition);
+					alreadySeen.put(target, condition);
+					if (base != newBase) {
+						root.addChild(newBase);
+					}
+				});
+			});
+		});
 	}
 
 	public void distributeArrays(Set<String> topPaths) {

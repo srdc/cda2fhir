@@ -1,8 +1,10 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
@@ -38,6 +40,13 @@ public class ParentNode extends Node implements IParentNode {
 	}
 
 	@Override
+	public ParentNode cloneEmpty() {
+		IParentNode parent = getParent();
+		String path = getPath();
+		return new ParentNode(parent, path);
+	}
+
+	@Override
 	public List<INode> getChildren() {
 		return children;
 	}
@@ -49,9 +58,9 @@ public class ParentNode extends Node implements IParentNode {
 
 	@Override
 	public void removeChild(INode child) {
-		IParentNode parent = getParent();
 		children.remove(child);
 		if (children.size() == 0) {
+			IParentNode parent = getParent();
 			parent.removeChild(this);
 		}
 	}
@@ -105,6 +114,31 @@ public class ParentNode extends Node implements IParentNode {
 		children.forEach(child -> child.fillNodes(result, pathPredicate));
 		super.fillNodes(result, pathPredicate);
 
+	}
+
+	@Override
+	public List<INode> findChildren(String path) {
+		return children.stream().filter(r -> path.equals(r.getPath())).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<IParentNode> separateChildLines(String path) {
+		List<INode> pathChildren = findChildren(path);
+		if (pathChildren.size() < 1) {
+			return Collections.<IParentNode>emptyList();
+		}
+		if (children.size() == pathChildren.size()) {
+			return Collections.singletonList(this);
+		}
+		return pathChildren.stream().map(child -> {
+			removeChild(child);
+			IParentNode newMe = cloneEmpty();
+			newMe.copyConditions(this);
+			newMe.addChild(child);
+			child.setParent(newMe);
+			return newMe;
+
+		}).collect(Collectors.toList());
 	}
 
 	public Table toTable(Templates templates) {

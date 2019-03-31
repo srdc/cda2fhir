@@ -15,7 +15,7 @@ import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 
 public class DataTypeTest {
 	private static void runDataTypeTests(String dataType, boolean checkNullflavor) throws Exception {
-		List<Object> chainrSpecJSON = JoltUtil.getDataTypeJoltTemplate(dataType);
+		List<Object> chainrSpecJSON = JoltUtil.getDataTypeTemplate(dataType);
 		Chainr chainr = Chainr.fromSpec(chainrSpecJSON);
 
 		JSONArray testCases = JoltUtil.getDataTypeTestCases(dataType);
@@ -29,8 +29,9 @@ public class DataTypeTest {
 			Object actualObject = chainr.transform(inputObject);
 
 			if (expectedJSON == null) {
-				Assert.assertNull(dataType + " test case " + index, actualObject);
+				Assert.assertNull(dataType + " null test case " + index, actualObject);
 			} else {
+				Assert.assertNotNull(dataType + " not null test case " + index, actualObject);
 				String actual = JsonUtils.toJsonString(actualObject);
 				String expected = expectedJSON.toString();
 				JSONAssert.assertEquals(dataType + " test case " + index, expected, actual, true);
@@ -76,5 +77,10 @@ public class DataTypeTest {
 	@Test
 	public void testIVL_TSPeriod() throws Exception {
 		runDataTypeTests("IVL_TSPeriod", true);
+	}
+
+	@Test
+	public void testIndicationEffectiveTime() throws Exception {
+		runDataTypeTests("intermediate/IndicationEffectiveTime", true);
 	}
 }

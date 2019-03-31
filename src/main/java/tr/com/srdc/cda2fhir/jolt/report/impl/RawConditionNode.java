@@ -20,6 +20,12 @@ public class RawConditionNode extends ParentNode implements IConditionNode {
 	}
 
 	@Override
+	public RawConditionNode cloneEmpty() {
+		IParentNode parent = getParent();
+		return new RawConditionNode(parent, rank);
+	}
+
+	@Override
 	public void fillConditionNodes(List<IConditionNode> result) {
 		super.fillConditionNodes(result);
 		result.add(this);

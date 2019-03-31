@@ -1,8 +1,8 @@
 CCDA Source,Target,Link,Format,Condition 1
-family,family,,,nullFlavor isNull
-given[],given[],,,nullFlavor isNull
-validTime,period,IVL_TSPeriod,,nullFlavor isNull
-prefix[],prefix[],,,nullFlavor isNull
-suffix[],suffix[],,,nullFlavor isNull
-content,text,,,nullFlavor isNull
-use[],use,,"lastElement valueSetAdapter('NameUse','usual')",nullFlavor isNull
+family,family,,,nullFlavor isnull
+given[],given[],,,nullFlavor isnull
+validTime,period,IVL_TSPeriod,,nullFlavor isnull
+prefix[],prefix[],,,nullFlavor isnull
+suffix[],suffix[],,,nullFlavor isnull
+content,text,,,nullFlavor isnull
+use[],use,,"lastElement valueSetAdapter('NameUse','usual')",nullFlavor isnull

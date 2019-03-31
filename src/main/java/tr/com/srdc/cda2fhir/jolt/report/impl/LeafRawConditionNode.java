@@ -33,6 +33,5 @@ public class LeafRawConditionNode extends LeafNode implements IConditionNode {
 		result.addConditions(parent.getConditions());
 		grandParent.addChild(result);
 		parent.removeChild(this);
-		grandParent.removeChild(parent);	
 	}
 }

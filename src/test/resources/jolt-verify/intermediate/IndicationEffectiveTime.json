@@ -1,0 +1,132 @@
+[
+	{
+		"input": {
+			"low": {
+				"value": "20190311"
+			}
+		},
+		"expected": {
+			"onsetDateTime": "20190311",
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"input": {
+			"low": {
+				"value": "20190311"
+			},
+			"value": "20170908"
+		},
+		"expected": {
+			"onsetDateTime": "20190311",
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"input": {
+			"low": {
+				"value": "20190311",
+				"nullFlavor": "UNK"
+			},
+			"value": "20170908"
+		},
+		"expected": {
+			"onsetDateTime": "20170908",
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"input": {
+			"value": "20170908"
+		},
+		"expected": {
+			"onsetDateTime": "20170908",
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"input": {
+			"low": {
+				"value": "20180311"
+			},
+			"high": {
+				"value": "20190507"
+			}
+		},
+		"expected": {
+			"abatementDateTime": "20190507",
+			"onsetDateTime": "20180311",
+			"clinicalStatus": "resolved"
+		}
+	},
+	{
+		"input": {
+			"low": {
+				"value": "20190311"
+			},
+			"value": "20180223"
+		},
+		"expected": {
+			"onsetDateTime": "20190311",
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"input": {
+			"low": {
+				"value": "20180311"
+			},
+			"high": {
+				"value": "20190507"
+			},
+			"value": "20180223"
+		},
+		"expected": {
+			"abatementDateTime": "20190507",
+			"onsetDateTime": "20180311",
+			"clinicalStatus": "resolved"
+		}
+	},
+	{
+		"input": {
+			"low": {
+				"value": "20180311"
+			},
+			"high": {
+				"value": "20190507",
+				"nullFlavor": "UNK"
+			},
+			"value": "20180223"
+		},
+		"expected": {
+			"onsetDateTime": "20180311",
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"input": {
+			"high": {
+				"value": "20190507",
+				"nullFlavor": "UNK"
+			},
+			"value": "20180223"
+		},
+		"expected": {
+			"onsetDateTime": "20180223",
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"input": {
+			"high": {
+				"value": "20190507"
+			},
+			"value": "20180223"
+		},
+		"expected": {
+			"abatementDateTime": "20190507",
+			"onsetDateTime": "20180223",
+			"clinicalStatus": "active"
+		}
+	}
+]

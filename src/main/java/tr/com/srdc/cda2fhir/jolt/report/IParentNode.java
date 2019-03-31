@@ -9,5 +9,11 @@ public interface IParentNode extends INode {
 
 	void addChildren(List<INode> children);
 
+	List<INode> findChildren(String path);
+
+	List<IParentNode> separateChildLines(String path);
+
+	IParentNode cloneEmpty();
+
 	List<INode> getChildren();
 }

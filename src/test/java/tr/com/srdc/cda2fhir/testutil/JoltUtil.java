@@ -2,6 +2,8 @@ package tr.com.srdc.cda2fhir.testutil;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +27,9 @@ import tr.com.srdc.cda2fhir.jolt.TransformManager;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class JoltUtil {
+	private static final Path TEMPLATE_PATH = Paths.get("src", "test", "resources", "jolt");
+	private static final Path TEST_CASE_PATH = Paths.get("src", "test", "resources", "jolt-verify");
+
 	private List<Object> result;
 	private String caseName;
 	private String outputPath;
@@ -143,14 +148,6 @@ public class JoltUtil {
 		Assert.assertEquals("Id for " + path, id, actualId);
 	}
 
-	public static JSONArray getDataTypeTestCases(String dataType) throws Exception {
-		String testCasesPath = String.format("src/test/resources/jolt-verify/data-type/%s.json", dataType);
-		File file = new File(testCasesPath);
-		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
-		JSONArray testCases = new JSONArray(content);
-		return testCases;
-	}
-
 	@SuppressWarnings("unchecked")
 	public static void copyStringArray(Map<String, Object> source, List<String> target, String key) {
 		List<Object> sourceArray = (List<Object>) source.get(key);
@@ -164,9 +161,27 @@ public class JoltUtil {
 		}
 	}
 
-	public static List<Object> getDataTypeJoltTemplate(String dataType) throws Exception {
-		String templatePath = String.format("src/test/resources/jolt/data-type/%s.json", dataType);
-		List<Object> template = JsonUtils.filepathToList(templatePath);
+	private static Path getDataTypeTemplatePath(String dataTypeSpec) {
+		String[] pieces = dataTypeSpec.split("/");
+		if (pieces.length < 2) {
+			return Paths.get("data-type", pieces[0] + ".json");
+		}
+		return Paths.get(pieces[0], pieces[1] + ".json");
+	}
+
+	public static JSONArray getDataTypeTestCases(String dataTypeSpec) throws Exception {
+		Path dataTypePath = getDataTypeTemplatePath(dataTypeSpec);
+		Path testCasesPath = Paths.get(TEST_CASE_PATH.toString(), dataTypePath.toString());
+		File file = new File(testCasesPath.toString());
+		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
+		JSONArray testCases = new JSONArray(content);
+		return testCases;
+	}
+
+	public static List<Object> getDataTypeTemplate(String dataTypeSpec) throws Exception {
+		Path dataTypePath = getDataTypeTemplatePath(dataTypeSpec);
+		Path templatePath = Paths.get(TEMPLATE_PATH.toString(), dataTypePath.toString());
+		List<Object> template = JsonUtils.filepathToList(templatePath.toString());
 		return template;
 	}
 
@@ -174,7 +189,7 @@ public class JoltUtil {
 	public static List<Map<String, Object>> getDataTypeGeneratorTestCases(String dataType) throws Exception {
 		String testCasesPath = String.format("src/test/resources/jolt-verify/data-type/%s.json", dataType);
 		List<Object> rawTestCases = JsonUtils.filepathToList(testCasesPath);
-		List<Object> template = getDataTypeJoltTemplate(dataType);
+		List<Object> template = getDataTypeTemplate(dataType);
 		Map<String, Object> transform = (Map<String, Object>) template.get(0);
 		Chainr chainr = null;
 		if ("cardinality".equals(transform.get("operation"))) {

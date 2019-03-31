@@ -28,23 +28,11 @@
 				"value": {
 					"*": "code.->CD"
 				},
-				"effectiveTime": {
-					"high": {
-						"value": "abatementDateTime"
-					},
-					"*": "onsetDateTime.->EffectiveTimeLowOrValue"
-				},
+				"effectiveTime": "->IndicationEffectiveTime",
 				"statusCode": {
 					"code": "verificationStatus"
 				}
 			}
-		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
-		"spec": {
-			"abatementDateTime": "clinicalStatus.high",
-			"onsetDateTime": "clinicalStatus.low"
 		}
 	},
 	{
@@ -62,8 +50,7 @@
 				}
 			},
 			"onsetDateTime": "=datetimeAdapter(@0)",
-			"abatementDateTime": "=datetimeAdapter(@0)",
-			"clinicalStatus": "=conditionClinicalStatusAdapter(@0)"
+			"abatementDateTime": "=datetimeAdapter(@0)"
 		}
 	},
 	{

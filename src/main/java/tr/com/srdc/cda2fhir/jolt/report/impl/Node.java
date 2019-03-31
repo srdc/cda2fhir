@@ -114,6 +114,7 @@ public abstract class Node implements INode {
 		return parent.getChildren().size() > 1;
 	}
 
+	@Override
 	public void copyConditions(INode source) {
 		conditions.addAll(source.getConditions());
 	}

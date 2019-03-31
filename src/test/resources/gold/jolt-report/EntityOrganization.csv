@@ -1,5 +1,5 @@
 CCDA Source,Target,Link,Format,Condition 1
-representedOrganization.addr[],Organization.address[],AD,,representedOrganization.nullFlavor isNull
-representedOrganization.id[],Organization.identifier[],ID,,representedOrganization.nullFlavor isNull
-representedOrganization.name,Organization.name,,,representedOrganization.nullFlavor isNull
-representedOrganization.telecom[],Organization.telecom[],TEL,,representedOrganization.nullFlavor isNull
+representedOrganization.addr[],Organization.address[],AD,,representedOrganization.nullFlavor isnull
+representedOrganization.id[],Organization.identifier[],ID,,representedOrganization.nullFlavor isnull
+representedOrganization.name,Organization.name,,,representedOrganization.nullFlavor isnull
+representedOrganization.telecom[],Organization.telecom[],TEL,,representedOrganization.nullFlavor isnull

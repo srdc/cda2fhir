@@ -1,10 +1,10 @@
 CCDA Source,Target,Link,Format,Condition 1
-city,city,,,nullFlavor isNull
-country,country,,,nullFlavor isNull
-county,district,,,nullFlavor isNull
-streetAddressLine[],line[],,,nullFlavor isNull
-postalCode,postalCode,,,nullFlavor isNull
-state,state,,,nullFlavor isNull
-text,text,,,nullFlavor isNull
-use,type,,"valueSetAdapter('AddressType')",nullFlavor isNull
-use,use,,"valueSetAdapter('AddressUse','temp')",nullFlavor isNull
+city,city,,,nullFlavor isnull
+country,country,,,nullFlavor isnull
+county,district,,,nullFlavor isnull
+streetAddressLine[],line[],,,nullFlavor isnull
+postalCode,postalCode,,,nullFlavor isnull
+state,state,,,nullFlavor isnull
+text,text,,,nullFlavor isnull
+use,type,,"valueSetAdapter('AddressType')",nullFlavor isnull
+use,use,,"valueSetAdapter('AddressUse','temp')",nullFlavor isnull

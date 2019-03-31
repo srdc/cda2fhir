@@ -1,4 +1,4 @@
 CCDA Source,Target,Link,Format,Condition 1
-value,system,,"piece(':',0) valueSetAdapter('ContactPointSystem','phone')",nullFlavor isNull
-use,use,,"lastPiece(' ') valueSetAdapter('ContactPointUse','temp')",nullFlavor isNull
-value,value,,"piece(':',1)",nullFlavor isNull
+value,system,,"piece(':',0) valueSetAdapter('ContactPointSystem','phone')",nullFlavor isnull
+use,use,,"lastPiece(' ') valueSetAdapter('ContactPointUse','temp')",nullFlavor isnull
+value,value,,"piece(':',1)",nullFlavor isnull

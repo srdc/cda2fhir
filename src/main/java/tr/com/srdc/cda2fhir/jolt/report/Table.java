@@ -110,4 +110,8 @@ public class Table {
 			}
 		});
 	}
+
+	public int rowCount() {
+		return rows.size();
+	}
 }
