@@ -23,7 +23,6 @@ package tr.com.srdc.cda2fhir.transform;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +53,6 @@ import org.hl7.fhir.dstu3.model.Composition.SectionMode;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.DateTimeType;
-import org.hl7.fhir.dstu3.model.DateType;
 import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
@@ -924,17 +922,27 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// documentationOf.serviceEvent.assignedEntity -> composition.event.detail
 		for (DocumentationOf docOf : cdaClinicalDocument.getDocumentationOfs()) {
-			if (docOf.getServiceEvent() != null && !docOf.getServiceEvent().getPerformers().isEmpty()) {
-				for (Performer1 performer : docOf.getServiceEvent().getPerformers()) {
-					EntityResult entityResult = tAssignedEntity2Practitioner(performer.getAssignedEntity(), bundleInfo);
-					result.updateFrom(entityResult);
-					bundleInfo.updateFrom(entityResult);
-					Reference reference = entityResult.getPractitionerReference();
-					CompositionEventComponent event = new CompositionEventComponent();
-					event.addDetail(reference);
-					fhirComp.addEvent(event);
+			if (docOf.getServiceEvent() != null) {
+				ServiceEvent cdaServiceEvent = docOf.getServiceEvent();
+				CompositionEventComponent event = new CompositionEventComponent();
+				fhirComp.addEvent(event);
+				// documentationOf.serviceEvent.effectiveTime => event.period
+				if (cdaServiceEvent.getEffectiveTime() != null) {
+					Period period = dtt.tIVL_TS2Period(cdaServiceEvent.getEffectiveTime());
+					event.setPeriod(period);
+				}
+
+				// documentationOf.serviceEvent.assignedEntity -> composition.event.detail
+				if (cdaServiceEvent.getPerformers() != null && !cdaServiceEvent.getPerformers().isEmpty()) {
+					for (Performer1 performer : cdaServiceEvent.getPerformers()) {
+						EntityResult entityResult = tAssignedEntity2Practitioner(performer.getAssignedEntity(),
+								bundleInfo);
+						result.updateFrom(entityResult);
+						Reference reference = entityResult.getPractitionerReference();
+						event.addDetail(reference);
+						event.addCode(new CodeableConcept().setText("Primary Care Physician"));
+					}
 				}
 			}
 		}
@@ -959,26 +967,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		return result;
-	}
-
-	public CompositionEventComponent tServiceEvent2Event(ServiceEvent cdaServiceEvent) {
-		if (cdaServiceEvent == null || cdaServiceEvent.isSetNullFlavor()) {
-			return null;
-		}
-
-		CompositionEventComponent event = new CompositionEventComponent();
-
-		Period period = new Period();
-		DateType low = dtt.tTS2Date(cdaServiceEvent.getEffectiveTime().getLow());
-		Date lowDate = new Date(low.getNanos());
-		if (cdaServiceEvent.getEffectiveTime().getHigh() != null) {
-			DateType high = dtt.tTS2Date(cdaServiceEvent.getEffectiveTime().getLow());
-			Date highDate = new Date(low.getNanos());
-			period.setEnd(highDate);
-		}
-
-		event.setPeriod(period);
-		return event;
 	}
 
 	@Override

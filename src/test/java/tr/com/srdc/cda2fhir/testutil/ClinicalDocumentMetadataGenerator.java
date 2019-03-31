@@ -1,15 +1,25 @@
 package tr.com.srdc.cda2fhir.testutil;
 
+import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.DocumentationOf;
+import org.openhealthtools.mdht.uml.cda.Performer1;
+import org.openhealthtools.mdht.uml.cda.ServiceEvent;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.INT;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 
 public class ClinicalDocumentMetadataGenerator {
+
 	ClinicalDocument doc;
+	CDAFactories factories;
+
+	private static AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
+
 	static final public String DEFAULT_REALM_CODE = "US";
 	static final public String DEFAULT_ID_ROOT = "1.2.345.678901.7.89.10.1.2.3.123456.12345678";
 	static final public String DEFAULT_ASSN_AUTH = "Assigning Authority";
@@ -18,7 +28,9 @@ public class ClinicalDocumentMetadataGenerator {
 	static final public String DEFAULT_CODE_SYSTEM_NAME = "LOINC";
 	static final public String DEFAULT_CODE_DISPLAY = "Summarization of Episode Note";
 	static final public String DEFAULT_TITLE = "Patient Health Summary";
-	static final public String DEFAULT_EFFCT_DTTM = "20190119161413-0500";
+	static final public String DEFAULT_EFFCT_TIME = "20190119161413-0500";
+	static final public String DEFAULT_EVENT_TIME_LOW = "19700919";
+	static final public String DEFAULT_EVENT_TIME_HIGH = "20190214";
 	static final public String DEFAULT_CONF_CODE_CODE = "N";
 	static final public String DEFAULT_CONF_CODE_SYSTEM = "1.23.456.7.890123.4.56";
 	static final public String DEFAULT_CONF_CODE_DSP = "Normal";
@@ -26,6 +38,10 @@ public class ClinicalDocumentMetadataGenerator {
 	static final public String DEFAULT_SET_ID_EXT = "12345678-9012-3456-7890-123456789012";
 	static final public String DEFAULT_SET_ID_ROOT = "1.2.345.678901.2.34.56.7.8.9.0";
 	static final public String DEFAULT_VERSION_NUMBER = "1";
+
+	public ClinicalDocumentMetadataGenerator() {
+		factories = CDAFactories.init();
+	}
 
 	public ClinicalDocument generateClinicalDoc(CDAFactories factories) {
 
@@ -37,22 +53,36 @@ public class ClinicalDocumentMetadataGenerator {
 		CS code = genCode(factories, DEFAULT_CODE_CODE, DEFAULT_CODE_SYSTEM, DEFAULT_CODE_SYSTEM_NAME,
 				DEFAULT_CODE_DISPLAY);
 		ST title = genTitle(factories, DEFAULT_TITLE);
-		TS effDTTM = genDTTM(factories, DEFAULT_EFFCT_DTTM);
+		TS effTime = genTime(factories, DEFAULT_EFFCT_TIME);
 		CE confidentiality = genConfidentiality(factories, DEFAULT_CONF_CODE_CODE, DEFAULT_CONF_CODE_SYSTEM,
 				DEFAULT_CONF_CODE_DSP);
 		CS langCode = genLangCode(factories, DEFAULT_LANG_CODE);
 		II setId = genSetId(factories, DEFAULT_ASSN_AUTH, DEFAULT_SET_ID_ROOT, DEFAULT_SET_ID_EXT);
 		INT version = genVersion(factories, DEFAULT_VERSION_NUMBER);
 
+		IVL_TS eventEffTime = genTime(factories, DEFAULT_EVENT_TIME_LOW, DEFAULT_EVENT_TIME_HIGH);
+		DocumentationOf docOf = genDocumentationOf(eventEffTime, assignedEntityGenerator.generate(factories));
+		doc.getDocumentationOfs().add(docOf);
 		doc.setId(id);
 		doc.setCode(code);
 		doc.setTitle(title);
-		doc.setEffectiveTime(effDTTM);
+		doc.setEffectiveTime(effTime);
 		doc.setConfidentialityCode(confidentiality);
 		doc.setLanguageCode(langCode);
 		doc.setSetId(setId);
 		doc.setVersionNumber(version);
 		return doc;
+	}
+
+	public DocumentationOf genDocumentationOf(IVL_TS effTime, AssignedEntity assignedEntity) {
+		DocumentationOf docOf = factories.base.createDocumentationOf();
+		ServiceEvent event = factories.base.createServiceEvent();
+		event.setEffectiveTime(effTime);
+		Performer1 performer = factories.base.createPerformer1();
+		performer.setAssignedEntity(assignedEntity);
+		event.getPerformers().add(performer);
+		docOf.setServiceEvent(event);
+		return docOf;
 	}
 
 	public CS genRealmCode(CDAFactories factories, String code) {
@@ -82,8 +112,12 @@ public class ClinicalDocumentMetadataGenerator {
 		return title;
 	}
 
-	public TS genDTTM(CDAFactories factories, String dttm) {
+	public TS genTime(CDAFactories factories, String dttm) {
 		return factories.datatype.createTS(dttm);
+	}
+
+	public IVL_TS genTime(CDAFactories factories, String timeLow, String timeHigh) {
+		return factories.datatype.createIVL_TS(timeLow, timeHigh);
 	}
 
 	public CE genConfidentiality(CDAFactories factories, String code, String codeSystem, String codeDisp) {

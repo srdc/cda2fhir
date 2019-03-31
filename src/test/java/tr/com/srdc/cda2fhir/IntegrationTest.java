@@ -94,7 +94,7 @@ public class IntegrationTest {
 		Bundle deviceResults = (Bundle) client.search().forResource(Device.class).prettyPrint().execute();
 
 		Assert.assertEquals(1, patientResults.getTotal());
-		Assert.assertEquals(18, practitionerResults.getTotal());
+		Assert.assertEquals(19, practitionerResults.getTotal());
 		Assert.assertEquals(28, medicationResults.getTotal());
 		Assert.assertEquals(1, provenanceResults.getTotal());
 		Assert.assertEquals(1, binaryresults.getTotal());
