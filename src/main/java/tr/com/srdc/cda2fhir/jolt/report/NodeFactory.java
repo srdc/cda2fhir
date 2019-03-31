@@ -74,7 +74,7 @@ public class NodeFactory {
 		}
 	}
 
-	private static List<JoltCondition> childToCondition(String value, IParentNode parent) {
+	private static List<ICondition> childToCondition(String value, IParentNode parent) {
 		if ("*".equals(value)) {
 			return parent.getChildren().stream().map(c -> c.getConditions().get(0)).map(c -> c.not())
 					.collect(Collectors.toList());
@@ -122,7 +122,7 @@ public class NodeFactory {
 
 			Map.Entry<String, Object> entry = conditionSpecs.iterator().next();
 
-			List<JoltCondition> conditions = childToCondition(nodeValue, parent);
+			List<ICondition> conditions = childToCondition(nodeValue, parent);
 
 			int rank = Integer.valueOf(entry.getKey().substring(1));
 

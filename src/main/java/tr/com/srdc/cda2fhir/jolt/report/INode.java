@@ -3,11 +3,11 @@ package tr.com.srdc.cda2fhir.jolt.report;
 import java.util.List;
 
 public interface INode {
-	void addCondition(JoltCondition condition);
+	void addCondition(ICondition condition);
 
-	List<JoltCondition> getConditions();
+	List<ICondition> getConditions();
 
-	void addConditions(List<JoltCondition> conditions);
+	void addConditions(List<ICondition> conditions);
 
 	void copyConditions(INode source);
 

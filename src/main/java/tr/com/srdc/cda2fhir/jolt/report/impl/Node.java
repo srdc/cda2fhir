@@ -3,19 +3,19 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import tr.com.srdc.cda2fhir.jolt.report.ICondition;
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
-import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.PathPredicate;
 
 public abstract class Node implements INode {
 	private IParentNode parent;
 	private String path;
 
-	private List<JoltCondition> conditions = new ArrayList<JoltCondition>();
+	private List<ICondition> conditions = new ArrayList<ICondition>();
 
 	public Node(IParentNode parent, String path) {
 		this.parent = parent;
@@ -76,17 +76,17 @@ public abstract class Node implements INode {
 	}
 
 	@Override
-	public void addCondition(JoltCondition condition) {
+	public void addCondition(ICondition condition) {
 		conditions.add(condition);
 	}
 
 	@Override
-	public void addConditions(List<JoltCondition> conditions) {
+	public void addConditions(List<ICondition> conditions) {
 		this.conditions.addAll(conditions);
 	}
 
 	@Override
-	public List<JoltCondition> getConditions() {
+	public List<ICondition> getConditions() {
 		return conditions;
 	}
 

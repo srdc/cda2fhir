@@ -6,12 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import tr.com.srdc.cda2fhir.jolt.report.ICondition;
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
-import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.PathPredicate;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
@@ -33,7 +33,7 @@ public class ParentNode extends Node implements IParentNode {
 			result.addChild(childClone);
 		});
 		getConditions().forEach(condition -> {
-			JoltCondition conditionClone = condition.clone();
+			ICondition conditionClone = condition.clone();
 			result.addCondition(conditionClone);
 		});
 		return result;

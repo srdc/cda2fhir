@@ -1,6 +1,6 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
-public class JoltCondition {
+public class JoltCondition implements ICondition {
 	private String path;
 	private String relation;
 	private String value;
@@ -21,6 +21,7 @@ public class JoltCondition {
 		return new JoltCondition(path, relation, value);
 	}
 
+	@Override
 	public void prependPath(String path) {
 		if (this.path == null || this.path.length() == 0) {
 			this.path = path;
@@ -29,6 +30,7 @@ public class JoltCondition {
 		}
 	}
 
+	@Override
 	public JoltCondition not() {
 		if (relation.equals("isnotnull")) {
 			return new JoltCondition(path, "isnull");
@@ -54,6 +56,7 @@ public class JoltCondition {
 		return result;
 	}
 
+	@Override
 	public String toString(String ownerPath) {
 		String conditionPath = path.length() == 0 ? ownerPath : ownerPath + "." + path;
 		String result = conditionPath + " " + relation;
