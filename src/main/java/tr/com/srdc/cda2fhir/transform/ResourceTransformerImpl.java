@@ -923,9 +923,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		for (DocumentationOf docOf : cdaClinicalDocument.getDocumentationOfs()) {
-			if (docOf.getServiceEvent() != null) {
+			if (docOf.getServiceEvent() != null && fhirComp != null) {
 				ServiceEvent cdaServiceEvent = docOf.getServiceEvent();
 				CompositionEventComponent event = new CompositionEventComponent();
+
 				fhirComp.addEvent(event);
 				// documentationOf.serviceEvent.effectiveTime => event.period
 				if (cdaServiceEvent.getEffectiveTime() != null) {
