@@ -322,6 +322,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			for (AllergyObservation cdaAllergyObs : cdaAllergyProbAct.getAllergyObservations()) {
 				if (cdaAllergyObs != null && !cdaAllergyObs.isSetNullFlavor()) {
 
+					// allergyObservation.author -> AllergyIntolerance.recorder
 					if (cdaAllergyObs.getAuthors() != null && !cdaAllergyObs.getAuthors().isEmpty()) {
 						for (Author author : cdaAllergyObs.getAuthors()) {
 							if (author != null && !author.isSetNullFlavor()) {
@@ -347,13 +348,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 											fhirAllergyIntolerance.setCode(dtt.tCD2CodeableConcept(
 													participant.getParticipantRole().getPlayingEntity().getCode()));
 										}
-//										if (participant.getParticipantRole().getPlayingEntity().getNames() != null) {
-//											for (PN name : participant.getParticipantRole().getPlayingEntity()
-//													.getNames()) {
-//												substances.addCoding(new Coding().setDisplay(name.getText()));
-//											}
-//
-//										}
+
+										if (participant.getParticipantRole().getPlayingEntity().getNames() != null) {
+											List<PN> names = participant.getParticipantRole().getPlayingEntity()
+													.getNames();
+											if (!names.isEmpty()) {
+												if (fhirAllergyIntolerance.getCode() == null) {
+													fhirAllergyIntolerance.setCode(new CodeableConcept());
+												}
+												PN name = names.get(0);
+												fhirAllergyIntolerance.getCode().setText(name.getText());
+											}
+										}
+
 									}
 								}
 							}
