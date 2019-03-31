@@ -120,6 +120,7 @@ public class AllergyConcernActTest {
 		testAllergies("170.315_b1_toc_gold_sample2_v1.xml");
 	}
 
+	@Ignore
 	@Test
 	public void testSample3() throws Exception {
 		testAllergies("Vitera_CCDA_SMART_Sample.xml");

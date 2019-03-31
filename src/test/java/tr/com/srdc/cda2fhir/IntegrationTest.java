@@ -95,7 +95,7 @@ public class IntegrationTest {
 
 		Assert.assertEquals(1, patientResults.getTotal());
 		Assert.assertEquals(18, practitionerResults.getTotal());
-		Assert.assertEquals(14, medicationResults.getTotal());
+		Assert.assertEquals(28, medicationResults.getTotal());
 		Assert.assertEquals(1, provenanceResults.getTotal());
 		Assert.assertEquals(1, binaryresults.getTotal());
 		Assert.assertEquals(1, deviceResults.getTotal());

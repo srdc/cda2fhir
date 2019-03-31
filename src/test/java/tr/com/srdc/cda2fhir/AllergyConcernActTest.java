@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
+import org.openhealthtools.mdht.uml.cda.PlayingEntity;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyObservationImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyProblemActImpl;
@@ -34,9 +35,11 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
@@ -44,6 +47,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
+import com.helger.commons.collection.attr.StringMap;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -207,6 +211,45 @@ public class AllergyConcernActTest {
 		AllergyIntolerance allergyIntolerance2 = findOneResource(bundle2);
 		String actual2 = allergyIntolerance2.getOnsetDateTimeType().getValueAsString();
 		Assert.assertEquals("Unexpected AllergyIntolerance OnSet", expected2, actual2.replaceAll("-", ""));
+	}
+
+	@Test
+	public void testAllergyIntoleranceObservationOriginalText() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0)
+				.getObservation();
+		Participant2Impl participant = (Participant2Impl) cdaFactory.createParticipant2();
+		ParticipantRole participantRole = cdaFactory.createParticipantRole();
+		participant.setParticipantRole(participantRole);
+		PlayingEntity entity = cdaFactory.createPlayingEntity();
+		participantRole.setPlayingEntity(entity);
+		participant.setParticipantRole(participantRole);
+		observation.getParticipants().add(participant);
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		String expectedValue = "freetext entry";
+		String referenceValue = "fakeid1";
+		CE ce = cdaTypeFactory.createCE();
+		ED ed = cdaTypeFactory.createED();
+		TEL tel = cdaTypeFactory.createTEL();
+		tel.setValue("#" + referenceValue);
+		ed.setReference(tel);
+		ce.setCode("code");
+		ce.setCodeSystem("codeSystem");
+		ce.setOriginalText(ed);
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put(referenceValue, expectedValue);
+		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+
+		DiagnosticChain dxChain = new BasicDiagnostic();
+		Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+		Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
+
+		entity.setCode(ce);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+		CodeableConcept cc = allergyIntolerance.getCode();
+		Assert.assertEquals("AllergyIntolerance Code text value assigned", expectedValue, cc.getText());
 	}
 
 	@Test
