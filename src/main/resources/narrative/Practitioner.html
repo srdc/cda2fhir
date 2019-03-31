@@ -4,28 +4,28 @@ it is only present so that this template can be viewed in
 a browser. 
 -->
 <html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="narrative.css"/>
-	</head>
-	<body>
-<!--*/-->
+<head>
+<link rel="stylesheet" type="text/css" href="narrative.css" />
+</head>
+<body>
+	<!--*/-->
 
-<div>
-	<table class="hapiPropertyTable">
-		<tbody>
-			<tr th:if="${not resource.identifier.empty}">
-				<td>Identifier</td>
-				<td th:narrative="${resource.identifier[0]}"></td>
-			</tr>
-			<tr th:if="${not resource.name.empty}">
-				<td>Name</td>
-				<td th:narrative="${resource.name[0]}"></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+	<div>
+		<table class="hapiPropertyTable">
+			<tbody>
+				<tr th:if="${not resource.identifier.empty}">
+					<td>Identifier</td>
+					<td th:narrative="${resource.identifier[0]}"></td>
+				</tr>
+				<tr th:if="${not resource.name.empty}">
+					<td>Name</td>
+					<td th:narrative="${resource.name[0]}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
-<!--/*-->
-	</body>
+	<!--/*-->
+</body>
 </html>
 <!--*/-->

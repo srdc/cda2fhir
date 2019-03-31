@@ -21,7 +21,7 @@ public class BundleInfo implements IBundleInfo {
 	private IIdentifierMap<Reference> identifiedReferences = new IdentifierMap<Reference>();
 
 	private CDAIIMap<IEntityInfo> entities = new CDAIIMap<IEntityInfo>();
-	
+
 	public BundleInfo(IResourceTransformer resourceTransformer) {
 		this.resourceTransformer = resourceTransformer;
 	}
@@ -30,21 +30,21 @@ public class BundleInfo implements IBundleInfo {
 	public IResourceTransformer getResourceTransformer() {
 		return resourceTransformer;
 	}
-	
+
 	@Override
 	public Map<String, String> getIdedAnnotations() {
-		return idedAnnotations;		
+		return idedAnnotations;
 	}
-	
+
 	public void mergeIdedAnnotations(Map<String, String> newAnnotations) {
 		idedAnnotations.putAll(newAnnotations);
 	}
-	
+
 	@Override
 	public Reference getReferenceByIdentifier(String fhirType, Identifier identifier) {
 		return identifiedReferences.get(fhirType, identifier);
 	}
-	
+
 	public void putReference(String fhirType, Identifier identifier, Reference reference) {
 		identifiedReferences.put(fhirType, identifier, reference);
 	}
@@ -55,13 +55,13 @@ public class BundleInfo implements IBundleInfo {
 			entities.put(iis, entityResult.getInfo());
 		}
 	}
-	
-	public void updateFrom(ICDAIIMapSource<IEntityInfo> source){
+
+	public void updateFrom(ICDAIIMapSource<IEntityInfo> source) {
 		if (source.hasIIMapValues()) {
 			entities.put(source);
 		}
 	}
-	
+
 	@Override
 	public IEntityInfo findEntityResult(II ii) {
 		return entities.get(ii);

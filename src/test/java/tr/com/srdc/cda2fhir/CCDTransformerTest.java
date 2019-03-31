@@ -194,6 +194,7 @@ public class CCDTransformerTest {
 		verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 1);
 		verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 1);
 		verifySection(bundle, "PROCEDURES", Procedure.class, 1);
+		verifySection(bundle, "VITAL SIGNS", Observation.class, 3);
 
 		// Spot checks
 		Patient patient = BundleUtil.findOneResource(bundle, Patient.class);
@@ -217,7 +218,7 @@ public class CCDTransformerTest {
 		verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
 		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
 		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 74, 4);
+		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 75, 4);
 
 		// Spot checks
 		BundleUtil util = new BundleUtil(bundle);

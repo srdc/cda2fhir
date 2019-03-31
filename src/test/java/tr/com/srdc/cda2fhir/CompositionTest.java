@@ -67,5 +67,6 @@ public class CompositionTest {
 				comp.getClass_().getCodingFirstRep().getCode());
 		Assert.assertEquals("Expect composition to code display to equal Note", "Note",
 				comp.getClass_().getCodingFirstRep().getDisplay());
+
 	}
 }

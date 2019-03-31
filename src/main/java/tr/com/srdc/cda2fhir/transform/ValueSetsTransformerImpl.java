@@ -28,6 +28,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCategory;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceType;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -43,6 +44,7 @@ import org.hl7.fhir.dstu3.model.Group.GroupType;
 import org.hl7.fhir.dstu3.model.HumanName.NameUse;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.MedicationDispense.MedicationDispenseStatus;
+import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
@@ -65,6 +67,28 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 	private static final long serialVersionUID = 1L;
 	private static final String UMLS_ROOT = "http://www.nlm.nih.gov/research/umls/";
 	private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ValueSetsTransformerImpl.class);
+
+	@Override
+	public MedicationRequestStatus tActStatus2MedicationRequestStatus(String medicationRequestStatusCode) {
+		switch (medicationRequestStatusCode) {
+		case "cancelled":
+			return MedicationRequestStatus.CANCELLED;
+		case "aborted":
+			return MedicationRequestStatus.CANCELLED;
+		case "nullified":
+			return MedicationRequestStatus.CANCELLED;
+		case "active":
+			return MedicationRequestStatus.ACTIVE;
+		case "held":
+			return MedicationRequestStatus.ONHOLD;
+		case "suspended":
+			return MedicationRequestStatus.ONHOLD;
+		case "completed":
+			return MedicationRequestStatus.COMPLETED;
+		default:
+			return MedicationRequestStatus.UNKNOWN;
+		}
+	}
 
 	@Override
 	public AdministrativeGender tAdministrativeGenderCode2AdministrativeGender(String cdaAdministrativeGenderCode) {
@@ -123,6 +147,29 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			return AllergyIntoleranceCategory.ENVIRONMENT;
 		default:
 			LOGGER.error("Unmapped allergy category code: {}", cdaAllergyCategoryCode);
+			return null;
+		}
+	}
+
+	@Override
+	public AllergyIntoleranceType tAllergyCategoryCode2AllergyIntoleranceType(String cdaAllergyCategoryCode) {
+		if (cdaAllergyCategoryCode == null)
+			return null;
+		switch (cdaAllergyCategoryCode) {
+		case "419199007":
+		case "416098002":
+		case "414285001":
+		case "232347008":
+			return AllergyIntoleranceType.ALLERGY;
+		case "59037007":
+		case "235719002":
+		case "420134006":
+		case "419511003":
+		case "418471000":
+		case "418038007":
+			return AllergyIntoleranceType.INTOLERANCE;
+		default:
+			LOGGER.error("Unmapped allergy type code: {}", cdaAllergyCategoryCode);
 			return null;
 		}
 	}
@@ -531,6 +578,9 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			break;
 		case "2.16.840.1.113883.3.26.1.1":
 			system = UMLS_ROOT + "nci";
+			break;
+		case "2.16.840.1.113883.1.11.12839":
+			system = "http://unitsofmeasure.org/ucum.html";
 			break;
 		default:
 			system = "urn:oid:" + codeSystem;

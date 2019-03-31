@@ -8,14 +8,15 @@ import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public class CDAImmunizationsSectionEntriesOptional implements ICDASection {
 	private ImmunizationsSectionEntriesOptional section;
-	
+
 	@SuppressWarnings("unused")
-	private CDAImmunizationsSectionEntriesOptional() {};
-	
+	private CDAImmunizationsSectionEntriesOptional() {
+	};
+
 	public CDAImmunizationsSectionEntriesOptional(ImmunizationsSectionEntriesOptional section) {
 		this.section = section;
 	}
-	
+
 	@Override
 	public SectionResultSingular<Immunization> transform(IBundleInfo bundleInfo) {
 		return CDASectionCommon.transformImmunizationActivityList(section.getImmunizationActivities(), bundleInfo);
