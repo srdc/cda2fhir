@@ -14,7 +14,6 @@ import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
-import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.JoltTemplate;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
@@ -42,11 +41,11 @@ public class RootNode {
 		return base;
 	}
 
-	public void addCondition(JoltCondition condition) {
+	public void addCondition(Condition condition) {
 		root.children.get(0).addCondition(condition);
 	}
 
-	public List<JoltCondition> getConditions() {
+	public List<Condition> getConditions() {
 		return null;
 	}
 
@@ -156,13 +155,13 @@ public class RootNode {
 
 	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
 		List<RemoveWhenResolution> rwrs = resolveRemoveWhen(updateInfo, "");
-		final Map<String, JoltCondition> alreadySeen = new HashMap<>();
+		final Map<String, Condition> alreadySeen = new HashMap<>();
 		rwrs.forEach(rwr -> {
 			final String target = rwr.target;
 			final String path = rwr.path;
 			if ("*".equals(target)) {
 				updateBase(base -> {
-					JoltCondition condition = new JoltCondition(path, "isnull");
+					Condition condition = new NullCondition(path);
 					base.addCondition(condition);
 				});
 				return;
@@ -170,7 +169,7 @@ public class RootNode {
 			updateBase(base -> {
 				List<IParentNode> newBases = base.separateChildLines(target);
 				newBases.forEach(newBase -> {
-					JoltCondition condition = new JoltCondition(path, "isnull");
+					Condition condition = new NullCondition(path);
 					// String rootPath = path.split("\\.")[0];
 					// JoltCondition prevCondition = alreadySeen.get(rootPath);
 					// if (prevCondition != null) {

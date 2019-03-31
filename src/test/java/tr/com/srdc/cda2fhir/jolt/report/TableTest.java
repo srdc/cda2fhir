@@ -7,6 +7,10 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import tr.com.srdc.cda2fhir.jolt.report.impl.Condition;
+import tr.com.srdc.cda2fhir.jolt.report.impl.NotNullCondition;
+import tr.com.srdc.cda2fhir.jolt.report.impl.NullCondition;
+
 public class TableTest {
 	private void compare(Table actual, Table expected) {
 		int count = expected.rowCount();
@@ -24,57 +28,57 @@ public class TableTest {
 		Table result = new Table();
 
 		TableRow row0 = new TableRow("high.value", "abatementDateTime");
-		JoltCondition condition00 = new JoltCondition("high.nullFlavor", "isnull");
-		JoltCondition condition01 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition00 = new NullCondition("high.nullFlavor");
+		Condition condition01 = new NullCondition("nullFlavor");
 		row0.addCondition(condition00.toString());
 		row0.addCondition(condition01.toString());
 		result.addRow(row0);
 
 		TableRow row1 = new TableRow("low.value", "onsetDateTime");
-		JoltCondition condition10 = new JoltCondition("low.nullFlavor", "isnull");
-		JoltCondition condition11 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition10 = new NullCondition("low.nullFlavor");
+		Condition condition11 = new NullCondition("nullFlavor");
 		row1.addCondition(condition10.toString());
 		row1.addCondition(condition11.toString());
 		result.addRow(row1);
 
 		TableRow row2 = new TableRow("value", "onsetDateTime");
-		JoltCondition condition20 = new JoltCondition("low", "isnull");
-		JoltCondition condition21 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition20 = new NullCondition("low");
+		Condition condition21 = new NullCondition("nullFlavor");
 		row2.addCondition(condition20.toString());
 		row2.addCondition(condition21.toString());
 		result.addRow(row2);
 
 		TableRow row3 = new TableRow("value", "onsetDateTime");
-		JoltCondition condition30 = new JoltCondition("low.nullFlavor", "isnotnull");
-		JoltCondition condition31 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition30 = new NotNullCondition("low.nullFlavor");
+		Condition condition31 = new NullCondition("nullFlavor");
 		row3.addCondition(condition30.toString());
 		row3.addCondition(condition31.toString());
 		result.addRow(row3);
 
 		TableRow row4 = new TableRow("#high", "abatementDateTime");
-		JoltCondition condition40 = new JoltCondition("high.nullFlavor", "isnull");
-		JoltCondition condition41 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition40 = new NullCondition("high.nullFlavor");
+		Condition condition41 = new NullCondition("nullFlavor");
 		row4.addCondition(condition40.toString());
 		row4.addCondition(condition41.toString());
 		result.addRow(row4);
 
 		TableRow row5 = new TableRow("#low", "onsetDateTime");
-		JoltCondition condition50 = new JoltCondition("low.nullFlavor", "isnull");
-		JoltCondition condition51 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition50 = new NullCondition("low.nullFlavor");
+		Condition condition51 = new NullCondition("nullFlavor");
 		row5.addCondition(condition50.toString());
 		row5.addCondition(condition51.toString());
 		result.addRow(row5);
 
 		TableRow row6 = new TableRow("#value", "onsetDateTime");
-		JoltCondition condition60 = new JoltCondition("low", "isnull");
-		JoltCondition condition61 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition60 = new NullCondition("low");
+		Condition condition61 = new NullCondition("nullFlavor");
 		row6.addCondition(condition60.toString());
 		row6.addCondition(condition61.toString());
 		result.addRow(row6);
 
 		TableRow row7 = new TableRow("#value", "onsetDateTime");
-		JoltCondition condition70 = new JoltCondition("low.nullFlavor", "isnotnull");
-		JoltCondition condition71 = new JoltCondition("nullFlavor", "isnull");
+		Condition condition70 = new NotNullCondition("low.nullFlavor");
+		Condition condition71 = new NullCondition("nullFlavor");
 		row7.addCondition(condition70.toString());
 		row7.addCondition(condition71.toString());
 		result.addRow(row7);

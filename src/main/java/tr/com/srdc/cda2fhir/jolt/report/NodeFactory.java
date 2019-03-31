@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import tr.com.srdc.cda2fhir.jolt.report.impl.Condition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.EqualCondition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafRawConditionNode;
@@ -15,6 +17,7 @@ import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedRawConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedWildcardNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.NullCondition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RawConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
@@ -80,9 +83,9 @@ public class NodeFactory {
 					.collect(Collectors.toList());
 		}
 		if (value.isEmpty()) {
-			return Collections.singletonList(new JoltCondition("", "isnull"));
+			return Collections.singletonList(new NullCondition(""));
 		}
-		return Collections.singletonList(new JoltCondition("", "equal", value));
+		return Collections.singletonList(new EqualCondition("", value));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -157,7 +160,7 @@ public class NodeFactory {
 		map.forEach((keyIn, value) -> {
 			final String key = keyIn.replace("[&]", "[]");
 			if (value == null) {
-				JoltCondition condition = new JoltCondition(key, "isnull");
+				Condition condition = new NullCondition(key);
 				node.addCondition(condition);
 				return;
 			}
