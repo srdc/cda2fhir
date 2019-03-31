@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import tr.com.srdc.cda2fhir.jolt.IRootNodeUpdater;
+import tr.com.srdc.cda2fhir.jolt.RemoveWhen;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public class JoltTemplate {
@@ -15,9 +17,9 @@ public class JoltTemplate {
 		public Map<String, Object> assign;
 		public Map<String, Object> accumulator;
 		public List<Map<String, Object>> modifiers = new ArrayList<>();
-		public Map<String, Object> removeWhen;
 		public Map<String, Object> move;
 		public Map<String, Object> distributeArray;
+		public List<IRootNodeUpdater> rootNodeUpdater = new ArrayList<>();
 
 		@SuppressWarnings("unchecked")
 		public static RawTemplate getInstance(List<Object> content) {
@@ -46,7 +48,8 @@ public class JoltTemplate {
 					return;
 				}
 				if (operation.endsWith("RemoveWhen")) {
-					result.removeWhen = spec;
+					IRootNodeUpdater rootNodeUpdater = new RemoveWhen(spec);
+					result.rootNodeUpdater.add(rootNodeUpdater);
 					return;
 				}
 				if (operation.endsWith("Move")) {
@@ -206,9 +209,9 @@ public class JoltTemplate {
 			result.format = JoltFormat.getInstance(rawTemplate.modifiers);
 		}
 		result.rootNode = NodeFactory.getInstance(rawTemplate.shifts.get(0));
-		if (rawTemplate.removeWhen != null) {
-			result.rootNode.updateFromRemoveWhen(rawTemplate.removeWhen);
-		}
+		rawTemplate.rootNodeUpdater.forEach(rnu -> {
+			rnu.update(result.rootNode);
+		});
 		if (rawTemplate.shifts.size() > 1) {
 			result.supportRootNode = NodeFactory.getInstance(rawTemplate.shifts.get(1));
 		}

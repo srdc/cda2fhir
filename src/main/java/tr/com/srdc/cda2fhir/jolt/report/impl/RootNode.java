@@ -1,14 +1,12 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import tr.com.srdc.cda2fhir.jolt.report.ICondition;
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
@@ -102,88 +100,15 @@ public class RootNode {
 		return result;
 	}
 
-	private void updateBase(Consumer<IParentNode> consumer) {
+	public void updateBase(Consumer<IParentNode> consumer) {
 		List<IParentNode> children = root.children.stream().map(c -> (IParentNode) c).collect(Collectors.toList());
 		children.forEach(base -> {
 			consumer.accept(base);
 		});
 	}
 
-	private static final class RemoveWhenResolution {
-		public String target;
-		public String path;
-
-		RemoveWhenResolution(String target, String path) {
-			this.target = target;
-			this.path = path;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<RemoveWhenResolution> resolveRemoveWhen(Object updateInfo, String parentPath) {
-		Map<String, Object> updateInfoAsMap = (Map<String, Object>) updateInfo;
-		return resolveRemoveWhen(updateInfoAsMap, parentPath);
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<RemoveWhenResolution> resolveRemoveWhen(Map<String, Object> updateInfo, String parentPath) {
-		List<RemoveWhenResolution> result = new ArrayList<>();
-		for (Map.Entry<String, Object> entry : updateInfo.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			String path = parentPath.isEmpty() ? key : parentPath + "." + key;
-			if (value instanceof String) {
-				result.add(new RemoveWhenResolution((String) value, path));
-				continue;
-			}
-			if (value instanceof List) {
-				List<Object> valueAsList = (List<Object>) value;
-				for (Object valueElement : valueAsList) {
-					if (valueElement instanceof String) {
-						result.add(new RemoveWhenResolution((String) valueElement, path));
-						continue;
-					}
-					List<RemoveWhenResolution> elementResult = resolveRemoveWhen(valueElement, path);
-					result.addAll(elementResult);
-				}
-				continue;
-			}
-			List<RemoveWhenResolution> elementResult = resolveRemoveWhen(value, path);
-			result.addAll(elementResult);
-		}
-		return result;
-	}
-
-	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
-		List<RemoveWhenResolution> rwrs = resolveRemoveWhen(updateInfo, "");
-		final Map<String, ICondition> alreadySeen = new HashMap<>();
-		rwrs.forEach(rwr -> {
-			final String target = rwr.target;
-			final String path = rwr.path;
-			if ("*".equals(target)) {
-				updateBase(base -> {
-					Condition condition = new NullCondition(path);
-					base.addCondition(condition);
-				});
-				return;
-			}
-			updateBase(base -> {
-				List<IParentNode> newBases = base.separateChildLines(target);
-				newBases.forEach(newBase -> {
-					ICondition condition = new NullCondition(path);
-					String rootPath = path.split("\\.")[0];
-					ICondition prevCondition = alreadySeen.get(rootPath);
-					if (prevCondition != null) {
-						condition = new OrCondition(prevCondition.not(), condition);
-					}
-					newBase.addCondition(condition);
-					alreadySeen.put(target, condition);
-					if (base != newBase) {
-						root.addChild(newBase);
-					}
-				});
-			});
-		});
+	public void addRootChild(INode node) {
+		root.addChild(node);
 	}
 
 	public void distributeArrays(Set<String> topPaths) {
