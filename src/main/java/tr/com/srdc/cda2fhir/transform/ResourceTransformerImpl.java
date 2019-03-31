@@ -22,9 +22,7 @@ package tr.com.srdc.cda2fhir.transform;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.emf.common.util.EList;
@@ -51,7 +49,6 @@ import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Composition.SectionMode;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
-import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
@@ -292,20 +289,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// patient
 		fhirAllergyIntolerance.setPatient(getPatientRef());
 
-		// author -> recorder
-		if (cdaAllergyProbAct.getAuthors() != null && !cdaAllergyProbAct.getAuthors().isEmpty()) {
-			for (org.openhealthtools.mdht.uml.cda.Author author : cdaAllergyProbAct.getAuthors()) {
-				// Asserting that at most one author exists
-				if (author != null && !author.isSetNullFlavor()) {
-					EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
-					result.updateFrom(entityResult);
-					if (entityResult.hasPractitioner()) {
-						fhirAllergyIntolerance.setRecorder(entityResult.getPractitionerReference());
-					}
-				}
-			}
-		}
-
 		// statusCode -> verificationStatus
 		if (cdaAllergyProbAct.getStatusCode() != null && !cdaAllergyProbAct.getStatusCode().isSetNullFlavor()) {
 			if (cdaAllergyProbAct.getStatusCode().getCode() != null
@@ -339,6 +322,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			for (AllergyObservation cdaAllergyObs : cdaAllergyProbAct.getAllergyObservations()) {
 				if (cdaAllergyObs != null && !cdaAllergyObs.isSetNullFlavor()) {
 
+					// allergyObservation.author -> AllergyIntolerance.recorder
+					if (cdaAllergyObs.getAuthors() != null && !cdaAllergyObs.getAuthors().isEmpty()) {
+						for (Author author : cdaAllergyObs.getAuthors()) {
+							if (author != null && !author.isSetNullFlavor()) {
+								EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
+								result.updateFrom(entityResult);
+								if (entityResult.hasPractitioner()) {
+									fhirAllergyIntolerance.setRecorder(entityResult.getPractitionerReference());
+								}
+							}
+						}
+					}
+
 					// allergyObservation.participant.participantRole.playingEntity.code -> code
 					if (cdaAllergyObs.getParticipants() != null && !cdaAllergyObs.getParticipants().isEmpty()) {
 						for (Participant2 participant : cdaAllergyObs.getParticipants()) {
@@ -347,11 +343,24 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 										&& !participant.getParticipantRole().isSetNullFlavor()) {
 									if (participant.getParticipantRole().getPlayingEntity() != null
 											&& !participant.getParticipantRole().getPlayingEntity().isSetNullFlavor()) {
+
 										if (participant.getParticipantRole().getPlayingEntity().getCode() != null) {
 											fhirAllergyIntolerance.setCode(dtt.tCD2CodeableConcept(
-													participant.getParticipantRole().getPlayingEntity().getCode(),
-													bundleInfo.getIdedAnnotations()));
+													participant.getParticipantRole().getPlayingEntity().getCode()));
 										}
+
+										if (participant.getParticipantRole().getPlayingEntity().getNames() != null) {
+											List<PN> names = participant.getParticipantRole().getPlayingEntity()
+													.getNames();
+											if (!names.isEmpty()) {
+												if (fhirAllergyIntolerance.getCode() == null) {
+													fhirAllergyIntolerance.setCode(new CodeableConcept());
+												}
+												PN name = names.get(0);
+												fhirAllergyIntolerance.getCode().setText(name.getText());
+											}
+										}
+
 									}
 								}
 							}
@@ -529,15 +538,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		List<AllergyIntoleranceReactionComponent> reactions = fhirAllergyIntolerance.getReaction();
-		if (reactions != null) {
-			Optional<String> lastOccurance = reactions.stream().map(r -> r.getOnsetElement()).filter(r -> r != null)
-					.map(r -> r.getValueAsString()).filter(r -> r != null).max(Comparator.comparing(String::valueOf));
-			if (lastOccurance.isPresent()) {
-				DateTimeType value = new DateTimeType(lastOccurance.get());
-				fhirAllergyIntolerance.setLastOccurrenceElement(value);
-			}
-		}
 		return result;
 	}
 
