@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import tr.com.srdc.cda2fhir.jolt.report.ICondition;
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
@@ -155,7 +156,7 @@ public class RootNode {
 
 	public void updateFromRemoveWhen(Map<String, Object> updateInfo) {
 		List<RemoveWhenResolution> rwrs = resolveRemoveWhen(updateInfo, "");
-		final Map<String, Condition> alreadySeen = new HashMap<>();
+		final Map<String, ICondition> alreadySeen = new HashMap<>();
 		rwrs.forEach(rwr -> {
 			final String target = rwr.target;
 			final String path = rwr.path;
@@ -169,12 +170,12 @@ public class RootNode {
 			updateBase(base -> {
 				List<IParentNode> newBases = base.separateChildLines(target);
 				newBases.forEach(newBase -> {
-					Condition condition = new NullCondition(path);
-					// String rootPath = path.split("\\.")[0];
-					// JoltCondition prevCondition = alreadySeen.get(rootPath);
-					// if (prevCondition != null) {
-					// condition = new JoltCondition()
-					// }
+					ICondition condition = new NullCondition(path);
+					String rootPath = path.split("\\.")[0];
+					ICondition prevCondition = alreadySeen.get(rootPath);
+					if (prevCondition != null) {
+						condition = new OrCondition(prevCondition.not(), condition);
+					}
 					newBase.addCondition(condition);
 					alreadySeen.put(target, condition);
 					if (base != newBase) {

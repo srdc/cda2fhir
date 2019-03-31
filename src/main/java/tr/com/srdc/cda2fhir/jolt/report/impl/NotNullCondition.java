@@ -25,5 +25,4 @@ public class NotNullCondition extends Condition {
 		String conditionPath = getConditionPath(ownerPath);
 		return conditionPath + " " + "isnotnull";
 	}
-
 }
