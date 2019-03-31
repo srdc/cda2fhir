@@ -1091,7 +1091,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// indication -> diagnosis.condition
 		for (Indication cdaIndication : cdaEncounterActivity.getIndications()) {
 			if (!cdaIndication.isSetNullFlavor()) {
-				Condition fhirIndication = tIndication2Condition(cdaIndication);
+				Condition fhirIndication = tIndication2ConditionEncounter(cdaIndication, bundleInfo);
 				result.addResource(fhirIndication);
 				// TODO: check if this is correct mapping
 				// Reference indicationRef = fhirEncounter.addIndication();
@@ -1679,7 +1679,27 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Condition tIndication2Condition(Indication cdaIndication) {
+	public Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
+		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
+		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
+		conditionCategory.setCode("encounter-diagnosis");
+		conditionCategory.setDisplay("Encounter Diagnosis");
+		cond.addCategory().addCoding(conditionCategory);
+		return cond;
+	}
+
+	@Override
+	public Condition tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
+		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
+		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
+		conditionCategory.setCode("problem-list-item");
+		conditionCategory.setDisplay("Problem List Item");
+		cond.addCategory().addCoding(conditionCategory);
+		return cond;
+
+	}
+
+	private Condition tIndication2Condition(Indication cdaIndication, IBundleInfo bundleInfo) {
 		if (cdaIndication == null || cdaIndication.isSetNullFlavor())
 			return null;
 
@@ -1700,16 +1720,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (cdaIndication.getIds() != null && !cdaIndication.getIds().isEmpty()) {
 			for (II ii : cdaIndication.getIds()) {
 				fhirCond.addIdentifier(dtt.tII2Identifier(ii));
-			}
-		}
-
-		// code -> category
-		if (cdaIndication.getCode() != null && !cdaIndication.getCode().isSetNullFlavor()) {
-			if (cdaIndication.getCode().getCode() != null) {
-				Coding conditionCategory = vst.tProblemType2ConditionCategoryCodes(cdaIndication.getCode().getCode());
-				if (conditionCategory != null) {
-					fhirCond.addCategory().addCoding(conditionCategory);
-				}
 			}
 		}
 
@@ -1982,7 +1992,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// indication -> reason
 		for (Indication indication : cdaMedicationActivity.getIndications()) {
-			Condition cond = tIndication2Condition(indication);
+			Condition cond = tIndication2ConditionProblemListItem(indication, bundleInfo);
+
 			result.addResource(cond);
 			fhirMedSt.addReasonReference(new Reference(cond.getId()));
 		}
@@ -2769,11 +2780,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// code -> category
-		CodeableConcept conditionCategory = dtt.tCD2CodeableConcept(cdaProbObs.getCode());
-		if (conditionCategory != null) {
-			fhirCondition.addCategory(conditionCategory);
-		}
+		// category -> problem-list-item
+		Coding conditionCategory = new Coding().setSystem("http://hl7.org/fhir/condition-category");
+		conditionCategory.setCode("problem-list-item");
+		conditionCategory.setDisplay("Problem List Item");
+		fhirCondition.addCategory().addCoding(conditionCategory);
 
 		// value -> code
 		if (cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
@@ -3300,4 +3311,5 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		bundle.addEntry(new BundleEntryComponent().setResource(provenance));
 		return bundle;
 	}
+
 }
