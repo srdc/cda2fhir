@@ -7,25 +7,23 @@ public class NullCondition extends Condition {
 
 	@Override
 	public Condition clone() {
-		return new NullCondition(path);
+		return new NullCondition(getPath());
 	}
 
 	@Override
 	public NotNullCondition not() {
-		return new NotNullCondition(path);
+		return new NotNullCondition(getPath());
 	}
 
 	@Override
 	public String toString() {
-		String result = path + " " + "isnull";
-		return result;
+		return getPath() + " " + "isnull";
 	}
 
 	@Override
 	public String toString(String ownerPath) {
-		String conditionPath = path.length() == 0 ? ownerPath : ownerPath + "." + path;
-		String result = conditionPath + " " + "isnull";
-		return result;
+		String conditionPath = getConditionPath(ownerPath);
+		return conditionPath + " " + "isnull";
 	}
 
 }

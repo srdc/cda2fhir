@@ -10,31 +10,23 @@ public class NotEqualCondition extends Condition {
 
 	@Override
 	public NotEqualCondition clone() {
-		return new NotEqualCondition(path, value);
+		return new NotEqualCondition(getPath(), value);
 	}
 
 	@Override
 	public Condition not() {
-		return new EqualCondition(path, value);
+		return new EqualCondition(getPath(), value);
 	}
 
 	@Override
 	public String toString() {
-		String result = path + " " + "notequal";
-		if (value != null) {
-			result += " " + value;
-		}
-		return result;
+		return getPath() + " notequal " + value;
 	}
 
 	@Override
 	public String toString(String ownerPath) {
-		String conditionPath = path.length() == 0 ? ownerPath : ownerPath + "." + path;
-		String result = conditionPath + " " + "notequal";
-		if (value != null) {
-			result += " " + value;
-		}
-		return result;
+		String conditionPath = getConditionPath(ownerPath);
+		return conditionPath + " notequal " + value;
 	}
 
 }
