@@ -587,6 +587,7 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 			break;
 		default:
 			system = "urn:oid:" + codeSystem;
+			LOGGER.info("Parsing encountered unsupported OID value: " + codeSystem);
 			break;
 		}
 		return system;

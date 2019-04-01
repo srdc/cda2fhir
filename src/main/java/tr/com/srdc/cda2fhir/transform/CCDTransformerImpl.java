@@ -298,6 +298,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		for (CDASectionTypeEnum sectionType : supportedSectionTypes) {
 			if (sectionType.supports(section)) {
 				return sectionType.toCDASection(section);
+			} else {
+				logger.info("Parsing encountered unsupported section: " + sectionType.name());
 			}
 		}
 		return null;
