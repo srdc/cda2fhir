@@ -489,6 +489,9 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 	public String tOid2Url(String codeSystem) {
 		String system = null;
 		switch (codeSystem) {
+		case "2.16.840.1.113883.4.642.3.153":
+			system = "http://hl7.org/fhir/condition-category";
+			break;
 		case "2.16.840.1.113883.6.96":
 			system = "http://snomed.info/sct";
 			break;

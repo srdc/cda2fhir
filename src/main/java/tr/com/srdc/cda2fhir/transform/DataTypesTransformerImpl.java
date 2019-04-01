@@ -248,7 +248,7 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 			if (idedAnnotations != null) {
 				// Try to pull the reference.
 				TEL tel = ed.getReference();
-				if (!(tel == null)) {
+				if (tel != null) {
 					String value = tel.getValue();
 					if (value != null && value.charAt(0) == '#') {
 						String key = value.substring(1);

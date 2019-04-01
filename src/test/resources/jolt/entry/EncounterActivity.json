@@ -1,0 +1,120 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"encounter": {
+				"id": "MANY",
+				"performer": "MANY",
+				"participant": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"encounter": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"statusCode": "status.->NullFlavorableCode",
+				"code": "type[].->CD",
+				"priorityCode": "priority.->CD",
+				"effectiveTime": "period.->IVL_TSPeriod",
+				"performer": {
+					"*": "Performer[].->AssignedEntity"
+				},
+				"entryRelationship": {
+					"*": {
+						"typeCode": {
+							"RSON": {
+								"@2": "Condition[].->Indication"
+							}
+						}
+					}
+				},
+				"participant": {
+					"*": "Location[].->ServiceDeliveryLocation"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": ["participant[&].individual.reference", "participant[&].type"]
+			},
+			"Condition": {
+				"*": "diagnosis[&].condition.reference"
+			},
+			"Location": {
+				"*": "location[&].location.reference"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('EncounterStatus',@0)",
+			"participant": {
+				"*": {
+					"individual": {
+						"reference": "=getId(@0)"
+					},
+					"type": "=constantValue('ParticipantTypeConstant')"
+				}
+			},
+			"diagnosis": {
+				"*": {
+					"condition": {
+						"reference": "=getId(@0)"
+					}
+				}
+			},
+			"location": {
+				"*": {
+					"location": {
+						"reference": "=getId(@0)"
+					}
+				}
+			}			
+		}
+	},
+	{
+		"operation": "default",
+		"spec": {
+			"status": "finished"
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": "",
+			"Condition": "",
+			"Location": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Encounter"
+		}
+	}
+]

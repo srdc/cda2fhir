@@ -1,0 +1,40 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"value": "ONE",
+			"use": "ONE"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"value": [
+				"system",
+				"value"
+			],
+			"use": "use"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"system": "=piece(':',0,@0)",
+			"value": "=piece(':',1,@0)",
+			"use": "=lastPiece(' ',@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"system": "=valueSetAdapter('ContactPointSystem','phone',@0)",
+			"use": "=valueSetAdapter('ContactPointUse','temp',@0)"
+		}
+	}
+]

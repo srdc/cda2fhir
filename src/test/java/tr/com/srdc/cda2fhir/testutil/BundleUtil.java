@@ -47,12 +47,36 @@ public class BundleUtil {
 		idMap = FHIRUtil.getIdResourceMap(bundle);
 	}
 
+	public Bundle getBundle() {
+		return bundle;
+	}
+
 	public Resource getFromJSONArray(String fhirType, List<Object> identifiers) {
 		return identifierMap.getFromJSONArray(fhirType, identifiers);
 	}
 
 	public IIdentifierMap<Resource> getIdentifierMap() {
 		return identifierMap;
+	}
+
+	public <T extends Resource> T getResourceFromReference(String reference, Class<T> type) {
+		Resource resource = idMap.get(reference);
+		if (resource == null) {
+			return null;
+		}
+		return type.cast(resource);
+	}
+
+	public PractitionerRole getPractitionerRole(String practitionerId) {
+		List<PractitionerRole> roles = FHIRUtil.findResources(bundle, PractitionerRole.class);
+		Optional<PractitionerRole> result = roles.stream().filter(role -> {
+			if (!role.hasOrganization() || !role.hasPractitioner()) {
+				return false;
+			}
+			String localPractitionerId = role.getPractitioner().getReference();
+			return practitionerId.equals(localPractitionerId);
+		}).findFirst();
+		return result.orElse(null);
 	}
 
 	public void spotCheckAssignedPractitioner(String reference, String familyName, String roleCode,
@@ -80,6 +104,17 @@ public class BundleUtil {
 		List<T> resources = FHIRUtil.findResources(bundle, type);
 		String msg = String.format("Expect %d %s resources in the bundle", count, type.getSimpleName());
 		Assert.assertEquals(msg, count, resources.size());
+	}
+
+	public List<Resource> getSectionResources(String sectionCode) {
+		Composition composition = FHIRUtil.findFirstResource(bundle, Composition.class);
+		List<String> references = composition.getSection().stream().filter(r -> {
+			String code = r.getCode().getCodingFirstRep().getCode();
+			return code.equals(sectionCode);
+		}).flatMap(r -> r.getEntry().stream()).map(r -> r.getReference()).collect(Collectors.toList());
+		return references.stream().map(r -> {
+			return idMap.get(r);
+		}).filter(r -> r != null).collect(Collectors.toList());
 	}
 
 	public void spotCheckImmunizationPractitioner(String identifier, String familyName, String roleCode,
@@ -185,7 +220,7 @@ public class BundleUtil {
 			return null;
 	}
 
-	public static Bundle generateSnippetBundle(String sourceName) throws Exception {
+	private static Bundle generateBundle(String sourceName, boolean includeComposition) throws Exception {
 		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
 		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
 				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
@@ -194,12 +229,16 @@ public class BundleUtil {
 		ccdTransformer.setPatientRef(dummyPatientRef);
 		Config.setGenerateDafProfileMetadata(false);
 		Config.setGenerateNarrative(false); // TODO: Make this an argument to ccdTransformer
-		Bundle bundle = ccdTransformer.transformDocument(cda, false);
+		Bundle bundle = ccdTransformer.transformDocument(cda, includeComposition);
 		return bundle;
 	}
 
+	public static Bundle generateSnippetBundle(String sourceName) throws Exception {
+		return generateBundle(sourceName, false);
+	}
+
 	public static BundleUtil getInstance(String sourceName) throws Exception {
-		Bundle bundle = generateSnippetBundle(sourceName);
+		Bundle bundle = generateBundle(sourceName, true);
 		return new BundleUtil(bundle);
 	}
 

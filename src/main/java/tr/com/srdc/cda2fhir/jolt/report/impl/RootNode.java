@@ -3,13 +3,16 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
+import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.IWildcardNode;
-import tr.com.srdc.cda2fhir.jolt.report.JoltCondition;
 import tr.com.srdc.cda2fhir.jolt.report.JoltTemplate;
 import tr.com.srdc.cda2fhir.jolt.report.Table;
 import tr.com.srdc.cda2fhir.jolt.report.TableRow;
@@ -37,11 +40,11 @@ public class RootNode {
 		return base;
 	}
 
-	public void addCondition(JoltCondition condition) {
+	public void addCondition(Condition condition) {
 		root.children.get(0).addCondition(condition);
 	}
 
-	public List<JoltCondition> getConditions() {
+	public List<Condition> getConditions() {
 		return null;
 	}
 
@@ -70,10 +73,7 @@ public class RootNode {
 			((IParentNode) child).getChildren().forEach(grandChild -> {
 				List<TableRow> grandChildRows = grandChild.toTableRows(templates);
 				grandChildRows.forEach(row -> {
-					child.getConditions().forEach(condition -> {
-						String conditionAsString = condition.toString();
-						row.addCondition(conditionAsString);
-					});
+					child.getConditions().forEach(condition -> row.addCondition(condition));
 				});
 				result.addRows(grandChildRows);
 			});
@@ -95,5 +95,38 @@ public class RootNode {
 			result.add(node);
 		});
 		return result;
+	}
+
+	public void updateBase(Consumer<IParentNode> consumer) {
+		List<IParentNode> children = root.children.stream().map(c -> (IParentNode) c).collect(Collectors.toList());
+		children.forEach(base -> {
+			consumer.accept(base);
+		});
+	}
+
+	public void addRootChild(INode node) {
+		root.addChild(node);
+	}
+
+	public void distributeArrays(Set<String> topPaths) {
+		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
+		linkedNodes.forEach(linkedNode -> {
+			String target = linkedNode.getTarget();
+			String[] targetArrayPieces = target.split("\\[");
+			if (targetArrayPieces.length < 2) {
+				return;
+			}
+			String targetArrayName = targetArrayPieces[0];
+			if (!topPaths.contains(targetArrayName)) {
+				return;
+			}
+			String[] targetPieces = target.split("\\.");
+			if (targetPieces.length != 2) {
+				return;
+			}
+			String newTarget = targetPieces[1] + "[]";
+			ILeafNode nodeAsLeaf = (ILeafNode) linkedNode;
+			nodeAsLeaf.setTarget(newTarget);
+		});
 	}
 }
