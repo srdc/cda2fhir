@@ -4,24 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import com.bazaarvoice.jolt.ContextualTransform;
-import com.bazaarvoice.jolt.SpecDriven;
 
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
-public class IndicationClinicalStatus implements ContextualTransform, SpecDriven, IRootNodeUpdater {
-	private Map<String, Object> spec;
-
-	@SuppressWarnings("unchecked")
-	@Inject
-	public IndicationClinicalStatus(Object spec) {
-		this.spec = (Map<String, Object>) spec;
-	}
-
+public class IndicationClinicalStatus implements ContextualTransform, IRootNodeUpdater {
 	@Override
 	public void update(RootNode rootNode) {
 		final Map<String, INode> nodes = new HashMap<>();
@@ -40,12 +29,22 @@ public class IndicationClinicalStatus implements ContextualTransform, SpecDriven
 
 		highNode.setPath("#resolved");
 		IParentNode highParent = highNode.getParent();
-		IParentNode newBase = highParent.separateChildLines("#high").get(0);
-		newBase.copyConditions(lowNode);
-		if (highParent != newBase) {
-			rootNode.addRootChild(newBase);
+		IParentNode newBaseHigh = highParent.separateChildLines("#high").get(0);
+		newBaseHigh.copyConditions(lowNode);
+		if (highParent != newBaseHigh) {
+			rootNode.addRootChild(newBaseHigh);
 		}
 
+		lowNode.setPath("active");
+		IParentNode lowParent = lowNode.getParent();
+		IParentNode newBaseLow = lowParent.separateChildLines("#low").get(0);
+		newBaseLow.copyConditionsOred(valueNode.getParent());
+		newBaseLow.copyConditionsNot(newBaseHigh);
+		if (lowParent != newBaseLow) {
+			rootNode.addRootChild(newBaseLow);
+		}
+
+		valueNode.getParent().removeChild(valueNode);
 	}
 
 	@Override

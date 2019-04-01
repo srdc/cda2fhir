@@ -1,15 +1,20 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.List;
+import java.util.Set;
 
 public interface INode {
 	void addCondition(ICondition condition);
 
-	List<ICondition> getConditions();
+	Set<ICondition> getConditions();
 
-	void addConditions(List<ICondition> conditions);
+	void addConditions(Set<ICondition> conditions);
 
 	void copyConditions(INode source);
+
+	void copyConditionsOred(INode source);
+
+	void copyConditionsNot(INode source);
 
 	ICondition notCondition();
 

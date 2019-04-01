@@ -1,7 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +17,7 @@ import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedRawConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedWildcardNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.MultiOrCondition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.NullCondition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RawConditionNode;
@@ -77,18 +78,22 @@ public class NodeFactory {
 		}
 	}
 
-	private static List<ICondition> childToCondition(String value, IParentNode parent) {
+	private static Set<ICondition> childToCondition(String value, IParentNode parent) {
 		if ("*".equals(value)) {
-			List<ICondition> notConditions = new ArrayList<>();
+			Set<ICondition> notConditions = new HashSet<>();
 			for (INode child : parent.getChildren()) {
 				notConditions.add(child.notCondition());
 			}
-			return notConditions;
+			if (notConditions.size() == 1) {
+				return notConditions;
+			} else {
+				return Collections.singleton(new MultiOrCondition(notConditions));
+			}
 		}
 		if (value.isEmpty()) {
-			return Collections.singletonList(new NullCondition(""));
+			return Collections.singleton(new NullCondition(""));
 		}
-		return Collections.singletonList(new EqualCondition("", value));
+		return Collections.singleton(new EqualCondition("", value));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -128,7 +133,7 @@ public class NodeFactory {
 
 			Map.Entry<String, Object> entry = conditionSpecs.iterator().next();
 
-			List<ICondition> conditions = childToCondition(nodeValue, parent);
+			Set<ICondition> conditions = childToCondition(nodeValue, parent);
 
 			int rank = Integer.valueOf(entry.getKey().substring(1));
 

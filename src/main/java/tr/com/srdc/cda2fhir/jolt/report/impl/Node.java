@@ -1,7 +1,9 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import tr.com.srdc.cda2fhir.jolt.report.ICondition;
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
@@ -15,7 +17,7 @@ public abstract class Node implements INode {
 	private IParentNode parent;
 	private String path;
 
-	private List<ICondition> conditions = new ArrayList<ICondition>();
+	private Set<ICondition> conditions = new HashSet<ICondition>();
 
 	public Node(IParentNode parent, String path) {
 		this.parent = parent;
@@ -81,12 +83,12 @@ public abstract class Node implements INode {
 	}
 
 	@Override
-	public void addConditions(List<ICondition> conditions) {
+	public void addConditions(Set<ICondition> conditions) {
 		this.conditions.addAll(conditions);
 	}
 
 	@Override
-	public List<ICondition> getConditions() {
+	public Set<ICondition> getConditions() {
 		return conditions;
 	}
 
@@ -97,19 +99,10 @@ public abstract class Node implements INode {
 			return null;
 		}
 		if (count == 1) {
-			return conditions.get(0).not();
+			return conditions.iterator().next().not();
 		}
-		OrCondition result = new OrCondition(conditions.get(0).not(), conditions.get(1).not());
-		int index = 2;
-		while (index < count) {
-			if (index + 1 < count) {
-				OrCondition nextOr = new OrCondition(conditions.get(index).not(), conditions.get(index + 1).not());
-				result = new OrCondition(result, nextOr);
-			} else {
-				result = new OrCondition(result, conditions.get(index).not());
-			}
-			index += 2;
-		}
+		MultiOrCondition result = new MultiOrCondition();
+		conditions.forEach(c -> result.addCondition(c.not()));
 		return result;
 	}
 
@@ -143,4 +136,39 @@ public abstract class Node implements INode {
 			conditions.add(c.clone());
 		});
 	}
+
+	@Override
+	public void copyConditionsOred(INode source) {
+		if (conditions.size() == 0) {
+			copyConditions(source);
+			return;
+		}
+
+		Set<ICondition> sourceConditions = source.getConditions();
+		if (sourceConditions.size() == 0) {
+			return;
+		}
+		final Set<ICondition> newConditions = new HashSet<>();
+		conditions.forEach(outer -> {
+			sourceConditions.forEach(inner -> {
+				if (inner.equals(outer)) {
+					newConditions.add(inner);
+				} else {
+					newConditions.add(new OrCondition(inner, outer));
+				}
+			});
+		});
+		conditions.clear();
+		conditions.addAll(newConditions);
+	}
+
+	@Override
+	public void copyConditionsNot(INode source) {
+		Set<ICondition> sourceConditions = source.getConditions();
+		if (sourceConditions.size() == 0) {
+			return;
+		}
+		conditions.add(source.notCondition());
+	}
+
 }
