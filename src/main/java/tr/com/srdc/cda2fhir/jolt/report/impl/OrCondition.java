@@ -27,6 +27,11 @@ public class OrCondition implements ICondition {
 	}
 
 	@Override
+	public int compareTo(ICondition rhs) {
+		return toString().compareTo(rhs.toString());
+	}
+
+	@Override
 	public ICondition not() {
 		throw new NotImplementedException("Not of or condition is not yet implemented.");
 	}

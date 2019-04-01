@@ -73,10 +73,7 @@ public class RootNode {
 			((IParentNode) child).getChildren().forEach(grandChild -> {
 				List<TableRow> grandChildRows = grandChild.toTableRows(templates);
 				grandChildRows.forEach(row -> {
-					child.getConditions().forEach(condition -> {
-						String conditionAsString = condition.toString();
-						row.addCondition(conditionAsString);
-					});
+					child.getConditions().forEach(condition -> row.addCondition(condition));
 				});
 				result.addRows(grandChildRows);
 			});

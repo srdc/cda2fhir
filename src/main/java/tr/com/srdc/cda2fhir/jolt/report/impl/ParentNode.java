@@ -101,10 +101,7 @@ public class ParentNode extends Node implements IParentNode {
 		rows.forEach(row -> {
 			row.promotePath(path);
 
-			getConditions().forEach(condition -> {
-				String conditionAsString = condition.toString(path);
-				row.addCondition(conditionAsString);
-			});
+			getConditions().forEach(condition -> row.addCondition(condition.clone(path)));
 		});
 		return rows;
 	}

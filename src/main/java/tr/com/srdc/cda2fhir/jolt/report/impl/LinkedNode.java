@@ -64,10 +64,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 
 		TableRow row = new TableRow(path, actualTarget, link);
 		row.setFormat(format);
-		getConditions().forEach(condition -> {
-			String conditionAsString = condition.toString(path);
-			row.addCondition(conditionAsString);
-		});
+		getConditions().forEach(condition -> row.addCondition(condition.clone(path)));
 		List<TableRow> result = new ArrayList<TableRow>();
 		result.add(row);
 		return result;

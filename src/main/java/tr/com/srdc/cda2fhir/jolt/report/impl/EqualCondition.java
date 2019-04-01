@@ -21,7 +21,7 @@ public class EqualCondition extends Condition {
 	@Override
 	public String toString() {
 		String path = getPath();
-		return path + "  equal " + value;
+		return path + " equal " + value;
 	}
 
 	@Override

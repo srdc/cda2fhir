@@ -29,15 +29,15 @@ public class TableTest {
 		TableRow row0 = new TableRow("high.value", "abatementDateTime");
 		ICondition condition00 = new NullCondition("high.nullFlavor");
 		ICondition condition01 = new NullCondition("nullFlavor");
-		row0.addCondition(condition00.toString());
-		row0.addCondition(condition01.toString());
+		row0.addCondition(condition00);
+		row0.addCondition(condition01);
 		result.addRow(row0);
 
 		TableRow row1 = new TableRow("low.value", "onsetDateTime");
 		ICondition condition10 = new NullCondition("low.nullFlavor");
 		ICondition condition11 = new NullCondition("nullFlavor");
-		row1.addCondition(condition10.toString());
-		row1.addCondition(condition11.toString());
+		row1.addCondition(condition10);
+		row1.addCondition(condition11);
 		result.addRow(row1);
 
 		TableRow row3 = new TableRow("value", "onsetDateTime");
@@ -45,23 +45,23 @@ public class TableTest {
 		ICondition condition30b = new NullCondition("low");
 		ICondition condition30 = new OrCondition(condition30a, condition30b);
 		ICondition condition31 = new NullCondition("nullFlavor");
-		row3.addCondition(condition30.toString());
-		row3.addCondition(condition31.toString());
+		row3.addCondition(condition30);
+		row3.addCondition(condition31);
 		result.addRow(row3);
 
 		TableRow row4 = new TableRow("#high", "clinicalStatus");
 		ICondition condition40 = new NullCondition("high.nullFlavor");
 		ICondition condition41 = new NullCondition("nullFlavor");
-		row4.addCondition(condition40.toString());
-		row4.addCondition(condition41.toString());
+		row4.addCondition(condition40);
+		row4.addCondition(condition41);
 		row4.setFormat("conditionClinicalStatusAdapter");
 		result.addRow(row4);
 
 		TableRow row5 = new TableRow("#low", "clinicalStatus");
 		ICondition condition50 = new NullCondition("low.nullFlavor");
 		ICondition condition51 = new NullCondition("nullFlavor");
-		row5.addCondition(condition50.toString());
-		row5.addCondition(condition51.toString());
+		row5.addCondition(condition50);
+		row5.addCondition(condition51);
 		row5.setFormat("conditionClinicalStatusAdapter");
 		result.addRow(row5);
 
@@ -70,8 +70,8 @@ public class TableTest {
 		ICondition condition60b = new NullCondition("low");
 		ICondition condition60 = new OrCondition(condition60a, condition60b);
 		ICondition condition61 = new NullCondition("nullFlavor");
-		row6.addCondition(condition60.toString());
-		row6.addCondition(condition61.toString());
+		row6.addCondition(condition60);
+		row6.addCondition(condition61);
 		row6.setFormat("conditionClinicalStatusAdapter");
 		result.addRow(row6);
 

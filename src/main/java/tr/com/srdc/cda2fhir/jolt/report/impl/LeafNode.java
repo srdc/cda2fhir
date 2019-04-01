@@ -46,10 +46,7 @@ public class LeafNode extends Node implements ILeafNode {
 		String actualTarget = rootResourceType == null ? target : rootResourceType + "." + target;
 		TableRow row = new TableRow(path, actualTarget);
 		row.setFormat(format);
-		getConditions().forEach(condition -> {
-			String conditionAsString = condition.toString(path);
-			row.addCondition(conditionAsString);
-		});
+		getConditions().forEach(condition -> row.addCondition(condition.clone(path)));
 		List<TableRow> result = new ArrayList<TableRow>();
 		result.add(row);
 		return result;

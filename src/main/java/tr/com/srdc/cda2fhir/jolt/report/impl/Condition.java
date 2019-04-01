@@ -21,6 +21,11 @@ public abstract class Condition implements ICondition {
 		}
 	}
 
+	@Override
+	public int compareTo(ICondition rhs) {
+		return toString().compareTo(rhs.toString());
+	}
+
 	protected String getPath() {
 		return path;
 	}

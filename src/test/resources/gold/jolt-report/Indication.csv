@@ -3,9 +3,9 @@ observation.effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapt
 observation.code.code,Condition.category[].coding[],,"valueSetAdapter('ConditionCategory')",nullFlavor isnull
 #high,Condition.clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,observation.effectiveTime.high.nullFlavor isnull,observation.effectiveTime.nullFlavor isnull
 #low,Condition.clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnull,observation.effectiveTime.nullFlavor isnull
-#value,Condition.clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnotnull or effectiveTime.low isnull,observation.effectiveTime.nullFlavor isnull
+#value,Condition.clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnotnull or observation.effectiveTime.low isnull,observation.effectiveTime.nullFlavor isnull
 observation.value[],Condition.code,CD,,nullFlavor isnull
 observation.id[],Condition.identifier[],ID,,nullFlavor isnull
 observation.effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnull,observation.effectiveTime.nullFlavor isnull
-observation.effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnotnull or effectiveTime.low isnull,observation.effectiveTime.nullFlavor isnull
+observation.effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnotnull or observation.effectiveTime.low isnull,observation.effectiveTime.nullFlavor isnull
 observation.statusCode.code,Condition.verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",nullFlavor isnull
