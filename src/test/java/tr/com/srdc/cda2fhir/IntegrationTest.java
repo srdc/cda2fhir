@@ -69,7 +69,8 @@ public class IntegrationTest {
 				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
 		// print pre-post bundle
-		//FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/doc_001_15.json");
+		// FHIRUtil.printJSON(transactionBundle,
+		// "src/test/resources/output/doc_001_15.json");
 
 		// Send transaction bundle to server.
 		Bundle resp = client.transaction().withBundle(transactionBundle).execute();
@@ -93,7 +94,7 @@ public class IntegrationTest {
 		Bundle deviceResults = (Bundle) client.search().forResource(Device.class).prettyPrint().execute();
 
 		Assert.assertEquals(1, patientResults.getTotal());
-		Assert.assertEquals(32, practitionerResults.getTotal());
+		Assert.assertEquals(33, practitionerResults.getTotal());
 		Assert.assertEquals(28, medicationResults.getTotal());
 		Assert.assertEquals(1, provenanceResults.getTotal());
 		Assert.assertEquals(1, binaryresults.getTotal());
