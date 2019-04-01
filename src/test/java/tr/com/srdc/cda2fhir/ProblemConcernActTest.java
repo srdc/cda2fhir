@@ -89,7 +89,8 @@ public class ProblemConcernActTest {
 		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
 		List<Coding> category = condition.getCategory().get(0).getCoding();
 		Assert.assertEquals("Unexpected number of category codings", 1, category.size());
-		verifyCoding(category.get(0), code, displayName, "http://snomed.info/sct");
+		verifyCoding(category.get(0), "problem-list-item", "Problem List Item",
+				"http://hl7.org/fhir/condition-category");
 
 		String translationCode = "75321-0"; // From CCDA Specification
 		String translationDisplayName = "Clinical finding HL7.CCDAR2";
@@ -103,9 +104,10 @@ public class ProblemConcernActTest {
 		Bundle bundle2 = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition2 = BundleUtil.findOneResource(bundle2, Condition.class);
 		List<Coding> category2 = condition2.getCategory().get(0).getCoding();
-		Assert.assertEquals("Unexpected number of category codings", 2, category2.size());
-		verifyCoding(category2.get(0), code, displayName, "http://snomed.info/sct");
-		verifyCoding(category2.get(1), translationCode, translationDisplayName, "http://loinc.org");
+		Assert.assertEquals("Unexpected number of category codings", 1, category2.size());
+		verifyCoding(category2.get(0), "problem-list-item", "Problem List Item",
+				"http://hl7.org/fhir/condition-category");
+
 	}
 
 	@Test

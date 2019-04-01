@@ -1,0 +1,3 @@
+CCDA Source,Target,Link,Format
+id[],Practitioner.identifier[],ID,
+assignedPerson.name[],Practitioner.name[],PN,

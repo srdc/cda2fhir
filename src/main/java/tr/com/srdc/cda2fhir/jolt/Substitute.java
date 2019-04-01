@@ -10,25 +10,17 @@ import java.util.Set;
 
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.ContextualTransform;
-import com.bazaarvoice.jolt.JsonUtils;
 
 public class Substitute implements ContextualTransform {
-	private static Chainr generateChainr(String filepath) {
-		List<Object> spec = JsonUtils.filepathToList("src/test/resources/jolt/" + filepath);
-		Chainr chainr = Chainr.fromSpec(spec);
-		return chainr;
-	}
-
 	static Map<String, Chainr> templates = new HashMap<String, Chainr>();
 	static {
-		templates.put("->ID", generateChainr("data-type/ID.json"));
-		templates.put("->CD", generateChainr("data-type/CD.json"));
-		templates.put("->AuthorParticipation", generateChainr("entry/AuthorParticipation.json"));
-		templates.put("->AllergyIntoleranceObservation", generateChainr("entry/AllergyIntoleranceObservation.json"));
-		templates.put("->ReactionObservation", generateChainr("entry/ReactionObservation.json"));
-		templates.put("->EffectiveTimeLowOrValue", generateChainr("data-type/EffectiveTimeLowOrValue.json"));
-		templates.put("->AssignedAuthorPractitioner", generateChainr("entry/AssignedAuthorPractitioner.json"));
-		templates.put("->AssignedAuthorPractitionerRole", generateChainr("entry/AssignedAuthorPractitionerRole.json"));
+		Map<String, List<Object>> rawTemplates = Utility.readTemplates();
+		rawTemplates.entrySet().forEach(rowTemplate -> {
+			String name = rowTemplate.getKey();
+			List<Object> value = rowTemplate.getValue();
+			Chainr chainr = Chainr.fromSpec(value);
+			templates.put("->" + name, chainr);
+		});
 	}
 
 	private Object findTemplateValue(Map<String, Object> map, Map<String, Object> context) {

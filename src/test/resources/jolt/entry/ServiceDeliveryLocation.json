@@ -1,0 +1,54 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"participantRole": {
+				"playingEntity": {
+					"name": "MANY"
+				},
+				"addr": "MANY",
+				"telecom": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"participantRole": {
+				"playingEntity": {
+					"name": {
+						"*": "name"
+					}
+				},
+				"addr": {
+					"*": "address.->AD"
+				},
+				"telecom": {
+					"*": "telecom[].->TEL"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"name": "=lastElement(@0)",
+			"address": "=lastElement(@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Location"
+		}
+	}
+]

@@ -1,11 +1,14 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import tr.com.srdc.cda2fhir.jolt.IRootNodeUpdater;
+import tr.com.srdc.cda2fhir.jolt.RemoveWhen;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public class JoltTemplate {
@@ -13,7 +16,10 @@ public class JoltTemplate {
 		public List<Map<String, Object>> shifts = new ArrayList<>();
 		public Map<String, Object> assign;
 		public Map<String, Object> accumulator;
-		public Map<String, Object> modifier;
+		public List<Map<String, Object>> modifiers = new ArrayList<>();
+		public Map<String, Object> move;
+		public Map<String, Object> distributeArray;
+		public List<IRootNodeUpdater> rootNodeUpdater = new ArrayList<>();
 
 		@SuppressWarnings("unchecked")
 		public static RawTemplate getInstance(List<Object> content) {
@@ -38,7 +44,20 @@ public class JoltTemplate {
 					return;
 				}
 				if (operation.endsWith("AdditionalModifier")) {
-					result.modifier = spec;
+					result.modifiers.add(spec);
+					return;
+				}
+				if (operation.endsWith("RemoveWhen")) {
+					IRootNodeUpdater rootNodeUpdater = new RemoveWhen(spec);
+					result.rootNodeUpdater.add(rootNodeUpdater);
+					return;
+				}
+				if (operation.endsWith("Move")) {
+					result.move = spec;
+					return;
+				}
+				if (operation.endsWith("DistributeArray")) {
+					result.distributeArray = spec;
 					return;
 				}
 			});
@@ -58,11 +77,14 @@ public class JoltTemplate {
 	private RootNode rootNode;
 	private RootNode supportRootNode;
 	private JoltFormat format;
+	private Map<String, String> moveMap;
 
 	private boolean leafTemplate = false;
 	private String resourceType;
 
 	private Table assignTable;
+
+	private Set<String> distributeArrays;
 
 	private JoltTemplate(String name) {
 		this.name = name;
@@ -149,6 +171,10 @@ public class JoltTemplate {
 
 		rootNode.expandLinks(intermediateTemplates);
 
+		if (distributeArrays != null) {
+			rootNode.distributeArrays(distributeArrays);
+		}
+
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
 		Table table = rootNode.toTable(templates);
 
@@ -159,10 +185,15 @@ public class JoltTemplate {
 		}
 
 		if (assignTable != null) {
-			Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
-					.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
-			assignTable.updateResourceType(resourceType, otherTargets);
+			if (resourceType != null) {
+				Set<String> otherTargets = table.getRows().stream().map(r -> r.getTarget())
+						.filter(r -> !r.startsWith(resourceType)).collect(Collectors.toSet());
+				assignTable.updateResourceType(resourceType, otherTargets);
+			}
 			table.addTable(assignTable);
+		}
+		if (moveMap != null) {
+			table.moveTargets(moveMap);
 		}
 
 		return table;
@@ -170,15 +201,17 @@ public class JoltTemplate {
 
 	public static JoltTemplate getInstance(String name, List<Object> content) {
 		JoltTemplate result = new JoltTemplate(name);
-
-		result.leafTemplate = name.equals("ID") || name.contentEquals("CD");
+		result.leafTemplate = name.equals(name.toUpperCase()) || name.equals("IVL_TSPeriod");
 
 		RawTemplate rawTemplate = RawTemplate.getInstance(content);
 
-		if (rawTemplate.modifier != null) {
-			result.format = JoltFormat.getInstance(rawTemplate.modifier);
+		if (rawTemplate.modifiers != null) {
+			result.format = JoltFormat.getInstance(rawTemplate.modifiers);
 		}
 		result.rootNode = NodeFactory.getInstance(rawTemplate.shifts.get(0));
+		rawTemplate.rootNodeUpdater.forEach(rnu -> {
+			rnu.update(result.rootNode);
+		});
 		if (rawTemplate.shifts.size() > 1) {
 			result.supportRootNode = NodeFactory.getInstance(rawTemplate.shifts.get(1));
 		}
@@ -189,6 +222,17 @@ public class JoltTemplate {
 			RootNode assignRootNode = NodeFactory.getInstance(rawTemplate.assign);
 			Templates templates = new Templates(result.format);
 			result.assignTable = assignRootNode.toTable(templates);
+		}
+		if (rawTemplate.move != null) {
+			result.moveMap = new HashMap<String, String>();
+			rawTemplate.move.entrySet().forEach(entry -> {
+				String key = entry.getKey();
+				String value = (String) entry.getValue();
+				result.moveMap.put(key, value);
+			});
+		}
+		if (rawTemplate.distributeArray != null) {
+			result.distributeArrays = rawTemplate.distributeArray.keySet();
 		}
 
 		return result;

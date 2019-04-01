@@ -1,0 +1,9 @@
+{
+	"phone": "phone",
+	"tel": "phone",
+	"email": "email",
+	"mailto": "email",
+	"fax": "fax",
+	"http": "url",
+	"https": "url"
+}

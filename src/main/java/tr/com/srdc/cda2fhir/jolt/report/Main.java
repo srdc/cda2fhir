@@ -1,40 +1,54 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.bazaarvoice.jolt.JsonUtils;
+
+import tr.com.srdc.cda2fhir.jolt.Utility;
 
 public class Main {
 	final private static String PATH = "src/test/resources/jolt/";
 
+	public static Path getTemplatePath(String templateIdentifier) {
+		String[] pieces = templateIdentifier.split("/");
+		if (pieces.length < 2) { // default
+			return Paths.get("data-type", pieces[0] + ".json");
+		}
+		return Paths.get(pieces[0], pieces[1] + ".json");
+	}
+
+	private static String getTemplateName(String templateIdentifier) {
+		String[] pieces = templateIdentifier.split("/");
+		if (pieces.length < 2) { // default
+			return templateIdentifier;
+		}
+		return pieces[1];
+	}
+
 	@SuppressWarnings("unchecked")
+	public static JoltTemplate readTemplate(String templateIdentifier) {
+		Path templatePath = getTemplatePath(templateIdentifier);
+		Path fullTemplatePath = Paths.get(PATH.toString(), templatePath.toString());
+		Object content = JsonUtils.filepathToObject(fullTemplatePath.toString());
+		if (!(content instanceof List)) {
+			throw new ReportException("Invalid content for " + templateIdentifier + ".");
+		}
+		List<Object> contentAsList = (List<Object>) content;
+		String name = getTemplateName(templateIdentifier);
+		return JoltTemplate.getInstance(name, contentAsList);
+	}
+
 	private static Map<String, JoltTemplate> createHandlers() {
-		try (Stream<Path> walk = Files.walk(Paths.get(PATH))) {
-			List<Path> jsonPaths = walk.filter(f -> f.toString().endsWith(".json")).collect(Collectors.toList());
-			Map<String, JoltTemplate> templateMap = new HashMap<String, JoltTemplate>();
-			for (Path jsonPath : jsonPaths) {
-				String filename = jsonPath.getFileName().toString();
-				String name = filename.substring(0, filename.length() - 5);
-				Object content = JsonUtils.filepathToObject(jsonPath.toString());
-				if (content instanceof List) {
-					List<Object> template = (List<Object>) content;
-					JoltTemplate joltTemplate = JoltTemplate.getInstance(name, template);
-					templateMap.put(name, joltTemplate);
-				}
-			}
-			return templateMap;
-		} catch (IOException e) {
-			e.printStackTrace();
+		Map<String, List<Object>> rawTemplates = Utility.readTemplates();
+		if (rawTemplates == null) {
 			return null;
 		}
+		return rawTemplates.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey(), e -> JoltTemplate.getInstance(e.getKey(), e.getValue())));
 	}
 
 	public static Table transformationTable(String name) {
@@ -68,9 +82,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		String output = transformationCSV("AllergyIntoleranceObservation");
-		// String output = transformationCSV("EffectiveTimeLowOrValue");
-		// String output = transformationText("AllergyConcernAct");
+		String output = transformationCSV("ProcedureActivityProcedure");
 		System.out.print(output);
 	}
 }

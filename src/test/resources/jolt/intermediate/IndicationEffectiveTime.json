@@ -1,0 +1,46 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*",
+			"low": [
+				{
+					"nullFlavor": "low"
+				},
+				"value"
+			],
+			"high": {
+				"nullFlavor": "high"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"high": {
+				"value": "abatementDateTime",
+				"#high": "clinicalStatus"
+			},
+			"low": {
+				"value": "onsetDateTime",
+				"#low": "clinicalStatus"
+			},
+			"value": {
+				"@0": "onsetDateTime",
+				"#value": "clinicalStatus"
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"clinicalStatus": "MANY"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"clinicalStatus": "=conditionClinicalStatusAdapter(@0)"
+		}
+	}
+]

@@ -1,0 +1,48 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"id": "ONE"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"representedOrganization": {
+				"nullFlavor": "*"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"id": "practitioner.reference.->ID",
+			"code": "code.->CD",
+			"representedOrganization": {
+				"id": {
+					"0": "organization.reference.->ID"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"practitioner": {
+				"reference": "=referenceAdapter('Practitioner',@0)"
+			},
+			"organization": {
+				"reference": "=referenceAdapter('Organization',@0)"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "PractitionerRole"
+		}
+	}
+]

@@ -212,14 +212,6 @@ public interface IResourceTransformer {
 			IBundleInfo bundleInfo);
 
 	/**
-	 * Transforms a CDA Indication instance to a FHIR Condition resource.
-	 *
-	 * @param cdaIndication A CDA Indication instance
-	 * @return A FHIR Condition resource
-	 */
-	Condition tIndication2Condition(Indication cdaIndication);
-
-	/**
 	 * Transforms a CDA LanguageCommunication instance to a FHIR Communication
 	 * resource.
 	 *
@@ -445,6 +437,7 @@ public interface IResourceTransformer {
 	IEntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder supply, IBundleInfo bundleInfo);
 
 	/**
+	 * Provides a provenance file to store the targeted references.
 	 *
 	 * @param bundle          The built bundle, needed to parse for references.
 	 * @param encodedBody     A string with the encoded document body.
@@ -454,8 +447,49 @@ public interface IResourceTransformer {
 	 */
 	Bundle tProvenance(Bundle bundle, String encodedBody, Identifier assemblerDevice);
 
+	/**
+	 * Creates a FHIR Condition object of category problem-list-item from a CDA
+	 * Indication object.
+	 *
+	 * @param cdaIndication a CDA Indication object
+	 * @param bundleInfo    A BundleInfo object which acts as a context for the
+	 *                      current transformation.
+	 * @return Condition object.
+	 */
+	Condition tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo);
+
+	/**
+	 * Creates a FHIR Condition object of category encounter-diagnosis from a CDA
+	 * Indication object.
+	 *
+	 * @param cdaIndication a CDA Indication object
+	 *
+	 * @return Condition object.
+	 */
+	Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo);
+
+	/**
+	 * Turns a CDA manufactured product object into a FHIR medication.
+	 *
+	 * @param cdaProduct CDA Product object.
+	 * @param bundleInfo A BundleInfo object which acts as a context for the current
+	 *                   transformation.
+	 * @return An Entry result that contains a FHIR Bundle with the Medication,
+	 *         which can also include other referenced resources such as
+	 *         Practitioner.
+	 */
 	EntryResult tManufacturedProduct2Medication(Product cdaProduct, IBundleInfo bundleInfo);
 
+	/**
+	 * Turns a CDA manufactured product object into a FHIR medication.
+	 * 
+	 * @param cdaProduct CDA Product object.
+	 * @param bundleInfo A BundleInfo object which acts as a context for the current
+	 *                   transformation.
+	 * @return An Entry result that contains a FHIR Bundle with the Medication,
+	 *         which can also include other referenced resources such as
+	 *         Practitioner.
+	 */
 	EntryResult tManufacturedProduct2Medication(Consumable cdaConsumable, IBundleInfo bundleInfo);
 
 }

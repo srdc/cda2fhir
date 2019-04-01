@@ -1,0 +1,105 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"procedure": {
+				"id": "MANY",
+				"targetSiteCode": "MANY",
+				"performer": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"procedure": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"effectiveTime": "performedPeriod.->IVL_TSPeriod",
+				"targetSiteCode": {
+					"*": "bodySite[].->CD"
+				},
+				"statusCode": "status.->NullFlavorableCode",
+				"code": "code.->CD",
+				"entryRelationship": {
+					"*": {
+						"typeCode": {
+							"RSON": {
+								"@2": {
+									"observation": {
+										"code": "reasonCode[].->CD"
+									}
+								}
+							}
+						}
+					}
+				},
+				"performer": {
+					"*": "Performer[].->AssignedEntity"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": "performer[&].actor.reference"
+			},
+			"Organization": {
+				"*": "performer[&].onBehalfOf.reference"
+			},
+			"PractitionerRole": {
+				"*": {
+					"code": "performer[&1].role"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('ProcedureStatus','unknown',@0)",
+			"performer": {
+				"*": {
+					"actor": {
+						"reference": "=getId(@0)"
+					},
+					"onBehalfOf": {
+						"reference": "=getId(@0)"
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Procedure"
+		}
+	}
+]

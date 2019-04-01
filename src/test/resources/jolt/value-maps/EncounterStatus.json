@@ -1,0 +1,10 @@
+{
+	"in-progress": "in-progress",
+	"active": "in-progress",
+	"onleave":"onleave",
+	"finished": "finished",
+	"completed": "finished",
+	"cancelled":"cancelled",
+	"planned":"planned",
+	"arrived":"arrived"
+}

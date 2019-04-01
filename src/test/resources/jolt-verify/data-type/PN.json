@@ -1,0 +1,80 @@
+[
+	{
+		"input": {
+			"given": "JOE",
+			"family": "DOE"
+		},
+		"expected": {
+			"family": "DOE",
+			"given": [
+				"JOE"
+			]
+		}
+	},
+	{
+		"input": {
+			"given": [
+				"JOE_1",
+				"JOE_2"
+			],
+			"use": "C",
+			"prefix": [
+				"Dr_1",
+				"Dr_2"
+			],
+			"family": "DOE",
+			"suffix": [
+				"Jr_1",
+				"Jr_2"
+			]
+		},
+		"expected": {
+			"use": "usual",
+			"family": "DOE",
+			"given": [
+				"JOE_1",
+				"JOE_2"
+			],
+			"prefix": [
+				"Dr_1",
+				"Dr_2"
+			],
+			"suffix": [
+				"Jr_1",
+				"Jr_2"
+			]
+		}
+	},
+	{
+		"input": {
+			"content": "the text",
+			"given": [
+				"JOE_1",
+				"JOE_2"
+			],
+			"use": ["C", "P"],
+			"family": "DOE",
+			"validTime": {
+				"low": {
+					"value": "20180406"
+				},
+				"high": {
+					"value": "20190806"
+				}
+			}
+		},
+		"expected": {
+			"text": "the text",
+			"use": "nickname",
+			"family": "DOE",
+			"given": [
+				"JOE_1",
+				"JOE_2"
+			],
+			"period": {
+				"start": "2018-04-06",
+				"end": "2019-08-06"
+			}
+		}
+	}
+]

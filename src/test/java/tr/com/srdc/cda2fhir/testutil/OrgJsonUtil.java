@@ -19,6 +19,10 @@ public class OrgJsonUtil {
 		this.root = root;
 	}
 
+	public JSONObject getJSONObject() {
+		return root;
+	}
+
 	public JSONArray getSections() throws JSONException {
 		JSONArray component = get(this.root, SECTION_PATH).getJSONArray("component");
 		JSONArray result = new JSONArray();
@@ -46,6 +50,11 @@ public class OrgJsonUtil {
 		return section.optJSONArray("entry");
 	}
 
+	public JSONArray getProblemSectionEntries() throws JSONException {
+		JSONObject section = getSection("11450-4");
+		return section.optJSONArray("entry");
+	}
+
 	public static OrgJsonUtil readXML(String filepath) throws JSONException, IOException {
 		File file = new File(filepath);
 		String content = FileUtils.readFileToString(file, Charset.defaultCharset());
@@ -54,10 +63,11 @@ public class OrgJsonUtil {
 		convertNamedObjectToArray(root, "entryRelationship");
 		convertNamedObjectToArray(root, "entry");
 		convertNamedObjectToArray(root, "translation");
+		renameProperty(root, "participantrole", "participantRole"); // due to an apparent bug in CDAUtil
 		return new OrgJsonUtil(root);
 	}
 
-	public static JSONObject get(JSONObject object, String[] paths) throws JSONException {
+	private static JSONObject get(JSONObject object, String[] paths) throws JSONException {
 		JSONObject result = object;
 		for (String path : paths) {
 			result = result.getJSONObject(path);
@@ -65,7 +75,7 @@ public class OrgJsonUtil {
 		return result;
 	}
 
-	public static void convertNamedObjectToArray(JSONObject input, String key) throws JSONException {
+	private static void convertNamedObjectToArray(JSONObject input, String key) throws JSONException {
 		JSONArray names = input.names();
 		for (int index = 0; index < names.length(); ++index) {
 			String name = names.optString(index);
@@ -97,7 +107,7 @@ public class OrgJsonUtil {
 		}
 	}
 
-	public static void convertNamedObjectToArray(JSONArray input, String key) throws JSONException {
+	private static void convertNamedObjectToArray(JSONArray input, String key) throws JSONException {
 		int length = input.length();
 		for (int index = 0; index < length; ++index) {
 			JSONArray asArray = input.optJSONArray(index);
@@ -108,6 +118,47 @@ public class OrgJsonUtil {
 			JSONObject asObject = input.optJSONObject(index);
 			if (asObject != null) {
 				convertNamedObjectToArray(asObject, key);
+			}
+		}
+	}
+
+	private static void renameProperty(JSONObject input, String key, String newKey) throws JSONException {
+		JSONArray names = input.names();
+		boolean found = false;
+		for (int index = 0; index < names.length(); ++index) {
+			String name = names.optString(index);
+			if (key.equals(name)) {
+				found = true;
+			}
+			JSONArray asArray = input.optJSONArray(name);
+			if (asArray != null) {
+				renameProperty(asArray, key, newKey);
+				continue;
+			}
+			JSONObject asObject = input.optJSONObject(name);
+			if (asObject != null) {
+				renameProperty(asObject, key, newKey);
+				continue;
+			}
+		}
+		if (found) {
+			Object object = input.get(key);
+			input.put(newKey, object);
+			input.remove(key);
+		}
+	}
+
+	private static void renameProperty(JSONArray input, String key, String newKey) throws JSONException {
+		int length = input.length();
+		for (int index = 0; index < length; ++index) {
+			JSONArray asArray = input.optJSONArray(index);
+			if (asArray != null) {
+				renameProperty(asArray, key, newKey);
+				continue;
+			}
+			JSONObject asObject = input.optJSONObject(index);
+			if (asObject != null) {
+				renameProperty(asObject, key, newKey);
 			}
 		}
 	}

@@ -6,6 +6,15 @@
 				"high": {
 					"value": ""
 				}
+			},
+			"participant": {
+				"participantRole": {
+					"playingEntity": {
+						"code": {
+							"nullFlavor": ""
+						}
+					}
+				}
 			}
 		}
 	},
@@ -31,7 +40,14 @@
 			"participant": {
 				"participantRole": {
 					"playingEntity": {
-						"code": "code.->CD"
+						"code": {
+							"nullFlavor": {
+								"": {
+									"@2": "code.->CD"
+								},
+								"*": null
+							}
+						}
 					}
 				}
 			},
@@ -63,17 +79,14 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"operation": "modify-overwrite-beta",
 		"spec": {
-			"reaction": {
-				"*": {
-					"onset": "lastOccurrence[]"
-				}
-			}
+			"reaction": "=recursivelySquashNulls(@0)",
+			"criticality": "=toLower(@0)"
 		}
 	},
 	{
-		"operation": "modify-overwrite-beta",
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"type": "=lastElement(@0)"
 		}
@@ -87,8 +100,7 @@
 			"category": {
 				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
 			},
-			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)",
-			"lastOccurrence": "=maxDateTime(@0)"
+			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)"
 		}
 	}
 ]

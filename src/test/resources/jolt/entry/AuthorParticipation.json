@@ -9,8 +9,9 @@
 		"operation": "shift",
 		"spec": {
 			"assignedAuthor": [
-				"Practitioner.->AssignedAuthorPractitioner",
-				"PractitionerRole.->AssignedAuthorPractitionerRole"
+				"Practitioner.->EntityPractitioner",
+				"Organization.->EntityOrganization",
+				"PractitionerRole.->EntityPractitionerRole"
 			]
 		}
 	},

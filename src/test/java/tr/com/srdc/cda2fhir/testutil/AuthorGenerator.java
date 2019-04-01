@@ -5,6 +5,8 @@ import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 
+import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
+
 public class AuthorGenerator {
 	private AssignedEntityGenerator assignedEntityGenerator;
 	private CDAFactories factories;
