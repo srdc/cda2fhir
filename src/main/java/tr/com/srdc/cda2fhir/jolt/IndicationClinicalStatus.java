@@ -45,6 +45,7 @@ public class IndicationClinicalStatus implements ContextualTransform, SpecDriven
 		if (highParent != newBase) {
 			rootNode.addRootChild(newBase);
 		}
+
 	}
 
 	@Override

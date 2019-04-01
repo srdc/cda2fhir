@@ -11,6 +11,8 @@ public interface INode {
 
 	void copyConditions(INode source);
 
+	ICondition notCondition();
+
 	IParentNode getParent();
 
 	void setParent(IParentNode parent);

@@ -91,6 +91,29 @@ public abstract class Node implements INode {
 	}
 
 	@Override
+	public ICondition notCondition() {
+		int count = conditions.size();
+		if (count == 0) {
+			return null;
+		}
+		if (count == 1) {
+			return conditions.get(0).not();
+		}
+		OrCondition result = new OrCondition(conditions.get(0).not(), conditions.get(1).not());
+		int index = 2;
+		while (index < count) {
+			if (index + 1 < count) {
+				OrCondition nextOr = new OrCondition(conditions.get(index).not(), conditions.get(index + 1).not());
+				result = new OrCondition(result, nextOr);
+			} else {
+				result = new OrCondition(result, conditions.get(index).not());
+			}
+			index += 2;
+		}
+		return result;
+	}
+
+	@Override
 	public void fillNodes(List<INode> result, PathPredicate pathPredicate) {
 		if (pathPredicate.compare(path)) {
 			result.add(this);
@@ -116,6 +139,8 @@ public abstract class Node implements INode {
 
 	@Override
 	public void copyConditions(INode source) {
-		conditions.addAll(source.getConditions());
+		source.getConditions().forEach(c -> {
+			conditions.add(c.clone());
+		});
 	}
 }

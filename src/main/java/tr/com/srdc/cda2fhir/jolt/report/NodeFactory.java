@@ -1,10 +1,10 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.Condition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
@@ -79,8 +79,11 @@ public class NodeFactory {
 
 	private static List<ICondition> childToCondition(String value, IParentNode parent) {
 		if ("*".equals(value)) {
-			return parent.getChildren().stream().map(c -> c.getConditions().get(0)).map(c -> c.not())
-					.collect(Collectors.toList());
+			List<ICondition> notConditions = new ArrayList<>();
+			for (INode child : parent.getChildren()) {
+				notConditions.add(child.notCondition());
+			}
+			return notConditions;
 		}
 		if (value.isEmpty()) {
 			return Collections.singletonList(new NullCondition(""));

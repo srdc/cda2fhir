@@ -26,6 +26,22 @@ public abstract class Condition implements ICondition {
 		return toString().compareTo(rhs.toString());
 	}
 
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object rhs) {
+		if (rhs == null) {
+			return false;
+		}
+		if (!(rhs instanceof ICondition)) {
+			return false;
+		}
+		return toString().equals(rhs.toString());
+	}
+
 	protected String getPath() {
 		return path;
 	}
