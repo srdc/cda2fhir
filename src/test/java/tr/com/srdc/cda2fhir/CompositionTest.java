@@ -78,7 +78,5 @@ public class CompositionTest {
 				defaultExpectedPeriodStart, comp.getEvent().get(0).getPeriod().getStartElement().getValueAsString());
 		Assert.assertEquals("Expect composition event.period.end to equal service Event effective time high",
 				defaultExpectedPeriodEnd, comp.getEvent().get(0).getPeriod().getEndElement().getValueAsString());
-		Assert.assertEquals("Expect event.code.text to equal \"Primary Care Physician\"", defaultExpectedEventCodeText,
-				comp.getEvent().get(0).getCodeFirstRep().getText());
 	}
 }

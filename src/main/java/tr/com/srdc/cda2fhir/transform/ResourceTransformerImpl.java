@@ -937,12 +937,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				// documentationOf.serviceEvent.assignedEntity -> composition.event.detail
 				if (cdaServiceEvent.getPerformers() != null && !cdaServiceEvent.getPerformers().isEmpty()) {
 					for (Performer1 performer : cdaServiceEvent.getPerformers()) {
-						EntityResult entityResult = tAssignedEntity2Practitioner(performer.getAssignedEntity(),
-								bundleInfo);
+						EntityResult entityResult = tPerformer12Practitioner(performer, bundleInfo);
 						result.updateFrom(entityResult);
 						Reference reference = entityResult.getPractitionerReference();
 						event.addDetail(reference);
-						event.addCode(new CodeableConcept().setText("Primary Care Physician"));
 					}
 				}
 			}
