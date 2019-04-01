@@ -22,11 +22,4 @@ public class NotEqualCondition extends Condition {
 	public String toString() {
 		return getPath() + " notequal " + value;
 	}
-
-	@Override
-	public String toString(String ownerPath) {
-		String conditionPath = getConditionPath(ownerPath);
-		return conditionPath + " notequal " + value;
-	}
-
 }

@@ -23,10 +23,4 @@ public class EqualCondition extends Condition {
 		String path = getPath();
 		return path + " equal " + value;
 	}
-
-	@Override
-	public String toString(String ownerPath) {
-		String conditionPath = getConditionPath(ownerPath);
-		return conditionPath + " equal " + value;
-	}
 }

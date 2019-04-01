@@ -29,9 +29,4 @@ public abstract class Condition implements ICondition {
 	protected String getPath() {
 		return path;
 	}
-
-	protected String getConditionPath(String ownerPath) {
-		return path.length() == 0 ? ownerPath : ownerPath + "." + path;
-
-	}
 }

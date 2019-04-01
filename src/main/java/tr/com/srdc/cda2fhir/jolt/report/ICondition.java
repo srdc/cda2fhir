@@ -11,7 +11,5 @@ public interface ICondition extends Comparable<ICondition> {
 
 	void prependPath(String path);
 
-	String toString(String path);
-
 	ICondition not();
 }

@@ -40,9 +40,4 @@ public class OrCondition implements ICondition {
 	public String toString() {
 		return left.toString() + " or " + right.toString();
 	}
-
-	@Override
-	public String toString(String ownerPath) {
-		return left.toString(ownerPath) + " or " + right.toString(ownerPath);
-	}
 }

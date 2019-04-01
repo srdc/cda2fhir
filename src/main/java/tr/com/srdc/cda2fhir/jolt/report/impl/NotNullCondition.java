@@ -19,10 +19,4 @@ public class NotNullCondition extends Condition {
 	public String toString() {
 		return getPath() + " " + "isnotnull";
 	}
-
-	@Override
-	public String toString(String ownerPath) {
-		String conditionPath = getConditionPath(ownerPath);
-		return conditionPath + " " + "isnotnull";
-	}
 }
