@@ -22,6 +22,7 @@ import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.IndicationGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class IndicationTest {
@@ -59,7 +60,7 @@ public class IndicationTest {
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
-		Condition condition = rt.tIndication2Condition(indication);
+		Condition condition = rt.tIndication2ConditionEncounter(indication, new BundleInfo(rt));
 
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIRCondition", "json");
 		FHIRUtil.printJSON(condition, filepath);

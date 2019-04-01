@@ -20,7 +20,7 @@
 			"id": {
 				"*": "identifier[].->ID"
 			},
-			"code": "category[].->CD",
+			"#constant": "category[]",
 			"value": {
 				"*": "code[].->CD"
 			},
@@ -54,6 +54,9 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
+			"category": {
+				"*": "=constantValue('ConditionCategoryConstant')"
+			},
 			"code": "=lastElement(@0)",
 			"onsetDateTime": "=datetimeAdapter(@0)",
 			"abatementDateTime": "=datetimeAdapter(@0)",

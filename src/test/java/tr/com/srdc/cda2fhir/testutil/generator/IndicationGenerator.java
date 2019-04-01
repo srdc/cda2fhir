@@ -19,8 +19,6 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class IndicationGenerator {
-	private static final Map<String, Object> CONDITION_CATEGORY = JsonUtils
-			.filepathToMap("src/test/resources/jolt/value-maps/ConditionCategory.json");
 	private static final Map<String, Object> CONDITION_VERIFICATION_STATUS = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/ConditionVerificationStatus.json");
 
@@ -78,7 +76,6 @@ public class IndicationGenerator {
 		return indication;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void verify(Condition condition) {
 		if (!idGenerators.isEmpty()) {
 			for (int index = 0; index < idGenerators.size(); ++index) {
@@ -90,15 +87,11 @@ public class IndicationGenerator {
 
 		if (code != null) {
 			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
-			Map<String, Object> result = (Map<String, Object>) CONDITION_CATEGORY.get(code);
-			Assert.assertNotNull("Condition category mapping value", result);
-			String expectedCode = (String) result.get("code");
-			String expectedSystem = (String) result.get("system");
-			String expectedDisplay = (String) result.get("display");
 			Coding actual = condition.getCategory().get(0).getCoding().get(0);
-			Assert.assertEquals("Condition category code", expectedCode, actual.getCode());
-			Assert.assertEquals("Condition category system", expectedSystem, actual.getSystem());
-			Assert.assertEquals("Condition category display", expectedDisplay, actual.getDisplay());
+			Assert.assertEquals("Condition category code", "encounter-diagnosis", actual.getCode());
+			Assert.assertEquals("Condition category system", "http://hl7.org/fhir/condition-category",
+					actual.getSystem());
+			Assert.assertEquals("Condition category display", "Encounter Diagnosis", actual.getDisplay());
 		} else {
 			Assert.assertTrue("No condition category", !condition.hasCategory());
 		}

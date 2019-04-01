@@ -203,6 +203,10 @@ public class BundleUtil {
 
 	static public <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type, int count) throws Exception {
 		List<T> resources = FHIRUtil.findResources(bundle, type);
+
+		for (Resource resource : resources) {
+			System.out.println(resource.fhirType());
+		}
 		String msg = String.format("Expect %d %s resources in the bundle", count, type.getSimpleName());
 		Assert.assertEquals(msg, count, resources.size());
 		return resources;
@@ -210,7 +214,10 @@ public class BundleUtil {
 
 	static public <T extends Resource> T findOneResource(Bundle bundle, Class<T> type) throws Exception {
 		List<T> resources = findResources(bundle, type, 1);
-		return resources.get(0);
+		if (!resources.isEmpty())
+			return resources.get(0);
+		else
+			return null;
 	}
 
 	private static Bundle generateBundle(String sourceName, boolean includeComposition) throws Exception {

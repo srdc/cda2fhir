@@ -35,7 +35,7 @@
 				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
 			},
 			"value": {
-				"code": "category[]"
+				"code": ["category[]", "type"]
 			},
 			"participant": {
 				"participantRole": {
@@ -86,13 +86,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"reaction": {
-				"*": {
-					"onset": "lastOccurrence[]"
-				}
-			}
+			"type": "=lastElement(@0)"
 		}
 	},
 	{
@@ -104,7 +100,7 @@
 			"category": {
 				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
 			},
-			"lastOccurrence": "=maxDateTime(@0)"
+			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)"
 		}
 	}
 ]

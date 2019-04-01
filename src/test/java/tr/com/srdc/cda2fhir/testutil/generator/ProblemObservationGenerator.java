@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -108,8 +109,12 @@ public class ProblemObservationGenerator {
 		}
 
 		if (codeGenerator != null) {
-			Assert.assertEquals("COndition category cpunt", 1, condition.getCategory().size());
-			codeGenerator.verify(condition.getCategory().get(0));
+			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
+			Coding actual = condition.getCategory().get(0).getCoding().get(0);
+			Assert.assertEquals("Condition category code", "problem-list-item", actual.getCode());
+			Assert.assertEquals("Condition category system", "http://hl7.org/fhir/condition-category",
+					actual.getSystem());
+			Assert.assertEquals("Condition category display", "Problem List Item", actual.getDisplay());
 		} else {
 			Assert.assertTrue("No condition category", !condition.hasCategory());
 		}

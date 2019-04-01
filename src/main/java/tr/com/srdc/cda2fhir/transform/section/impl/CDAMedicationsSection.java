@@ -27,11 +27,14 @@ public class CDAMedicationsSection implements ICDASection {
 		SectionResultSingular<MedicationStatement> result = SectionResultSingular
 				.getInstance(MedicationStatement.class);
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
+
 		for (MedicationActivity act : section.getMedicationActivities()) {
 			IEntryResult er = rt.tMedicationActivity2MedicationStatement(act, localBundleInfo);
 			result.updateFrom(er);
 			localBundleInfo.updateFrom(er);
 		}
 		return result;
+
 	}
+
 }

@@ -22,9 +22,7 @@
 				"id": {
 					"*": "identifier[].->ID"
 				},
-				"code": {
-					"code": "category[].coding[]"
-				},
+				"#constant": "category[]",
 				"value": {
 					"*": "code.->CD"
 				},
@@ -43,11 +41,7 @@
 		"spec": {
 			"verificationStatus": "=valueSetAdapter('ConditionVerificationStatus','unknown',@0)",
 			"category": {
-				"*": {
-					"coding": {
-						"*": "=valueSetAdapter('ConditionCategory',@0)"
-					}
-				}
+				"*": "=constantValue('EncounterConditionCategoryConstant')"
 			},
 			"onsetDateTime": "=datetimeAdapter(@0)",
 			"abatementDateTime": "=datetimeAdapter(@0)"

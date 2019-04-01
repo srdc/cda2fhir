@@ -6,6 +6,7 @@ import java.util.Map;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
@@ -21,13 +22,16 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.CDImpl;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
+import com.helger.commons.collection.attr.StringMap;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -85,7 +89,8 @@ public class ProblemConcernActTest {
 		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
 		List<Coding> category = condition.getCategory().get(0).getCoding();
 		Assert.assertEquals("Unexpected number of category codings", 1, category.size());
-		verifyCoding(category.get(0), code, displayName, "http://snomed.info/sct");
+		verifyCoding(category.get(0), "problem-list-item", "Problem List Item",
+				"http://hl7.org/fhir/condition-category");
 
 		String translationCode = "75321-0"; // From CCDA Specification
 		String translationDisplayName = "Clinical finding HL7.CCDAR2";
@@ -99,9 +104,10 @@ public class ProblemConcernActTest {
 		Bundle bundle2 = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
 		Condition condition2 = BundleUtil.findOneResource(bundle2, Condition.class);
 		List<Coding> category2 = condition2.getCategory().get(0).getCoding();
-		Assert.assertEquals("Unexpected number of category codings", 2, category2.size());
-		verifyCoding(category2.get(0), code, displayName, "http://snomed.info/sct");
-		verifyCoding(category2.get(1), translationCode, translationDisplayName, "http://loinc.org");
+		Assert.assertEquals("Unexpected number of category codings", 1, category2.size());
+		verifyCoding(category2.get(0), "problem-list-item", "Problem List Item",
+				"http://hl7.org/fhir/condition-category");
+
 	}
 
 	@Test
@@ -202,5 +208,35 @@ public class ProblemConcernActTest {
 
 			verifyConditionVerificationStatus(act, fhirStatus);
 		}
+	}
+
+	@Test
+	public void testCodeOriginalText() throws Exception {
+
+		ProblemConcernActImpl act = (ProblemConcernActImpl) cdaObjFactory.createProblemConcernAct();
+		ProblemObservationImpl observation = (ProblemObservationImpl) cdaObjFactory.createProblemObservation();
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		String expectedValue = "freetext entry";
+		String referenceValue = "fakeid1";
+		CD cd = cdaTypeFactory.createCD();
+		ED ed = cdaTypeFactory.createED();
+		TEL tel = cdaTypeFactory.createTEL();
+		tel.setValue("#" + referenceValue);
+		ed.setReference(tel);
+		cd.setCode("code");
+		cd.setCodeSystem("codeSystem");
+		cd.setOriginalText(ed);
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put(referenceValue, expectedValue);
+		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+
+		observation.getValues().add(cd);
+		act.addObservation(observation);
+		Bundle bundle = rt.tProblemConcernAct2Condition(act, bundleInfo).getBundle();
+		Condition condition = BundleUtil.findOneResource(bundle, Condition.class);
+		CodeableConcept cc = condition.getCode();
+		Assert.assertEquals("Condition Code text value assigned", expectedValue, cc.getText());
+
 	}
 }
