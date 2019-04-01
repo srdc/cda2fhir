@@ -23,6 +23,7 @@
 				},
 				"statusCode": "status.->NullFlavorableCode",
 				"author": "->AuthorParticipation",
+				"consumable": "Medication.->MedicationInformation",
 				"#unk": "taken"
 			}
 		}
@@ -33,7 +34,8 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "informationSource.reference"
+			"Practitioner": "informationSource.reference",
+			"Medication": "medicationReference.reference"
 		}
 	},
 	{
@@ -41,6 +43,9 @@
 		"spec": {
 			"status": "=valueSetAdapter('MedicationStatementStatus',@0)",
 			"informationSource": {
+				"reference": "=getId(@0)"
+			},
+			"medicationReference": {
 				"reference": "=getId(@0)"
 			}
 		}
@@ -50,7 +55,8 @@
 		"spec": {
 			"Practitioner": "",
 			"PractitionerRole": "",
-			"Organization": ""
+			"Organization": "",
+			"Medication": ""
 		}
 	},
 	{

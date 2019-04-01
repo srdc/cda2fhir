@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -54,6 +55,8 @@ public class MedicationActivityTest {
 
 		JoltUtil.verifyUpdateReference(medStatement.hasInformationSource(), medStatement.getInformationSource(),
 				joltMedStatement, "informationSource");
+		JoltUtil.verifyUpdateReference(medStatement.hasMedicationReference(), medStatement.getMedicationReference(),
+				joltMedStatement, "medicationReference");
 
 		String joltMedStatementJson = JsonUtils.toPrettyJsonString(joltMedStatement);
 		File joltMedStatementFile = new File(OUTPUT_PATH + caseName + "JoltMedStatement.json");
@@ -92,6 +95,9 @@ public class MedicationActivityTest {
 		joltUtil.verifyOrganizations(organizations);
 		joltUtil.verifyPractitioners(practitioners);
 		joltUtil.verifyPractitionerRoles(practitionerRoles);
+
+		Medication med = BundleUtil.findOneResource(bundle, Medication.class);
+		joltUtil.verifyMedication(med);
 
 		Map<String, Object> joltMedStatement = TransformManager.chooseResource(joltResult, "MedicationStatement");
 		if (medicationStatement == null) {

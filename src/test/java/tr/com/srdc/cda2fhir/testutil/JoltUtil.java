@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
@@ -45,6 +46,7 @@ public class JoltUtil {
 		if (organizations.isEmpty()) {
 			Assert.assertTrue("No organizations", joltOrganizations.isEmpty());
 		} else {
+			Assert.assertEquals("Organization count", organizations.size(), joltOrganizations.size());
 			for (int index = 0; index < organizations.size(); ++index) {
 				compareOrganization(organizations.get(index), joltOrganizations.get(index));
 			}
@@ -80,6 +82,21 @@ public class JoltUtil {
 		String expected = FHIRUtil.encodeToJSON(organization);
 		String actual = JsonUtils.toJsonString(joltOrganization);
 		JSONAssert.assertEquals("Jolt organization", expected, actual, true);
+	}
+
+	public void verifyMedication(Medication med) throws Exception {
+		Map<String, Object> joltMed = TransformManager.chooseResource(result, "Medication");
+
+		Assert.assertNotNull("Jolt medication", joltMed);
+		Assert.assertNotNull("Jolt medication id", joltMed.get("id"));
+
+		joltMed.put("id", med.getIdElement().getIdPart()); // ids do not have to match
+
+		verifyUpdateReference(med.hasManufacturer(), med.getManufacturer(), joltMed, "manufacturer");
+
+		String joltMedJson = JsonUtils.toPrettyJsonString(joltMed);
+		String medJson = FHIRUtil.encodeToJSON(med);
+		JSONAssert.assertEquals("Jolt medication", medJson, joltMedJson, true);
 	}
 
 	private static void comparePractitioner(Practitioner practitioner, Map<String, Object> joltPractitioner)

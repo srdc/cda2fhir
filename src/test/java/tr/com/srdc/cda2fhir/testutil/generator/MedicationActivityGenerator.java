@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Author;
+import org.openhealthtools.mdht.uml.cda.Consumable;
+import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -32,6 +35,7 @@ public class MedicationActivityGenerator {
 	private String statusCodeNullFlavor;
 
 	private AuthorGenerator authorGenerator;
+	private MedicationInformationGenerator medInfoGenerator;
 
 	public MedicationActivity generate(CDAFactories factories) {
 		MedicationActivity ma = factories.consol.createMedicationActivity();
@@ -61,6 +65,13 @@ public class MedicationActivityGenerator {
 			ma.getAuthors().add(author);
 		}
 
+		if (medInfoGenerator != null) {
+			ManufacturedProduct med = medInfoGenerator.generate(factories);
+			Consumable consumable = factories.base.createConsumable();
+			consumable.setManufacturedProduct(med);
+			ma.setConsumable(consumable);
+		}
+
 		return ma;
 	}
 
@@ -70,6 +81,7 @@ public class MedicationActivityGenerator {
 		ma.idGenerators.add(IDGenerator.getNextInstance());
 		ma.statusCode = "active";
 		ma.authorGenerator = AuthorGenerator.getDefaultInstance();
+		ma.medInfoGenerator = MedicationInformationGenerator.getDefaultInstance();
 
 		return ma;
 	}
@@ -91,14 +103,6 @@ public class MedicationActivityGenerator {
 				expected = "unknown";
 			}
 			Assert.assertEquals("Med statement status", expected, medStatement.getStatus().toCode());
-		}
-	}
-
-	public void verify(Practitioner practitioner) {
-		if (authorGenerator == null) {
-			Assert.assertNull("Practitioner", practitioner);
-		} else {
-			authorGenerator.verify(practitioner);
 		}
 	}
 
@@ -124,6 +128,15 @@ public class MedicationActivityGenerator {
 				Organization organization = util.getResourceFromReference(reference, Organization.class);
 				authorGenerator.verify(organization);
 			}
+		}
+
+		if (medInfoGenerator == null) {
+			Assert.assertTrue("No med statetement medication", ms.hasMedication());
+		} else {
+			String medId = ms.getMedicationReference().getReference();
+			Medication medication = util.getResourceFromReference(medId, Medication.class);
+			medInfoGenerator.verify(medication);
+			medInfoGenerator.verify(bundle);
 		}
 	}
 }
