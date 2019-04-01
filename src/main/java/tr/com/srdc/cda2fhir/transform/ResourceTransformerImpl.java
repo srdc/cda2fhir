@@ -44,6 +44,7 @@ import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
+import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
 import org.hl7.fhir.dstu3.model.Composition.DocumentConfidentiality;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Composition.SectionMode;
@@ -102,6 +103,7 @@ import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Consumable;
+import org.openhealthtools.mdht.uml.cda.DocumentationOf;
 import org.openhealthtools.mdht.uml.cda.Entity;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Guardian;
@@ -112,10 +114,12 @@ import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
+import org.openhealthtools.mdht.uml.cda.Performer1;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.Product;
 import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.Section;
+import org.openhealthtools.mdht.uml.cda.ServiceEvent;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
@@ -924,6 +928,34 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
+		for (DocumentationOf docOf : cdaClinicalDocument.getDocumentationOfs()) {
+			if (docOf.getServiceEvent() != null && fhirComp != null) {
+				ServiceEvent cdaServiceEvent = docOf.getServiceEvent();
+				CompositionEventComponent event = new CompositionEventComponent();
+
+				fhirComp.addEvent(event);
+				// documentationOf.serviceEvent.effectiveTime => event.period
+				if (cdaServiceEvent.getEffectiveTime() != null) {
+					Period period = dtt.tIVL_TS2Period(cdaServiceEvent.getEffectiveTime());
+					event.setPeriod(period);
+				}
+
+				// documentationOf.serviceEvent.assignedEntity -> composition.event.detail
+				if (cdaServiceEvent.getPerformers() != null && !cdaServiceEvent.getPerformers().isEmpty()) {
+					for (Performer1 performer : cdaServiceEvent.getPerformers()) {
+						if (performer.getAssignedEntity() != null) {
+							EntityResult entityResult = tPerformer12Practitioner(performer, bundleInfo);
+							if (entityResult.hasPractitioner()) {
+								result.updateFrom(entityResult);
+								Reference reference = entityResult.getPractitionerReference();
+								event.addDetail(reference);
+							}
+						}
+
+					}
+				}
+			}
+		}
 		// custodian.assignedCustodian.representedCustodianOrganization -> custodian
 		if (cdaClinicalDocument.getCustodian() != null && !cdaClinicalDocument.getCustodian().isSetNullFlavor()) {
 			if (cdaClinicalDocument.getCustodian().getAssignedCustodian() != null
@@ -2772,6 +2804,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		return tAssignedEntity2Practitioner(cdaPerformer2.getAssignedEntity(), bundleInfo);
+	}
+
+	public EntityResult tPerformer12Practitioner(Performer1 cdaPerformer1, IBundleInfo bundleInfo) {
+		if (cdaPerformer1 == null || cdaPerformer1.isSetNullFlavor()) {
+			return new EntityResult();
+		}
+
+		return tAssignedEntity2Practitioner(cdaPerformer1.getAssignedEntity(), bundleInfo);
 	}
 
 	@Override

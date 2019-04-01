@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,6 +29,9 @@ public class CompositionTest {
 	static String defaultExpectedTypeDisplay = ClinicalDocumentMetadataGenerator.DEFAULT_CODE_DISPLAY;
 	static String defaultExpectedTitle = ClinicalDocumentMetadataGenerator.DEFAULT_TITLE;
 	static String defaultExpectedConfidentiality = "N";
+	static String defaultExpectedPeriodStart = "1970-09-19";
+	static String defaultExpectedPeriodEnd = "2019-02-14";
+	static String defaultExpectedEventCodeText = "Primary Care Physician";
 
 	@BeforeClass
 	public static void init() {
@@ -44,6 +48,7 @@ public class CompositionTest {
 		EntryResult entryResult = rt.tClinicalDocument2Composition(clinicalDoc);
 		Bundle bundle = entryResult.getBundle();
 		Composition comp = BundleUtil.findOneResource(bundle, Composition.class);
+		Practitioner primary = BundleUtil.findOneResource(bundle, Practitioner.class);
 
 		Assert.assertEquals("Expect assigner to equal assigningAuthorityName", defaultExpectedAssigner,
 				comp.getIdentifier().getAssigner().getDisplay());
@@ -67,6 +72,11 @@ public class CompositionTest {
 				comp.getClass_().getCodingFirstRep().getCode());
 		Assert.assertEquals("Expect composition to code display to equal Note", "Note",
 				comp.getClass_().getCodingFirstRep().getDisplay());
-
+		Assert.assertEquals("Expect composition event.detail to contain reference to prmary care physician",
+				comp.getEvent().get(0).getDetailFirstRep().getReference(), primary.getId());
+		Assert.assertEquals("Expect composition event.period.start to equal service Event effective time low",
+				defaultExpectedPeriodStart, comp.getEvent().get(0).getPeriod().getStartElement().getValueAsString());
+		Assert.assertEquals("Expect composition event.period.end to equal service Event effective time high",
+				defaultExpectedPeriodEnd, comp.getEvent().get(0).getPeriod().getEndElement().getValueAsString());
 	}
 }
