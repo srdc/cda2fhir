@@ -209,4 +209,19 @@ public class JoltUtil {
 			return result;
 		}).collect(Collectors.toList());
 	}
+
+	@SuppressWarnings("unchecked")
+	public static void verifyUpdateReference(boolean has, Reference referenceRoot, Map<String, Object> joltObject,
+			String key) {
+		if (has) {
+			Map<String, Object> joltObjectAsMap = (Map<String, Object>) joltObject.get(key);
+			Assert.assertNotNull("Jolt " + key, joltObjectAsMap);
+			Object reference = joltObjectAsMap.get("reference");
+			Assert.assertNotNull("Jolt " + key + " reference", reference);
+			Assert.assertTrue("Reference is string", reference instanceof String);
+			JoltUtil.putReference(joltObject, key, referenceRoot); // reference values may not match
+		} else {
+			Assert.assertNull("No jolt reference parent", joltObject.get(key));
+		}
+	}
 }

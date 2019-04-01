@@ -8,6 +8,9 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
+import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,6 +52,9 @@ public class MedicationActivityTest {
 		joltMedStatement.put("id", medStatement.getIdElement().getIdPart()); // ids do not have to match
 		JoltUtil.putReference(joltMedStatement, "subject", medStatement.getSubject()); // patient is not yet implemented
 
+		JoltUtil.verifyUpdateReference(medStatement.hasInformationSource(), medStatement.getInformationSource(),
+				joltMedStatement, "informationSource");
+
 		String joltMedStatementJson = JsonUtils.toPrettyJsonString(joltMedStatement);
 		File joltMedStatementFile = new File(OUTPUT_PATH + caseName + "JoltMedStatement.json");
 		FileUtils.writeStringToFile(joltMedStatementFile, joltMedStatementJson, Charset.defaultCharset());
@@ -74,9 +80,18 @@ public class MedicationActivityTest {
 
 		generator.verify(bundle);
 
+		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
+		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
+		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
+
 		File xmlFile = CDAUtilExtension.writeAsXML(ma, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationActivity", caseName);
+		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+
+		joltUtil.verifyOrganizations(organizations);
+		joltUtil.verifyPractitioners(practitioners);
+		joltUtil.verifyPractitionerRoles(practitionerRoles);
 
 		Map<String, Object> joltMedStatement = TransformManager.chooseResource(joltResult, "MedicationStatement");
 		if (medicationStatement == null) {
