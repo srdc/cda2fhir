@@ -13,6 +13,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 
+import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
+
 public class ClinicalDocumentMetadataGenerator {
 
 	ClinicalDocument doc;
