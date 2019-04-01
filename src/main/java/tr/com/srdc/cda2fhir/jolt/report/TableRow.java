@@ -14,7 +14,7 @@ public class TableRow implements Comparable<TableRow> {
 	private String link;
 	private String format = "";
 
-	private List<String> conditions = new ArrayList<String>();
+	private List<ICondition> conditions = new ArrayList<ICondition>();
 
 	private static final String[] pluralFormatWords = { "max", "min", "first", "last" };
 
@@ -46,17 +46,14 @@ public class TableRow implements Comparable<TableRow> {
 	}
 
 	public void promotePath(String parentPath) {
-		if (path.charAt(0) != '\'') {
+		if (path.charAt(0) != '\'' && path.charAt(0) != '#') {
 			path = parentPath + "." + path;
 		}
 
-		for (int index = 0; index < conditions.size(); ++index) {
-			String value = conditions.get(index);
-			conditions.set(index, parentPath + "." + value);
-		}
+		conditions.forEach(c -> c.prependPath(parentPath));
 	}
 
-	public void addCondition(String condition) {
+	public void addCondition(ICondition condition) {
 		conditions.add(condition);
 	}
 
@@ -71,7 +68,7 @@ public class TableRow implements Comparable<TableRow> {
 			result += String.format("\"%s\"", format);
 		}
 		if (conditions.size() > 0) {
-			String conditionInfo = conditions.stream().collect(Collectors.joining(","));
+			String conditionInfo = conditions.stream().map(r -> r.toString()).collect(Collectors.joining(","));
 			result += "," + conditionInfo;
 		}
 		return result;
@@ -100,10 +97,12 @@ public class TableRow implements Comparable<TableRow> {
 	}
 
 	public void updateResourceType(String resourceType, Set<String> exceptions) {
-		if (!exceptions.contains(target)) {
+		String targetPiece = target.split("\\.")[0];
+		if (!exceptions.contains(targetPiece)) {
 			target = resourceType + "." + target;
 		}
-		if (!exceptions.contains(path)) {
+		String pathPiece = path.split("\\.")[0];
+		if (!exceptions.contains(pathPiece) && path.charAt(0) != '#') {
 			path = resourceType + "." + path;
 		}
 	}
@@ -126,7 +125,7 @@ public class TableRow implements Comparable<TableRow> {
 		String space = "    ";
 		String result = path + " ->";
 		result += "\n" + space + "*condition "
-				+ conditions.stream().collect(Collectors.joining("\n" + space + "*condition "));
+				+ conditions.stream().map(r -> r.toString()).collect(Collectors.joining("\n" + space + "*condition "));
 		if (!format.isEmpty()) {
 			result += "\n" + space + "*format " + format;
 		}

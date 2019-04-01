@@ -37,6 +37,16 @@ public class MainTest {
 	}
 
 	@Test
+	public void testProblemConcernAct() throws Exception {
+		actualTest("ProblemConcernAct");
+	}
+
+	@Test
+	public void testProblemObservation() throws Exception {
+		actualTest("ProblemObservation");
+	}
+
+	@Test
 	public void testID() throws Exception {
 		actualTest("ID");
 	}
@@ -44,5 +54,65 @@ public class MainTest {
 	@Test
 	public void testCD() throws Exception {
 		actualTest("CD");
+	}
+
+	@Test
+	public void testIVL_TSPeriod() throws Exception {
+		actualTest("IVL_TSPeriod");
+	}
+
+	@Test
+	public void testPN() throws Exception {
+		actualTest("PN");
+	}
+
+	@Test
+	public void testTEL() throws Exception {
+		actualTest("TEL");
+	}
+
+	@Test
+	public void testAD() throws Exception {
+		actualTest("AD");
+	}
+
+	@Test
+	public void testAuthorParticipation() throws Exception {
+		actualTest("AuthorParticipation");
+	}
+
+	@Test
+	public void testEntityPractitioner() throws Exception {
+		actualTest("EntityPractitioner");
+	}
+
+	@Test
+	public void testEntityPractitionerRole() throws Exception {
+		actualTest("EntityPractitionerRole");
+	}
+
+	@Test
+	public void testEntityOrganization() throws Exception {
+		actualTest("EntityOrganization");
+	}
+
+	@Test
+	public void testProcedureActivityProcedure() throws Exception {
+		actualTest("ProcedureActivityProcedure");
+	}
+
+	@Test
+	public void testIndication() throws Exception {
+		actualTest("Indication");
+	}
+
+	@Test
+	public void testServiceDeliveryLocation() throws Exception {
+		actualTest("ServiceDeliveryLocation");
+	}
+
+	@Test
+	public void testEncounterActivity() throws Exception {
+		actualTest("EncounterActivity");
 	}
 }

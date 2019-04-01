@@ -1,0 +1,9 @@
+{
+	"coding": [
+		{
+			"system": "http://hl7.org/fhir/condition-category",
+			"display": "Encounter Diagnosis",
+			"code": "encounter-diagnosis"
+		}
+	]
+}

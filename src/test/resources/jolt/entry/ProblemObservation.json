@@ -1,0 +1,94 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"id": "MANY",
+			"code": "ONE",
+			"value": "MANY",
+			"author": "ONE"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"id": {
+				"*": "identifier[].->ID"
+			},
+			"#constant": "category[]",
+			"value": {
+				"*": "code[].->CD"
+			},
+			"effectiveTime": {
+				"high": {
+					"value": [
+						"clinicalStatus",
+						"abatementDateTime"
+					]
+				},
+				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
+			},
+			"author": {
+				"time": {
+					"value": "assertedDate"
+				},
+				"@0": "->AuthorParticipation"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": "asserter.reference"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
+			"category": {
+				"*": "=constantValue('ConditionCategoryConstant')"
+			},
+			"code": "=lastElement(@0)",
+			"onsetDateTime": "=datetimeAdapter(@0)",
+			"abatementDateTime": "=datetimeAdapter(@0)",
+			"assertedDate": "=datetimeAdapter(@0)",
+			"asserter": {
+				"reference": "=getId(@0)"
+			}
+		}
+	},
+	{
+		"operation": "default",
+		"spec": {
+			"clinicalStatus": "active"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
+		"spec": {
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Condition"
+		}
+	}
+]

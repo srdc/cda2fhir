@@ -1,0 +1,13 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
+effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapter",nullFlavor isnull
+author.time.value,Condition.assertedDate,,"datetimeAdapter",nullFlavor isnull
+Practitioner,Condition.asserter.reference,,"getId"
+#constant,Condition.category[],,"constantValue('ConditionCategoryConstant')",nullFlavor isnull
+effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')",nullFlavor isnull
+value[],Condition.code[],CD,"lastElement",nullFlavor isnull
+id[],Condition.identifier[],ID,,nullFlavor isnull
+effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.nullFlavor isnull,effectiveTime.low.value isnotnull,nullFlavor isnull
+effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.value isnull,effectiveTime.nullFlavor isnull,nullFlavor isnull
+author.assignedAuthor,Organization,EntityOrganization,,nullFlavor isnull
+author.assignedAuthor,Practitioner,EntityPractitioner,,nullFlavor isnull
+author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,nullFlavor isnull

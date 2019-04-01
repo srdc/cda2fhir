@@ -1,0 +1,4 @@
+CCDA Source,Target,Link,Format
+assignedAuthor,Organization,EntityOrganization,
+assignedAuthor,Practitioner,EntityPractitioner,
+assignedAuthor,PractitionerRole,EntityPractitionerRole,

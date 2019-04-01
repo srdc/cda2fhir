@@ -1,0 +1,21 @@
+[
+	{
+		"operation": "default",
+		"spec": {
+			"nullFlavor": ""
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"nullFlavor": {
+				"": {
+					"@2": {
+						"value": ""
+					}
+				},
+				"*": null
+			}
+		}
+	}
+]

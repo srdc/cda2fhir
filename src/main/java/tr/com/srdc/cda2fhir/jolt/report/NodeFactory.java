@@ -1,18 +1,26 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
+import tr.com.srdc.cda2fhir.jolt.report.impl.Condition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ConditionNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.EqualCondition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LeafRawConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LeafWildcardNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedRawConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.LinkedWildcardNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.MultiOrCondition;
+import tr.com.srdc.cda2fhir.jolt.report.impl.NullCondition;
 import tr.com.srdc.cda2fhir.jolt.report.impl.ParentNode;
+import tr.com.srdc.cda2fhir.jolt.report.impl.RawConditionNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 import tr.com.srdc.cda2fhir.jolt.report.impl.WildcardNode;
 
@@ -22,11 +30,11 @@ public class NodeFactory {
 		public String link;
 
 		private ParsedTarget(String target) {
-			this.target = target;
+			this.target = target.replace("[&]", "[]").replace("[&1]", "[]");
 		}
 
 		private ParsedTarget(String target, String link) {
-			this.target = target;
+			this.target = target.replace("[&]", "[]").replace("[&1]", "[]");
 			this.link = link;
 		}
 
@@ -54,75 +62,123 @@ public class NodeFactory {
 		if (parsedTarget.link == null) {
 			if (path.equals("*")) {
 				return new LeafWildcardNode(parent, path, parsedTarget.target);
+			} else if (path.equals("@0")) {
+				return new LeafRawConditionNode(parent, 0, parsedTarget.target);
 			} else {
 				return new LeafNode(parent, path, parsedTarget.target);
 			}
 		} else {
 			if (path.equals("*")) {
 				return new LinkedWildcardNode(parent, path, parsedTarget.target, parsedTarget.link);
+			} else if (path.equals("@0")) {
+				return new LinkedRawConditionNode(parent, 0, parsedTarget.target, parsedTarget.link);
 			} else {
 				return new LinkedNode(parent, path, parsedTarget.target, parsedTarget.link);
 			}
 		}
 	}
 
-	private static List<JoltCondition> childToCondition(String value, IParentNode parent) {
+	private static Set<ICondition> childToCondition(String value, IParentNode parent) {
 		if ("*".equals(value)) {
-			return parent.getChildren().stream().map(c -> c.getConditions().get(0)).map(c -> c.not())
-					.collect(Collectors.toList());
+			Set<ICondition> notConditions = new HashSet<>();
+			for (INode child : parent.getChildren()) {
+				notConditions.add(child.notCondition());
+			}
+			if (notConditions.size() == 1) {
+				return notConditions;
+			} else {
+				return Collections.singleton(new MultiOrCondition(notConditions));
+			}
 		}
 		if (value.isEmpty()) {
-			return Collections.singletonList(new JoltCondition("", "isnull"));
+			return Collections.singleton(new NullCondition(""));
 		}
-		return Collections.singletonList(new JoltCondition("", "equal", value));
+		return Collections.singleton(new EqualCondition("", value));
 	}
 
 	@SuppressWarnings("unchecked")
-	private static INode toConditionNode(String value, Map<String, Object> map, IParentNode parent) {
-		String key = map.keySet().iterator().next();
-		if (key.isEmpty() || key.charAt(0) != '@') {
-			return null;
-		}
-		int rank = Integer.valueOf(key.substring(1));
+	private static boolean isValueBranching(Map<String, Object> map) {
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			Object value = entry.getValue();
+			if (value != null && value instanceof Map) {
+				Map<String, Object> valueAsMap = (Map<String, Object>) value;
+				for (String key : valueAsMap.keySet()) {
+					if (!key.isEmpty() && key.charAt(0) == '@' && !key.contentEquals("@0")) {
+						return true;
+					}
+				}
 
-		List<JoltCondition> conditions = childToCondition(value, parent);
-		Object conditionChilren = map.get(key);
-		if (conditionChilren instanceof String) {
-			ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
-			if (pt.link == null) {
-				LeafConditionNode conditionNode = new LeafConditionNode(parent, rank - 1, pt.target);
-				conditionNode.addConditions(conditions);
-				return conditionNode;
-			} else {
-				LinkedConditionNode conditionNode = new LinkedConditionNode(parent, rank - 1, pt.target, pt.link);
-				conditionNode.addConditions(conditions);
-				return conditionNode;
 			}
 		}
-		ParentNode conditionNode = new ConditionNode(parent, rank - 1);
-		conditionNode.addConditions(conditions);
-		fillNode(conditionNode, (Map<String, Object>) map.get(key));
-		return conditionNode;
+		return false;
+	};
+
+	@SuppressWarnings("unchecked")
+	private static void fillConditionNode(IParentNode parent, Map<String, Object> map) {
+		map.forEach((nodeValue, conditionSpec) -> {
+			if (conditionSpec == null)
+				return;
+
+			if (!(conditionSpec instanceof Map)) {
+				throw new ReportException("Value based branch can only be an object or null.");
+			}
+
+			Map<String, Object> conditionSpecAsMap = (Map<String, Object>) conditionSpec;
+
+			Set<Map.Entry<String, Object>> conditionSpecs = conditionSpecAsMap.entrySet();
+
+			if (conditionSpecs.size() > 1) {
+				throw new ReportException("'@' nodes cannot have siblings.");
+			}
+
+			Map.Entry<String, Object> entry = conditionSpecs.iterator().next();
+
+			Set<ICondition> conditions = childToCondition(nodeValue, parent);
+
+			int rank = Integer.valueOf(entry.getKey().substring(1));
+
+			Object conditionChilren = entry.getValue();
+			if (conditionChilren instanceof String) {
+				ParsedTarget pt = ParsedTarget.getInstance((String) conditionChilren);
+				if (pt.link == null) {
+					LeafConditionNode conditionNode = new LeafConditionNode(parent, rank - 1, pt.target);
+					conditionNode.addConditions(conditions);
+					parent.addChild(conditionNode);
+				} else {
+					LinkedConditionNode conditionNode = new LinkedConditionNode(parent, rank - 1, pt.target, pt.link);
+					conditionNode.addConditions(conditions);
+					parent.addChild(conditionNode);
+				}
+				return;
+			}
+			ParentNode conditionNode = new ConditionNode(parent, rank - 1);
+			conditionNode.addConditions(conditions);
+			fillNode(conditionNode, (Map<String, Object>) conditionChilren);
+			parent.addChild(conditionNode);
+		});
 	}
 
 	@SuppressWarnings("unchecked")
 	private static void fillNode(IParentNode node, Map<String, Object> map) {
-		map.forEach((key, value) -> {
+		if (isValueBranching(map)) {
+			fillConditionNode(node, map);
+			return;
+		}
+
+		map.forEach((keyIn, value) -> {
+			final String key = keyIn.replace("[&]", "[]");
 			if (value == null) {
-				JoltCondition condition = new JoltCondition(key, "isnull");
+				Condition condition = new NullCondition(key);
 				node.addCondition(condition);
 				return;
 			}
 			if (value instanceof Map) {
 				Map<String, Object> valueMap = (Map<String, Object>) value;
-				INode childNode = toConditionNode(key, valueMap, node);
-				if (childNode != null) {
-					node.addChild(childNode);
-					return;
-				}
 				ParentNode parentNode;
 				if (key.equals("*")) {
 					parentNode = new WildcardNode(node, key);
+				} else if (key.equals("@0")) {
+					parentNode = new RawConditionNode(node, 1);
 				} else {
 					parentNode = new ParentNode(node, key);
 				}

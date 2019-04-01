@@ -1,0 +1,33 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*",
+			"low": "value",
+			"high": "value"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"low": "start.->NullFlavorableValue",
+			"high": "end.->NullFlavorableValue",
+			"value": "start"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"start": "=datetimeAdapter(@0)",
+			"end": "=datetimeAdapter(@0)"
+		}
+	}
+]

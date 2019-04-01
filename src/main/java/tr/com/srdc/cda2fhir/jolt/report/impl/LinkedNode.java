@@ -41,7 +41,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 			IParentNode parent = getParent();
 			List<INode> newChildren = rootNode.getAsLinkReplacement(this);
 			newChildren.forEach(newChild -> {
-				newChild.getConditions().addAll(getConditions());
+				newChild.copyConditions(this);
 				parent.addChild(newChild);
 				List<ILinkedNode> linkedNodesOfLink = newChild.getLinkedNodes();
 				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(templateMap));
@@ -50,6 +50,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		}
 	}
 
+	@Override
 	public List<TableRow> toTableRows(Templates templates) {
 		String path = getPath();
 		String target = getTarget();
@@ -61,12 +62,9 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 
 		String actualTarget = rootResourceType == null || isResourceLink ? target : rootResourceType + "." + target;
 
-		TableRow row = isResourceLink ? new TableRow(path, actualTarget) : new TableRow(path, actualTarget, link);
+		TableRow row = new TableRow(path, actualTarget, link);
 		row.setFormat(format);
-		getConditions().forEach(condition -> {
-			String conditionAsString = condition.toString(path);
-			row.addCondition(conditionAsString);
-		});
+		getConditions().forEach(condition -> row.addCondition(condition.clone(path)));
 		List<TableRow> result = new ArrayList<TableRow>();
 		result.add(row);
 		return result;

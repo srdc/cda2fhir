@@ -1,0 +1,55 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"family": "ONE",
+			"text": "ONE",
+			"given": "MANY",
+			"prefix": "MANY",
+			"suffix": "MANY",
+			"use": "MANY",
+			"validTime": "ONE"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"content": "text",
+			"use": {
+				"*": "use"
+			},
+			"family": "family",
+			"given": {
+				"*": "given[]"
+			},
+			"prefix": {
+				"*": "prefix[]"
+			},
+			"suffix": {
+				"*": "suffix[]"
+			},
+			"validTime": "period.->IVL_TSPeriod"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"use": "=lastElement(@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"use": "=valueSetAdapter('NameUse','usual',@0)"
+		}
+	}
+]

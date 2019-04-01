@@ -1,0 +1,24 @@
+[
+	{
+		"input": {
+			"city": "Cleveland",
+			"postalCode": 44101,
+			"county": "Montgomery",
+			"state": "Ohio",
+			"streetAddressLine": [
+				"100 Aperture Drive",
+				"Suite #1245"
+			]
+		},
+		"expected": {
+			"line": [
+				"100 Aperture Drive",
+				"Suite #1245"
+			],
+			"city": "Cleveland",
+			"district": "Montgomery",
+			"state": "Ohio",
+			"postalCode": "44101"
+		}
+	}
+]

@@ -13,6 +13,7 @@ import com.bazaarvoice.jolt.SpecDriven;
 import com.bazaarvoice.jolt.common.Optional;
 import com.bazaarvoice.jolt.modifier.function.Function;
 
+import tr.com.srdc.cda2fhir.jolt.report.ReportException;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 import tr.com.srdc.cda2fhir.util.StringUtil;
@@ -61,19 +62,28 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	public static final class ValueSetAdapter extends Function.ListFunction {
 		@Override
 		protected Optional<Object> applyList(List<Object> argList) {
-			if (argList == null || argList.size() != 2) {
+			int size = argList.size();
+			if (argList == null || size < 2 || size > 3) {
 				return Optional.empty();
 			}
 			String filename = (String) argList.get(0);
-			String value = argList.get(1).toString().toLowerCase();
+			String defaultValue = size == 3 ? (String) argList.get(1) : null;
+			Object object = argList.get(size - 1);
+			if (object == null) {
+				return Optional.empty();
+			}
+			String value = object.toString();
 
 			Map<String, Object> map = JsonUtils
 					.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");
-			String mappedValue = (String) map.get(value);
+			Object mappedValue = map.get(value);
+			if (mappedValue == null) {
+				mappedValue = defaultValue;
+			}
 			if (mappedValue != null) {
 				return Optional.of(mappedValue);
 			}
-			return Optional.empty();
+			return Optional.of(null);
 		}
 	}
 
@@ -168,20 +178,112 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			if (argList == null || argList.size() != 3) {
 				return Optional.empty();
 			}
-			String value = (String) argList.get(2);
+			Object valueObject = argList.get(2);
+			String value = valueObject == null ? "" : valueObject.toString();
 			int index = value.isEmpty() ? 0 : 1;
 			String result = (String) argList.get(index);
 			return Optional.of(result);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static final class GetId extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
 			if (arg == null) {
+				return Optional.of(null);
+			}
+			if (!(arg instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> map = (Map<String, Object>) arg;
+			String resourceType = (String) map.get("resourceType");
+			Object id = map.get("id");
+			String result = String.format("%s/%s", resourceType, id.toString());
+
+			return Optional.of(result);
+		}
+	}
+
+	public static final class Piece extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null || argList.size() != 3) {
 				return Optional.empty();
 			}
-			return Optional.of(arg);
+			String value = (String) argList.get(2);
+			if (value == null || value.isEmpty()) {
+				return Optional.empty();
+			}
+			int pieceIndex = (int) argList.get(1);
+			String delimiter = (String) argList.get(0);
+			String[] pieces = value.split(delimiter);
+			if (pieceIndex < pieces.length) {
+				return Optional.of(pieces[pieceIndex]);
+			}
+			return Optional.empty();
+		}
+	}
+
+	public static final class LastElement extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null) {
+				return Optional.empty();
+			}
+			for (int index = argList.size() - 1; index >= 0; --index) {
+				Object element = argList.get(index);
+				if (element != null) {
+					return Optional.of(element);
+				}
+			}
+			return Optional.of(null);
+		}
+	}
+
+	public static final class LastPiece extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null || argList.size() != 2) {
+				return Optional.empty();
+			}
+			String value = (String) argList.get(1);
+			if (value == null || value.isEmpty()) {
+				return Optional.empty();
+			}
+			String delimiter = (String) argList.get(0);
+			String[] pieces = value.split(delimiter);
+			return Optional.of(pieces[pieces.length - 1]);
+		}
+	}
+
+	public static final class ConditionClinicalStatusAdapter extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null) {
+				return null;
+			}
+			if (argList.indexOf("high") >= 0 && argList.indexOf("low") >= 0) {
+				return Optional.of("resolved");
+			}
+			if (argList.indexOf("value") >= 0 || argList.indexOf("low") >= 0) {
+				return Optional.of("active");
+			}
+			return Optional.of(null);
+		}
+	}
+
+	public static final class ConstantValue extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null || !(arg instanceof String)) {
+				throw new ReportException("Invalid argument for ConstantValue modifier.");
+			}
+			String filename = (String) arg;
+
+			Object constantValue = JsonUtils
+					.filepathToObject("src/test/resources/jolt/value-maps/" + filename + ".json");
+			return Optional.of(constantValue);
 		}
 	}
 
@@ -196,6 +298,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
 		AMIDA_FUNCTIONS.put("selectOnNull", new SelectOnNull());
 		AMIDA_FUNCTIONS.put("getId", new GetId());
+		AMIDA_FUNCTIONS.put("piece", new Piece());
+		AMIDA_FUNCTIONS.put("lastElement", new LastElement());
+		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
+		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
+		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
 	}
 
 	private Modifier.Overwritr modifier;

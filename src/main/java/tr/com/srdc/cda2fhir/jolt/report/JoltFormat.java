@@ -29,9 +29,10 @@ public class JoltFormat {
 		});
 	}
 
-	private static String formatValue(String value) {
+	private static String formatValue(String value, String previousValue) {
 		String result = value.replace(",@0", "").replace("(@0)", "");
-		return result.substring(1);
+		String currentValue = result.substring(1);
+		return previousValue == null ? currentValue : previousValue + " " + currentValue;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -57,7 +58,8 @@ public class JoltFormat {
 				}
 				Object valueEntryValue = valueEntry.getValue();
 				if (valueEntryValue instanceof String) {
-					result.map.put(newPath, formatValue((String) valueEntryValue));
+					String previousValue = result.map.get(newPath);
+					result.map.put(newPath, formatValue((String) valueEntryValue, previousValue));
 					continue;
 				}
 				fillResult(result, (Map<String, Object>) valueEntryValue, newPath);
@@ -65,7 +67,8 @@ public class JoltFormat {
 			}
 			if (value instanceof String) {
 				String path = parentPath.length() > 0 ? String.format("%s.%s", parentPath, key) : key;
-				result.map.put(path, formatValue((String) value));
+				String previousValue = result.map.get(path);
+				result.map.put(path, formatValue((String) value, previousValue));
 				continue;
 			}
 			if (value instanceof List) {
@@ -74,9 +77,9 @@ public class JoltFormat {
 		}
 	}
 
-	public static JoltFormat getInstance(Map<String, Object> map) {
+	public static JoltFormat getInstance(List<Map<String, Object>> maps) {
 		JoltFormat result = new JoltFormat();
-		fillResult(result, map, "");
+		maps.forEach(map -> fillResult(result, map, ""));
 		return result;
 	}
 }

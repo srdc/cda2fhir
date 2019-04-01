@@ -8,7 +8,7 @@ import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.IndicationGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.IndicationGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
@@ -23,7 +23,6 @@ public class ConditionTest {
 		CDAUtil.loadPackages();
 		factories = CDAFactories.init();
 		indicationGenerator = new IndicationGenerator();
-
 	}
 
 	@Test

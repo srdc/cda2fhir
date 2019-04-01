@@ -3,16 +3,17 @@ act.effectiveTime.low.value,AllergyIntolerance.assertedDate,,"datetimeAdapter",a
 act.effectiveTime.value,AllergyIntolerance.assertedDate,,"datetimeAdapter",act.effectiveTime.low.value isnull,act.effectiveTime.nullFlavor isnull
 act.entryRelationship[].observation.value.code,AllergyIntolerance.category[],,"valueSetAdapter('AllergyIntoleranceCategory')"
 act.entryRelationship[].observation.effectiveTime.high.value,AllergyIntolerance.clinicalStatus,,"selectOnNull('active','inactive')"
-act.entryRelationship[].observation.participant.participantRole.playingEntity.code,AllergyIntolerance.code,CD,
+act.entryRelationship[].observation.participant.participantRole.playingEntity.code,AllergyIntolerance.code,CD,,act.entryRelationship[].observation.participant.participantRole.playingEntity.code.nullFlavor isnull
 act.entryRelationship[].observation.entryRelationship[].observation.value.code,AllergyIntolerance.criticality,,"valueSetAdapter('AllergyIntoleranceCriticality')",act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.145
-act.id[*],AllergyIntolerance.identifier[],ID,
+act.id[],AllergyIntolerance.identifier[],ID,
 act.entryRelationship[].observation.effectiveTime.low.value,AllergyIntolerance.onsetDateTime,,"datetimeAdapter",act.entryRelationship[].observation.effectiveTime.low.nullFlavor isnull,act.entryRelationship[].observation.effectiveTime.low.value isnotnull
 act.entryRelationship[].observation.effectiveTime.value,AllergyIntolerance.onsetDateTime,,"datetimeAdapter",act.entryRelationship[].observation.effectiveTime.low.value isnull,act.entryRelationship[].observation.effectiveTime.nullFlavor isnull
-act.entryRelationship[].observation.entryRelationship[].observation.value[*],AllergyIntolerance.reaction[].manifestation[],CD,,act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+act.entryRelationship[].observation.entryRelationship[].observation.value[],AllergyIntolerance.reaction[].manifestation[],CD,,act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,act.entryRelationship[].observation.entryRelationship[].observation.value[].nullFlavor isnull
 act.entryRelationship[].observation.entryRelationship[].observation.effectiveTime.low.value,AllergyIntolerance.reaction[].onset,,"datetimeAdapter",act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 act.entryRelationship[].observation.entryRelationship[].observation.entryRelationship[].observation.value.code,AllergyIntolerance.reaction[].severity,,"valueSetAdapter('AllergyIntoleranceSeverity')",act.entryRelationship[].observation.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.8,act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 Practitioner,AllergyIntolerance.recorder.reference,,"getId"
-act.entryRelationship[].observation.value.code,AllergyIntolerance.type,,"valueSetAdapter('AllergyIntoleranceType')"
+act.entryRelationship[].observation.value.code,AllergyIntolerance.type,,"lastElement valueSetAdapter('AllergyIntoleranceType')"
 act.statusCode.code,AllergyIntolerance.verificationStatus,,"valueSetAdapter('AllergyIntoleranceVerificationStatus')"
-act.author.assignedAuthor,Practitioner,,
-act.author.assignedAuthor,PractitionerRole,,
+act.author.assignedAuthor,Organization,EntityOrganization,
+act.author.assignedAuthor,Practitioner,EntityPractitioner,
+act.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,

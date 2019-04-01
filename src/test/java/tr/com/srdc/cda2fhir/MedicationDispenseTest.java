@@ -12,7 +12,7 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.MedicationDispenseGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.MedicationDispenseGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
