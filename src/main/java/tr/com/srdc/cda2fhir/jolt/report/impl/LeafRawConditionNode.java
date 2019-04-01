@@ -30,7 +30,7 @@ public class LeafRawConditionNode extends LeafNode implements IConditionNode {
 		IParentNode parent = getParent();
 		IParentNode grandParent = parent.getParent();
 		LeafNode result = new LeafNode(grandParent, parent.getPath(), getTarget());
-		result.addConditions(parent.getConditions());
+		result.copyConditions(parent);
 		grandParent.addChild(result);
 		parent.removeChild(this);
 	}

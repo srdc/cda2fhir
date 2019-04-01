@@ -39,8 +39,8 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 
 		if (rank <= parent.originalNodeCount()) {
 			ParentNode result = new ParentNode(grandParent, parentPath);
-			result.addConditions(parent.getConditions());
-			result.addConditions(this.getConditions());
+			result.copyConditions(parent);
+			result.copyConditions(this);
 			result.addChildren(this.getChildren());
 			grandParent.addChild(result);
 			parent.removeChild(this);
@@ -49,7 +49,7 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 
 		ConditionNode result = new ConditionNode(grandParent, rank - 1);
 		result.addChildren(this.getChildren());
-		result.addConditions(parent.getConditions());
+		result.copyConditions(parent);
 		this.getConditions().forEach(condition -> {
 			condition.prependPath(parentPath);
 			result.addCondition(condition);

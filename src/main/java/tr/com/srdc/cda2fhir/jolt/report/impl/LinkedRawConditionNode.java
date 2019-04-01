@@ -31,7 +31,7 @@ public class LinkedRawConditionNode extends LinkedNode implements IConditionNode
 		IParentNode parent = getParent();
 		IParentNode grandParent = parent.getParent();
 		LinkedNode result = new LinkedNode(grandParent, parent.getPath(), getTarget(), getLink());
-		result.addConditions(parent.getConditions());
+		result.copyConditions(parent);
 		grandParent.addChild(result);
 		parent.removeChild(this);
 	}
