@@ -73,7 +73,7 @@ public class JoltUtil {
 		}
 	}
 
-	private static void compareOrganization(Organization organization, Map<String, Object> joltOrganization)
+	public static void compareOrganization(Organization organization, Map<String, Object> joltOrganization)
 			throws Exception {
 		joltOrganization.put("id", organization.getIdElement().getIdPart()); // ids do not have to match
 
