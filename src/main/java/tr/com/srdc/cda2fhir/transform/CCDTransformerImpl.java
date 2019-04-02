@@ -24,11 +24,13 @@ import java.io.FileInputStream;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
@@ -36,6 +38,7 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Enumerations.ResourceType;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -414,8 +417,48 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 *
 	 * @param entry Entry which request field to be added.
 	 */
-	private void addRequestToEntry(BundleEntryComponent entry) {
+	public void addRequestToEntry(BundleEntryComponent entry) {
+
+		// Get main hashMap
+		HashMap<String, Map<String, String>> identifierOIDMap = new HashMap<String, Map<String, String>>();
+
+		// patient map.
+		Map<String, String> map = new HashMap<>();
+		map.put("fhirLocation", "identifier");
+		map.put("fhirSystem", "2.16.840.1.113883.3.552.1.3.11.13.1.30");
+		identifierOIDMap.put("patient", map);
+
+		ResourceType patient = ResourceType.PATIENT;
+
+		String resourceTypeName = entry.getResource().getResourceType().name();
+		System.out.println(resourceTypeName);
+
 		BundleEntryRequestComponent request = new BundleEntryRequestComponent();
+
+		String ifNotExistString = null;
+
+		if (resourceTypeName == "Patient") {
+
+			Map<String, String> patientMap = identifierOIDMap.get("patient");
+			List<Base> identifiers = entry.getResource().getNamedProperty("identifier").getValues();
+			for (Base identifier : identifiers) {
+
+				Identifier currentId = (Identifier) identifier;
+
+				String curSys = currentId.getSystem();
+
+				if (currentId.getSystem().equals("urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2")) {
+					ifNotExistString = "identifier=" + currentId.getSystem() + "|" + currentId.getValue();
+				}
+
+			}
+
+		}
+
+		if (ifNotExistString != null) {
+			request.setIfNoneExist(ifNotExistString);
+		}
+
 		request.setMethod(HTTPVerb.POST);
 		// request.setUrl(entry.getResource().getResourceName());
 		request.setUrl(entry.getResource().getResourceType().name());
