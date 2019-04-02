@@ -1,0 +1,36 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"supply": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"supply": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"#instance-order": "intent"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "MedicationRequest"
+		}
+	}
+]
