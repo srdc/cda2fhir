@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -75,6 +76,17 @@ public class JoltUtil {
 		}
 	}
 
+	public void verifyConditions(List<Condition> conditions) throws Exception {
+		List<Map<String, Object>> joltConditions = TransformManager.chooseResources(result, "Condition");
+		if (conditions.isEmpty()) {
+			Assert.assertTrue("No jolt condition", joltConditions.isEmpty());
+		} else {
+			for (int index = 0; index < conditions.size(); ++index) {
+				verifyCondition(conditions.get(index), joltConditions.get(index));
+			}
+		}
+	}
+
 	public static void compareOrganization(Organization organization, Map<String, Object> joltOrganization)
 			throws Exception {
 		joltOrganization.put("id", organization.getIdElement().getIdPart()); // ids do not have to match
@@ -97,6 +109,18 @@ public class JoltUtil {
 		String joltMedJson = JsonUtils.toPrettyJsonString(joltMed);
 		String medJson = FHIRUtil.encodeToJSON(med);
 		JSONAssert.assertEquals("Jolt medication", medJson, joltMedJson, true);
+	}
+
+	public void verifyCondition(Condition condition, Map<String, Object> joltCondition) throws Exception {
+		Assert.assertNotNull("Jolt condition", joltCondition);
+		Assert.assertNotNull("Jolt condition id", joltCondition.get("id"));
+
+		joltCondition.put("id", condition.getIdElement().getIdPart()); // ids do not have to match
+		JoltUtil.putReference(joltCondition, "subject", condition.getSubject()); // patient is not yet implemented
+
+		String joltConditionJson = JsonUtils.toPrettyJsonString(joltCondition);
+		String conditionJson = FHIRUtil.encodeToJSON(condition);
+		JSONAssert.assertEquals("Jolt condition", conditionJson, joltConditionJson, true);
 	}
 
 	private static void comparePractitioner(Practitioner practitioner, Map<String, Object> joltPractitioner)
