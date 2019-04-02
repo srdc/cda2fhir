@@ -60,6 +60,7 @@ import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyMemberHistoryConditionComponent;
 import org.hl7.fhir.dstu3.model.Group;
 import org.hl7.fhir.dstu3.model.Group.GroupType;
+import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
@@ -84,6 +85,7 @@ import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
 import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
+import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Provenance;
@@ -93,6 +95,7 @@ import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.SimpleQuantity;
+import org.hl7.fhir.dstu3.model.StringType;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
@@ -245,80 +248,51 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	@Override
 	public Reference getReference(Resource resource) {
-		// TODO: Device, Location, Observation, Performer
 		Reference reference = new Reference(resource.getId());
+		if (resource.getNamedProperty("code") != null && !resource.getNamedProperty("code").getValues().isEmpty()) {
 
-		if (resource instanceof Patient) {
+			CodeableConcept code = (CodeableConcept) resource.getNamedProperty("code").getValues().get(0);
 
-			Patient patient = (Patient) resource;
+			if (code != null) {
+				if (code.hasText()) {
 
-			if (patient.hasIdentifier()) {
-				reference.setIdentifier(patient.getIdentifierFirstRep());
+					reference.setDisplay(code.getText());
+
+				} else if (resource instanceof PractitionerRole || resource instanceof Procedure) {
+
+					if (code.getCodingFirstRep() != null && code.getCodingFirstRep().getDisplay() != null) {
+
+						reference.setDisplay(code.getCodingFirstRep().getDisplay());
+					}
+				}
 			}
 
-			reference.setDisplay("Patient Reference");
-		} else if (resource instanceof Practitioner) {
+		} else if (resource.getNamedProperty("vaccineCode") != null
+				&& !resource.getNamedProperty("vaccineCode").getValues().isEmpty()) {
+			CodeableConcept vaccineCode = (CodeableConcept) resource.getNamedProperty("vaccineCode").getValues().get(0);
 
-			Practitioner practitioner = (Practitioner) resource;
-
-			if (practitioner.hasIdentifier()) {
-				reference.setIdentifier(practitioner.getIdentifierFirstRep());
+			if (vaccineCode != null && vaccineCode.hasText()) {
+				reference.setDisplay(vaccineCode.getText());
 			}
 
-			reference.setDisplay("Practitioner Reference");
+		} else if (resource.getNamedProperty("name") != null
+				&& !resource.getNamedProperty("name").getValues().isEmpty()) {
 
-		} else if (resource instanceof org.hl7.fhir.dstu3.model.Organization) {
-			org.hl7.fhir.dstu3.model.Organization org = (org.hl7.fhir.dstu3.model.Organization) resource;
+			if (resource.getNamedProperty("name").getValues().get(0) instanceof StringType) {
 
-			if (org.hasIdentifier()) {
-				reference.setIdentifier(org.getIdentifierFirstRep());
+				StringType str = (StringType) resource.getNamedProperty("name").getValues().get(0);
+				if (str != null) {
+					reference.setDisplay(str.asStringValue());
+				}
+
+			} else if (resource.getNamedProperty("name").getValues().get(0) instanceof HumanName) {
+
+				HumanName name = (HumanName) resource.getNamedProperty("name").getValues().get(0);
+				if (name != null) {
+					reference.setDisplay(name.getNameAsSingleString());
+				}
+
 			}
-
-			reference.setDisplay("Organization Reference");
-
-		} else if (resource instanceof MedicationStatement) {
-
-			MedicationStatement medStatement = (MedicationStatement) resource;
-
-			if (medStatement.hasIdentifier()) {
-				reference.setIdentifier(medStatement.getIdentifierFirstRep());
-			}
-
-			reference.setDisplay("MedicationStatement Reference");
-
-		} else if (resource instanceof Medication) {
-
-			reference.setDisplay("Medication Reference");
-
-		} else if (resource instanceof AllergyIntolerance) {
-
-			AllergyIntolerance allergy = (AllergyIntolerance) resource;
-
-			if (allergy.hasIdentifier()) {
-				reference.setIdentifier(allergy.getIdentifierFirstRep());
-			}
-
-			reference.setDisplay("AllergyIntolerance Reference");
-
-		} else if (resource instanceof Immunization) {
-
-			Immunization immunization = (Immunization) resource;
-
-			if (immunization.hasIdentifier()) {
-				reference.setIdentifier(immunization.getIdentifierFirstRep());
-			}
-
-			reference.setDisplay("Immunization Reference");
-
-		} else if (resource instanceof Condition) {
-
-			Condition condition = (Condition) resource;
-
-			if (condition.hasIdentifier()) {
-				reference.setIdentifier(condition.getIdentifierFirstRep());
-			}
-
-			reference.setDisplay("Condition Reference");
 
 		}
 
@@ -2381,7 +2355,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						Medication medicationResult = (Medication) resultEntry.getResource();
 						// We can only add either a reference here or a codeableconcept. Opting for
 						// Reference.
-						medRequest.setMedication(new Reference(medicationResult.getId()));
+						medRequest.setMedication(getReference(medicationResult));
 					}
 				}
 			}
@@ -3491,11 +3465,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		agentRoleCoding.setId(device.getId());
 		pac.addRole(new CodeableConcept().addCoding(agentRoleCoding));
 
-		pac.setWho(new Reference(device.getId()));
+		pac.setWho(getReference(device));
 		provenance.addAgent(pac);
 
 		for (BundleEntryComponent bec : bundle.getEntry()) {
-			provenance.addTarget(new Reference(bec.getResource().getId()));
+			provenance.addTarget(getReference(bec.getResource()));
 		}
 
 		bundle.addEntry(new BundleEntryComponent().setResource(provenance));

@@ -26,12 +26,14 @@ import java.io.IOException;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
@@ -39,7 +41,8 @@ import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
-import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
+import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -84,7 +87,6 @@ public class ResourceTransformerTest {
 	private static final String transformationStartMsg = "\n# TRANSFORMATION STARTING..\n";
 	private static final String transformationEndMsg = "# END OF TRANSFORMATION.\n";
 	private static final String endOfTestMsg = "\n## END OF TEST\n";
-	
 
 	@BeforeClass
 	public static void init() {
@@ -116,96 +118,102 @@ public class ResourceTransformerTest {
 			e.printStackTrace();
 		}
 	}
-	
-	@Test 
-	public void referenceTest() {
+
+	@Test
+	public void referenceOrgNameStringTest() {
+		String name = "Organization Name";
+		Organization org = new Organization();
+		org.setName(name);
+		Reference ref = rt.getReference(org);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), name);
+	}
+
+	@Test
+	public void referenceHumanNameTest() {
+		String firstName = "Homer";
+		String lastName = "Simpson";
+		HumanName name = new HumanName();
+		name.setFamily(lastName);
+		name.addGiven(firstName);
+		Patient patient = new Patient();
+		patient.addName(name);
+
+		Reference ref = rt.getReference(patient);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(),
+				name.getNameAsSingleString());
+	}
+
+	@Test
+	public void referenceImmunizationTest() {
+		CodeableConcept cc = new CodeableConcept();
+		String expectedDisplay = "expected display";
+		cc.setText(expectedDisplay);
+
+		Immunization immunization = new Immunization();
+
+		immunization.setVaccineCode(cc);
+
+		Reference ref = rt.getReference(immunization);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), expectedDisplay);
+	}
+
+	@Test
+	public void referenceDisplayFirstRepTest() {
 		Reference ref;
-		
-		Identifier identifier = new Identifier();
-		identifier.setId("identifierId");
-		identifier.setValue("identifierValue");
-		
+		CodeableConcept cc = new CodeableConcept();
+		String expectedDisplay = "expected display";
+		Coding coding = new Coding();
+		coding.setDisplay(expectedDisplay);
+		cc.addCoding(coding);
+
+		PractitionerRole pracRole = new PractitionerRole();
+		Procedure procedure = new Procedure();
+		pracRole.addCode(cc);
+		procedure.setCode(cc);
+
+		ref = rt.getReference(pracRole);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), expectedDisplay);
+
+		ref = rt.getReference(procedure);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), expectedDisplay);
+	}
+
+	@Test
+	public void referenceCodeTest() {
+		Reference ref;
+		String expectedTestID = "testID/0";
+		String expectedDisplay = "expected display";
+
+		CodeableConcept cc = new CodeableConcept();
+		cc.setText(expectedDisplay);
+
 		Medication med = new Medication();
-		
+
 		IdType id = new IdType("testID", "0");
 		med.setId(id);
-		
-		ref = rt.getReference(med);
-		
-		Assert.assertTrue(ref.getDisplay().contentEquals("Medication Reference"));
-		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
-		
-		MedicationStatement medStatement = new MedicationStatement();
-		
-		medStatement.setId(id);
-		medStatement.addIdentifier(identifier);
-		
-		ref = rt.getReference(medStatement);
-		
-		Assert.assertTrue(ref.getDisplay().contentEquals("MedicationStatement Reference"));
-		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
-		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
-		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
+		med.setCode(cc);
 
-		Patient patient = new Patient();
-		
-		patient.setId(id);
-		patient.addIdentifier(identifier);
-		
-		ref = rt.getReference(patient);
-		
-		Assert.assertTrue(ref.getDisplay().contentEquals("Patient Reference"));
-		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
-		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
-		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
-		
-		Practitioner prac = new Practitioner();
-		
-		prac.setId(id);
-		prac.addIdentifier(identifier);
-		
-		ref = rt.getReference(prac);
-		
-		Assert.assertTrue(ref.getDisplay().contentEquals("Practitioner Reference"));
-		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
-		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
-		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
-		
-		Organization org = new Organization();
-		
-		org.setId(id);
-		org.addIdentifier(identifier);
-		
-		ref = rt.getReference(org);
-		
-		Assert.assertTrue(ref.getDisplay().contentEquals("Organization Reference"));
-		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
-		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
-		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
-		
-		Immunization immunization = new Immunization();
-		
-		immunization.setId(id);
-		immunization.addIdentifier(identifier);
-		
-		ref = rt.getReference(immunization);
-		
-		Assert.assertTrue(ref.getDisplay().contentEquals("Immunization Reference"));
-		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
-		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
-		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
-		
+		ref = rt.getReference(med);
+
+		Assert.assertTrue(ref.getReference().contentEquals(expectedTestID));
+
+		MedicationStatement medStatement = new MedicationStatement();
+
+		medStatement.setId(id);
+
+		ref = rt.getReference(medStatement);
+
+		Assert.assertTrue(ref.getReference().contentEquals(expectedTestID));
+
 		Condition condition = new Condition();
-		
+
 		condition.setId(id);
-		condition.addIdentifier(identifier);
-		
+		condition.setCode(cc);
+
 		ref = rt.getReference(condition);
-		
-		Assert.assertTrue(ref.getDisplay().contentEquals("Condition Reference"));
-		Assert.assertTrue(ref.getReference().contentEquals("testID/0"));
-		Assert.assertTrue(ref.getIdentifier().getId().contentEquals("identifierId"));
-		Assert.assertTrue(ref.getIdentifier().getValue().contentEquals("identifierValue"));
+
+		Assert.assertTrue(ref.getReference().contentEquals(expectedTestID));
+
 	}
 
 	// Most of the test methods just print the transformed object in JSON form.
