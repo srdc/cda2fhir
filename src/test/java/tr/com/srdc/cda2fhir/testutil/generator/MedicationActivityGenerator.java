@@ -10,16 +10,21 @@ import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
+import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Consumable;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PIVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
+import org.openhealthtools.mdht.uml.hl7.datatypes.RTO_PQ_PQ;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
@@ -42,6 +47,14 @@ public class MedicationActivityGenerator {
 
 	private IVL_TSPeriodGenerator ivlTsPeriodGenerator;
 	private PIVL_TSTimingGenerator pivlTsTimingGenerator;
+
+	private IVL_PQSimpleQuantityGenerator ivlPqGenerator;
+
+	private CEGenerator routeCodeGenerator;
+
+	private IVL_PQRangeGenerator rateQuantityGenerator;
+
+	private RTOGenerator maxDoseGenerator;
 
 	public MedicationActivity generate(CDAFactories factories) {
 		MedicationActivity ma = factories.consol.createMedicationActivity();
@@ -88,6 +101,26 @@ public class MedicationActivityGenerator {
 			ma.getEffectiveTimes().add(pivlTs);
 		}
 
+		if (ivlPqGenerator != null) {
+			IVL_PQ ivlPq = ivlPqGenerator.generate(factories);
+			ma.setDoseQuantity(ivlPq);
+		}
+
+		if (routeCodeGenerator != null) {
+			CE ce = routeCodeGenerator.generate(factories);
+			ma.setRouteCode(ce);
+		}
+
+		if (rateQuantityGenerator != null) {
+			IVL_PQ pq = rateQuantityGenerator.generate(factories);
+			ma.setRateQuantity(pq);
+		}
+
+		if (maxDoseGenerator != null) {
+			RTO pq = maxDoseGenerator.generate(factories);
+			ma.setMaxDoseQuantity((RTO_PQ_PQ) pq);
+		}
+
 		return ma;
 	}
 
@@ -100,6 +133,9 @@ public class MedicationActivityGenerator {
 		ma.medInfoGenerator = MedicationInformationGenerator.getDefaultInstance();
 		ma.ivlTsPeriodGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		ma.pivlTsTimingGenerator = PIVL_TSTimingGenerator.getDefaultInstance();
+		ma.ivlPqGenerator = IVL_PQSimpleQuantityGenerator.getDefaultInstance();
+		ma.routeCodeGenerator = CEGenerator.getNextInstance();
+		ma.rateQuantityGenerator = IVL_PQRangeGenerator.getDefaultInstance();
 
 		return ma;
 	}
@@ -135,6 +171,35 @@ public class MedicationActivityGenerator {
 		} else {
 			Timing timing = medStatement.getDosage().get(0).getTiming();
 			pivlTsTimingGenerator.verify(timing);
+		}
+
+		if (ivlPqGenerator == null) {
+			boolean hasDosageDose = medStatement.hasDosage() && medStatement.getDosage().get(0).hasDose();
+			Assert.assertTrue("Missing med statement dosage time", !hasDosageDose);
+		} else {
+			SimpleQuantity sq = medStatement.getDosage().get(0).getDoseSimpleQuantity();
+			ivlPqGenerator.verify(sq);
+		}
+
+		if (routeCodeGenerator == null) {
+			boolean hasRoute = medStatement.hasDosage() && medStatement.getDosage().get(0).hasRoute();
+			Assert.assertTrue("Missing med statement dosage time", !hasRoute);
+		} else {
+			routeCodeGenerator.verify(medStatement.getDosage().get(0).getRoute());
+		}
+
+		if (rateQuantityGenerator == null) {
+			boolean hasRate = medStatement.hasDosage() && medStatement.getDosage().get(0).hasRateRange();
+			Assert.assertTrue("Missing med statement dosage time", !hasRate);
+		} else {
+			rateQuantityGenerator.verify(medStatement.getDosage().get(0).getRateRange());
+		}
+
+		if (maxDoseGenerator == null) {
+			boolean hasMaxDose = medStatement.hasDosage() && medStatement.getDosage().get(0).hasMaxDosePerPeriod();
+			Assert.assertTrue("Missing med statement max dose per perios", !hasMaxDose);
+		} else {
+			maxDoseGenerator.verify(medStatement.getDosage().get(0).getMaxDosePerPeriod());
 		}
 	}
 

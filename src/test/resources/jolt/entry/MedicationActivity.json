@@ -37,6 +37,9 @@
 						}
 					}
 				},
+				"doseQuantity": "dosage[0].doseQuantity.->IVL_PQSimpleQuantity",
+				"routeCode": "dosage[0].route.->CD",
+				"rateQuantity": "dosage[0].rateRange.->IVL_PQRange",
 				"#unk": "taken"
 			}
 		}
@@ -69,7 +72,19 @@
 			"Practitioner": "",
 			"PractitionerRole": "",
 			"Organization": "",
-			"Medication": ""
+			"Medication": "",
+			"dosage": {
+				"0": {
+					"rateRange": {
+						"high": {
+							"system": ""
+						},
+						"low": {
+							"system": ""
+						}
+					}
+				}
+			}
 		}
 	},
 	{

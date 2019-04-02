@@ -202,7 +202,7 @@ public class JoltTemplate {
 	public static JoltTemplate getInstance(String name, List<Object> content) {
 		JoltTemplate result = new JoltTemplate(name);
 		result.leafTemplate = name.equals(name.toUpperCase()) || name.equals("IVL_TSPeriod")
-				|| name.equals("PIVL_TSTiming");
+				|| name.equals("PIVL_TSTiming") || name.startsWith("IVL_PQ");
 
 		RawTemplate rawTemplate = RawTemplate.getInstance(content);
 
