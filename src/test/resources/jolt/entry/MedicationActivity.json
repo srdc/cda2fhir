@@ -4,7 +4,8 @@
 		"spec": {
 			"substanceadministration": {
 				"id": "MANY",
-				"author": "ONE"
+				"author": "ONE",
+				"effectiveTime": "MANY"
 			}
 		}
 	},
@@ -24,6 +25,18 @@
 				"statusCode": "status.->NullFlavorableCode",
 				"author": "->AuthorParticipation",
 				"consumable": "Medication.->MedicationInformation",
+				"effectiveTime": {
+					"*": {
+						"xsi:type": {
+							"IVL_TS": {
+								"@2": "effectivePeriod.->IVL_TSPeriod"
+							},
+							"PIVL_TS": {
+								"@2": "dosage[0].timing.->PIVL_TSTiming"
+							}
+						}
+					}
+				},
 				"#unk": "taken"
 			}
 		}

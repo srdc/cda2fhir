@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
+import org.hl7.fhir.dstu3.model.Timing;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Consumable;
@@ -17,6 +18,8 @@ import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PIVL_TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
@@ -36,6 +39,9 @@ public class MedicationActivityGenerator {
 
 	private AuthorGenerator authorGenerator;
 	private MedicationInformationGenerator medInfoGenerator;
+
+	private IVL_TSPeriodGenerator ivlTsPeriodGenerator;
+	private PIVL_TSTimingGenerator pivlTsTimingGenerator;
 
 	public MedicationActivity generate(CDAFactories factories) {
 		MedicationActivity ma = factories.consol.createMedicationActivity();
@@ -72,6 +78,16 @@ public class MedicationActivityGenerator {
 			ma.setConsumable(consumable);
 		}
 
+		if (ivlTsPeriodGenerator != null) {
+			IVL_TS ivlTs = ivlTsPeriodGenerator.generate(factories);
+			ma.getEffectiveTimes().add(ivlTs);
+		}
+
+		if (pivlTsTimingGenerator != null) {
+			PIVL_TS pivlTs = pivlTsTimingGenerator.generate(factories);
+			ma.getEffectiveTimes().add(pivlTs);
+		}
+
 		return ma;
 	}
 
@@ -82,6 +98,8 @@ public class MedicationActivityGenerator {
 		ma.statusCode = "active";
 		ma.authorGenerator = AuthorGenerator.getDefaultInstance();
 		ma.medInfoGenerator = MedicationInformationGenerator.getDefaultInstance();
+		ma.ivlTsPeriodGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
+		ma.pivlTsTimingGenerator = PIVL_TSTimingGenerator.getDefaultInstance();
 
 		return ma;
 	}
@@ -103,6 +121,20 @@ public class MedicationActivityGenerator {
 				expected = "unknown";
 			}
 			Assert.assertEquals("Med statement status", expected, medStatement.getStatus().toCode());
+		}
+
+		if (ivlTsPeriodGenerator == null) {
+			Assert.assertTrue("Missing med statement effective", !medStatement.hasEffectivePeriod());
+		} else {
+			ivlTsPeriodGenerator.verify(medStatement.getEffectivePeriod());
+		}
+
+		if (pivlTsTimingGenerator == null) {
+			boolean hasDosageTiming = medStatement.hasDosage() && medStatement.getDosage().get(0).hasTiming();
+			Assert.assertTrue("Missing med statement dosage time", !hasDosageTiming);
+		} else {
+			Timing timing = medStatement.getDosage().get(0).getTiming();
+			pivlTsTimingGenerator.verify(timing);
 		}
 	}
 
