@@ -38,7 +38,6 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
-import org.hl7.fhir.dstu3.model.Enumerations.ResourceType;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -413,11 +412,12 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	}
 
 	/**
-	 * Adds request field to the entry, method is POST, url is resource type.
+	 * Takes a bundle entry and generates the ifNotExists String.
 	 *
-	 * @param entry Entry which request field to be added.
+	 * @param bundleEntry
+	 * @return String for application on request.
 	 */
-	public void addRequestToEntry(BundleEntryComponent entry) {
+	private String generateIfNoneExist(BundleEntryComponent bundleEntry) {
 
 		// Get main hashMap
 		HashMap<String, Map<String, String>> identifierOIDMap = new HashMap<String, Map<String, String>>();
@@ -428,14 +428,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		map.put("system", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2");
 		identifierOIDMap.put("Patient", map);
 
-		ResourceType patient = ResourceType.PATIENT;
-
-		String resourceTypeName = entry.getResource().getResourceType().name();
-		System.out.println(resourceTypeName);
-
-		BundleEntryRequestComponent request = new BundleEntryRequestComponent();
-
 		String ifNotExistString = null;
+		String resourceTypeName = bundleEntry.getResource().getResourceType().name();
 
 		for (String resourceType : identifierOIDMap.keySet()) {
 			if (resourceTypeName == resourceType) {
@@ -444,7 +438,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 				String location = entryMap.get("location");
 
-				List<Base> identifiers = entry.getResource().getNamedProperty(location).getValues();
+				List<Base> identifiers = bundleEntry.getResource().getNamedProperty(location).getValues();
 				for (Base identifier : identifiers) {
 
 					Identifier currentId = (Identifier) identifier;
@@ -459,8 +453,22 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			}
 		}
 
-		if (ifNotExistString != null) {
-			request.setIfNoneExist(ifNotExistString);
+		return ifNotExistString;
+
+	}
+
+	/**
+	 * Adds request field to the entry, method is POST, url is resource type.
+	 *
+	 * @param entry Entry which request field to be added.
+	 */
+	public void addRequestToEntry(BundleEntryComponent entry) {
+
+		BundleEntryRequestComponent request = new BundleEntryRequestComponent();
+
+		String ifNoneExistString = generateIfNoneExist(entry);
+		if (ifNoneExistString != null) {
+			request.setIfNoneExist(ifNoneExistString);
 		}
 
 		request.setMethod(HTTPVerb.POST);
