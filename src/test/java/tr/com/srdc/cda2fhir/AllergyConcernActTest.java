@@ -15,10 +15,14 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Enumeration;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.Author;
+import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
+import org.openhealthtools.mdht.uml.cda.PlayingEntity;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyObservationImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.AllergyProblemActImpl;
@@ -37,6 +41,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 import org.openhealthtools.mdht.uml.hl7.vocab.EntityClassRoot;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
@@ -45,12 +50,15 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import tr.com.srdc.cda2fhir.testutil.AuthorGenerator;
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class AllergyConcernActTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
-
+	private static final AuthorGenerator authorGenerator = new AuthorGenerator();
 	private static ConsolFactoryImpl cdaObjFactory;
 	private static DatatypesFactory cdaTypeFactory;
 	private static CDAFactoryImpl cdaFactory;
@@ -62,6 +70,8 @@ public class AllergyConcernActTest {
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceVerificationStatus.json");
 	private static Map<String, Object> categoryMap = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
+	private static Map<String, Object> typeMap = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceType.json");
 
 	@BeforeClass
 	public static void init() {
@@ -103,6 +113,16 @@ public class AllergyConcernActTest {
 		Enumeration<AllergyIntolerance.AllergyIntoleranceCategory> category = allergyIntolerance.getCategory().get(0);
 		String actual = category == null ? null : category.asStringValue();
 		Assert.assertEquals("Unexpected AllergyIntolerance category", expected, actual);
+	}
+
+	static private void verifyAllergyIntoleranceType(AllergyProblemAct act, String expected) throws Exception {
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
+		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
+
+		AllergyIntolerance.AllergyIntoleranceType type = allergyIntolerance.getType();
+		String actual = type == null ? null : type.toString().toLowerCase();
+		Assert.assertEquals("Unexpected AllergyIntolerance type", expected, actual);
 	}
 
 	static private AllergyStatusObservationImpl createAllergyStatusObservation(String cdaProblemStatusCode) {
@@ -148,6 +168,62 @@ public class AllergyConcernActTest {
 				.forEach(r -> r.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ));
 
 		return act;
+	}
+
+	static private Participant2 createParticipant(String substance) {
+		Participant2 participant = cdaFactory.createParticipant2();
+		ParticipantRole role = cdaFactory.createParticipantRole();
+		PlayingEntity entity = cdaFactory.createPlayingEntity();
+		PN name = cdaTypeFactory.createPN();
+		name.addText(substance);
+		entity.getNames().add(name);
+		role.setPlayingEntity(entity);
+		participant.setParticipantRole(role);
+		return participant;
+	}
+
+	@Test
+	public void testAllergyIntoleranceSubstance() throws Exception {
+
+		String substance = "ASPIRIN";
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0)
+				.getObservation();
+		Participant2 participant = createParticipant(substance);
+		observation.getParticipants().add(participant);
+		act.addObservation(observation);
+		BundleInfo bundleInfo = new BundleInfo(rt);
+
+		EntryResult result = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo);
+
+		AllergyIntolerance fhirAllergy = BundleUtil.findOneResource(result.getBundle(), AllergyIntolerance.class);
+
+		Assert.assertEquals("Allergy.code.display equals substance name", substance, fhirAllergy.getCode().getText());
+	}
+
+	@Test
+	public void testAllergyIntoleranceAuthorToRecorder() throws Exception {
+
+		String substance = "ASPIRIN";
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0)
+				.getObservation();
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+
+		PN name = cdaTypeFactory.createPN();
+		name.addText(substance);
+		Author author = authorGenerator.generateDefaultAuthor();
+		observation.getAuthors().add(author);
+		act.addObservation(observation);
+
+		EntryResult result = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo);
+
+		AllergyIntolerance fhirAllergy = BundleUtil.findOneResource(result.getBundle(), AllergyIntolerance.class);
+		Practitioner practitioner = BundleUtil.findOneResource(result.getBundle(), Practitioner.class);
+
+		Assert.assertEquals("Allergy.recorder is cda author", practitioner.getId(),
+				fhirAllergy.getRecorder().getReference());
 	}
 
 	@Test
@@ -220,7 +296,7 @@ public class AllergyConcernActTest {
 	}
 
 	@Test
-	public void testAllergyAndIntoleranceType() throws Exception {
+	public void testAllergyAndIntoleranceCategory() throws Exception {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0)
 				.getObservation();
@@ -241,6 +317,31 @@ public class AllergyConcernActTest {
 			Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
 
 			verifyAllergyIntoleranceCategory(act, fhirCategory);
+		}
+	}
+
+	@Test
+	public void testAllergyAndIntoleranceType() throws Exception {
+		AllergyProblemActImpl act = createAllergyConcernAct();
+		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0)
+				.getObservation();
+		verifyAllergyIntoleranceVerificationStatus(act, null);
+
+		for (Map.Entry<String, Object> entry : typeMap.entrySet()) {
+			String cdaType = entry.getKey();
+			String fhirCategory = (String) entry.getValue();
+			String cdaTypeName = cdaAllergyIntoleranceTypeCodeToName.get(cdaType);
+
+			CE ce = cdaTypeFactory.createCE(cdaType, "2.16.840.1.11388 3.6.96", "SNOMED CT", cdaTypeName);
+
+			observationTop.getValues().clear();
+			observationTop.getValues().add(ce);
+
+			DiagnosticChain dxChain = new BasicDiagnostic();
+			Boolean validation = act.validateAllergyProblemActAllergyObservation(dxChain, null);
+			Assert.assertTrue("Invalid Allergy Problem Act in Test", validation);
+
+			verifyAllergyIntoleranceType(act, fhirCategory);
 		}
 	}
 
@@ -360,8 +461,6 @@ public class AllergyConcernActTest {
 		Assert.assertEquals("Unexpected AllergyIntolerance Reaction Onset value (2):", expected2,
 				actual2.replaceAll("-", ""));
 
-		String lastActual = allergyIntolerance.getLastOccurrenceElement().getValueAsString();
-		Assert.assertEquals("Unexpected AllergyIntolerance Last Occurence:", expected2, lastActual.replaceAll("-", ""));
 	}
 
 	@Test

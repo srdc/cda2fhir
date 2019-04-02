@@ -1,0 +1,57 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"streetAddressLine": "MANY",
+			"city": "ONE",
+			"county": "ONE",
+			"country": "ONE",
+			"state": "ONE",
+			"postalCode": "ONE",
+			"use": "ONE",
+			"text": "ONE"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"text": "text",
+			"streetAddressLine": {
+				"*": "line[]"
+			},
+			"city": "city",
+			"county": "district",
+			"country": "country",
+			"state": "state",
+			"postalCode": "postalCode",
+			"use": [
+				"use",
+				"type"
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"use": "=valueSetAdapter('AddressUse','temp',@0)",
+			"type": "=valueSetAdapter('AddressType',@0)"
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"postalCode": "=toString(@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+		}
+	}
+]

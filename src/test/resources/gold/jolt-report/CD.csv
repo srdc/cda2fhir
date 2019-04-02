@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format
-code,coding[&].code,,
-translation[].code,coding[&].code,,
-displayName,coding[&].display,,
-translation[].displayName,coding[&].display,,
-codeSystem,coding[&].system,,
-translation[].codeSystem,coding[&].system,,
+code,coding[].code,,
+translation[].code,coding[].code,,
+displayName,coding[].display,,
+translation[].displayName,coding[].display,,
+codeSystem,coding[].system,,
+translation[].codeSystem,coding[].system,,

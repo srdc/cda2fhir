@@ -91,4 +91,27 @@ public class Table {
 				.collect(Collectors.toList());
 		return new Table(newRows);
 	}
+
+	public void moveTargets(Map<String, String> moveMap) {
+		rows.forEach(row -> {
+			String target = row.getTarget();
+			if (target != null) {
+				String moveValue = moveMap.get(target);
+				if (moveValue != null) {
+					for (TableRow row2 : rows) {
+						String target2 = row2.getTarget();
+						if (target2 != null && target2.split("\\[")[0].equals(moveValue)) {
+							moveValue = target2;
+							break;
+						}
+					}
+					row.promoteTarget(moveValue);
+				}
+			}
+		});
+	}
+
+	public int rowCount() {
+		return rows.size();
+	}
 }

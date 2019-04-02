@@ -55,7 +55,7 @@ public class ValidatorTest {
 	}
 
 	// 170.315_b1_toc_gold_sample2_v1.xml without profile
-	@Ignore
+	@Test
 	public void testGoldSampleBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/170.315_b1_toc_gold_sample2_v1.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/170.315_b1_toc_gold_sample2_v1-wo-profile-validation.xml";
@@ -99,7 +99,7 @@ public class ValidatorTest {
 	}
 
 	// C-CDA_R2-1_CCD.xml without DAF profile
-	@Test
+	@Ignore
 	public void testReferenceCCDBundleWithoutProfile() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-wo-profile-validation.xml";
@@ -110,7 +110,7 @@ public class ValidatorTest {
 	}
 
 	// C-CDA_R2-1_CCD.xml with provenance
-	@Test
+	@Ignore
 	public void testReferenceCCDBundleWithProvenance() throws Exception {
 		String cdaResourcePath = "src/test/resources/C-CDA_R2-1_CCD.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/C-CDA_R2-1_CCD-w-provenance.xml";
@@ -153,12 +153,23 @@ public class ValidatorTest {
 				generateDAFProfileMetadata, false);
 	}
 
-	// Vitera_CCDA_SMART_Sample.xml with profile
+	// HannahBanana_EpicCCD.xml
 	@Ignore
-	public void testRakiaBundle() throws Exception {
-		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
+	public void testHannahBanana() throws Exception {
+		String cdaResourcePath = "src/test/resources/Epic/HannahBanana_EpicCCD-pretty.xml";
+		String targetPathForFHIRResource = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.fhir.xml";
+		String targetPathForResultFile = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.validation-result.html";
+		boolean generateDAFProfileMetadata = true;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
+				generateDAFProfileMetadata, false);
+	}
+
+	// Person-RAKIA_TEST_DOC0001 (1).xml
+	@Ignore
+	public void testRakia() throws Exception {
+		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
-		String targetPathForResultFile = "src/test/resources/output/Cerner/validation-result-Person-RAKIA_TEST_DOC00001 (1).html";
+		String targetPathForResultFile = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).validation-result.html";
 		boolean generateDAFProfileMetadata = true;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
 				generateDAFProfileMetadata, false);

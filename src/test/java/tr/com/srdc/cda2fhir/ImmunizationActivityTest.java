@@ -5,12 +5,16 @@ import java.util.Map;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationStatus;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.Consumable;
+import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.Material;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationRefusalReason;
@@ -18,16 +22,19 @@ import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationActivityImpl;
 import org.openhealthtools.mdht.uml.cda.consol.impl.ImmunizationRefusalReasonImpl;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ED;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
+import com.helger.commons.collection.attr.StringMap;
 
-import tr.com.srdc.cda2fhir.testutil.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.testutil.PerformerGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
@@ -54,13 +61,7 @@ public class ImmunizationActivityTest {
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		Assert.assertEquals("Unexpected positive primary source", false, immunization.getPrimarySource());
 
-		String lastName = "Doe";
-		String firstName = "Joe";
-		AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
-		assignedEntityGenerator.setFamilyName(lastName);
-		assignedEntityGenerator.addGivenName(firstName);
-
-		PerformerGenerator performerGenerator = new PerformerGenerator(assignedEntityGenerator);
+		PerformerGenerator performerGenerator = PerformerGenerator.getDefaultInstance();
 		Performer2 performer = performerGenerator.generate(factories);
 		act.getPerformers().add(performer);
 
@@ -71,7 +72,7 @@ public class ImmunizationActivityTest {
 		String reference = immunization1.getPractitioner().get(0).getActor().getReference();
 		Practitioner practitioner = BundleUtil.findOneResource(bundle1, Practitioner.class);
 		Assert.assertEquals("Unexpected Reference", reference, practitioner.getId());
-		assignedEntityGenerator.verify(practitioner);
+		performerGenerator.verify(practitioner);
 	}
 
 	static private void verifyNotGiven(ImmunizationActivity act, ImmunizationRefusalReason refusal, Boolean value)
@@ -114,6 +115,17 @@ public class ImmunizationActivityTest {
 		Assert.assertEquals("Expect the correct immunization status", expected, actual);
 	}
 
+	static private void verifyImmunizationOriginalText(ImmunizationActivityImpl act, Map<String, String> annotations,
+			String expected) throws Exception {
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		bundleInfo.mergeIdedAnnotations(annotations);
+		Bundle bundle = rt.tImmunizationActivity2Immunization(act, bundleInfo).getBundle();
+		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
+
+		CodeableConcept code = immunization.getVaccineCode();
+		Assert.assertEquals("Expect the correct immunization original text", expected, code.getText());
+	}
+
 	@Test
 	public void testStatusCode() throws Exception {
 		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
@@ -147,6 +159,37 @@ public class ImmunizationActivityTest {
 
 			verifyImmunizationStatus(act, fhirStatus);
 		}
+	}
+
+	@Test
+	public void testCodeReference() throws Exception {
+		ImmunizationActivityImpl act = (ImmunizationActivityImpl) factories.consol.createImmunizationActivity();
+		verifyImmunizationStatus(act, null);
+
+		CE code = factories.datatype.createCE();
+		ED ed = factories.datatype.createED();
+		TEL tel = factories.datatype.createTEL();
+
+		tel.setValue("#fakeid1");
+		ed.setReference(tel);
+
+		code.setCode("code");
+		code.setCodeSystem("codeSystem");
+		code.setOriginalText(ed);
+
+		Consumable cons = factories.base.createConsumable();
+		ManufacturedProduct manProd = factories.base.createManufacturedProduct();
+		Material mat = factories.base.createMaterial();
+		mat.setCode(code);
+		manProd.setManufacturedMaterial(mat);
+		cons.setManufacturedProduct(manProd);
+		act.setConsumable(cons);
+
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put("fakeid1", "fakevalue2");
+
+		verifyImmunizationOriginalText(act, idedAnnotations, "fakevalue2");
+
 	}
 
 	@Test

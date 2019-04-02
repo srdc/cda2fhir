@@ -1,0 +1,97 @@
+{
+	"248536006": {
+		"code": "finding",
+		"display": "Finding",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"373930000": {
+		"code": "finding",
+		"display": "Finding",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"404684003": {
+		"code": "finding",
+		"display": "Finding",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75321-0": {
+		"code": "finding",
+		"display": "Finding",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75312-9": {
+		"code": "finding",
+		"display": "Finding",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"409586006": {
+		"code": "complaint",
+		"display": "Complaint",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75322-8": {
+		"code": "complaint",
+		"display": "Complaint",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75313-7": {
+		"code": "complaint",
+		"display": "Complaint",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"282291009": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"29308-4": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75314-5": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"55607006": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75318-6": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75323-6": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75315-2": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"64572001": {
+		"code": "diagnosis",
+		"display": "Diagnosis",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"418799008": {
+		"code": "symptom",
+		"display": "Symptom",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75325-1": {
+		"code": "symptom",
+		"display": "Symptom",
+		"system": "http://hl7.org/fhir/condition-category"
+	},
+	"75317-8": {
+		"code": "symptom",
+		"display": "Symptom",
+		"system": "http://hl7.org/fhir/condition-category"
+	}
+}

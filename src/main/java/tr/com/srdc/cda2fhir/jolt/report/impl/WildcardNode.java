@@ -11,6 +11,13 @@ public class WildcardNode extends ParentNode implements IWildcardNode {
 	}
 
 	@Override
+	public WildcardNode cloneEmpty() {
+		IParentNode parent = getParent();
+		String path = getPath();
+		return new WildcardNode(parent, path);
+	}
+
+	@Override
 	public void fillWildcardNodes(List<IWildcardNode> result) {
 		super.fillWildcardNodes(result);
 		result.add(this);

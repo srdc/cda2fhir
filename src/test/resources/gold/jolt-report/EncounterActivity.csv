@@ -1,0 +1,15 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2
+encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isnull
+Condition[],Encounter.diagnosis[].condition.reference,,"getId"
+encounter.id[],Encounter.identifier[],ID,,nullFlavor isnull
+Location[],Encounter.location[].location.reference,,"getId"
+Encounter.Practitioner,Encounter.participant[].individual.reference,,"getId"
+Practitioner[],Encounter.participant[].type,,"constantValue('ParticipantTypeConstant')"
+encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,nullFlavor isnull
+encounter.priorityCode,Encounter.priority,CD,,nullFlavor isnull
+encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.statusCode.nullFlavor isnull,nullFlavor isnull
+encounter.code,Encounter.type[],CD,,nullFlavor isnull
+encounter.participant[],Location[],ServiceDeliveryLocation,,nullFlavor isnull
+encounter.performer[].assignedEntity,Organization[],EntityOrganization,,nullFlavor isnull
+encounter.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
+encounter.performer[].assignedEntity,Practitioner[],EntityPractitioner,,nullFlavor isnull

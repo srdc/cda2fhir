@@ -1,0 +1,39 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"id": "MANY",
+			"assignedPerson": {
+				"name": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"id": {
+				"*": "identifier[].->ID"
+			},
+			"assignedPerson": {
+				"name": {
+					"*": "name[].->PN"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Practitioner"
+		}
+	}
+]

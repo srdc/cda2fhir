@@ -34,15 +34,15 @@ public class LeafConditionNode extends LeafNode implements IConditionNode {
 
 		if (rank == 0) {
 			LeafNode result = new LeafNode(parent, parentPath, target);
-			result.addConditions(parent.getConditions());
-			result.addConditions(this.getConditions());
+			result.copyConditions(parent);
+			result.copyConditions(this);
 			grandParent.addChild(result);
 			parent.removeChild(this);
 			return;
 		}
 
 		LeafConditionNode result = new LeafConditionNode(grandParent, rank - 1, target);
-		result.addConditions(parent.getConditions());
+		result.copyConditions(parent);
 		this.getConditions().forEach(condition -> {
 			condition.prependPath(parentPath);
 			result.addCondition(condition);

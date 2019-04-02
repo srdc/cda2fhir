@@ -1,0 +1,191 @@
+[
+	{
+		"input": {
+			"participantRole": {
+				"classCode": "MANU",
+				"playingEntity": {
+					"classCode": "MMAT",
+					"code": {
+						"code": "723",
+						"displayName": "Amoxicillin"
+					}
+				}
+			},
+			"other": "3"
+		},
+		"template": [
+			{
+				"operation": "default",
+				"spec": {
+					"participantRole": {
+						"playingEntity": {
+							"code": {
+								"nullFlavor": ""
+							}
+						}
+					}
+				}
+			},
+			{
+				"operation": "shift",
+				"spec": {
+					"participantRole": {
+						"playingEntity": {
+							"code": {
+								"nullFlavor": {
+									"": {
+										"@2": {
+											"code": "code.code",
+											"displayName": "code.display"
+										}
+									},
+									"*": null
+								}
+							}
+						}
+					},
+					"other": "other"
+				}
+			}
+		],
+		"expected": {
+			"code": {
+				"code": "723",
+				"display": "Amoxicillin"
+			},
+			"other": "3"
+		}
+	},
+	{
+		"input": {
+			"participantRole": {
+				"classCode": "MANU",
+				"playingEntity": {
+					"classCode": "MMAT",
+					"code": {
+						"code": "723",
+						"displayName": "Amoxicillin",
+						"nullFlavor": "OTH"
+					}
+				}
+			},
+			"other": "3"
+		},
+		"template": [
+			{
+				"operation": "default",
+				"spec": {
+					"participantRole": {
+						"playingEntity": {
+							"code": {
+								"nullFlavor": ""
+							}
+						}
+					}
+				}
+			},
+			{
+				"operation": "shift",
+				"spec": {
+					"participantRole": {
+						"playingEntity": {
+							"code": {
+								"nullFlavor": {
+									"": {
+										"@2": {
+											"code": "code.code",
+											"displayName": "code.display"
+										}
+									},
+									"*": null
+								}
+							}
+						}
+					},
+					"other": "other"
+				}
+			}
+		],
+		"expected": {
+			"other": "3"
+		}
+	},
+	{
+		"input": {
+			"participantRole": {
+				"classCode": "MANU",
+				"playingEntity": {
+					"classCode": "MMAT",
+					"code": {
+						"code": "723",
+						"displayName": "Amoxicillin"
+					}
+				}
+			},
+			"other": "3"
+		},
+		"template": [
+			{
+				"operation": "shift",
+				"spec": {
+					"participantRole": {
+						"playingEntity": {
+							"code": {
+								"nullFlavor": null,
+								"@0": {
+									"code": "code.code",
+									"displayName": "code.display"
+								}
+							}
+						}
+					},
+					"other": "other"
+				}
+			}
+		],
+		"expected": {
+			"code": {
+				"code": "723",
+				"display": "Amoxicillin"
+			},
+			"other": "3"
+		}
+	},
+	{
+		"input": {
+			"participantRole": {
+				"classCode": "MANU",
+				"playingEntity": {
+					"classCode": "MMAT",
+					"code": {
+						"code": "723",
+						"displayName": "Amoxicillin",
+						"nullFlavor": "OTH"
+					}
+				}
+			},
+			"other": "3"
+		},
+		"template": [
+			{
+				"operation": "shift",
+				"spec": {
+					"participantRole": {
+						"playingEntity": {
+							"code": {
+								"nullFlavor": null,
+								"@0": {
+									"code": "code.code",
+									"displayName": "code.display"
+								}
+							}
+						}
+					},
+					"other": "other"
+				}
+			}
+		],
+		"expected": {
+			"other": "3"
+		}
+	}]

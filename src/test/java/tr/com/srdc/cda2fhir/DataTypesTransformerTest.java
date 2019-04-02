@@ -21,6 +21,7 @@ package tr.com.srdc.cda2fhir;
  */
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.hl7.fhir.dstu3.model.Address;
@@ -69,6 +70,8 @@ import org.openhealthtools.mdht.uml.hl7.vocab.EntityNameUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.openhealthtools.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
+
+import com.helger.commons.collection.attr.StringMap;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.transform.DataTypesTransformerImpl;
@@ -218,6 +221,48 @@ public class DataTypesTransformerTest {
 		cd3.setNullFlavor(NullFlavor.NI);
 		CodeableConcept codeableConcept3 = dtt.tCD2CodeableConcept(cd3);
 		Assert.assertNull("CodeableConcept.nullFlavor set instance transform failed", codeableConcept3);
+
+		// originalText test with reference.
+		CD cd4 = DatatypesFactory.eINSTANCE.createCD();
+		ED ed4 = DatatypesFactory.eINSTANCE.createED();
+		TEL tel4 = DatatypesFactory.eINSTANCE.createTEL();
+		tel4.setValue("#fakeid1");
+		ed4.setReference(tel4);
+
+		cd4.setCode("code");
+		cd4.setCodeSystem("codeSystem");
+		cd4.setOriginalText(ed4);
+
+		Map<String, String> idedAnnotations = new StringMap();
+		idedAnnotations.put("fakeid1", "fakevalue2");
+
+		CodeableConcept codeableConcept4 = dtt.tCD2CodeableConcept(cd4, idedAnnotations);
+		Assert.assertEquals("CodeableConcept sets text based on pointer and annotations", "fakevalue2",
+				codeableConcept4.getText());
+
+		// originalText test without reference.
+		CD cd5 = DatatypesFactory.eINSTANCE.createCD();
+		ED ed5 = DatatypesFactory.eINSTANCE.createED();
+		ed5.addText("originalText");
+		cd5.setCode("code");
+		cd5.setCodeSystem("codeSystem");
+		cd5.setOriginalText(ed5);
+
+		CodeableConcept codeableConcept5 = dtt.tCD2CodeableConcept(cd5);
+		Assert.assertEquals("CodeableConcept sets original text without references", "originalText",
+				codeableConcept5.getText());
+
+		// empty padded strings don't create ref.
+		CD cd6 = DatatypesFactory.eINSTANCE.createCD();
+		ED ed6 = DatatypesFactory.eINSTANCE.createED();
+		ed6.addText("   ");
+		cd6.setCode("code");
+		cd6.setCodeSystem("codeSystem");
+		cd6.setOriginalText(ed6);
+
+		CodeableConcept codeableConcept6 = dtt.tCD2CodeableConcept(cd6);
+		Assert.assertEquals("CodeableConcept sets original text without references", null, codeableConcept6.getText());
+
 	}
 
 	@Test

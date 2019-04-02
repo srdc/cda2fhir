@@ -35,12 +35,14 @@ import org.hl7.fhir.dstu3.model.Substance;
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.Consumable;
 import org.openhealthtools.mdht.uml.cda.Entity;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.Performer2;
+import org.openhealthtools.mdht.uml.cda.Product;
 import org.openhealthtools.mdht.uml.cda.Section;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.FamilyHistoryOrganizer;
@@ -48,6 +50,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
@@ -59,6 +62,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public interface IResourceTransformer {
@@ -222,14 +226,6 @@ public interface IResourceTransformer {
 			IBundleInfo bundleInfo);
 
 	/**
-	 * Transforms a CDA Indication instance to a FHIR Condition resource.
-	 *
-	 * @param cdaIndication A CDA Indication instance
-	 * @return A FHIR Condition resource
-	 */
-	Condition tIndication2Condition(Indication cdaIndication);
-
-	/**
 	 * Transforms a CDA LanguageCommunication instance to a FHIR Communication
 	 * resource.
 	 *
@@ -246,7 +242,7 @@ public interface IResourceTransformer {
 	 *         can also include other referenced resources such as Substance,
 	 *         Organization
 	 */
-	Bundle tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct);
+	IEntryResult tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct, IBundleInfo bundleInfo);
 
 	/**
 	 * Transforms a CDA MedicationActivity instance to a FHIR MedicationStatement
@@ -285,7 +281,8 @@ public interface IResourceTransformer {
 	 *         can also include other referenced resources such as Substance,
 	 *         Organization
 	 */
-	Bundle tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation);
+	IEntryResult tMedicationInformation2Medication(MedicationInformation cdaMedicationInformation,
+			IBundleInfo bundleInfo);
 
 	/**
 	 * Transforms a CDA Observation instance to a FHIR Observation resource.
@@ -465,11 +462,74 @@ public interface IResourceTransformer {
 
 	/**
 	 *
-	 * @param bundle
-	 * @param encodedBody
-	 * @param assemblerDevice
-	 * @return
+	 * Transforms a CDA MedicationSupplyOrder to a FHIR MedicationRequest
+	 * resource.**
+	 *
+	 * @param supply A CDA MedicationSupplyOrder instance*@return An Entry result
+	 *               that contains a FHIR Bundle with the MedicatinRequest* as the
+	 *               first entry, which can also include other referenced resources*
+	 *               such as Encounter,Practitioner, and will include all other*
+	 *               Medication objects that are referenced by the
+	 *               MedicationRequest.* Provides a provenance file to store the
+	 *               targeted references.
+	 **/
+
+	IEntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder supply, IBundleInfo bundleInfo);
+
+	/**
+	 * Provides a provenance file to store the targeted references.
+	 *
+	 * @param bundle          The built bundle, needed to parse for references.
+	 * @param encodedBody     A string with the encoded document body.
+	 * @param assemblerDevice An Identifier of the original assembling device.
+	 * @return Bundle, updated with a provenance object, and entries for binary and
+	 *         device.
 	 */
 	Bundle tProvenance(Bundle bundle, String encodedBody, Identifier assemblerDevice);
+
+	/**
+	 * Creates a FHIR Condition object of category problem-list-item from a CDA
+	 * Indication object.
+	 *
+	 * @param cdaIndication a CDA Indication object
+	 * @param bundleInfo    A BundleInfo object which acts as a context for the
+	 *                      current transformation.
+	 * @return Condition object.
+	 */
+	Condition tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo);
+
+	/**
+	 * Creates a FHIR Condition object of category encounter-diagnosis from a CDA
+	 * Indication object.
+	 *
+	 * @param cdaIndication a CDA Indication object
+	 *
+	 * @return Condition object.
+	 */
+	Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo);
+
+	/**
+	 * Turns a CDA manufactured product object into a FHIR medication.
+	 *
+	 * @param cdaProduct CDA Product object.
+	 * @param bundleInfo A BundleInfo object which acts as a context for the current
+	 *                   transformation.
+	 * @return An Entry result that contains a FHIR Bundle with the Medication,
+	 *         which can also include other referenced resources such as
+	 *         Practitioner.
+	 */
+	EntryResult tManufacturedProduct2Medication(Product cdaProduct, IBundleInfo bundleInfo);
+
+	/**
+	 * Turns a CDA manufactured product object into a FHIR medication.
+	 *
+	 * @param cdaProduct CDA Product object.
+	 * @param bundleInfo A BundleInfo object which acts as a context for the current
+	 *                   transformation.
+	 * @return An Entry result that contains a FHIR Bundle with the Medication,
+	 *         which can also include other referenced resources such as
+	 *         Practitioner.
+	 */
+	EntryResult tManufacturedProduct2Medication(Consumable cdaConsumable, IBundleInfo bundleInfo);
 
 }

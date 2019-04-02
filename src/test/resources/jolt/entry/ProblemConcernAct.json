@@ -1,0 +1,62 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"act": {
+				"entryRelationship": "MANY",
+				"statusCode": "ONE"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"act": {
+				"entryRelationship": {
+					"*": {
+						"typeCode": {
+							"SUBJ": {
+								"@2": {
+									"observation": "Condition[].->ProblemObservation"
+								}
+							}
+						}
+					}
+				},
+				"statusCode": {
+					"code": "verificationStatus"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"verificationStatus": "=valueSetAdapter('ConditionVerificationStatus','unknown',@0)"
+		}
+	},
+	{
+		"operation": "default",
+		"spec": {
+			"verificationStatus": "unknown"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Move",
+		"spec": {
+			"verificationStatus": "Condition"
+		}
+	}
+]

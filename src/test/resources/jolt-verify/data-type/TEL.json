@@ -1,0 +1,73 @@
+[
+	{
+		"input": {
+			"value": "tel:+1(555)555-1009"
+		},
+		"expected": {
+			"system": "phone",
+			"value": "+1(555)555-1009"
+		}
+	},
+	{
+		"input": {
+			"value": "tel:+1(555)555-1009",
+			"use": "H WP"
+		},
+		"expected": {
+			"system": "phone",
+			"value": "+1(555)555-1009",
+			"use": "work"
+		}
+	},
+	{
+		"input": {
+			"value": "tel:+1(555)666-1009",
+			"use": "WP"
+		},
+		"expected": {
+			"system": "phone",
+			"value": "+1(555)666-1009",
+			"use": "work"
+		}
+	},
+	{
+		"input": {
+			"value": "email:joedoe@example.com"
+		},
+		"expected": {
+			"system": "email",
+			"value": "joedoe@example.com"
+		}
+	},
+	{
+		"input": {
+			"value": "unknown:unknownvalue"
+		},
+		"expected": {
+			"system": "phone",
+			"value": "unknownvalue"
+		}
+	},
+	{
+		"input": {
+			"value": "https:amida.com",
+			"use": "H"
+		},
+		"expected": {
+			"system": "url",
+			"value": "amida.com",
+			"use": "home"
+		}
+	},
+	{
+		"input": {
+			"value": "fax:+1(555)666-1009",
+			"use": "EC"
+		},
+		"expected": {
+			"system": "fax",
+			"value": "+1(555)666-1009",
+			"use": "temp"
+		}
+	}
+]

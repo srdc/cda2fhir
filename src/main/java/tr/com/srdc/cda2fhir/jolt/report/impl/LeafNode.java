@@ -26,6 +26,11 @@ public class LeafNode extends Node implements ILeafNode {
 	}
 
 	@Override
+	public void setTarget(String target) {
+		this.target = target;
+	}
+
+	@Override
 	public LeafNode clone(IParentNode parent) {
 		String path = getPath();
 		LeafNode result = new LeafNode(parent, path, target);
@@ -33,6 +38,7 @@ public class LeafNode extends Node implements ILeafNode {
 		return result;
 	}
 
+	@Override
 	public List<TableRow> toTableRows(Templates templates) {
 		String path = getPath();
 		String rootResourceType = templates.getRootResource();
@@ -40,15 +46,13 @@ public class LeafNode extends Node implements ILeafNode {
 		String actualTarget = rootResourceType == null ? target : rootResourceType + "." + target;
 		TableRow row = new TableRow(path, actualTarget);
 		row.setFormat(format);
-		getConditions().forEach(condition -> {
-			String conditionAsString = condition.toString(path);
-			row.addCondition(conditionAsString);
-		});
+		getConditions().forEach(condition -> row.addCondition(condition.clone(path)));
 		List<TableRow> result = new ArrayList<TableRow>();
 		result.add(row);
 		return result;
 	}
 
+	@Override
 	public void promoteTargets(String parentTarget) {
 		if (target != null) {
 			if (target.length() > 0) {
