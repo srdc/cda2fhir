@@ -424,9 +424,9 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 		// patient map.
 		Map<String, String> map = new HashMap<>();
-		map.put("fhirLocation", "identifier");
-		map.put("fhirSystem", "2.16.840.1.113883.3.552.1.3.11.13.1.30");
-		identifierOIDMap.put("patient", map);
+		map.put("location", "identifier");
+		map.put("system", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2");
+		identifierOIDMap.put("Patient", map);
 
 		ResourceType patient = ResourceType.PATIENT;
 
@@ -437,22 +437,26 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 		String ifNotExistString = null;
 
-		if (resourceTypeName == "Patient") {
+		for (String resourceType : identifierOIDMap.keySet()) {
+			if (resourceTypeName == resourceType) {
 
-			Map<String, String> patientMap = identifierOIDMap.get("patient");
-			List<Base> identifiers = entry.getResource().getNamedProperty("identifier").getValues();
-			for (Base identifier : identifiers) {
+				Map<String, String> entryMap = identifierOIDMap.get(resourceType);
 
-				Identifier currentId = (Identifier) identifier;
+				String location = entryMap.get("location");
 
-				String curSys = currentId.getSystem();
+				List<Base> identifiers = entry.getResource().getNamedProperty(location).getValues();
+				for (Base identifier : identifiers) {
 
-				if (currentId.getSystem().equals("urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2")) {
-					ifNotExistString = "identifier=" + currentId.getSystem() + "|" + currentId.getValue();
+					Identifier currentId = (Identifier) identifier;
+
+					if (currentId.getSystem().equals(entryMap.get("system"))) {
+						ifNotExistString = location + "=" + currentId.getSystem() + "|" + currentId.getValue();
+						break;
+					}
+
 				}
 
 			}
-
 		}
 
 		if (ifNotExistString != null) {
