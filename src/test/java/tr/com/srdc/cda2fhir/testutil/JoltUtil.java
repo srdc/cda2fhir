@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,7 @@ public class JoltUtil {
 		if (conditions.isEmpty()) {
 			Assert.assertTrue("No jolt condition", joltConditions.isEmpty());
 		} else {
+			Assert.assertEquals("Condition count", conditions.size(), joltConditions.size());
 			for (int index = 0; index < conditions.size(); ++index) {
 				verifyCondition(conditions.get(index), joltConditions.get(index));
 			}
@@ -261,6 +263,32 @@ public class JoltUtil {
 			Assert.assertNotNull("Jolt " + key + " reference", reference);
 			Assert.assertTrue("Reference is string", reference instanceof String);
 			JoltUtil.putReference(joltObject, key, referenceRoot); // reference values may not match
+		} else {
+			Assert.assertNull("No jolt reference parent", joltObject.get(key));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void verifyUpdateReferences(boolean has, List<Reference> referenceRoots,
+			Map<String, Object> joltObject, String key) {
+		if (has) {
+			Object joltResult = joltObject.get(key);
+			Assert.assertNotNull("Jolt list " + key, joltResult);
+			List<Object> joltList = (List<Object>) joltResult;
+			Assert.assertEquals("Jolt list count" + key, referenceRoots.size(), joltList.size());
+			ListIterator<Object> itr = joltList.listIterator();
+			int index = 0;
+			while (itr.hasNext()) {
+				Map<String, Object> joltElement = (Map<String, Object>) itr.next();
+				Reference referenceObject = referenceRoots.get(index);
+				Object reference = joltElement.get("reference");
+				Assert.assertNotNull("Jolt " + key + " reference", reference);
+				Assert.assertTrue("Reference is string", reference instanceof String);
+				Map<String, Object> r = new LinkedHashMap<String, Object>();
+				r.put("reference", referenceObject.getReference());
+				itr.set(r);
+				++index;
+			}
 		} else {
 			Assert.assertNull("No jolt reference parent", joltObject.get(key));
 		}

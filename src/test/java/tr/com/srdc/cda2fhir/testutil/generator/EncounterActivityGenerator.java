@@ -124,6 +124,12 @@ public class EncounterActivityGenerator {
 		return ec;
 	}
 
+	private void updateIndicationGenerators() {
+		indicationGenerators.forEach(ig -> {
+			ig.setConstantCode("encounter-diagnosis", "Encounter Diagnosis", "http://hl7.org/fhir/condition-category");
+		});
+	}
+
 	public static EncounterActivityGenerator getDefaultInstance() {
 		EncounterActivityGenerator ecg = new EncounterActivityGenerator();
 
@@ -135,6 +141,8 @@ public class EncounterActivityGenerator {
 		ecg.performerGenerators.add(PerformerGenerator.getDefaultInstance());
 		ecg.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
 		ecg.serviceDeliveryLocationGenerators.add(ServiceDeliveryLocationGenerator.getDefaultInstance());
+
+		ecg.updateIndicationGenerators();
 
 		return ecg;
 	}
@@ -153,6 +161,8 @@ public class EncounterActivityGenerator {
 
 		ecg.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
 		ecg.serviceDeliveryLocationGenerators.add(ServiceDeliveryLocationGenerator.getDefaultInstance());
+
+		ecg.updateIndicationGenerators();
 
 		return ecg;
 	}

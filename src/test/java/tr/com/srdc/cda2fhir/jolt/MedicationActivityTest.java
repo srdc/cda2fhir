@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -58,6 +59,9 @@ public class MedicationActivityTest {
 		JoltUtil.verifyUpdateReference(medStatement.hasMedicationReference(), medStatement.getMedicationReference(),
 				joltMedStatement, "medicationReference");
 
+		JoltUtil.verifyUpdateReferences(medStatement.hasMedicationReference(), medStatement.getReasonReference(),
+				joltMedStatement, "reasonReference");
+
 		String joltMedStatementJson = JsonUtils.toPrettyJsonString(joltMedStatement);
 		File joltMedStatementFile = new File(OUTPUT_PATH + caseName + "JoltMedStatement.json");
 		FileUtils.writeStringToFile(joltMedStatementFile, joltMedStatementJson, Charset.defaultCharset());
@@ -86,6 +90,7 @@ public class MedicationActivityTest {
 		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
 		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
 		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
+		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
 
 		File xmlFile = CDAUtilExtension.writeAsXML(ma, OUTPUT_PATH, caseName);
 
@@ -95,6 +100,7 @@ public class MedicationActivityTest {
 		joltUtil.verifyOrganizations(organizations);
 		joltUtil.verifyPractitioners(practitioners);
 		joltUtil.verifyPractitionerRoles(practitionerRoles);
+		joltUtil.verifyConditions(conditions);
 
 		Medication med = BundleUtil.findOneResource(bundle, Medication.class);
 		joltUtil.verifyMedication(med);

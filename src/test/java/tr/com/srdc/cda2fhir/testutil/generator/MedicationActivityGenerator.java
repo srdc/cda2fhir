@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -15,7 +16,9 @@ import org.hl7.fhir.dstu3.model.Timing;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Consumable;
+import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
@@ -26,6 +29,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.PIVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO_PQ_PQ;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
@@ -55,6 +59,8 @@ public class MedicationActivityGenerator {
 	private IVL_PQRangeGenerator rateQuantityGenerator;
 
 	private RTOGenerator maxDoseGenerator;
+
+	private List<IndicationGenerator> indicationGenerators = new ArrayList<>();
 
 	public MedicationActivity generate(CDAFactories factories) {
 		MedicationActivity ma = factories.consol.createMedicationActivity();
@@ -121,7 +127,21 @@ public class MedicationActivityGenerator {
 			ma.setMaxDoseQuantity((RTO_PQ_PQ) pq);
 		}
 
+		indicationGenerators.forEach(ig -> {
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ma.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.RSON);
+			Indication indication = ig.generate(factories);
+			er.setObservation(indication);
+		});
+
 		return ma;
+	}
+
+	private void updateIndicationGenerators() {
+		indicationGenerators.forEach(ig -> {
+			ig.setConstantCode("problem-list-item", "Problem List Item", "http://hl7.org/fhir/condition-category");
+		});
 	}
 
 	public static MedicationActivityGenerator getDefaultInstance() {
@@ -136,6 +156,9 @@ public class MedicationActivityGenerator {
 		ma.ivlPqGenerator = IVL_PQSimpleQuantityGenerator.getDefaultInstance();
 		ma.routeCodeGenerator = CEGenerator.getNextInstance();
 		ma.rateQuantityGenerator = IVL_PQRangeGenerator.getDefaultInstance();
+		ma.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
+
+		ma.updateIndicationGenerators();
 
 		return ma;
 	}
@@ -234,6 +257,18 @@ public class MedicationActivityGenerator {
 			Medication medication = util.getResourceFromReference(medId, Medication.class);
 			medInfoGenerator.verify(medication);
 			medInfoGenerator.verify(bundle);
+		}
+
+		if (indicationGenerators.isEmpty()) {
+			Assert.assertTrue("Missing encounter diagnosis", !ms.hasReasonReference());
+		} else {
+			for (int index = 0; index < indicationGenerators.size(); ++index) {
+				IndicationGenerator ig = indicationGenerators.get(index);
+
+				String conditionId = ms.getReasonReference().get(index).getReference();
+				Condition condition = util.getResourceFromReference(conditionId, Condition.class);
+				ig.verify(condition);
+			}
 		}
 	}
 }

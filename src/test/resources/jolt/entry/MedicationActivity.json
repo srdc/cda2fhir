@@ -40,7 +40,16 @@
 				"doseQuantity": "dosage[0].doseQuantity.->IVL_PQSimpleQuantity",
 				"routeCode": "dosage[0].route.->CD",
 				"rateQuantity": "dosage[0].rateRange.->IVL_PQRange",
-				"#unk": "taken"
+				"#unk": "taken",
+				"entryRelationship": {
+					"*": {
+						"typeCode": {
+							"RSON": {
+								"@2": "Condition[].->MedIndication"
+							}
+						}
+					}
+				}
 			}
 		}
 	},
@@ -51,7 +60,10 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": "informationSource.reference",
-			"Medication": "medicationReference.reference"
+			"Medication": "medicationReference.reference",
+			"Condition": {
+				"*": "reasonReference[&].reference"
+			}
 		}
 	},
 	{
@@ -63,6 +75,11 @@
 			},
 			"medicationReference": {
 				"reference": "=getId(@0)"
+			},
+			"reasonReference": {
+				"*": {			
+					"reference": "=getId(@0)"
+				}
 			}
 		}
 	},
@@ -73,6 +90,7 @@
 			"PractitionerRole": "",
 			"Organization": "",
 			"Medication": "",
+			"Condition": "",
 			"dosage": {
 				"0": {
 					"rateRange": {
