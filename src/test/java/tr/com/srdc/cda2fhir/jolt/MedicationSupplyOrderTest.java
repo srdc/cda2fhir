@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -50,6 +51,9 @@ public class MedicationSupplyOrderTest {
 		JoltUtil.putReference(joltMedicationRequest, "subject", medicationRequest.getSubject()); // patient is not yet
 																									// implemented
 
+		JoltUtil.verifyUpdateReference(medicationRequest.hasMedicationReference(),
+				medicationRequest.getMedicationReference(), joltMedicationRequest, "medicationReference");
+
 		String joltMedicationRequestJson = JsonUtils.toPrettyJsonString(joltMedicationRequest);
 		File joltMedicationRequestFile = new File(OUTPUT_PATH + caseName + "JoltMedicationRequest.json");
 		FileUtils.writeStringToFile(joltMedicationRequestFile, joltMedicationRequestJson, Charset.defaultCharset());
@@ -78,6 +82,10 @@ public class MedicationSupplyOrderTest {
 		File xmlFile = CDAUtilExtension.writeAsXML(mso, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationSupplyOrder", caseName);
+		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+
+		Medication med = BundleUtil.findOneResource(bundle, Medication.class);
+		joltUtil.verifyMedication(med);
 
 		Map<String, Object> joltMedRequest = TransformManager.chooseResource(joltResult, "MedicationRequest");
 		compareMedicationRequests(caseName, medRequest, joltMedRequest);
