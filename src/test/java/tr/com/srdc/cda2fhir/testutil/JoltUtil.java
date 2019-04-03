@@ -17,6 +17,7 @@ import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
@@ -81,6 +82,28 @@ public class JoltUtil {
 			}
 			JoltUtil.verifyUpdateReference(immunization.hasManufacturer(), immunization.getManufacturer(), joltResult,
 					"manufacturer");
+		}
+	}
+
+	private static class ObservationInfo extends ResourceInfo {
+		private Observation observation;
+
+		public ObservationInfo(Observation observation) {
+			this.observation = observation;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return observation.getSubject();
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
 		}
 	}
 
@@ -409,6 +432,11 @@ public class JoltUtil {
 	public void verify(Immunization immunization) throws Exception {
 		ImmunizationInfo info = new ImmunizationInfo(immunization);
 		verify(immunization, info);
+	}
+
+	public void verify(Observation observation) throws Exception {
+		ObservationInfo info = new ObservationInfo(observation);
+		verify(observation, info);
 	}
 
 }
