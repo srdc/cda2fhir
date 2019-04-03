@@ -1,0 +1,13 @@
+{
+	"completed": "final",
+	"active": "preliminary",
+	"normal": "preliminary",
+	"new": "registered",
+	"held": "registered",
+	"aborted": "cancelled",
+	"suspended": "cancelled",
+	"cancelled": "cancelled",
+	"nullified": "cancelled",
+	"obselete": "unknown",
+	"error": "entered-in-error"
+}

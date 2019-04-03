@@ -19,12 +19,20 @@
 			"observation": {
 				"id": {
 					"*": "identifier[].->ID"
-				}
+				},
+				"code": "code.->CD",
+				"statusCode": "status.->NullFlavorableCode"
 			}
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)"
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",

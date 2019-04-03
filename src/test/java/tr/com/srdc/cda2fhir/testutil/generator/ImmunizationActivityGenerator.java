@@ -220,6 +220,12 @@ public class ImmunizationActivityGenerator {
 			CodeableConcept cc = immunization.getExplanation().getReason().get(0);
 			indicationGenerator.verify(cc);
 		}
+
+		if (statusCodeGenerator == null) {
+			Assert.assertTrue("No immunization status", !immunization.hasStatus());
+		} else {
+			statusCodeGenerator.verify(immunization.getStatus().toCode());
+		}
 	}
 
 	public void verify(Bundle bundle) throws Exception {
