@@ -13,20 +13,73 @@ import org.hl7.fhir.dstu3.model.Identifier;
 public class BundleRequest {
 
 	/**
-	 * Adds an entry to the ifNotExists map.
-	 *
-	 * @param resource     - String name of the resource for the condition.
-	 * @param location     - FHIR location of the resource to be used in the map.
-	 * @param system       - system used in the identifier lookup.
-	 * @param conditionMap - Map to which the entry needs to be appended.
+	 * Generates the hashMap used to create the ifNotExist Conditions.
 	 */
-	private static void addMapEntry(String resource, String location, String system,
-			HashMap<String, Map<String, String>> conditionMap) {
+	private static HashMap<String, Map<String, String>> createMap() {
 
-		Map<String, String> map = new HashMap<>();
-		map.put("location", location);
-		map.put("system", system);
-		conditionMap.put(resource, map);
+		HashMap<String, Map<String, String>> urlStringMap = new HashMap<String, Map<String, String>>();
+
+		Map<String, String> patientMap = new HashMap<>();
+		patientMap.put("type", "identifier");
+		patientMap.put("url", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2");
+		urlStringMap.put("Patient", patientMap);
+
+		Map<String, String> conditionMap = new HashMap<>();
+		conditionMap.put("type", "identifier");
+		conditionMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.6.798268.180");
+		urlStringMap.put("Condition", conditionMap);
+
+		Map<String, String> reportMap = new HashMap<>();
+		reportMap.put("type", "identifier");
+		reportMap.put("url", "urn:oid:urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
+		urlStringMap.put("Diagnostic Report", reportMap);
+
+		Map<String, String> allergyMap = new HashMap<>();
+		allergyMap.put("type", "identifier");
+		allergyMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
+		urlStringMap.put("Allergy Intolerance", allergyMap);
+
+		Map<String, String> medStatementMap = new HashMap<>();
+		medStatementMap.put("type", "identifier");
+		medStatementMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
+		urlStringMap.put("Medication Statement", medStatementMap);
+
+		Map<String, String> medRequestMap = new HashMap<>();
+		medRequestMap.put("type", "identifier");
+		medRequestMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
+		urlStringMap.put("Medication Request", medRequestMap);
+
+		Map<String, String> procMap = new HashMap<>();
+		procMap.put("type", "identifier");
+		procMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.1.1988.1");
+		urlStringMap.put("Procedure", procMap);
+
+		Map<String, String> immunizationMap = new HashMap<>();
+		immunizationMap.put("type", "identifier");
+		immunizationMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
+		urlStringMap.put("Immunization", immunizationMap);
+
+		Map<String, String> observationMap = new HashMap<>();
+		observationMap.put("type", "identifier");
+		observationMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.6.798268.2000");
+		urlStringMap.put("Observation", observationMap);
+
+		Map<String, String> encounterMap = new HashMap<>();
+		encounterMap.put("type", "identifier");
+		encounterMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.3.698084.8");
+		urlStringMap.put("Encounter", encounterMap);
+
+		Map<String, String> pracMap = new HashMap<>();
+		pracMap.put("type", "identifier");
+		pracMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.697780");
+		urlStringMap.put("Practitioner", pracMap);
+
+		Map<String, String> orgMap = new HashMap<>();
+		orgMap.put("type", "identifier");
+		orgMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.696570");
+		urlStringMap.put("Organization", orgMap);
+
+		return urlStringMap;
 
 	}
 
@@ -38,13 +91,7 @@ public class BundleRequest {
 	 */
 	public static String generateIfNoneExist(BundleEntryComponent bundleEntry) {
 
-		HashMap<String, Map<String, String>> urlStringMap = new HashMap<String, Map<String, String>>();
-
-		Map<String, String> map = new HashMap<>();
-		// named property, and string with value replacement.
-		map.put("type", "identifier");
-		map.put("url", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2");
-		urlStringMap.put("Patient", map);
+		HashMap<String, Map<String, String>> urlStringMap = createMap();
 
 		String ifNotExistString = null;
 
