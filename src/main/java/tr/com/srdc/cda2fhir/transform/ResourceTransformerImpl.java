@@ -744,6 +744,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					&& !cdaAssignedEntity.getRepresentedOrganizations().get(0).isSetNullFlavor()) {
 				org.hl7.fhir.dstu3.model.Organization fhirOrganization = tOrganization2Organization(
 						cdaAssignedEntity.getRepresentedOrganizations().get(0));
+
 				fhirPractitionerRole.setOrganization(new Reference(fhirOrganization.getId()));
 				fhirPractitionerRole.setPractitioner(new Reference(fhirPractitioner.getId()));
 

@@ -8,7 +8,6 @@ import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
-import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Identifier;
 
 public class BundleRequest {
@@ -39,43 +38,37 @@ public class BundleRequest {
 	 */
 	public static String generateIfNoneExist(BundleEntryComponent bundleEntry) {
 
-		HashMap<String, Map<String, String>> identifierOIDMap = new HashMap<String, Map<String, String>>();
-		addMapEntry("Patient", "identifier", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2", identifierOIDMap);
-		addMapEntry("Condition", "identifier", "urn:oid:2.16.840.1.113883.3.552.1.3.11.13.1.8.2", identifierOIDMap);
-		addMapEntry("Diagnostic Report", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268", identifierOIDMap);
-		addMapEntry("Allergy Intolerance", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076",
-				identifierOIDMap);
-		addMapEntry("Medication Statement", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268",
-				identifierOIDMap);
-		addMapEntry("Procedure", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.1.1988.1", identifierOIDMap);
-		addMapEntry("Immunization", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076", identifierOIDMap);
+		HashMap<String, Map<String, String>> urlStringMap = new HashMap<String, Map<String, String>>();
+
+		Map<String, String> map = new HashMap<>();
+		// named property, and string with value replacement.
+		map.put("type", "identifier");
+		map.put("url", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2");
+		urlStringMap.put("Patient", map);
 
 		String ifNotExistString = null;
-		String resourceTypeName = bundleEntry.getResource().getResourceType().name();
-		Class resourceClass = bundleEntry.getResource().getClass();
-		if (bundleEntry.getResource() instanceof Composition) {
-			System.out.println("ohhh");
-		}
 
-		for (String resourceType : identifierOIDMap.keySet()) {
-			if (resourceTypeName == resourceType) {
+		for (String resourceType : urlStringMap.keySet()) {
+			if (bundleEntry.getResource().getResourceType().name() == resourceType) {
 
-				Map<String, String> entryMap = identifierOIDMap.get(resourceType);
+				Map<String, String> entryMap = urlStringMap.get(resourceType);
+				String type = entryMap.get("type");
 
-				String location = entryMap.get("location");
+				// Handle identifiers.
+				if (type == "identifier") {
 
-				List<Base> identifiers = bundleEntry.getResource().getNamedProperty(location).getValues();
-				for (Base identifier : identifiers) {
+					List<Base> identifiers = bundleEntry.getResource().getNamedProperty(type).getValues();
+					for (Base identifier : identifiers) {
 
-					Identifier currentId = (Identifier) identifier;
+						Identifier currentId = (Identifier) identifier;
 
-					if (currentId.getSystem().equals(entryMap.get("system"))) {
-						ifNotExistString = location + "=" + currentId.getSystem() + "|" + currentId.getValue();
-						break;
+						if (currentId.getSystem().equals(entryMap.get("url"))) {
+							ifNotExistString = entryMap.get("type") + "=" + currentId.getSystem() + "|"
+									+ currentId.getValue();
+							break;
+						}
 					}
-
 				}
-
 			}
 		}
 
