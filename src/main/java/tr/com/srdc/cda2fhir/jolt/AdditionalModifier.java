@@ -287,6 +287,13 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class True extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			return Optional.of(true);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -303,6 +310,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
 		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
 		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
+		AMIDA_FUNCTIONS.put("true", new True());
 	}
 
 	private Modifier.Overwritr modifier;

@@ -8,6 +8,7 @@ import org.hl7.fhir.dstu3.model.Immunization;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Consumable;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
@@ -23,6 +24,8 @@ public class ImmunizationActivityGenerator {
 	private List<EffectiveTimeGenerator> effectiveTimeGenerators = new ArrayList<>();
 
 	private ImmunizationMedicationInformationGenerator medInfoGenerator;
+
+	private List<PerformerGenerator> performerGenerators = new ArrayList<>();
 
 	public ImmunizationActivity generate(CDAFactories factories) {
 		ImmunizationActivity ia = factories.consol.createImmunizationActivity();
@@ -50,6 +53,13 @@ public class ImmunizationActivityGenerator {
 			ia.setConsumable(consumable);
 		}
 
+		if (!performerGenerators.isEmpty()) {
+			performerGenerators.forEach(pg -> {
+				Performer2 performer = pg.generate(factories);
+				ia.getPerformers().add(performer);
+			});
+		}
+
 		return ia;
 	}
 
@@ -60,6 +70,7 @@ public class ImmunizationActivityGenerator {
 		ma.negationInd = true;
 		ma.effectiveTimeGenerators.add(EffectiveTimeGenerator.getValueOnlyInstance("20190204"));
 		ma.medInfoGenerator = ImmunizationMedicationInformationGenerator.getDefaultInstance();
+		ma.performerGenerators.add(PerformerGenerator.getDefaultInstance());
 
 		return ma;
 	}
@@ -97,6 +108,15 @@ public class ImmunizationActivityGenerator {
 			Assert.assertTrue("No lot number", !immunization.hasLotNumber());
 		} else {
 			medInfoGenerator.verify(bundle);
+		}
+
+		if (performerGenerators.isEmpty()) {
+			Assert.assertTrue("No practitioner", !immunization.hasPractitioner());
+		} else {
+			Assert.assertEquals("Practitioner count", 1, immunization.getPractitioner().size());
+			String practitionerId = immunization.getPractitioner().get(0).getActor().getReference();
+			PerformerGenerator pg = performerGenerators.get(performerGenerators.size() - 1);
+			pg.verifyFromPractionerId(bundle, practitionerId);
 		}
 	}
 }

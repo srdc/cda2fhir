@@ -3,7 +3,8 @@
 		"operation": "cardinality",
 		"spec": {
 			"substanceAdministration": {
-				"id": "MANY"
+				"id": "MANY",
+				"performer": "MANY"
 			}
 		}
 	},
@@ -22,7 +23,10 @@
 				},
 				"negationInd": "notGiven",
 				"effectiveTime": "date.->NullFlavorableValue",
-				"consumable": "->ImmunizationMedicationInformation"
+				"consumable": "->ImmunizationMedicationInformation",
+				"performer": {
+					"*": "Performer[].->AssignedEntity"
+				}
 			}
 		}
 	},
@@ -30,9 +34,40 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": ["practitioner[&].actor.reference", "practitioner[&1].role", "primarySource"]
+			}
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"date": "=datetimeAdapter(@0)"
+			"date": "=datetimeAdapter(@0)",
+			"practitioner": {
+				"*": {
+					"actor": {
+						"reference": "=getId(@0)"
+					},
+					"role": "=constantValue('ImmunizationRoleConstant')"
+				}
+			},
+			"primarySource": "=true(@0)" 
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	},
 	{

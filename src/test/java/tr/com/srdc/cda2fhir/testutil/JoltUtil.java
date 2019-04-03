@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -61,8 +62,23 @@ public class JoltUtil {
 			return immunization.getPatient();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void copyReferences(Map<String, Object> joltResult) {
+			JoltUtil.verifyUpdateReference(immunization.hasManufacturer(), immunization.getManufacturer(), joltResult,
+					"manufacturer");
+			List<Object> joltPractitioners = (List<Object>) joltResult.get("practitioner");
+			if (immunization.getPractitioner().isEmpty()) {
+				Assert.assertNull("No practitioner reference", joltPractitioners);
+			} else {
+				List<ImmunizationPractitionerComponent> practitioners = immunization.getPractitioner();
+				for (int index = 0; index < practitioners.size(); ++index) {
+					ImmunizationPractitionerComponent p = practitioners.get(index);
+					Map<String, Object> joltElement = (Map<String, Object>) joltPractitioners.get(index);
+					JoltUtil.verifyUpdateReference(p.hasActor(), p.getActor(), joltElement, "actor");
+					++index;
+				}
+			}
 			JoltUtil.verifyUpdateReference(immunization.hasManufacturer(), immunization.getManufacturer(), joltResult,
 					"manufacturer");
 		}
