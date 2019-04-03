@@ -5,7 +5,14 @@
 			"substanceAdministration": {
 				"id": "MANY",
 				"performer": "MANY",
-				"approachSiteCode": "MANY"
+				"approachSiteCode": "MANY",
+				"entryRelationship": {
+					"*": {
+						"observation": {
+							"value": "ONE"
+						}
+					}
+				}
 			}
 		}
 	},
@@ -33,7 +40,29 @@
 				},
 				"routeCode": "route.->CD",
 				"doseQuantity": "doseQuantity.->IVL_PQSimpleQuantity",
-				"statusCode": "status.->NullFlavorableCode"				
+				"statusCode": "status.->NullFlavorableCode",
+				"entryRelationship": {
+					"*": {
+						"observation": {
+							"templateId": {
+								"0": {
+									"root": {
+										"2.16.840.1.113883.10.20.22.4.53": {
+											"@4": {
+												"code": "explanation.reasonNotGiven[].->CD"
+											}
+										},
+										"2.16.840.1.113883.10.20.22.4.19": {
+											"@4": {
+												"value": "explanation.reason[].->CD"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	},
@@ -50,7 +79,11 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": ["practitioner[&].actor.reference", "practitioner[&1].role", "primarySource"]
+				"*": [
+					"practitioner[&].actor.reference",
+					"practitioner[&1].role",
+					"primarySource"
+				]
 			}
 		}
 	},
@@ -67,7 +100,7 @@
 				}
 			},
 			"primarySource": "=true(@0)",
-			"site": "=lastElement(@0)", 
+			"site": "=lastElement(@0)",
 			"status": "=valueSetAdapter('ImmunizationStatus',@0)"
 		}
 	},

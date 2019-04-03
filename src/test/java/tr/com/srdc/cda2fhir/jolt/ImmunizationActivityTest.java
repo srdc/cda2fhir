@@ -68,4 +68,11 @@ public class ImmunizationActivityTest {
 		ImmunizationActivityGenerator generator = ImmunizationActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
 	}
+
+	@Test
+	public void testRefused() throws Exception {
+		ImmunizationActivityGenerator generator = ImmunizationActivityGenerator.getDefaultInstance();
+		generator.convertToRefused();
+		runTest(generator, "refusedCase");
+	}
 }
