@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -13,11 +14,13 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -32,6 +35,35 @@ import tr.com.srdc.cda2fhir.util.FHIRUtil;
 public class JoltUtil {
 	private static final Path TEMPLATE_PATH = Paths.get("src", "test", "resources", "jolt");
 	private static final Path TEST_CASE_PATH = Paths.get("src", "test", "resources", "jolt-verify");
+
+	private static abstract class ResourceInfo {
+		public abstract String getPatientPropertyName();
+
+		public abstract Reference getPatientReference();
+	}
+
+	private static class ImmunizationInfo extends ResourceInfo {
+		private Immunization immunization;
+
+		public ImmunizationInfo(Immunization immunization) {
+			this.immunization = immunization;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "patient";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return immunization.getPatient();
+		}
+	}
+
+	private static final Map<String, String> PATIENT_PROPERTY = new HashMap<>();
+	static {
+		PATIENT_PROPERTY.put("Immunization", "patient");
+	}
 
 	private List<Object> result;
 	private String caseName;
@@ -326,4 +358,31 @@ public class JoltUtil {
 			Assert.assertNull("No jolt reference parent", joltObject.get(key));
 		}
 	}
+
+	public void verify(Resource resource, ResourceInfo info) throws Exception {
+		String resourceType = resource.getResourceType().name();
+
+		Map<String, Object> joltResource = TransformManager.chooseResource(result, resourceType);
+
+		Assert.assertNotNull("Jolt resource exists", joltResource);
+		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
+
+		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
+		Reference patientReference = info.getPatientReference();
+		String patientProperty = info.getPatientPropertyName();
+		JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
+
+		String joltResourceJson = JsonUtils.toPrettyJsonString(joltResource);
+		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");
+		FileUtils.writeStringToFile(joltResourceFile, joltResourceJson, Charset.defaultCharset());
+
+		String resourceJson = FHIRUtil.encodeToJSON(resource);
+		JSONAssert.assertEquals("Jolt resource", resourceJson, joltResourceJson, true);
+	}
+
+	public void verify(Immunization immunization) throws Exception {
+		ImmunizationInfo info = new ImmunizationInfo(immunization);
+		verify(immunization, info);
+	}
+
 }
