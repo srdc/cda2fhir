@@ -10,6 +10,8 @@ import org.openhealthtools.mdht.uml.cda.Consumable;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 
@@ -26,6 +28,10 @@ public class ImmunizationActivityGenerator {
 	private ImmunizationMedicationInformationGenerator medInfoGenerator;
 
 	private List<PerformerGenerator> performerGenerators = new ArrayList<>();
+
+	private List<CDGenerator> approachSiteCodeGenerators = new ArrayList<>();
+
+	private CEGenerator routeCodeGenerator;
 
 	public ImmunizationActivity generate(CDAFactories factories) {
 		ImmunizationActivity ia = factories.consol.createImmunizationActivity();
@@ -60,6 +66,18 @@ public class ImmunizationActivityGenerator {
 			});
 		}
 
+		if (!approachSiteCodeGenerators.isEmpty()) {
+			approachSiteCodeGenerators.forEach(ascg -> {
+				CD cd = ascg.generate(factories);
+				ia.getApproachSiteCodes().add(cd);
+			});
+		}
+
+		if (routeCodeGenerator != null) {
+			CE ce = routeCodeGenerator.generate(factories);
+			ia.setRouteCode(ce);
+		}
+
 		return ia;
 	}
 
@@ -71,7 +89,8 @@ public class ImmunizationActivityGenerator {
 		ma.effectiveTimeGenerators.add(EffectiveTimeGenerator.getValueOnlyInstance("20190204"));
 		ma.medInfoGenerator = ImmunizationMedicationInformationGenerator.getDefaultInstance();
 		ma.performerGenerators.add(PerformerGenerator.getDefaultInstance());
-
+		ma.approachSiteCodeGenerators.add(CDGenerator.getNextInstance());
+		ma.routeCodeGenerator = CEGenerator.getNextInstance();
 		return ma;
 	}
 
@@ -95,6 +114,19 @@ public class ImmunizationActivityGenerator {
 		} else {
 			EffectiveTimeGenerator etg = effectiveTimeGenerators.get(effectiveTimeGenerators.size() - 1);
 			etg.verifyValue(immunization.getDateElement().asStringValue());
+		}
+
+		if (approachSiteCodeGenerators.isEmpty()) {
+			Assert.assertTrue("No immunization site", !immunization.hasSite());
+		} else {
+			CDGenerator cdg = approachSiteCodeGenerators.get(approachSiteCodeGenerators.size() - 1);
+			cdg.verify(immunization.getSite());
+		}
+
+		if (routeCodeGenerator == null) {
+			Assert.assertTrue("No immunization route", !immunization.hasRoute());
+		} else {
+			routeCodeGenerator.verify(immunization.getRoute());
 		}
 	}
 

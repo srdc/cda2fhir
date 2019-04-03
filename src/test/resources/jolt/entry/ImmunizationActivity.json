@@ -4,7 +4,8 @@
 		"spec": {
 			"substanceAdministration": {
 				"id": "MANY",
-				"performer": "MANY"
+				"performer": "MANY",
+				"approachSiteCode": "MANY"
 			}
 		}
 	},
@@ -26,7 +27,11 @@
 				"consumable": "->ImmunizationMedicationInformation",
 				"performer": {
 					"*": "Performer[].->AssignedEntity"
-				}
+				},
+				"approachSiteCode": {
+					"*": "site.->CD"
+				},
+				"routeCode": "route.->CD"
 			}
 		}
 	},
@@ -59,7 +64,8 @@
 					"role": "=constantValue('ImmunizationRoleConstant')"
 				}
 			},
-			"primarySource": "=true(@0)" 
+			"primarySource": "=true(@0)",
+			"site": "=lastElement(@0)" 
 		}
 	},
 	{
