@@ -2,7 +2,7 @@
 	{
 		"operation": "cardinality",
 		"spec": {
-			"substanceadministration": {
+			"substanceAdministration": {
 				"id": "MANY",
 				"author": "ONE",
 				"effectiveTime": "MANY"
@@ -18,7 +18,7 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"substanceadministration": {
+			"substanceAdministration": {
 				"id": {
 					"*": "identifier[].->ID"
 				},
