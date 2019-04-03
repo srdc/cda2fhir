@@ -10,6 +10,7 @@ import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
@@ -25,6 +26,10 @@ public class ObservationGenerator {
 	private CDGenerator codeGenerator;
 
 	private StatusCodeGenerator statusCodeGenerator;
+
+	private IVL_TSPeriodGenerator effectiveTimeGenerator;
+
+	private List<CDGenerator> targetSiteCodeGenerators = new ArrayList<>();
 
 	public Observation generate(CDAFactories factories) {
 		Observation obs = factories.base.createObservation();
@@ -44,6 +49,18 @@ public class ObservationGenerator {
 			obs.setStatusCode(cs);
 		}
 
+		if (effectiveTimeGenerator != null) {
+			IVL_TS ivlTs = effectiveTimeGenerator.generate(factories);
+			obs.setEffectiveTime(ivlTs);
+		}
+
+		if (!targetSiteCodeGenerators.isEmpty()) {
+			targetSiteCodeGenerators.forEach(tscg -> {
+				CD cd = tscg.generate(factories);
+				obs.getTargetSiteCodes().add(cd);
+			});
+		}
+
 		return obs;
 	}
 
@@ -54,6 +71,8 @@ public class ObservationGenerator {
 		obs.codeGenerator = CDGenerator.getNextInstance();
 		obs.statusCodeGenerator = new StatusCodeGenerator(OBSERVATION_STATUS, "unknown");
 		obs.statusCodeGenerator.set("active");
+		obs.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
+		obs.targetSiteCodeGenerators.add(CDGenerator.getNextInstance());
 
 		return obs;
 	}
@@ -77,6 +96,19 @@ public class ObservationGenerator {
 			Assert.assertTrue("No observation status", !observation.hasStatus());
 		} else {
 			statusCodeGenerator.verify(observation.getStatus().toCode());
+		}
+
+		if (effectiveTimeGenerator == null) {
+			Assert.assertTrue("No observation effective period", !observation.hasEffectivePeriod());
+		} else {
+			effectiveTimeGenerator.verify(observation.getEffectivePeriod());
+		}
+
+		if (targetSiteCodeGenerators.isEmpty()) {
+			Assert.assertTrue("No observation target site code", !observation.hasBodySite());
+		} else {
+			CDGenerator cdg = targetSiteCodeGenerators.get(targetSiteCodeGenerators.size() - 1);
+			cdg.verify(observation.getBodySite());
 		}
 	}
 

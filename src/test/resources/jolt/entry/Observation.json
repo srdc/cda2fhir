@@ -3,7 +3,8 @@
 		"operation": "cardinality",
 		"spec": {
 			"observation": {
-				"id": "MANY"
+				"id": "MANY",
+				"targetSiteCode": "ONE"
 			}
 		}
 	},
@@ -21,7 +22,9 @@
 					"*": "identifier[].->ID"
 				},
 				"code": "code.->CD",
-				"statusCode": "status.->NullFlavorableCode"
+				"statusCode": "status.->NullFlavorableCode",
+				"targetSiteCode": "bodySite.->CD",
+				"effectiveTime": "effectivePeriod.->IVL_TSPeriod"
 			}
 		}
 	},
