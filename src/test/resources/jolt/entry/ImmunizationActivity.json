@@ -31,7 +31,9 @@
 				"approachSiteCode": {
 					"*": "site.->CD"
 				},
-				"routeCode": "route.->CD"
+				"routeCode": "route.->CD",
+				"doseQuantity": "doseQuantity.->IVL_PQSimpleQuantity",
+				"statusCode": "status.->NullFlavorableCode"				
 			}
 		}
 	},
@@ -65,7 +67,8 @@
 				}
 			},
 			"primarySource": "=true(@0)",
-			"site": "=lastElement(@0)" 
+			"site": "=lastElement(@0)", 
+			"status": "=valueSetAdapter('ImmunizationStatus',@0)"
 		}
 	},
 	{

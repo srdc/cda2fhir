@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Immunization;
@@ -12,13 +13,20 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+
+import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class ImmunizationActivityGenerator {
+	private static final Map<String, Object> IMMUNIZATION_STATUS = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/ImmunizationStatus.json");
+
 	private List<IDGenerator> idGenerators = new ArrayList<>();
 
 	private Boolean negationInd;
@@ -32,6 +40,10 @@ public class ImmunizationActivityGenerator {
 	private List<CDGenerator> approachSiteCodeGenerators = new ArrayList<>();
 
 	private CEGenerator routeCodeGenerator;
+
+	private IVL_PQSimpleQuantityGenerator doseQuantityGenerator;
+
+	private StatusCodeGenerator statusCodeGenerator;
 
 	public ImmunizationActivity generate(CDAFactories factories) {
 		ImmunizationActivity ia = factories.consol.createImmunizationActivity();
@@ -78,6 +90,16 @@ public class ImmunizationActivityGenerator {
 			ia.setRouteCode(ce);
 		}
 
+		if (doseQuantityGenerator != null) {
+			IVL_PQ ivlPq = doseQuantityGenerator.generate(factories);
+			ia.setDoseQuantity(ivlPq);
+		}
+
+		if (statusCodeGenerator != null) {
+			CS cs = statusCodeGenerator.generate(factories);
+			ia.setStatusCode(cs);
+		}
+
 		return ia;
 	}
 
@@ -91,6 +113,10 @@ public class ImmunizationActivityGenerator {
 		ma.performerGenerators.add(PerformerGenerator.getDefaultInstance());
 		ma.approachSiteCodeGenerators.add(CDGenerator.getNextInstance());
 		ma.routeCodeGenerator = CEGenerator.getNextInstance();
+		ma.doseQuantityGenerator = IVL_PQSimpleQuantityGenerator.getDefaultInstance();
+		ma.statusCodeGenerator = new StatusCodeGenerator(IMMUNIZATION_STATUS);
+		ma.statusCodeGenerator.set("active");
+
 		return ma;
 	}
 
@@ -127,6 +153,12 @@ public class ImmunizationActivityGenerator {
 			Assert.assertTrue("No immunization route", !immunization.hasRoute());
 		} else {
 			routeCodeGenerator.verify(immunization.getRoute());
+		}
+
+		if (doseQuantityGenerator == null) {
+			Assert.assertTrue("No immunization dose quantity", !immunization.hasDoseQuantity());
+		} else {
+			doseQuantityGenerator.verify(immunization.getDoseQuantity());
 		}
 	}
 
