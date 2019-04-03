@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -91,6 +92,7 @@ public class MedicationActivityTest {
 		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
 		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
 		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
+		List<Medication> medications = FHIRUtil.findResources(bundle, Medication.class);
 
 		File xmlFile = CDAUtilExtension.writeAsXML(ma, OUTPUT_PATH, caseName);
 
@@ -101,9 +103,9 @@ public class MedicationActivityTest {
 		joltUtil.verifyPractitioners(practitioners);
 		joltUtil.verifyPractitionerRoles(practitionerRoles);
 		joltUtil.verifyConditions(conditions);
+		joltUtil.verifyMedications(medications);
 
-		Medication med = BundleUtil.findOneResource(bundle, Medication.class);
-		joltUtil.verifyMedication(med);
+		BundleUtil.findOneResource(bundle, MedicationRequest.class);
 
 		Map<String, Object> joltMedStatement = TransformManager.chooseResource(joltResult, "MedicationStatement");
 		if (medicationStatement == null) {

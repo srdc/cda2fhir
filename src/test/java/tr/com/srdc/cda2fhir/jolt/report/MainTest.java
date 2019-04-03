@@ -62,6 +62,21 @@ public class MainTest {
 	}
 
 	@Test
+	public void testIVL_PQRange() throws Exception {
+		actualTest("IVL_PQRange");
+	}
+
+	@Test
+	public void testIVL_PQSimpleQuantity() throws Exception {
+		actualTest("IVL_PQSimpleQuantity");
+	}
+
+	@Test
+	public void testPIVL_TSTiming() throws Exception {
+		actualTest("PIVL_TSTiming");
+	}
+
+	@Test
 	public void testPN() throws Exception {
 		actualTest("PN");
 	}
@@ -107,6 +122,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testMedicationIndication() throws Exception {
+		actualTest("MedIndication");
+	}
+
+	@Test
 	public void testServiceDeliveryLocation() throws Exception {
 		actualTest("ServiceDeliveryLocation");
 	}
@@ -114,5 +134,20 @@ public class MainTest {
 	@Test
 	public void testEncounterActivity() throws Exception {
 		actualTest("EncounterActivity");
+	}
+
+	@Test
+	public void testMedicationInformation() throws Exception {
+		actualTest("MedicationInformation");
+	}
+
+	@Test
+	public void testMedicationSupplyOrder() throws Exception {
+		actualTest("MedicationSupplyOrder");
+	}
+
+	@Test
+	public void testMedicationActivity() throws Exception {
+		actualTest("MedicationActivity");
 	}
 }

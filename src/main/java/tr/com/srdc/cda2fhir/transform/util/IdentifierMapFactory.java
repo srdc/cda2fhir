@@ -42,6 +42,31 @@ public class IdentifierMapFactory {
 		return identifierMap;
 	}
 
+	public static <T> IIdentifierMap<T> resourcesToResourceInfo(List<? extends Resource> resources,
+			ResourceInfo<T> resourceInfo) {
+		IdentifierMap<T> identifierMap = new IdentifierMap<T>();
+		for (Resource resource : resources) {
+			Property property = resource.getNamedProperty("identifier");
+			if (property != null) {
+				List<Base> bases = property.getValues();
+				if (!bases.isEmpty()) {
+					for (Base base : bases) {
+						try {
+							Identifier identifier = resource.castToIdentifier(base);
+							String fhirType = resource.fhirType();
+							T info = resourceInfo.get(resource);
+							if (info != null) {
+								identifierMap.put(fhirType, identifier, info);
+							}
+						} catch (FHIRException e) {
+						}
+					}
+				}
+			}
+		}
+		return identifierMap;
+	}
+
 	public static IIdentifierMap<String> bundleToIds(Bundle bundle) {
 		return bundleToResourceInfo(bundle, r -> r.getId());
 	}

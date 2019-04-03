@@ -61,7 +61,15 @@ public class JoltUtil {
 			Assert.assertTrue("No practitioner", joltPractitioners.isEmpty());
 		} else {
 			for (int index = 0; index < practitioners.size(); ++index) {
-				comparePractitioner(practitioners.get(index), joltPractitioners.get(index));
+				boolean found = false;
+				for (int index2 = 0; index2 < joltPractitioners.size(); ++index2) {
+					try {
+						comparePractitioner(practitioners.get(index), joltPractitioners.get(index2));
+						found = true;
+					} catch (Error ex) {
+					}
+				}
+				Assert.assertTrue("Matched practitioner found", found);
 			}
 		}
 	}
@@ -89,6 +97,18 @@ public class JoltUtil {
 		}
 	}
 
+	public void verifyMedications(List<Medication> medications) throws Exception {
+		List<Map<String, Object>> joltMedications = TransformManager.chooseResources(result, "Medication");
+		if (medications.isEmpty()) {
+			Assert.assertTrue("No jolt medication", joltMedications.isEmpty());
+		} else {
+			Assert.assertEquals("Medication count", medications.size(), joltMedications.size());
+			for (int index = 0; index < medications.size(); ++index) {
+				verifyMedication(medications.get(index), joltMedications.get(index));
+			}
+		}
+	}
+
 	public static void compareOrganization(Organization organization, Map<String, Object> joltOrganization)
 			throws Exception {
 		joltOrganization.put("id", organization.getIdElement().getIdPart()); // ids do not have to match
@@ -96,6 +116,19 @@ public class JoltUtil {
 		String expected = FHIRUtil.encodeToJSON(organization);
 		String actual = JsonUtils.toJsonString(joltOrganization);
 		JSONAssert.assertEquals("Jolt organization", expected, actual, true);
+	}
+
+	public void verifyMedication(Medication med, Map<String, Object> joltMed) throws Exception {
+		Assert.assertNotNull("Jolt medication", joltMed);
+		Assert.assertNotNull("Jolt medication id", joltMed.get("id"));
+
+		joltMed.put("id", med.getIdElement().getIdPart()); // ids do not have to match
+
+		verifyUpdateReference(med.hasManufacturer(), med.getManufacturer(), joltMed, "manufacturer");
+
+		String joltMedJson = JsonUtils.toPrettyJsonString(joltMed);
+		String medJson = FHIRUtil.encodeToJSON(med);
+		JSONAssert.assertEquals("Jolt medication", medJson, joltMedJson, true);
 	}
 
 	public void verifyMedication(Medication med) throws Exception {

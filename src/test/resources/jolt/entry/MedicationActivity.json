@@ -46,9 +46,14 @@
 						"typeCode": {
 							"RSON": {
 								"@2": "Condition[].->MedIndication"
+							},
+							"REFR": {
+								"@2": "MedicationRequest.->MedicationSupplyOrder"
 							}
 						}
+						
 					}
+					
 				}
 			}
 		}
@@ -91,6 +96,7 @@
 			"Organization": "",
 			"Medication": "",
 			"Condition": "",
+			"MedicationRequest": "",
 			"dosage": {
 				"0": {
 					"rateRange": {

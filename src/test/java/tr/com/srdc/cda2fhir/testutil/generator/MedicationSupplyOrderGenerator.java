@@ -201,7 +201,7 @@ public class MedicationSupplyOrderGenerator {
 			String medId = mr.getMedicationReference().getReference();
 			Medication medication = util.getResourceFromReference(medId, Medication.class);
 			medInfoGenerator.verify(medication);
-			medInfoGenerator.verify(bundle);
+			// medInfoGenerator.verify(bundle);
 		}
 
 		if (authorGenerator == null) {

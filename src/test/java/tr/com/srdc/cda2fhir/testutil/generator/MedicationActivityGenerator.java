@@ -7,6 +7,7 @@ import java.util.Map;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -20,6 +21,7 @@ import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -36,6 +38,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class MedicationActivityGenerator {
 	private static final Map<String, Object> MED_STATEMENT_STATUS = JsonUtils
@@ -61,6 +64,8 @@ public class MedicationActivityGenerator {
 	private RTOGenerator maxDoseGenerator;
 
 	private List<IndicationGenerator> indicationGenerators = new ArrayList<>();
+
+	private MedicationSupplyOrderGenerator medicationSupplyOrderGenerator;
 
 	public MedicationActivity generate(CDAFactories factories) {
 		MedicationActivity ma = factories.consol.createMedicationActivity();
@@ -135,6 +140,16 @@ public class MedicationActivityGenerator {
 			er.setObservation(indication);
 		});
 
+		if (medicationSupplyOrderGenerator != null) {
+			MedicationSupplyOrder mso = medicationSupplyOrderGenerator.generate(factories);
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ma.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.REFR);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.17");
+			mso.getTemplateIds().add(ii);
+			er.setSupply(mso);
+		}
+
 		return ma;
 	}
 
@@ -157,6 +172,7 @@ public class MedicationActivityGenerator {
 		ma.routeCodeGenerator = CEGenerator.getNextInstance();
 		ma.rateQuantityGenerator = IVL_PQRangeGenerator.getDefaultInstance();
 		ma.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
+		ma.medicationSupplyOrderGenerator = MedicationSupplyOrderGenerator.getDefaultInstance();
 
 		ma.updateIndicationGenerators();
 
@@ -256,7 +272,7 @@ public class MedicationActivityGenerator {
 			String medId = ms.getMedicationReference().getReference();
 			Medication medication = util.getResourceFromReference(medId, Medication.class);
 			medInfoGenerator.verify(medication);
-			medInfoGenerator.verify(bundle);
+			// medInfoGenerator.verify(bundle);
 		}
 
 		if (indicationGenerators.isEmpty()) {
@@ -269,6 +285,14 @@ public class MedicationActivityGenerator {
 				Condition condition = util.getResourceFromReference(conditionId, Condition.class);
 				ig.verify(condition);
 			}
+		}
+
+		MedicationRequest medRequest = FHIRUtil.findFirstResource(bundle, MedicationRequest.class);
+		if (medicationSupplyOrderGenerator == null) {
+			Assert.assertNull("No medication request", medRequest);
+		} else {
+			medicationSupplyOrderGenerator.verify(medRequest);
+			medicationSupplyOrderGenerator.verify(bundle);
 		}
 	}
 }

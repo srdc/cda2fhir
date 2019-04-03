@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.junit.Assert;
@@ -97,7 +96,7 @@ public class IndicationGenerator {
 
 		if (code != null && constCodeCode == null) {
 			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
-			throw new NotImplementedException("NOt yet implemented");
+			// throw new NotImplementedException("NOt yet implemented");
 		} else if (constCodeCode != null) {
 			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
 			Coding actual = condition.getCategory().get(0).getCoding().get(0);
