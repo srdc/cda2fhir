@@ -412,6 +412,24 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	}
 
 	/**
+	 * Adds an entry to the ifNotExists map.
+	 *
+	 * @param resource     - String name of the resource for the condition.
+	 * @param location     - FHIR location of the resource to be used in the map.
+	 * @param system       - system used in the identifier lookup.
+	 * @param conditionMap - Map to which the entry needs to be appended.
+	 */
+	private void addMapEntry(String resource, String location, String system,
+			HashMap<String, Map<String, String>> conditionMap) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("location", location);
+		map.put("system", system);
+		conditionMap.put(resource, map);
+
+	}
+
+	/**
 	 * Takes a bundle entry and generates the ifNotExists String.
 	 *
 	 * @param bundleEntry
@@ -419,14 +437,16 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 */
 	private String generateIfNoneExist(BundleEntryComponent bundleEntry) {
 
-		// Get main hashMap
 		HashMap<String, Map<String, String>> identifierOIDMap = new HashMap<String, Map<String, String>>();
-
-		// patient map.
-		Map<String, String> map = new HashMap<>();
-		map.put("location", "identifier");
-		map.put("system", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2");
-		identifierOIDMap.put("Patient", map);
+		addMapEntry("Patient", "identifier", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2", identifierOIDMap);
+		addMapEntry("Condition", "identifier", "urn:oid:2.16.840.1.113883.3.552.1.3.11.13.1.8.2", identifierOIDMap);
+		addMapEntry("Diagnostic Report", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268", identifierOIDMap);
+		addMapEntry("Allergy Intolerance", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076",
+				identifierOIDMap);
+		addMapEntry("Medication Statement", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268",
+				identifierOIDMap);
+		addMapEntry("Procedure", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.1.1988.1", identifierOIDMap);
+		addMapEntry("Immunization", "identifier", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076", identifierOIDMap);
 
 		String ifNotExistString = null;
 		String resourceTypeName = bundleEntry.getResource().getResourceType().name();
