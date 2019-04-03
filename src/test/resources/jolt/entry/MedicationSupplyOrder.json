@@ -3,7 +3,9 @@
 		"operation": "cardinality",
 		"spec": {
 			"supply": {
-				"id": "MANY"
+				"id": "MANY",
+				"effectiveTime": "ONE",
+				"author": "ONE"
 			}
 		}
 	},
@@ -22,7 +24,13 @@
 				},
 				"statusCode": "status.->NullFlavorableCode",
 				"#instance-order": "intent",
-				"product": "Medication.->MedicationInformation"
+				"product": "Medication.->MedicationInformation",
+				"effectiveTime": "dispenseRequest.validityPeriod.->IVL_TSPeriod",
+				"quantity": "dispenseRequest.quantity.->IVL_PQSimpleQuantity",
+				"repeatNumber": {
+					"value": "dispenseRequest.numberOfRepeatsAllowed"
+				},
+				"author": "->AuthorParticipation"
 			}
 		}
 	},
@@ -32,7 +40,8 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Medication": "medicationReference.reference"
+			"Medication": "medicationReference.reference",
+			"Practitioner": "requester.agent.reference"
 		}
 	},
 	{
@@ -41,13 +50,26 @@
 			"status": "=valueSetAdapter('MedicationRequestStatus','unknown',@0)",
 			"medicationReference": {
 				"reference": "=getId(@0)"
+			},
+			"requester": {
+				"agent": {
+					"reference": "=getId(@0)"
+				}
 			}
 		}
 	},
 	{
 		"operation": "remove",
 		"spec": {
-			"Medication": ""
+			"Medication": "",
+			"Practitioner": "",
+			"Organization": "",
+			"PractitionerRole": "",
+			"dispenseRequest": {
+				"quantity": {
+					"system": ""
+				}
+			}
 		}
 	},
 	{

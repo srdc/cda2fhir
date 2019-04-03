@@ -42,6 +42,7 @@ public class MedicationSupplyOrderTest {
 		rt = new ResourceTransformerImpl();
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void compareMedicationRequests(String caseName, MedicationRequest medicationRequest,
 			Map<String, Object> joltMedicationRequest) throws Exception {
 		Assert.assertNotNull("Jolt medicationRequest", joltMedicationRequest);
@@ -53,6 +54,8 @@ public class MedicationSupplyOrderTest {
 
 		JoltUtil.verifyUpdateReference(medicationRequest.hasMedicationReference(),
 				medicationRequest.getMedicationReference(), joltMedicationRequest, "medicationReference");
+		JoltUtil.verifyUpdateReference(medicationRequest.hasRequester(), medicationRequest.getRequester().getAgent(),
+				(Map<String, Object>) joltMedicationRequest.get("requester"), "agent");
 
 		String joltMedicationRequestJson = JsonUtils.toPrettyJsonString(joltMedicationRequest);
 		File joltMedicationRequestFile = new File(OUTPUT_PATH + caseName + "JoltMedicationRequest.json");
