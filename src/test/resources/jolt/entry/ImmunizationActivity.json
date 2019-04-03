@@ -14,20 +14,26 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},	
-	{
 		"operation": "shift",
 		"spec": {
 			"substanceAdministration": {
 				"id": {
 					"*": "identifier[].->ID"
-				}
+				},
+				"negationInd": "notGiven",
+				"effectiveTime": "date.->NullFlavorableValue",
+				"consumable": "->ImmunizationMedicationInformation"
 			}
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"date": "=datetimeAdapter(@0)"
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",

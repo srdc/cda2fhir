@@ -40,6 +40,8 @@ public class JoltUtil {
 		public abstract String getPatientPropertyName();
 
 		public abstract Reference getPatientReference();
+
+		public abstract void copyReferences(Map<String, Object> joltResult);
 	}
 
 	private static class ImmunizationInfo extends ResourceInfo {
@@ -57,6 +59,12 @@ public class JoltUtil {
 		@Override
 		public Reference getPatientReference() {
 			return immunization.getPatient();
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+			JoltUtil.verifyUpdateReference(immunization.hasManufacturer(), immunization.getManufacturer(), joltResult,
+					"manufacturer");
 		}
 	}
 
@@ -371,6 +379,8 @@ public class JoltUtil {
 		Reference patientReference = info.getPatientReference();
 		String patientProperty = info.getPatientPropertyName();
 		JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
+
+		info.copyReferences(joltResource);
 
 		String joltResourceJson = JsonUtils.toPrettyJsonString(joltResource);
 		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");

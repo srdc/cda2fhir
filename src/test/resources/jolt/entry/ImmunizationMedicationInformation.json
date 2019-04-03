@@ -10,7 +10,8 @@
 		"spec": {
 			"manufacturedProduct": {
 				"manufacturedMaterial": {
-					"code": "code.->CD"
+					"code": "vaccineCode.->CD",
+					"lotNumberText": "lotNumber"
 				},
 				"manufacturerOrganization": "Organization.->Organization"
 			}
@@ -37,12 +38,6 @@
 		"operation": "remove",
 		"spec": {
 			"Organization": ""
-		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
-		"spec": {
-			"resourceType": "Medication"
 		}
 	}
 ]
