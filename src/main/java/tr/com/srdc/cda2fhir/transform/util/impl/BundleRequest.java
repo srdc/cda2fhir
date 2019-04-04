@@ -42,12 +42,12 @@ public class BundleRequest {
 		Map<String, String> medStatementMap = new HashMap<>();
 		medStatementMap.put("type", "identifier");
 		medStatementMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.put("Medication Statement", medStatementMap);
+		urlStringMap.put("MedicationStatement", medStatementMap);
 
 		Map<String, String> medRequestMap = new HashMap<>();
 		medRequestMap.put("type", "identifier");
 		medRequestMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.put("Medication Request", medRequestMap);
+		urlStringMap.put("MedicationRequest", medRequestMap);
 
 		Map<String, String> procMap = new HashMap<>();
 		procMap.put("type", "identifier");
@@ -59,10 +59,15 @@ public class BundleRequest {
 		immunizationMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
 		urlStringMap.put("Immunization", immunizationMap);
 
-		Map<String, String> observationMap = new HashMap<>();
-		observationMap.put("type", "identifier");
-		observationMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.6.798268.2000");
-		urlStringMap.put("Observation", observationMap);
+		Map<String, String> resultsMap = new HashMap<>();
+		resultsMap.put("type", "identifier");
+		resultsMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.6.798268.2000");
+		urlStringMap.put("Observation", resultsMap);
+
+		Map<String, String> vitalSignsMap = new HashMap<>();
+		vitalSignsMap.put("type", "identifier");
+		vitalSignsMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.1.2109.1");
+		urlStringMap.put("Observation", vitalSignsMap);
 
 		Map<String, String> encounterMap = new HashMap<>();
 		encounterMap.put("type", "identifier");
@@ -99,6 +104,7 @@ public class BundleRequest {
 
 			System.out.println(bundleEntry.getResource().getResourceType().name());
 
+			// should run twice for obs.
 			if (bundleEntry.getResource().getResourceType().name() == resourceType) {
 
 				Map<String, String> entryMap = urlStringMap.get(resourceType);
@@ -119,7 +125,7 @@ public class BundleRequest {
 								if (currentId.getSystem().equals(entryMap.get("url"))) {
 									ifNotExistString = entryMap.get("type") + "=" + currentId.getSystem() + "|"
 											+ currentId.getValue();
-									return ifNotExistString;
+									break;
 								}
 							}
 						}
