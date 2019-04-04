@@ -423,6 +423,27 @@ public class JoltUtil {
 		}
 	}
 
+	public void verify(Resource resource, Map<String, Object> joltResource, ResourceInfo info) throws Exception {
+		String resourceType = resource.getResourceType().name();
+
+		Assert.assertNotNull("Jolt resource exists", joltResource);
+		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
+
+		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
+		Reference patientReference = info.getPatientReference();
+		String patientProperty = info.getPatientPropertyName();
+		JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
+
+		info.copyReferences(joltResource);
+
+		String joltResourceJson = JsonUtils.toPrettyJsonString(joltResource);
+		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");
+		FileUtils.writeStringToFile(joltResourceFile, joltResourceJson, Charset.defaultCharset());
+
+		String resourceJson = FHIRUtil.encodeToJSON(resource);
+		JSONAssert.assertEquals("Jolt resource", resourceJson, joltResourceJson, true);
+	}
+
 	public void verify(Resource resource, ResourceInfo info) throws Exception {
 		String resourceType = resource.getResourceType().name();
 
@@ -456,4 +477,16 @@ public class JoltUtil {
 		verify(observation, info);
 	}
 
+	public void verifyObservations(List<Observation> observations) throws Exception {
+		List<Map<String, Object>> joltObservations = TransformManager.chooseResources(result, "Observation");
+		if (observations.isEmpty()) {
+			Assert.assertTrue("No obervations", joltObservations.isEmpty());
+		} else {
+			Assert.assertEquals("Organization count", observations.size(), joltObservations.size());
+			for (int index = 0; index < observations.size(); ++index) {
+				ObservationInfo info = new ObservationInfo(observations.get(index));
+				verify(observations.get(index), joltObservations.get(index), info);
+			}
+		}
+	}
 }
