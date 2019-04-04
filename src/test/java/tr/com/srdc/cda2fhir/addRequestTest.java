@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir;
 
+import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
@@ -78,6 +79,27 @@ public class addRequestTest {
 
 		BundleEntryComponent bec = new BundleEntryComponent();
 		DiagnosticReport becEntry = new DiagnosticReport();
+		Identifier becId = new Identifier();
+		becId.setSystem(sys);
+		becId.setValue(val);
+		becEntry.addIdentifier(becId);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("ifNoneExists has been populated",
+				bec.getRequest().getIfNoneExist().equals("identifier=" + sys + "|" + val));
+
+	}
+
+	@Test
+	public void testAllergies() throws Exception {
+
+		String sys = "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076";
+		String val = "12345";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		AllergyIntolerance becEntry = new AllergyIntolerance();
 		Identifier becId = new Identifier();
 		becId.setSystem(sys);
 		becId.setValue(val);

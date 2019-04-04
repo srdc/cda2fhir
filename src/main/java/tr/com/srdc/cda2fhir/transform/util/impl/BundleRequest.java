@@ -37,7 +37,7 @@ public class BundleRequest {
 		Map<String, String> allergyMap = new HashMap<>();
 		allergyMap.put("type", "identifier");
 		allergyMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
-		urlStringMap.put("Allergy Intolerance", allergyMap);
+		urlStringMap.put("AllergyIntolerance", allergyMap);
 
 		Map<String, String> medStatementMap = new HashMap<>();
 		medStatementMap.put("type", "identifier");
