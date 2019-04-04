@@ -5,7 +5,8 @@
 			"observation": {
 				"id": "MANY",
 				"targetSiteCode": "ONE",
-				"value": "ONE"
+				"value": "ONE",
+				"author": "MANY"
 			}
 		}
 	},
@@ -58,9 +59,12 @@
 						"BL": {
 							"@2": {
 								"value": "valueBoolean"
-							}							
+							}
 						}
 					}
+				},
+				"author": {
+					"*": "Author[&].->AuthorParticipation"
 				}
 			}
 		}
@@ -69,10 +73,37 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Author": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": "performer[&].reference"
+			}
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)",
-			"valueDateTime": "=datetimeAdapter(@0)"
+			"valueDateTime": "=datetimeAdapter(@0)",
+			"performer": {
+				"*": {
+					"reference": "=getId(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	},
 	{

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
@@ -34,6 +35,8 @@ public class ObservationGenerator {
 	private List<CDGenerator> targetSiteCodeGenerators = new ArrayList<>();
 
 	private List<AnyGenerator> valueGenerators = new ArrayList<>();
+
+	private List<AuthorGenerator> authorGenerators = new ArrayList<>();
 
 	public void replaceValueGenerator(PQGenerator pqGenerator) {
 		valueGenerators.clear();
@@ -112,6 +115,11 @@ public class ObservationGenerator {
 			obs.getValues().add(any);
 		});
 
+		authorGenerators.forEach(ag -> {
+			Author author = ag.generate(factories);
+			obs.getAuthors().add(author);
+		});
+
 		return obs;
 	}
 
@@ -125,6 +133,7 @@ public class ObservationGenerator {
 		obs.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		obs.targetSiteCodeGenerators.add(CDGenerator.getNextInstance());
 		obs.valueGenerators.add(new AnyGenerator(CDGenerator.getNextInstance()));
+		obs.authorGenerators.add(AuthorGenerator.getDefaultInstance());
 
 		return obs;
 	}
@@ -193,5 +202,16 @@ public class ObservationGenerator {
 		org.hl7.fhir.dstu3.model.Observation obs = BundleUtil.findOneResource(bundle,
 				org.hl7.fhir.dstu3.model.Observation.class);
 		verify(obs);
+
+		if (authorGenerators.isEmpty()) {
+			Assert.assertTrue("No practitioner", !obs.hasPerformer());
+		} else {
+			Assert.assertEquals("Performer count", authorGenerators.size(), obs.getPerformer().size());
+			for (int index = 0; index < authorGenerators.size(); ++index) {
+				String practitionerId = obs.getPerformer().get(index).getReference();
+				AuthorGenerator ag = authorGenerators.get(index);
+				ag.verifyFromPractionerId(bundle, practitionerId);
+			}
+		}
 	}
 }

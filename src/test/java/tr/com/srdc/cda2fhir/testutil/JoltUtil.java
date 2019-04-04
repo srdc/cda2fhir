@@ -102,8 +102,21 @@ public class JoltUtil {
 			return observation.getSubject();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void copyReferences(Map<String, Object> joltResult) {
+			List<Object> joltPerformers = (List<Object>) joltResult.get("performer");
+			if (observation.getPerformer().isEmpty()) {
+				Assert.assertNull("No observation performer reference", joltPerformers);
+			} else {
+				List<Reference> performers = observation.getPerformer();
+				for (int index = 0; index < performers.size(); ++index) {
+					Map<String, Object> r = new LinkedHashMap<String, Object>();
+					r.put("reference", performers.get(index).getReference());
+					joltPerformers.set(index, r);
+					++index;
+				}
+			}
 		}
 	}
 
