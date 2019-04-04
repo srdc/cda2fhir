@@ -1,5 +1,8 @@
 package tr.com.srdc.cda2fhir.transform.util.impl;
 
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,74 +18,74 @@ public class BundleRequest {
 	/**
 	 * Generates the hashMap used to create the ifNotExist Conditions.
 	 */
-	private static HashMap<String, Map<String, String>> createMap() {
+	private static ArrayList<AbstractMap.SimpleEntry<String, Map<String, String>>> createMap() {
 
-		HashMap<String, Map<String, String>> urlStringMap = new HashMap<String, Map<String, String>>();
+		ArrayList<AbstractMap.SimpleEntry<String, Map<String, String>>> urlStringMap = new ArrayList<AbstractMap.SimpleEntry<String, Map<String, String>>>();
 
 		Map<String, String> patientMap = new HashMap<>();
 		patientMap.put("type", "identifier");
 		patientMap.put("url", "urn:oid:2.16.840.1.113883.3.552.1.3.11.13.1.8.2");
-		urlStringMap.put("Patient", patientMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Patient", patientMap));
 
 		Map<String, String> conditionMap = new HashMap<>();
 		conditionMap.put("type", "identifier");
 		conditionMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
-		urlStringMap.put("Condition", conditionMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Condition", conditionMap));
 
 		Map<String, String> reportMap = new HashMap<>();
 		reportMap.put("type", "identifier");
 		reportMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.put("DiagnosticReport", reportMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("DiagnosticReport", reportMap));
 
 		Map<String, String> allergyMap = new HashMap<>();
 		allergyMap.put("type", "identifier");
 		allergyMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
-		urlStringMap.put("AllergyIntolerance", allergyMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("AllergyIntolerance", allergyMap));
 
 		Map<String, String> medStatementMap = new HashMap<>();
 		medStatementMap.put("type", "identifier");
 		medStatementMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.put("MedicationStatement", medStatementMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("MedicationStatement", medStatementMap));
 
 		Map<String, String> medRequestMap = new HashMap<>();
 		medRequestMap.put("type", "identifier");
 		medRequestMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.put("MedicationRequest", medRequestMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("MedicationRequest", medRequestMap));
 
 		Map<String, String> procMap = new HashMap<>();
 		procMap.put("type", "identifier");
 		procMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.1.1988.1");
-		urlStringMap.put("Procedure", procMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Procedure", procMap));
 
 		Map<String, String> immunizationMap = new HashMap<>();
 		immunizationMap.put("type", "identifier");
 		immunizationMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
-		urlStringMap.put("Immunization", immunizationMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Immunization", immunizationMap));
 
 		Map<String, String> resultsMap = new HashMap<>();
 		resultsMap.put("type", "identifier");
 		resultsMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.6.798268.2000");
-		urlStringMap.put("Observation", resultsMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Observation", resultsMap));
 
 		Map<String, String> vitalSignsMap = new HashMap<>();
 		vitalSignsMap.put("type", "identifier");
 		vitalSignsMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.1.2109.1");
-		urlStringMap.put("Observation", vitalSignsMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Observation", vitalSignsMap));
 
 		Map<String, String> encounterMap = new HashMap<>();
 		encounterMap.put("type", "identifier");
 		encounterMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.3.698084.8");
-		urlStringMap.put("Encounter", encounterMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Encounter", encounterMap));
 
 		Map<String, String> pracMap = new HashMap<>();
 		pracMap.put("type", "identifier");
 		pracMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.697780");
-		urlStringMap.put("Practitioner", pracMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Practitioner", pracMap));
 
 		Map<String, String> orgMap = new HashMap<>();
 		orgMap.put("type", "identifier");
 		orgMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.696570");
-		urlStringMap.put("Organization", orgMap);
+		urlStringMap.add(new AbstractMap.SimpleEntry<>("Organization", orgMap));
 
 		return urlStringMap;
 
@@ -96,18 +99,19 @@ public class BundleRequest {
 	 */
 	public static String generateIfNoneExist(BundleEntryComponent bundleEntry) {
 
-		HashMap<String, Map<String, String>> urlStringMap = createMap();
+		ArrayList<SimpleEntry<String, Map<String, String>>> urlStringMap = createMap();
 
 		String ifNotExistString = null;
 
-		for (String resourceType : urlStringMap.keySet()) {
+		// Loop the map to find your values
+		for (SimpleEntry<String, Map<String, String>> resource : urlStringMap) {
 
 			System.out.println(bundleEntry.getResource().getResourceType().name());
 
-			// should run twice for obs.
-			if (bundleEntry.getResource().getResourceType().name() == resourceType) {
+			// If you match, pull the map type.
+			if (bundleEntry.getResource().getResourceType().name() == resource.getKey()) {
 
-				Map<String, String> entryMap = urlStringMap.get(resourceType);
+				Map<String, String> entryMap = resource.getValue();
 				String type = entryMap.get("type");
 
 				// Handle identifiers.
