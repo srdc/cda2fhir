@@ -2,6 +2,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.math.BigDecimal;
 
+import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
 import org.hl7.fhir.dstu3.model.Range;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
@@ -65,7 +66,20 @@ public class IVL_PQRangeGenerator {
 			Assert.assertTrue("No range low value", !range.hasLow());
 		} else {
 			low.verify(range.getLow());
+		}
+	}
 
+	public void verify(ObservationReferenceRangeComponent range) {
+		if (high == null) {
+			Assert.assertTrue("No range high value", !range.hasHigh());
+		} else {
+			high.verify(range.getHigh());
+		}
+
+		if (low == null) {
+			Assert.assertTrue("No range low value", !range.hasLow());
+		} else {
+			low.verify(range.getLow());
 		}
 	}
 }

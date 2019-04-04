@@ -49,4 +49,12 @@ public class EDGenerator {
 			Assert.assertEquals("Text", value, new String(content));
 		}
 	}
+
+	public void verify(String content) {
+		if (value == null || nullFlavor != null) {
+			Assert.assertNull("No text", content);
+		} else {
+			Assert.assertEquals("Text", value, content);
+		}
+	}
 }

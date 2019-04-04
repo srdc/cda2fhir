@@ -8,7 +8,8 @@
 				"value": "ONE",
 				"author": "MANY",
 				"methodCode": "MANY",
-				"interpretationCode": "ONE"
+				"interpretationCode": "ONE",
+				"referenceRange": "MANY"
 			}
 		}
 	},
@@ -73,6 +74,15 @@
 				},
 				"interpretationCode": {
 					"code": "interpretation.coding[]"
+				},
+				"referenceRange": {
+					"*": {
+						"observationRange": {
+							"value": "referenceRange[&2].->IVL_PQRange2",
+							"interpretationCode": "referenceRange[&2].type.->CD",
+							"text": "referenceRange[&2].text"
+						}
+					}
 				}
 			}
 		}

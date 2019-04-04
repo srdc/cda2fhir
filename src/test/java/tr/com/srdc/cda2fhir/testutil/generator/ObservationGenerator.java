@@ -8,6 +8,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Observation;
+import org.openhealthtools.mdht.uml.cda.ReferenceRange;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
@@ -44,6 +45,8 @@ public class ObservationGenerator {
 	private List<CEGenerator> methodCodeGenerators = new ArrayList<>();
 
 	private List<String> interpretationCodeGenerators = new ArrayList<>();
+
+	private List<ReferenceRangeGenerator> referenceRangeGenerators = new ArrayList<>();
 
 	public void replaceValueGenerator(PQGenerator pqGenerator) {
 		valueGenerators.clear();
@@ -136,6 +139,11 @@ public class ObservationGenerator {
 			obs.getInterpretationCodes().add(ce);
 		});
 
+		referenceRangeGenerators.forEach(rrg -> {
+			ReferenceRange rr = rrg.generate(factories);
+			obs.getReferenceRanges().add(rr);
+		});
+
 		return obs;
 	}
 
@@ -156,6 +164,7 @@ public class ObservationGenerator {
 
 		obs.methodCodeGenerators.add(CEGenerator.getNextInstance());
 		obs.interpretationCodeGenerators.add("CAR");
+		obs.referenceRangeGenerators.add(ReferenceRangeGenerator.getDefaultInstance());
 
 		return obs;
 	}
@@ -242,6 +251,16 @@ public class ObservationGenerator {
 			String expected = (String) ((Map<String, Object>) OBSERVATION_INTERPRETATION.get(input)).get("code");
 			String actual = observation.getInterpretation().getCoding().get(0).getCode();
 			Assert.assertEquals("Observation interpretation", expected, actual);
+		}
+
+		if (referenceRangeGenerators.isEmpty()) {
+			Assert.assertTrue("No reference range", !observation.hasReferenceRange());
+		} else {
+			int count = referenceRangeGenerators.size();
+			Assert.assertEquals("Reference range count", count, observation.getReferenceRange().size());
+			for (int index = 0; index < count; ++index) {
+				referenceRangeGenerators.get(index).verify(observation.getReferenceRange().get(index));
+			}
 		}
 	}
 
