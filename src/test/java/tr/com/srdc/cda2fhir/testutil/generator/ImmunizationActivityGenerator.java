@@ -7,10 +7,12 @@ import java.util.Map;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Consumable;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
+import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationRefusalReason;
@@ -53,6 +55,8 @@ public class ImmunizationActivityGenerator {
 	private CDGenerator refusalReasonGenerator;
 
 	private CDGenerator indicationGenerator;
+
+	private ObservationGenerator reactionObservationGenerator;
 
 	public void convertToRefused() {
 		negationInd = true;
@@ -141,6 +145,16 @@ public class ImmunizationActivityGenerator {
 			er.setObservation(indication);
 		}
 
+		if (reactionObservationGenerator != null) {
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ia.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.CAUS);
+			Observation obs = reactionObservationGenerator.generate(factories);
+			II templateId = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.9");
+			obs.getTemplateIds().add(templateId);
+			er.setObservation(obs);
+		}
+
 		return ia;
 	}
 
@@ -158,6 +172,7 @@ public class ImmunizationActivityGenerator {
 		ma.statusCodeGenerator = new StatusCodeGenerator(IMMUNIZATION_STATUS);
 		ma.statusCodeGenerator.set("active");
 		ma.indicationGenerator = CDGenerator.getNextInstance();
+		ma.reactionObservationGenerator = ObservationGenerator.getDefaultInstance();
 
 		return ma;
 	}
@@ -248,5 +263,19 @@ public class ImmunizationActivityGenerator {
 			PerformerGenerator pg = performerGenerators.get(performerGenerators.size() - 1);
 			pg.verifyFromPractionerId(bundle, practitionerId);
 		}
+
+		if (reactionObservationGenerator == null) {
+			Assert.assertTrue("No reaction observation", !immunization.hasReaction());
+		} else {
+			List<ImmunizationReactionComponent> reactions = immunization.getReaction();
+			Assert.assertEquals("Reaction count", 1, reactions.size());
+			ImmunizationReactionComponent reaction = reactions.get(0);
+			String observationId = reaction.getDetail().getReference();
+			BundleUtil util = new BundleUtil(bundle);
+			org.hl7.fhir.dstu3.model.Observation observation = util.getResourceFromReference(observationId,
+					org.hl7.fhir.dstu3.model.Observation.class);
+			reactionObservationGenerator.verify(observation);
+		}
+
 	}
 }

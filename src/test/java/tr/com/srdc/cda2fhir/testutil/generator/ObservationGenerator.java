@@ -91,7 +91,7 @@ public class ObservationGenerator {
 	}
 
 	public Observation generate(CDAFactories factories) {
-		Observation obs = factories.base.createObservation();
+		Observation obs = factories.consol.createReactionObservation();
 
 		idGenerators.forEach(idGenerator -> {
 			II ii = idGenerator.generate(factories);

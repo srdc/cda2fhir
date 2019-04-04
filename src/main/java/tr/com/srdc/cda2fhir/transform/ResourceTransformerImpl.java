@@ -1663,16 +1663,17 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				result.addResource(entry.getResource());
 				if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Observation) {
 					fhirReactionObservation = (org.hl7.fhir.dstu3.model.Observation) entry.getResource();
-				}
-				ImmunizationReactionComponent fhirReaction = fhirImmunization.addReaction();
-				// reaction -> reaction.detail[ref=Observation]
-				fhirReaction.setDetail(new Reference(fhirReactionObservation.getId()));
 
-				// reaction/effectiveTime/low -> reaction.date
-				if (fhirReactionObservation.getEffective() != null) {
-					Period reactionDate = (Period) fhirReactionObservation.getEffective();
-					if (reactionDate.getStart() != null)
-						fhirReaction.setDateElement(reactionDate.getStartElement());
+					ImmunizationReactionComponent fhirReaction = fhirImmunization.addReaction();
+					// reaction -> reaction.detail[ref=Observation]
+					fhirReaction.setDetail(new Reference(fhirReactionObservation.getId()));
+
+					// reaction/effectiveTime/low -> reaction.date
+					if (fhirReactionObservation.getEffective() != null) {
+						Period reactionDate = (Period) fhirReactionObservation.getEffective();
+						if (reactionDate.getStart() != null)
+							fhirReaction.setDateElement(reactionDate.getStartElement());
+					}
 				}
 			}
 		}

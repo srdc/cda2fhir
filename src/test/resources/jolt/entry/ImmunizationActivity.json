@@ -56,6 +56,9 @@
 											"@4": {
 												"value": "explanation.reason[].->CD"
 											}
+										},
+										"2.16.840.1.113883.10.20.22.4.9": {
+											"@5": "Observation.->Observation"
 										}
 									}
 								}
@@ -76,6 +79,9 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},		
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
@@ -84,6 +90,12 @@
 					"practitioner[&1].role",
 					"primarySource"
 				]
+			},
+			"Observation": {
+				"effectivePeriod": {
+					"start": "reaction[0].date"
+				},
+				"@0": "reaction[0].detail.reference"
 			}
 		}
 	},
@@ -99,6 +111,14 @@
 					"role": "=constantValue('ImmunizationRoleConstant')"
 				}
 			},
+			"reaction": {
+				"*": {
+					"detail": {
+						"reference": "=getId(@0)"
+					},
+					"date": "=datetimeAdapter(@0)"
+				}
+			},
 			"primarySource": "=true(@0)",
 			"site": "=lastElement(@0)",
 			"status": "=valueSetAdapter('ImmunizationStatus',@0)"
@@ -109,7 +129,8 @@
 		"spec": {
 			"Practitioner": "",
 			"PractitionerRole": "",
-			"Organization": ""
+			"Organization": "",
+			"Observation": ""
 		}
 	},
 	{

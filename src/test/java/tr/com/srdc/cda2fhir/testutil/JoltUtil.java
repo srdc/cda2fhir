@@ -80,8 +80,12 @@ public class JoltUtil {
 					++index;
 				}
 			}
-			JoltUtil.verifyUpdateReference(immunization.hasManufacturer(), immunization.getManufacturer(), joltResult,
-					"manufacturer");
+			if (immunization.hasReaction()) {
+				List<Object> joltReactions = (List<Object>) joltResult.get("reaction");
+				Map<String, Object> joltReaction = (Map<String, Object>) joltReactions.get(0);
+				JoltUtil.verifyUpdateReference(immunization.hasReaction(),
+						immunization.getReaction().get(0).getDetail(), joltReaction, "detail");
+			}
 		}
 	}
 

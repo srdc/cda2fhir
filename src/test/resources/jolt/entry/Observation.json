@@ -105,9 +105,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)",
