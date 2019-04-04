@@ -31,8 +31,8 @@ public class BundleRequest {
 
 		Map<String, String> reportMap = new HashMap<>();
 		reportMap.put("type", "identifier");
-		reportMap.put("url", "urn:oid:urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.put("Diagnostic Report", reportMap);
+		reportMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
+		urlStringMap.put("DiagnosticReport", reportMap);
 
 		Map<String, String> allergyMap = new HashMap<>();
 		allergyMap.put("type", "identifier");
@@ -96,6 +96,9 @@ public class BundleRequest {
 		String ifNotExistString = null;
 
 		for (String resourceType : urlStringMap.keySet()) {
+
+			System.out.println(bundleEntry.getResource().getResourceType().name());
+
 			if (bundleEntry.getResource().getResourceType().name() == resourceType) {
 
 				Map<String, String> entryMap = urlStringMap.get(resourceType);
