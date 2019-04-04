@@ -21,7 +21,7 @@ public class BundleRequest {
 
 		Map<String, String> patientMap = new HashMap<>();
 		patientMap.put("type", "identifier");
-		patientMap.put("url", "urn:oid:2.16.840.1.113883.3.552.1.3.11.11.1.8.2");
+		patientMap.put("url", "urn:oid:2.16.840.1.113883.3.552.1.3.11.13.1.8.2");
 		urlStringMap.put("Patient", patientMap);
 
 		Map<String, String> conditionMap = new HashMap<>();
@@ -105,14 +105,20 @@ public class BundleRequest {
 				if (type == "identifier") {
 
 					List<Base> identifiers = bundleEntry.getResource().getNamedProperty(type).getValues();
-					for (Base identifier : identifiers) {
 
-						Identifier currentId = (Identifier) identifier;
+					if (identifiers != null) {
+						for (Base identifier : identifiers) {
 
-						if (currentId.getSystem().equals(entryMap.get("url"))) {
-							ifNotExistString = entryMap.get("type") + "=" + currentId.getSystem() + "|"
-									+ currentId.getValue();
-							break;
+							Identifier currentId = (Identifier) identifier;
+
+							if (currentId.getSystem() != null) {
+								System.out.println(currentId.getSystem());
+								if (currentId.getSystem().equals(entryMap.get("url"))) {
+									ifNotExistString = entryMap.get("type") + "=" + currentId.getSystem() + "|"
+											+ currentId.getValue();
+									return ifNotExistString;
+								}
+							}
 						}
 					}
 				}
