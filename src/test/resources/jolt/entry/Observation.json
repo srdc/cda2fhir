@@ -6,7 +6,9 @@
 				"id": "MANY",
 				"targetSiteCode": "ONE",
 				"value": "ONE",
-				"author": "MANY"
+				"author": "MANY",
+				"methodCode": "MANY",
+				"interpretationCode": "ONE"
 			}
 		}
 	},
@@ -64,7 +66,13 @@
 					}
 				},
 				"author": {
-					"*": "Author[&].->AuthorParticipation"
+					"*": ["Author[&].->AuthorParticipation", "issued.->Time"]
+				},
+				"methodCode": {
+					"*": "method.->CD"
+				},
+				"interpretationCode": {
+					"code": "interpretation.coding[]"
 				}
 			}
 		}
@@ -87,15 +95,25 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)",
+			"interpretation": {
+				"coding": {
+					"*": "=valueSetAdapter('ObservationInterpretation',@0)"
+				}
+			},
 			"valueDateTime": "=datetimeAdapter(@0)",
 			"performer": {
 				"*": {
 					"reference": "=getId(@0)"
 				}
-			}
+			},
+			"method": "=lastElement(@0)",
+			"issued": "=datetimeAdapter(@0)"
 		}
 	},
 	{

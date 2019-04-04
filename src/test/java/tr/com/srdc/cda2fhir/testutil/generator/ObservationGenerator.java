@@ -10,6 +10,7 @@ import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
@@ -23,6 +24,8 @@ import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 public class ObservationGenerator {
 	private static final Map<String, Object> OBSERVATION_STATUS = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/ObservationStatus.json");
+	private static final Map<String, Object> OBSERVATION_INTERPRETATION = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/ObservationInterpretation.json");
 
 	private List<IDGenerator> idGenerators = new ArrayList<>();
 
@@ -37,6 +40,10 @@ public class ObservationGenerator {
 	private List<AnyGenerator> valueGenerators = new ArrayList<>();
 
 	private List<AuthorGenerator> authorGenerators = new ArrayList<>();
+
+	private List<CEGenerator> methodCodeGenerators = new ArrayList<>();
+
+	private List<String> interpretationCodeGenerators = new ArrayList<>();
 
 	public void replaceValueGenerator(PQGenerator pqGenerator) {
 		valueGenerators.clear();
@@ -103,12 +110,10 @@ public class ObservationGenerator {
 			obs.setEffectiveTime(ivlTs);
 		}
 
-		if (!targetSiteCodeGenerators.isEmpty()) {
-			targetSiteCodeGenerators.forEach(tscg -> {
-				CD cd = tscg.generate(factories);
-				obs.getTargetSiteCodes().add(cd);
-			});
-		}
+		targetSiteCodeGenerators.forEach(tscg -> {
+			CD cd = tscg.generate(factories);
+			obs.getTargetSiteCodes().add(cd);
+		});
 
 		valueGenerators.forEach(vg -> {
 			ANY any = vg.generate(factories);
@@ -118,6 +123,17 @@ public class ObservationGenerator {
 		authorGenerators.forEach(ag -> {
 			Author author = ag.generate(factories);
 			obs.getAuthors().add(author);
+		});
+
+		methodCodeGenerators.forEach(mcg -> {
+			CE ce = mcg.generate(factories);
+			obs.getMethodCodes().add(ce);
+		});
+
+		interpretationCodeGenerators.forEach(code -> {
+			CE ce = factories.datatype.createCE();
+			ce.setCode(code);
+			obs.getInterpretationCodes().add(ce);
 		});
 
 		return obs;
@@ -133,11 +149,18 @@ public class ObservationGenerator {
 		obs.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		obs.targetSiteCodeGenerators.add(CDGenerator.getNextInstance());
 		obs.valueGenerators.add(new AnyGenerator(CDGenerator.getNextInstance()));
-		obs.authorGenerators.add(AuthorGenerator.getDefaultInstance());
+
+		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
+		authorGenerator.setTimeGenerator(new TSGenerator("20170122103500-0400"));
+		obs.authorGenerators.add(authorGenerator);
+
+		obs.methodCodeGenerators.add(CEGenerator.getNextInstance());
+		obs.interpretationCodeGenerators.add("CAR");
 
 		return obs;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void verify(org.hl7.fhir.dstu3.model.Observation observation) {
 		if (idGenerators.isEmpty()) {
 			Assert.assertTrue("No observation identifier", !observation.hasIdentifier());
@@ -195,6 +218,30 @@ public class ObservationGenerator {
 			} else {
 				throw new TestSetupException("Invalid observation value");
 			}
+		}
+
+		if (methodCodeGenerators.isEmpty()) {
+			Assert.assertTrue("No observation method", !observation.hasMethod());
+		} else {
+			CEGenerator ceg = methodCodeGenerators.get(methodCodeGenerators.size() - 1);
+			ceg.verify(observation.getMethod());
+		}
+
+		if (authorGenerators.isEmpty()) {
+			Assert.assertTrue("No issued element", !observation.hasIssuedElement());
+		} else {
+			AuthorGenerator ag = authorGenerators.get(authorGenerators.size() - 1);
+			TSGenerator timeGenerator = ag.getTimeGenerator();
+			timeGenerator.verify(observation.getIssuedElement().asStringValue());
+		}
+
+		if (interpretationCodeGenerators.isEmpty()) {
+			Assert.assertTrue("No interpretation", !observation.hasInterpretation());
+		} else {
+			String input = interpretationCodeGenerators.get(interpretationCodeGenerators.size() - 1);
+			String expected = (String) ((Map<String, Object>) OBSERVATION_INTERPRETATION.get(input)).get("code");
+			String actual = observation.getInterpretation().getCoding().get(0).getCode();
+			Assert.assertEquals("Observation interpretation", expected, actual);
 		}
 	}
 
