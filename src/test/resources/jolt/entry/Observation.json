@@ -4,7 +4,8 @@
 		"spec": {
 			"observation": {
 				"id": "MANY",
-				"targetSiteCode": "ONE"
+				"targetSiteCode": "ONE",
+				"value": "ONE"
 			}
 		}
 	},
@@ -24,7 +25,43 @@
 				"code": "code.->CD",
 				"statusCode": "status.->NullFlavorableCode",
 				"targetSiteCode": "bodySite.->CD",
-				"effectiveTime": "effectivePeriod.->IVL_TSPeriod"
+				"effectiveTime": "effectivePeriod.->IVL_TSPeriod",
+				"value": {
+					"xsi:type": {
+						"CD": {
+							"@2": "valueCodeableConcept.->CD"
+						},
+						"PQ": {
+							"@2": "valueQuantity.->PQ"
+						},
+						"ST": {
+							"@2": {
+								"content": "valueString"
+							}
+						},
+						"IVL_PQ": {
+							"@2": "valueRange.->IVL_PQ"
+						},
+						"RTO": {
+							"@2": "valueRatio.->RTO"
+						},
+						"ED": {
+							"@2": {
+								"content": "valueAttachment.data"
+							}
+						},
+						"TS": {
+							"@2": {
+								"value": "valueDateTime"
+							}
+						},
+						"BL": {
+							"@2": {
+								"value": "valueBoolean"
+							}							
+						}
+					}
+				}
 			}
 		}
 	},
@@ -34,7 +71,8 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)"
+			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)",
+			"valueDateTime": "=datetimeAdapter(@0)"
 		}
 	},
 	{

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Observation;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ANY;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -16,6 +17,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 
 public class ObservationGenerator {
 	private static final Map<String, Object> OBSERVATION_STATUS = JsonUtils
@@ -30,6 +32,50 @@ public class ObservationGenerator {
 	private IVL_TSPeriodGenerator effectiveTimeGenerator;
 
 	private List<CDGenerator> targetSiteCodeGenerators = new ArrayList<>();
+
+	private List<AnyGenerator> valueGenerators = new ArrayList<>();
+
+	public void replaceValueGenerator(PQGenerator pqGenerator) {
+		valueGenerators.clear();
+		AnyGenerator ag = new AnyGenerator(pqGenerator);
+		valueGenerators.add(ag);
+	}
+
+	public void replaceValueGenerator(STGenerator stGenerator) {
+		valueGenerators.clear();
+		AnyGenerator ag = new AnyGenerator(stGenerator);
+		valueGenerators.add(ag);
+	}
+
+	public void replaceValueGenerator(IVL_PQRangeGenerator ivlPqRangeGenerator) {
+		valueGenerators.clear();
+		AnyGenerator ag = new AnyGenerator(ivlPqRangeGenerator);
+		valueGenerators.add(ag);
+	}
+
+	public void replaceValueGenerator(RTOGenerator rtoGenerator) {
+		valueGenerators.clear();
+		AnyGenerator ag = new AnyGenerator(rtoGenerator);
+		valueGenerators.add(ag);
+	}
+
+	public void replaceValueGenerator(EDGenerator edGenerator) {
+		valueGenerators.clear();
+		AnyGenerator ag = new AnyGenerator(edGenerator);
+		valueGenerators.add(ag);
+	}
+
+	public void replaceValueGenerator(TSGenerator tsGenerator) {
+		valueGenerators.clear();
+		AnyGenerator ag = new AnyGenerator(tsGenerator);
+		valueGenerators.add(ag);
+	}
+
+	public void replaceValueGenerator(BLGenerator blGenerator) {
+		valueGenerators.clear();
+		AnyGenerator ag = new AnyGenerator(blGenerator);
+		valueGenerators.add(ag);
+	}
 
 	public Observation generate(CDAFactories factories) {
 		Observation obs = factories.base.createObservation();
@@ -61,6 +107,11 @@ public class ObservationGenerator {
 			});
 		}
 
+		valueGenerators.forEach(vg -> {
+			ANY any = vg.generate(factories);
+			obs.getValues().add(any);
+		});
+
 		return obs;
 	}
 
@@ -73,6 +124,7 @@ public class ObservationGenerator {
 		obs.statusCodeGenerator.set("active");
 		obs.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		obs.targetSiteCodeGenerators.add(CDGenerator.getNextInstance());
+		obs.valueGenerators.add(new AnyGenerator(CDGenerator.getNextInstance()));
 
 		return obs;
 	}
@@ -109,6 +161,31 @@ public class ObservationGenerator {
 		} else {
 			CDGenerator cdg = targetSiteCodeGenerators.get(targetSiteCodeGenerators.size() - 1);
 			cdg.verify(observation.getBodySite());
+		}
+
+		if (valueGenerators.isEmpty()) {
+			Assert.assertTrue("No observation value", !observation.hasValue());
+		} else {
+			AnyGenerator ag = valueGenerators.get(valueGenerators.size() - 1);
+			if (observation.hasValueCodeableConcept()) {
+				ag.verify(observation.getValueCodeableConcept());
+			} else if (observation.hasValueQuantity()) {
+				ag.verify(observation.getValueQuantity());
+			} else if (observation.hasValueStringType()) {
+				ag.verify(observation.getValueStringType().getValueAsString());
+			} else if (observation.hasValueRange()) {
+				ag.verify(observation.getValueRange());
+			} else if (observation.hasValueRatio()) {
+				ag.verify(observation.getValueRatio());
+			} else if (observation.hasValueAttachment()) {
+				ag.verify(observation.getValueAttachment());
+			} else if (observation.hasValueDateTimeType()) {
+				ag.verify(observation.getValueDateTimeType());
+			} else if (observation.hasValueBooleanType()) {
+				ag.verify(observation.getValueBooleanType().booleanValue());
+			} else {
+				throw new TestSetupException("Invalid observation value");
+			}
 		}
 	}
 

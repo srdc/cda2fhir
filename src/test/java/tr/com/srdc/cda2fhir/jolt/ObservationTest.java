@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
@@ -15,7 +16,14 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.generator.BLGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.EDGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.IVL_PQRangeGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ObservationGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.PQGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.RTOGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.STGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.TSGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -62,5 +70,55 @@ public class ObservationTest {
 	public void testDefault() throws Exception {
 		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
+	}
+
+	@Test
+	public void testQuantityValue() throws Exception {
+		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		generator.replaceValueGenerator(PQGenerator.getDefaultInstance());
+		runTest(generator, "quantityValueCase");
+	}
+
+	@Test
+	public void testStringValue() throws Exception {
+		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		generator.replaceValueGenerator(STGenerator.getNextInstance());
+		runTest(generator, "stringValueCase");
+	}
+
+	@Test
+	public void testRange() throws Exception {
+		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		generator.replaceValueGenerator(IVL_PQRangeGenerator.getDefaultInstance());
+		runTest(generator, "rangeValueCase");
+	}
+
+	@Test
+	public void testRatio() throws Exception {
+		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		generator.replaceValueGenerator(RTOGenerator.getDefaultInstance());
+		runTest(generator, "rangeRatioCase");
+	}
+
+	@Ignore
+	@Test
+	public void testEDValue() throws Exception {
+		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		generator.replaceValueGenerator(EDGenerator.getNextInstance());
+		runTest(generator, "edValueCase");
+	}
+
+	@Test
+	public void testTSValue() throws Exception {
+		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		generator.replaceValueGenerator(TSGenerator.getNextInstance());
+		runTest(generator, "tsValueCase");
+	}
+
+	@Test
+	public void testBLValue() throws Exception {
+		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		generator.replaceValueGenerator(new BLGenerator(true));
+		runTest(generator, "blValueCase");
 	}
 }

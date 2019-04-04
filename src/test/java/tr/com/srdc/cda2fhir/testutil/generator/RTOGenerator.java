@@ -2,7 +2,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import org.hl7.fhir.dstu3.model.Ratio;
 import org.junit.Assert;
-import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -18,15 +18,15 @@ public class RTOGenerator {
 		RTO rto = factories.datatype.createRTO();
 
 		if (numerator != null) {
-			PQ pq = factories.datatype.createPQ();
-			pq.setValue(numerator);
-			rto.setNumerator(pq);
+			REAL real = factories.datatype.createREAL();
+			real.setValue(numerator);
+			rto.setNumerator(real);
 		}
 
 		if (denominator != null) {
-			PQ pq = factories.datatype.createPQ();
-			pq.setValue(denominator);
-			rto.setDenominator(pq);
+			REAL real = factories.datatype.createREAL();
+			real.setValue(denominator);
+			rto.setDenominator(real);
 		}
 
 		return rto;
@@ -54,13 +54,17 @@ public class RTOGenerator {
 		if (numerator == null) {
 			Assert.assertTrue("No ratio numerator", !ratio.hasNumerator());
 		} else {
-			Assert.assertEquals("Ration numerator", numerator.doubleValue(), ratio.getNumerator());
+			double expected = numerator.doubleValue();
+			double actual = ratio.getNumerator().getValueElement().getValue().doubleValue();
+			Assert.assertTrue("Ration numerator", Math.abs(expected - actual) < 0.001);
 		}
 
 		if (denominator == null) {
 			Assert.assertTrue("No ratio denominator", !ratio.hasNumerator());
 		} else {
-			Assert.assertEquals("Ration denominator", denominator.doubleValue(), ratio.getNumerator());
+			double expected = denominator.doubleValue();
+			double actual = ratio.getDenominator().getValueElement().getValue().doubleValue();
+			Assert.assertTrue("Ratio denominator", Math.abs(expected - actual) < 0.001);
 		}
 	}
 }
