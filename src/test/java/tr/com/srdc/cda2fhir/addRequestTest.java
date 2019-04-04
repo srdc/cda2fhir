@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
@@ -34,6 +35,26 @@ public class addRequestTest {
 
 		BundleEntryComponent bec = new BundleEntryComponent();
 		Patient becEntry = new Patient();
+		Identifier becId = new Identifier();
+		becId.setSystem(sys);
+		becId.setValue(val);
+		becEntry.addIdentifier(becId);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("is a thing", bec.getRequest().getIfNoneExist().equals("identifier=" + sys + "|" + val));
+
+	}
+
+	@Test
+	public void testCondition() throws Exception {
+
+		String sys = "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076";
+		String val = "12345";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		Condition becEntry = new Condition();
 		Identifier becId = new Identifier();
 		becId.setSystem(sys);
 		becId.setValue(val);

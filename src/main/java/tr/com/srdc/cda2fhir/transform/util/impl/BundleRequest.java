@@ -26,7 +26,7 @@ public class BundleRequest {
 
 		Map<String, String> conditionMap = new HashMap<>();
 		conditionMap.put("type", "identifier");
-		conditionMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.6.798268.180");
+		conditionMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
 		urlStringMap.put("Condition", conditionMap);
 
 		Map<String, String> reportMap = new HashMap<>();
