@@ -56,7 +56,7 @@ public class ImmunizationActivityGenerator {
 
 	private CDGenerator indicationGenerator;
 
-	private ObservationGenerator reactionObservationGenerator;
+	private ReactionObservationGenerator reactionObservationGenerator;
 
 	public void convertToRefused() {
 		negationInd = true;
@@ -172,7 +172,7 @@ public class ImmunizationActivityGenerator {
 		ma.statusCodeGenerator = new StatusCodeGenerator(IMMUNIZATION_STATUS);
 		ma.statusCodeGenerator.set("active");
 		ma.indicationGenerator = CDGenerator.getNextInstance();
-		ma.reactionObservationGenerator = ObservationGenerator.getDefaultInstance();
+		ma.reactionObservationGenerator = ReactionObservationGenerator.getDefaultInstance();
 
 		return ma;
 	}

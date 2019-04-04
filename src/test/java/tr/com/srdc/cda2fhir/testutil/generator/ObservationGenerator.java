@@ -22,7 +22,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 
-public class ObservationGenerator {
+public abstract class ObservationGenerator {
 	private static final Map<String, Object> OBSERVATION_STATUS = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/ObservationStatus.json");
 	private static final Map<String, Object> OBSERVATION_INTERPRETATION = JsonUtils
@@ -90,8 +90,10 @@ public class ObservationGenerator {
 		valueGenerators.add(ag);
 	}
 
+	public abstract Observation createForGenerate(CDAFactories factories);
+
 	public Observation generate(CDAFactories factories) {
-		Observation obs = factories.consol.createReactionObservation();
+		Observation obs = createForGenerate(factories);
 
 		idGenerators.forEach(idGenerator -> {
 			II ii = idGenerator.generate(factories);
@@ -147,9 +149,7 @@ public class ObservationGenerator {
 		return obs;
 	}
 
-	public static ObservationGenerator getDefaultInstance() {
-		ObservationGenerator obs = new ObservationGenerator();
-
+	public static void fillDefaultInstance(ObservationGenerator obs) {
 		obs.idGenerators.add(IDGenerator.getNextInstance());
 		obs.codeGenerator = CDGenerator.getNextInstance();
 		obs.statusCodeGenerator = new StatusCodeGenerator(OBSERVATION_STATUS, "unknown");
@@ -165,8 +165,6 @@ public class ObservationGenerator {
 		obs.methodCodeGenerators.add(CEGenerator.getNextInstance());
 		obs.interpretationCodeGenerators.add("CAR");
 		obs.referenceRangeGenerators.add(ReferenceRangeGenerator.getDefaultInstance());
-
-		return obs;
 	}
 
 	@SuppressWarnings("unchecked")

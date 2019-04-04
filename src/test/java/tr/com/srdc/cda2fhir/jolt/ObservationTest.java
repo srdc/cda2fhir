@@ -25,6 +25,7 @@ import tr.com.srdc.cda2fhir.testutil.generator.IVL_PQRangeGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ObservationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.PQGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.RTOGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.ReactionObservationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.STGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.TSGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -80,34 +81,34 @@ public class ObservationTest {
 
 	@Test
 	public void testDefault() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
 	}
 
 	@Test
 	public void testQuantityValue() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		generator.replaceValueGenerator(PQGenerator.getDefaultInstance());
 		runTest(generator, "quantityValueCase");
 	}
 
 	@Test
 	public void testStringValue() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		generator.replaceValueGenerator(STGenerator.getNextInstance());
 		runTest(generator, "stringValueCase");
 	}
 
 	@Test
 	public void testRange() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		generator.replaceValueGenerator(IVL_PQRangeGenerator.getDefaultInstance());
 		runTest(generator, "rangeValueCase");
 	}
 
 	@Test
 	public void testRatio() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		generator.replaceValueGenerator(RTOGenerator.getDefaultInstance());
 		runTest(generator, "rangeRatioCase");
 	}
@@ -115,21 +116,21 @@ public class ObservationTest {
 	@Ignore
 	@Test
 	public void testEDValue() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		generator.replaceValueGenerator(EDGenerator.getNextInstance());
 		runTest(generator, "edValueCase");
 	}
 
 	@Test
 	public void testTSValue() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		generator.replaceValueGenerator(TSGenerator.getNextInstance());
 		runTest(generator, "tsValueCase");
 	}
 
 	@Test
 	public void testBLValue() throws Exception {
-		ObservationGenerator generator = ObservationGenerator.getDefaultInstance();
+		ReactionObservationGenerator generator = ReactionObservationGenerator.getDefaultInstance();
 		generator.replaceValueGenerator(new BLGenerator(true));
 		runTest(generator, "blValueCase");
 	}
