@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.DiagnosticReport.DiagnosticReportPerformerComponent;
@@ -35,6 +37,7 @@ import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.jolt.TransformManager;
+import tr.com.srdc.cda2fhir.jolt.report.ReportException;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class JoltUtil {
@@ -131,6 +134,29 @@ public class JoltUtil {
 		}
 	}
 
+	private static class OrganizationInfo extends ResourceInfo {
+		private Organization organization;
+
+		public OrganizationInfo(Organization organization) {
+			this.organization = organization;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return null;
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return null;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+		}
+	}
+
 	private static class DiagnosticReportInfo extends ResourceInfo {
 		private DiagnosticReport report;
 
@@ -188,6 +214,80 @@ public class JoltUtil {
 		@Override
 		public void copyReferences(Map<String, Object> joltResult) {
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static List<Object> findPathNextValue(List<Object> inputs, String path, String fullPath) {
+		List<Object> result = new ArrayList<>();
+
+		String actualPath = path.replace("[]", "");
+
+		inputs.forEach(input -> {
+			if (!(input instanceof Map)) {
+				throw new ReportException(path + " of " + fullPath + " is not an object.");
+			}
+			Map<String, Object> inputAsMap = (Map<String, Object>) input;
+			Object next = inputAsMap.get(actualPath);
+			if (next == null) {
+				return;
+			}
+			if (!(next instanceof List)) {
+				if (path.endsWith("[]")) {
+					throw new ReportException(path + " of " + fullPath + " is not a list.");
+				}
+				result.add(next);
+				return;
+			}
+			if (!path.endsWith("[]")) {
+				throw new ReportException(path + " of " + fullPath + " is an unexpected list.");
+			}
+			List<Object> list = (List<Object>) next;
+			list.forEach(element -> result.add(element));
+		});
+		return result;
+	}
+
+	public static List<Object> findPathValue(Map<String, Object> input, String path) {
+		List<Object> result = new ArrayList<>();
+		result.add(input);
+
+		String[] pathPieces = path.split("\\.");
+		for (int index = 0; index < pathPieces.length; ++index) {
+			String pathPiece = pathPieces[index];
+			result = findPathNextValue(result, pathPiece, path);
+		}
+		if (result.isEmpty()) {
+			return null;
+		}
+		return result;
+	}
+
+	public static String findPathString(Map<String, Object> input, String path) {
+		if (input == null) {
+			return null;
+		}
+		List<Object> value = findPathValue(input, path);
+		if (value == null) {
+			return null;
+		}
+		Assert.assertEquals(path + " value count", 1, value.size());
+		Assert.assertTrue(path + " value is string", value.get(0) instanceof String);
+		String valueAsString = (String) value.get(0);
+		return valueAsString;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> findPathMap(Map<String, Object> input, String path) {
+		if (input == null) {
+			return null;
+		}
+		List<Object> value = findPathValue(input, path);
+		if (value == null) {
+			return null;
+		}
+		Assert.assertEquals(path + " value count", 1, value.size());
+		Assert.assertTrue(path + " value is map", value.get(0) instanceof Map);
+		return (Map<String, Object>) value.get(0);
 	}
 
 	private static final Map<String, String> PATIENT_PROPERTY = new HashMap<>();
@@ -496,9 +596,11 @@ public class JoltUtil {
 		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
 
 		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
-		Reference patientReference = info.getPatientReference();
 		String patientProperty = info.getPatientPropertyName();
-		JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
+		if (patientProperty != null) {
+			Reference patientReference = info.getPatientReference();
+			JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
+		}
 
 		info.copyReferences(joltResource);
 
@@ -520,24 +622,7 @@ public class JoltUtil {
 			return;
 		}
 
-		Assert.assertNotNull("Jolt resource exists", joltResource);
-		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
-
-		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
-		String patientProperty = info.getPatientPropertyName();
-		if (patientProperty != null) {
-			Reference patientReference = info.getPatientReference();
-			JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
-		}
-
-		info.copyReferences(joltResource);
-
-		String joltResourceJson = JsonUtils.toPrettyJsonString(joltResource);
-		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");
-		FileUtils.writeStringToFile(joltResourceFile, joltResourceJson, Charset.defaultCharset());
-
-		String resourceJson = FHIRUtil.encodeToJSON(resource);
-		JSONAssert.assertEquals("Jolt resource", resourceJson, joltResourceJson, true);
+		verify(resource, joltResource, info);
 	}
 
 	public void verify(Immunization immunization) throws Exception {
@@ -555,15 +640,38 @@ public class JoltUtil {
 		verify(report, info);
 	}
 
-	public void verify(Patient patient) throws Exception {
+	public void verify(Patient patient, Bundle bundle) throws Exception {
 		PatientInfo info = new PatientInfo(patient);
+
+		Map<String, Object> joltPatient = TransformManager.chooseResource(result, "Patient");
+
+		BundleUtil bundleUtil = new BundleUtil(bundle);
+
+		if (patient.hasManagingOrganization()) {
+			String reference = findPathString(joltPatient, "managingOrganization.reference");
+			Assert.assertNotNull("Managing organization reference exists", reference);
+			Map<String, Object> resource = TransformManager.chooseResourceByReference(result, reference);
+			Assert.assertNotNull("Managing organization", resource);
+
+			String cda2FhirReference = patient.getManagingOrganization().getReference();
+			Organization organization = bundleUtil.getResourceFromReference(cda2FhirReference, Organization.class);
+			OrganizationInfo orgInfo = new OrganizationInfo(organization);
+			verify(organization, orgInfo);
+
+			Map<String, Object> managingOrganization = findPathMap(joltPatient, "managingOrganization");
+			managingOrganization.put("reference", cda2FhirReference);
+		} else {
+			String value = findPathString(joltPatient, "managingOrganization.reference");
+			Assert.assertNull("No managing organization", value);
+		}
+
 		verify(patient, info);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {
 		List<Map<String, Object>> joltObservations = TransformManager.chooseResources(result, "Observation");
 		if (observations.isEmpty()) {
-			Assert.assertTrue("No obervations", joltObservations.isEmpty());
+			Assert.assertTrue("No observations", joltObservations.isEmpty());
 		} else {
 			Assert.assertEquals("Organization count", observations.size(), joltObservations.size());
 			for (int index = 0; index < observations.size(); ++index) {

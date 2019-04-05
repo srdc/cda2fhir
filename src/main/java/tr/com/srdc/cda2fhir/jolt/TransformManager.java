@@ -27,6 +27,24 @@ public class TransformManager {
 		return results.size() == 0 ? null : results.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> chooseResourceByReference(List<Object> resources, String reference) {
+		String[] pieces = reference.split("/");
+		String resourceType = pieces[0];
+		String id = pieces[1];
+		for (Object resource : resources) {
+			Map<String, Object> map = (Map<String, Object>) resource;
+			String actualResourceType = (String) map.get("resourceType");
+			if (resourceType.equals(actualResourceType)) {
+				Object actualId = map.get("id");
+				if (actualId != null && id.equals(actualId.toString())) {
+					return map;
+				}
+			}
+		}
+		return null;
+	}
+
 	private static Map<String, Object> getInitialContext() {
 		Map<String, Object> context = new HashMap<String, Object>();
 		context.put("Resources", new ArrayList<Object>());
