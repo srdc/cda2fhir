@@ -5,7 +5,10 @@
 			"patientRole": {
 				"id": "MANY",
 				"addr": "MANY",
-				"telecom": "MANY"
+				"telecom": "MANY",
+				"patient": {
+					"name": "MANY"
+				}
 			}
 		}
 	},
@@ -30,7 +33,13 @@
 				"telecom": {
 					"*": "telecom[].->TEL"
 				},
-				"providerOrganization": "managingOrganization.reference.->Organization"
+				"providerOrganization": "managingOrganization.reference.->Organization",
+				"patient": {
+					"name": {
+						"*": "name[&].->PN"
+					}
+				}
+				
 			}
 		}
 	},

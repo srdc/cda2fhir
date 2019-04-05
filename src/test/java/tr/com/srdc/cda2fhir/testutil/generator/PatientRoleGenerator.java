@@ -20,6 +20,7 @@ public class PatientRoleGenerator {
 	private List<ADGenerator> addrGenerators = new ArrayList<>();
 	private List<TELGenerator> telecomGenerators = new ArrayList<>();
 	private OrganizationGenerator providerOrgGenerator;
+	private PatientGenerator patientGenerator;
 
 	public PatientRole generate(CDAFactories factories) {
 		PatientRole pr = factories.base.createPatientRole();
@@ -43,6 +44,10 @@ public class PatientRoleGenerator {
 			pr.setProviderOrganization(providerOrgGenerator.generate(factories));
 		}
 
+		if (patientGenerator != null) {
+			pr.setPatient(patientGenerator.generate(factories));
+		}
+
 		return pr;
 	}
 
@@ -53,6 +58,7 @@ public class PatientRoleGenerator {
 		prg.addrGenerators.add(ADGenerator.getDefaultInstance());
 		prg.telecomGenerators.add(TELGenerator.getDefaultInstance());
 		prg.providerOrgGenerator = OrganizationGenerator.getDefaultInstance();
+		prg.patientGenerator = PatientGenerator.getDefaultInstance();
 
 		return prg;
 	}
@@ -80,6 +86,13 @@ public class PatientRoleGenerator {
 			Assert.assertTrue("No patient telecom", !patient.hasManagingOrganization());
 		} else {
 			Assert.assertTrue("Patient telecom exists", patient.hasManagingOrganization());
+		}
+
+		if (patientGenerator == null) {
+			boolean other = patient.hasName();
+			Assert.assertTrue("No patient name or other", !other);
+		} else {
+			patientGenerator.verify(patient);
 		}
 	}
 
