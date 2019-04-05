@@ -12,6 +12,7 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Property;
 
 public class BundleRequest {
 
@@ -103,36 +104,22 @@ public class BundleRequest {
 
 		String ifNotExistString = null;
 
-		// Loop the map to find your values
-		for (SimpleEntry<String, Map<String, String>> resource : urlStringMap) {
+		// all ifNoneExist strings attempt to start with an identifier.
+		Property identifierObject = bundleEntry.getResource().getNamedProperty("identifier");
 
-			System.out.println(bundleEntry.getResource().getResourceType().name());
+		if (identifierObject != null) {
+			List<Base> identifiers = identifierObject.getValues();
+			if (identifiers != null) {
+				for (Base identifier : identifiers) {
 
-			// If you match, pull the map type.
-			if (bundleEntry.getResource().getResourceType().name() == resource.getKey()) {
+					Identifier currentId = (Identifier) identifier;
 
-				Map<String, String> entryMap = resource.getValue();
-				String type = entryMap.get("type");
+					// only select identifiers with a system/id present.
+					if (currentId.getSystem() != null & currentId.getValue() != null) {
+						System.out.println(currentId.getSystem());
 
-				// Handle identifiers.
-				if (type == "identifier") {
-
-					List<Base> identifiers = bundleEntry.getResource().getNamedProperty(type).getValues();
-
-					if (identifiers != null) {
-						for (Base identifier : identifiers) {
-
-							Identifier currentId = (Identifier) identifier;
-
-							if (currentId.getSystem() != null) {
-								System.out.println(currentId.getSystem());
-								if (currentId.getSystem().equals(entryMap.get("url"))) {
-									ifNotExistString = entryMap.get("type") + "=" + currentId.getSystem() + "|"
-											+ currentId.getValue();
-									break;
-								}
-							}
-						}
+						// this is where I would lookup overrides.
+						ifNotExistString = "identifier=" + currentId.getSystem() + "|" + currentId.getValue();
 					}
 				}
 			}
