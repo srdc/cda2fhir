@@ -148,7 +148,7 @@ public class BundleRequest {
 
 		BundleEntryRequestComponent request = new BundleEntryRequestComponent();
 
-		String ifNoneExistString = generateIfNoneExist(entry);
+		String ifNoneExistString = generateIfNoneExist(entry).replace(" ", "+");
 		if (ifNoneExistString != null) {
 			request.setIfNoneExist(ifNoneExistString);
 		}
