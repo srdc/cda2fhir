@@ -1,11 +1,7 @@
 package tr.com.srdc.cda2fhir.transform.util.impl;
 
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -16,83 +12,30 @@ import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Property;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BundleRequest {
 
+	private final static Logger logger = LoggerFactory.getLogger(BundleRequest.class);
+
 	/**
-	 * Generates the hashMap used to create the ifNotExist Conditions.
+	 * Reads the configuration file, and parses out any overriding OIDs.
+	 *
+	 * @param resourceType - the resource name of the OID
+	 * @return Array of OID strings for use.
 	 */
-	private static ArrayList<AbstractMap.SimpleEntry<String, Map<String, String>>> createMap() {
+	private static String[] getDefinedOIDs(String resourceType) {
 
-		ArrayList<AbstractMap.SimpleEntry<String, Map<String, String>>> urlStringMap = new ArrayList<AbstractMap.SimpleEntry<String, Map<String, String>>>();
-
-		Map<String, String> patientMap = new HashMap<>();
-		patientMap.put("type", "identifier");
-		patientMap.put("url", "urn:oid:2.16.840.1.113883.3.552.1.3.11.13.1.8.2");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Patient", patientMap));
-
-		Map<String, String> conditionMap = new HashMap<>();
-		conditionMap.put("type", "identifier");
-		conditionMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Condition", conditionMap));
-
-		Map<String, String> reportMap = new HashMap<>();
-		reportMap.put("type", "identifier");
-		reportMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("DiagnosticReport", reportMap));
-
-		Map<String, String> allergyMap = new HashMap<>();
-		allergyMap.put("type", "identifier");
-		allergyMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("AllergyIntolerance", allergyMap));
-
-		Map<String, String> medStatementMap = new HashMap<>();
-		medStatementMap.put("type", "identifier");
-		medStatementMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("MedicationStatement", medStatementMap));
-
-		Map<String, String> medRequestMap = new HashMap<>();
-		medRequestMap.put("type", "identifier");
-		medRequestMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.798268");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("MedicationRequest", medRequestMap));
-
-		Map<String, String> procMap = new HashMap<>();
-		procMap.put("type", "identifier");
-		procMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.1.1988.1");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Procedure", procMap));
-
-		Map<String, String> immunizationMap = new HashMap<>();
-		immunizationMap.put("type", "identifier");
-		immunizationMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Immunization", immunizationMap));
-
-		Map<String, String> resultsMap = new HashMap<>();
-		resultsMap.put("type", "identifier");
-		resultsMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.6.798268.2000");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Observation", resultsMap));
-
-		Map<String, String> vitalSignsMap = new HashMap<>();
-		vitalSignsMap.put("type", "identifier");
-		vitalSignsMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.1.2109.1");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Observation", vitalSignsMap));
-
-		Map<String, String> encounterMap = new HashMap<>();
-		encounterMap.put("type", "identifier");
-		encounterMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.3.698084.8");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Encounter", encounterMap));
-
-		Map<String, String> pracMap = new HashMap<>();
-		pracMap.put("type", "identifier");
-		pracMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.697780");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Practitioner", pracMap));
-
-		Map<String, String> orgMap = new HashMap<>();
-		orgMap.put("type", "identifier");
-		orgMap.put("url", "urn:oid:1.2.840.114350.1.13.88.3.7.2.696570");
-		urlStringMap.add(new AbstractMap.SimpleEntry<>("Organization", orgMap));
-
-		return urlStringMap;
-
+		String[] splitOIDs = null;
+		try {
+			final ResourceBundle rb = ResourceBundle.getBundle("config");
+			String newOIDs = rb.getString(resourceType);
+			splitOIDs = newOIDs.split(",");
+		} catch (Exception e) {
+			// do not log exception.
+		}
+		return splitOIDs;
 	}
 
 	/**
@@ -103,12 +46,13 @@ public class BundleRequest {
 	 */
 	public static String generateIfNoneExist(BundleEntryComponent bundleEntry) {
 
-		ArrayList<SimpleEntry<String, Map<String, String>>> urlStringMap = createMap();
-
 		String ifNotExistString = "";
 
 		// all ifNoneExist strings attempt to start with an identifier.
 		Property identifierObject = bundleEntry.getResource().getNamedProperty("identifier");
+
+		// find any overriding OIDs.
+		String[] subsetOIDArray = getDefinedOIDs(bundleEntry.getResource().getResourceType().name());
 
 		if (identifierObject != null) {
 			List<Base> identifiers = identifierObject.getValues();
@@ -116,20 +60,32 @@ public class BundleRequest {
 				for (Base identifier : identifiers) {
 
 					Identifier currentId = (Identifier) identifier;
-
-					// only select identifiers with a system/id present.
 					if (currentId.getSystem() != null & currentId.getValue() != null) {
-						System.out.println(currentId.getSystem());
 
-						// add or for multiple parameters
-						if (ifNotExistString != "") {
-							ifNotExistString = ifNotExistString + ",";
+						if (subsetOIDArray != null) {
+
+							// override OID selection(s).
+							for (String OID : subsetOIDArray) {
+								System.out.println(currentId.getSystem());
+								if (currentId.getSystem().equals(OID)) {
+									if (ifNotExistString != "") {
+										ifNotExistString = ifNotExistString + ",";
+									} else {
+										ifNotExistString = "identifier=";
+									}
+									ifNotExistString = ifNotExistString + currentId.getSystem() + "|"
+											+ currentId.getValue();
+								}
+							}
 						} else {
-							ifNotExistString = "identifier=";
+							// add or for multiple parameters
+							if (ifNotExistString != "") {
+								ifNotExistString = ifNotExistString + ",";
+							} else {
+								ifNotExistString = "identifier=";
+							}
+							ifNotExistString = ifNotExistString + currentId.getSystem() + "|" + currentId.getValue();
 						}
-
-						// this is where I would lookup overrides.
-						ifNotExistString = ifNotExistString + currentId.getSystem() + "|" + currentId.getValue();
 					}
 				}
 			}

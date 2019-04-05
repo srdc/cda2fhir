@@ -64,8 +64,8 @@ public class addRequestTest {
 
 		BundleRequest.addRequestToEntry(bec);
 
-		Assert.assertTrue("ifNoneExists has been populated",
-				bec.getRequest().getIfNoneExist().equals("identifier=" + sys + "|" + val));
+		Assert.assertEquals("ifNoneExists has been populated", bec.getRequest().getIfNoneExist(),
+				"identifier=" + sys + "|" + val);
 
 	}
 
