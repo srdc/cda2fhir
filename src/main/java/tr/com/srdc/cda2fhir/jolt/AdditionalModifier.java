@@ -297,6 +297,25 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class ConstantSystem extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			String system = (String) argList.get(0);
+			Map<String, Object> cd = (Map<String, Object>) argList.get(1);
+			List<Object> codings = (List<Object>) cd.get("coding");
+			if (codings != null) {
+				codings.forEach(coding -> {
+					Map<String, Object> codingAsMap = (Map<String, Object>) coding;
+					if (codingAsMap != null) {
+						codingAsMap.put("system", system);
+					}
+				});
+			}
+			return Optional.of(cd);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -314,6 +333,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
 		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
 		AMIDA_FUNCTIONS.put("true", new True());
+		AMIDA_FUNCTIONS.put("constantSystem", new ConstantSystem());
 	}
 
 	private Modifier.Overwritr modifier;

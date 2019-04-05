@@ -19,6 +19,10 @@ public abstract class CodeGenerator<T extends CE> {
 	private Map<String, Object> map;
 	private String defaultCode;
 
+	public CodeGenerator(String code) {
+		this.code = code;
+	}
+
 	public CodeGenerator(Map<String, Object> map, String defaultCode) {
 		this.map = map;
 		this.defaultCode = defaultCode;
@@ -52,7 +56,7 @@ public abstract class CodeGenerator<T extends CE> {
 		if (this.code == null || nullFlavor != null) {
 			Assert.assertNull("No code", code);
 		} else {
-			String expected = (String) map.get(this.code);
+			String expected = map != null ? (String) map.get(this.code) : code;
 			if (expected == null) {
 				expected = defaultCode;
 			}

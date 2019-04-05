@@ -7,7 +7,8 @@
 				"addr": "MANY",
 				"telecom": "MANY",
 				"patient": {
-					"name": "MANY"
+					"name": "MANY",
+					"languageCommunication": "MANY"
 				}
 			}
 		}
@@ -44,6 +45,14 @@
 					"birthTime": "birthDate.->NullFlavorableValue",
 					"maritalStatusCode": {
 						"code": "maritalStatus.coding"
+					},
+					"languageCommunication": {
+						"*": {
+							"languageCode": "communication[&1].language.->CD",
+							"preferenceInd": {
+								"value": "communication[&2].preferred"
+							}
+						}
 					}
 				}
 			}
@@ -62,6 +71,11 @@
 			"birthDate": "=datetimeAdapter(@0)",
 			"maritalStatus": {
 				"coding": "=valueSetAdapter('MaritalStatus',@0)"
+			},
+			"communication": {
+				"*": {
+					"language": "=constantSystem('http://hl7.org/fhir/ValueSet/languages',@0)"
+				}
 			}
 		}
 	},
