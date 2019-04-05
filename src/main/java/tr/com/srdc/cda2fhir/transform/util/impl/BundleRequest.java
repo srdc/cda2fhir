@@ -102,7 +102,7 @@ public class BundleRequest {
 
 		ArrayList<SimpleEntry<String, Map<String, String>>> urlStringMap = createMap();
 
-		String ifNotExistString = null;
+		String ifNotExistString = "";
 
 		// all ifNoneExist strings attempt to start with an identifier.
 		Property identifierObject = bundleEntry.getResource().getNamedProperty("identifier");
@@ -118,8 +118,15 @@ public class BundleRequest {
 					if (currentId.getSystem() != null & currentId.getValue() != null) {
 						System.out.println(currentId.getSystem());
 
+						// add or for multiple parameters
+						if (ifNotExistString != "") {
+							ifNotExistString = ifNotExistString + ",";
+						} else {
+							ifNotExistString = "identifier=";
+						}
+
 						// this is where I would lookup overrides.
-						ifNotExistString = "identifier=" + currentId.getSystem() + "|" + currentId.getValue();
+						ifNotExistString = ifNotExistString + currentId.getSystem() + "|" + currentId.getValue();
 					}
 				}
 			}

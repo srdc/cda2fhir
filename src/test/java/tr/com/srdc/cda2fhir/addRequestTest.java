@@ -57,6 +57,31 @@ public class addRequestTest {
 	}
 
 	@Test
+	public void testPatientMultipleIds() throws Exception {
+		String sys1 = "urn:oid:1.2.840.114350.1.13.88.3.7.3.698084.8";
+		String val1 = "12345";
+		String sys2 = "urn:oid:1.2.840.114350.0.0.0.0.0.0.0.0";
+		String val2 = "67890";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		Practitioner becEntry = new Practitioner();
+		Identifier becId1 = new Identifier();
+		Identifier becId2 = new Identifier();
+		becId1.setSystem(sys1);
+		becId1.setValue(val1);
+		becId2.setSystem(sys2);
+		becId2.setValue(val2);
+		becEntry.addIdentifier(becId1);
+		becEntry.addIdentifier(becId2);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("ifNoneExists has been populated",
+				bec.getRequest().getIfNoneExist().equals("identifier=" + sys1 + "|" + val1 + "," + sys2 + "|" + val2));
+	}
+
+	@Test
 	public void testCondition() throws Exception {
 
 		String sys = "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076";
