@@ -646,6 +646,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirPractitionerRole.setOrganization(new Reference(fhirOrganization.getId()));
 			fhirPractitionerRole.setPractitioner(new Reference(fhirPractitioner.getId()));
 
+			// allows us to resolve the identifiers when making the ifNoneExist parameters.
+			fhirPractitionerRole.setOrganizationTarget(fhirOrganization);
+			fhirPractitionerRole.setPractitionerTarget(fhirPractitioner);
+
 			info.setPractitionerRole(fhirPractitionerRole);
 			info.setOrganization(fhirOrganization);
 		}
@@ -2596,6 +2600,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			return null;
 
 		org.hl7.fhir.dstu3.model.Location fhirLocation = new org.hl7.fhir.dstu3.model.Location();
+
+		// id -> identifier
+		if (cdaParticipantRole.getIds() != null && !cdaParticipantRole.getIds().isEmpty()) {
+			for (II ii : cdaParticipantRole.getIds()) {
+				if (ii != null && !ii.isSetNullFlavor()) {
+					fhirLocation.addIdentifier(dtt.tII2Identifier(ii));
+				}
+			}
+		}
 
 		// resource id
 		IdType resourceId = new IdType("Location", getUniqueId());

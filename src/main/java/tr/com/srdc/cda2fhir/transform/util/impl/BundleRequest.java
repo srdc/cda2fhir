@@ -14,6 +14,7 @@ import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Property;
 
 public class BundleRequest {
@@ -136,7 +137,6 @@ public class BundleRequest {
 
 		// if we can't pull an identifier, try other logic.
 		if (ifNotExistString == "") {
-
 			// if it's a medication, check by RxNorm.
 			if (bundleEntry.getResource().getResourceType().name() == "Medication") {
 				Property medicationCode = bundleEntry.getResource().getChildByName("code");
@@ -159,6 +159,20 @@ public class BundleRequest {
 						}
 					}
 				}
+			}
+
+			// if it's a practitioner role, de-duplicate by reference ids.
+			if (bundleEntry.getResource().getResourceType().name() == "PractitionerRole") {
+				PractitionerRole practitionerRole = (PractitionerRole) bundleEntry.getResource();
+				Identifier practitionerIdentifier = practitionerRole.getPractitionerTarget().getIdentifierFirstRep();
+				Identifier organizationIdentifier = practitionerRole.getOrganizationTarget().getIdentifierFirstRep();
+				if (organizationIdentifier != null & practitionerIdentifier != null) {
+					ifNotExistString = "practitioner.identifier=" + practitionerIdentifier.getSystem() + "|"
+							+ practitionerIdentifier.getValue();
+					ifNotExistString = ifNotExistString + "&" + "organization.identifier="
+							+ organizationIdentifier.getSystem() + "|" + organizationIdentifier.getValue();
+				}
+
 			}
 
 			// next after med here.
