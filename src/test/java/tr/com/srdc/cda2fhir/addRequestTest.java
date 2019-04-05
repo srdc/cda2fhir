@@ -8,9 +8,11 @@ import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
@@ -142,6 +144,27 @@ public class addRequestTest {
 
 		BundleEntryComponent bec = new BundleEntryComponent();
 		AllergyIntolerance becEntry = new AllergyIntolerance();
+		Identifier becId = new Identifier();
+		becId.setSystem(sys);
+		becId.setValue(val);
+		becEntry.addIdentifier(becId);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("ifNoneExists has been populated",
+				bec.getRequest().getIfNoneExist().equals("identifier=" + sys + "|" + val));
+
+	}
+
+	@Test
+	public void testImmunizations() throws Exception {
+
+		String sys = "urn:oid:1.2.840.114350.1.13.88.3.7.2.768076";
+		String val = "12345";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		Immunization becEntry = new Immunization();
 		Identifier becId = new Identifier();
 		becId.setSystem(sys);
 		becId.setValue(val);
@@ -318,6 +341,44 @@ public class addRequestTest {
 
 		BundleEntryComponent bec = new BundleEntryComponent();
 		Location becEntry = new Location();
+		Identifier becId = new Identifier();
+		becId.setSystem(sys);
+		becId.setValue(val);
+		becEntry.addIdentifier(becId);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("ifNoneExists has been populated",
+				bec.getRequest().getIfNoneExist().equals("identifier=" + sys + "|" + val));
+	}
+
+	@Test
+	public void testOrganization() throws Exception {
+		String sys = "urn:oid:1.2.840.114350.1.13.88.3.7.2.688879";
+		String val = "12345";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		Organization becEntry = new Organization();
+		Identifier becId = new Identifier();
+		becId.setSystem(sys);
+		becId.setValue(val);
+		becEntry.addIdentifier(becId);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("ifNoneExists has been populated",
+				bec.getRequest().getIfNoneExist().equals("identifier=" + sys + "|" + val));
+	}
+
+	@Test
+	public void testDevice() throws Exception {
+		String sys = "urn:oid:1.2.840.114350.1.1";
+		String val = "12345";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		Device becEntry = new Device();
 		Identifier becId = new Identifier();
 		becId.setSystem(sys);
 		becId.setValue(val);
