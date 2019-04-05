@@ -1,0 +1,24 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2
+observation.targetSiteCode,Observation.bodySite,CD,,nullFlavor isnull
+observation.code,Observation.code,CD,,nullFlavor isnull
+observation.effectiveTime,Observation.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull
+observation.id[],Observation.identifier[],ID,,nullFlavor isnull
+observation.interpretationCode.code,Observation.interpretation.coding[],,,nullFlavor isnull
+observation.author[].time.value,Observation.issued,,"datetimeAdapter",nullFlavor isnull
+observation.methodCode[],Observation.method,CD,"lastElement",nullFlavor isnull
+Practitioner[],Observation.performer[].reference,,"getId"
+observation.referenceRange[].observationRange.value,Observation.referenceRange[&2],IVL_PQRange2,,nullFlavor isnull
+observation.referenceRange[].observationRange.text,Observation.referenceRange[&2].text,,,nullFlavor isnull
+observation.referenceRange[].observationRange.interpretationCode,Observation.referenceRange[&2].type,CD,,nullFlavor isnull
+observation.statusCode.code,Observation.status,,"valueSetAdapter('ObservationStatus','unknown')",nullFlavor isnull,observation.statusCode.nullFlavor isnull
+observation.value.content,Observation.valueAttachment.data,,,nullFlavor isnull,observation.value.xsi:type equal ED
+observation.value.value,Observation.valueBoolean,,,nullFlavor isnull,observation.value.xsi:type equal BL
+observation.value,Observation.valueCodeableConcept,CD,,nullFlavor isnull,observation.value.xsi:type equal CD
+observation.value.value,Observation.valueDateTime,,"datetimeAdapter",nullFlavor isnull,observation.value.xsi:type equal TS
+observation.value,Observation.valueQuantity,PQ,,nullFlavor isnull,observation.value.xsi:type equal PQ
+observation.value,Observation.valueRange,IVL_PQ,,nullFlavor isnull,observation.value.xsi:type equal IVL_PQ
+observation.value,Observation.valueRatio,RTO,,nullFlavor isnull,observation.value.xsi:type equal RTO
+observation.value.content,Observation.valueString,,,nullFlavor isnull,observation.value.xsi:type equal ST
+observation.author.assignedAuthor,Organization[],EntityOrganization,,nullFlavor isnull
+observation.author.assignedAuthor,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
+observation.author.assignedAuthor,Practitioner[],EntityPractitioner,,nullFlavor isnull

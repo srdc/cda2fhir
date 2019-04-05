@@ -150,4 +150,29 @@ public class MainTest {
 	public void testMedicationActivity() throws Exception {
 		actualTest("MedicationActivity");
 	}
+
+	@Test
+	public void testImmunizationActivity() throws Exception {
+		actualTest("ImmunizationActivity");
+	}
+
+	@Test
+	public void testImmunizationMedicationInformation() throws Exception {
+		actualTest("ImmunizationMedicationInformation");
+	}
+
+	@Test
+	public void testObservation() throws Exception {
+		actualTest("Observation");
+	}
+
+	@Test
+	public void testVitalSignsOrganizer() throws Exception {
+		actualTest("VitalSignsOrganizer");
+	}
+
+	@Test
+	public void testResultOrganizer() throws Exception {
+		actualTest("VitalSignsOrganizer");
+	}
 }
