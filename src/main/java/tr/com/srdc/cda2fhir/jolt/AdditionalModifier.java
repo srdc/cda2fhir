@@ -1,7 +1,9 @@
 package tr.com.srdc.cda2fhir.jolt;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -205,6 +207,113 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	private static String iterableJoin(Iterable<String> iterable, String delimiter) {
+		String joined = "";
+
+		Iterator<String> iterator = iterable.iterator();
+
+		while (iterator.hasNext()) {
+			joined += iterator.next();
+			if (iterator.hasNext())
+				joined += delimiter;
+		}
+
+		return joined;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final class GetReferenceDisplay extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return Optional.of(null);
+			}
+			if (!(arg instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> map = (Map<String, Object>) arg;
+			String display = null;
+
+			if (map.get("code") instanceof Map) {
+
+				Map<String, Object> code = (Map<String, Object>) map.get("code");
+
+				if (code.get("coding") instanceof List) {
+
+					List<Object> coding = (List<Object>) code.get("coding");
+
+					if (!coding.isEmpty() && coding.get(0) instanceof Map) {
+
+						Map<String, Object> codeIndx0 = (Map<String, Object>) coding.get(0);
+
+						if (codeIndx0.get("text") instanceof String) {
+
+							display = (String) codeIndx0.get("text");
+
+						}
+
+					}
+
+					System.out.println(coding == null);
+				}
+
+			} else if (map.get("name") != null) {
+
+				Object name = map.get("name");
+
+				if (name instanceof String) {
+
+					display = (String) name;
+
+				} else if (name instanceof List) {
+
+					List<Object> nameList = (List<Object>) name;
+
+					if (!nameList.isEmpty()) {
+
+						List<String> allNames = new ArrayList<String>();
+						Iterator<Object> iter = nameList.listIterator();
+
+						while (iter.hasNext()) {
+
+							Object humanNameObj = iter.next();
+
+							if (humanNameObj instanceof Map) {
+
+								Map<String, Object> humanName = (Map<String, Object>) humanNameObj;
+								ArrayList<String> currentNameList = new ArrayList<String>();
+
+								// TODO make array list
+								if (humanName.get("prefix") instanceof List)
+									currentNameList.addAll((List<String>) humanName.get("prefix"));
+
+								if (humanName.get("given") instanceof List)
+									currentNameList.addAll((List<String>) humanName.get("given"));
+
+								if (humanName.get("family") instanceof String)
+									currentNameList.add((String) humanName.get("family"));
+
+								if (humanName.get("suffix") instanceof List)
+									currentNameList.addAll((List<String>) humanName.get("suffix"));
+
+								String currentName = iterableJoin(currentNameList, " ").trim();
+								if (!currentName.contentEquals(""))
+									allNames.add(currentName);
+							}
+						}
+
+						if (allNames.size() > 0) {
+							display = iterableJoin(allNames, ", ");
+						}
+					}
+				}
+			}
+
+			return Optional.of(display);
+		}
+	}
+
 	public static final class Piece extends Function.ListFunction {
 		@Override
 		protected Optional<Object> applyList(List<Object> argList) {
@@ -298,6 +407,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
 		AMIDA_FUNCTIONS.put("selectOnNull", new SelectOnNull());
 		AMIDA_FUNCTIONS.put("getId", new GetId());
+		AMIDA_FUNCTIONS.put("getReferenceDisplay", new GetReferenceDisplay());
 		AMIDA_FUNCTIONS.put("piece", new Piece());
 		AMIDA_FUNCTIONS.put("lastElement", new LastElement());
 		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());

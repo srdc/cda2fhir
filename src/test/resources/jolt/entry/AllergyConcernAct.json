@@ -41,7 +41,10 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "recorder.reference"
+			"Practitioner": {
+				"reference": "recorder.reference", 
+				"display": "recorder.display"
+			}
 		}
 	},
 	{
@@ -50,7 +53,8 @@
 			"assertedDate": "=datetimeAdapter(@0)",
 			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)",
 			"recorder": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			}
 		}
 	},

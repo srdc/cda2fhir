@@ -32,10 +32,12 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"practitioner": {
-				"reference": "=referenceAdapter('Practitioner',@0)"
+				"reference": "=referenceAdapter('Practitioner',@0)", 
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"organization": {
-				"reference": "=referenceAdapter('Organization',@0)"
+				"reference": "=referenceAdapter('Organization',@0)",
+				"display": "=getReferenceDisplay(@0)"
 			}
 		}
 	},

@@ -22,6 +22,7 @@ package tr.com.srdc.cda2fhir.transform;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Annotation;
+import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Base64BinaryType;
 import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.BooleanType;
@@ -277,23 +279,33 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		} else if (resource.getNamedProperty("name") != null
 				&& !resource.getNamedProperty("name").getValues().isEmpty()) {
-
-			if (resource.getNamedProperty("name").getValues().get(0) instanceof StringType) {
+			Object nameObj = resource.getNamedProperty("name").getValues().get(0);
+			if (nameObj instanceof StringType) {
 
 				StringType str = (StringType) resource.getNamedProperty("name").getValues().get(0);
 				if (str != null) {
 					reference.setDisplay(str.asStringValue());
 				}
 
-			} else if (resource.getNamedProperty("name").getValues().get(0) instanceof HumanName) {
+			} else if (nameObj instanceof HumanName) {
 
-				HumanName name = (HumanName) resource.getNamedProperty("name").getValues().get(0);
-				if (name != null) {
-					reference.setDisplay(name.getNameAsSingleString());
+				List<Base> nameList = resource.getNamedProperty("name").getValues();
+
+				if (!nameList.isEmpty()) {
+					String allNames = "";
+					Iterator<Base> iter = nameList.listIterator();
+					while (iter.hasNext()) {
+						Base humanNameBase = iter.next();
+						HumanName humanName = (HumanName) humanNameBase;
+						if (!humanName.getNameAsSingleString().trim().contentEquals("")) {
+							allNames += humanName.getNameAsSingleString();
+							if (iter.hasNext())
+								allNames += ", ";
+						}
+					}
+					reference.setDisplay(allNames);
 				}
-
 			}
-
 		}
 
 		return reference;

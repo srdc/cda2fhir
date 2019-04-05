@@ -2,7 +2,6 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +21,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
+import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
@@ -31,20 +31,16 @@ public class AllergyConcernActTest {
 		CDAUtil.loadPackages();
 	}
 
-	private static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
-		Map<String, Object> r = new LinkedHashMap<String, Object>();
-		r.put("reference", reference.getReference());
-		joltResult.put(property, r);
-	}
-
 	private static void compare(Map<String, Object> joltResult, AllergyIntolerance cda2FHIRResult, String caseName)
 			throws Exception {
 		joltResult.put("id", cda2FHIRResult.getId().split("/")[1]); // ids are not expected to be equal
-		putReference(joltResult, "patient", cda2FHIRResult.getPatient()); // patient is not yet implemented
+		JoltUtil.putReference(joltResult, "patient", cda2FHIRResult.getPatient()); // patient is not yet implemented
 		if (cda2FHIRResult.hasRecorder()) {
-			putReference(joltResult, "recorder", cda2FHIRResult.getRecorder()); // do not check recorder for now, ids
-																				// are
-		} // different
+			JoltUtil.putReference(joltResult, "recorder", cda2FHIRResult.getRecorder()); // do not check
+																							// recordedifferentr for
+																							// now, ids are different
+
+		}
 		String expected = FHIRUtil.encodeToJSON(cda2FHIRResult);
 		String actual = JsonUtils.toJsonString(joltResult);
 		JSONAssert.assertEquals(caseName + " jolt output", expected, actual, true);
