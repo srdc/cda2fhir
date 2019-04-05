@@ -21,6 +21,7 @@ import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -41,9 +42,13 @@ public class JoltUtil {
 	private static final Path TEST_CASE_PATH = Paths.get("src", "test", "resources", "jolt-verify");
 
 	private static abstract class ResourceInfo {
-		public abstract String getPatientPropertyName();
+		public String getPatientPropertyName() {
+			return null;
+		}
 
-		public abstract Reference getPatientReference();
+		public Reference getPatientReference() {
+			return null;
+		}
 
 		public abstract void copyReferences(Map<String, Object> joltResult);
 	}
@@ -170,6 +175,18 @@ public class JoltUtil {
 					++index;
 				}
 			}
+		}
+	}
+
+	private static class PatientInfo extends ResourceInfo {
+		private Patient patient;
+
+		public PatientInfo(Patient patient) {
+			this.patient = patient;
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
 		}
 	}
 
@@ -498,13 +515,20 @@ public class JoltUtil {
 
 		Map<String, Object> joltResource = TransformManager.chooseResource(result, resourceType);
 
+		if (caseName.equals("empty")) {
+			Assert.assertNull("No jolt resource", joltResource);
+			return;
+		}
+
 		Assert.assertNotNull("Jolt resource exists", joltResource);
 		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
 
 		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
-		Reference patientReference = info.getPatientReference();
 		String patientProperty = info.getPatientPropertyName();
-		JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
+		if (patientProperty != null) {
+			Reference patientReference = info.getPatientReference();
+			JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
+		}
 
 		info.copyReferences(joltResource);
 
@@ -529,6 +553,11 @@ public class JoltUtil {
 	public void verify(DiagnosticReport report) throws Exception {
 		DiagnosticReportInfo info = new DiagnosticReportInfo(report);
 		verify(report, info);
+	}
+
+	public void verify(Patient patient) throws Exception {
+		PatientInfo info = new PatientInfo(patient);
+		verify(patient, info);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {

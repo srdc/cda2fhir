@@ -1,0 +1,42 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"patientRole": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"patientRole": {
+				"nullFlavor": "*"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"patientRole": {
+				"id": {
+					"*": "identifier[].->ID"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Patient"
+		}
+	}
+]
