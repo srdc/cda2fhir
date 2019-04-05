@@ -2,15 +2,28 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
+
+import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class PatientGenerator {
+	private static final Map<String, Object> GENDER = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/Gender.json");
+	private static final Map<String, Object> MARITAL_STATUS = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/MaritalStatus.json");
+
 	private List<PNGenerator> nameGenerators = new ArrayList<>();
+	private CECodeGenerator genderGenerator;
+	private TSGenerator birthTimeGenerator;
+	private CECodeGenerator maritalStatusGenerator;
 
 	public org.openhealthtools.mdht.uml.cda.Patient generate(CDAFactories factories) {
 		org.openhealthtools.mdht.uml.cda.Patient p = factories.base.createPatient();
@@ -20,6 +33,21 @@ public class PatientGenerator {
 			p.getNames().add(pn);
 		});
 
+		if (genderGenerator != null) {
+			CE ce = genderGenerator.generate(factories);
+			p.setAdministrativeGenderCode(ce);
+		}
+
+		if (birthTimeGenerator != null) {
+			TS ts = birthTimeGenerator.generate(factories);
+			p.setBirthTime(ts);
+		}
+
+		if (maritalStatusGenerator != null) {
+			CE ce = maritalStatusGenerator.generate(factories);
+			p.setMaritalStatusCode(ce);
+		}
+
 		return p;
 	}
 
@@ -27,6 +55,11 @@ public class PatientGenerator {
 		PatientGenerator prg = new PatientGenerator();
 
 		prg.nameGenerators.add(PNGenerator.getDefaultInstance());
+		prg.genderGenerator = new CECodeGenerator(GENDER, "unknown");
+		prg.genderGenerator.set("f");
+		prg.birthTimeGenerator = new TSGenerator("20040502");
+		prg.maritalStatusGenerator = new CECodeGenerator(MARITAL_STATUS, "UNK");
+		prg.maritalStatusGenerator.set("M");
 
 		return prg;
 	}
@@ -36,6 +69,24 @@ public class PatientGenerator {
 			Assert.assertTrue("No patient name", !patient.hasName());
 		} else {
 			PNGenerator.verifyList(patient.getName(), nameGenerators);
+		}
+
+		if (genderGenerator == null) {
+			Assert.assertTrue("No patient gender", !patient.hasGender());
+		} else {
+			genderGenerator.verify(patient.getGender().toCode());
+		}
+
+		if (birthTimeGenerator == null) {
+			Assert.assertTrue("No patient birthday", !patient.hasBirthDate());
+		} else {
+			birthTimeGenerator.verify(patient.getBirthDateElement().asStringValue());
+		}
+
+		if (maritalStatusGenerator == null) {
+			Assert.assertTrue("No patient marital status", !patient.hasMaritalStatus());
+		} else {
+			maritalStatusGenerator.verify(patient.getMaritalStatus());
 		}
 	}
 }

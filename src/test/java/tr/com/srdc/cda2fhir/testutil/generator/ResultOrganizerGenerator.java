@@ -27,7 +27,7 @@ public class ResultOrganizerGenerator {
 
 	private CDGenerator codeGenerator;
 
-	private StatusCodeGenerator statusCodeGenerator;
+	private CSCodeGenerator statusCodeGenerator;
 
 	private IVL_TSPeriodGenerator effectiveTimeGenerator;
 
@@ -76,7 +76,7 @@ public class ResultOrganizerGenerator {
 
 		rog.idGenerators.add(IDGenerator.getNextInstance());
 		rog.codeGenerator = CDGenerator.getNextInstance();
-		rog.statusCodeGenerator = new StatusCodeGenerator(DIAGNOSTIC_REPORT_STATUS);
+		rog.statusCodeGenerator = new CSCodeGenerator(DIAGNOSTIC_REPORT_STATUS);
 		rog.statusCodeGenerator.set("active");
 		rog.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		rog.authorGenerators.add(AuthorGenerator.getDefaultInstance());

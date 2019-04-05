@@ -32,7 +32,7 @@ public abstract class ObservationGenerator {
 
 	private CDGenerator codeGenerator;
 
-	private StatusCodeGenerator statusCodeGenerator;
+	private CSCodeGenerator statusCodeGenerator;
 
 	private IVL_TSPeriodGenerator effectiveTimeGenerator;
 
@@ -152,7 +152,7 @@ public abstract class ObservationGenerator {
 	public static void fillDefaultInstance(ObservationGenerator obs) {
 		obs.idGenerators.add(IDGenerator.getNextInstance());
 		obs.codeGenerator = CDGenerator.getNextInstance();
-		obs.statusCodeGenerator = new StatusCodeGenerator(OBSERVATION_STATUS, "unknown");
+		obs.statusCodeGenerator = new CSCodeGenerator(OBSERVATION_STATUS, "unknown");
 		obs.statusCodeGenerator.set("active");
 		obs.effectiveTimeGenerator = IVL_TSPeriodGenerator.getDefaultInstance();
 		obs.targetSiteCodeGenerators.add(CDGenerator.getNextInstance());

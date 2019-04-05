@@ -37,9 +37,15 @@
 				"patient": {
 					"name": {
 						"*": "name[&].->PN"
+					},
+					"administrativeGenderCode": {
+						"code": "gender"
+					},
+					"birthTime": "birthDate.->NullFlavorableValue",
+					"maritalStatusCode": {
+						"code": "maritalStatus.coding"
 					}
 				}
-				
 			}
 		}
 	},
@@ -51,6 +57,11 @@
 		"spec": {
 			"managingOrganization": {
 				"reference": "=getId(@0)"
+			},
+			"gender": "=valueSetAdapter('Gender','unknown',@0)",
+			"birthDate": "=datetimeAdapter(@0)",
+			"maritalStatus": {
+				"coding": "=valueSetAdapter('MaritalStatus',@0)"
 			}
 		}
 	},

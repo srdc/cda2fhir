@@ -50,7 +50,7 @@ public class ImmunizationActivityGenerator {
 
 	private IVL_PQSimpleQuantityGenerator doseQuantityGenerator;
 
-	private StatusCodeGenerator statusCodeGenerator;
+	private CSCodeGenerator statusCodeGenerator;
 
 	private CDGenerator refusalReasonGenerator;
 
@@ -169,7 +169,7 @@ public class ImmunizationActivityGenerator {
 		ma.approachSiteCodeGenerators.add(CDGenerator.getNextInstance());
 		ma.routeCodeGenerator = CEGenerator.getNextInstance();
 		ma.doseQuantityGenerator = IVL_PQSimpleQuantityGenerator.getDefaultInstance();
-		ma.statusCodeGenerator = new StatusCodeGenerator(IMMUNIZATION_STATUS);
+		ma.statusCodeGenerator = new CSCodeGenerator(IMMUNIZATION_STATUS);
 		ma.statusCodeGenerator.set("active");
 		ma.indicationGenerator = CDGenerator.getNextInstance();
 		ma.reactionObservationGenerator = ReactionObservationGenerator.getDefaultInstance();

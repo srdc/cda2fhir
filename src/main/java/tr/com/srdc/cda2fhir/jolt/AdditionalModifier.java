@@ -79,6 +79,9 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			Object mappedValue = map.get(value);
 			if (mappedValue == null) {
 				mappedValue = defaultValue;
+				if (mappedValue == null) {
+					mappedValue = map.get("_");
+				}
 			}
 			if (mappedValue != null) {
 				return Optional.of(mappedValue);
