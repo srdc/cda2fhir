@@ -3,7 +3,9 @@
 		"operation": "cardinality",
 		"spec": {
 			"patientRole": {
-				"id": "MANY"
+				"id": "MANY",
+				"addr": "MANY",
+				"telecom": "MANY"
 			}
 		}
 	},
@@ -21,6 +23,12 @@
 			"patientRole": {
 				"id": {
 					"*": "identifier[].->ID"
+				},
+				"addr": {
+					"*": "address[].->AD"
+				},
+				"telecom": {
+					"*": "telecom[].->TEL"
 				}
 			}
 		}
