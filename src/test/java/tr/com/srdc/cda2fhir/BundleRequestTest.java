@@ -36,7 +36,7 @@ import tr.com.srdc.cda2fhir.transform.util.impl.BundleRequest;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 
-public class addRequestTest {
+public class BundleRequestTest {
 
 	private static CDAFactories factories;
 	private CDGenerator codeGenerator;
