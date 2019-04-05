@@ -11,6 +11,8 @@ import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Property;
 
@@ -130,6 +132,37 @@ public class BundleRequest {
 					}
 				}
 			}
+		}
+
+		// if we can't pull an identifier, try other logic.
+		if (ifNotExistString == "") {
+
+			// if it's a medication, check by RxNorm.
+			if (bundleEntry.getResource().getResourceType().name() == "Medication") {
+				Property medicationCode = bundleEntry.getResource().getChildByName("code");
+				if (medicationCode != null) {
+					List<Base> conceptList = medicationCode.getValues();
+					for (Base concept : conceptList) {
+						CodeableConcept currentConcept = (CodeableConcept) concept;
+						List<Coding> currentCoding = currentConcept.getCoding();
+						for (Coding coding : currentCoding) {
+							if (coding.getSystem() == "http://www.nlm.nih.gov/research/umls/rxnorm"
+									& coding.getCode() != null) {
+								// add or for multiple parameters
+								if (ifNotExistString != "") {
+									ifNotExistString = ifNotExistString + ",";
+								} else {
+									ifNotExistString = "code=" + coding.getSystem() + "|";
+								}
+								ifNotExistString = ifNotExistString + coding.getCode();
+							}
+						}
+					}
+				}
+			}
+
+			// next after med here.
+
 		}
 
 		return ifNotExistString;

@@ -4,10 +4,13 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Observation;
@@ -20,6 +23,7 @@ import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.generator.CDGenerator;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleRequest;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -28,11 +32,13 @@ import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 public class addRequestTest {
 
 	private static CDAFactories factories;
+	private CDGenerator codeGenerator;
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 		factories = CDAFactories.init();
+
 	}
 
 	@Test
@@ -279,6 +285,56 @@ public class addRequestTest {
 
 		Assert.assertTrue("ifNoneExists has been populated",
 				bec.getRequest().getIfNoneExist().equals("identifier=" + sys + "|" + val));
+	}
+
+	@Test
+	public void testUnidentifiedMedication() throws Exception {
+		String sys = "http://www.nlm.nih.gov/research/umls/rxnorm";
+		String val = "12345";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		Medication becEntry = new Medication();
+		CodeableConcept medicationCode = new CodeableConcept();
+		Coding code = new Coding();
+		code.setCode(val);
+		code.setSystem(sys);
+		code.setDisplay("drug");
+
+		becEntry.getCode().addCoding(code);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("ifNoneExists has been populated",
+				bec.getRequest().getIfNoneExist().equals("code=" + sys + "|" + val));
+	}
+
+	@Test
+	public void testUnidentifiedMedicationMultiCode() throws Exception {
+		String sys = "http://www.nlm.nih.gov/research/umls/rxnorm";
+		String val1 = "12345";
+		String val2 = "67890";
+
+		BundleEntryComponent bec = new BundleEntryComponent();
+		Medication becEntry = new Medication();
+		CodeableConcept medicationCode = new CodeableConcept();
+		Coding code1 = new Coding();
+		Coding code2 = new Coding();
+		code1.setCode(val1);
+		code1.setSystem(sys);
+		code1.setDisplay("drug");
+		code2.setCode(val2);
+		code2.setSystem(sys);
+		code2.setDisplay("drug");
+
+		becEntry.getCode().addCoding(code1);
+		becEntry.getCode().addCoding(code2);
+		bec.setResource(becEntry);
+
+		BundleRequest.addRequestToEntry(bec);
+
+		Assert.assertTrue("ifNoneExists has been populated",
+				bec.getRequest().getIfNoneExist().equals("code=" + sys + "|" + val1 + "," + val2));
 	}
 
 	@Test
