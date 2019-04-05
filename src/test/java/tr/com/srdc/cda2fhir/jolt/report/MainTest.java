@@ -14,13 +14,17 @@ public class MainTest {
 	final private static String GOLD_PATH = "src/test/resources/gold/jolt-report/";
 	final private static String OUTPUT_PATH = "src/test/resources/output/jolt-report/";
 
-	private static void actualTest(String name) throws Exception {
-		String actualContent = Main.transformationCSV(name);
-		File outputFile = new File(OUTPUT_PATH + name + ".csv");
+	private static void actualTest(String name, boolean fullyExpand) throws Exception {
+		String actualContent = Main.transformationCSV(name, fullyExpand);
+
+		String outputPath = fullyExpand ? OUTPUT_PATH + "full/" : OUTPUT_PATH;
+		String goldPath = fullyExpand ? GOLD_PATH + "full/" : GOLD_PATH;
+
+		File outputFile = new File(outputPath + name + ".csv");
 		FileUtils.writeStringToFile(outputFile, actualContent, Charset.defaultCharset());
 		List<String> actualLines = Arrays.asList(actualContent.split("\\n"));
 
-		File goldFile = new File(GOLD_PATH + name + ".csv");
+		File goldFile = new File(goldPath + name + ".csv");
 		List<String> rawGoldLines = FileUtils.readLines(goldFile, Charset.defaultCharset());
 		List<String> goldLines = rawGoldLines.stream().filter(line -> line.length() > 0).collect(Collectors.toList());
 
@@ -31,9 +35,18 @@ public class MainTest {
 		}
 	}
 
+	private static void actualTest(String name) throws Exception {
+		actualTest(name, false);
+	}
+
 	@Test
 	public void testAllergyConcernAct() throws Exception {
 		actualTest("AllergyConcernAct");
+	}
+
+	@Test
+	public void testAllergyConcernActFull() throws Exception {
+		actualTest("AllergyConcernAct", true);
 	}
 
 	@Test

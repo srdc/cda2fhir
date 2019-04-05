@@ -51,11 +51,11 @@ public class Main {
 				.collect(Collectors.toMap(e -> e.getKey(), e -> JoltTemplate.getInstance(e.getKey(), e.getValue())));
 	}
 
-	public static Table transformationTable(String name) {
+	public static Table transformationTable(String name, boolean fullyExpand) {
 		Map<String, JoltTemplate> templateMap = createHandlers();
 		if (templateMap != null) {
 			JoltTemplate template = templateMap.get(name);
-			Table table = template.createTable(templateMap);
+			Table table = template.createTable(templateMap, fullyExpand);
 			table.sort();
 			return table;
 		}
@@ -63,8 +63,8 @@ public class Main {
 
 	}
 
-	public static String transformationCSV(String name) {
-		Table table = transformationTable(name);
+	public static String transformationCSV(String name, boolean fullyExpand) {
+		Table table = transformationTable(name, fullyExpand);
 		if (table != null) {
 			String output = table.toCsv();
 			return output;
@@ -73,7 +73,7 @@ public class Main {
 	}
 
 	public static String transformationText(String name) {
-		Table table = transformationTable(name);
+		Table table = transformationTable(name, false);
 		if (table != null) {
 			String output = table.toString();
 			return output;
@@ -82,7 +82,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		String output = transformationCSV("ProcedureActivityProcedure");
+		String output = transformationCSV("ProcedureActivityProcedure", false);
 		System.out.print(output);
 	}
 }
