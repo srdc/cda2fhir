@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.DiagnosticReport.DiagnosticReportPerformerComponent;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Medication;
@@ -118,6 +120,53 @@ public class JoltUtil {
 					Map<String, Object> r = new LinkedHashMap<String, Object>();
 					r.put("reference", performers.get(index).getReference());
 					joltPerformers.set(index, r);
+					++index;
+				}
+			}
+		}
+	}
+
+	private static class DiagnosticReportInfo extends ResourceInfo {
+		private DiagnosticReport report;
+
+		public DiagnosticReportInfo(DiagnosticReport report) {
+			this.report = report;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return report.getSubject();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+			List<Object> joltPerformers = (List<Object>) joltResult.get("performer");
+			if (report.getPerformer().isEmpty()) {
+				Assert.assertNull("No observation performer reference", joltPerformers);
+			} else {
+				List<DiagnosticReportPerformerComponent> performers = report.getPerformer();
+				for (int index = 0; index < performers.size(); ++index) {
+					Map<String, Object> joltElement = (Map<String, Object>) joltPerformers.get(index);
+					Map<String, Object> joltElementActor = (Map<String, Object>) joltElement.get("actor");
+					joltElementActor.put("reference", performers.get(index).getActor().getReference());
+				}
+			}
+
+			List<Object> joltResults = (List<Object>) joltResult.get("result");
+			if (report.getResult().isEmpty()) {
+				Assert.assertNull("No observation result reference", joltResults);
+			} else {
+				List<Reference> results = report.getResult();
+				for (int index = 0; index < results.size(); ++index) {
+					Map<String, Object> r = new LinkedHashMap<String, Object>();
+					r.put("reference", results.get(index).getReference());
+					joltResults.set(index, r);
 					++index;
 				}
 			}
@@ -475,6 +524,11 @@ public class JoltUtil {
 	public void verify(Observation observation) throws Exception {
 		ObservationInfo info = new ObservationInfo(observation);
 		verify(observation, info);
+	}
+
+	public void verify(DiagnosticReport report) throws Exception {
+		DiagnosticReportInfo info = new DiagnosticReportInfo(report);
+		verify(report, info);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {
