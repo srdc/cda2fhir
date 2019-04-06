@@ -120,7 +120,7 @@
 			},
 			"communication": {
 				"*": {
-					"language": "=constantSystem('http://hl7.org/fhir/ValueSet/languages',@0)"
+					"language": "=constantSystem('http://hl7.org/fhir/ValueSet/languages','cd',@0)"
 				}
 			},
 			"contact": {

@@ -299,10 +299,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 	@SuppressWarnings("unchecked")
 	public static final class ConstantSystem extends Function.ListFunction {
-		@Override
-		protected Optional<Object> applyList(List<Object> argList) {
-			String system = (String) argList.get(0);
-			Map<String, Object> cd = (Map<String, Object>) argList.get(1);
+		private Optional<Object> applyForCD(Map<String, Object> cd, String system) {
 			List<Object> codings = (List<Object>) cd.get("coding");
 			if (codings != null) {
 				codings.forEach(coding -> {
@@ -313,6 +310,25 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				});
 			}
 			return Optional.of(cd);
+		}
+
+		private Optional<Object> applyForPQ(Map<String, Object> pq, String system) {
+			pq.put("system", system);
+			return Optional.of(pq);
+		}
+
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			String system = (String) argList.get(0);
+			String type = (String) argList.get(1);
+			Map<String, Object> object = (Map<String, Object>) argList.get(2);
+			if ("cd".equals(type)) {
+				return applyForCD(object, system);
+			}
+			if ("pq".equals(type)) {
+				return applyForPQ(object, system);
+			}
+			throw new ReportException("Unknown constant system type " + system + ".");
 		}
 	}
 

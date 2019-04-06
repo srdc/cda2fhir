@@ -8,8 +8,8 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"low":  "low.->IVL_PQSimpleQuantity2",
-			"high": "high.->IVL_PQSimpleQuantity2"
+			"low":  "low.->IVL_PQSimpleQuantity",
+			"high": "high.->IVL_PQSimpleQuantity"
 		}
 	},
 	{

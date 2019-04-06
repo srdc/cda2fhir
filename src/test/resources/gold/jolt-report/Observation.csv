@@ -7,7 +7,7 @@ observation.interpretationCode.code,Observation.interpretation.coding[],,,nullFl
 observation.author[].time.value,Observation.issued,,"datetimeAdapter",nullFlavor isnull
 observation.methodCode[],Observation.method,CD,"lastElement",nullFlavor isnull
 Practitioner[],Observation.performer[].reference,,"getId"
-observation.referenceRange[].observationRange.value,Observation.referenceRange[&2],IVL_PQRange2,,nullFlavor isnull
+observation.referenceRange[].observationRange.value,Observation.referenceRange[&2],IVL_PQRange,,nullFlavor isnull
 observation.referenceRange[].observationRange.text,Observation.referenceRange[&2].text,,,nullFlavor isnull
 observation.referenceRange[].observationRange.interpretationCode,Observation.referenceRange[&2].type,CD,,nullFlavor isnull
 observation.statusCode.code,Observation.status,,"valueSetAdapter('ObservationStatus','unknown')",nullFlavor isnull,observation.statusCode.nullFlavor isnull

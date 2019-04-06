@@ -9,8 +9,7 @@
 		"operation": "shift",
 		"spec": {
 			"value": "value",
-			"unit": "unit",
-			"#http://unitsofmeasure.org/ucum.html": "system"					
+			"unit": "unit"
 		}
 	},
 	{

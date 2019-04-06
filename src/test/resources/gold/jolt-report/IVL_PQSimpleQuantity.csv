@@ -1,4 +1,3 @@
 CCDA Source,Target,Link,Format,Condition 1
-#http://unitsofmeasure.org/ucum.html,system,,,nullFlavor isnull
 unit,unit,,,nullFlavor isnull
 value,value,,,nullFlavor isnull

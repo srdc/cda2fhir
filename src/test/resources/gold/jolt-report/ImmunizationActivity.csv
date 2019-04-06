@@ -1,6 +1,6 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 substanceAdministration.effectiveTime.value,Immunization.date,,"datetimeAdapter",nullFlavor isnull,substanceAdministration.effectiveTime.nullFlavor isnull
-substanceAdministration.doseQuantity,Immunization.doseQuantity,IVL_PQSimpleQuantity,,nullFlavor isnull
+substanceAdministration.doseQuantity,Immunization.doseQuantity,IVL_PQSimpleQuantity,"constantSystem('http://unitsofmeasure.org/ucum.html','pq')",nullFlavor isnull
 substanceAdministration.entryRelationship[].observation.code,Immunization.explanation.reasonNotGiven[],CD,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.53
 substanceAdministration.entryRelationship[].observation.value,Immunization.explanation.reason[],CD,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
 substanceAdministration.id[],Immunization.identifier[],ID,,nullFlavor isnull
