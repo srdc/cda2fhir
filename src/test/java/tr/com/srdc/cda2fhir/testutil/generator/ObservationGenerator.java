@@ -22,7 +22,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 
-public abstract class ObservationGenerator {
+public class ObservationGenerator {
 	private static final Map<String, Object> OBSERVATION_STATUS = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/ObservationStatus.json");
 	private static final Map<String, Object> OBSERVATION_INTERPRETATION = JsonUtils
@@ -90,7 +90,9 @@ public abstract class ObservationGenerator {
 		valueGenerators.add(ag);
 	}
 
-	public abstract Observation createForGenerate(CDAFactories factories);
+	public Observation createForGenerate(CDAFactories factories) {
+		return factories.base.createObservation();
+	}
 
 	public Observation generate(CDAFactories factories) {
 		Observation obs = createForGenerate(factories);
@@ -165,6 +167,12 @@ public abstract class ObservationGenerator {
 		obs.methodCodeGenerators.add(CEGenerator.getNextInstance());
 		obs.interpretationCodeGenerators.add("CAR");
 		obs.referenceRangeGenerators.add(ReferenceRangeGenerator.getDefaultInstance());
+	}
+
+	public static ObservationGenerator getDefaultInstance() {
+		ObservationGenerator generator = new ObservationGenerator();
+		fillDefaultInstance(generator);
+		return generator;
 	}
 
 	@SuppressWarnings("unchecked")
