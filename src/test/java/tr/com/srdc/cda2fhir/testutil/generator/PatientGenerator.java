@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Guardian;
@@ -15,6 +17,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.util.Constants;
 
 public class PatientGenerator {
 	private static final Map<String, Object> GENDER = JsonUtils
@@ -28,6 +31,9 @@ public class PatientGenerator {
 	private CECodeGenerator maritalStatusGenerator;
 	private List<LanguageCommunicationGenerator> languageCommunicationGenerators = new ArrayList<>();
 	private List<GuardianGenerator> guardianGenerators = new ArrayList<>();
+	private CEGenerator raceGenerator;
+	private CEGenerator ethnicGroupGenerator;
+	private CEGenerator religiousAffiliationGenerator;
 
 	public org.openhealthtools.mdht.uml.cda.Patient generate(CDAFactories factories) {
 		org.openhealthtools.mdht.uml.cda.Patient p = factories.base.createPatient();
@@ -62,6 +68,21 @@ public class PatientGenerator {
 			p.getGuardians().add(guardian);
 		});
 
+		if (raceGenerator != null) {
+			CE ce = raceGenerator.generate(factories);
+			p.setRaceCode(ce);
+		}
+
+		if (ethnicGroupGenerator != null) {
+			CE ce = ethnicGroupGenerator.generate(factories);
+			p.setEthnicGroupCode(ce);
+		}
+
+		if (religiousAffiliationGenerator != null) {
+			CE ce = religiousAffiliationGenerator.generate(factories);
+			p.setReligiousAffiliationCode(ce);
+		}
+
 		return p;
 	}
 
@@ -76,6 +97,9 @@ public class PatientGenerator {
 		prg.maritalStatusGenerator.set("M");
 		prg.languageCommunicationGenerators.add(LanguageCommunicationGenerator.getNextInstance());
 		prg.guardianGenerators.add(GuardianGenerator.getDefaultInstance());
+		prg.raceGenerator = CEGenerator.getNextInstance();
+		prg.ethnicGroupGenerator = CEGenerator.getNextInstance();
+		prg.religiousAffiliationGenerator = CEGenerator.getNextInstance();
 
 		return prg;
 	}
@@ -115,6 +139,30 @@ public class PatientGenerator {
 			Assert.assertTrue("No patient guardians", !patient.hasContact());
 		} else {
 			GuardianGenerator.verifyList(patient.getContact(), guardianGenerators);
+		}
+
+		List<Extension> races = patient.getExtensionsByUrl(Constants.URL_EXTENSION_RACE);
+		if (raceGenerator == null) {
+			Assert.assertTrue("No patient race", races.isEmpty());
+		} else {
+			Extension race = races.get(0);
+			raceGenerator.verify((CodeableConcept) race.getValue());
+		}
+
+		List<Extension> ethnicities = patient.getExtensionsByUrl(Constants.URL_EXTENSION_ETHNICITY);
+		if (ethnicGroupGenerator == null) {
+			Assert.assertTrue("No patient etnicity", ethnicities.isEmpty());
+		} else {
+			Extension ethnicity = ethnicities.get(0);
+			ethnicGroupGenerator.verify((CodeableConcept) ethnicity.getValue());
+		}
+
+		List<Extension> affiliations = patient.getExtensionsByUrl(Constants.URL_EXTENSION_RELIGION);
+		if (religiousAffiliationGenerator == null) {
+			Assert.assertTrue("No patient religions", affiliations.isEmpty());
+		} else {
+			Extension affiliation = affiliations.get(0);
+			religiousAffiliationGenerator.verify((CodeableConcept) affiliation.getValue());
 		}
 	}
 }

@@ -87,7 +87,13 @@
 								"name": "contact[&2].name.->PN"
 							}
 						}
-					}
+					},
+					"raceCode": "extension[0].valueCodeableConcept.->CD",
+					"#http://hl7.org/fhir/StructureDefinition/us-core-race": "extension[0].url",
+					"ethnicGroupCode": "extension[1].valueCodeableConcept.->CD",
+					"#http://hl7.org/fhir/StructureDefinition/us-core-ethnicity": "extension[1].url",
+					"religiousAffiliationCode": "extension[2].valueCodeableConcept.->CD",
+					"#http://hl7.org/fhir/StructureDefinition/us-core-religion": "extension[2].url"
 				}
 			}
 		}
