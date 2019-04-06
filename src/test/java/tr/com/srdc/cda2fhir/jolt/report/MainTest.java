@@ -188,4 +188,9 @@ public class MainTest {
 	public void testResultOrganizer() throws Exception {
 		actualTest("VitalSignsOrganizer");
 	}
+
+	@Test
+	public void testPatientRole() throws Exception {
+		actualTest("PatientRole");
+	}
 }
