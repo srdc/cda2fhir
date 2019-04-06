@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
@@ -209,6 +210,28 @@ public class JoltUtil {
 
 		public PatientInfo(Patient patient) {
 			this.patient = patient;
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+		}
+	}
+
+	private static class AllergyIntoleranceInfo extends ResourceInfo {
+		private AllergyIntolerance allergyIntolerance;
+
+		public AllergyIntoleranceInfo(AllergyIntolerance allergyIntolerance) {
+			this.allergyIntolerance = allergyIntolerance;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "patient";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return allergyIntolerance.getPatient();
 		}
 
 		@Override
@@ -666,6 +689,16 @@ public class JoltUtil {
 		}
 
 		verify(patient, info);
+	}
+
+	public void verify(AllergyIntolerance allergy, Bundle bundle) throws Exception {
+		AllergyIntoleranceInfo info = new AllergyIntoleranceInfo(allergy);
+
+		Map<String, Object> joltAllergy = TransformManager.chooseResource(result, "AllergyIntolerance");
+
+		BundleUtil bundleUtil = new BundleUtil(bundle);
+
+		verify(allergy, info);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {
