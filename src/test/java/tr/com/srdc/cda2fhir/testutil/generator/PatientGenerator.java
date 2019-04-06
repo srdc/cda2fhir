@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.Guardian;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
@@ -26,6 +27,7 @@ public class PatientGenerator {
 	private TSGenerator birthTimeGenerator;
 	private CECodeGenerator maritalStatusGenerator;
 	private List<LanguageCommunicationGenerator> languageCommunicationGenerators = new ArrayList<>();
+	private List<GuardianGenerator> guardianGenerators = new ArrayList<>();
 
 	public org.openhealthtools.mdht.uml.cda.Patient generate(CDAFactories factories) {
 		org.openhealthtools.mdht.uml.cda.Patient p = factories.base.createPatient();
@@ -55,6 +57,11 @@ public class PatientGenerator {
 			p.getLanguageCommunications().add(lc);
 		});
 
+		guardianGenerators.forEach(g -> {
+			Guardian guardian = g.generate(factories);
+			p.getGuardians().add(guardian);
+		});
+
 		return p;
 	}
 
@@ -68,6 +75,7 @@ public class PatientGenerator {
 		prg.maritalStatusGenerator = new CECodeGenerator(MARITAL_STATUS, "UNK");
 		prg.maritalStatusGenerator.set("M");
 		prg.languageCommunicationGenerators.add(LanguageCommunicationGenerator.getNextInstance());
+		prg.guardianGenerators.add(GuardianGenerator.getDefaultInstance());
 
 		return prg;
 	}
@@ -98,9 +106,15 @@ public class PatientGenerator {
 		}
 
 		if (languageCommunicationGenerators.isEmpty()) {
-			Assert.assertTrue("No patient langugae communications", !patient.hasCommunication());
+			Assert.assertTrue("No patient language communications", !patient.hasCommunication());
 		} else {
 			LanguageCommunicationGenerator.verifyList(patient.getCommunication(), languageCommunicationGenerators);
+		}
+
+		if (guardianGenerators.isEmpty()) {
+			Assert.assertTrue("No patient guardians", !patient.hasContact());
+		} else {
+			GuardianGenerator.verifyList(patient.getContact(), guardianGenerators);
 		}
 	}
 }

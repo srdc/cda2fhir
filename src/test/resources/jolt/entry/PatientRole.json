@@ -7,8 +7,27 @@
 				"addr": "MANY",
 				"telecom": "MANY",
 				"patient": {
-					"name": "MANY",
-					"languageCommunication": "MANY"
+					"name": "ONE",
+					"languageCommunication": "MANY",
+					"guardian": "MANY"
+				}
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"patientRole": {
+				"patient": {
+					"guardian": {
+						"*": {
+							"addr": "ONE",
+							"telecom": "MANY",
+							"guardianPerson": {
+								"name": "ONE"
+							}
+						}
+					}
 				}
 			}
 		}
@@ -20,6 +39,9 @@
 				"nullFlavor": "*"
 			}
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "shift",
@@ -36,9 +58,7 @@
 				},
 				"providerOrganization": "managingOrganization.reference.->Organization",
 				"patient": {
-					"name": {
-						"*": "name[&].->PN"
-					},
+					"name": "name[].->PN",
 					"administrativeGenderCode": {
 						"code": "gender"
 					},
@@ -51,6 +71,20 @@
 							"languageCode": "communication[&1].language.->CD",
 							"preferenceInd": {
 								"value": "communication[&2].preferred"
+							}
+						}
+					},
+					"guardian": {
+						"*": {
+							"addr": "contact[&1].address.->AD",
+							"telecom": {
+								"*": "contact[&2].telecom[&].->TEL"
+							},
+							"code": {
+								"code": "contact[&2].relationship[].coding"
+							},
+							"guardianPerson": {
+								"name": "contact[&2].name.->PN"
 							}
 						}
 					}
@@ -75,6 +109,15 @@
 			"communication": {
 				"*": {
 					"language": "=constantSystem('http://hl7.org/fhir/ValueSet/languages',@0)"
+				}
+			},
+			"contact": {
+				"*": {
+					"relationship": {
+						"*": {
+							"coding": "=valueSetAdapter('ContactRelationship',@0)"
+						}
+					}
 				}
 			}
 		}
