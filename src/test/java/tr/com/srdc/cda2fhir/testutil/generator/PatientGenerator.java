@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.Birthplace;
 import org.openhealthtools.mdht.uml.cda.Guardian;
 import org.openhealthtools.mdht.uml.cda.LanguageCommunication;
+import org.openhealthtools.mdht.uml.cda.Place;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
@@ -34,6 +38,7 @@ public class PatientGenerator {
 	private CEGenerator raceGenerator;
 	private CEGenerator ethnicGroupGenerator;
 	private CEGenerator religiousAffiliationGenerator;
+	private ADGenerator birthPlaceGenerator;
 
 	public org.openhealthtools.mdht.uml.cda.Patient generate(CDAFactories factories) {
 		org.openhealthtools.mdht.uml.cda.Patient p = factories.base.createPatient();
@@ -83,6 +88,15 @@ public class PatientGenerator {
 			p.setReligiousAffiliationCode(ce);
 		}
 
+		if (birthPlaceGenerator != null) {
+			Birthplace bp = factories.base.createBirthplace();
+			p.setBirthplace(bp);
+			Place place = factories.base.createPlace();
+			bp.setPlace(place);
+			AD ad = birthPlaceGenerator.generate(factories);
+			place.setAddr(ad);
+		}
+
 		return p;
 	}
 
@@ -100,6 +114,7 @@ public class PatientGenerator {
 		prg.raceGenerator = CEGenerator.getNextInstance();
 		prg.ethnicGroupGenerator = CEGenerator.getNextInstance();
 		prg.religiousAffiliationGenerator = CEGenerator.getNextInstance();
+		prg.birthPlaceGenerator = ADGenerator.getDefaultInstance();
 
 		return prg;
 	}
@@ -163,6 +178,14 @@ public class PatientGenerator {
 		} else {
 			Extension affiliation = affiliations.get(0);
 			religiousAffiliationGenerator.verify((CodeableConcept) affiliation.getValue());
+		}
+
+		List<Extension> birthPlaces = patient.getExtensionsByUrl(Constants.URL_EXTENSION_BIRTHPLACE);
+		if (birthPlaceGenerator == null) {
+			Assert.assertTrue("No patient birth place", birthPlaces.isEmpty());
+		} else {
+			Extension birthPlace = birthPlaces.get(0);
+			birthPlaceGenerator.verify((Address) birthPlace.getValue());
 		}
 	}
 }

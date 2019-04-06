@@ -93,7 +93,13 @@
 					"ethnicGroupCode": "extension[1].valueCodeableConcept.->CD",
 					"#http://hl7.org/fhir/StructureDefinition/us-core-ethnicity": "extension[1].url",
 					"religiousAffiliationCode": "extension[2].valueCodeableConcept.->CD",
-					"#http://hl7.org/fhir/StructureDefinition/us-core-religion": "extension[2].url"
+					"#http://hl7.org/fhir/StructureDefinition/us-core-religion": "extension[2].url",
+					"birthplace": {
+						"place": {
+							"addr": "extension[3].valueAddress.->AD"
+						}
+					},
+					"#http://hl7.org/fhir/StructureDefinition/birthPlace": "extension[3].url"
 				}
 			}
 		}
