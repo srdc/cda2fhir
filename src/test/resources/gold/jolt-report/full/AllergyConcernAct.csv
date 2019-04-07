@@ -47,12 +47,13 @@ act.effectiveTime.low.value,AllergyIntolerance.assertedDate,,"datetimeAdapter",a
 act.effectiveTime.value,AllergyIntolerance.assertedDate,,"datetimeAdapter",act.effectiveTime.low.value isnull,act.effectiveTime.nullFlavor isnull
 act.entryRelationship[].observation.value.code,AllergyIntolerance.category[],,"valueSetAdapter('AllergyIntoleranceCategory')"
 act.entryRelationship[].observation.effectiveTime.high.value,AllergyIntolerance.clinicalStatus,,"selectOnNull('active','inactive')"
-act.entryRelationship[].observation.participant.participantRole.playingEntity.code.code,AllergyIntolerance.code.code[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.code.nullFlavor isnull
-act.entryRelationship[].observation.participant.participantRole.playingEntity.code.translation[].code,AllergyIntolerance.code.code[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.code.nullFlavor isnull
-act.entryRelationship[].observation.participant.participantRole.playingEntity.code.displayName,AllergyIntolerance.code.display[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.code.nullFlavor isnull
-act.entryRelationship[].observation.participant.participantRole.playingEntity.code.translation[].displayName,AllergyIntolerance.code.display[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.code.nullFlavor isnull
-act.entryRelationship[].observation.participant.participantRole.playingEntity.code.codeSystem,AllergyIntolerance.code.system[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.code.nullFlavor isnull
-act.entryRelationship[].observation.participant.participantRole.playingEntity.code.translation[].codeSystem,AllergyIntolerance.code.system[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.code.nullFlavor isnull
+act.entryRelationship[].observation.participant.participantRole.playingEntity.code.code,AllergyIntolerance.code.code[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
+act.entryRelationship[].observation.participant.participantRole.playingEntity.code.translation[].code,AllergyIntolerance.code.code[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
+act.entryRelationship[].observation.participant.participantRole.playingEntity.code.displayName,AllergyIntolerance.code.display[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
+act.entryRelationship[].observation.participant.participantRole.playingEntity.code.translation[].displayName,AllergyIntolerance.code.display[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
+act.entryRelationship[].observation.participant.participantRole.playingEntity.code.codeSystem,AllergyIntolerance.code.system[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
+act.entryRelationship[].observation.participant.participantRole.playingEntity.code.translation[].codeSystem,AllergyIntolerance.code.system[],,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
+act.entryRelationship[].observation.participant.participantRole.playingEntity.name,AllergyIntolerance.code.text,,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
 act.entryRelationship[].observation.entryRelationship[].observation.value.code,AllergyIntolerance.criticality,,"valueSetAdapter('AllergyIntoleranceCriticality')",act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.145
 act.id[].root,AllergyIntolerance.identifier[].system,,"systemAdapter",act.id[].extension isnotnull
 #official,AllergyIntolerance.identifier[].use,,
