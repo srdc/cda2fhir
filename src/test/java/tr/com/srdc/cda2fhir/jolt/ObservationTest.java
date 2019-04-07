@@ -69,7 +69,7 @@ public class ObservationTest {
 		File xmlFile = CDAUtilExtension.writeAsXML(cdaObs, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "Observation", caseName);
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
 		joltUtil.verifyOrganizations(organizations);
 		joltUtil.verifyPractitioners(practitioners);

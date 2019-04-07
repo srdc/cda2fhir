@@ -58,7 +58,7 @@ public class ImmunizationActivityTest {
 		File xmlFile = CDAUtilExtension.writeAsXML(iag, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "ImmunizationActivity", caseName);
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 		joltUtil.verify(immunization);
 		joltUtil.verifyOrganizations(organizations);
 	}

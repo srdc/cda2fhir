@@ -28,10 +28,7 @@ public class TransformManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, Object> chooseResourceByReference(List<Object> resources, String reference) {
-		String[] pieces = reference.split("/");
-		String resourceType = pieces[0];
-		String id = pieces[1];
+	public static Map<String, Object> chooseResourceById(List<Object> resources, String resourceType, String id) {
 		for (Object resource : resources) {
 			Map<String, Object> map = (Map<String, Object>) resource;
 			String actualResourceType = (String) map.get("resourceType");
@@ -43,6 +40,13 @@ public class TransformManager {
 			}
 		}
 		return null;
+	}
+
+	public static Map<String, Object> chooseResourceByReference(List<Object> resources, String reference) {
+		String[] pieces = reference.split("/");
+		String resourceType = pieces[0];
+		String id = pieces[1];
+		return chooseResourceById(resources, resourceType, id);
 	}
 
 	private static Map<String, Object> getInitialContext() {

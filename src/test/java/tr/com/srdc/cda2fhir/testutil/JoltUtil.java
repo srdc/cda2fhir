@@ -321,11 +321,13 @@ public class JoltUtil {
 	private List<Object> result;
 	private String caseName;
 	private String outputPath;
+	private BundleUtil bundleUtil;
 
-	public JoltUtil(List<Object> result, String caseName, String outputPath) {
+	public JoltUtil(List<Object> result, Bundle bundle, String caseName, String outputPath) {
 		this.result = result;
 		this.caseName = caseName;
 		this.outputPath = outputPath;
+		this.bundleUtil = new BundleUtil(bundle);
 	}
 
 	public void verifyOrganizations(List<Organization> organizations) throws Exception {
@@ -613,19 +615,26 @@ public class JoltUtil {
 	}
 
 	public void verify(Resource resource, Map<String, Object> joltResource, ResourceInfo info) throws Exception {
+		if (caseName.equals("empty")) {
+			Assert.assertNull("No jolt resource", joltResource);
+			return;
+		}
+
 		String resourceType = resource.getResourceType().name();
 
 		Assert.assertNotNull("Jolt resource exists", joltResource);
 		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
 
 		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
-		String patientProperty = info.getPatientPropertyName();
-		if (patientProperty != null) {
-			Reference patientReference = info.getPatientReference();
-			JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient is not yet implemented
-		}
+		if (info != null) {
+			String patientProperty = info.getPatientPropertyName();
+			if (patientProperty != null) {
+				Reference patientReference = info.getPatientReference();
+				JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient not implemented
+			}
 
-		info.copyReferences(joltResource);
+			info.copyReferences(joltResource);
+		}
 
 		String joltResourceJson = JsonUtils.toPrettyJsonString(joltResource);
 		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");
@@ -691,14 +700,84 @@ public class JoltUtil {
 		verify(patient, info);
 	}
 
-	public void verify(AllergyIntolerance allergy, Bundle bundle) throws Exception {
+	public Map<String, Object> findPractitionerRoleForPractitionerId(String practitionerId) {
+		List<Map<String, Object>> roles = TransformManager.chooseResources(result, "PractitionerRole");
+		for (Map<String, Object> role : roles) {
+			String reference = findPathString(role, "practitioner.reference");
+			if (reference != null && reference.equals(practitionerId)) {
+				return role;
+			}
+		}
+		return null;
+	}
+
+	public void verify(PractitionerRole role, Map<String, Object> joltRole) throws Exception {
+		Assert.assertNotNull("Jolt role exists", joltRole);
+
+		Assert.assertTrue("Role has practitioner", role.hasPractitioner());
+		Assert.assertTrue("Role has organization", role.hasOrganization());
+
+		String joltPractitionerId = findPathString(joltRole, "practitioner.reference");
+		String joltOrgId = findPathString(joltRole, "organization.reference");
+		Assert.assertNotNull("Jolt role has practitioner", joltPractitionerId);
+		Assert.assertNotNull("Jolt role has organization", joltOrgId);
+
+		Map<String, Object> rolePractitioner = findPathMap(joltRole, "practitioner");
+		Map<String, Object> roleOrg = findPathMap(joltRole, "organization");
+
+		rolePractitioner.put("reference", role.getPractitioner().getReference());
+		roleOrg.put("reference", role.getOrganization().getReference());
+
+		verify(role, joltRole, null);
+	}
+
+	public void verifyEntity(String reference, String joltReference) throws Exception {
+		Assert.assertNotNull("Entity reference exists", joltReference);
+
+		Practitioner practitioner = bundleUtil.getResourceFromReference(reference, Practitioner.class);
+		Assert.assertNotNull("Practitioner", practitioner);
+
+		Map<String, Object> joltPractitioner = TransformManager.chooseResourceByReference(result, joltReference);
+		Assert.assertNotNull("Jolt practitioner", joltPractitioner);
+
+		verify(practitioner, joltPractitioner, null);
+
+		PractitionerRole role = bundleUtil.getPractitionerRole(reference);
+		Map<String, Object> joltRole = findPractitionerRoleForPractitionerId(joltReference);
+		if (role == null) {
+			Assert.assertNull("No jolt role", joltRole);
+		} else {
+			String orgReference = role.getOrganization().getReference();
+			Organization org = bundleUtil.getResourceFromReference(orgReference, Organization.class);
+			String joltOrgReference = findPathString(joltRole, "organization.reference");
+			Map<String, Object> joltOrg = TransformManager.chooseResourceByReference(result, joltOrgReference);
+			verify(org, joltOrg, null);
+
+			verify(role, joltRole);
+		}
+	}
+
+	public void verify(AllergyIntolerance allergy) throws Exception {
 		AllergyIntoleranceInfo info = new AllergyIntoleranceInfo(allergy);
 
 		Map<String, Object> joltAllergy = TransformManager.chooseResource(result, "AllergyIntolerance");
 
-		BundleUtil bundleUtil = new BundleUtil(bundle);
+		if (allergy.hasRecorder()) {
+			String reference = allergy.getRecorder().getReference();
 
-		verify(allergy, info);
+			String joltReference = findPathString(joltAllergy, "recorder.reference");
+			Assert.assertNotNull("Jolt recorder reference exists", joltReference);
+
+			verifyEntity(reference, joltReference);
+
+			Map<String, Object> recorder = findPathMap(joltAllergy, "recorder");
+			recorder.put("reference", reference);
+		} else {
+			String value = findPathString(joltAllergy, "recorder.reference");
+			Assert.assertNull("No recorder", value);
+		}
+
+		verify(allergy, joltAllergy, info);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {

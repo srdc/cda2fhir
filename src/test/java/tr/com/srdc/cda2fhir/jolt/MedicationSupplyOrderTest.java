@@ -85,7 +85,7 @@ public class MedicationSupplyOrderTest {
 		File xmlFile = CDAUtilExtension.writeAsXML(mso, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationSupplyOrder", caseName);
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
 		Medication med = BundleUtil.findOneResource(bundle, Medication.class);
 		joltUtil.verifyMedication(med);

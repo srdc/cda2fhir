@@ -53,7 +53,7 @@ public class PatientRoleTest {
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "PatientRole", caseName);
 
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 		joltUtil.verify(patient, bundle);
 	}
 

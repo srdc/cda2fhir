@@ -97,7 +97,7 @@ public class MedicationActivityTest {
 		File xmlFile = CDAUtilExtension.writeAsXML(ma, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationActivity", caseName);
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
 		joltUtil.verifyOrganizations(organizations);
 		joltUtil.verifyPractitioners(practitioners);

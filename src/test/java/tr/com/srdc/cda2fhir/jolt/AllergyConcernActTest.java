@@ -56,8 +56,8 @@ public class AllergyConcernActTest {
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "AllergyConcernAct", caseName);
 
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
-		joltUtil.verify(allergy, bundle);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
+		joltUtil.verify(allergy);
 	}
 
 	@Test
