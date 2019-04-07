@@ -86,6 +86,28 @@ public class AllergyConcernActGenerator {
 				Assert.assertEquals("Allergy asserted date", value, actual);
 			}
 		}
+
+		if (observationGenerators.isEmpty()) {
+			Assert.assertTrue("No allergy code", !allergy.hasCode());
+			Assert.assertTrue("No type", !allergy.hasType());
+			Assert.assertTrue("No onset", !allergy.hasOnset());
+			Assert.assertTrue("No clinical status", !allergy.hasClinicalStatus());
+		}
+
+		if (!observationGenerators.isEmpty()) {
+			AllergyObservationGenerator aog = observationGenerators.get(observationGenerators.size() - 1);
+			aog.verify(allergy);
+		}
+
+		if (observationGenerators.isEmpty()) {
+			Assert.assertTrue("No category", !allergy.hasCategory());
+		} else {
+			Assert.assertTrue("Categories exist", allergy.hasCategory());
+			Assert.assertEquals("Category count", observationGenerators.size(), allergy.getCategory().size());
+			for (int index = 0; index < observationGenerators.size(); ++index) {
+				observationGenerators.get(index).verifyCategory(allergy.getCategory().get(index).asStringValue());
+			}
+		}
 	}
 
 	public void verify(Bundle bundle) throws Exception {

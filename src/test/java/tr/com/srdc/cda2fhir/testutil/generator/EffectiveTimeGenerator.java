@@ -60,6 +60,10 @@ public class EffectiveTimeGenerator {
 		return null;
 	}
 
+	public boolean hasHigh() {
+		return highValue != null && highNullFlavor == null;
+	}
+
 	public IVL_TS generate(CDAFactories factories) {
 		IVL_TS ivlTs = factories.datatype.createIVL_TS();
 		if (lowValue != null) {

@@ -36,6 +36,10 @@ public abstract class CodeGenerator<T extends CE> {
 		this.code = code;
 	}
 
+	public String get() {
+		return this.code;
+	}
+
 	protected abstract T create(CDAFactories factories);
 
 	public T generate(CDAFactories factories) {

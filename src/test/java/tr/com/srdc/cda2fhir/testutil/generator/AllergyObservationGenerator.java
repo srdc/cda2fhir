@@ -2,22 +2,73 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.Participant2;
+import org.openhealthtools.mdht.uml.cda.ParticipantRole;
+import org.openhealthtools.mdht.uml.cda.PlayingEntity;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
+import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
+import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
+
+import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.TestSetupException;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class AllergyObservationGenerator {
+	private static final Map<String, Object> ALLERGY_INTOLERANCE_TYPE = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceType.json");
+	private static final Map<String, Object> ALLERGY_INTOLERANCE_CATEGORY = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
+
 	private List<AuthorGenerator> authorGenerators = new ArrayList<>();
+	private List<PlayingEntityGenerator> codeGenerators = new ArrayList<>();
+
+	private CECodeGenerator typeGenerator;
+	private CECodeGenerator categoryGenerator;
+
+	private EffectiveTimeGenerator effectiveTimeGenerator;
 
 	public AllergyObservation generate(CDAFactories factories) {
 		AllergyObservation ao = factories.consol.createAllergyObservation();
 
 		authorGenerators.forEach(g -> ao.getAuthors().add(g.generate(factories)));
+
+		codeGenerators.forEach(g -> {
+			Participant2 p2 = factories.base.createParticipant2();
+			ParticipationType pt = ParticipationType.CSM;
+			p2.setTypeCode(pt);
+			ParticipantRole pr = factories.base.createParticipantRole();
+			p2.setParticipantRole(pr);
+			RoleClassRoot rcr = RoleClassRoot.MANU;
+			pr.setClassCode(rcr);
+			PlayingEntity pe = g.generate(factories);
+			pr.setPlayingEntity(pe);
+			ao.getParticipants().add(p2);
+		});
+
+		if (typeGenerator != null && categoryGenerator != null) {
+			if (typeGenerator.get() != categoryGenerator.get()) {
+				throw new TestSetupException("Category and type generators must generate the same.");
+			}
+			CE ce = typeGenerator.generate(factories);
+			ao.getValues().add(ce);
+		} else if (typeGenerator != categoryGenerator) {
+			throw new TestSetupException("Category and type generators must generate the same.");
+		}
+
+		if (effectiveTimeGenerator != null) {
+			IVL_TS ivlTs = effectiveTimeGenerator.generate(factories);
+			ao.setEffectiveTime(ivlTs);
+		}
 
 		return ao;
 	}
@@ -26,12 +77,59 @@ public class AllergyObservationGenerator {
 		AllergyObservationGenerator aog = new AllergyObservationGenerator();
 
 		aog.authorGenerators.add(AuthorGenerator.getDefaultInstance());
+		aog.codeGenerators.add(PlayingEntityGenerator.getDefaultInstance());
+
+		aog.typeGenerator = new CECodeGenerator(ALLERGY_INTOLERANCE_TYPE);
+		aog.typeGenerator.set("419511003");
+		aog.categoryGenerator = new CECodeGenerator(ALLERGY_INTOLERANCE_CATEGORY);
+		aog.categoryGenerator.set("419511003");
+		aog.effectiveTimeGenerator = new EffectiveTimeGenerator("20161008", "20181128");
 
 		return aog;
 	}
 
 	public void verify(AllergyIntolerance allergyIntolerance) {
+		if (codeGenerators.isEmpty()) {
+			Assert.assertTrue("No allergy code", !allergyIntolerance.hasCode());
+		} else {
+			PlayingEntityGenerator peg = codeGenerators.get(codeGenerators.size() - 1);
+			peg.verify(allergyIntolerance.getCode());
+		}
 
+		if (typeGenerator == null) {
+			Assert.assertTrue("No type", !allergyIntolerance.hasType());
+		} else {
+			typeGenerator.verify(allergyIntolerance.getType().toCode());
+		}
+
+		Assert.assertNotNull("Clinical status exists", allergyIntolerance.hasClinicalStatus());
+		if (effectiveTimeGenerator == null) {
+			Assert.assertTrue("No allergy onset", !allergyIntolerance.hasOnset());
+
+			Assert.assertEquals("Clinical status", "active", allergyIntolerance.getClinicalStatus().toCode());
+		} else {
+			String value = effectiveTimeGenerator.getLowOrValue();
+			if (value == null) {
+				Assert.assertTrue("No allergy onset", !allergyIntolerance.hasOnset());
+			} else {
+				String actual = FHIRUtil.toCDADatetime(allergyIntolerance.getOnsetDateTimeType().asStringValue());
+				Assert.assertEquals("Allergy offset", value, actual);
+			}
+
+			if (effectiveTimeGenerator.hasHigh()) {
+				Assert.assertEquals("Clinical status", "inactive", allergyIntolerance.getClinicalStatus().toCode());
+			} else {
+				Assert.assertEquals("Clinical status", "active", allergyIntolerance.getClinicalStatus().toCode());
+			}
+		}
+	}
+
+	public void verifyCategory(String category) {
+		if (categoryGenerator == null) {
+			Assert.assertNull("No category", category);
+		} else {
+			categoryGenerator.verify(category);
+		}
 	}
 
 	public void verify(Bundle bundle) throws Exception {

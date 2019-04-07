@@ -12,15 +12,6 @@
 				"high": {
 					"value": ""
 				}
-			},
-			"participant": {
-				"participantRole": {
-					"playingEntity": {
-						"code": {
-							"nullFlavor": ""
-						}
-					}
-				}
 			}
 		}
 	},
@@ -46,16 +37,7 @@
 			},
 			"participant": {
 				"participantRole": {
-					"playingEntity": {
-						"code": {
-							"nullFlavor": {
-								"": {
-									"@2": "code.->CD"
-								},
-								"*": null
-							}
-						}
-					}
+					"playingEntity": "->PlayingEntity"
 				}
 			},
 			"entryRelationship": {

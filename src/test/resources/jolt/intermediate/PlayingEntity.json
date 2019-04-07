@@ -1,0 +1,24 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"name": "ONE"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"code": "code.->CD",
+			"name": "code.text"
+			}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	}
+]
