@@ -21,8 +21,10 @@ package tr.com.srdc.cda2fhir.util;
  */
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
@@ -195,6 +197,13 @@ public class FHIRUtil {
 
 	interface ResourcePredicate {
 		boolean get(Resource resource);
+	}
+
+	public static Bundle bundleJSON(File file) throws IOException {
+		InputStream targetStream = new FileInputStream(file);
+		Bundle resultBundle = (Bundle) jsonParser.parseResource(targetStream);
+		targetStream.close();
+		return resultBundle;
 	}
 
 	public static String toCDADatetime(String fhirDatetime) {
