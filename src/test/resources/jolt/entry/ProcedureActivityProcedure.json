@@ -67,7 +67,9 @@
 			},
 			"PractitionerRole": {
 				"*": {
-					"code": "performer[&1].role"
+					"code": {
+						"0": "performer[&2].role"
+					}
 				}
 			}
 		}

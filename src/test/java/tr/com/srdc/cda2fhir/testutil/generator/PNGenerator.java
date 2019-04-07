@@ -255,4 +255,11 @@ public class PNGenerator {
 	public static Set<String> getAvailableUses() {
 		return Collections.unmodifiableSet(NAME_USE.keySet());
 	}
+
+	public static void verifyList(List<HumanName> actual, List<PNGenerator> expected) {
+		Assert.assertEquals("Human name count", expected.size(), actual.size());
+		for (int index = 0; index < actual.size(); ++index) {
+			expected.get(index).verify(actual.get(index));
+		}
+	}
 }

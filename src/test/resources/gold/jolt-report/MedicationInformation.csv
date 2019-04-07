@@ -1,0 +1,4 @@
+CCDA Source,Target,Link,Format,Condition 1
+manufacturedProduct.manufacturedMaterial.code,Medication.code,CD,,nullFlavor isnull
+Organization,Medication.manufacturer.reference,,"getId"
+manufacturedProduct.manufacturerOrganization,Organization,Organization,,nullFlavor isnull

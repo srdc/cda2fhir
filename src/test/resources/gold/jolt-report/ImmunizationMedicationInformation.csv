@@ -1,0 +1,5 @@
+CCDA Source,Target,Link,Format,Condition 1
+manufacturedProduct.manufacturerOrganization,Organization,Organization,,nullFlavor isnull
+manufacturedProduct.manufacturedMaterial.lotNumberText,lotNumber,,,nullFlavor isnull
+Organization,manufacturer.reference,,"getId"
+manufacturedProduct.manufacturedMaterial.code,vaccineCode,CD,,nullFlavor isnull

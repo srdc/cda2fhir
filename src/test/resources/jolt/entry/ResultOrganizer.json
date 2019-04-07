@@ -1,0 +1,90 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"organizer": {
+				"id": "MANY",
+				"author": "MANY",
+				"component": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"organizer": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"code": "code.->CD",
+				"statusCode": "status.->NullFlavorableCode",
+				"effectiveTime": "effectivePeriod.->IVL_TSPeriod",
+				"author": {
+					"*": "Author[&].->AuthorParticipation"
+				},
+				"component": {
+					"*": "Observation[&].->Observation"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Author": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": "performer[&].actor.reference"
+			},
+			"Observation": {
+				"*": "result[&].reference"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('DiagnosticReportStatus',@0)",
+			"performer": {
+				"*": {
+					"actor": {
+						"reference": "=getId(@0)"
+					}
+				}
+			},
+			"result": {
+				"*": {
+					"reference": "=getId(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": "",
+			"Observation": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "DiagnosticReport"
+		}
+	}
+]

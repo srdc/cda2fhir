@@ -17,7 +17,7 @@
 		"operation": "shift",
 		"spec": {
 			"id": "practitioner.reference.->ID",
-			"code": "code.->CD",
+			"code": "code[].->CD",
 			"representedOrganization": {
 				"id": {
 					"0": "organization.reference.->ID"
