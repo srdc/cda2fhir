@@ -1,20 +1,26 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.EntryRelationship;
+import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.Participant2;
 import org.openhealthtools.mdht.uml.cda.ParticipantRole;
 import org.openhealthtools.mdht.uml.cda.PlayingEntity;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.ParticipationType;
 import org.openhealthtools.mdht.uml.hl7.vocab.RoleClassRoot;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
@@ -28,6 +34,8 @@ public class AllergyObservationGenerator {
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceType.json");
 	private static final Map<String, Object> ALLERGY_INTOLERANCE_CATEGORY = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
+	private static final Map<String, Object> ALLERGY_INTOLERANCE_CRITICALITY = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCriticality.json");
 
 	private List<AuthorGenerator> authorGenerators = new ArrayList<>();
 	private List<PlayingEntityGenerator> codeGenerators = new ArrayList<>();
@@ -35,7 +43,15 @@ public class AllergyObservationGenerator {
 	private CECodeGenerator typeGenerator;
 	private CECodeGenerator categoryGenerator;
 
+	private List<AllergyReactionObservationGenerator> reactionGenerators = new ArrayList<>();
+
 	private EffectiveTimeGenerator effectiveTimeGenerator;
+
+	private CECodeGenerator criticalityGenerator;
+
+	public List<AllergyReactionObservationGenerator> getReactionGenerators() {
+		return Collections.unmodifiableList(reactionGenerators);
+	}
 
 	public AllergyObservation generate(CDAFactories factories) {
 		AllergyObservation ao = factories.consol.createAllergyObservation();
@@ -70,6 +86,30 @@ public class AllergyObservationGenerator {
 			ao.setEffectiveTime(ivlTs);
 		}
 
+		reactionGenerators.forEach(g -> {
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ao.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.MFST);
+			er.setInversionInd(true);
+			ReactionObservation ro = g.generate(factories);
+			II templateId = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.9");
+			ro.getTemplateIds().add(templateId);
+			er.setObservation(ro);
+		});
+
+		if (criticalityGenerator != null) {
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ao.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ);
+			er.setInversionInd(true);
+			Observation o = factories.base.createObservation();
+			II templateId = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.145");
+			o.getTemplateIds().add(templateId);
+			CE ce = criticalityGenerator.generate(factories);
+			o.getValues().add(ce);
+			er.setObservation(o);
+		}
+
 		return ao;
 	}
 
@@ -84,6 +124,9 @@ public class AllergyObservationGenerator {
 		aog.categoryGenerator = new CECodeGenerator(ALLERGY_INTOLERANCE_CATEGORY);
 		aog.categoryGenerator.set("419511003");
 		aog.effectiveTimeGenerator = new EffectiveTimeGenerator("20161008", "20181128");
+		aog.reactionGenerators.add(AllergyReactionObservationGenerator.getDefaultInstance());
+		aog.criticalityGenerator = new CECodeGenerator(ALLERGY_INTOLERANCE_CRITICALITY);
+		aog.criticalityGenerator.set("crith");
 
 		return aog;
 	}
@@ -121,6 +164,17 @@ public class AllergyObservationGenerator {
 			} else {
 				Assert.assertEquals("Clinical status", "active", allergyIntolerance.getClinicalStatus().toCode());
 			}
+		}
+
+		if (reactionGenerators.isEmpty()) {
+			Assert.assertTrue("No reaction", !allergyIntolerance.hasReaction());
+		}
+
+		if (criticalityGenerator == null) {
+			Assert.assertTrue("No criticality", !allergyIntolerance.hasCriticality());
+		} else {
+			Assert.assertTrue("Has criticality", allergyIntolerance.hasCriticality());
+			criticalityGenerator.verify(allergyIntolerance.getCriticality().toCode());
 		}
 	}
 
