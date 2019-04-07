@@ -20,5 +20,11 @@
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
+		"spec": {
+			"code": ""
+		}
 	}
 ]
