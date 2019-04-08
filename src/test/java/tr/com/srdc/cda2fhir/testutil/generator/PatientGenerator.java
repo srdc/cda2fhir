@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.hl7.fhir.dstu3.model.Address;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Birthplace;
@@ -21,7 +18,6 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
-import tr.com.srdc.cda2fhir.util.Constants;
 
 public class PatientGenerator {
 	private static final Map<String, Object> GENDER = JsonUtils
@@ -156,36 +152,5 @@ public class PatientGenerator {
 			GuardianGenerator.verifyList(patient.getContact(), guardianGenerators);
 		}
 
-		List<Extension> races = patient.getExtensionsByUrl(Constants.URL_EXTENSION_RACE);
-		if (raceGenerator == null) {
-			Assert.assertTrue("No patient race", races.isEmpty());
-		} else {
-			Extension race = races.get(0);
-			raceGenerator.verify((CodeableConcept) race.getValue());
-		}
-
-		List<Extension> ethnicities = patient.getExtensionsByUrl(Constants.URL_EXTENSION_ETHNICITY);
-		if (ethnicGroupGenerator == null) {
-			Assert.assertTrue("No patient etnicity", ethnicities.isEmpty());
-		} else {
-			Extension ethnicity = ethnicities.get(0);
-			ethnicGroupGenerator.verify((CodeableConcept) ethnicity.getValue());
-		}
-
-		List<Extension> affiliations = patient.getExtensionsByUrl(Constants.URL_EXTENSION_RELIGION);
-		if (religiousAffiliationGenerator == null) {
-			Assert.assertTrue("No patient religions", affiliations.isEmpty());
-		} else {
-			Extension affiliation = affiliations.get(0);
-			religiousAffiliationGenerator.verify((CodeableConcept) affiliation.getValue());
-		}
-
-		List<Extension> birthPlaces = patient.getExtensionsByUrl(Constants.URL_EXTENSION_BIRTHPLACE);
-		if (birthPlaceGenerator == null) {
-			Assert.assertTrue("No patient birth place", birthPlaces.isEmpty());
-		} else {
-			Extension birthPlace = birthPlaces.get(0);
-			birthPlaceGenerator.verify((Address) birthPlace.getValue());
-		}
 	}
 }
