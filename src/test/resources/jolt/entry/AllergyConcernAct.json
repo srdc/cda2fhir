@@ -37,23 +37,10 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
-		"spec": {
-			"Practitioner": {
-				"reference": "recorder.reference", 
-				"display": "recorder.display"
-			}
-		}
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"assertedDate": "=datetimeAdapter(@0)",
-			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)",
-			"recorder": {
-				"reference": "=getId(@0)",
-				"display": "=getReferenceDisplay(@0)"
-			}
+			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)"
 		}
 	},
 	{

@@ -408,7 +408,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 								EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
 								result.updateFrom(entityResult);
 								if (entityResult.hasPractitioner()) {
-									fhirAllergyIntolerance.setRecorder(entityResult.getPractitionerReference());
+									Reference reference = getReference(entityResult.getPractitioner());
+									fhirAllergyIntolerance.setRecorder(reference);
 								}
 							}
 						}
@@ -1765,17 +1766,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				result.addResource(entry.getResource());
 				if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Observation) {
 					fhirReactionObservation = (org.hl7.fhir.dstu3.model.Observation) entry.getResource();
-				}
-				ImmunizationReactionComponent fhirReaction = fhirImmunization.addReaction();
-				// reaction -> reaction.detail[ref=Observation]
-				fhirReaction.setDetail(getReference(fhirReactionObservation));
 
-				// reaction/effectiveTime/low -> reaction.date
-				if (fhirReactionObservation.getEffective() != null) {
-					Period reactionDate = (Period) fhirReactionObservation.getEffective();
-					if (reactionDate.getStart() != null)
-						fhirReaction.setDateElement(reactionDate.getStartElement());
+					ImmunizationReactionComponent fhirReaction = fhirImmunization.addReaction();
+					// reaction -> reaction.detail[ref=Observation]
+					fhirReaction.setDetail(getReference(fhirReactionObservation));
+
+					// reaction/effectiveTime/low -> reaction.date
+					if (fhirReactionObservation.getEffective() != null) {
+						Period reactionDate = (Period) fhirReactionObservation.getEffective();
+						if (reactionDate.getStart() != null)
+							fhirReaction.setDateElement(reactionDate.getStartElement());
+					}
+
 				}
+
 			}
 		}
 

@@ -39,6 +39,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		resource.put("id", id);
 		resources.add(resource);
 		String reference = String.format("%s/%s", resourceType, id);
+		String display = AdditionalModifier.getDisplay(resource);
 		List<Object> identifiers = (List<Object>) resource.get("identifier");
 		if (identifiers == null) {
 			return resource;
@@ -48,6 +49,11 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			refsByIdentifier = new IdentifierMap<String>();
 			context.put("RefsByIdentifier", refsByIdentifier);
 		}
+		IdentifierMap<String> refDisplaysByIdentifier = (IdentifierMap<String>) context.get("RefDisplaysByIdentifier");
+		if (refDisplaysByIdentifier == null) {
+			refDisplaysByIdentifier = new IdentifierMap<String>();
+			context.put("RefDisplaysByIdentifier", refDisplaysByIdentifier);
+		}
 		Iterator<Object> itr = identifiers.iterator();
 		while (itr.hasNext()) {
 			Object identifier = itr.next();
@@ -56,6 +62,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			Object valueObject = map.get("value");
 			String value = valueObject == null ? null : valueObject.toString();
 			refsByIdentifier.put(resourceType, system, value, reference);
+			refDisplaysByIdentifier.put(resourceType, system, value, display);
 			if (system != null && system.endsWith("0.0.0.0.0.0")) {
 				itr.remove();
 			}
