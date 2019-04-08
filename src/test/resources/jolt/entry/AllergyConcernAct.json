@@ -40,7 +40,11 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"assertedDate": "=datetimeAdapter(@0)",
-			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)"
+			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)",
+			"recorder": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			}
 		}
 	},
 	{

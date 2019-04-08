@@ -144,7 +144,6 @@ public class EncounterActivityTest {
 		IEntryResult cda2FhirResult = rt.tEncounterActivity2Encounter(ec, new BundleInfo(rt));
 
 		Bundle bundle = cda2FhirResult.getBundle();
-		FHIRUtil.printJSON(bundle, "srs/test/resources/output/encounterBundle.json");
 		Assert.assertNotNull("Encounter bundle", bundle);
 
 		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);

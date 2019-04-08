@@ -1769,7 +1769,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 					ImmunizationReactionComponent fhirReaction = fhirImmunization.addReaction();
 					// reaction -> reaction.detail[ref=Observation]
-					fhirReaction.setDetail(new Reference(fhirReactionObservation.getId()));
+					fhirReaction.setDetail(getReference(fhirReactionObservation));
 
 					// reaction/effectiveTime/low -> reaction.date
 					if (fhirReactionObservation.getEffective() != null) {
@@ -1777,7 +1777,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						if (reactionDate.getStart() != null)
 							fhirReaction.setDateElement(reactionDate.getStartElement());
 					}
+
 				}
+
 			}
 		}
 
@@ -1785,6 +1787,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// to map this to STU3
 		// fhirImmunization.setReported(Config.DEFAULT_IMMUNIZATION_REPORTED);
 		return result;
+
 	}
 
 	@Override
