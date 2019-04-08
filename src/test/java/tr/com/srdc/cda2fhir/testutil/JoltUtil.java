@@ -500,6 +500,9 @@ public class JoltUtil {
 	public static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
 		Map<String, Object> r = new LinkedHashMap<String, Object>();
 		r.put("reference", reference.getReference());
+		if (reference.getDisplay() != null) {
+			r.put("display", reference.getDisplay());
+		}
 		joltResult.put(property, r);
 	}
 

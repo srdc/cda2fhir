@@ -56,7 +56,7 @@
 				"telecom": {
 					"*": "telecom[].->TEL"
 				},
-				"providerOrganization": "managingOrganization.reference.->Organization",
+				"providerOrganization": ["managingOrganization.reference.->Organization", "managingOrganization.display.->Organization"],
 				"patient": {
 					"name": "name[].->PN",
 					"administrativeGenderCode": {
@@ -111,7 +111,8 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"managingOrganization": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"gender": "=valueSetAdapter('Gender','unknown',@0)",
 			"birthDate": "=datetimeAdapter(@0)",

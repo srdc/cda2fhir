@@ -20,4 +20,5 @@ patientRole.id[],Patient.identifier[],ID,,patientRole.nullFlavor isnull
 patientRole.patient.maritalStatusCode.code,Patient.maritalStatus.coding,,"valueSetAdapter('MaritalStatus')",patientRole.nullFlavor isnull
 patientRole.patient.name,Patient.name[],PN,,patientRole.nullFlavor isnull
 patientRole.telecom[],Patient.telecom[],TEL,,patientRole.nullFlavor isnull
+patientRole.providerOrganization,managingOrganization.display,Organization,,patientRole.nullFlavor isnull
 patientRole.providerOrganization,managingOrganization.reference,Organization,"getId",patientRole.nullFlavor isnull

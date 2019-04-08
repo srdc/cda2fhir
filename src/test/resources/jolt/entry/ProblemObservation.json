@@ -62,7 +62,8 @@
 			"abatementDateTime": "=datetimeAdapter(@0)",
 			"assertedDate": "=datetimeAdapter(@0)",
 			"asserter": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			}
 		}
 	},
