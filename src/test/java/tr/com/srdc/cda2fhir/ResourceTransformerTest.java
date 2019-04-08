@@ -26,13 +26,24 @@ import java.io.IOException;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
+import org.hl7.fhir.dstu3.model.HumanName;
+import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
+import org.hl7.fhir.dstu3.model.PractitionerRole;
+import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -106,6 +117,103 @@ public class ResourceTransformerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void referenceOrgNameStringTest() {
+		String name = "Organization Name";
+		Organization org = new Organization();
+		org.setName(name);
+		Reference ref = rt.getReference(org);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), name);
+	}
+
+	@Test
+	public void referenceHumanNameTest() {
+		String firstName = "Homer";
+		String lastName = "Simpson";
+		HumanName name = new HumanName();
+		name.setFamily(lastName);
+		name.addGiven(firstName);
+		Patient patient = new Patient();
+		patient.addName(name);
+
+		Reference ref = rt.getReference(patient);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(),
+				name.getNameAsSingleString());
+	}
+
+	@Test
+	public void referenceImmunizationTest() {
+		CodeableConcept cc = new CodeableConcept();
+		String expectedDisplay = "expected display";
+		cc.setText(expectedDisplay);
+
+		Immunization immunization = new Immunization();
+
+		immunization.setVaccineCode(cc);
+
+		Reference ref = rt.getReference(immunization);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), expectedDisplay);
+	}
+
+	@Test
+	public void referenceDisplayFirstRepTest() {
+		Reference ref;
+		CodeableConcept cc = new CodeableConcept();
+		String expectedDisplay = "expected display";
+		Coding coding = new Coding();
+		coding.setDisplay(expectedDisplay);
+		cc.addCoding(coding);
+
+		PractitionerRole pracRole = new PractitionerRole();
+		Procedure procedure = new Procedure();
+		pracRole.addCode(cc);
+		procedure.setCode(cc);
+
+		ref = rt.getReference(pracRole);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), expectedDisplay);
+
+		ref = rt.getReference(procedure);
+		Assert.assertEquals("Organization name becomes reference display", ref.getDisplay(), expectedDisplay);
+	}
+
+	@Test
+	public void referenceCodeTest() {
+		Reference ref;
+		String expectedTestID = "testID/0";
+		String expectedDisplay = "expected display";
+
+		CodeableConcept cc = new CodeableConcept();
+		cc.setText(expectedDisplay);
+
+		Medication med = new Medication();
+
+		IdType id = new IdType("testID", "0");
+		med.setId(id);
+		med.setCode(cc);
+
+		ref = rt.getReference(med);
+
+		Assert.assertTrue(ref.getReference().contentEquals(expectedTestID));
+
+		MedicationStatement medStatement = new MedicationStatement();
+
+		medStatement.setId(id);
+
+		ref = rt.getReference(medStatement);
+
+		Assert.assertTrue(ref.getReference().contentEquals(expectedTestID));
+
+		Condition condition = new Condition();
+
+		condition.setId(id);
+		condition.setCode(cc);
+
+		ref = rt.getReference(condition);
+
+		Assert.assertTrue(ref.getReference().contentEquals(expectedTestID));
+
 	}
 
 	// Most of the test methods just print the transformed object in JSON form.
