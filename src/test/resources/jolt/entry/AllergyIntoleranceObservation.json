@@ -7,7 +7,7 @@
 	},
 	{
 		"operation": "default",
-		"spec": {		
+		"spec": {
 			"effectiveTime": {
 				"high": {
 					"value": ""
@@ -33,7 +33,10 @@
 				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
 			},
 			"value": {
-				"code": ["category[]", "type"]
+				"code": [
+					"category[]",
+					"type"
+				]
 			},
 			"participant": {
 				"participantRole": {
@@ -70,7 +73,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "recorder.reference"
+			"Practitioner": ["recorder.reference", "recorder.display"]
 		}
 	},
 	{
@@ -97,8 +100,10 @@
 			},
 			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)",
 			"recorder": {
-				"reference": "=getId(@0)"
-			}		}
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			}
+		}
 	},
 	{
 		"operation": "remove",

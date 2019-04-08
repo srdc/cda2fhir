@@ -408,7 +408,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 								EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
 								result.updateFrom(entityResult);
 								if (entityResult.hasPractitioner()) {
-									fhirAllergyIntolerance.setRecorder(entityResult.getPractitionerReference());
+									Reference reference = getReference(entityResult.getPractitioner());
+									fhirAllergyIntolerance.setRecorder(reference);
 								}
 							}
 						}
