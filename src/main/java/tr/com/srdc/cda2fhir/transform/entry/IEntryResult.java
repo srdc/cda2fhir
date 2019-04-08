@@ -7,7 +7,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 
-public interface IEntryResult extends ICDAIIMapSource<IEntityInfo> {
+public interface IEntryResult extends ICDAIIMapSource<IEntityInfo>, ICDAIIMapSource<IResourceInfo> {
 	Bundle getBundle();
 
 	void copyTo(Bundle bundle);

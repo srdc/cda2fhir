@@ -21,7 +21,10 @@ public class EntryResult implements IEntryResult {
 	private List<IDeferredReference> deferredReferences;
 
 	private CDAIIMap<IEntityInfo> entities;
+//	private CDAIIMap<IReferenceInfo> maps;
 
+	
+	
 	@Override
 	public Bundle getBundle() {
 		return bundle;
