@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.bazaarvoice.jolt.ContextualTransform;
 import com.bazaarvoice.jolt.JsonUtils;
@@ -87,14 +88,14 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 							if (humanName.get("suffix") instanceof List)
 								currentNameList.addAll((List<String>) humanName.get("suffix"));
 
-							String currentName = iterableJoin(currentNameList, " ").trim();
+							String currentName = currentNameList.stream().collect(Collectors.joining(" "));
 							if (!currentName.contentEquals(""))
 								allNames.add(currentName);
 						}
 					}
 
 					if (allNames.size() > 0) {
-						display = iterableJoin(allNames, ", ");
+						display = allNames.stream().collect(Collectors.joining(", "));
 					}
 				}
 			}
@@ -314,21 +315,6 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 			return Optional.of(result);
 		}
-	}
-
-	private static String iterableJoin(Iterable<String> iterable, String delimiter) {
-		String joined = "";
-
-		Iterator<String> iterator = iterable.iterator();
-
-		while (iterator.hasNext()) {
-			joined += iterator.next();
-			if (iterator.hasNext())
-				joined += delimiter;
-		}
-
-		return joined;
-
 	}
 
 	@SuppressWarnings("unchecked")
