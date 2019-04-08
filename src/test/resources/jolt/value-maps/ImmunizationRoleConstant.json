@@ -1,0 +1,9 @@
+{
+	"coding": [
+		{
+			"system": "http://hl7.org/fhir/v2/0443",
+			"display": "Administering Provider",
+			"code": "AP"
+		}
+	]
+}

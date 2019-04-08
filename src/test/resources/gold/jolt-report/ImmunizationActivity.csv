@@ -1,0 +1,24 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2
+substanceAdministration.effectiveTime.value,Immunization.date,,"datetimeAdapter",nullFlavor isnull,substanceAdministration.effectiveTime.nullFlavor isnull
+substanceAdministration.doseQuantity,Immunization.doseQuantity,IVL_PQSimpleQuantity,"constantSystem('http://unitsofmeasure.org/ucum.html','pq')",nullFlavor isnull
+substanceAdministration.entryRelationship[].observation.code,Immunization.explanation.reasonNotGiven[],CD,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.53
+substanceAdministration.entryRelationship[].observation.value,Immunization.explanation.reason[],CD,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
+substanceAdministration.id[],Immunization.identifier[],ID,,nullFlavor isnull
+substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.lotNumberText,Immunization.lotNumber,,,nullFlavor isnull,substanceAdministration.consumable.nullFlavor isnull
+Organization,Immunization.manufacturer.reference,,"getId"
+substanceAdministration.negationInd,Immunization.notGiven,,,nullFlavor isnull
+Immunization.Practitioner,Immunization.practitioner[].actor.reference,,"getId"
+Immunization.Practitioner,Immunization.practitioner[].role,,"constantValue('ImmunizationRoleConstant')"
+Practitioner[],Immunization.primarySource,,"true"
+Observation.effectivePeriod.start,Immunization.reaction[0].date,,
+Observation,Immunization.reaction[0].detail.reference,,
+substanceAdministration.routeCode,Immunization.route,CD,,nullFlavor isnull
+substanceAdministration.approachSiteCode[],Immunization.site,CD,"lastElement",nullFlavor isnull
+substanceAdministration.statusCode.code,Immunization.status,,"valueSetAdapter('ImmunizationStatus')",nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
+substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.code,Immunization.vaccineCode,CD,,nullFlavor isnull,substanceAdministration.consumable.nullFlavor isnull
+substanceAdministration.entryRelationship[],Observation,Observation,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+Practitioner[],Observation.performer[].reference,,"getId"
+substanceAdministration.consumable.manufacturedProduct.manufacturerOrganization,Organization,Organization,,nullFlavor isnull,substanceAdministration.consumable.nullFlavor isnull
+substanceAdministration.performer[].assignedEntity,Organization[],EntityOrganization,,nullFlavor isnull
+substanceAdministration.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
+substanceAdministration.performer[].assignedEntity,Practitioner[],EntityPractitioner,,nullFlavor isnull

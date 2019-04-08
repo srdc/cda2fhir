@@ -1,0 +1,4 @@
+CCDA Source,Target,Link,Format,Condition 1
+phase,repeat.boundsPeriod,IVL_TSPeriod,,nullFlavor isnull
+period.value,repeat.period,,,nullFlavor isnull
+period.unit,repeat.periodUnit,,,nullFlavor isnull

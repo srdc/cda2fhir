@@ -1,0 +1,43 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"manufacturedProduct": {
+				"manufacturedMaterial": {
+					"code": "vaccineCode.->CD",
+					"lotNumberText": "lotNumber"
+				},
+				"manufacturerOrganization": "Organization.->Organization"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Organization": "manufacturer.reference"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"manufacturer": {
+				"reference": "=getId(@0)"
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Organization": ""
+		}
+	}
+]

@@ -16,6 +16,7 @@ public class RawConditionNode extends ParentNode implements IConditionNode {
 	@Override
 	public RawConditionNode clone(IParentNode parent) {
 		RawConditionNode result = new RawConditionNode(parent, rank);
+		copyToClone(result);
 		return result;
 	}
 

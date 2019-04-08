@@ -102,7 +102,7 @@ public class JoltTemplate {
 		return this.resourceType != null;
 	}
 
-	private static Map<String, JoltTemplate> getIntermediateTemplates(Map<String, JoltTemplate> map) {
+	private static Map<String, JoltTemplate> getLeafTemplates(Map<String, JoltTemplate> map) {
 		return map.entrySet().stream().filter(entry -> {
 			JoltTemplate value = entry.getValue();
 			if (value.leafTemplate || value.resourceType != null) {
@@ -160,16 +160,14 @@ public class JoltTemplate {
 		return result;
 	}
 
-	public Table createTable(Map<String, JoltTemplate> map) {
-		Map<String, JoltTemplate> intermediateTemplates = getIntermediateTemplates(map);
-
+	private Table createTable(Map<String, JoltTemplate> map, Map<String, JoltTemplate> leafTemplates) {
 		JoltFormat resolvedFormat = getResolvedFormat(map);
 		Table assignTable = getAssignTable(map);
 		if (assignTable != null) {
 			assignTable.correctArrayOnFormat();
 		}
 
-		rootNode.expandLinks(intermediateTemplates);
+		rootNode.expandLinks(leafTemplates);
 
 		if (distributeArrays != null) {
 			rootNode.distributeArrays(distributeArrays);
@@ -199,9 +197,19 @@ public class JoltTemplate {
 		return table;
 	}
 
+	public Table createTable(Map<String, JoltTemplate> map, boolean fullyExpand) {
+		if (fullyExpand) {
+			return createTable(map, map);
+		} else {
+			Map<String, JoltTemplate> leafTemplates = getLeafTemplates(map);
+			return createTable(map, leafTemplates);
+		}
+	}
+
 	public static JoltTemplate getInstance(String name, List<Object> content) {
 		JoltTemplate result = new JoltTemplate(name);
-		result.leafTemplate = name.equals(name.toUpperCase()) || name.equals("IVL_TSPeriod");
+		result.leafTemplate = name.equals(name.toUpperCase()) || name.equals("IVL_TSPeriod")
+				|| name.equals("PIVL_TSTiming") || name.startsWith("IVL_PQ");
 
 		RawTemplate rawTemplate = RawTemplate.getInstance(content);
 

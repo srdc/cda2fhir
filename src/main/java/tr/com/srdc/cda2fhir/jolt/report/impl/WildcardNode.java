@@ -11,6 +11,13 @@ public class WildcardNode extends ParentNode implements IWildcardNode {
 	}
 
 	@Override
+	public WildcardNode clone(IParentNode parent) {
+		WildcardNode result = new WildcardNode(parent, getPath());
+		copyToClone(result);
+		return result;
+	}
+
+	@Override
 	public WildcardNode cloneEmpty() {
 		IParentNode parent = getParent();
 		String path = getPath();

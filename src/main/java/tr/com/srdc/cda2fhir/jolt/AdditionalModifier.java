@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.bazaarvoice.jolt.ContextualTransform;
 import com.bazaarvoice.jolt.JsonUtils;
@@ -23,6 +24,85 @@ import tr.com.srdc.cda2fhir.util.StringUtil;
 @SuppressWarnings("deprecation")
 public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	private static Map<String, Object> temporaryContext; // Hack for now
+
+	@SuppressWarnings("unchecked")
+	public static String getDisplay(Map<String, Object> map) {
+		String display = null;
+
+		if (map.get("code") instanceof Map) {
+
+			Map<String, Object> code = (Map<String, Object>) map.get("code");
+
+			if (code.get("coding") instanceof List) {
+
+				List<Object> coding = (List<Object>) code.get("coding");
+
+				if (!coding.isEmpty() && coding.get(0) instanceof Map) {
+
+					Map<String, Object> codeIndx0 = (Map<String, Object>) coding.get(0);
+
+					if (codeIndx0.get("text") instanceof String) {
+
+						display = (String) codeIndx0.get("text");
+
+					}
+				}
+			}
+
+		} else if (map.get("name") != null) {
+
+			Object name = map.get("name");
+
+			if (name instanceof String) {
+
+				display = (String) name;
+
+			} else if (name instanceof List) {
+
+				List<Object> nameList = (List<Object>) name;
+
+				if (!nameList.isEmpty()) {
+
+					List<String> allNames = new ArrayList<String>();
+					Iterator<Object> iter = nameList.listIterator();
+
+					while (iter.hasNext()) {
+
+						Object humanNameObj = iter.next();
+
+						if (humanNameObj instanceof Map) {
+
+							Map<String, Object> humanName = (Map<String, Object>) humanNameObj;
+							ArrayList<String> currentNameList = new ArrayList<String>();
+
+							// TODO make array list
+							if (humanName.get("prefix") instanceof List)
+								currentNameList.addAll((List<String>) humanName.get("prefix"));
+
+							if (humanName.get("given") instanceof List)
+								currentNameList.addAll((List<String>) humanName.get("given"));
+
+							if (humanName.get("family") instanceof String)
+								currentNameList.add((String) humanName.get("family"));
+
+							if (humanName.get("suffix") instanceof List)
+								currentNameList.addAll((List<String>) humanName.get("suffix"));
+
+							String currentName = currentNameList.stream().collect(Collectors.joining(" "));
+							if (!currentName.contentEquals(""))
+								allNames.add(currentName);
+						}
+					}
+
+					if (allNames.size() > 0) {
+						display = allNames.stream().collect(Collectors.joining(", "));
+					}
+				}
+			}
+		}
+
+		return display;
+	}
 
 	public static final class DatetimeAdapter extends Function.SingleFunction<Object> {
 		@Override
@@ -81,6 +161,9 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			Object mappedValue = map.get(value);
 			if (mappedValue == null) {
 				mappedValue = defaultValue;
+				if (mappedValue == null) {
+					mappedValue = map.get("_");
+				}
 			}
 			if (mappedValue != null) {
 				return Optional.of(mappedValue);
@@ -158,6 +241,33 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class ReferenceDisplayAdapter extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			if (argList == null || argList.size() != 2) {
+				return Optional.empty();
+			}
+			String fhirType = (String) argList.get(0);
+			Object arg = argList.get(1);
+			if (!(arg instanceof Map)) {
+				return Optional.empty();
+			}
+			Map<String, Object> identifier = (Map<String, Object>) arg;
+			String system = (String) identifier.get("system");
+			String value = (String) identifier.get("value");
+			IdentifierMap<String> map = (IdentifierMap<String>) temporaryContext.get("RefDisplaysByIdentifier");
+			if (map == null) {
+				return Optional.empty();
+			}
+			String display = map.get(fhirType, system, value);
+			if (display == null) {
+				return Optional.empty();
+			}
+			return Optional.of(display);
+		}
+	}
+
 	public static final class MaxDateTime extends Function.ListFunction {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
@@ -207,21 +317,6 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
-	private static String iterableJoin(Iterable<String> iterable, String delimiter) {
-		String joined = "";
-
-		Iterator<String> iterator = iterable.iterator();
-
-		while (iterator.hasNext()) {
-			joined += iterator.next();
-			if (iterator.hasNext())
-				joined += delimiter;
-		}
-
-		return joined;
-
-	}
-
 	@SuppressWarnings("unchecked")
 	public static final class GetReferenceDisplay extends Function.SingleFunction<Object> {
 		@Override
@@ -233,83 +328,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				return Optional.of(null);
 			}
 			Map<String, Object> map = (Map<String, Object>) arg;
-			String display = null;
-
-			if (map.get("code") instanceof Map) {
-
-				Map<String, Object> code = (Map<String, Object>) map.get("code");
-
-				if (code.get("coding") instanceof List) {
-
-					List<Object> coding = (List<Object>) code.get("coding");
-
-					if (!coding.isEmpty() && coding.get(0) instanceof Map) {
-
-						Map<String, Object> codeIndx0 = (Map<String, Object>) coding.get(0);
-
-						if (codeIndx0.get("text") instanceof String) {
-
-							display = (String) codeIndx0.get("text");
-
-						}
-
-					}
-
-					System.out.println(coding == null);
-				}
-
-			} else if (map.get("name") != null) {
-
-				Object name = map.get("name");
-
-				if (name instanceof String) {
-
-					display = (String) name;
-
-				} else if (name instanceof List) {
-
-					List<Object> nameList = (List<Object>) name;
-
-					if (!nameList.isEmpty()) {
-
-						List<String> allNames = new ArrayList<String>();
-						Iterator<Object> iter = nameList.listIterator();
-
-						while (iter.hasNext()) {
-
-							Object humanNameObj = iter.next();
-
-							if (humanNameObj instanceof Map) {
-
-								Map<String, Object> humanName = (Map<String, Object>) humanNameObj;
-								ArrayList<String> currentNameList = new ArrayList<String>();
-
-								// TODO make array list
-								if (humanName.get("prefix") instanceof List)
-									currentNameList.addAll((List<String>) humanName.get("prefix"));
-
-								if (humanName.get("given") instanceof List)
-									currentNameList.addAll((List<String>) humanName.get("given"));
-
-								if (humanName.get("family") instanceof String)
-									currentNameList.add((String) humanName.get("family"));
-
-								if (humanName.get("suffix") instanceof List)
-									currentNameList.addAll((List<String>) humanName.get("suffix"));
-
-								String currentName = iterableJoin(currentNameList, " ").trim();
-								if (!currentName.contentEquals(""))
-									allNames.add(currentName);
-							}
-						}
-
-						if (allNames.size() > 0) {
-							display = iterableJoin(allNames, ", ");
-						}
-					}
-				}
-			}
-
+			String display = getDisplay(map);
 			return Optional.of(display);
 		}
 	}
@@ -396,11 +415,54 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class True extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			return Optional.of(true);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final class ConstantSystem extends Function.ListFunction {
+		private Optional<Object> applyForCD(Map<String, Object> cd, String system) {
+			List<Object> codings = (List<Object>) cd.get("coding");
+			if (codings != null) {
+				codings.forEach(coding -> {
+					Map<String, Object> codingAsMap = (Map<String, Object>) coding;
+					if (codingAsMap != null) {
+						codingAsMap.put("system", system);
+					}
+				});
+			}
+			return Optional.of(cd);
+		}
+
+		private Optional<Object> applyForPQ(Map<String, Object> pq, String system) {
+			pq.put("system", system);
+			return Optional.of(pq);
+		}
+
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			String system = (String) argList.get(0);
+			String type = (String) argList.get(1);
+			Map<String, Object> object = (Map<String, Object>) argList.get(2);
+			if ("cd".equals(type)) {
+				return applyForCD(object, system);
+			}
+			if ("pq".equals(type)) {
+				return applyForPQ(object, system);
+			}
+			throw new ReportException("Unknown constant system type " + system + ".");
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
 		AMIDA_FUNCTIONS.put("datetimeAdapter", new DatetimeAdapter());
 		AMIDA_FUNCTIONS.put("referenceAdapter", new ReferenceAdapter());
+		AMIDA_FUNCTIONS.put("referenceDisplayAdapter", new ReferenceDisplayAdapter());
 		AMIDA_FUNCTIONS.put("valueSetAdapter", new ValueSetAdapter());
 		AMIDA_FUNCTIONS.put("systemAdapter", new SystemAdapter());
 		AMIDA_FUNCTIONS.put("idSystemAdapter", new IdSystemAdapter());
@@ -413,6 +475,8 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
 		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
 		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
+		AMIDA_FUNCTIONS.put("true", new True());
+		AMIDA_FUNCTIONS.put("constantSystem", new ConstantSystem());
 	}
 
 	private Modifier.Overwritr modifier;

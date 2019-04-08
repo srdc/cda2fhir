@@ -25,19 +25,16 @@ public class AssignedEntityGenerator extends EntityGenerator {
 		@Override
 		public void setCode(CE ce) {
 			entity.setCode(ce);
-
 		}
 
 		@Override
 		public void setPerson(Person person) {
 			entity.setAssignedPerson(person);
-
 		}
 
 		@Override
 		public void setOrganization(Organization organization) {
 			entity.getRepresentedOrganizations().add(organization);
-
 		}
 	}
 
