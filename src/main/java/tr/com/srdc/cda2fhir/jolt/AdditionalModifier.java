@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.bazaarvoice.jolt.ContextualTransform;
 import com.bazaarvoice.jolt.JsonUtils;
@@ -255,7 +256,6 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 					}
 
-					System.out.println(coding == null);
 				}
 
 			} else if (map.get("name") != null) {
@@ -304,7 +304,8 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 						}
 
 						if (allNames.size() > 0) {
-							display = iterableJoin(allNames, ", ");
+							display = allNames.stream().collect(Collectors.joining(", "));
+//							display = iterableJoin(allNames, ", ");
 						}
 					}
 				}
