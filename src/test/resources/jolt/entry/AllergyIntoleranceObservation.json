@@ -1,19 +1,16 @@
 [
 	{
-		"operation": "default",
+		"operation": "cardinality",
 		"spec": {
+			"author": "ONE"
+		}
+	},
+	{
+		"operation": "default",
+		"spec": {		
 			"effectiveTime": {
 				"high": {
 					"value": ""
-				}
-			},
-			"participant": {
-				"participantRole": {
-					"playingEntity": {
-						"code": {
-							"nullFlavor": ""
-						}
-					}
 				}
 			}
 		}
@@ -28,6 +25,7 @@
 	{
 		"operation": "shift",
 		"spec": {
+			"author": "->AuthorParticipation",
 			"effectiveTime": {
 				"high": {
 					"value": "clinicalStatus"
@@ -39,16 +37,7 @@
 			},
 			"participant": {
 				"participantRole": {
-					"playingEntity": {
-						"code": {
-							"nullFlavor": {
-								"": {
-									"@2": "code.->CD"
-								},
-								"*": null
-							}
-						}
-					}
+					"playingEntity": "->PlayingEntity"
 				}
 			},
 			"entryRelationship": {
@@ -79,6 +68,12 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": "recorder.reference"
+		}
+	},
+	{
 		"operation": "modify-overwrite-beta",
 		"spec": {
 			"reaction": "=recursivelySquashNulls(@0)",
@@ -100,7 +95,17 @@
 			"category": {
 				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
 			},
-			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)"
+			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)",
+			"recorder": {
+				"reference": "=getId(@0)"
+			}		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	}
 ]

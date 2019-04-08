@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -14,6 +15,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class EntityGenerator {
@@ -124,5 +126,23 @@ public class EntityGenerator {
 			return;
 		}
 		organizationGenerator.verify(organization);
+	}
+
+	public void verifyFromPractionerId(Bundle bundle, String practitionerId) {
+		BundleUtil util = new BundleUtil(bundle);
+		Practitioner practitioner = util.getResourceFromReference(practitionerId, Practitioner.class);
+		verify(practitioner);
+
+		PractitionerRole role = util.getPractitionerRole(practitionerId);
+		verify(role);
+
+		if (!role.hasOrganization()) {
+			verify((org.hl7.fhir.dstu3.model.Organization) null);
+		} else {
+			String reference = role.getOrganization().getReference();
+			org.hl7.fhir.dstu3.model.Organization organization = util.getResourceFromReference(reference,
+					org.hl7.fhir.dstu3.model.Organization.class);
+			verify(organization);
+		}
 	}
 }

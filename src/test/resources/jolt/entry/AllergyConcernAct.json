@@ -4,7 +4,6 @@
 		"spec": {
 			"act": {
 				"id": "MANY",
-				"author": "ONE",
 				"entryRelationship": "MANY"
 			}
 		}
@@ -20,7 +19,6 @@
 					"code": "verificationStatus"
 				},
 				"effectiveTime": "assertedDate.->EffectiveTimeLowOrValue",
-				"author": "->AuthorParticipation",
 				"entryRelationship": {
 					"*": {
 						"observation": "->AllergyIntoleranceObservation"
@@ -61,13 +59,6 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
 		"spec": {
-		}
-	},
-	{
-		"operation": "remove",
-		"spec": {
-			"Practitioner": "",
-			"PractitionerRole": ""
 		}
 	},
 	{

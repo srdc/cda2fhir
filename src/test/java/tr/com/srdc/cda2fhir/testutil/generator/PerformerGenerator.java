@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
@@ -54,5 +55,9 @@ public class PerformerGenerator {
 
 	public void verify(org.hl7.fhir.dstu3.model.Organization org) {
 		assignedEntityGenerator.verify(org);
+	}
+
+	public void verifyFromPractionerId(Bundle bundle, String practitionerId) {
+		assignedEntityGenerator.verifyFromPractionerId(bundle, practitionerId);
 	}
 }

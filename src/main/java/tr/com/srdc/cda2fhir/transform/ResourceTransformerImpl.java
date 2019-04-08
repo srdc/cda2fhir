@@ -1783,6 +1783,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// to map this to STU3
 		// fhirImmunization.setReported(Config.DEFAULT_IMMUNIZATION_REPORTED);
 		return result;
+
 	}
 
 	@Override
@@ -2521,12 +2522,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					// Checking the type of value
 					if (value instanceof CD) {
 						fhirObs.setValue(dtt.tCD2CodeableConcept((CD) value));
+					} else if (value instanceof IVL_PQ) {
+						fhirObs.setValue(dtt.tIVL_PQ2Range((IVL_PQ) value));
 					} else if (value instanceof PQ) {
 						fhirObs.setValue(dtt.tPQ2Quantity((PQ) value));
 					} else if (value instanceof ST) {
 						fhirObs.setValue(dtt.tST2String((ST) value));
-					} else if (value instanceof IVL_PQ) {
-						fhirObs.setValue(dtt.tIVL_PQ2Range((IVL_PQ) value));
 					} else if (value instanceof RTO) {
 						fhirObs.setValue(dtt.tRTO2Ratio((RTO) value));
 					} else if (value instanceof ED) {
