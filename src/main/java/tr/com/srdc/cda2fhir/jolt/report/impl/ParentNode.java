@@ -24,18 +24,22 @@ public class ParentNode extends Node implements IParentNode {
 		super(parent, path);
 	}
 
+	protected void copyToClone(ParentNode theClone) {
+		children.forEach(child -> {
+			INode childClone = child.clone(theClone);
+			theClone.addChild(childClone);
+		});
+		getConditions().forEach(condition -> {
+			ICondition conditionClone = condition.clone();
+			theClone.addCondition(conditionClone);
+		});
+	}
+
 	@Override
 	public ParentNode clone(IParentNode parent) {
 		String path = getPath();
 		ParentNode result = new ParentNode(parent, path);
-		children.forEach(child -> {
-			INode childClone = child.clone(result);
-			result.addChild(childClone);
-		});
-		getConditions().forEach(condition -> {
-			ICondition conditionClone = condition.clone();
-			result.addCondition(conditionClone);
-		});
+		copyToClone(result);
 		return result;
 	}
 

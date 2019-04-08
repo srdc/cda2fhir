@@ -1,5 +1,7 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
+import java.util.List;
+
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -60,5 +62,12 @@ public class IDGenerator {
 		String extension = String.valueOf(1000 + NEXT_INDEX);
 
 		return new IDGenerator(root, extension);
+	}
+
+	public static void verifyList(List<Identifier> actual, List<IDGenerator> expected) {
+		Assert.assertEquals("Identifier count", expected.size(), actual.size());
+		for (int index = 0; index < actual.size(); ++index) {
+			expected.get(index).verify(actual.get(index));
+		}
 	}
 }

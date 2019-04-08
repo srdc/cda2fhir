@@ -1,0 +1,79 @@
+{
+	"A": [
+		{
+			"code": "A",
+			"display": "Annulled",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"D": [
+		{
+			"code": "D",
+			"display": "Divorced",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"I": [
+		{
+			"code": "I",
+			"display": "Interlocutory",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"L": [
+		{
+			"code": "L",
+			"display": "Legally Separated",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"M": [
+		{
+			"code": "M",
+			"display": "Married",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"P": [
+		{
+			"code": "P",
+			"display": "Polygamous",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"S": [
+		{
+			"code": "S",
+			"display": "Never Married",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"T": [
+		{
+			"code": "T",
+			"display": "Domestic partner",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"W": [
+		{
+			"code": "U",
+			"display": "Widowed",
+			"system": "http://hl7.org/fhir/v3/MaritalStatus"
+		}
+	],
+	"UN": [
+		{
+			"code": "UNK",
+			"display": "unknown",
+			"system": "http://hl7.org/fhir/v3/NullFlavor"
+		}
+	],
+	"_": [
+		{
+			"code": "UNK",
+			"display": "unknown",
+			"system": "http://hl7.org/fhir/v3/NullFlavor"
+		}
+	]
+}

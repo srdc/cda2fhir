@@ -4,7 +4,6 @@
 		"spec": {
 			"act": {
 				"id": "MANY",
-				"author": "ONE",
 				"entryRelationship": "MANY"
 			}
 		}
@@ -20,7 +19,6 @@
 					"code": "verificationStatus"
 				},
 				"effectiveTime": "assertedDate.->EffectiveTimeLowOrValue",
-				"author": "->AuthorParticipation",
 				"entryRelationship": {
 					"*": {
 						"observation": "->AllergyIntoleranceObservation"
@@ -41,33 +39,19 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": {
-				"reference": "recorder.reference", 
-				"display": "recorder.display"
-			}
+			"Practitioner": "recorder.reference"
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"assertedDate": "=datetimeAdapter(@0)",
-			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)",
-			"recorder": {
-				"reference": "=getId(@0)",
-				"display": "=getReferenceDisplay(@0)"
-			}
+			"verificationStatus": "=valueSetAdapter('AllergyIntoleranceVerificationStatus',@0)"
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
 		"spec": {
-		}
-	},
-	{
-		"operation": "remove",
-		"spec": {
-			"Practitioner": "",
-			"PractitionerRole": ""
 		}
 	},
 	{

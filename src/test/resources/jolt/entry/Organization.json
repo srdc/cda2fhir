@@ -1,0 +1,41 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"id": "MANY",
+			"name": "ONE",
+			"telecom": "MANY",
+			"addr": "MANY"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"id": {
+				"*": "identifier[].->ID"
+			},
+			"name": "name",
+			"addr": {
+				"*": "address[].->AD"
+			},
+			"telecom": {
+				"*": "telecom[].->TEL"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Organization"
+		}
+	}
+]

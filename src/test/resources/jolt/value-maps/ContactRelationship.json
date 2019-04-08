@@ -1,0 +1,163 @@
+{
+	"econ": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"ext": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"guard": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"frnd": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"sps": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"dompart": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"husb": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"wife": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"prn": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"fth": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"mth": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"nprn": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"nfth": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"nmth": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"prinlaw": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"fthinlaw": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"mthinlaw": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"stpprn": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"stpfth": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"stpmth": [
+		{
+			"code": "C",
+			"display": "Emergency Contact",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"work": [
+		{
+			"code": "E",
+			"display": "Employer",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"fammemb": [
+		{
+			"code": "N",
+			"display": "Next-of-Kin",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	],
+	"_": [
+		{
+			"code": "O",
+			"display": "Other",
+			"system": "http://hl7.org/fhir/v2/0131"
+		}
+	]
+}

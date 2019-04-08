@@ -81,6 +81,9 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			Object mappedValue = map.get(value);
 			if (mappedValue == null) {
 				mappedValue = defaultValue;
+				if (mappedValue == null) {
+					mappedValue = map.get("_");
+				}
 			}
 			if (mappedValue != null) {
 				return Optional.of(mappedValue);
@@ -396,6 +399,48 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class True extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			return Optional.of(true);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final class ConstantSystem extends Function.ListFunction {
+		private Optional<Object> applyForCD(Map<String, Object> cd, String system) {
+			List<Object> codings = (List<Object>) cd.get("coding");
+			if (codings != null) {
+				codings.forEach(coding -> {
+					Map<String, Object> codingAsMap = (Map<String, Object>) coding;
+					if (codingAsMap != null) {
+						codingAsMap.put("system", system);
+					}
+				});
+			}
+			return Optional.of(cd);
+		}
+
+		private Optional<Object> applyForPQ(Map<String, Object> pq, String system) {
+			pq.put("system", system);
+			return Optional.of(pq);
+		}
+
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			String system = (String) argList.get(0);
+			String type = (String) argList.get(1);
+			Map<String, Object> object = (Map<String, Object>) argList.get(2);
+			if ("cd".equals(type)) {
+				return applyForCD(object, system);
+			}
+			if ("pq".equals(type)) {
+				return applyForPQ(object, system);
+			}
+			throw new ReportException("Unknown constant system type " + system + ".");
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -413,6 +458,8 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("lastPiece", new LastPiece());
 		AMIDA_FUNCTIONS.put("conditionClinicalStatusAdapter", new ConditionClinicalStatusAdapter());
 		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
+		AMIDA_FUNCTIONS.put("true", new True());
+		AMIDA_FUNCTIONS.put("constantSystem", new ConstantSystem());
 	}
 
 	private Modifier.Overwritr modifier;

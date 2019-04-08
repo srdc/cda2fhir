@@ -25,6 +25,9 @@ public class IndicationGenerator {
 	private List<IDGenerator> idGenerators = new ArrayList<>();
 
 	private String code;
+	private String constCodeCode;
+	private String constCodeDisplay;
+	private String constCodeSystem;
 
 	private List<CDGenerator> valueGenerators = new ArrayList<>();
 
@@ -40,7 +43,7 @@ public class IndicationGenerator {
 			indication.getIds().add(ii);
 		});
 
-		if (code != null) {
+		if (code != null && constCodeCode != null) {
 			CD cd = factories.datatype.createCD();
 			cd.setCode(code);
 			indication.setCode(cd);
@@ -64,6 +67,12 @@ public class IndicationGenerator {
 		return indication;
 	}
 
+	public void setConstantCode(String constCodeCode, String constCodeDisplay, String constCodeSystem) {
+		this.constCodeCode = constCodeCode;
+		this.constCodeDisplay = constCodeDisplay;
+		this.constCodeSystem = constCodeSystem;
+	}
+
 	public static IndicationGenerator getDefaultInstance() {
 		IndicationGenerator indication = new IndicationGenerator();
 
@@ -85,13 +94,15 @@ public class IndicationGenerator {
 			Assert.assertTrue("No condition identifier", !condition.hasIdentifier());
 		}
 
-		if (code != null) {
+		if (code != null && constCodeCode == null) {
+			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
+			// throw new NotImplementedException("NOt yet implemented");
+		} else if (constCodeCode != null) {
 			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
 			Coding actual = condition.getCategory().get(0).getCoding().get(0);
-			Assert.assertEquals("Condition category code", "encounter-diagnosis", actual.getCode());
-			Assert.assertEquals("Condition category system", "http://hl7.org/fhir/condition-category",
-					actual.getSystem());
-			Assert.assertEquals("Condition category display", "Encounter Diagnosis", actual.getDisplay());
+			Assert.assertEquals("Condition category code", constCodeCode, actual.getCode());
+			Assert.assertEquals("Condition category system", constCodeSystem, actual.getSystem());
+			Assert.assertEquals("Condition category display", constCodeDisplay, actual.getDisplay());
 		} else {
 			Assert.assertTrue("No condition category", !condition.hasCategory());
 		}

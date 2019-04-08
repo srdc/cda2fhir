@@ -226,4 +226,11 @@ public class ADGenerator {
 		result.addAll(ADDRESS_USE.keySet());
 		return result;
 	}
+
+	public static void verifyList(List<Address> actual, List<ADGenerator> expected) {
+		Assert.assertEquals("Address count", expected.size(), actual.size());
+		for (int index = 0; index < actual.size(); ++index) {
+			expected.get(index).verify(actual.get(index));
+		}
+	}
 }

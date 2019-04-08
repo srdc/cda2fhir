@@ -1,0 +1,47 @@
+{
+	"AC": {
+		"code": "IE",
+		"display": "Insufficient evidence",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"EX": {
+		"code": "IND",
+		"display": "Indeterminate",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"HX": {
+		"code": "H",
+		"display": "High",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"LX": {
+		"code": "L",
+		"display": "Low",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"QCF": {
+		"code": "IND",
+		"display": "Indeterminate",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"TOX": {
+		"code": "IND",
+		"display": "Indeterminate",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"CAR": {
+		"code": "DET",
+		"display": "Detected",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"H>": {
+		"code": "HU",
+		"display": "Very high",
+		"system": "http://hl7.org/fhir/v2/0078"
+	},
+	"L<": {
+		"code": "LU",
+		"display": "Very low",
+		"system": "http://hl7.org/fhir/v2/0078"
+	}
+}

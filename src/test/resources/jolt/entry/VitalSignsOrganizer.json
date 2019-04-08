@@ -1,0 +1,23 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"organizer": {
+				"component": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"organizer": {
+				"component": {
+					"*": "Observation[&].->Observation"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	}
+]
