@@ -55,7 +55,6 @@ import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
-import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyMemberHistoryConditionComponent;
 import org.hl7.fhir.dstu3.model.Group;
@@ -2748,51 +2747,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 
-			// extensions
-
-			// patient.raceCode -> extRace
-			if (cdaPatient.getRaceCode() != null && !cdaPatient.getRaceCode().isSetNullFlavor()) {
-				Extension extRace = new Extension();
-				// extRace.setModifier(false);
-				extRace.setUrl(Constants.URL_EXTENSION_RACE);
-				CD raceCode = cdaPatient.getRaceCode();
-				extRace.setValue(dtt.tCD2CodeableConcept(raceCode));
-				fhirPatient.addExtension(extRace);
-			}
-
-			// patient.ethnicGroupCode -> extEthnicity
-			if (cdaPatient.getEthnicGroupCode() != null && !cdaPatient.getEthnicGroupCode().isSetNullFlavor()) {
-				Extension extEthnicity = new Extension();
-				// extEthnicity.setModifier(false);
-				extEthnicity.setUrl(Constants.URL_EXTENSION_ETHNICITY);
-				CD ethnicGroupCode = cdaPatient.getEthnicGroupCode();
-				extEthnicity.setValue(dtt.tCD2CodeableConcept(ethnicGroupCode));
-				fhirPatient.addExtension(extEthnicity);
-			}
-
-			// patient.religiousAffiliationCode -> extReligion
-			if (cdaPatient.getReligiousAffiliationCode() != null
-					&& !cdaPatient.getReligiousAffiliationCode().isSetNullFlavor()) {
-				Extension extReligion = new Extension();
-				// extReligion.setModifier(false);
-				extReligion.setUrl(Constants.URL_EXTENSION_RELIGION);
-				CD religiousAffiliationCode = cdaPatient.getReligiousAffiliationCode();
-				extReligion.setValue(dtt.tCD2CodeableConcept(religiousAffiliationCode));
-				fhirPatient.addExtension(extReligion);
-			}
-
-			// patient.birthplace.place.addr -> extBirthPlace
-			if (cdaPatient.getBirthplace() != null && !cdaPatient.getBirthplace().isSetNullFlavor()
-					&& cdaPatient.getBirthplace().getPlace() != null
-					&& !cdaPatient.getBirthplace().getPlace().isSetNullFlavor()
-					&& cdaPatient.getBirthplace().getPlace().getAddr() != null
-					&& !cdaPatient.getBirthplace().getPlace().getAddr().isSetNullFlavor()) {
-				Extension extBirthPlace = new Extension();
-				// extBirthPlace.setModifier(false);
-				extBirthPlace.setUrl(Constants.URL_EXTENSION_BIRTHPLACE);
-				extBirthPlace.setValue(dtt.AD2Address(cdaPatient.getBirthplace().getPlace().getAddr()));
-				fhirPatient.addExtension(extBirthPlace);
-			}
 		}
 
 		return fhirPatientBundle;
