@@ -16,6 +16,7 @@ public class ConditionNode extends ParentNode implements IConditionNode {
 	@Override
 	public ConditionNode clone(IParentNode parent) {
 		ConditionNode result = new ConditionNode(parent, rank);
+		copyToClone(result);
 		return result;
 	}
 

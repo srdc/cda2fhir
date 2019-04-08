@@ -1,0 +1,9 @@
+{
+	"cancelled": "cancelled",
+	"aborted": "cancelled",
+	"nullified": "cancelled",
+	"active": "active",
+	"held": "on-hold",
+	"suspended": "on-hold",
+	"completed": "completed"
+}

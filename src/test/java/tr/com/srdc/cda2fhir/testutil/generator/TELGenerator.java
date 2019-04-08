@@ -164,4 +164,11 @@ public class TELGenerator {
 	public static Set<String> getAvailableUses() {
 		return Collections.unmodifiableSet(contactPointUseMap.keySet());
 	}
+
+	public static void verifyList(List<ContactPoint> actual, List<TELGenerator> expected) {
+		Assert.assertEquals("Contact point count", expected.size(), actual.size());
+		for (int index = 0; index < actual.size(); ++index) {
+			expected.get(index).verify(actual.get(index));
+		}
+	}
 }

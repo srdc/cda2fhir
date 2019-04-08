@@ -6,6 +6,7 @@ import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.cda.Person;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
@@ -42,23 +43,44 @@ public class AuthorGenerator extends EntityGenerator {
 		}
 	}
 
+	private TSGenerator timeGenerator;
+
+	public void setTimeGenerator(TSGenerator timeGenerator) {
+		this.timeGenerator = timeGenerator;
+	}
+
+	public TSGenerator getTimeGenerator() {
+		return this.timeGenerator;
+	}
+
 	public Author generate(CDAFactories factories) {
-		Author author = factories.base.createAuthor();
 		AssignedAuthor assignedAuthor = factories.base.createAssignedAuthor();
-		fillEntity(factories, new CDAEntity(assignedAuthor));
+
+		Author author = factories.base.createAuthor();
+
+		if (timeGenerator != null) {
+			TS ts = timeGenerator.generate(factories);
+			author.setTime(ts);
+		}
+
 		author.setAssignedAuthor(assignedAuthor);
+		fillEntity(factories, new CDAEntity(assignedAuthor));
 		return author;
 	}
 
 	public static AuthorGenerator getDefaultInstance() {
 		AuthorGenerator ag = new AuthorGenerator();
+
 		fillDefaultInstance(ag);
+
 		return ag;
 	}
 
 	public static AuthorGenerator getFullInstance() {
 		AuthorGenerator ag = new AuthorGenerator();
+
 		fillFullInstance(ag);
+
 		return ag;
 	}
 }

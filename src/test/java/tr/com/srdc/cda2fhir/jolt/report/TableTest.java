@@ -82,7 +82,7 @@ public class TableTest {
 	@Test
 	public void testIndicationEffectiveTime() throws Exception {
 		JoltTemplate template = Main.readTemplate("intermediate/IndicationEffectiveTime");
-		Table actual = template.createTable(Collections.<String, JoltTemplate>emptyMap());
+		Table actual = template.createTable(Collections.<String, JoltTemplate>emptyMap(), false);
 		actual.sort();
 		Table expected = getExpectedIndicationEffectiveTable();
 		compare(actual, expected);

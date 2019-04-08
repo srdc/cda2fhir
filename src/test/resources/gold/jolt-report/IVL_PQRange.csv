@@ -1,0 +1,3 @@
+CCDA Source,Target,Link,Format,Condition 1
+high,high,IVL_PQSimpleQuantity,,nullFlavor isnull
+low,low,IVL_PQSimpleQuantity,,nullFlavor isnull
