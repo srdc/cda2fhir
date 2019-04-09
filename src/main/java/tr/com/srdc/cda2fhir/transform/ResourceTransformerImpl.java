@@ -40,7 +40,6 @@ import org.hl7.fhir.dstu3.model.Annotation;
 import org.hl7.fhir.dstu3.model.Attachment;
 import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Base64BinaryType;
-import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.BooleanType;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -3395,15 +3394,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return result;
 	}
 
-	/** destroy this */
-	public Binary tBinary(String documentBody) {
-		Binary binary = new Binary();
-		binary.setContentElement(new Base64BinaryType(Base64.encode(documentBody.getBytes())));
-		binary.setContentType("text/plain");
-		binary.setId(new IdType("Binary", getUniqueId()));
-		return binary;
-	}
-
 	public DocumentReference tDocumentReference(String documentBody) {
 
 		DocumentReference docReference = new DocumentReference();
@@ -3469,11 +3459,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		provenance.setId(new IdType("Provenance", getUniqueId()));
 
-		Binary binary = tBinary(documentBody);
-		bundle.addEntry(new BundleEntryComponent().setResource(binary));
+		DocumentReference documentReference = tDocumentReference(documentBody);
+		bundle.addEntry(new BundleEntryComponent().setResource(documentReference));
 		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
 		pec.setRole(ProvenanceEntityRole.SOURCE);
-		pec.setId(binary.getId());
+		pec.setId(documentReference.getId());
 		provenance.addEntity(pec);
 
 		Device device = tDevice(assemblerDevice);
