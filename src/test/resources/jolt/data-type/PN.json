@@ -43,7 +43,17 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"use": "=lastElement(@0)"
+			"use": "=lastElement(@0)",
+			"family": "=contentOrSelf(@0)",
+			"given": {
+				"*": "=contentOrSelf(@0)"
+			},
+			"prefix": {
+				"*": "=contentOrSelf(@0)"
+			},
+			"suffix": {
+				"*": "=contentOrSelf(@0)"
+			}
 		}
 	},
 	{

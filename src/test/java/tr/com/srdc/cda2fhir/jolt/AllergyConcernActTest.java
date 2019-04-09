@@ -20,6 +20,8 @@ import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.AllergyConcernActGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AllergyObservationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AuthorGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.ENXPGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.PNGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -94,5 +96,33 @@ public class AllergyConcernActTest {
 		ag.removeOrganizationGenerator();
 		acag.setAuthorGenerator(ag);
 		runTest(acag, "noOrganization");
+	}
+
+	@Test
+	public void testNullFlavorRecorderPersonWithName() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+		AuthorGenerator ag = new AuthorGenerator();
+		ag.setCode("thecode", "The Code Print");
+		PNGenerator pnGenerator = new PNGenerator();
+		pnGenerator.setFamilyNullFlavor();
+		pnGenerator.setGivensNullFlavor();
+		ag.setPNGenerator(pnGenerator);
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "nullFlavorRecorderPersonWithName");
+	}
+
+	@Test
+	public void testNullFlavorRecorderPersonNoName() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+		AuthorGenerator ag = new AuthorGenerator();
+		ag.setCode("thecode", "The Code Print");
+		PNGenerator pnGenerator = new PNGenerator();
+		ENXPGenerator nullFlavorGenerator = new ENXPGenerator(true);
+		nullFlavorGenerator.setNullFlavor("UNK");
+		pnGenerator.setFamilyGenerator(nullFlavorGenerator);
+		pnGenerator.setGivensGenerator(nullFlavorGenerator);
+		ag.setPNGenerator(pnGenerator);
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "nullFlavorRecorderPersonNoName");
 	}
 }

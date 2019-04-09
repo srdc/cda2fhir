@@ -457,6 +457,21 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class ContentOrSelf extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return null;
+			}
+			if (!(arg instanceof Map)) {
+				return Optional.of(arg);
+			}
+			Map<String, Object> map = (Map<String, Object>) arg;
+			return Optional.of(map.get("content"));
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -477,6 +492,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
 		AMIDA_FUNCTIONS.put("true", new True());
 		AMIDA_FUNCTIONS.put("constantSystem", new ConstantSystem());
+		AMIDA_FUNCTIONS.put("contentOrSelf", new ContentOrSelf());
 	}
 
 	private Modifier.Overwritr modifier;

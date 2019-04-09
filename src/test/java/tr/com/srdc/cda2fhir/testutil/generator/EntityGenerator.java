@@ -60,6 +60,10 @@ public class EntityGenerator {
 		codePrintName = printName;
 	}
 
+	public void setPNGenerator(PNGenerator pnGenerator) {
+		this.pnGenerator = pnGenerator;
+	}
+
 	public String getCodeCode() {
 		return codeCode;
 	}
