@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 
+import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
+import tr.com.srdc.cda2fhir.transform.util.impl.CDACDMap;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDAIIMap;
 
 public abstract class SectionResult implements ISectionResult {
@@ -17,6 +20,8 @@ public abstract class SectionResult implements ISectionResult {
 	private List<IDeferredReference> deferredReferences;
 
 	private CDAIIMap<IEntityInfo> entities;
+	private CDAIIResourceMaps<IBaseResource> resourceMaps;
+	private CDACDMap<IBaseResource> cdMap;
 
 	SectionResult() {
 		bundle = new Bundle();
@@ -58,8 +63,21 @@ public abstract class SectionResult implements ISectionResult {
 			if (entities == null) {
 				entities = new CDAIIMap<IEntityInfo>();
 			}
+			if (resourceMaps == null) {
+				resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+			}
 			entities.put(entryResult);
+			resourceMaps.put(entryResult);
+			cdMap.put(entryResult);
 		}
+	}
+
+	@Override
+	public void putCDValuesTo(Map<String, IBaseResource> target) {
+		if (cdMap != null) {
+			cdMap.putCDValuesTo(target);
+		}
+
 	}
 
 	@Override
@@ -78,6 +96,41 @@ public abstract class SectionResult implements ISectionResult {
 
 	@Override
 	public boolean hasIIMapValues() {
-		return entities != null;
+		return entities != null || resourceMaps != null;
+	}
+
+	@Override
+	public boolean hasResourceMaps() {
+		return resourceMaps != null;
+	}
+
+	@Override
+	public void putRootValuesTo(Class<? extends IBaseResource> clazz, Map<String, IBaseResource> target) {
+		if (resourceMaps != null) {
+			resourceMaps.putRootValuesTo(clazz, target);
+		}
+	}
+
+	@Override
+	public void putExtensionValuesTo(Class<? extends IBaseResource> clazz,
+			Map<String, Map<String, IBaseResource>> target) {
+		if (resourceMaps != null) {
+			resourceMaps.putExtensionValuesTo(clazz, target);
+		}
+	}
+
+	@Override
+	public CDAIIMap<IBaseResource> getMap(Class<? extends IBaseResource> clazz) {
+		return resourceMaps.getMap(clazz);
+	}
+
+	@Override
+	public void putMap(Class<? extends IBaseResource> clazz, CDAIIMap<IBaseResource> map) {
+		resourceMaps.putMap(clazz, map);
+	}
+
+	@Override
+	public boolean hasCDMapValues() {
+		return cdMap != null && cdMap.hasCDMapValues();
 	}
 }

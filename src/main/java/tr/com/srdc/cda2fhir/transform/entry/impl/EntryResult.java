@@ -7,12 +7,15 @@ import java.util.Map;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
+import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
+import tr.com.srdc.cda2fhir.transform.util.impl.CDACDMap;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDAIIMap;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
@@ -21,10 +24,9 @@ public class EntryResult implements IEntryResult {
 	private List<IDeferredReference> deferredReferences;
 
 	private CDAIIMap<IEntityInfo> entities;
-//	private CDAIIMap<IReferenceInfo> maps;
+	private CDAIIResourceMaps<IBaseResource> resourceMaps;
+	private CDACDMap<IBaseResource> cdMap;
 
-	
-	
 	@Override
 	public Bundle getBundle() {
 		return bundle;
@@ -51,6 +53,8 @@ public class EntryResult implements IEntryResult {
 			addDeferredReferences(entryResult.getDeferredReferences());
 		}
 		updateEntitiesFrom(entryResult);
+		updateIIResourcesFrom(entryResult);
+		updateCDResourcesFrom(entryResult);
 	}
 
 	public void addDeferredReferences(List<IDeferredReference> references) {
@@ -80,11 +84,30 @@ public class EntryResult implements IEntryResult {
 	}
 
 	public void updateEntitiesFrom(IEntryResult entryResult) {
-		if (entryResult.hasIIMapValues()) {
+		if (entryResult.hasEntities()) {
 			if (entities == null) {
 				entities = new CDAIIMap<IEntityInfo>();
 			}
 			entities.put(entryResult);
+
+		}
+	}
+
+	public void updateIIResourcesFrom(IEntryResult entryResult) {
+		if (entryResult.hasIIResourceMaps()) {
+			if (resourceMaps == null) {
+				resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+			}
+			resourceMaps.put(entryResult);
+		}
+	}
+
+	public void updateCDResourcesFrom(IEntryResult entryResult) {
+		if (entryResult.hasCDMap()) {
+			if (cdMap == null) {
+				cdMap = new CDACDMap<IBaseResource>();
+			}
+			cdMap.put(entryResult);
 		}
 	}
 
@@ -120,12 +143,71 @@ public class EntryResult implements IEntryResult {
 	}
 
 	@Override
-	public boolean hasIIMapValues() {
+	public boolean hasEntities() {
 		return entities != null;
+	}
+
+	@Override
+	public boolean hasIIResourceMaps() {
+		return resourceMaps != null;
+	}
+
+	@Override
+	public boolean hasCDMap() {
+		return cdMap != null;
+	}
+
+	@Override
+	public boolean hasIIMapValues() {
+		return entities != null || resourceMaps != null;
+	}
+
+	@Override
+	public boolean hasMapValues() {
+		return entities != null || resourceMaps != null || cdMap != null;
 	}
 
 	@Override
 	public boolean hasResult() {
 		return this.bundle != null && this.bundle.hasEntry();
 	}
+
+	@Override
+	public void putRootValuesTo(Class<? extends IBaseResource> clazz, Map<String, IBaseResource> target) {
+		if (resourceMaps != null) {
+			resourceMaps.putRootValuesTo(clazz, target);
+		}
+
+	}
+
+	@Override
+	public void putExtensionValuesTo(Class<? extends IBaseResource> clazz,
+			Map<String, Map<String, IBaseResource>> target) {
+		if (resourceMaps != null) {
+			resourceMaps.putExtensionValuesTo(clazz, target);
+		}
+	}
+
+	@Override
+	public CDAIIMap<IBaseResource> getMap(Class<? extends IBaseResource> clazz) {
+		return resourceMaps.getMap(clazz);
+	}
+
+	@Override
+	public void putMap(Class<? extends IBaseResource> clazz, CDAIIMap<IBaseResource> map) {
+		resourceMaps.putMap(clazz, map);
+	}
+
+	@Override
+	public void putCDValuesTo(Map<String, IBaseResource> target) {
+		if (cdMap != null) {
+			cdMap.putCDValuesTo(target);
+		}
+	}
+
+	@Override
+	public boolean hasCDMapValues() {
+		return cdMap != null && cdMap.hasCDMapValues();
+	}
+
 }

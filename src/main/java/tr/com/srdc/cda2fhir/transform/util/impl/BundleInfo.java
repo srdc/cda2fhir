@@ -6,13 +6,16 @@ import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
+import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
-import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
 
 public class BundleInfo implements IBundleInfo {
@@ -21,6 +24,8 @@ public class BundleInfo implements IBundleInfo {
 	private IIdentifierMap<Reference> identifiedReferences = new IdentifierMap<Reference>();
 
 	private CDAIIMap<IEntityInfo> entities = new CDAIIMap<IEntityInfo>();
+	private CDAIIResourceMaps<IBaseResource> resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+	private CDACDMap<IBaseResource> cdMap = new CDACDMap<IBaseResource>();
 
 	public BundleInfo(IResourceTransformer resourceTransformer) {
 		this.resourceTransformer = resourceTransformer;
@@ -56,9 +61,15 @@ public class BundleInfo implements IBundleInfo {
 		}
 	}
 
-	public void updateFrom(ICDAIIMapSource<IEntityInfo> source) {
-		if (source.hasIIMapValues()) {
+	public void updateFrom(IEntryResult source) {
+		if (source.hasEntities()) {
 			entities.put(source);
+		}
+		if (source.hasIIResourceMaps()) {
+			resourceMaps.put(source);
+		}
+		if (source.hasCDMap()) {
+			cdMap.put(source);
 		}
 	}
 
@@ -70,5 +81,19 @@ public class BundleInfo implements IBundleInfo {
 	@Override
 	public IEntityInfo findEntityResult(List<II> iis) {
 		return entities.get(iis);
+	}
+
+	@Override
+	public IBaseResource findResourceResult(II ii, Class<? extends IBaseResource> clazz) {
+		return resourceMaps.get(ii, clazz);
+	}
+
+	@Override
+	public IBaseResource findResourceResult(List<II> iis, Class<? extends IBaseResource> clazz) {
+		return resourceMaps.get(iis, clazz);
+	}
+
+	public IBaseResource findResourceResult(CD cd) {
+		return cdMap.get(cd);
 	}
 }

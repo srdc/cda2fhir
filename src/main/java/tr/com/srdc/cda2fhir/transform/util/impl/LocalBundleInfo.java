@@ -5,16 +5,21 @@ import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
+import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
-import tr.com.srdc.cda2fhir.transform.util.ICDAIIMapSource;
 
 public class LocalBundleInfo implements IBundleInfo {
 	private IBundleInfo bundleInfo;
 	private CDAIIMap<IEntityInfo> entities = new CDAIIMap<IEntityInfo>();
+	private CDAIIResourceMaps<IBaseResource> resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+	private CDACDMap<IBaseResource> cdMap = new CDACDMap<IBaseResource>();
 
 	public LocalBundleInfo(IBundleInfo bundleInfo) {
 		this.bundleInfo = bundleInfo;
@@ -35,10 +40,17 @@ public class LocalBundleInfo implements IBundleInfo {
 		return bundleInfo.getReferenceByIdentifier(fhirType, identifier);
 	}
 
-	public void updateFrom(ICDAIIMapSource<IEntityInfo> source) {
-		if (source.hasIIMapValues()) {
+	public void updateFrom(IEntryResult source) {
+		if (source.hasEntities()) {
 			entities.put(source);
 		}
+		if (source.hasIIResourceMaps()) {
+			resourceMaps.put(source);
+		}
+		if (source.hasCDMap()) {
+			cdMap.put(source);
+		}
+
 	}
 
 	@Override
@@ -58,4 +70,27 @@ public class LocalBundleInfo implements IBundleInfo {
 		}
 		return result;
 	}
+
+	@Override
+	public IBaseResource findResourceResult(II ii, Class<? extends IBaseResource> clazz) {
+		IBaseResource result = bundleInfo.findResourceResult(ii, clazz);
+		if (result == null) {
+			return resourceMaps.get(ii, clazz);
+		}
+		return result;
+	}
+
+	@Override
+	public IBaseResource findResourceResult(List<II> iis, Class<? extends IBaseResource> clazz) {
+		IBaseResource result = bundleInfo.findResourceResult(iis, clazz);
+		if (result == null) {
+			return resourceMaps.get(iis, clazz);
+		}
+		return result;
+	}
+
+	public IBaseResource findResourceResult(CD cd) {
+		return cdMap.get(cd);
+	}
+
 }

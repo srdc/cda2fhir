@@ -1932,7 +1932,29 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			return result;
 
 		Medication fhirMedication = new Medication();
-		result.addResource(fhirMedication);
+
+		if (cdaManufacturedProduct.getManufacturedMaterial() != null
+				&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
+			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null) {
+				String codeSystem = cdaManufacturedProduct.getManufacturedMaterial().getCode().getCodeSystem();
+				if (codeSystem != null && codeSystem == "RxNorm") {
+					CD rxNormCD = cdaManufacturedProduct.getManufacturedMaterial().getCode();
+
+					fhirMedication = (Medication) bundleInfo.findResourceResult(rxNormCD);
+					if (fhirMedication != null) {
+						// Here we return result including previously created medication
+						result.addResource(fhirMedication);
+						return result;
+					} else {
+						fhirMedication = new Medication();
+					}
+				}
+
+				// manufacturedMaterial.code -> code
+				fhirMedication.setCode(dtt.tCD2CodeableConcept(
+						cdaManufacturedProduct.getManufacturedMaterial().getCode(), bundleInfo.getIdedAnnotations()));
+			}
+		}
 
 		// resource id
 		IdType resourceId = new IdType("Medication", getUniqueId());
@@ -1941,16 +1963,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// meta.profile
 		if (Config.isGenerateDafProfileMetadata())
 			fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
-
-		// manufacturedMaterial -> code and ingredient
-		if (cdaManufacturedProduct.getManufacturedMaterial() != null
-				&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
-			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null) {
-				// manufacturedMaterial.code -> code
-				fhirMedication.setCode(dtt.tCD2CodeableConcept(
-						cdaManufacturedProduct.getManufacturedMaterial().getCode(), bundleInfo.getIdedAnnotations()));
-			}
-		}
 
 		// manufacturerOrganization -> manufacturer
 		if (cdaManufacturedProduct.getManufacturerOrganization() != null
