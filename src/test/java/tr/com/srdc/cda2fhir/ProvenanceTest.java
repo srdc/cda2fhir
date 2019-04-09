@@ -63,7 +63,6 @@ public class ProvenanceTest {
 				Base64.encode(documentBody.getBytes()));
 
 		// Test hash.
-
 		MessageDigest digest = MessageDigest.getInstance("SHA-1");
 		byte[] encodedHash = digest.digest(documentBody.getBytes());
 		Assert.assertEquals(docRef.getContent().get(0).getAttachment().getHashElement().asStringValue(),
