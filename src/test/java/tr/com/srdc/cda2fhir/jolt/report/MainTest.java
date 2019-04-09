@@ -186,7 +186,7 @@ public class MainTest {
 
 	@Test
 	public void testResultOrganizer() throws Exception {
-		actualTest("VitalSignsOrganizer");
+		actualTest("ResultOrganizer");
 	}
 
 	@Test
