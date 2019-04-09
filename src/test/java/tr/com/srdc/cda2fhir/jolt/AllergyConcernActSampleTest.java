@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
@@ -45,24 +46,23 @@ public class AllergyConcernActSampleTest {
 		for (int index = 0; index < count; ++index) {
 			String caseName = String.format("%s allergy %s", sourceName, index);
 			JSONObject entry = allergies.getJSONObject(index);
-			String cdaJSONFile = baseName + " allergies entry " + index + ".json";
+			String cdaJSONFile = OUTPUT_PATH + caseName + ".json";
 			FileUtils.writeStringToFile(new File(cdaJSONFile), entry.toString(4), Charset.defaultCharset());
 
 			List<Object> joltResultList = TransformManager.transformEntryInFile("AllergyConcernAct", cdaJSONFile);
 			String prettyJson = JsonUtils.toPrettyJsonString(joltResultList);
-			String resultFile = baseName + " allergies entry " + index + " - result" + ".json";
+			String resultFile = OUTPUT_PATH + caseName + " - result" + ".json";
 			FileUtils.writeStringToFile(new File(resultFile), prettyJson, Charset.defaultCharset());
 
 			Map<String, Object> joltResult = TransformManager.chooseResource(joltResultList, "AllergyIntolerance");
 			List<Object> identifiers = (List<Object>) joltResult.get("identifier");
-			AllergyIntolerance cda2FHIRResult = (AllergyIntolerance) util.getFromJSONArray("AllergyIntolerance",
-					identifiers);
-			String cda2FHIRFile = baseName + " allergies entry " + index + " - ccda2fhir" + ".json";
-			FileUtils.writeStringToFile(new File(cda2FHIRFile), FHIRUtil.encodeToJSON(cda2FHIRResult),
-					Charset.defaultCharset());
+
+			Resource resource = util.getFromJSONArray("AllergyIntolerance", identifiers);
+			String fhirFile = OUTPUT_PATH + caseName + " - ccda2fhir" + ".json";
+			FileUtils.writeStringToFile(new File(fhirFile), FHIRUtil.encodeToJSON(resource), Charset.defaultCharset());
 
 			JoltUtil joltUtil = new JoltUtil(joltResultList, util.getBundle(), caseName, OUTPUT_PATH);
-			joltUtil.verify(cda2FHIRResult);
+			joltUtil.verify((AllergyIntolerance) resource);
 		}
 	}
 
