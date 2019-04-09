@@ -2,66 +2,36 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.Reference;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
+import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class AllergyConcernActSampleTest {
+	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/AllergyConcernActSample/";
+
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 	}
 
-	private static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
-		Map<String, Object> r = new LinkedHashMap<String, Object>();
-		r.put("reference", reference.getReference());
-		joltResult.put(property, r);
-	}
-
-	private static void compare(Map<String, Object> joltResult, AllergyIntolerance cda2FHIRResult, String caseName)
-			throws Exception {
-		joltResult.put("id", cda2FHIRResult.getId().split("/")[1]); // ids are not expected to be equal
-		putReference(joltResult, "patient", cda2FHIRResult.getPatient()); // patient is not yet implemented
-		if (cda2FHIRResult.hasRecorder()) {
-			putReference(joltResult, "recorder", cda2FHIRResult.getRecorder()); // do not check recorder for now, ids
-																				// are
-		} // different
-		String expected = FHIRUtil.encodeToJSON(cda2FHIRResult);
-		String actual = JsonUtils.toJsonString(joltResult);
-		JSONAssert.assertEquals(caseName + " jolt output", expected, actual, true);
-	}
-
-	private static void comparePractitioner(Map<String, Object> joltResult, Practitioner cda2FHIRResult)
-			throws Exception {
-		joltResult.put("id", cda2FHIRResult.getId().split("/")[1]); // ids are not expected to be equal
-																	// different
-		String expected = FHIRUtil.encodeToJSON(cda2FHIRResult);
-		String actual = JsonUtils.toJsonString(joltResult);
-		JSONAssert.assertEquals("jolt output vs CDA2FHIR output", expected, actual, true);
-	}
-
 	@SuppressWarnings("unchecked")
 	private static void testAllergies(String sourceName) throws Exception {
-		String baseName = "src/test/resources/output/jolt/" + sourceName.substring(0, sourceName.length() - 4);
+		String baseName = OUTPUT_PATH + sourceName.substring(0, sourceName.length() - 4);
 		BundleUtil util = BundleUtil.getInstance(sourceName);
 		FHIRUtil.printJSON(util.getBundle(), baseName + ".json");
 
@@ -91,23 +61,8 @@ public class AllergyConcernActSampleTest {
 			FileUtils.writeStringToFile(new File(cda2FHIRFile), FHIRUtil.encodeToJSON(cda2FHIRResult),
 					Charset.defaultCharset());
 
-			compare(joltResult, cda2FHIRResult, caseName);
-
-			Map<String, Object> joltPractitioner = TransformManager.chooseResource(joltResultList, "Practitioner");
-			if (joltPractitioner == null) {
-				Reference recorder = cda2FHIRResult.getRecorder();
-				Assert.assertNull("Practitioner reference", recorder.getReference());
-			} else {
-				List<Object> identifiersPractitioner = (List<Object>) joltPractitioner.get("identifier");
-				Practitioner cda2FHIRPractitioner = (Practitioner) util.getFromJSONArray("Practitioner",
-						identifiersPractitioner);
-				String cda2FHIRPractitionerFile = baseName + " allergies entry practitioner" + index + " - ccda2fhir"
-						+ ".json";
-				FileUtils.writeStringToFile(new File(cda2FHIRPractitionerFile),
-						FHIRUtil.encodeToJSON(cda2FHIRPractitioner), Charset.defaultCharset());
-
-				comparePractitioner(joltPractitioner, cda2FHIRPractitioner);
-			}
+			JoltUtil joltUtil = new JoltUtil(joltResultList, util.getBundle(), caseName, OUTPUT_PATH);
+			joltUtil.verify(cda2FHIRResult);
 		}
 	}
 

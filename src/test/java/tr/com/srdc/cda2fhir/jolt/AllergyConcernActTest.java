@@ -19,6 +19,7 @@ import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.AllergyConcernActGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AllergyObservationGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.AuthorGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -84,5 +85,14 @@ public class AllergyConcernActTest {
 			aog.setClinicalStatusCode(code);
 			runTest(acag, "clinicalStatus" + code);
 		}
+	}
+
+	@Test
+	public void testNoOrganization() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+		AuthorGenerator ag = AuthorGenerator.getDefaultInstance();
+		ag.removeOrganizationGenerator();
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "noOrganization");
 	}
 }

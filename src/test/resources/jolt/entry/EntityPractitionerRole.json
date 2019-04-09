@@ -14,6 +14,12 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhenNull",
+		"spec": {
+			"representedOrganization": ""
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
 			"id": ["practitioner.reference.->ID", "practitioner.display.->ID"],

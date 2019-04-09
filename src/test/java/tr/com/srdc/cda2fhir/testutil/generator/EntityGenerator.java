@@ -72,6 +72,10 @@ public class EntityGenerator {
 		return organizationGenerator;
 	}
 
+	public void removeOrganizationGenerator() {
+		organizationGenerator = null;
+	}
+
 	protected static void fillDefaultInstance(EntityGenerator eg) {
 		eg.idGenerators.add(IDGenerator.getNextInstance());
 
@@ -111,8 +115,8 @@ public class EntityGenerator {
 	}
 
 	public void verify(PractitionerRole role) {
-		if (organizationGenerator.isNullFlavor()) {
-			Assert.assertNull("Role when null flavored org", role);
+		if (organizationGenerator == null || organizationGenerator.isNullFlavor()) {
+			Assert.assertNull("Role when null flavored or no org", role);
 		} else {
 			Coding code = role.getCode().get(0).getCoding().get(0);
 			Assert.assertEquals("Role code", codeCode, code.getCode());
@@ -136,7 +140,7 @@ public class EntityGenerator {
 		PractitionerRole role = util.getPractitionerRole(practitionerId);
 		verify(role);
 
-		if (!role.hasOrganization()) {
+		if (organizationGenerator == null || !role.hasOrganization()) {
 			verify((org.hl7.fhir.dstu3.model.Organization) null);
 		} else {
 			String reference = role.getOrganization().getReference();
