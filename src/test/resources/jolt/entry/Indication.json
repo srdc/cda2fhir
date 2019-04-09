@@ -26,10 +26,7 @@
 				"value": {
 					"*": "code.->CD"
 				},
-				"effectiveTime": "->IndicationEffectiveTime",
-				"statusCode": {
-					"code": "verificationStatus"
-				}
+				"effectiveTime": "->IndicationEffectiveTime"
 			}
 		}
 	},
@@ -39,7 +36,6 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"verificationStatus": "=valueSetAdapter('ConditionVerificationStatus','unknown',@0)",
 			"category": {
 				"*": "=constantValue('EncounterConditionCategoryConstant')"
 			},
