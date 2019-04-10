@@ -135,29 +135,6 @@ public class JoltUtil {
 		}
 	}
 
-	private static class OrganizationInfo extends ResourceInfo {
-		private Organization organization;
-
-		public OrganizationInfo(Organization organization) {
-			this.organization = organization;
-		}
-
-		@Override
-		public String getPatientPropertyName() {
-			return null;
-		}
-
-		@Override
-		public Reference getPatientReference() {
-			return null;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void copyReferences(Map<String, Object> joltResult) {
-		}
-	}
-
 	private static class DiagnosticReportInfo extends ResourceInfo {
 		private DiagnosticReport report;
 
@@ -202,18 +179,6 @@ public class JoltUtil {
 					++index;
 				}
 			}
-		}
-	}
-
-	private static class PatientInfo extends ResourceInfo {
-		private Patient patient;
-
-		public PatientInfo(Patient patient) {
-			this.patient = patient;
-		}
-
-		@Override
-		public void copyReferences(Map<String, Object> joltResult) {
 		}
 	}
 
@@ -675,12 +640,8 @@ public class JoltUtil {
 		verify(report, info);
 	}
 
-	public void verify(Patient patient, Bundle bundle) throws Exception {
-		PatientInfo info = new PatientInfo(patient);
-
+	public void verify(Patient patient) throws Exception {
 		Map<String, Object> joltPatient = TransformManager.chooseResource(result, "Patient");
-
-		BundleUtil bundleUtil = new BundleUtil(bundle);
 
 		if (patient.hasManagingOrganization()) {
 			String reference = findPathString(joltPatient, "managingOrganization.reference");
@@ -690,8 +651,7 @@ public class JoltUtil {
 
 			String cda2FhirReference = patient.getManagingOrganization().getReference();
 			Organization organization = bundleUtil.getResourceFromReference(cda2FhirReference, Organization.class);
-			OrganizationInfo orgInfo = new OrganizationInfo(organization);
-			verify(organization, orgInfo);
+			verify(organization, null);
 
 			Map<String, Object> managingOrganization = findPathMap(joltPatient, "managingOrganization");
 			managingOrganization.put("reference", cda2FhirReference);
@@ -700,7 +660,7 @@ public class JoltUtil {
 			Assert.assertNull("No managing organization", value);
 		}
 
-		verify(patient, info);
+		verify(patient, null);
 	}
 
 	public Map<String, Object> findPractitionerRoleForPractitionerId(String practitionerId) {
@@ -760,10 +720,8 @@ public class JoltUtil {
 		}
 	}
 
-	public void verify(AllergyIntolerance allergy) throws Exception {
+	public void verify(AllergyIntolerance allergy, Map<String, Object> joltAllergy) throws Exception {
 		AllergyIntoleranceInfo info = new AllergyIntoleranceInfo(allergy);
-
-		Map<String, Object> joltAllergy = TransformManager.chooseResource(result, "AllergyIntolerance");
 
 		if (allergy.hasRecorder()) {
 			String reference = allergy.getRecorder().getReference();
@@ -781,6 +739,11 @@ public class JoltUtil {
 		}
 
 		verify(allergy, joltAllergy, info);
+	}
+
+	public void verify(AllergyIntolerance allergy) throws Exception {
+		Map<String, Object> joltAllergy = TransformManager.chooseResource(result, "AllergyIntolerance");
+		verify(allergy, joltAllergy);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {

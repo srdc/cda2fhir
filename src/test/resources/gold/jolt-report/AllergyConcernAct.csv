@@ -2,7 +2,7 @@ CCDA Source,Target,Link,Format,Condition 1,Condition 2
 act.effectiveTime.low.value,AllergyIntolerance.assertedDate,,"datetimeAdapter",act.effectiveTime.low.nullFlavor isnull,act.effectiveTime.low.value isnotnull
 act.effectiveTime.value,AllergyIntolerance.assertedDate,,"datetimeAdapter",act.effectiveTime.low.value isnull,act.effectiveTime.nullFlavor isnull
 act.entryRelationship[].observation.value.code,AllergyIntolerance.category[],,"valueSetAdapter('AllergyIntoleranceCategory')"
-act.entryRelationship[].observation.effectiveTime.high.value,AllergyIntolerance.clinicalStatus,,"selectOnNull('active','inactive')"
+act.entryRelationship[].observation.entryRelationship[].observation.value.code,AllergyIntolerance.clinicalStatus,,"valueSetAdapter('AllergyIntoleranceClinicalStatus')",act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.28
 act.entryRelationship[].observation.participant.participantRole.playingEntity.code,AllergyIntolerance.code,CD,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
 act.entryRelationship[].observation.participant.participantRole.playingEntity.name,AllergyIntolerance.code.text,,,act.entryRelationship[].observation.participant.participantRole.playingEntity.nullFlavor isnull
 act.entryRelationship[].observation.entryRelationship[].observation.value.code,AllergyIntolerance.criticality,,"valueSetAdapter('AllergyIntoleranceCriticality')",act.entryRelationship[].observation.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.145

@@ -493,22 +493,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						}
 					}
 
-					// effectiveTime -> clinicalStatus
-					if (cdaAllergyObs.getEffectiveTime() != null
-							&& !cdaAllergyObs.getEffectiveTime().isSetNullFlavor()) {
-
-						IVXB_TS high = cdaAllergyObs.getEffectiveTime().getHigh();
-
-						// high -> inactive
-						if (high != null && !high.isSetNullFlavor()) {
-							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.INACTIVE);
-						} else {
-							fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
-						}
-					} else {
-						fhirAllergyIntolerance.setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE);
-					}
-
 					// searching for reaction observation
 					if (cdaAllergyObs.getEntryRelationships() != null
 							&& !cdaAllergyObs.getEntryRelationships().isEmpty()) {
