@@ -140,6 +140,19 @@ public class UnmappedFieldTest {
 	}
 
 	@Test
+	public void testAD() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
+			TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("AD");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+		// I'm assuming AD is short for Advanced Directive.
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='42348-3']", body,
+				XPathConstants.NODESET);
+
+		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-AD-unmapped.xml");
+	}
+
+	@Test
 	public void testAllergyConcernAct() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> csvRecords = csvToList("AllergyConcernAct");
@@ -149,7 +162,48 @@ public class UnmappedFieldTest {
 				XPathConstants.NODESET);
 
 		generateFilteredNodeList(csvRecords, xPathDocument);
-		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-unmapped.xml");
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-AllergyConcernAct-unmapped.xml");
+	}
+
+	// The commented out ones confuse me and I don't know how to deal with them.
+
+//	@Test
+//	public void testAuthorParticipantion() throws IOException, XPathExpressionException, ParserConfigurationException,
+//			SAXException, TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("AuthorParticipation");
+//		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+//
+//		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='XXX']", body,
+//				XPathConstants.NODESET);
+//
+//		generateFilteredNodeList(csvRecords, xPathDocument);
+//		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-AuthorParticipation-unmapped.xml");
+//	}
+
+//	@Test
+//	public void testCD() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
+//			TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("CD");
+//		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+//
+//		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='48765-2']", body,
+//				XPathConstants.NODESET);
+//
+//		generateFilteredNodeList(csvRecords, xPathDocument);
+//		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-CD-unmapped.xml");
+//	}
+
+	@Test
+	public void testEncounterActivity() throws IOException, XPathExpressionException, ParserConfigurationException,
+			SAXException, TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("EncounterActivity");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='46240-8']", body,
+				XPathConstants.NODESET);
+
+		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-EncounterActivity-unmapped.xml");
 	}
 
 }
