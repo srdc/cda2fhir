@@ -35,15 +35,9 @@
             <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
             <!--Critical Change-->
             <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
-            <id root="36e3e930-7b14-11db-9fe1-0800200c9a66"/>
             <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
             <!-- The statusCode represents the need to continue tracking the allergy -->
             <!-- This is of ongoing concern to the provider -->
-            <statusCode code="active"/>
-            <effectiveTime>
-								<!-- The low value represents when the allergy was first recorded in the patient's chart -->
-								<!-- Concern was documented on May 1, 1998 -->
-							</effectiveTime>
             <author typeCode="AUT">
                <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                <!-- Same as Concern effectiveTime/low -->
@@ -68,28 +62,13 @@
                   </text>
                   <!-- Observation statusCode represents the status of the act of observing -->
                   <statusCode code="completed"/>
-                  <effectiveTime>
-										<!-- The low value reflects the date of onset of the allergy -->
-										<!-- Based on patient symptoms, presumed onset is May 1, 1998 -->
-                     <low value="19980501"/>
-                     <!-- The high value reflects when the allergy was known to be resolved (and will generally be absent) -->
-                  </effectiveTime>
                   <author typeCode="AUT">
                      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                      <time value="199805011145-0800"/>
-                     <assignedAuthor>
-                        <id extension="222223333" root="2.16.840.1.113883.4.6"/>
-                        <code code="207KA0200X"
-                              codeSystem="2.16.840.1.113883.6.101"
-                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                              displayName="Allergy"/>
-                     </assignedAuthor>
                   </author>
                   <participant typeCode="CSM">
                      <participantRole classCode="MANU">
-                        <playingEntity classCode="MMAT">
-											</playingEntity>
-                     </participantRole>
+										</participantRole>
                   </participant>
                   <entryRelationship inversionInd="true" typeCode="SUBJ">
                      <observation classCode="OBS" moodCode="EVN">
@@ -106,11 +85,6 @@
                            <reference value="#allergyseverity1"/>
                         </text>
                         <statusCode code="completed"/>
-                        <value code="371924009"
-                               codeSystem="2.16.840.1.113883.6.96"
-                               codeSystemName="SNOMED CT"
-                               displayName="Moderate to severe"
-                               xsi:type="CD"/>
                      </observation>
                   </entryRelationship>
                   <entryRelationship inversionInd="true" typeCode="MFST">
@@ -125,13 +99,8 @@
                         </text>
                         <statusCode code="completed"/>
                         <effectiveTime>
-                           <low value="200802260805-0800"/>
                            <high value="200802281205-0800"/>
                         </effectiveTime>
-                        <value code="422587007"
-                               codeSystem="2.16.840.1.113883.6.96"
-                               displayName="Nausea"
-                               xsi:type="CD"/>
                         <entryRelationship inversionInd="true" typeCode="SUBJ">
                            <observation classCode="OBS" moodCode="EVN">
 													<!-- ** Severity observation ** -->
@@ -144,11 +113,6 @@
                                     codeSystemName="ActCode"
                                     displayName="Severity Observation"/>
                               <statusCode code="completed"/>
-                              <value code="255604002"
-                                     codeSystem="2.16.840.1.113883.6.96"
-                                     codeSystemName="SNOMED CT"
-                                     displayName="Mild"
-                                     xsi:type="CD"/>
                            </observation>
                         </entryRelationship>
                      </observation>
@@ -164,11 +128,6 @@
                            <reference value="#criticality"/>
                         </text>
                         <statusCode code="completed"/>
-                        <value code="CRITH"
-                               codeSystem="2.16.840.1.113883.5.1063"
-                               codeSystemName="ObservationValue"
-                               displayName="High Criticality"
-                               xsi:type="CD"/>
                      </observation>
                   </entryRelationship>
                </observation>
@@ -181,15 +140,9 @@
             <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
             <!--Critical Change-->
             <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
-            <id root="b03805bd-2eb6-4ab8-a9ff-473c6653971a"/>
             <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
             <!-- The statusCode represents the need to continue tracking the allergy -->
             <!-- This is of ongoing concern to the provider -->
-            <statusCode code="active"/>
-            <effectiveTime>
-								<!-- The low value represents when the allergy was first recorded in the patient's chart -->
-								<!-- Concern was documented on May 1, 1998 -->
-							</effectiveTime>
             <author typeCode="AUT">
                <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                <!-- Same as Concern effectiveTime/low -->
@@ -222,19 +175,10 @@
                   <author typeCode="AUT">
                      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                      <time value="201010110915-0800"/>
-                     <assignedAuthor>
-                        <id extension="222223333" root="2.16.840.1.113883.4.6"/>
-                        <code code="207KA0200X"
-                              codeSystem="2.16.840.1.113883.6.101"
-                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                              displayName="Allergy"/>
-                     </assignedAuthor>
                   </author>
                   <participant typeCode="CSM">
                      <participantRole classCode="MANU">
-                        <playingEntity classCode="MMAT">
-											</playingEntity>
-                     </participantRole>
+										</participantRole>
                   </participant>
                   <entryRelationship inversionInd="true" typeCode="MFST">
                      <observation classCode="OBS" moodCode="EVN">
@@ -250,11 +194,6 @@
                         <effectiveTime>
                            <low nullFlavor="UNK"/>
                         </effectiveTime>
-                        <value code="56018004"
-                               codeSystem="2.16.840.1.113883.6.96"
-                               codeSystemName="SNOMED CT"
-                               displayName="Wheezing"
-                               xsi:type="CD"/>
                         <entryRelationship inversionInd="true" typeCode="SUBJ">
                            <observation classCode="OBS" moodCode="EVN">
 													<!-- ** Severity observation ** -->
@@ -270,11 +209,6 @@
                                  <reference value="#reactionseverity2"/>
                               </text>
                               <statusCode code="completed"/>
-                              <value code="6736007"
-                                     codeSystem="2.16.840.1.113883.6.96"
-                                     codeSystemName="SNOMED CT"
-                                     displayName="Moderate"
-                                     xsi:type="CD"/>
                            </observation>
                         </entryRelationship>
                      </observation>
@@ -294,11 +228,6 @@
                            <reference value="#allergyseverity2"/>
                         </text>
                         <statusCode code="completed"/>
-                        <value code="255604002"
-                               codeSystem="2.16.840.1.113883.6.96"
-                               codeSystemName="SNOMED CT"
-                               displayName="Mild"
-                               xsi:type="CD"/>
                      </observation>
                   </entryRelationship>
                </observation>

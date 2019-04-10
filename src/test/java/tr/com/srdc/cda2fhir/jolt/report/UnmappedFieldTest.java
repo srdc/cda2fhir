@@ -88,21 +88,48 @@ public class UnmappedFieldTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void searchNode(Node node, ArrayList<String> searchTerms) {
+	public boolean searchNode(Node node, ArrayList<String> searchTerms) {
 		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
 			if (node.getChildNodes().item(i).getNodeName().contentEquals(searchTerms.get(0))) {
 				if (searchTerms.size() == 1
 						&& node.getChildNodes().item(i).getNodeName().contentEquals(searchTerms.get(0))) {
 					node.removeChild(node.getChildNodes().item(i));
+					for (int j = 0; j < node.getChildNodes().getLength(); j++) {
+						if (node.getChildNodes().item(j).getNodeType() < 3) { // Ignore comments and text.
+							return false;
+						}
+					}
+					return true;
 				} else if (searchTerms.size() == 2
 						&& node.getChildNodes().item(i).getAttributes().getNamedItem(searchTerms.get(1)) != null) {
 					node.removeChild(node.getChildNodes().item(i));
+					for (int j = 0; j < node.getChildNodes().getLength(); j++) {
+						if (node.getChildNodes().item(j).getNodeType() < 3) { // Ignore comments and text.
+							return false;
+						}
+					}
+					return true;
 				} else {
 					ArrayList<String> newSearchTerms = (ArrayList<String>) searchTerms.clone();
 					newSearchTerms.remove(0);
-					searchNode(node.getChildNodes().item(i), newSearchTerms);
+					if (searchNode(node.getChildNodes().item(i), newSearchTerms)) {
+						node.removeChild(node.getChildNodes().item(i));
+					}
 				}
 			}
+		}
+		return false;
+	}
+
+	public void generateFilteredNodeList(List<List<String>> csvRecords, NodeList xPathDocument) {
+		for (int i = 1; i < csvRecords.size(); i++) { // The list at 0 is just the headers.
+			ArrayList<String> searchTerms = new ArrayList<String>();
+			searchTerms.add("entry");
+			String[] csvFields = csvRecords.get(i).get(0).replaceAll("\\[]", "").split("\\.");
+			for (String csvField : csvFields) {
+				searchTerms.add(csvField);
+			}
+			searchNode(xPathDocument.item(0), searchTerms);
 		}
 	}
 
@@ -115,24 +142,13 @@ public class UnmappedFieldTest {
 	@Test
 	public void testAllergyConcernAct() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
-		List<List<String>> records = csvToList("AllergyConcernAct");
+		List<List<String>> csvRecords = csvToList("AllergyConcernAct");
 		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
 
 		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='48765-2']", body,
 				XPathConstants.NODESET);
-		// for (int i = 1; i < records.size(); i++) { // The list at 0 is just the
-		// headers.
-		for (int i = 1; i < 7; i++) { // The list at 0 is just the headers.
-			ArrayList<String> examples = new ArrayList<String>();
-			examples.add("entry");
-			String[] csvFields = records.get(i).get(0).replaceAll("\\[]", "").split("\\.");
-			for (String csvField : csvFields) {
-				examples.add(csvField);
-			}
-			System.out.println(examples.toString());
-			searchNode(xPathDocument.item(0), examples);
-		}
 
+		generateFilteredNodeList(csvRecords, xPathDocument);
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-unmapped.xml");
 	}
 
