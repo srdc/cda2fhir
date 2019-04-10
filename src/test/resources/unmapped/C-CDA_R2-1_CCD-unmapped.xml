@@ -1,917 +1,309 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root xmlns:sdtc="urn:hl7-org:sdtc"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
-   <id root="36e3e930-7b14-11db-9fe1-0800200c9a66"/>
-   <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
-   <statusCode code="active"/>
-   <effectiveTime>
+   <section>
+					<!-- *** Allergies and Intolerances Section (entries required) (V3) *** -->
+      <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.2.6.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+      <code code="48765-2"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"/>
+      <title>ALLERGIES AND ADVERSE REACTIONS</title>
+      <text>
+         <table border="1" width="100%">
+            <thead>
+               <tr>
+                  <th>Substance</th>
+                  <th>Reaction</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td ID="substance1">Penicillin</td>
+                  <td ID="reaction1">Nausea</td>
+               </tr>
+               <tr>
+                  <td ID="substance2">Codeine</td>
+                  <td ID="reaction2">Wheezing</td>
+               </tr>
+            </tbody>
+         </table>
+      </text>
+      <entry typeCode="DRIV">
+         <act classCode="ACT" moodCode="EVN">
+							<!-- ** Allergy Concern Act (V3) ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
+            <!--Critical Change-->
+            <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+            <id root="36e3e930-7b14-11db-9fe1-0800200c9a66"/>
+            <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+            <!-- The statusCode represents the need to continue tracking the allergy -->
+            <!-- This is of ongoing concern to the provider -->
+            <statusCode code="active"/>
+            <effectiveTime>
 								<!-- The low value represents when the allergy was first recorded in the patient's chart -->
 								<!-- Concern was documented on May 1, 1998 -->
-      <low value="199805011145-0800"/>
-   </effectiveTime>
-   <author typeCode="AUT">
-      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-      <!-- Same as Concern effectiveTime/low -->
-      <time value="199805011145-0800"/>
-      <assignedAuthor>
-         <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-         <code code="207QA0505X"
-               codeSystem="2.16.840.1.113883.6.101"
-               codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-               displayName="Adult Medicine"/>
-      </assignedAuthor>
-   </author>
-   <entryRelationship typeCode="SUBJ">
-      <observation classCode="OBS" moodCode="EVN">
+							</effectiveTime>
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <!-- Same as Concern effectiveTime/low -->
+               <time value="199805011145-0800"/>
+               <assignedAuthor>
+                  <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                  <code code="207QA0505X"
+                        codeSystem="2.16.840.1.113883.6.101"
+                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                        displayName="Adult Medicine"/>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
 									<!-- ** Allergy observation (V2) ** -->
-         <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.7"/>
-         <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
-         <id root="4adc1020-7b14-11db-9fe1-0800200c9a66"/>
-         <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
-         <text>
-            <reference value="#allergytype1"/>
-         </text>
-         <!-- Observation statusCode represents the status of the act of observing -->
-         <statusCode code="completed"/>
-         <effectiveTime>
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <id root="4adc1020-7b14-11db-9fe1-0800200c9a66"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                     <reference value="#allergytype1"/>
+                  </text>
+                  <!-- Observation statusCode represents the status of the act of observing -->
+                  <statusCode code="completed"/>
+                  <effectiveTime>
 										<!-- The low value reflects the date of onset of the allergy -->
 										<!-- Based on patient symptoms, presumed onset is May 1, 1998 -->
-            <low value="19980501"/>
-            <!-- The high value reflects when the allergy was known to be resolved (and will generally be absent) -->
-         </effectiveTime>
-         <value code="419199007"
-                codeSystem="2.16.840.1.113883.6.96"
-                codeSystemName="SNOMED CT"
-                displayName="Allergy to substance"
-                xsi:type="CD"/>
-         <author typeCode="AUT">
-            <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-            <time value="199805011145-0800"/>
-            <assignedAuthor>
-               <id extension="222223333" root="2.16.840.1.113883.4.6"/>
-               <code code="207KA0200X"
-                     codeSystem="2.16.840.1.113883.6.101"
-                     codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                     displayName="Allergy"/>
-            </assignedAuthor>
-         </author>
-         <participant typeCode="CSM">
-            <participantRole classCode="MANU">
-               <playingEntity classCode="MMAT">
-                  <code code="70618"
-                        codeSystem="2.16.840.1.113883.6.88"
-                        codeSystemName="RxNorm"
-                        displayName="Penicillin"/>
-               </playingEntity>
-            </participantRole>
-         </participant>
-         <entryRelationship inversionInd="true" typeCode="SUBJ">
-            <observation classCode="OBS" moodCode="EVN">
+                     <low value="19980501"/>
+                     <!-- The high value reflects when the allergy was known to be resolved (and will generally be absent) -->
+                  </effectiveTime>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="199805011145-0800"/>
+                     <assignedAuthor>
+                        <id extension="222223333" root="2.16.840.1.113883.4.6"/>
+                        <code code="207KA0200X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Allergy"/>
+                     </assignedAuthor>
+                  </author>
+                  <participant typeCode="CSM">
+                     <participantRole classCode="MANU">
+                        <playingEntity classCode="MMAT">
+											</playingEntity>
+                     </participantRole>
+                  </participant>
+                  <entryRelationship inversionInd="true" typeCode="SUBJ">
+                     <observation classCode="OBS" moodCode="EVN">
 											<!-- ** Severity Observation  (V2)** -->
 											<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
                         When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
-               <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
-               <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
-               <code code="SEV"
-                     codeSystem="2.16.840.1.113883.5.4"
-                     codeSystemName="ActCode"
-                     displayName="Severity Observation"/>
-               <text>
-                  <reference value="#allergyseverity1"/>
-               </text>
-               <statusCode code="completed"/>
-               <value code="371924009"
-                      codeSystem="2.16.840.1.113883.6.96"
-                      codeSystemName="SNOMED CT"
-                      displayName="Moderate to severe"
-                      xsi:type="CD"/>
-            </observation>
-         </entryRelationship>
-         <entryRelationship inversionInd="true" typeCode="MFST">
-            <observation classCode="OBS" moodCode="EVN">
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <code code="SEV"
+                              codeSystem="2.16.840.1.113883.5.4"
+                              codeSystemName="ActCode"
+                              displayName="Severity Observation"/>
+                        <text>
+                           <reference value="#allergyseverity1"/>
+                        </text>
+                        <statusCode code="completed"/>
+                        <value code="371924009"
+                               codeSystem="2.16.840.1.113883.6.96"
+                               codeSystemName="SNOMED CT"
+                               displayName="Moderate to severe"
+                               xsi:type="CD"/>
+                     </observation>
+                  </entryRelationship>
+                  <entryRelationship inversionInd="true" typeCode="MFST">
+                     <observation classCode="OBS" moodCode="EVN">
 											<!-- ** Reaction Observation (V2) ** -->
-               <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.9"/>
-               <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
-               <id root="4adc1020-7b14-11db-9fe1-0800200c9a64"/>
-               <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
-               <text>
-                  <reference value="#reaction1"/>
-               </text>
-               <statusCode code="completed"/>
-               <effectiveTime>
-                  <low value="200802260805-0800"/>
-                  <high value="200802281205-0800"/>
-               </effectiveTime>
-               <value code="422587007"
-                      codeSystem="2.16.840.1.113883.6.96"
-                      displayName="Nausea"
-                      xsi:type="CD"/>
-               <entryRelationship inversionInd="true" typeCode="SUBJ">
-                  <observation classCode="OBS" moodCode="EVN">
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <id root="4adc1020-7b14-11db-9fe1-0800200c9a64"/>
+                        <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                        <text>
+                           <reference value="#reaction1"/>
+                        </text>
+                        <statusCode code="completed"/>
+                        <effectiveTime>
+                           <low value="200802260805-0800"/>
+                           <high value="200802281205-0800"/>
+                        </effectiveTime>
+                        <value code="422587007"
+                               codeSystem="2.16.840.1.113883.6.96"
+                               displayName="Nausea"
+                               xsi:type="CD"/>
+                        <entryRelationship inversionInd="true" typeCode="SUBJ">
+                           <observation classCode="OBS" moodCode="EVN">
 													<!-- ** Severity observation ** -->
 													<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
 														 When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
-                     <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
-                     <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
-                     <code code="SEV"
-                           codeSystem="2.16.840.1.113883.5.4"
-                           codeSystemName="ActCode"
-                           displayName="Severity Observation"/>
-                     <statusCode code="completed"/>
-                     <value code="255604002"
-                            codeSystem="2.16.840.1.113883.6.96"
-                            codeSystemName="SNOMED CT"
-                            displayName="Mild"
-                            xsi:type="CD"/>
-                  </observation>
-               </entryRelationship>
-            </observation>
-         </entryRelationship>
-         <entryRelationship>
-            <observation classCode="OBS" moodCode="EVN">
+                              <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <code code="SEV"
+                                    codeSystem="2.16.840.1.113883.5.4"
+                                    codeSystemName="ActCode"
+                                    displayName="Severity Observation"/>
+                              <statusCode code="completed"/>
+                              <value code="255604002"
+                                     codeSystem="2.16.840.1.113883.6.96"
+                                     codeSystemName="SNOMED CT"
+                                     displayName="Mild"
+                                     xsi:type="CD"/>
+                           </observation>
+                        </entryRelationship>
+                     </observation>
+                  </entryRelationship>
+                  <entryRelationship>
+                     <observation classCode="OBS" moodCode="EVN">
 											<!-- ** Criticality observation ** -->
-               <templateId root="2.16.840.1.113883.10.20.22.4.145"/>
-               <code code="NEW-LOINC-CRITICALITY"
-                     codeSystem="2.16.840.1.113883.6.1"
-                     displayName="Criticality"/>
-               <text>
-                  <reference value="#criticality"/>
-               </text>
-               <statusCode code="completed"/>
-               <value code="CRITH"
-                      codeSystem="2.16.840.1.113883.5.1063"
-                      codeSystemName="ObservationValue"
-                      displayName="High Criticality"
-                      xsi:type="CD"/>
-            </observation>
-         </entryRelationship>
-      </observation>
-   </entryRelationship>
-   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
-   <id root="b03805bd-2eb6-4ab8-a9ff-473c6653971a"/>
-   <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
-   <statusCode code="active"/>
-   <effectiveTime>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.145"/>
+                        <code code="NEW-LOINC-CRITICALITY"
+                              codeSystem="2.16.840.1.113883.6.1"
+                              displayName="Criticality"/>
+                        <text>
+                           <reference value="#criticality"/>
+                        </text>
+                        <statusCode code="completed"/>
+                        <value code="CRITH"
+                               codeSystem="2.16.840.1.113883.5.1063"
+                               codeSystemName="ObservationValue"
+                               displayName="High Criticality"
+                               xsi:type="CD"/>
+                     </observation>
+                  </entryRelationship>
+               </observation>
+            </entryRelationship>
+         </act>
+      </entry>
+      <entry typeCode="DRIV">
+         <act classCode="ACT" moodCode="EVN">
+							<!-- ** Allergy concern act ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
+            <!--Critical Change-->
+            <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+            <id root="b03805bd-2eb6-4ab8-a9ff-473c6653971a"/>
+            <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+            <!-- The statusCode represents the need to continue tracking the allergy -->
+            <!-- This is of ongoing concern to the provider -->
+            <statusCode code="active"/>
+            <effectiveTime>
 								<!-- The low value represents when the allergy was first recorded in the patient's chart -->
 								<!-- Concern was documented on May 1, 1998 -->
-      <low value="199805011145-0800"/>
-   </effectiveTime>
-   <author typeCode="AUT">
-      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-      <!-- Same as Concern effectiveTime/low -->
-      <time value="199805011145-0800"/>
-      <assignedAuthor>
-         <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-         <code code="207QA0505X"
-               codeSystem="2.16.840.1.113883.6.101"
-               codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-               displayName="Adult Medicine"/>
-      </assignedAuthor>
-   </author>
-   <entryRelationship typeCode="SUBJ">
-      <observation classCode="OBS" moodCode="EVN">
+							</effectiveTime>
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <!-- Same as Concern effectiveTime/low -->
+               <time value="199805011145-0800"/>
+               <assignedAuthor>
+                  <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                  <code code="207QA0505X"
+                        codeSystem="2.16.840.1.113883.6.101"
+                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                        displayName="Adult Medicine"/>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
 									<!-- ** Allergy observation ** -->
-         <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.7"/>
-         <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
-         <id root="901db0f8-9355-4794-81cd-fd951ef07917"/>
-         <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
-         <text>
-            <reference value="#allergytype2"/>
-         </text>
-         <!-- Observation statusCode represents the status of the act of observing -->
-         <statusCode code="completed"/>
-         <effectiveTime>
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <id root="901db0f8-9355-4794-81cd-fd951ef07917"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                     <reference value="#allergytype2"/>
+                  </text>
+                  <!-- Observation statusCode represents the status of the act of observing -->
+                  <statusCode code="completed"/>
+                  <effectiveTime>
 										<!-- The low value reflects the date of onset of the allergy -->
-            <low nullFlavor="UNK"/>
-            <!-- The high value reflects when the allergy was known to be resolved (and will generally be absent) -->
-         </effectiveTime>
-         <value code="419199007"
-                codeSystem="2.16.840.1.113883.6.96"
-                codeSystemName="SNOMED CT"
-                displayName="Allergy to substance"
-                xsi:type="CD"/>
-         <author typeCode="AUT">
-            <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-            <time value="201010110915-0800"/>
-            <assignedAuthor>
-               <id extension="222223333" root="2.16.840.1.113883.4.6"/>
-               <code code="207KA0200X"
-                     codeSystem="2.16.840.1.113883.6.101"
-                     codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                     displayName="Allergy"/>
-            </assignedAuthor>
-         </author>
-         <participant typeCode="CSM">
-            <participantRole classCode="MANU">
-               <playingEntity classCode="MMAT">
-                  <code code="2670"
-                        codeSystem="2.16.840.1.113883.6.88"
-                        codeSystemName="RxNorm"
-                        displayName="Codeine"/>
-               </playingEntity>
-            </participantRole>
-         </participant>
-         <entryRelationship inversionInd="true" typeCode="MFST">
-            <observation classCode="OBS" moodCode="EVN">
+                     <low nullFlavor="UNK"/>
+                     <!-- The high value reflects when the allergy was known to be resolved (and will generally be absent) -->
+                  </effectiveTime>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201010110915-0800"/>
+                     <assignedAuthor>
+                        <id extension="222223333" root="2.16.840.1.113883.4.6"/>
+                        <code code="207KA0200X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Allergy"/>
+                     </assignedAuthor>
+                  </author>
+                  <participant typeCode="CSM">
+                     <participantRole classCode="MANU">
+                        <playingEntity classCode="MMAT">
+											</playingEntity>
+                     </participantRole>
+                  </participant>
+                  <entryRelationship inversionInd="true" typeCode="MFST">
+                     <observation classCode="OBS" moodCode="EVN">
 											<!-- ** Reaction observation ** -->
-               <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.9"/>
-               <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
-               <id root="38c63dea-1a43-4f84-ab71-1ffd04f6a1dd"/>
-               <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
-               <text>
-                  <reference value="#reaction2"/>
-               </text>
-               <statusCode code="completed"/>
-               <effectiveTime>
-                  <low nullFlavor="UNK"/>
-               </effectiveTime>
-               <value code="56018004"
-                      codeSystem="2.16.840.1.113883.6.96"
-                      codeSystemName="SNOMED CT"
-                      displayName="Wheezing"
-                      xsi:type="CD"/>
-               <entryRelationship inversionInd="true" typeCode="SUBJ">
-                  <observation classCode="OBS" moodCode="EVN">
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <id root="38c63dea-1a43-4f84-ab71-1ffd04f6a1dd"/>
+                        <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                        <text>
+                           <reference value="#reaction2"/>
+                        </text>
+                        <statusCode code="completed"/>
+                        <effectiveTime>
+                           <low nullFlavor="UNK"/>
+                        </effectiveTime>
+                        <value code="56018004"
+                               codeSystem="2.16.840.1.113883.6.96"
+                               codeSystemName="SNOMED CT"
+                               displayName="Wheezing"
+                               xsi:type="CD"/>
+                        <entryRelationship inversionInd="true" typeCode="SUBJ">
+                           <observation classCode="OBS" moodCode="EVN">
 													<!-- ** Severity observation ** -->
 													<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
 										             When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
-                     <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
-                     <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
-                     <code code="SEV"
-                           codeSystem="2.16.840.1.113883.5.4"
-                           codeSystemName="ActCode"
-                           displayName="Severity Observation"/>
-                     <text>
-                        <reference value="#reactionseverity2"/>
-                     </text>
-                     <statusCode code="completed"/>
-                     <value code="6736007"
-                            codeSystem="2.16.840.1.113883.6.96"
-                            codeSystemName="SNOMED CT"
-                            displayName="Moderate"
-                            xsi:type="CD"/>
-                  </observation>
-               </entryRelationship>
-            </observation>
-         </entryRelationship>
-         <entryRelationship inversionInd="true" typeCode="SUBJ">
-            <observation classCode="OBS" moodCode="EVN">
+                              <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <code code="SEV"
+                                    codeSystem="2.16.840.1.113883.5.4"
+                                    codeSystemName="ActCode"
+                                    displayName="Severity Observation"/>
+                              <text>
+                                 <reference value="#reactionseverity2"/>
+                              </text>
+                              <statusCode code="completed"/>
+                              <value code="6736007"
+                                     codeSystem="2.16.840.1.113883.6.96"
+                                     codeSystemName="SNOMED CT"
+                                     displayName="Moderate"
+                                     xsi:type="CD"/>
+                           </observation>
+                        </entryRelationship>
+                     </observation>
+                  </entryRelationship>
+                  <entryRelationship inversionInd="true" typeCode="SUBJ">
+                     <observation classCode="OBS" moodCode="EVN">
 											<!-- ** Severity observation ** -->
 											<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
 										          When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
-               <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
-               <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
-               <code code="SEV"
-                     codeSystem="2.16.840.1.113883.5.4"
-                     codeSystemName="ActCode"
-                     displayName="Severity Observation"/>
-               <text>
-                  <reference value="#allergyseverity2"/>
-               </text>
-               <statusCode code="completed"/>
-               <value code="255604002"
-                      codeSystem="2.16.840.1.113883.6.96"
-                      codeSystemName="SNOMED CT"
-                      displayName="Mild"
-                      xsi:type="CD"/>
-            </observation>
-         </entryRelationship>
-      </observation>
-   </entryRelationship>
-   <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.20"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.20"/>
-   <code code="171044003"
-         codeSystem="2.16.840.1.113883.6.96"
-         codeSystemName="SNOMED CT"
-         displayName="immunization education"/>
-   <text>
-      <reference value="#immunSect"/> Possible flu-like symptoms for three days. </text>
-   <statusCode code="completed"/>
-   <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.20"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.20"/>
-   <code code="171044003"
-         codeSystem="2.16.840.1.113883.6.96"
-         codeSystemName="SNOMED CT"
-         displayName="immunization education"/>
-   <text>
-      <reference value="#immunSect"/> Possible flu-like symptoms for three days. </text>
-   <statusCode code="completed"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.118"/>
-   <id root="3f998a26-1b8b-4cbf-8e91-16fbb7a7080f"/>
-   <code code="416118004"
-         codeSystem="2.16.840.1.113883.6.96"
-         codeSystemName="SNOMED CT"
-         displayName="administration"/>
-   <statusCode code="completed"/>
-   <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.20"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.20"/>
-   <code code="409073007"
-         codeSystem="2.16.840.1.113883.6.96"
-         codeSystemName="SNOMED CT"
-         displayName="instruction"/>
-   <text> label in spanish </text>
-   <statusCode code="completed"/>
-   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.60"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.60"/>
-   <id root="1fe2cdd0-7aad-11db-9fe1-0800200c9a66"/>
-   <code code="48768-6"
-         codeSystem="2.16.840.1.113883.6.1"
-         codeSystemName="LOINC"
-         displayName="Payment sources"/>
-   <statusCode code="completed"/>
-   <entryRelationship typeCode="COMP">
-      <sequenceNumber value="2"/>
-      <act classCode="ACT" moodCode="EVN">
-									<!-- ** Policy activity  (V3) ** -->
-         <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.61"/>
-         <!--Critical Change-->
-         <templateId root="2.16.840.1.113883.10.20.22.4.61"/>
-         <id root="3e676a50-7aac-11db-9fe1-0800200c9a66"/>
-         <!-- 5.	SHALL contain exactly one [1..1] code, which SHOULD be selected from ValueSet Health Insurance Type -->
-         <code>
-										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Payer urn:oid:2.16.840.1.114222.4.11.3591 (CONF:1198-32852). 
-										<translation code="81" displayName="self-pay" codeSystemName="Source of Payment Typology (PHDSC)" codeSystem="2.16.840.1.113883.3.221.5"/>
-										-->
-            <translation nullFlavor="NI"/>
-         </code>
-         <statusCode code="completed"/>
-         <!-- Insurance Company Information -->
-         <performer typeCode="PRF">
-            <templateId root="2.16.840.1.113883.10.20.22.4.87"/>
-            <assignedEntity>
-               <id root="2.16.840.1.113883.19"/>
-               <code code="PAYOR"
-                     codeSystem="2.16.840.1.113883.5.110"
-                     codeSystemName="HL7 RoleCode"/>
-               <addr use="WP">
-                  <streetAddressLine>9009 Health Drive</streetAddressLine>
-                  <city>Portland</city>
-                  <state>OR</state>
-                  <postalCode>99123</postalCode>
-                  <country>US</country>
-               </addr>
-               <telecom use="WP" value="tel:+1(555)555-1515"/>
-               <representedOrganization>
-                  <name>Good Health Insurance</name>
-                  <telecom use="WP" value="tel:+1(555)555-1515"/>
-                  <addr use="WP">
-                     <streetAddressLine>9009 Health Drive</streetAddressLine>
-                     <city>Portland</city>
-                     <state>OR</state>
-                     <postalCode>99123</postalCode>
-                  </addr>
-               </representedOrganization>
-            </assignedEntity>
-         </performer>
-         <!-- Guarantor Information... The person responsible for the final bill. -->
-         <performer typeCode="PRF">
-            <templateId root="2.16.840.1.113883.10.20.22.4.88"/>
-            <time>
-               <low nullFlavor="UNK"/>
-               <high nullFlavor="UNK"/>
-            </time>
-            <assignedEntity>
-               <id root="329fcdf0-7ab3-11db-9fe1-0800200c9a66"/>
-               <code code="GUAR"
-                     codeSystem="2.16.840.1.113883.5.110"
-                     codeSystemName="HL7 RoleCode"/>
-               <addr use="HP">
-                  <streetAddressLine>2222 Home Street</streetAddressLine>
-                  <city>Beaverton</city>
-                  <state>OR</state>
-                  <postalCode>97867</postalCode>
-               </addr>
-               <telecom use="HP" value="tel:+1(555)555-1000"/>
-               <assignedPerson>
-                  <name>
-                     <given>Boris</given>
-                     <family>Betterhalf</family>
-                  </name>
-               </assignedPerson>
-            </assignedEntity>
-         </performer>
-         <participant typeCode="COV">
-										<!-- Covered Party Participant -->
-            <templateId root="2.16.840.1.113883.10.20.22.4.89"/>
-            <time>
-               <low nullFlavor="UNK"/>
-               <high nullFlavor="UNK"/>
-            </time>
-            <participantRole classCode="PAT">
-											<!-- Health plan ID for patient. -->
-               <id extension="1138345" root="14d4a520-7aae-11db-9fe1-0800200c9a66"/>
-               <code code="SELF" codeSystem="2.16.840.1.113883.5.111" displayName="Self"/>
-               <addr use="HP">
-                  <streetAddressLine>2222 Home Street</streetAddressLine>
-                  <city>Beaverton</city>
-                  <state>OR</state>
-                  <postalCode>97867</postalCode>
-               </addr>
-               <playingEntity>
-                  <name>
-													<!-- Name is needed if different than health plan name. -->
-                     <given>Boris</given>
-                     <family>Betterhalf</family>
-                  </name>
-                  <sdtc:birthTime value="19750501"/>
-               </playingEntity>
-            </participantRole>
-         </participant>
-         <!-- Policy Holder -->
-         <participant typeCode="HLD">
-            <templateId root="2.16.840.1.113883.10.20.22.4.90"/>
-            <participantRole>
-               <id extension="1138345" root="2.16.840.1.113883.19"/>
-               <addr use="HP">
-                  <streetAddressLine>2222 Home Street</streetAddressLine>
-                  <city>Beaverton</city>
-                  <state>OR</state>
-                  <postalCode>97867</postalCode>
-               </addr>
-            </participantRole>
-         </participant>
-         <entryRelationship typeCode="REFR">
-            <act classCode="ACT" moodCode="EVN">
-											<!-- ** Authorization activity ** -->
-               <templateId root="2.16.840.1.113883.10.20.1.19"/>
-               <id root="f4dce790-8328-11db-9fe1-0800200c9a66"/>
-               <code nullFlavor="NA"/>
-               <entryRelationship typeCode="SUBJ">
-                  <procedure classCode="PROC" moodCode="PRMS">
-                     <code code="73761001"
-                           codeSystem="2.16.840.1.113883.6.96"
-                           codeSystemName="SNOMED CT"
-                           displayName="Colonoscopy"/>
-                  </procedure>
-               </entryRelationship>
-            </act>
-         </entryRelationship>
-         <!-- The above entryRelationship OR the following. <entryRelationship 
-										typeCode="REFR"> <act classCode="ACT" moodCode="DEF"> <id root="f4dce790-8328-11db-9fe1-0800200c9a66"/> 
-										<code nullFlavor="UNK"/> <text>Health Plan Name<reference value="PntrToHealthPlanNameInSectionText"/> 
-										</text> <statusCode code="active"/> </act> </entryRelationship> -->
-      </act>
-   </entryRelationship>
-   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.61"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.61"/>
-   <id root="3e676a50-7aac-11db-9fe1-0800200c9a66"/>
-   <code>
-										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Payer urn:oid:2.16.840.1.114222.4.11.3591 (CONF:1198-32852). 
-										<translation code="81" displayName="self-pay" codeSystemName="Source of Payment Typology (PHDSC)" codeSystem="2.16.840.1.113883.3.221.5"/>
-										-->
-      <translation nullFlavor="NI"/>
-   </code>
-   <statusCode code="completed"/>
-   <performer typeCode="PRF">
-      <templateId root="2.16.840.1.113883.10.20.22.4.87"/>
-      <assignedEntity>
-         <id root="2.16.840.1.113883.19"/>
-         <code code="PAYOR"
-               codeSystem="2.16.840.1.113883.5.110"
-               codeSystemName="HL7 RoleCode"/>
-         <addr use="WP">
-            <streetAddressLine>9009 Health Drive</streetAddressLine>
-            <city>Portland</city>
-            <state>OR</state>
-            <postalCode>99123</postalCode>
-            <country>US</country>
-         </addr>
-         <telecom use="WP" value="tel:+1(555)555-1515"/>
-         <representedOrganization>
-            <name>Good Health Insurance</name>
-            <telecom use="WP" value="tel:+1(555)555-1515"/>
-            <addr use="WP">
-               <streetAddressLine>9009 Health Drive</streetAddressLine>
-               <city>Portland</city>
-               <state>OR</state>
-               <postalCode>99123</postalCode>
-            </addr>
-         </representedOrganization>
-      </assignedEntity>
-   </performer>
-   <performer typeCode="PRF">
-      <templateId root="2.16.840.1.113883.10.20.22.4.88"/>
-      <time>
-         <low nullFlavor="UNK"/>
-         <high nullFlavor="UNK"/>
-      </time>
-      <assignedEntity>
-         <id root="329fcdf0-7ab3-11db-9fe1-0800200c9a66"/>
-         <code code="GUAR"
-               codeSystem="2.16.840.1.113883.5.110"
-               codeSystemName="HL7 RoleCode"/>
-         <addr use="HP">
-            <streetAddressLine>2222 Home Street</streetAddressLine>
-            <city>Beaverton</city>
-            <state>OR</state>
-            <postalCode>97867</postalCode>
-         </addr>
-         <telecom use="HP" value="tel:+1(555)555-1000"/>
-         <assignedPerson>
-            <name>
-               <given>Boris</given>
-               <family>Betterhalf</family>
-            </name>
-         </assignedPerson>
-      </assignedEntity>
-   </performer>
-   <participant typeCode="COV">
-										<!-- Covered Party Participant -->
-      <templateId root="2.16.840.1.113883.10.20.22.4.89"/>
-      <time>
-         <low nullFlavor="UNK"/>
-         <high nullFlavor="UNK"/>
-      </time>
-      <participantRole classCode="PAT">
-											<!-- Health plan ID for patient. -->
-         <id extension="1138345" root="14d4a520-7aae-11db-9fe1-0800200c9a66"/>
-         <code code="SELF" codeSystem="2.16.840.1.113883.5.111" displayName="Self"/>
-         <addr use="HP">
-            <streetAddressLine>2222 Home Street</streetAddressLine>
-            <city>Beaverton</city>
-            <state>OR</state>
-            <postalCode>97867</postalCode>
-         </addr>
-         <playingEntity>
-            <name>
-													<!-- Name is needed if different than health plan name. -->
-               <given>Boris</given>
-               <family>Betterhalf</family>
-            </name>
-            <sdtc:birthTime value="19750501"/>
-         </playingEntity>
-      </participantRole>
-   </participant>
-   <participant typeCode="HLD">
-      <templateId root="2.16.840.1.113883.10.20.22.4.90"/>
-      <participantRole>
-         <id extension="1138345" root="2.16.840.1.113883.19"/>
-         <addr use="HP">
-            <streetAddressLine>2222 Home Street</streetAddressLine>
-            <city>Beaverton</city>
-            <state>OR</state>
-            <postalCode>97867</postalCode>
-         </addr>
-      </participantRole>
-   </participant>
-   <entryRelationship typeCode="REFR">
-      <act classCode="ACT" moodCode="EVN">
-											<!-- ** Authorization activity ** -->
-         <templateId root="2.16.840.1.113883.10.20.1.19"/>
-         <id root="f4dce790-8328-11db-9fe1-0800200c9a66"/>
-         <code nullFlavor="NA"/>
-         <entryRelationship typeCode="SUBJ">
-            <procedure classCode="PROC" moodCode="PRMS">
-               <code code="73761001"
-                     codeSystem="2.16.840.1.113883.6.96"
-                     codeSystemName="SNOMED CT"
-                     displayName="Colonoscopy"/>
-            </procedure>
-         </entryRelationship>
-      </act>
-   </entryRelationship>
-   <templateId root="2.16.840.1.113883.10.20.1.19"/>
-   <id root="f4dce790-8328-11db-9fe1-0800200c9a66"/>
-   <code nullFlavor="NA"/>
-   <entryRelationship typeCode="SUBJ">
-      <procedure classCode="PROC" moodCode="PRMS">
-         <code code="73761001"
-               codeSystem="2.16.840.1.113883.6.96"
-               codeSystemName="SNOMED CT"
-               displayName="Colonoscopy"/>
-      </procedure>
-   </entryRelationship>
-   <templateId root="2.16.840.1.113883.10.20.22.4.129"/>
-   <id root="03f5e10b-7e79-4610-9626-d2984ff10cc1"/>
-   <code code="48768-6"
-         codeSystem="2.16.840.1.113883.6.1"
-         codeSystemName="LOINC"
-         displayName="Payment Sources"/>
-   <statusCode code="active"/>
-   <entryRelationship typeCode="COMP">
-      <act classCode="ACT" moodCode="INT">
-											<!-- These act/identifiers are unique identifiers 
-												for the policy or program providing the coverage. -->
-         <id root="4c9a3be1-5f09-46dd-88e7-14c8ec612e4c"/>
-         <code code="111"
-               codeSystem="2.16.840.1.113883.3.221.5"
-               codeSystemName="Source of Payment Typology (PHDSC)"
-               displayName="Medicare HMO"/>
-         <statusCode code="active"/>
-      </act>
-   </entryRelationship>
-   <id root="4c9a3be1-5f09-46dd-88e7-14c8ec612e4c"/>
-   <code code="111"
-         codeSystem="2.16.840.1.113883.3.221.5"
-         codeSystemName="Source of Payment Typology (PHDSC)"
-         displayName="Medicare HMO"/>
-   <statusCode code="active"/>
-   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.3"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
-   <id root="ec8a6ff8-ed4b-4f7e-82c3-e98e58b45de7"/>
-   <code code="CONC"
-         codeSystem="2.16.840.1.113883.5.6"
-         displayName="Concern"/>
-   <statusCode code="active"/>
-   <effectiveTime>
-								<!-- The low value represents when the problem was first recorded in the patient's chart -->
-								<!-- Concern was documented on July 6, 2013 -->
-      <low value="201307061145-0800"/>
-   </effectiveTime>
-   <author typeCode="AUT">
-      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-      <!-- Same as Concern effectiveTime/low -->
-      <time value="201307061145-0800"/>
-      <assignedAuthor>
-         <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-         <code code="207QA0505X"
-               codeSystem="2.16.840.1.113883.6.101"
-               codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-               displayName="Adult Medicine"/>
-      </assignedAuthor>
-   </author>
-   <entryRelationship typeCode="SUBJ">
-      <observation classCode="OBS" moodCode="EVN">
-									<!-- ** Problem observation  (V3)** -->
-         <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
-         <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-         <id root="ab1791b0-5c71-11db-b0de-0800200c9a66"/>
-         <code code="64572001"
-               codeSystem="2.16.840.1.113883.6.96"
-               codeSystemName="SNOMED-CT"
-               displayName="Condition">
-										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
-										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
-										-->
-            <translation nullFlavor="NI"/>
-         </code>
-         <!-- The statusCode reflects the status of the observation itself -->
-         <statusCode code="completed"/>
-         <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-										<!-- Based on patient symptoms, presumed onset is July 3, 2013 -->
-            <low value="20130703"/>
-            <!-- The high value reflects when the problem was known to be resolved -->
-            <!-- Based on signs and symptoms, appears to be resolved on Aug 14, 2013 -->
-            <high value="20080814"/>
-         </effectiveTime>
-         <value code="233604007"
-                codeSystem="2.16.840.1.113883.6.96"
-                displayName="Pneumonia"
-                xsi:type="CD"/>
-         <author typeCode="AUT">
-            <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-            <time value="200808141030-0800"/>
-            <assignedAuthor>
-               <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-               <code code="207QA0505X"
-                     codeSystem="2.16.840.1.113883.6.101"
-                     codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                     displayName="Adult Medicine"/>
-            </assignedAuthor>
-         </author>
-      </observation>
-   </entryRelationship>
-   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.3"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
-   <id root="682f6be1-0793-42f4-904b-e199e6e8e457"/>
-   <code code="CONC"
-         codeSystem="2.16.840.1.113883.5.6"
-         displayName="Concern"/>
-   <statusCode code="active"/>
-   <effectiveTime>
-								<!-- The low value represents when the problem was first recorded in the patient's chart -->
-      <low value="200704141515-0800"/>
-      <!-- Concern was documented on Apr 14, 2007 -->
-   </effectiveTime>
-   <author typeCode="AUT">
-      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-      <time value="200704141515-0800"/>
-      <!-- Same as Concern effectiveTime/low -->
-      <assignedAuthor>
-         <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-         <code code="207QA0505X"
-               codeSystem="2.16.840.1.113883.6.101"
-               codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-               displayName="Adult Medicine"/>
-      </assignedAuthor>
-   </author>
-   <entryRelationship typeCode="SUBJ">
-      <observation classCode="OBS" moodCode="EVN">
-									<!-- ** Problem observation ** -->
-         <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
-         <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-         <id root="11d088a8-b957-401c-8ee0-3bd20a772fc0"/>
-         <code code="64572001"
-               codeSystem="2.16.840.1.113883.6.96"
-               codeSystemName="SNOMED-CT"
-               displayName="Condition">
-										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
-										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
-										-->
-            <translation nullFlavor="NI"/>
-         </code>
-         <!-- The statusCode reflects the status of the observation itself -->
-         <statusCode code="completed"/>
-         <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-            <low value="20070414"/>
-            <!-- Based on patient symptoms, presumed onset is July 3, 2013 -->
-            <!-- Absence of effectiveTime/high means the condition is not resolved -->
-         </effectiveTime>
-         <value code="29857009"
-                codeSystem="2.16.840.1.113883.6.96"
-                displayName="Chest pain"
-                xsi:type="CD"/>
-         <author typeCode="AUT">
-            <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-            <time value="200704141515-0800"/>
-            <assignedAuthor>
-               <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-               <code code="207QA0505X"
-                     codeSystem="2.16.840.1.113883.6.101"
-                     codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                     displayName="Adult Medicine"/>
-            </assignedAuthor>
-         </author>
-      </observation>
-   </entryRelationship>
-   <entryRelationship typeCode="SUBJ">
-      <observation classCode="OBS" moodCode="EVN">
-									<!-- ** Problem observation ** -->
-         <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
-         <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-         <id root="4991db40-4c4f-41e8-9146-50c12d716424"/>
-         <code code="64572001"
-               codeSystem="2.16.840.1.113883.6.96"
-               codeSystemName="SNOMED-CT"
-               displayName="Condition">
-										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
-										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
-										-->
-            <translation nullFlavor="NI"/>
-         </code>
-         <!-- The statusCode reflects the status of the observation itself -->
-         <statusCode code="completed"/>
-         <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-            <low value="20070417"/>
-            <!-- Absence of effectiveTime/high means the condition is not resolved -->
-         </effectiveTime>
-         <value code="194828000"
-                codeSystem="2.16.840.1.113883.6.96"
-                displayName="Angina"
-                xsi:type="CD"/>
-         <author typeCode="AUT">
-            <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-            <time value="200704171515-0800"/>
-            <assignedAuthor>
-               <id extension="222334444" root="2.16.840.1.113883.4.6"/>
-               <code code="207QA0505X"
-                     codeSystem="2.16.840.1.113883.6.101"
-                     codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                     displayName="Adult Medicine"/>
-            </assignedAuthor>
-         </author>
-      </observation>
-   </entryRelationship>
-   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.3"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
-   <id root="b5159d48-04aa-4927-b355-00d1dcb7158c"/>
-   <code code="CONC"
-         codeSystem="2.16.840.1.113883.5.6"
-         displayName="Concern"/>
-   <statusCode code="completed"/>
-   <effectiveTime>
-								<!-- The low value represents when the problem was first recorded in the patient's chart -->
-								<!-- Concern was documented on Mar 10, 1998 -->
-      <low value="199803101030-0800"/>
-      <!-- The high value reflects when there was no longer a need to track the problem -->
-      <!-- Concern was closed on May 4, 1998 -->
-      <high value="199805041145-0800"/>
-   </effectiveTime>
-   <author typeCode="AUT">
-      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-      <!-- Same as Concern effectiveTime/low -->
-      <time value="199803161030-0800"/>
-      <assignedAuthor>
-         <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-         <code code="207QA0505X"
-               codeSystem="2.16.840.1.113883.6.101"
-               codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-               displayName="Adult Medicine"/>
-      </assignedAuthor>
-   </author>
-   <entryRelationship typeCode="SUBJ">
-      <observation classCode="OBS" moodCode="EVN">
-									<!-- ** Problem observation (V2) ** -->
-         <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
-         <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-         <id root="10506b4d-c30a-4220-8bec-97bff9568fd1"/>
-         <code code="64572001"
-               codeSystem="2.16.840.1.113883.6.96"
-               codeSystemName="SNOMED-CT"
-               displayName="Condition">
-										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
-										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
-										-->
-            <translation nullFlavor="NI"/>
-         </code>
-         <!-- The statusCode reflects the status of the observation itself -->
-         <statusCode code="completed"/>
-         <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-										<!-- Based on patient symptoms, presumed onset is Mar 10, 1998 -->
-            <low value="19980310"/>
-            <!-- The high value reflects when the problem was known to be resolved -->
-            <high value="19980316"/>
-         </effectiveTime>
-         <value code="233604007"
-                codeSystem="2.16.840.1.113883.6.96"
-                displayName="Pneumonia"
-                xsi:type="CD">
-            <qualifier>
-               <name code="363698007" displayName="Finding site"/>
-               <value code="41224006" displayName="Left lower lobe of lung"/>
-            </qualifier>
-         </value>
-         <author typeCode="AUT">
-            <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-            <time value="199803161030-0800"/>
-            <assignedAuthor>
-               <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-               <code code="207QA0505X"
-                     codeSystem="2.16.840.1.113883.6.101"
-                     codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                     displayName="Adult Medicine"/>
-            </assignedAuthor>
-         </author>
-      </observation>
-   </entryRelationship>
-   <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.12"/>
-   <templateId root="2.16.840.1.113883.10.20.22.4.12"/>
-   <id extension="1234567" root="1.2.3.4.5.6.7.8"/>
-   <code code="274025005"
-         codeSystem="2.16.840.1.113883.6.96"
-         codeSystemName="SNOMED CT"
-         displayName="Colonic polypectomy">
-      <originalText>
-         <reference value="#Proc1"/>
-      </originalText>
-   </code>
-   <statusCode code="completed"/>
-   <effectiveTime value="20110203"/>
-   <priorityCode code="CR"
-                 codeSystem="2.16.840.1.113883.5.7"
-                 codeSystemName="ActPriority"
-                 displayName="Callback results"/>
-   <performer>
-      <assignedEntity>
-         <id extension="1234" root="2.16.840.1.113883.19"/>
-         <addr>
-            <streetAddressLine>1001 Village Avenue</streetAddressLine>
-            <city>Portland</city>
-            <state>OR</state>
-            <postalCode>99123</postalCode>
-            <country>US</country>
-         </addr>
-         <telecom use="WP" value="tel: +1(555)555-5000"/>
-         <representedOrganization>
-            <id root="2.16.840.1.113883.19.5"/>
-            <name>Community Health and Hospitals</name>
-            <telecom use="WP" value="tel: +1(555)555-5000"/>
-            <addr>
-               <streetAddressLine>1001 Village Avenue</streetAddressLine>
-               <city>Portland</city>
-               <state>OR</state>
-               <postalCode>99123</postalCode>
-               <country>US</country>
-            </addr>
-         </representedOrganization>
-      </assignedEntity>
-   </performer>
-   <participant typeCode="LOC">
-      <participantRole classCode="SDLOC">
-									<!-- ** Service delivery location ** -->
-         <templateId root="2.16.840.1.113883.10.20.22.4.32"/>
-         <code code="1118-9"
-               codeSystem="2.16.840.1.113883.6.259"
-               codeSystemName="HL7 HealthcareServiceLocation"
-               displayName="Gastroenterology Clinic"/>
-         <addr>
-            <streetAddressLine>1009 Health Drive</streetAddressLine>
-            <city>Portland</city>
-            <state>OR</state>
-            <postalCode>99123</postalCode>
-            <country>US</country>
-         </addr>
-         <telecom use="WP" value="tel: +1(555)-555-5009"/>
-         <playingEntity classCode="PLC">
-            <name>Community Gastroenterology Clinic</name>
-         </playingEntity>
-      </participantRole>
-   </participant>
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <code code="SEV"
+                              codeSystem="2.16.840.1.113883.5.4"
+                              codeSystemName="ActCode"
+                              displayName="Severity Observation"/>
+                        <text>
+                           <reference value="#allergyseverity2"/>
+                        </text>
+                        <statusCode code="completed"/>
+                        <value code="255604002"
+                               codeSystem="2.16.840.1.113883.6.96"
+                               codeSystemName="SNOMED CT"
+                               displayName="Mild"
+                               xsi:type="CD"/>
+                     </observation>
+                  </entryRelationship>
+               </observation>
+            </entryRelationship>
+         </act>
+      </entry>
+   </section>
 </root>

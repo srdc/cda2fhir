@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -79,13 +80,30 @@ public class UnmappedFieldTest {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 
 		DOMSource source = new DOMSource(xmlDocument);
 		FileWriter writer = new FileWriter(sourcePath);
 		StreamResult result = new StreamResult(writer);
 		transformer.transform(source, result);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void searchNode(Node node, ArrayList<String> searchTerms) {
+		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+			if (node.getChildNodes().item(i).getNodeName().contentEquals(searchTerms.get(0))) {
+				if (searchTerms.size() == 1
+						&& node.getChildNodes().item(i).getNodeName().contentEquals(searchTerms.get(0))) {
+					node.removeChild(node.getChildNodes().item(i));
+				} else if (searchTerms.size() == 2
+						&& node.getChildNodes().item(i).getAttributes().getNamedItem(searchTerms.get(1)) != null) {
+					node.removeChild(node.getChildNodes().item(i));
+				} else {
+					ArrayList<String> newSearchTerms = (ArrayList<String>) searchTerms.clone();
+					newSearchTerms.remove(0);
+					searchNode(node.getChildNodes().item(i), newSearchTerms);
+				}
+			}
+		}
 	}
 
 	@Before
@@ -99,12 +117,22 @@ public class UnmappedFieldTest {
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> records = csvToList("AllergyConcernAct");
 		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
-		StringBuffer buff = new StringBuffer();
-		buff.append("//act/*");
-		for (int i = 1; i < records.size(); i++) {
-			buff.append("[not (self::" + records.get(i).get(0).replaceAll("\\[]", "") + ")]");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='48765-2']", body,
+				XPathConstants.NODESET);
+		// for (int i = 1; i < records.size(); i++) { // The list at 0 is just the
+		// headers.
+		for (int i = 1; i < 7; i++) { // The list at 0 is just the headers.
+			ArrayList<String> examples = new ArrayList<String>();
+			examples.add("entry");
+			String[] csvFields = records.get(i).get(0).replaceAll("\\[]", "").split("\\.");
+			for (String csvField : csvFields) {
+				examples.add(csvField);
+			}
+			System.out.println(examples.toString());
+			searchNode(xPathDocument.item(0), examples);
 		}
-		NodeList xPathDocument = (NodeList) XPATH.evaluate(buff.toString(), body, XPathConstants.NODESET);
+
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-unmapped.xml");
 	}
 
