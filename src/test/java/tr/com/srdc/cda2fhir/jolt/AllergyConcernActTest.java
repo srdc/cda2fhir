@@ -17,10 +17,13 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.generator.ADGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.ADXPGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AllergyConcernActGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AllergyObservationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AuthorGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ENXPGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.OrganizationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.PNGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
@@ -55,7 +58,7 @@ public class AllergyConcernActTest {
 
 		AllergyIntolerance allergy = BundleUtil.findOneResource(bundle, AllergyIntolerance.class);
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIRAllergyIntolerance", "json");
-		FHIRUtil.printJSON(allergy, filepath);
+		FHIRUtil.printJSON(bundle, filepath);
 
 		generator.verify(bundle);
 
@@ -124,5 +127,30 @@ public class AllergyConcernActTest {
 		ag.setPNGenerator(pnGenerator);
 		acag.setAuthorGenerator(ag);
 		runTest(acag, "nullFlavorRecorderPersonNoName");
+	}
+
+	@Test
+	public void testNullFlavorOrgAddress() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+
+		AuthorGenerator ag = new AuthorGenerator();
+		ag.setCode("thecode", "The Code Print");
+		OrganizationGenerator orgGenerator = new OrganizationGenerator("The Org Name");
+
+		ADGenerator adGenerator = new ADGenerator();
+
+		ADXPGenerator nullFlavorGenerator = new ADXPGenerator("Text");
+		nullFlavorGenerator.setNullFlavor("UNK");
+		adGenerator.setCity(nullFlavorGenerator);
+		adGenerator.setCountry(nullFlavorGenerator);
+		adGenerator.setCounty(nullFlavorGenerator);
+		adGenerator.setLine(nullFlavorGenerator);
+		adGenerator.setPostalCode(new ADXPGenerator("20876"));
+		adGenerator.setState(new ADXPGenerator("MD"));
+
+		orgGenerator.setADGenerator(adGenerator);
+		ag.setOrganizationGenerator(orgGenerator);
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "nullFlavorOrgAddress");
 	}
 }

@@ -28,6 +28,18 @@ public class OrganizationGenerator {
 	private List<ADGenerator> adGenerators = new ArrayList<>();
 	private List<TELGenerator> telGenerators = new ArrayList<>();
 
+	public OrganizationGenerator() {
+	}
+
+	public OrganizationGenerator(String name) {
+		this.name = name;
+	}
+
+	public void setADGenerator(ADGenerator adGenerator) {
+		adGenerators.clear();
+		adGenerators.add(adGenerator);
+	}
+
 	public void setNullFlavor() {
 		nullFlavor = "UNK";
 	}

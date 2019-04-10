@@ -64,6 +64,10 @@ public class EntityGenerator {
 		this.pnGenerator = pnGenerator;
 	}
 
+	public void setOrganizationGenerator(OrganizationGenerator organizationGenerator) {
+		this.organizationGenerator = organizationGenerator;
+	}
+
 	public String getCodeCode() {
 		return codeCode;
 	}

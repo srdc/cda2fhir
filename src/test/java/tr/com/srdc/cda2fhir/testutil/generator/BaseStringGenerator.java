@@ -87,8 +87,10 @@ public abstract class BaseStringGenerator<T extends ED> {
 		if (actualIndex > 0) {
 			Assert.assertEquals("String type count", actualIndex, actual.size());
 		} else {
-			Assert.assertTrue("Default element", actual.size() == 1);
-			Assert.assertTrue("No string type", !actual.get(0).hasValue());
+			Assert.assertTrue("Default element", actual.size() <= 1);
+			if (actual.size() == 1) {
+				Assert.assertTrue("No string type", !actual.get(0).hasValue());
+			}
 		}
 	}
 }

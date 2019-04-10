@@ -258,11 +258,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			String value = (String) identifier.get("value");
 			IdentifierMap<String> map = (IdentifierMap<String>) temporaryContext.get("RefDisplaysByIdentifier");
 			if (map == null) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			String display = map.get(fhirType, system, value);
 			if (display == null) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			return Optional.of(display);
 		}
@@ -472,6 +472,19 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class NullIfMap extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return null;
+			}
+			if (arg instanceof Map) {
+				return Optional.of(null);
+			}
+			return Optional.empty();
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -493,6 +506,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("true", new True());
 		AMIDA_FUNCTIONS.put("constantSystem", new ConstantSystem());
 		AMIDA_FUNCTIONS.put("contentOrSelf", new ContentOrSelf());
+		AMIDA_FUNCTIONS.put("nullIfMap", new NullIfMap());
 	}
 
 	private Modifier.Overwritr modifier;

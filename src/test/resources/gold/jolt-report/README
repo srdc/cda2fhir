@@ -10,6 +10,9 @@ ID -> Identifier
 TEL -> ContactPoint
 PN -> HumanName
 IVL_TSPeriod -> Period
+IVL_PQRange -> Range
+IVL_PQSimpleQuantity -> Quantity
+PIVL_TSTiming -> Timing
 
 Each of the CDA data types have their own report. In other reports data types are not expanded and are shown in link column.
 
@@ -19,6 +22,11 @@ AllergyConcernAct: AllergyIntolerance, Practitioner, PractitionerRole, Organizat
 EncounterActivity: Encounter, Condition (multiple), Location (multiple), Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
 ProblemConcernAct: Condition (multiple), Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
 ProcedureActivityProcedure: Procedure, Practitioner (multiple), PractitionerRole (multiple), Organization (multiple)
+PatientRole: Patient, Practitioner, PractitionerRole, Organization
+ImmunizationActivitity: Immunization, Observation, Organization (multiple), Practitioner (multiple), PractitionerRole (multiple)
+MedicationActivity: MedicationStatement, MedicationRequest, Medication, Condition (multiple), Practitioner, PractitionerRole, Organization
+ResultOrganizer: DiagnosticReport, Observation, Practitioner, Organization, PractitionerRole
+VitalSignsOrganizer: Observation (multiple), Practitioner, PractitionerRole, Organization
 
 Each of the top level CDA template is primarily responsible for the first FHIR resource in the list.
 
@@ -30,7 +38,9 @@ EntityPractitionerRole: PractitionerRole
 Indication: Condition
 ProblemObservation: Condition, Practitioner, PractitionerRole, Organization
 ServiceDeliveryLocation: Location
-
+MedicationInformation: Medication, Organization
+Observation: Observation, Practitioner, PractitionerRole, Organization
+ 
 All files are csv files with 5 types of columns
 
 1. CCDA Source
@@ -39,7 +49,7 @@ This columns shows the CCDA Source path. This can be either a direct CCDA path (
 
 2/3. Target & Link
 
-This column shows the FHIR target of the CCDA Source colunmn. This is a FHIR path that starts with a Resource Type (AllergyIntolerance.code, AllergyIntolerance.code). Path can be either to a leaf field (AllergyIntolerance.assertedDate), to a data type like Codeable Concept (AllergyIntolerance.code), or a standalone Resource (Organization). In the latter two cases an entry in the link column show how futher mapping is to be accomplished. Each link corresponds to a report file in this directory.
+This column shows the FHIR target of the CCDA Source colunmn. This is a FHIR path that starts with a Resource Type (AllergyIntolerance.code, AllergyIntolerance.code). Path can be either to a leaf field (AllergyIntolerance.assertedDate), to a data type like Codeable Concept (AllergyIntolerance.code), or a standalone Resource (Organization). In the latter two cases an entry in the link column show how further mapping is to be accomplished. Each link corresponds to a report file in this directory.
 
 4. Format
 
@@ -50,14 +60,19 @@ valueSetAdapter: Converts a value in CDA value set to a value in FHIR value sets
 systemAdapter: Converts a CDA OID to FHIR system.
 maxDateTime: Returns the most recent date time in an array of date times.
 getId: Returns the id of a resource to be used in a reference field. This is used when a CCDA source in the same table results in a Resource and the id of that resource is to be a source in another resource field
+getDisplayReference: Returns the display of a resource to be used next to reference id.
 piece: Returns a piece of a delimited string.
 lastElement: Returns the last element of an array.
 lastPiece: Returns the last piece of a delimited string.
 selectOnNull: Returns the first entry if the source is null or the latter if it is not.
-conditionClinicalStatusAdapter: This is a custom logic for Condition resource clinical status based on effective time.
 referenceAdapter: This accepts an identifier and converts it to a resource id to be used in a reference.
+
+valueSetAdapter uses a number of mappings and are included
 
 5. Conditions
 
 This lists the conditions under which the mapping is done. There might be multiple conditions.  
+ 
+ 
+ 
  
