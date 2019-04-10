@@ -6,6 +6,12 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
 			"extension": {
@@ -21,7 +27,9 @@
 					}
 				}
 			},
-			"#official": "use"
+			"root": {
+				"#official": "use"
+			}
 		}
 	},
 	{
@@ -32,7 +40,7 @@
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
-		"spec" : {
+		"spec": {
 			"system": "=systemAdapter(@0)"
 		}
 	}

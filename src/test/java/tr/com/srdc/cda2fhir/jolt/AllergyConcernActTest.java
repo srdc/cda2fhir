@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -8,8 +9,12 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.conf.Config;
@@ -43,15 +48,14 @@ public class AllergyConcernActTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	private static void runTest(AllergyConcernActGenerator generator, String caseName) throws Exception {
-		AllergyProblemAct apa = generator.generate(factories);
-
-		File xmlFile = CDAUtilExtension.writeAsXML(apa, OUTPUT_PATH, caseName);
+	private static void runTest(AllergyProblemAct act, String caseName, AllergyConcernActGenerator generator)
+			throws Exception {
+		File xmlFile = CDAUtilExtension.writeAsXML(act, OUTPUT_PATH, caseName);
 
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
-		IEntryResult cda2FhirResult = rt.tAllergyProblemAct2AllergyIntolerance(apa, new BundleInfo(rt));
+		IEntryResult cda2FhirResult = rt.tAllergyProblemAct2AllergyIntolerance(act, new BundleInfo(rt));
 
 		Bundle bundle = cda2FhirResult.getBundle();
 		Assert.assertNotNull("Allergy bundle", bundle);
@@ -60,12 +64,34 @@ public class AllergyConcernActTest {
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIRAllergyIntolerance", "json");
 		FHIRUtil.printJSON(bundle, filepath);
 
-		generator.verify(bundle);
+		if (generator != null) {
+			generator.verify(bundle);
+		}
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "AllergyConcernAct", caseName);
 
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 		joltUtil.verify(allergy);
+	}
+
+	private static void runTest(AllergyConcernActGenerator generator, String caseName) throws Exception {
+		AllergyProblemAct act = generator.generate(factories);
+		runTest(act, caseName, generator);
+	}
+
+	private static void runSampleTest(String sourceName) throws Exception {
+		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+
+		AllergiesSection section = cda.getAllergiesSection();
+
+		int index = 0;
+		for (AllergyProblemAct act : section.getAllergyProblemActs()) {
+			String caseName = sourceName.substring(0, sourceName.length() - 4) + "_" + index;
+			runTest(act, caseName, null);
+			++index;
+		}
 	}
 
 	@Test
@@ -152,5 +178,128 @@ public class AllergyConcernActTest {
 		ag.setOrganizationGenerator(orgGenerator);
 		acag.setAuthorGenerator(ag);
 		runTest(acag, "nullFlavorOrgAddress");
+	}
+
+	@Test
+	public void testSample1() throws Exception {
+		runSampleTest("C-CDA_R2-1_CCD.xml");
+	}
+
+	@Test
+	public void testSample2() throws Exception {
+		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
+	}
+
+	@Test
+	public void testSample3() throws Exception {
+		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample1() throws Exception {
+		runSampleTest("Epic/DOC0001.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample2() throws Exception {
+		runSampleTest("Epic/DOC0001 2.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample3() throws Exception {
+		runSampleTest("Epic/DOC0001 3.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample4() throws Exception {
+		runSampleTest("Epic/DOC0001 4.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample5() throws Exception {
+		runSampleTest("Epic/DOC0001 5.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample6() throws Exception {
+		runSampleTest("Epic/DOC0001 6.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample7() throws Exception {
+		runSampleTest("Epic/DOC0001 7.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample8() throws Exception {
+		runSampleTest("Epic/DOC0001 8.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample9() throws Exception {
+		runSampleTest("Epic/DOC0001 9.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample10() throws Exception {
+		runSampleTest("Epic/DOC0001 10.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample11() throws Exception {
+		runSampleTest("Epic/DOC0001 11.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample12() throws Exception {
+		runSampleTest("Epic/DOC0001 12.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample13() throws Exception {
+		runSampleTest("Epic/DOC0001 13.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample14() throws Exception {
+		runSampleTest("Epic/DOC0001 14.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample15() throws Exception {
+		runSampleTest("Epic/DOC0001 15.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample16() throws Exception {
+		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample1() throws Exception {
+		runSampleTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample2() throws Exception {
+		runSampleTest("Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
 	}
 }

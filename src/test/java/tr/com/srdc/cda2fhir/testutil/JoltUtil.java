@@ -455,7 +455,9 @@ public class JoltUtil {
 		OrgJsonUtil util = OrgJsonUtil.readXML(xmlFile.toString());
 		JSONObject json = util.getJSONObject();
 		String parentPath = xmlFile.getParent();
-		File jsonFile = new File(parentPath, caseName + ".json");
+		String[] pieces = caseName.split("/");
+		String filename = pieces[pieces.length - 1];
+		File jsonFile = new File(parentPath, filename + ".json");
 		FileUtils.writeStringToFile(jsonFile, json.toString(4), Charset.defaultCharset());
 
 		List<Object> joltResult = TransformManager.transformEntryInFile(templateName, jsonFile.toString());
@@ -702,6 +704,20 @@ public class JoltUtil {
 
 		Map<String, Object> joltPractitioner = TransformManager.chooseResourceByReference(result, joltReference);
 		Assert.assertNotNull("Jolt practitioner", joltPractitioner);
+
+		if (practitioner.hasAddress()) {
+			practitioner.getAddress().forEach(address -> {
+				if (address.hasLine()) {
+					address.getLine().forEach(line -> {
+						String lineStr = line.asStringValue();
+						String cleanLineStr = line.asStringValue().trim();
+						if (!cleanLineStr.equals(lineStr)) {
+							line.setValueAsString(cleanLineStr);
+						}
+					});
+				}
+			});
+		}
 
 		verify(practitioner, joltPractitioner, null);
 

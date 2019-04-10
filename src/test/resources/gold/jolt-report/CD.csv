@@ -1,7 +1,7 @@
-CCDA Source,Target,Link,Format
-code,coding[].code,,
-translation[].code,coding[].code,,
-displayName,coding[].display,,
-translation[].displayName,coding[].display,,
-codeSystem,coding[].system,,
-translation[].codeSystem,coding[].system,,
+CCDA Source,Target,Link,Format,Condition 1
+code,coding[].code,,,code isnotnull
+translation[].code,coding[].code,,,code isnotnull
+displayName,coding[].display,,,code isnotnull
+translation[].displayName,coding[].display,,,code isnotnull
+codeSystem,coding[].system,,,code isnotnull
+translation[].codeSystem,coding[].system,,,code isnotnull

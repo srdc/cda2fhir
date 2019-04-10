@@ -11,9 +11,11 @@ import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.cda.Person;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -26,6 +28,9 @@ public class EntityGenerator {
 
 	private String codeCode;
 	private String codePrintName;
+
+	private List<ADGenerator> adGenerators = new ArrayList<>();
+	private List<TELGenerator> telGenerators = new ArrayList<>();
 
 	private PNGenerator pnGenerator;
 	private OrganizationGenerator organizationGenerator;
@@ -41,6 +46,16 @@ public class EntityGenerator {
 					"Healthcare Provider Taxonomy (HIPAA)", codePrintName);
 			entity.setCode(ce);
 		}
+
+		adGenerators.forEach(adGenerator -> {
+			AD ad = adGenerator.generate(factories);
+			entity.addAD(ad);
+		});
+
+		telGenerators.forEach(telGenerator -> {
+			TEL tel = telGenerator.generate(factories);
+			entity.addTEL(tel);
+		});
 
 		if (pnGenerator != null) {
 			PN pn = pnGenerator.generate(factories);
@@ -89,6 +104,9 @@ public class EntityGenerator {
 
 		eg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
 
+		eg.adGenerators.add(ADGenerator.getDefaultInstance());
+		eg.telGenerators.add(TELGenerator.getDefaultInstance());
+
 		eg.pnGenerator = PNGenerator.getDefaultInstance();
 		eg.organizationGenerator = OrganizationGenerator.getDefaultInstance();
 	}
@@ -100,6 +118,9 @@ public class EntityGenerator {
 		eg.idGenerators.add(IDGenerator.getNextInstance());
 
 		eg.setCode(DEFAULT_CODE_CODE, DEFAULT_CODE_PRINTNAME);
+
+		eg.adGenerators.add(ADGenerator.getFullInstance());
+		eg.telGenerators.add(TELGenerator.getFullInstance());
 
 		eg.pnGenerator = PNGenerator.getFullInstance();
 		eg.organizationGenerator = OrganizationGenerator.getFullInstance();
@@ -114,11 +135,21 @@ public class EntityGenerator {
 		}
 
 		if (!idGenerators.isEmpty()) {
-			for (int index = 0; index < idGenerators.size(); ++index) {
-				idGenerators.get(index).verify(practitioner.getIdentifier().get(index));
-			}
+			IDGenerator.verifyList(practitioner.getIdentifier(), idGenerators);
 		} else {
 			Assert.assertTrue("No practitioner identifier", !practitioner.hasIdentifier());
+		}
+
+		if (adGenerators.isEmpty()) {
+			Assert.assertTrue("Missing practioner address", !practitioner.hasAddress());
+		} else {
+			ADGenerator.verifyList(practitioner.getAddress(), adGenerators);
+		}
+
+		if (telGenerators.isEmpty()) {
+			Assert.assertTrue("Missing practioner telecom", !practitioner.hasTelecom());
+		} else {
+			TELGenerator.verifyList(practitioner.getTelecom(), telGenerators);
 		}
 	}
 
