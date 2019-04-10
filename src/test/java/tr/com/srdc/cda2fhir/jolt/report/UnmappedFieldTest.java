@@ -171,26 +171,6 @@ public class UnmappedFieldTest {
 //	public void testAuthorParticipantion() throws IOException, XPathExpressionException, ParserConfigurationException,
 //			SAXException, TransformerFactoryConfigurationError, TransformerException {
 //		List<List<String>> csvRecords = csvToList("AuthorParticipation");
-//		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
-//
-//		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='XXX']", body,
-//				XPathConstants.NODESET);
-//
-//		generateFilteredNodeList(csvRecords, xPathDocument);
-//		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-AuthorParticipation-unmapped.xml");
-//	}
-
-//	@Test
-//	public void testCD() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
-//			TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("CD");
-//		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
-//
-//		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='48765-2']", body,
-//				XPathConstants.NODESET);
-//
-//		generateFilteredNodeList(csvRecords, xPathDocument);
-//		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-CD-unmapped.xml");
 //	}
 
 	@Test
@@ -206,4 +186,67 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-EncounterActivity-unmapped.xml");
 	}
 
+//	@Test
+//	public void testEntityOrganization() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
+//			TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("EntityOrganization");
+//	}
+
+//	@Test
+//	public void testEntityPractitioner() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
+//			TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("EntityPractitioner");
+//	}
+
+//	@Test
+//	public void testEntityPractitionerRole() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
+//			TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("EntityPractitionerRole");
+//	}
+
+//	@Test
+//	public void testID() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
+//			TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("ID");
+//	}
+
+	@Test
+	public void testImmunizationActivity() throws IOException, XPathExpressionException, ParserConfigurationException,
+			SAXException, TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("ImmunizationActivity");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='11369-6']", body,
+				XPathConstants.NODESET);
+
+		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ImmunizationActivity-unmapped.xml");
+	}
+
+//	@Test
+//	public void testImmunizationMedicationInformation() throws IOException, XPathExpressionException, ParserConfigurationException,
+//			SAXException, TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("ImmunizationMedicationInformation");
+//	}
+
+//	@Test
+//	public void testIndication() throws IOException, XPathExpressionException, ParserConfigurationException,
+//			SAXException, TransformerFactoryConfigurationError, TransformerException {
+//		List<List<String>> csvRecords = csvToList("Indication");
+//	}
+
+	// IVL_PQRange, SimpleQuantity and TSPeriod.
+
+	@Test
+	public void testProblemConcernAct() throws IOException, XPathExpressionException, ParserConfigurationException,
+			SAXException, TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("ProblemConcernAct");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='11450-4']", body,
+				XPathConstants.NODESET);
+
+		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ProblemConcernAct-unmapped.xml");
+	}
 }

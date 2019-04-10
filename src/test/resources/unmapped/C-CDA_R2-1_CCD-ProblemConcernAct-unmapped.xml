@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <section>
+					<!--  *** Problem Section (entries required) (V3) *** -->
+      <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.2.5.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+      <code code="11450-4"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"
+            displayName="PROBLEM LIST"/>
+      <title>PROBLEMS</title>
+      <text>
+         <paragraph>Active Concerns</paragraph>
+         <list>
+            <item>Problem #1<list>
+                  <item>Pneumonia (onset July 3, 2013; resolution Aug 14, 2013) [authored Aug 14, 2013]</item>
+               </list>
+            </item>
+            <item>Problem #2<list>
+                  <item>Chest pain (onset Apr 14, 2007) [authored Apr 14, 2007]</item>
+                  <item>Angina (onset Apr 17, 2007) [authored Apr 17, 2007]</item>
+               </list>
+            </item>
+         </list>
+         <paragraph>Resolved Concerns</paragraph>
+         <list>
+            <item>Problem #3<list>
+                  <item>Pneumonia - Left lower lobe (onset Mar 10, 1998; resolution Mar 16, 1998) [authored Mar 16,
+                    1998]</item>
+               </list>
+            </item>
+         </list>
+      </text>
+      <entry typeCode="DRIV">
+         <act classCode="ACT" moodCode="EVN">
+							<!-- ** Problem Concern Act (V3) ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.3"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+            <id root="ec8a6ff8-ed4b-4f7e-82c3-e98e58b45de7"/>
+            <code code="CONC"
+                  codeSystem="2.16.840.1.113883.5.6"
+                  displayName="Concern"/>
+            <!-- The statusCode represents the need to continue tracking the problem -->
+            <!-- This is of ongoing concern to the provider -->
+            <statusCode code="active"/>
+            <effectiveTime>
+								<!-- The low value represents when the problem was first recorded in the patient's chart -->
+								<!-- Concern was documented on July 6, 2013 -->
+               <low value="201307061145-0800"/>
+            </effectiveTime>
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <!-- Same as Concern effectiveTime/low -->
+               <time value="201307061145-0800"/>
+               <assignedAuthor>
+                  <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                  <code code="207QA0505X"
+                        codeSystem="2.16.840.1.113883.6.101"
+                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                        displayName="Adult Medicine"/>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Problem observation  (V3)** -->
+                  <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="ab1791b0-5c71-11db-b0de-0800200c9a66"/>
+                  <code code="64572001"
+                        codeSystem="2.16.840.1.113883.6.96"
+                        codeSystemName="SNOMED-CT"
+                        displayName="Condition">
+										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
+										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
+										-->
+                     <translation nullFlavor="NI"/>
+                  </code>
+                  <!-- The statusCode reflects the status of the observation itself -->
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+										<!-- The low value reflects the date of onset -->
+										<!-- Based on patient symptoms, presumed onset is July 3, 2013 -->
+                     <low value="20130703"/>
+                     <!-- The high value reflects when the problem was known to be resolved -->
+                     <!-- Based on signs and symptoms, appears to be resolved on Aug 14, 2013 -->
+                     <high value="20080814"/>
+                  </effectiveTime>
+                  <value code="233604007"
+                         codeSystem="2.16.840.1.113883.6.96"
+                         displayName="Pneumonia"
+                         xsi:type="CD"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="200808141030-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </entryRelationship>
+         </act>
+      </entry>
+      <entry typeCode="DRIV">
+         <act classCode="ACT" moodCode="EVN">
+							<!-- Problem concern act ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.3"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+            <id root="682f6be1-0793-42f4-904b-e199e6e8e457"/>
+            <code code="CONC"
+                  codeSystem="2.16.840.1.113883.5.6"
+                  displayName="Concern"/>
+            <!-- The statusCode represents the need to continue tracking the problem -->
+            <statusCode code="active"/>
+            <!-- This is of ongoing concern to the provider -->
+            <effectiveTime>
+								<!-- The low value represents when the problem was first recorded in the patient's chart -->
+               <low value="200704141515-0800"/>
+               <!-- Concern was documented on Apr 14, 2007 -->
+            </effectiveTime>
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <time value="200704141515-0800"/>
+               <!-- Same as Concern effectiveTime/low -->
+               <assignedAuthor>
+                  <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                  <code code="207QA0505X"
+                        codeSystem="2.16.840.1.113883.6.101"
+                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                        displayName="Adult Medicine"/>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Problem observation ** -->
+                  <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="11d088a8-b957-401c-8ee0-3bd20a772fc0"/>
+                  <code code="64572001"
+                        codeSystem="2.16.840.1.113883.6.96"
+                        codeSystemName="SNOMED-CT"
+                        displayName="Condition">
+										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
+										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
+										-->
+                     <translation nullFlavor="NI"/>
+                  </code>
+                  <!-- The statusCode reflects the status of the observation itself -->
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+										<!-- The low value reflects the date of onset -->
+                     <low value="20070414"/>
+                     <!-- Based on patient symptoms, presumed onset is July 3, 2013 -->
+                     <!-- Absence of effectiveTime/high means the condition is not resolved -->
+                  </effectiveTime>
+                  <value code="29857009"
+                         codeSystem="2.16.840.1.113883.6.96"
+                         displayName="Chest pain"
+                         xsi:type="CD"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="200704141515-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </entryRelationship>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Problem observation ** -->
+                  <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="4991db40-4c4f-41e8-9146-50c12d716424"/>
+                  <code code="64572001"
+                        codeSystem="2.16.840.1.113883.6.96"
+                        codeSystemName="SNOMED-CT"
+                        displayName="Condition">
+										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
+										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
+										-->
+                     <translation nullFlavor="NI"/>
+                  </code>
+                  <!-- The statusCode reflects the status of the observation itself -->
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+										<!-- The low value reflects the date of onset -->
+                     <low value="20070417"/>
+                     <!-- Absence of effectiveTime/high means the condition is not resolved -->
+                  </effectiveTime>
+                  <value code="194828000"
+                         codeSystem="2.16.840.1.113883.6.96"
+                         displayName="Angina"
+                         xsi:type="CD"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="200704171515-0800"/>
+                     <assignedAuthor>
+                        <id extension="222334444" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </entryRelationship>
+         </act>
+      </entry>
+      <entry typeCode="DRIV">
+         <act classCode="ACT" moodCode="EVN">
+							<!-- ** Problem concern act (V2) ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.3"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+            <id root="b5159d48-04aa-4927-b355-00d1dcb7158c"/>
+            <code code="CONC"
+                  codeSystem="2.16.840.1.113883.5.6"
+                  displayName="Concern"/>
+            <!-- The statusCode represents the need to continue tracking the problem -->
+            <!-- This is no longer of ongoing concern to the provider -->
+            <statusCode code="completed"/>
+            <effectiveTime>
+								<!-- The low value represents when the problem was first recorded in the patient's chart -->
+								<!-- Concern was documented on Mar 10, 1998 -->
+               <low value="199803101030-0800"/>
+               <!-- The high value reflects when there was no longer a need to track the problem -->
+               <!-- Concern was closed on May 4, 1998 -->
+               <high value="199805041145-0800"/>
+            </effectiveTime>
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <!-- Same as Concern effectiveTime/low -->
+               <time value="199803161030-0800"/>
+               <assignedAuthor>
+                  <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                  <code code="207QA0505X"
+                        codeSystem="2.16.840.1.113883.6.101"
+                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                        displayName="Adult Medicine"/>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Problem observation (V2) ** -->
+                  <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="10506b4d-c30a-4220-8bec-97bff9568fd1"/>
+                  <code code="64572001"
+                        codeSystem="2.16.840.1.113883.6.96"
+                        codeSystemName="SNOMED-CT"
+                        displayName="Condition">
+										<!-- a.	This code SHALL contain at least one [1..*] translation, which SHOULD be selected from ValueSet Problem Type (LOINC)
+										<translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
+										-->
+                     <translation nullFlavor="NI"/>
+                  </code>
+                  <!-- The statusCode reflects the status of the observation itself -->
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+										<!-- The low value reflects the date of onset -->
+										<!-- Based on patient symptoms, presumed onset is Mar 10, 1998 -->
+                     <low value="19980310"/>
+                     <!-- The high value reflects when the problem was known to be resolved -->
+                     <high value="19980316"/>
+                  </effectiveTime>
+                  <value code="233604007"
+                         codeSystem="2.16.840.1.113883.6.96"
+                         displayName="Pneumonia"
+                         xsi:type="CD">
+                     <qualifier>
+                        <name code="363698007" displayName="Finding site"/>
+                        <value code="41224006" displayName="Left lower lobe of lung"/>
+                     </qualifier>
+                  </value>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="199803161030-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </entryRelationship>
+         </act>
+      </entry>
+   </section>
+</root>
