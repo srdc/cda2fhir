@@ -154,7 +154,7 @@ public class ValidatorTest {
 	}
 
 	// HannahBanana_EpicCCD.xml
-	@Test
+	@Ignore
 	public void testHannahBanana() throws Exception {
 		String cdaResourcePath = "src/test/resources/Epic/HannahBanana_EpicCCD-pretty.xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Epic/HannahBanana_EpicCCD-pretty.fhir.xml";
@@ -165,7 +165,7 @@ public class ValidatorTest {
 	}
 
 	// Person-RAKIA_TEST_DOC0001 (1).xml
-	@Test
+	@Ignore
 	public void testRakia() throws Exception {
 		String cdaResourcePath = "src/test/resources/Cerner/Person-RAKIA_TEST_DOC00001 (1).xml";
 		String targetPathForFHIRResource = "src/test/resources/output/Cerner/Person-RAKIA_TEST_DOC00001 (1).fhir.xml";
