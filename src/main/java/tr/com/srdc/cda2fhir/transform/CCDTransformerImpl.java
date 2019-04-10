@@ -372,7 +372,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 							ref.setReference(resource.getId());
 						}
 					}
-					if (sectionResult.hasDefferredReferences()) {
+					if (sectionResult.hasDeferredReferences()) {
 						deferredReferences.addAll(sectionResult.getDeferredReferences());
 					}
 					bundleInfo.updateFrom(sectionResult);

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
 import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
@@ -16,9 +17,9 @@ import tr.com.srdc.cda2fhir.transform.util.impl.CDACDMap;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDAIIMap;
 
 public abstract class SectionResult implements ISectionResult {
+
 	private Bundle bundle;
 	private List<IDeferredReference> deferredReferences;
-
 	private CDAIIMap<IEntityInfo> entities;
 	private CDAIIResourceMaps<IBaseResource> resourceMaps;
 	private CDACDMap<IBaseResource> cdMap;
@@ -32,7 +33,7 @@ public abstract class SectionResult implements ISectionResult {
 	}
 
 	@Override
-	public boolean hasDefferredReferences() {
+	public boolean hasDeferredReferences() {
 		return deferredReferences != null && !deferredReferences.isEmpty();
 	}
 
@@ -66,6 +67,10 @@ public abstract class SectionResult implements ISectionResult {
 			if (resourceMaps == null) {
 				resourceMaps = new CDAIIResourceMaps<IBaseResource>();
 			}
+
+			if (cdMap == null) {
+				cdMap = new CDACDMap<IBaseResource>();
+			}
 			entities.put(entryResult);
 			resourceMaps.put(entryResult);
 			cdMap.put(entryResult);
@@ -73,7 +78,7 @@ public abstract class SectionResult implements ISectionResult {
 	}
 
 	@Override
-	public void putCDValuesTo(Map<String, IBaseResource> target) {
+	public void putCDValuesTo(Map<String, Map<String, IBaseResource>> target) {
 		if (cdMap != null) {
 			cdMap.putCDValuesTo(target);
 		}
@@ -92,6 +97,21 @@ public abstract class SectionResult implements ISectionResult {
 		if (entities != null) {
 			entities.putExtensionValuesTo(target);
 		}
+	}
+
+	@Override
+	public boolean hasEntities() {
+		return entities != null;
+	}
+
+	@Override
+	public boolean hasIIResourceMaps() {
+		return resourceMaps != null;
+	}
+
+	@Override
+	public boolean hasCDMap() {
+		return cdMap != null;
 	}
 
 	@Override
@@ -133,4 +153,15 @@ public abstract class SectionResult implements ISectionResult {
 	public boolean hasCDMapValues() {
 		return cdMap != null && cdMap.hasCDMapValues();
 	}
+
+	@Override
+	public boolean hasMapValues() {
+		return entities != null || resourceMaps != null || cdMap != null;
+	}
+
+	@Override
+	public void putCDResource(CD cd, IBaseResource resource) {
+		cdMap.put(cd, resource);
+	}
+
 }

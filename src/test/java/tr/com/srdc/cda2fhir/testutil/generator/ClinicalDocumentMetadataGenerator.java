@@ -5,6 +5,7 @@ import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
 import org.openhealthtools.mdht.uml.cda.Performer1;
 import org.openhealthtools.mdht.uml.cda.ServiceEvent;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -45,10 +46,9 @@ public class ClinicalDocumentMetadataGenerator {
 		factories = CDAFactories.init();
 	}
 
-	public ClinicalDocument generateClinicalDoc(CDAFactories factories) {
+	public ContinuityOfCareDocument generateClinicalDoc(CDAFactories factories) {
 
-		ClinicalDocument doc = factories.base.createClinicalDocument();
-
+		ContinuityOfCareDocument doc = factories.consol.createContinuityOfCareDocument();
 		// No way to set realm code?
 		// CS realmCode = genRealmCode(factories, DEFAULT_REALM_CODE);
 		II id = genId(factories, DEFAULT_ID_ROOT, DEFAULT_ASSN_AUTH);

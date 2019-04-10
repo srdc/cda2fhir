@@ -12,8 +12,9 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
-import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.IResult;
 
 public class LocalBundleInfo implements IBundleInfo {
 	private IBundleInfo bundleInfo;
@@ -23,6 +24,10 @@ public class LocalBundleInfo implements IBundleInfo {
 
 	public LocalBundleInfo(IBundleInfo bundleInfo) {
 		this.bundleInfo = bundleInfo;
+		entities.put(bundleInfo.getEntities());
+		resourceMaps.put(bundleInfo.getResourceMaps());
+		cdMap.put(bundleInfo.getCDMap());
+
 	}
 
 	@Override
@@ -40,7 +45,8 @@ public class LocalBundleInfo implements IBundleInfo {
 		return bundleInfo.getReferenceByIdentifier(fhirType, identifier);
 	}
 
-	public void updateFrom(IEntryResult source) {
+	@Override
+	public void updateFrom(IResult source) {
 		if (source.hasEntities()) {
 			entities.put(source);
 		}
@@ -50,7 +56,14 @@ public class LocalBundleInfo implements IBundleInfo {
 		if (source.hasCDMap()) {
 			cdMap.put(source);
 		}
+	}
 
+	@Override
+	public void updateFrom(IEntityResult entityResult) {
+		List<II> iis = entityResult.getNewIds();
+		if (iis != null) {
+			entities.put(iis, entityResult.getInfo());
+		}
 	}
 
 	@Override
@@ -89,8 +102,24 @@ public class LocalBundleInfo implements IBundleInfo {
 		return result;
 	}
 
+	@Override
 	public IBaseResource findResourceResult(CD cd) {
 		return cdMap.get(cd);
+	}
+
+	@Override
+	public CDAIIMap<IEntityInfo> getEntities() {
+		return entities;
+	}
+
+	@Override
+	public CDAIIResourceMaps<IBaseResource> getResourceMaps() {
+		return resourceMaps;
+	}
+
+	@Override
+	public CDACDMap<IBaseResource> getCDMap() {
+		return cdMap;
 	}
 
 }
