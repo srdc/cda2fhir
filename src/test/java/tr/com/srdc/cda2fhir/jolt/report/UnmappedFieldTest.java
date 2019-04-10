@@ -249,4 +249,31 @@ public class UnmappedFieldTest {
 		generateFilteredNodeList(csvRecords, xPathDocument);
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ProblemConcernAct-unmapped.xml");
 	}
+
+	@Test
+	public void testProcedureActivityProcedure() throws IOException, XPathExpressionException,
+			ParserConfigurationException, SAXException, TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("ProcedureActivityProcedure");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='47519-4']", body,
+				XPathConstants.NODESET);
+
+		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ProcedureActivityProcedure-unmapped.xml");
+	}
+
+	// TODO: This is broken, deleting only ONE component, not both.
+	@Test
+	public void testVitalSignsOrganizer() throws IOException, XPathExpressionException, ParserConfigurationException,
+			SAXException, TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("VitalSignsOrganizer");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='8716-3']", body,
+				XPathConstants.NODESET);
+
+		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-VitalSignsOrganizer-unmapped.xml");
+	}
 }

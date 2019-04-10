@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <section>
+					<!-- ** Vital Signs Section (entries required) (V3) ** -->
+      <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.2.4.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.4.1"/>
+      <code code="8716-3"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"
+            displayName="VITAL SIGNS"/>
+      <title>VITAL SIGNS</title>
+      <text>
+         <table border="1" width="100%">
+            <thead>
+               <tr>
+                  <th align="right">Date / Time: </th>
+                  <th>Sept 10, 2012</th>
+                  <th>Sept 1, 2011</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <th align="left">Height</th>
+                  <td ID="vit1">177 cm</td>
+                  <td ID="vit2">177 cm</td>
+               </tr>
+               <tr>
+                  <th align="left">Weight</th>
+                  <td ID="vit3">86 kg</td>
+                  <td ID="vit4">88 kg</td>
+               </tr>
+               <tr>
+                  <th align="left">Blood Pressure</th>
+                  <td ID="vit5">132/88</td>
+                  <td ID="vit6">128/80</td>
+               </tr>
+            </tbody>
+         </table>
+      </text>
+      <entry typeCode="DRIV">
+         <organizer classCode="CLUSTER" moodCode="EVN">
+							<!-- ** Vital signs organizer (V3) ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.26"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+            <id root="31b73bd0-cffc-4599-902e-dbe54bc56cb4"/>
+            <code code="46680005"
+                  codeSystem="2.16.840.1.113883.6.96"
+                  codeSystemName="SNOMED CT"
+                  displayName="Vital signs">
+								<!-- A vitals organizer conformant to both C-CDA 1.1 and C-CDA 2.1 would contain the SNOMED code (46680005) from R1.1 in the root code and a LOINC code in the translation -->
+               <translation code="74728-7"
+                            codeSystem="2.16.840.1.113883.6.1"
+                            codeSystemName="LOINC"
+                            displayName="Vital signs"/>
+            </code>
+            <statusCode code="completed"/>
+            <effectiveTime>
+               <low value="20120910"/>
+               <high value="20120910"/>
+            </effectiveTime>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <id root="f4e729e2-a97f-4a7e-8e23-c92f9b6b55cf"/>
+                  <code code="3141-9"
+                        codeSystem="2.16.840.1.113883.6.1"
+                        codeSystemName="LOINC"
+                        displayName="Patient Body Weight - Measured"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20120910"/>
+                  <value unit="kg" value="86" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201209101145-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <id root="a0e39c70-9674-4b2a-9837-cdf74200d8d5"/>
+                  <code code="8480-6"
+                        codeSystem="2.16.840.1.113883.6.1"
+                        codeSystemName="LOINC"
+                        displayName="Intravascular Systolic"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20120910"/>
+                  <value unit="mm[Hg]" value="132" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201209101145-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <id root="1c2748b7-e440-41ba-bc01-dde97d84a036"/>
+                  <code code="8462-4"
+                        codeSystem="2.16.840.1.113883.6.1"
+                        codeSystemName="LOINC"
+                        displayName="BP Diastolic"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20120910"/>
+                  <value unit="mm[Hg]" value="88" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201109010915-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </component>
+         </organizer>
+      </entry>
+      <entry typeCode="DRIV">
+         <organizer classCode="CLUSTER" moodCode="EVN">
+							<!-- ** Vital signs organizer ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.26"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+            <id root="24f6ad18-c512-40fc-82bd-1e131aa9e52b"/>
+            <code code="46680005"
+                  codeSystem="2.16.840.1.113883.6.96"
+                  codeSystemName="SNOMED CT"
+                  displayName="Vital signs">
+								<!-- A vitals organizer conformant to both C-CDA 1.1 and C-CDA 2.1 would contain the SNOMED code (46680005) from R1.1 in the root code and a LOINC code in the translation -->
+               <translation code="74728-7"
+                            codeSystem="2.16.840.1.113883.6.1"
+                            codeSystemName="LOINC"
+                            displayName="Vital signs"/>
+            </code>
+            <statusCode code="completed"/>
+            <effectiveTime>
+               <low value="20110901"/>
+               <high value="20110901"/>
+            </effectiveTime>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <id root="21b0f3d5-7d07-4f4f-ad7e-c33dc2ca3835"/>
+                  <code code="3141-9"
+                        codeSystem="2.16.840.1.113883.6.1"
+                        codeSystemName="LOINC"
+                        displayName="Patient Body Weight - Measured"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20110901"/>
+                  <value unit="kg" value="88" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201109010915-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <id root="b046c35a-59c7-4215-ae09-9a8409a30b21"/>
+                  <code code="8480-6"
+                        codeSystem="2.16.840.1.113883.6.1"
+                        codeSystemName="LOINC"
+                        displayName="BP Systolic"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20110901"/>
+                  <value unit="mm[Hg]" value="128" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201109010915-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <id root="44f54e66-fb4b-4ee5-9ced-9574ef307a23"/>
+                  <code code="8462-4"
+                        codeSystem="2.16.840.1.113883.6.1"
+                        codeSystemName="LOINC"
+                        displayName="BP Diastolic"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20110901"/>
+                  <value unit="mm[Hg]" value="80" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201109010915-0800"/>
+                     <assignedAuthor>
+                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                        <code code="207QA0505X"
+                              codeSystem="2.16.840.1.113883.6.101"
+                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                              displayName="Adult Medicine"/>
+                     </assignedAuthor>
+                  </author>
+               </observation>
+            </component>
+         </organizer>
+      </entry>
+   </section>
+</root>
