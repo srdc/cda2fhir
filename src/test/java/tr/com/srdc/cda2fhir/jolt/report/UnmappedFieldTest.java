@@ -89,26 +89,27 @@ public class UnmappedFieldTest {
 
 	@SuppressWarnings("unchecked")
 	public boolean searchNode(Node node, ArrayList<String> searchTerms) {
+		boolean deleteNode = false;
 		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
 			if (node.getChildNodes().item(i).getNodeName().contentEquals(searchTerms.get(0))) {
 				if (searchTerms.size() == 1
 						&& node.getChildNodes().item(i).getNodeName().contentEquals(searchTerms.get(0))) {
 					node.removeChild(node.getChildNodes().item(i));
+					deleteNode = true;
 					for (int j = 0; j < node.getChildNodes().getLength(); j++) {
 						if (node.getChildNodes().item(j).getNodeType() < 3) { // Ignore comments and text.
-							return false;
+							deleteNode = false;
 						}
 					}
-					return true;
 				} else if (searchTerms.size() == 2
 						&& node.getChildNodes().item(i).getAttributes().getNamedItem(searchTerms.get(1)) != null) {
 					node.removeChild(node.getChildNodes().item(i));
 					for (int j = 0; j < node.getChildNodes().getLength(); j++) {
+						deleteNode = true;
 						if (node.getChildNodes().item(j).getNodeType() < 3) { // Ignore comments and text.
-							return false;
+							deleteNode = false;
 						}
 					}
-					return true;
 				} else {
 					ArrayList<String> newSearchTerms = (ArrayList<String>) searchTerms.clone();
 					newSearchTerms.remove(0);
@@ -118,7 +119,7 @@ public class UnmappedFieldTest {
 				}
 			}
 		}
-		return false;
+		return deleteNode;
 	}
 
 	public void generateFilteredNodeList(List<List<String>> csvRecords, NodeList xPathDocument) {
@@ -139,20 +140,16 @@ public class UnmappedFieldTest {
 		directory.mkdir();
 	}
 
-	@Test
-	public void testAD() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
-			TransformerFactoryConfigurationError, TransformerException {
-		List<List<String>> csvRecords = csvToList("AD");
-		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
-		// I'm assuming AD is short for Advanced Directive.
-		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='42348-3']", body,
-				XPathConstants.NODESET);
+	// Was told not to do the following ones:
+	// 42348-3 Advanced directives
+	// 10157-6 Family history
+	// 47420-5 Functional status
+	// 46264-8 Medical equipment
+	// 48768-6 Insurance providers
+	// 18776-5 Treatment plan
+	// 29762-2 Social history
 
-		generateFilteredNodeList(csvRecords, xPathDocument);
-		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-AD-unmapped.xml");
-	}
-
-	@Test
+	@Test // Also known as "Allergies and Adverse Reactions" Code: 48765-2
 	public void testAllergyConcernAct() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> csvRecords = csvToList("AllergyConcernAct");
@@ -165,15 +162,8 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-AllergyConcernAct-unmapped.xml");
 	}
 
-	// The commented out ones confuse me and I don't know how to deal with them.
-
-//	@Test
-//	public void testAuthorParticipantion() throws IOException, XPathExpressionException, ParserConfigurationException,
-//			SAXException, TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("AuthorParticipation");
-//	}
-
-	@Test
+	@Test // Also known as "Encounters" Code: 48765-2, but this was not mentioned as
+			// needed.
 	public void testEncounterActivity() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> csvRecords = csvToList("EncounterActivity");
@@ -186,31 +176,7 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-EncounterActivity-unmapped.xml");
 	}
 
-//	@Test
-//	public void testEntityOrganization() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
-//			TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("EntityOrganization");
-//	}
-
-//	@Test
-//	public void testEntityPractitioner() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
-//			TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("EntityPractitioner");
-//	}
-
-//	@Test
-//	public void testEntityPractitionerRole() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
-//			TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("EntityPractitionerRole");
-//	}
-
-//	@Test
-//	public void testID() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
-//			TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("ID");
-//	}
-
-	@Test
+	@Test // "Immunizations" Code: 11369-6
 	public void testImmunizationActivity() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> csvRecords = csvToList("ImmunizationActivity");
@@ -223,21 +189,7 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ImmunizationActivity-unmapped.xml");
 	}
 
-//	@Test
-//	public void testImmunizationMedicationInformation() throws IOException, XPathExpressionException, ParserConfigurationException,
-//			SAXException, TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("ImmunizationMedicationInformation");
-//	}
-
-//	@Test
-//	public void testIndication() throws IOException, XPathExpressionException, ParserConfigurationException,
-//			SAXException, TransformerFactoryConfigurationError, TransformerException {
-//		List<List<String>> csvRecords = csvToList("Indication");
-//	}
-
-	// IVL_PQRange, SimpleQuantity and TSPeriod.
-
-	@Test
+	@Test // "Problems" Code: 11450-4
 	public void testProblemConcernAct() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> csvRecords = csvToList("ProblemConcernAct");
@@ -250,7 +202,7 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ProblemConcernAct-unmapped.xml");
 	}
 
-	@Test
+	@Test // "Procedures" Code: 47519-4
 	public void testProcedureActivityProcedure() throws IOException, XPathExpressionException,
 			ParserConfigurationException, SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> csvRecords = csvToList("ProcedureActivityProcedure");
@@ -263,8 +215,7 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ProcedureActivityProcedure-unmapped.xml");
 	}
 
-	// TODO: This is broken, deleting only ONE component, not both.
-	@Test
+	@Test // "Vital Signs" Code 8716-3
 	public void testVitalSignsOrganizer() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
 		List<List<String>> csvRecords = csvToList("VitalSignsOrganizer");
