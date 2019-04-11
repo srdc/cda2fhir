@@ -21,16 +21,20 @@ public class ReferenceInfo {
 	 */
 	public static String getDisplay(Resource resource) {
 
-		if (resource.getNamedProperty("code") != null && !resource.getNamedProperty("code").getValues().isEmpty()) {
+		System.out.println(resource.toString());
 
-			// TODO: Should really be checking all the encodings for one.
-			CodeableConcept code = (CodeableConcept) resource.getNamedProperty("code").getValues().get(0);
-			if (code != null) {
-				if (code.hasText()) {
-					return code.getText();
-				} else if (resource instanceof PractitionerRole || resource instanceof Procedure) {
-					if (code.getCodingFirstRep() != null && code.getCodingFirstRep().getDisplay() != null) {
-						return code.getCodingFirstRep().getDisplay();
+		if (resource.getNamedProperty("code") != null) {
+			if (!resource.getNamedProperty("code").getValues().isEmpty()) {
+
+				// TODO: Should really be checking all the encodings for one.
+				CodeableConcept code = (CodeableConcept) resource.getNamedProperty("code").getValues().get(0);
+				if (code != null) {
+					if (code.hasText()) {
+						return code.getText();
+					} else if (resource instanceof PractitionerRole || resource instanceof Procedure) {
+						if (code.getCodingFirstRep() != null && code.getCodingFirstRep().getDisplay() != null) {
+							return code.getCodingFirstRep().getDisplay();
+						}
 					}
 				}
 			}

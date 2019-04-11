@@ -882,7 +882,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						result.updateFrom(entityResult);
 						bundleInfo.updateFrom(entityResult);
 						if (fhirComp != null && entityResult.hasPractitioner()) {
+
 							fhirComp.addAuthor().setReference(entityResult.getPractitionerId());
+							String referenceString = ReferenceInfo.getDisplay(entityResult.getPractitioner());
+							if (referenceString != null) {
+								fhirComp.getAuthor().get(0).setDisplay(referenceString);
+							}
+
 						}
 					}
 				}

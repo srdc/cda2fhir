@@ -373,9 +373,14 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 					FHIRUtil.mergeBundle(sectionResult.getBundle(), ccdBundle);
 					if (fhirSec != null) {
 						List<? extends Resource> resources = sectionResult.getSectionResources();
+
 						for (Resource resource : resources) {
 							Reference ref = fhirSec.addEntry();
 							ref.setReference(resource.getId());
+							String referenceString = ReferenceInfo.getDisplay(resource);
+							if (referenceString != null) {
+								ref.setDisplay(referenceString);
+							}
 						}
 					}
 					if (sectionResult.hasDefferredReferences()) {
