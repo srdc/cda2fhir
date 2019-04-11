@@ -28,6 +28,8 @@ import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
+import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.json.JSONArray;
@@ -220,6 +222,28 @@ public class JoltUtil {
 		@Override
 		public Reference getPatientReference() {
 			return condition.getSubject();
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+		}
+	}
+
+	private static class ProcedureInfo extends ResourceInfo {
+		private Procedure procedure;
+
+		public ProcedureInfo(Procedure procedure) {
+			this.procedure = procedure;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return procedure.getSubject();
 		}
 
 		@Override
@@ -867,4 +891,75 @@ public class JoltUtil {
 	public List<Map<String, Object>> findResources(String resourceType) {
 		return TransformManager.chooseResources(result, resourceType);
 	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(Procedure procedure, Map<String, Object> joltProcedure) throws Exception {
+		ProcedureInfo info = new ProcedureInfo(procedure);
+
+		Map<String, Object> joltClone = joltProcedure == null ? null : new LinkedHashMap<>(joltProcedure);
+
+		if (procedure.hasPerformer()) {
+			List<ProcedurePerformerComponent> performers = procedure.getPerformer();
+			List<Object> joltPerformers = (List<Object>) joltClone.get("performer");
+
+			Assert.assertEquals("Performer count", joltPerformers.size(), performers.size());
+
+			for (int index = 0; index < performers.size(); ++index) {
+				ProcedurePerformerComponent performer = performers.get(index);
+				Map<String, Object> joltPerformer = (Map<String, Object>) joltPerformers.get(index);
+
+				if (performer.hasActor() || performer.hasOnBehalfOf()) {
+					joltPerformer = new LinkedHashMap<String, Object>(joltPerformer);
+					joltPerformers.set(index, joltPerformer);
+				}
+
+				if (performer.hasActor()) {
+					String reference = performer.getActor().getReference();
+					String joltReference = findPathString(joltPerformer, "actor.reference");
+
+					Assert.assertNotNull("Jolt actor reference exists", joltReference);
+
+					verifyEntity(reference, joltReference);
+
+					Map<String, Object> joltActor = (Map<String, Object>) joltPerformer.get("actor");
+					joltActor = new LinkedHashMap<String, Object>(joltActor);
+					joltPerformer.put("actor", joltActor);
+
+					joltActor.put("reference", reference);
+				} else {
+					Assert.assertNull("No performer actor", joltPerformer.get("actor"));
+				}
+				if (performer.hasOnBehalfOf()) {
+					String reference = performer.getOnBehalfOf().getReference();
+					String joltReference = findPathString(joltPerformer, "onBehalfOf.reference");
+
+					Assert.assertNotNull("Jolt ob behalf reference exists", joltReference);
+
+					Organization org = bundleUtil.getResourceFromReference(reference, Organization.class);
+					Map<String, Object> joltOrg = TransformManager.chooseResourceByReference(result, joltReference);
+
+					verify(org, joltOrg, null);
+
+					Map<String, Object> joltOnBehalfOf = (Map<String, Object>) joltPerformer.get("onBehalfOf");
+					joltOnBehalfOf = new LinkedHashMap<String, Object>(joltOnBehalfOf);
+					joltPerformer.put("onBehalfOf", joltOnBehalfOf);
+
+					joltOnBehalfOf.put("reference", reference);
+				} else {
+					Assert.assertNull("No performer on behalf", joltPerformer.get("onBehalf"));
+				}
+			}
+		} else {
+			String value = findPathString(joltProcedure, "recorder.reference");
+			Assert.assertNull("No recorder", value);
+		}
+
+		verify(procedure, joltClone, info);
+	}
+
+	public void verify(Procedure procedure) throws Exception {
+		Map<String, Object> joltProcedure = TransformManager.chooseResource(result, "Procedure");
+		verify(procedure, joltProcedure);
+	}
+
 }
