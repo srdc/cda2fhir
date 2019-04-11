@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,10 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
+import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
+import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ProblemConcernActGenerator {
@@ -115,5 +119,33 @@ public class ProblemConcernActGenerator {
 						condition.getVerificationStatus().toCode());
 			}
 		}
+	}
+
+	public static void reorderActObservations(CDAFactories factories, ProblemConcernAct act,
+			List<Condition> conditions) {
+		IdentifierMap<Integer> orderMap = IdentifierMapFactory.resourcesToOrder(conditions);
+		List<ProblemObservation> observations = new ArrayList<>();
+		act.getProblemObservations().forEach(r -> observations.add(r));
+
+		observations.sort((a, b) -> {
+			int aval = CDAUtilExtension.idValue("Condition", a.getIds(), orderMap);
+			int bval = CDAUtilExtension.idValue("Condition", b.getIds(), orderMap);
+			return aval - bval;
+		});
+
+		Iterator<EntryRelationship> it = act.getEntryRelationships().iterator();
+		while (it.hasNext()) {
+			EntryRelationship er = it.next();
+			if (er.getObservation() instanceof ProblemObservation) {
+				it.remove();
+			}
+		}
+
+		observations.forEach(po -> {
+			EntryRelationship er = factories.base.createEntryRelationship();
+			act.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ);
+			er.setObservation(po);
+		});
 	}
 }

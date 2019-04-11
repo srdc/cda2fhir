@@ -473,6 +473,26 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class ResolveText extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return null;
+			}
+			if (!(arg instanceof String)) {
+				return Optional.of(null);
+			}
+			String currentValue = (String) arg;
+			Map<String, Object> map = (Map<String, Object>) temporaryContext.get("Annotations");
+			if (map == null || currentValue.isEmpty() || currentValue.charAt(0) != '#') {
+				return Optional.of(null);
+			}
+			String value = (String) map.get(currentValue.substring(1));
+			return Optional.of(value);
+		}
+	}
+
 	public static final class NullIfMap extends Function.SingleFunction<Object> {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
@@ -508,6 +528,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("constantSystem", new ConstantSystem());
 		AMIDA_FUNCTIONS.put("contentOrSelf", new ContentOrSelf());
 		AMIDA_FUNCTIONS.put("nullIfMap", new NullIfMap());
+		AMIDA_FUNCTIONS.put("resolveText", new ResolveText());
 	}
 
 	private Modifier.Overwritr modifier;

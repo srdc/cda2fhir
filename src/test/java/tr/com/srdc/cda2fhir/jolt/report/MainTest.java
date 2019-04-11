@@ -75,6 +75,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testCD2() throws Exception {
+		actualTest("CD2");
+	}
+
+	@Test
 	public void testIVL_TSPeriod() throws Exception {
 		actualTest("IVL_TSPeriod");
 	}

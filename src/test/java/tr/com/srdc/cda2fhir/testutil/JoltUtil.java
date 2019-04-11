@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -298,6 +299,20 @@ public class JoltUtil {
 		Assert.assertEquals(path + " value count", 1, value.size());
 		Assert.assertTrue(path + " value is map", value.get(0) instanceof Map);
 		return (Map<String, Object>) value.get(0);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Consumer<Map<String, Object>> getFloatUpdate(String current, String replacement) {
+		return r -> {
+			List<Object> codings = JoltUtil.findPathValue(r, "code.coding[]");
+			codings.forEach(coding -> {
+				Map<String, Object> codingAsMap = (Map<String, Object>) coding;
+				Object code = codingAsMap.get("code");
+				if (code != null && current.equals(code.toString())) {
+					codingAsMap.put("code", replacement);
+				}
+			});
+		};
 	}
 
 	private static final Map<String, String> PATIENT_PROPERTY = new HashMap<>();

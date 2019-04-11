@@ -2,19 +2,23 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.eclipse.emf.common.util.EList;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
@@ -24,71 +28,57 @@ import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.ProblemConcernActGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
+import tr.com.srdc.cda2fhir.transform.section.ICDASection;
+import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
+import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
+import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
-public class ProblemConcernActTest {
+public class ProblemSectionTest {
+	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/ProblemSection/";
+
 	private static CDAFactories factories;
 	private static ResourceTransformerImpl rt;
-
-	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/ProblemConcernAct/";
 
 	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-		factories = CDAFactories.init();
 		rt = new ResourceTransformerImpl();
+		factories = CDAFactories.init();
 	}
 
-	private static void runTest(ProblemConcernAct pca, String caseName, ProblemConcernActGenerator generator)
-			throws Exception {
-		Config.setGenerateNarrative(false);
-		Config.setGenerateDafProfileMetadata(false);
-
-		IEntryResult cda2FhirResult = rt.tProblemConcernAct2Condition(pca, new BundleInfo(rt));
-
-		Bundle bundle = cda2FhirResult.getBundle();
-		Assert.assertNotNull("Problem bundle", bundle);
-		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
-		for (int index = 0; index < conditions.size(); ++index) {
-			Condition condition = conditions.get(index);
-			String filepath = String.format("%s%s%s%s%s", OUTPUT_PATH, caseName, "CDA2FHIRCondition",
-					index == 0 ? "" : index, ".json");
-			FHIRUtil.printJSON(condition, filepath);
-		}
-		if (generator != null) {
-			generator.verify(bundle);
-		}
-
-		// CDAUtil reorders randomly, follow its order for easy comparison
-		ProblemConcernActGenerator.reorderActObservations(factories, pca, conditions);
-		File xmlFile = CDAUtilExtension.writeAsXML(pca, OUTPUT_PATH, caseName);
-
-		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "ProblemConcernAct", caseName);
-		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
-
-		List<Map<String, Object>> joltConditions = TransformManager.chooseResources(joltResult, "Condition");
-		if (conditions.isEmpty()) {
-			Assert.assertTrue("No conditions", joltConditions.isEmpty());
-		} else {
-			for (int index = 0; index < conditions.size(); ++index) {
-				Condition condition = conditions.get(index);
-				Map<String, Object> joltCondition = joltConditions.get(index);
-				if (customJoltUpdate != null) {
-					customJoltUpdate.accept(joltCondition);
-				}
-
-				joltUtil.verify(condition, joltCondition);
+	private static void reorderSectionActs(ProblemSection section, List<Condition> conditions) {
+		IdentifierMap<Integer> orderMap = IdentifierMapFactory.resourcesToOrder(conditions);
+		List<ProblemConcernAct> acts = new ArrayList<>();
+		section.getConsolProblemConcerns().forEach(act -> acts.add(act));
+		acts.sort((a, b) -> {
+			EList<ProblemObservation> alist = a.getProblemObservations();
+			EList<ProblemObservation> blist = b.getProblemObservations();
+			if (alist.size() == 0) {
+				return -1;
 			}
-		}
-	}
+			if (blist.size() == 0) {
+				return 1;
+			}
+			ProblemObservation apo = alist.get(0);
+			ProblemObservation bpo = blist.get(0);
+			int aval = CDAUtilExtension.idValue("Condition", apo.getIds(), orderMap);
+			int bval = CDAUtilExtension.idValue("Condition", bpo.getIds(), orderMap);
+			return aval - bval;
+		});
 
-	private static void runTest(ProblemConcernActGenerator generator, String caseName) throws Exception {
-		ProblemConcernAct pca = generator.generate(factories);
-		runTest(pca, caseName, generator);
+		section.getEntries().clear();
+		acts.forEach(act -> {
+			ProblemConcernActGenerator.reorderActObservations(factories, act, conditions);
+			Entry entry = factories.base.createEntry();
+			entry.setAct(act);
+			section.getEntries().add(entry);
+		});
 	}
 
 	private static void runSampleTest(String sourceName) throws Exception {
@@ -98,24 +88,42 @@ public class ProblemConcernActTest {
 
 		ProblemSection section = cda.getProblemSection();
 
-		int index = 0;
-		for (ProblemConcernAct act : section.getConsolProblemConcerns()) {
-			String caseName = sourceName.substring(0, sourceName.length() - 4) + "_" + index;
-			runTest(act, caseName, null);
-			++index;
+		Config.setGenerateNarrative(false);
+		Config.setGenerateDafProfileMetadata(false);
+
+		ICDASection cdaSection = CDASectionTypeEnum.PROBLEM_SECTION.toCDASection(section);
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
+		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
+		Bundle bundle = sectionResult.getBundle();
+
+		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
+
+		// CDAUtil reorders randomly, follow its order for easy comparison
+		reorderSectionActs(section, conditions);
+
+		String caseName = sourceName.substring(0, sourceName.length() - 4);
+		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);
+
+		List<Object> joltResult = JoltUtil.findJoltSectionResult(xmlFile, "ProblemSection", caseName);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
+
+		List<Map<String, Object>> joltConditions = joltUtil.findResources("Condition");
+
+		int count = conditions.size();
+		Assert.assertEquals("Allergy intolerance resource count", count, joltConditions.size());
+
+		for (int index = 0; index < count; ++index) {
+			Condition condition = conditions.get(index);
+			Map<String, Object> joltCondition = joltConditions.get(index);
+			if (customJoltUpdate != null) {
+				customJoltUpdate.accept(joltCondition);
+			}
+
+			joltUtil.verify(condition, joltCondition);
 		}
-	}
-
-	@Test
-	public void testDefault() throws Exception {
-		ProblemConcernActGenerator generator = ProblemConcernActGenerator.getDefaultInstance();
-		runTest(generator, "defaultCase");
-	}
-
-	@Test
-	public void testFull() throws Exception {
-		ProblemConcernActGenerator generator = ProblemConcernActGenerator.getFullInstance();
-		runTest(generator, "fullCase");
 	}
 
 	@Test
