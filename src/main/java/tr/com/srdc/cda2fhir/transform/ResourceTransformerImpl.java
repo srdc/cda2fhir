@@ -901,7 +901,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					cdaClinicalDocument.getLegalAuthenticator().getAssignedEntity(), bundleInfo);
 			result.updateFrom(entityResult);
 			bundleInfo.updateFrom(entityResult);
-			Reference reference = entityResult.getPractitionerReference();
+			Reference reference = getReference(entityResult.getPractitioner());
 			if (attester != null && reference != null) {
 				attester.setParty(reference);
 			}
@@ -918,7 +918,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				EntityResult entityResult = tAssignedEntity2Practitioner(authenticator.getAssignedEntity(), bundleInfo);
 				result.updateFrom(entityResult);
 				bundleInfo.updateFrom(entityResult);
-				Reference reference = entityResult.getPractitionerReference();
+				Reference reference = getReference(entityResult.getPractitioner());
 				if (attester != null && reference != null) {
 					attester.setParty(reference);
 				}
@@ -944,7 +944,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							EntityResult entityResult = tPerformer12Practitioner(performer, bundleInfo);
 							if (entityResult.hasPractitioner()) {
 								result.updateFrom(entityResult);
-								Reference reference = entityResult.getPractitionerReference();
+								Reference reference = getReference(entityResult.getPractitioner());
 								event.addDetail(reference);
 							}
 						}
@@ -1110,7 +1110,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						EncounterParticipantComponent fhirParticipant = new EncounterParticipantComponent();
 						// default encounter participant type code
 						fhirParticipant.addType().addCoding(Config.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
-						fhirParticipant.setIndividual(entityResult.getPractitionerReference());
+						fhirParticipant.setIndividual(getReference(entityResult.getPractitioner()));
 						fhirEncounter.addParticipant(fhirParticipant);
 					}
 				}
@@ -1603,7 +1603,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						ImmunizationPractitionerComponent perf = fhirImmunization.addPractitioner();
 						perf.getRole().addCoding().setSystem("http://hl7.org/fhir/v2/0443").setCode("AP")
 								.setDisplay("Administering Provider");
-						perf.setActor(entityResult.getPractitionerReference());
+						perf.setActor(getReference(entityResult.getPractitioner()));
 						fhirImmunization.setPrimarySource(true);
 					}
 				}
@@ -1965,7 +1965,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				EntityResult entityResult = tAuthor2Practitioner(cdaMedicationActivity.getAuthors().get(0), bundleInfo);
 				result.updateFrom(entityResult);
 				if (entityResult.hasPractitioner()) {
-					fhirMedSt.setInformationSource(entityResult.getPractitionerReference());
+					fhirMedSt.setInformationSource(getReference(entityResult.getPractitioner()));
 				}
 			}
 		}
@@ -2181,7 +2181,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					EntityResult entityResult = tPerformer22Practitioner(cdaPerformer, bundleInfo);
 					result.updateFrom(entityResult);
 					if (entityResult.hasPractitioner()) {
-						fhirMediDisp.addPerformer().setActor(entityResult.getPractitionerReference());
+						fhirMediDisp.addPerformer().setActor(getReference(entityResult.getPractitioner()));
 					}
 				}
 			}
@@ -2353,7 +2353,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(entityResult);
 			if (entityResult.hasPractitioner()) {
 				MedicationRequestRequesterComponent requester = new MedicationRequestRequesterComponent();
-				requester.setAgent(entityResult.getPractitionerReference());
+				requester.setAgent(getReference(entityResult.getPractitioner()));
 				medRequest.setRequester(requester);
 			}
 		}
@@ -2895,7 +2895,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
 				result.updateFrom(entityResult);
 				if (entityResult.hasPractitioner()) {
-					fhirCondition.setAsserter(entityResult.getPractitionerReference());
+					fhirCondition.setAsserter(getReference(entityResult.getPractitioner()));
 				}
 				// author.time -> assertedDate
 				if (author.getTime() != null && !author.getTime().isSetNullFlavor()) {
@@ -2962,7 +2962,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					ProcedurePerformerComponent fhirPerformer = new ProcedurePerformerComponent();
 					fhirProc.addPerformer(fhirPerformer);
 					if (entityResult.hasPractitioner()) {
-						fhirPerformer.setActor(entityResult.getPractitionerReference());
+						fhirPerformer.setActor(getReference(entityResult.getPractitioner()));
 					}
 					if (entityResult.hasOrganization()) {
 						fhirPerformer.setOnBehalfOf(entityResult.getOrganizationReference());
@@ -3174,7 +3174,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					result.updateFrom(entityResult);
 					// TODO: what about role?
 					if (entityResult.hasPractitioner()) {
-						fhirDiagReport.addPerformer().setActor(entityResult.getPractitionerReference());
+						fhirDiagReport.addPerformer().setActor(getReference(entityResult.getPractitioner()));
 					}
 				}
 			}
