@@ -43,12 +43,12 @@ procedure.performer[].assignedEntity.assignedPerson.name[].use[],Procedure.Perfo
 procedure.performer[].assignedEntity.telecom[].value,Procedure.Performer[].Practitioner.telecom[].system,,"piece(':',0) valueSetAdapter('ContactPointSystem','phone')",nullFlavor isnull,procedure.performer[].assignedEntity.telecom[].nullFlavor isnull
 procedure.performer[].assignedEntity.telecom[].use,Procedure.Performer[].Practitioner.telecom[].use,,"lastPiece(' ') valueSetAdapter('ContactPointUse','temp')",nullFlavor isnull,procedure.performer[].assignedEntity.telecom[].nullFlavor isnull
 procedure.performer[].assignedEntity.telecom[].value,Procedure.Performer[].Practitioner.telecom[].value,,"piece(':',1)",nullFlavor isnull,procedure.performer[].assignedEntity.telecom[].nullFlavor isnull
-procedure.performer[].assignedEntity.code.code,Procedure.Performer[].PractitionerRole.code[].coding[0].code,,,nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
-procedure.performer[].assignedEntity.code.displayName,Procedure.Performer[].PractitionerRole.code[].coding[0].display,,,nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
-procedure.performer[].assignedEntity.code.codeSystem,Procedure.Performer[].PractitionerRole.code[].coding[0].system,,,nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
-procedure.performer[].assignedEntity.code.translation[].code,Procedure.Performer[].PractitionerRole.code[].coding[].code,,,nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
-procedure.performer[].assignedEntity.code.translation[].displayName,Procedure.Performer[].PractitionerRole.code[].coding[].display,,,nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
-procedure.performer[].assignedEntity.code.translation[].codeSystem,Procedure.Performer[].PractitionerRole.code[].coding[].system,,"systemAdapter",nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
+procedure.performer[].assignedEntity.code.code,Procedure.Performer[].PractitionerRole.code[].coding[0].code,,,nullFlavor isnull,procedure.performer[].assignedEntity.code.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
+procedure.performer[].assignedEntity.code.displayName,Procedure.Performer[].PractitionerRole.code[].coding[0].display,,,nullFlavor isnull,procedure.performer[].assignedEntity.code.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
+procedure.performer[].assignedEntity.code.codeSystem,Procedure.Performer[].PractitionerRole.code[].coding[0].system,,,nullFlavor isnull,procedure.performer[].assignedEntity.code.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
+procedure.performer[].assignedEntity.code.translation[].code,Procedure.Performer[].PractitionerRole.code[].coding[].code,,,nullFlavor isnull,procedure.performer[].assignedEntity.code.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
+procedure.performer[].assignedEntity.code.translation[].displayName,Procedure.Performer[].PractitionerRole.code[].coding[].display,,,nullFlavor isnull,procedure.performer[].assignedEntity.code.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
+procedure.performer[].assignedEntity.code.translation[].codeSystem,Procedure.Performer[].PractitionerRole.code[].coding[].system,,"systemAdapter",nullFlavor isnull,procedure.performer[].assignedEntity.code.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
 procedure.performer[].assignedEntity.representedOrganization.id.0.assigningAuthorityName,Procedure.Performer[].PractitionerRole.organization.display.assigner.display,,,nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.id.0.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
 procedure.performer[].assignedEntity.representedOrganization.id.0.root,Procedure.Performer[].PractitionerRole.organization.display.system,,"systemAdapter",nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.id.0.extension isnotnull,procedure.performer[].assignedEntity.representedOrganization.id.0.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
 #official,Procedure.Performer[].PractitionerRole.organization.display.use,,,nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.id.0.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
@@ -69,18 +69,18 @@ procedure.performer[].assignedEntity.id.root,Procedure.Performer[].PractitionerR
 #official,Procedure.Performer[].PractitionerRole.practitioner.reference.use,,,nullFlavor isnull,procedure.performer[].assignedEntity.id.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
 procedure.performer[].assignedEntity.id.extension,Procedure.Performer[].PractitionerRole.practitioner.reference.value,,,nullFlavor isnull,procedure.performer[].assignedEntity.id.extension isnotnull,procedure.performer[].assignedEntity.id.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
 procedure.performer[].assignedEntity.id.root,Procedure.Performer[].PractitionerRole.practitioner.reference.value,,,nullFlavor isnull,procedure.performer[].assignedEntity.id.extension isnull,procedure.performer[].assignedEntity.id.nullFlavor isnull,procedure.performer[].assignedEntity.representedOrganization isnotnull,procedure.performer[].assignedEntity.representedOrganization.nullFlavor isnull
-procedure.targetSiteCode[].code,Procedure.bodySite[].coding[0].code,,,nullFlavor isnull
-procedure.targetSiteCode[].displayName,Procedure.bodySite[].coding[0].display,,,nullFlavor isnull
-procedure.targetSiteCode[].codeSystem,Procedure.bodySite[].coding[0].system,,,nullFlavor isnull
-procedure.targetSiteCode[].translation[].code,Procedure.bodySite[].coding[].code,,,nullFlavor isnull
-procedure.targetSiteCode[].translation[].displayName,Procedure.bodySite[].coding[].display,,,nullFlavor isnull
-procedure.targetSiteCode[].translation[].codeSystem,Procedure.bodySite[].coding[].system,,"systemAdapter",nullFlavor isnull
-procedure.code.code,Procedure.code.coding[0].code,,,nullFlavor isnull
-procedure.code.displayName,Procedure.code.coding[0].display,,,nullFlavor isnull
-procedure.code.codeSystem,Procedure.code.coding[0].system,,,nullFlavor isnull
-procedure.code.translation[].code,Procedure.code.coding[].code,,,nullFlavor isnull
-procedure.code.translation[].displayName,Procedure.code.coding[].display,,,nullFlavor isnull
-procedure.code.translation[].codeSystem,Procedure.code.coding[].system,,"systemAdapter",nullFlavor isnull
+procedure.targetSiteCode[].code,Procedure.bodySite[].coding[0].code,,,nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
+procedure.targetSiteCode[].displayName,Procedure.bodySite[].coding[0].display,,,nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
+procedure.targetSiteCode[].codeSystem,Procedure.bodySite[].coding[0].system,,,nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
+procedure.targetSiteCode[].translation[].code,Procedure.bodySite[].coding[].code,,,nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
+procedure.targetSiteCode[].translation[].displayName,Procedure.bodySite[].coding[].display,,,nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
+procedure.targetSiteCode[].translation[].codeSystem,Procedure.bodySite[].coding[].system,,"systemAdapter",nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
+procedure.code.code,Procedure.code.coding[0].code,,,nullFlavor isnull,procedure.code.nullFlavor isnull
+procedure.code.displayName,Procedure.code.coding[0].display,,,nullFlavor isnull,procedure.code.nullFlavor isnull
+procedure.code.codeSystem,Procedure.code.coding[0].system,,,nullFlavor isnull,procedure.code.nullFlavor isnull
+procedure.code.translation[].code,Procedure.code.coding[].code,,,nullFlavor isnull,procedure.code.nullFlavor isnull
+procedure.code.translation[].displayName,Procedure.code.coding[].display,,,nullFlavor isnull,procedure.code.nullFlavor isnull
+procedure.code.translation[].codeSystem,Procedure.code.coding[].system,,"systemAdapter",nullFlavor isnull,procedure.code.nullFlavor isnull
 procedure.id[].assigningAuthorityName,Procedure.identifier[].assigner.display,,,nullFlavor isnull,procedure.id[].nullFlavor isnull
 procedure.id[].root,Procedure.identifier[].system,,"systemAdapter",nullFlavor isnull,procedure.id[].extension isnotnull,procedure.id[].nullFlavor isnull
 #official,Procedure.identifier[].use,,,nullFlavor isnull,procedure.id[].nullFlavor isnull
@@ -92,10 +92,10 @@ procedure.effectiveTime.value,Procedure.performedPeriod.start,,"datetimeAdapter"
 Procedure.PractitionerRole[].code.0,Procedure.performer[&2].role,,
 Procedure.Practitioner[],Procedure.performer[].actor.reference,,"getId"
 Procedure.Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
-procedure.entryRelationship[].observation.code.code,Procedure.reasonCode[].coding[0].code,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
-procedure.entryRelationship[].observation.code.displayName,Procedure.reasonCode[].coding[0].display,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
-procedure.entryRelationship[].observation.code.codeSystem,Procedure.reasonCode[].coding[0].system,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
-procedure.entryRelationship[].observation.code.translation[].code,Procedure.reasonCode[].coding[].code,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
-procedure.entryRelationship[].observation.code.translation[].displayName,Procedure.reasonCode[].coding[].display,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
-procedure.entryRelationship[].observation.code.translation[].codeSystem,Procedure.reasonCode[].coding[].system,,"systemAdapter",nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.code,Procedure.reasonCode[].coding[0].code,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.displayName,Procedure.reasonCode[].coding[0].display,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.codeSystem,Procedure.reasonCode[].coding[0].system,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.translation[].code,Procedure.reasonCode[].coding[].code,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.translation[].displayName,Procedure.reasonCode[].coding[].display,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.translation[].codeSystem,Procedure.reasonCode[].coding[].system,,"systemAdapter",nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
 procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",nullFlavor isnull,procedure.statusCode.nullFlavor isnull

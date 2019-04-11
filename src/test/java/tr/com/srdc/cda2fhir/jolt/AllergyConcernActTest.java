@@ -291,7 +291,6 @@ public class AllergyConcernActTest {
 		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
 	}
 
-	@Ignore
 	@Test
 	public void testCernerSample1() throws Exception {
 		runSampleTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");

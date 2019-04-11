@@ -18,14 +18,12 @@ import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
@@ -49,23 +47,13 @@ public class AllergiesSectionTest {
 	}
 
 	private static void reorderSectionActs(AllergiesSection section, List<AllergyIntolerance> allergyIntolerances) {
-		ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
 		IdentifierMap<Integer> orderMap = IdentifierMapFactory.resourcesToOrder(allergyIntolerances);
 		List<AllergyProblemAct> acts = new ArrayList<>();
-		allergyIntolerances.forEach(r -> acts.add(null));
-		section.getAllergyProblemActs().forEach(r -> {
-			II ii = r.getIds().get(0);
-			String root = ii.getRoot();
-			String extension = ii.getExtension();
-			if (extension == null) {
-				Integer index = orderMap.get("AllergyIntolerance", root);
-				acts.set(index.intValue(), r);
-			} else {
-				String value = extension;
-				String system = vst.tOid2Url(root);
-				Integer index = orderMap.get("AllergyIntolerance", system, value);
-				acts.set(index.intValue(), r);
-			}
+		section.getAllergyProblemActs().forEach(r -> acts.add(r));
+		acts.sort((a, b) -> {
+			int aval = CDAUtilExtension.idValue("AllergyIntolerance", a.getIds(), orderMap);
+			int bval = CDAUtilExtension.idValue("AllergyIntolerance", b.getIds(), orderMap);
+			return aval - bval;
 		});
 		section.getEntries().clear();
 		acts.forEach(act -> {

@@ -10,12 +10,12 @@ patientRole.addr[].use,Patient.address[].type,,"valueSetAdapter('AddressType')",
 patientRole.addr[].use,Patient.address[].use,,"valueSetAdapter('AddressUse','temp')",patientRole.addr[].nullFlavor isnull,patientRole.nullFlavor isnull
 patientRole.patient.birthTime.value,Patient.birthDate,,"datetimeAdapter",patientRole.nullFlavor isnull,patientRole.patient.birthTime.nullFlavor isnull
 patientRole.patient.languageCommunication[].preferenceInd.value,Patient.communication[&2].preferred,,,patientRole.nullFlavor isnull
-patientRole.patient.languageCommunication[].languageCode.code,Patient.communication[].language.coding[0].code,,,patientRole.nullFlavor isnull
-patientRole.patient.languageCommunication[].languageCode.displayName,Patient.communication[].language.coding[0].display,,,patientRole.nullFlavor isnull
-patientRole.patient.languageCommunication[].languageCode.codeSystem,Patient.communication[].language.coding[0].system,,,patientRole.nullFlavor isnull
-patientRole.patient.languageCommunication[].languageCode.translation[].code,Patient.communication[].language.coding[].code,,,patientRole.nullFlavor isnull
-patientRole.patient.languageCommunication[].languageCode.translation[].displayName,Patient.communication[].language.coding[].display,,,patientRole.nullFlavor isnull
-patientRole.patient.languageCommunication[].languageCode.translation[].codeSystem,Patient.communication[].language.coding[].system,,"systemAdapter",patientRole.nullFlavor isnull
+patientRole.patient.languageCommunication[].languageCode.code,Patient.communication[].language.coding[0].code,,,patientRole.nullFlavor isnull,patientRole.patient.languageCommunication[].languageCode.nullFlavor isnull
+patientRole.patient.languageCommunication[].languageCode.displayName,Patient.communication[].language.coding[0].display,,,patientRole.nullFlavor isnull,patientRole.patient.languageCommunication[].languageCode.nullFlavor isnull
+patientRole.patient.languageCommunication[].languageCode.codeSystem,Patient.communication[].language.coding[0].system,,,patientRole.nullFlavor isnull,patientRole.patient.languageCommunication[].languageCode.nullFlavor isnull
+patientRole.patient.languageCommunication[].languageCode.translation[].code,Patient.communication[].language.coding[].code,,,patientRole.nullFlavor isnull,patientRole.patient.languageCommunication[].languageCode.nullFlavor isnull
+patientRole.patient.languageCommunication[].languageCode.translation[].displayName,Patient.communication[].language.coding[].display,,,patientRole.nullFlavor isnull,patientRole.patient.languageCommunication[].languageCode.nullFlavor isnull
+patientRole.patient.languageCommunication[].languageCode.translation[].codeSystem,Patient.communication[].language.coding[].system,,"systemAdapter",patientRole.nullFlavor isnull,patientRole.patient.languageCommunication[].languageCode.nullFlavor isnull
 patientRole.patient.guardian[].guardianPerson.name.family,Patient.contact[&2].name.family,,"contentOrSelf",patientRole.nullFlavor isnull,patientRole.patient.guardian[].guardianPerson.name.nullFlavor isnull
 patientRole.patient.guardian[].guardianPerson.name.given[],Patient.contact[&2].name.given[],,"contentOrSelf",patientRole.nullFlavor isnull,patientRole.patient.guardian[].guardianPerson.name.nullFlavor isnull
 patientRole.patient.guardian[].guardianPerson.name.validTime.high.value,Patient.contact[&2].name.period.end,,"datetimeAdapter",patientRole.nullFlavor isnull,patientRole.patient.guardian[].guardianPerson.name.nullFlavor isnull,patientRole.patient.guardian[].guardianPerson.name.validTime.high.nullFlavor isnull,patientRole.patient.guardian[].guardianPerson.name.validTime.nullFlavor isnull
