@@ -3199,7 +3199,18 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					for (BundleEntryComponent entry : fhirObsBundle.getEntry()) {
 						result.addResource(entry.getResource());
 						if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Observation) {
-							fhirDiagReport.addResult().setReference(entry.getResource().getId());
+
+							Reference resultRef = new Reference();
+							resultRef.setReference(entry.getResource().getId());
+							String referenceString = ReferenceInfo.getDisplay(entry.getResource());
+							if (referenceString != null) {
+								resultRef.setDisplay(referenceString);
+							}
+
+							// fhirDiagReport.addResult().setReference(entry.getResource().getId());
+
+							fhirDiagReport.addResult(resultRef);
+
 						}
 					}
 				}
