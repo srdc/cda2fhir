@@ -162,7 +162,7 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-AllergyConcernAct-unmapped.xml");
 	}
 
-	@Test // Also known as "Encounters" Code: 48765-2, but this was not mentioned as
+	@Test // Also known as "Encounters" Code: 46240-8, but this was not mentioned as
 			// needed.
 	public void testEncounterActivity() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
