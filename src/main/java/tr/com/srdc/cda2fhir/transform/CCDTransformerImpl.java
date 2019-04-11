@@ -365,6 +365,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 					ccdComposition.addSection(fhirSec);
 				}
 
+				// add text annotation lookups.
 				Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
 				bundleInfo.mergeIdedAnnotations(idedAnnotations);
 

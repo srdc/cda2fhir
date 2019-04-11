@@ -5,9 +5,8 @@ import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.HumanName;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
-import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.StringType;
 
@@ -23,17 +22,24 @@ public class ReferenceInfo {
 
 		System.out.println(resource.toString());
 
+		// take coded object to get display value if possible.
 		if (resource.getNamedProperty("code") != null) {
 			if (!resource.getNamedProperty("code").getValues().isEmpty()) {
 
-				// TODO: Should really be checking all the encodings for one.
 				CodeableConcept code = (CodeableConcept) resource.getNamedProperty("code").getValues().get(0);
 				if (code != null) {
 					if (code.hasText()) {
 						return code.getText();
-					} else if (resource instanceof PractitionerRole || resource instanceof Procedure) {
-						if (code.getCodingFirstRep() != null && code.getCodingFirstRep().getDisplay() != null) {
-							return code.getCodingFirstRep().getDisplay();
+					} else {
+						// if no text loop the displays and take the first one.
+						if (code.getCoding() != null) {
+							if (code.getCoding().size() > 0) {
+								for (Coding codeEntry : code.getCoding()) {
+									if (codeEntry.getDisplay() != null) {
+										return codeEntry.getDisplay();
+									}
+								}
+							}
 						}
 					}
 				}
