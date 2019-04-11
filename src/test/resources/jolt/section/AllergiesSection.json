@@ -1,0 +1,23 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"section": {
+				"entry": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"section": {
+				"entry": {
+					"*": "AllergyIntolerances[].->AllergyConcernAct"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	}
+]

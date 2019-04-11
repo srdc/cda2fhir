@@ -451,7 +451,7 @@ public class JoltUtil {
 		FileUtils.writeStringToFile(joltPractitionerFile, joltPractitionerJson, Charset.defaultCharset());
 	}
 
-	public static List<Object> findJoltResult(File xmlFile, String templateName, String caseName) throws Exception {
+	private static File toJsonFile(File xmlFile, String templateName, String caseName) throws Exception {
 		OrgJsonUtil util = OrgJsonUtil.readXML(xmlFile.toString());
 		JSONObject json = util.getJSONObject();
 		String parentPath = xmlFile.getParent();
@@ -459,8 +459,19 @@ public class JoltUtil {
 		String filename = pieces[pieces.length - 1];
 		File jsonFile = new File(parentPath, filename + ".json");
 		FileUtils.writeStringToFile(jsonFile, json.toString(4), Charset.defaultCharset());
+		return jsonFile;
+	}
 
+	public static List<Object> findJoltResult(File xmlFile, String templateName, String caseName) throws Exception {
+		File jsonFile = toJsonFile(xmlFile, templateName, caseName);
 		List<Object> joltResult = TransformManager.transformEntryInFile(templateName, jsonFile.toString());
+		return joltResult;
+	}
+
+	public static List<Object> findJoltSectionResult(File xmlFile, String templateName, String caseName)
+			throws Exception {
+		File jsonFile = toJsonFile(xmlFile, templateName, caseName);
+		List<Object> joltResult = TransformManager.transformSectionInFile(templateName, jsonFile.toString());
 		return joltResult;
 	}
 
@@ -773,5 +784,9 @@ public class JoltUtil {
 				verify(observations.get(index), joltObservations.get(index), info);
 			}
 		}
+	}
+
+	public List<Map<String, Object>> findResources(String resourceType) {
+		return TransformManager.chooseResources(result, resourceType);
 	}
 }
