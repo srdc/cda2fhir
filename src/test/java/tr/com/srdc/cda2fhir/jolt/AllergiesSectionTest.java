@@ -32,6 +32,7 @@ import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
+import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class AllergiesSectionTest {
@@ -70,7 +71,11 @@ public class AllergiesSectionTest {
 		Config.setGenerateDafProfileMetadata(false);
 
 		ICDASection cdaSection = CDASectionTypeEnum.ALLERGIES_SECTION.toCDASection(section);
-		ISectionResult sectionResult = cdaSection.transform(new BundleInfo(rt));
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
+		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
 		Bundle bundle = sectionResult.getBundle();
 
 		List<AllergyIntolerance> allergyIntolerances = FHIRUtil.findResources(bundle, AllergyIntolerance.class);
