@@ -22,7 +22,6 @@ package tr.com.srdc.cda2fhir.transform;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +34,6 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Annotation;
-import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Base64BinaryType;
 import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.BooleanType;
@@ -61,7 +59,6 @@ import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyMemberHistoryConditionComponent;
 import org.hl7.fhir.dstu3.model.Group;
 import org.hl7.fhir.dstu3.model.Group.GroupType;
-import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
@@ -86,7 +83,6 @@ import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
 import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
-import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Provenance;
@@ -96,7 +92,6 @@ import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.SimpleQuantity;
-import org.hl7.fhir.dstu3.model.StringType;
 import org.hl7.fhir.dstu3.model.Substance;
 import org.hl7.fhir.dstu3.model.Timing;
 import org.hl7.fhir.dstu3.model.codesystems.ProvenanceAgentRole;
@@ -190,6 +185,7 @@ import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.LocalBundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.ReferenceInfo;
 import tr.com.srdc.cda2fhir.util.Constants;
 
 public class ResourceTransformerImpl implements IResourceTransformer, Serializable {
@@ -250,63 +246,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	@Override
 	public Reference getReference(Resource resource) {
 		Reference reference = new Reference(resource.getId());
-		if (resource.getNamedProperty("code") != null && !resource.getNamedProperty("code").getValues().isEmpty()) {
-
-			CodeableConcept code = (CodeableConcept) resource.getNamedProperty("code").getValues().get(0);
-
-			if (code != null) {
-				if (code.hasText()) {
-
-					reference.setDisplay(code.getText());
-
-				} else if (resource instanceof PractitionerRole || resource instanceof Procedure) {
-
-					if (code.getCodingFirstRep() != null && code.getCodingFirstRep().getDisplay() != null) {
-
-						reference.setDisplay(code.getCodingFirstRep().getDisplay());
-					}
-				}
-			}
-
-		} else if (resource.getNamedProperty("vaccineCode") != null
-				&& !resource.getNamedProperty("vaccineCode").getValues().isEmpty()) {
-			CodeableConcept vaccineCode = (CodeableConcept) resource.getNamedProperty("vaccineCode").getValues().get(0);
-
-			if (vaccineCode != null && vaccineCode.hasText()) {
-				reference.setDisplay(vaccineCode.getText());
-			}
-
-		} else if (resource.getNamedProperty("name") != null
-				&& !resource.getNamedProperty("name").getValues().isEmpty()) {
-			Object nameObj = resource.getNamedProperty("name").getValues().get(0);
-			if (nameObj instanceof StringType) {
-
-				StringType str = (StringType) resource.getNamedProperty("name").getValues().get(0);
-				if (str != null) {
-					reference.setDisplay(str.asStringValue());
-				}
-
-			} else if (nameObj instanceof HumanName) {
-
-				List<Base> nameList = resource.getNamedProperty("name").getValues();
-
-				if (!nameList.isEmpty()) {
-					String allNames = "";
-					Iterator<Base> iter = nameList.listIterator();
-					while (iter.hasNext()) {
-						Base humanNameBase = iter.next();
-						HumanName humanName = (HumanName) humanNameBase;
-						if (!humanName.getNameAsSingleString().trim().contentEquals("")) {
-							allNames += humanName.getNameAsSingleString();
-							if (iter.hasNext())
-								allNames += ", ";
-						}
-					}
-					reference.setDisplay(allNames);
-				}
-			}
+		String referenceString = ReferenceInfo.getDisplay(resource);
+		if (referenceString != null) {
+			reference.setDisplay(referenceString);
 		}
-
 		return reference;
 	}
 
