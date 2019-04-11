@@ -176,6 +176,19 @@ public class UnmappedFieldTest {
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-EncounterActivity-unmapped.xml");
 	}
 
+	@Test // Also just called "Medications" Code: 10160-0
+	public void testMedicationActivity() throws IOException, XPathExpressionException, ParserConfigurationException,
+			SAXException, TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("MedicationActivity");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='10160-0']", body,
+				XPathConstants.NODESET);
+
+//		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-MedicationActivity-unmapped.xml");
+	}
+
 	@Test // "Immunizations" Code: 11369-6
 	public void testImmunizationActivity() throws IOException, XPathExpressionException, ParserConfigurationException,
 			SAXException, TransformerFactoryConfigurationError, TransformerException {
@@ -188,6 +201,8 @@ public class UnmappedFieldTest {
 		generateFilteredNodeList(csvRecords, xPathDocument);
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-ImmunizationActivity-unmapped.xml");
 	}
+
+	// "Results" 30954-2
 
 	@Test // "Problems" Code: 11450-4
 	public void testProblemConcernAct() throws IOException, XPathExpressionException, ParserConfigurationException,
