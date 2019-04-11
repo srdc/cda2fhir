@@ -394,16 +394,17 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 		IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(ccdBundle);
 
+		// deferred references only present for procedure encounters.
 		if (!deferredReferences.isEmpty()) {
 			for (IDeferredReference dr : deferredReferences) {
 				String id = identifierMap.get(dr.getFhirType(), dr.getIdentifier());
 				if (id != null) {
 					Reference reference = new Reference(id);
-					dr.resolve(reference);
-					String referenceString = ReferenceInfo.getDisplay((Resource) reference.getResource());
+					String referenceString = ReferenceInfo.getDisplay(dr.getResource());
 					if (referenceString != null) {
 						reference.setDisplay(referenceString);
 					}
+					dr.resolve(reference);
 				} else {
 					String msg = String.format("%s %s is referred but not found", dr.getFhirType(),
 							dr.getIdentifier().getValue());
