@@ -21,7 +21,6 @@ import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.conf.Config;
-import tr.com.srdc.cda2fhir.jolt.report.ReportException;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
@@ -30,6 +29,7 @@ import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
+import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
@@ -48,40 +48,9 @@ public class AllergiesSectionTest {
 		factories = CDAFactories.init();
 	}
 
-	private static IdentifierMap<Integer> getEntryOrder(List<AllergyIntolerance> allergies) {
-		IdentifierMap<Integer> result = new IdentifierMap<Integer>();
-		for (int index = 0; index < allergies.size(); ++index) {
-			AllergyIntolerance allergy = allergies.get(index);
-			if (!allergy.hasIdentifier()) {
-				throw new ReportException("No identfier. Cannot be ordered");
-			}
-			result.put("AllergyIntolerance", allergy.getIdentifier(), index);
-		}
-		return result;
-	}
-
-	private static void runSampleTest(String sourceName) throws Exception {
-		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
-		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
-				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
-
-		AllergiesSection section = cda.getAllergiesSection();
-
-		Config.setGenerateNarrative(false);
-		Config.setGenerateDafProfileMetadata(false);
-
-		ICDASection cdaSection = CDASectionTypeEnum.ALLERGIES_SECTION.toCDASection(section);
-
-		BundleInfo bundleInfo = new BundleInfo(rt);
-		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
-		bundleInfo.mergeIdedAnnotations(idedAnnotations);
-		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
-		Bundle bundle = sectionResult.getBundle();
-
-		List<AllergyIntolerance> allergyIntolerances = FHIRUtil.findResources(bundle, AllergyIntolerance.class);
-
+	private static void reorderSectionActs(AllergiesSection section, List<AllergyIntolerance> allergyIntolerances) {
 		ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
-		IdentifierMap<Integer> orderMap = getEntryOrder(allergyIntolerances);
+		IdentifierMap<Integer> orderMap = IdentifierMapFactory.resourcesToOrder(allergyIntolerances);
 		List<AllergyProblemAct> acts = new ArrayList<>();
 		allergyIntolerances.forEach(r -> acts.add(null));
 		section.getAllergyProblemActs().forEach(r -> {
@@ -104,6 +73,30 @@ public class AllergiesSectionTest {
 			entry.setAct(act);
 			section.getEntries().add(entry);
 		});
+	}
+
+	private static void runSampleTest(String sourceName) throws Exception {
+		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+
+		AllergiesSection section = cda.getAllergiesSection();
+
+		Config.setGenerateNarrative(false);
+		Config.setGenerateDafProfileMetadata(false);
+
+		ICDASection cdaSection = CDASectionTypeEnum.ALLERGIES_SECTION.toCDASection(section);
+
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
+		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
+		Bundle bundle = sectionResult.getBundle();
+
+		List<AllergyIntolerance> allergyIntolerances = FHIRUtil.findResources(bundle, AllergyIntolerance.class);
+
+		// CDAUtil reorders randomly, follow its order for easy comparison
+		reorderSectionActs(section, allergyIntolerances);
 
 		String caseName = sourceName.substring(0, sourceName.length() - 4);
 		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);
