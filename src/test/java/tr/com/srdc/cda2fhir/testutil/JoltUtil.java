@@ -204,6 +204,28 @@ public class JoltUtil {
 		}
 	}
 
+	private static class ConditionInfo extends ResourceInfo {
+		private Condition condition;
+
+		public ConditionInfo(Condition condition) {
+			this.condition = condition;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return condition.getSubject();
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private static List<Object> findPathNextValue(List<Object> inputs, String path, String fullPath) {
 		List<Object> result = new ArrayList<>();
@@ -786,6 +808,32 @@ public class JoltUtil {
 	public void verify(AllergyIntolerance allergy) throws Exception {
 		Map<String, Object> joltAllergy = TransformManager.chooseResource(result, "AllergyIntolerance");
 		verify(allergy, joltAllergy);
+	}
+
+	public void verify(Condition condition, Map<String, Object> joltCondition) throws Exception {
+		ConditionInfo info = new ConditionInfo(condition);
+
+		Map<String, Object> joltClone = joltCondition == null ? null : new LinkedHashMap<>(joltCondition);
+
+		if (condition.hasAsserter()) {
+			String reference = condition.getAsserter().getReference();
+
+			String joltReference = findPathString(joltCondition, "asserter.reference");
+			Assert.assertNotNull("Jolt asserter reference exists", joltReference);
+
+			verifyEntity(reference, joltReference);
+
+			Map<String, Object> asserter = findPathMap(joltCondition, "asserter");
+			Map<String, Object> asserterClone = new LinkedHashMap<>(asserter);
+			joltClone.put("asserter", asserterClone);
+
+			asserterClone.put("reference", reference);
+		} else {
+			String value = findPathString(joltCondition, "asserter.reference");
+			Assert.assertNull("No asserter", value);
+		}
+
+		verify(condition, joltClone, info);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {

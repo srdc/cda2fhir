@@ -7,9 +7,6 @@ import java.util.Map;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
@@ -19,7 +16,6 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship
 
 import com.bazaarvoice.jolt.JsonUtils;
 
-import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -93,8 +89,7 @@ public class ProblemConcernActGenerator {
 		return -1;
 	}
 
-	public void verify(Bundle bundle) {
-		BundleUtil util = new BundleUtil(bundle);
+	public void verify(Bundle bundle) throws Exception {
 		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
 		int count = problemObservationGenerators == null ? 0 : problemObservationGenerators.size();
 		Assert.assertEquals("Num of condition resources", count, conditions.size());
@@ -106,6 +101,7 @@ public class ProblemConcernActGenerator {
 			}
 			ProblemObservationGenerator pog = problemObservationGenerators.get(pogIndex);
 			pog.verify(condition);
+			pog.verify(bundle, condition);
 
 			if (statusCode == null) {
 				Assert.assertEquals("Condition verification status", "unknown",
@@ -117,27 +113,6 @@ public class ProblemConcernActGenerator {
 				}
 				Assert.assertEquals("Condition verification status", actual,
 						condition.getVerificationStatus().toCode());
-			}
-
-			if (!condition.hasAsserter()) {
-				pog.verify((Organization) null);
-				pog.verify((PractitionerRole) null);
-				pog.verify((Organization) null);
-				continue;
-			}
-			String practitionerId = condition.getAsserter().getReference();
-			Practitioner practitioner = util.getResourceFromReference(practitionerId, Practitioner.class);
-			pog.verify(practitioner);
-
-			PractitionerRole role = util.getPractitionerRole(practitionerId);
-			pog.verify(role);
-
-			if (!role.hasOrganization()) {
-				pog.verify((Organization) null);
-			} else {
-				String reference = role.getOrganization().getReference();
-				Organization organization = util.getResourceFromReference(reference, Organization.class);
-				pog.verify(organization);
 			}
 		}
 	}

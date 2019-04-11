@@ -1,24 +1,16 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -43,34 +35,6 @@ public class ProblemConcernActTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void compareConditions(String caseName, Condition condition, Map<String, Object> joltCondition)
-			throws Exception {
-		Assert.assertNotNull("Jolt condition", joltCondition);
-		Assert.assertNotNull("Jolt condition id", joltCondition.get("id"));
-
-		joltCondition.put("id", condition.getIdElement().getIdPart()); // ids do not have to match
-		JoltUtil.putReference(joltCondition, "subject", condition.getSubject()); // patient is not yet implemented
-
-		if (condition.hasAsserter()) {
-			Map<String, Object> asserter = (Map<String, Object>) joltCondition.get("asserter");
-			Assert.assertNotNull("Jolt condition asserter", asserter);
-			Object reference = asserter.get("reference");
-			Assert.assertNotNull("Jolt condition asserter reference", reference);
-			Assert.assertTrue("Reference is string", reference instanceof String);
-			JoltUtil.putReference(joltCondition, "asserter", condition.getAsserter()); // reference values may not match
-		} else {
-			Assert.assertNull("No jolt condition asserter", joltCondition.get("asserter"));
-		}
-
-		String joltConditionJson = JsonUtils.toPrettyJsonString(joltCondition);
-		File joltConditionFile = new File(OUTPUT_PATH + caseName + "JoltCondition.json");
-		FileUtils.writeStringToFile(joltConditionFile, joltConditionJson, Charset.defaultCharset());
-
-		String conditionJson = FHIRUtil.encodeToJSON(condition);
-		JSONAssert.assertEquals("Jolt condition", conditionJson, joltConditionJson, true);
-	}
-
 	private static void runTest(ProblemConcernActGenerator generator, String caseName) throws Exception {
 		ProblemConcernAct pca = generator.generate(factories);
 
@@ -90,18 +54,10 @@ public class ProblemConcernActTest {
 		}
 		generator.verify(bundle);
 
-		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
-		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
-		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-
 		File xmlFile = CDAUtilExtension.writeAsXML(pca, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "ProblemConcernAct", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
-
-		joltUtil.verifyOrganizations(organizations);
-		joltUtil.verifyPractitioners(practitioners);
-		joltUtil.verifyPractitionerRoles(practitionerRoles);
 
 		List<Map<String, Object>> joltConditions = TransformManager.chooseResources(joltResult, "Condition");
 		if (conditions.isEmpty()) {
@@ -111,8 +67,7 @@ public class ProblemConcernActTest {
 				Condition condition = conditions.get(index);
 				int joltIndex = condition.hasAsserter() ? 1 : 0; // TODO: fix, this is hack
 
-				String indexStr = index == 0 ? "" : String.valueOf(index);
-				compareConditions(caseName + indexStr, condition, joltConditions.get(joltIndex));
+				joltUtil.verify(condition, joltConditions.get(joltIndex));
 			}
 		}
 	}
