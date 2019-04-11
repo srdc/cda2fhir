@@ -1,7 +1,7 @@
-CCDA Source,Target,Link,Format,Condition 1
-code,coding[0].code,,,code isnotnull
-displayName,coding[0].display,,,code isnotnull
-codeSystem,coding[0].system,,,code isnotnull
-translation[].code,coding[].code,,,code isnotnull
-translation[].displayName,coding[].display,,,code isnotnull
-translation[].codeSystem,coding[].system,,"systemAdapter",code isnotnull
+CCDA Source,Target,Link,Format
+code,coding[0].code,,
+displayName,coding[0].display,,
+codeSystem,coding[0].system,,
+translation[].code,coding[].code,,
+translation[].displayName,coding[].display,,
+translation[].codeSystem,coding[].system,,"systemAdapter"

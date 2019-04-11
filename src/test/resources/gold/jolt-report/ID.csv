@@ -1,4 +1,5 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
+assigningAuthorityName,assigner.display,,,nullFlavor isnull
 root,system,,"systemAdapter",extension isnotnull,nullFlavor isnull
 #official,use,,,nullFlavor isnull
 extension,value,,,extension isnotnull,nullFlavor isnull

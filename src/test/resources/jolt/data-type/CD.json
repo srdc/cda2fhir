@@ -1,11 +1,5 @@
 [
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhenNull",
-		"spec": {
-			"code": ""
-		}
-	},
-	{
 		"operation": "shift",
 		"spec": {
 			"code": "coding[0].code",
@@ -18,12 +12,6 @@
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
-	},
-	{
-		"operation": "cardinality",
-		"spec": {
-			"coding": "MANY"
-		}
 	},
 	{
 		"operation": "modify-overwrite-beta",

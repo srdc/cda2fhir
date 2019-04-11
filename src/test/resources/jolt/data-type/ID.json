@@ -29,7 +29,8 @@
 			},
 			"root": {
 				"#official": "use"
-			}
+			},
+			"assigningAuthorityName": "assigner.display"
 		}
 	},
 	{
