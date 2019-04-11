@@ -7,6 +7,8 @@ import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.HumanName;
+import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.StringType;
 
@@ -46,8 +48,6 @@ public class ReferenceInfo {
 	 */
 	public static String getDisplay(Resource resource) {
 
-		System.out.println(resource.toString());
-
 		// take coded object to get display value if possible.
 		if (resource.getNamedProperty("code") != null) {
 			if (!resource.getNamedProperty("code").getValues().isEmpty()) {
@@ -57,42 +57,71 @@ public class ReferenceInfo {
 					return outputString;
 				}
 			}
-		} else if (resource.getNamedProperty("vaccineCode") != null
-				&& !resource.getNamedProperty("vaccineCode").getValues().isEmpty()) {
-			CodeableConcept vaccineCode = (CodeableConcept) resource.getNamedProperty("vaccineCode").getValues().get(0);
-			String outputString = getStringFromConcept(vaccineCode);
-			if (outputString != null) {
-				return outputString;
-			}
-		} else if (resource.getNamedProperty("name") != null
-				&& !resource.getNamedProperty("name").getValues().isEmpty()) {
-			Object nameObj = resource.getNamedProperty("name").getValues().get(0);
-			if (nameObj instanceof StringType) {
-
-				StringType str = (StringType) resource.getNamedProperty("name").getValues().get(0);
-				if (str != null) {
-					return str.asStringValue();
+			// for vaccines, take vaccine code.
+		} else if (resource.getNamedProperty("vaccineCode") != null) {
+			if (!resource.getNamedProperty("vaccineCode").getValues().isEmpty()) {
+				CodeableConcept vaccineCode = (CodeableConcept) resource.getNamedProperty("vaccineCode").getValues()
+						.get(0);
+				String outputString = getStringFromConcept(vaccineCode);
+				if (outputString != null) {
+					return outputString;
 				}
 
-			} else if (nameObj instanceof HumanName) {
+			}
+			// for med statement/requests, get ref med.
+		} else if (resource.getNamedProperty("medicationReference") != null) {
+			if (!resource.getNamedProperty("medicationReference").getValues().isEmpty()) {
+				Reference medRef = (Reference) resource.getNamedProperty("medicationReference").getValues().get(0);
+				Medication med = (Medication) medRef.getResource();
+				String outputString = getStringFromConcept(med.getCode());
+				if (outputString != null) {
+					return outputString;
+				}
+			}
 
-				List<Base> nameList = resource.getNamedProperty("name").getValues();
+			// for encounter/device use type if present.
+		} else if (resource.getNamedProperty("type") != null) {
+			if (!resource.getNamedProperty("type").getValues().isEmpty()) {
+				CodeableConcept typeCode = (CodeableConcept) resource.getNamedProperty("type").getValues().get(0);
+				String outputString = getStringFromConcept(typeCode);
+				if (outputString != null) {
+					return outputString;
+				}
+			}
 
-				if (!nameList.isEmpty()) {
-					String allNames = "";
-					Iterator<Base> iter = nameList.listIterator();
-					while (iter.hasNext()) {
-						Base humanNameBase = iter.next();
-						HumanName humanName = (HumanName) humanNameBase;
-						if (!humanName.getNameAsSingleString().trim().contentEquals("")) {
-							allNames += humanName.getNameAsSingleString();
-							if (iter.hasNext())
-								allNames += ", ";
-						}
+			// for all others attempt to take name.
+		} else if (resource.getNamedProperty("name") != null) {
+			if (!resource.getNamedProperty("name").getValues().isEmpty()) {
+
+				Object nameObj = resource.getNamedProperty("name").getValues().get(0);
+				if (nameObj instanceof StringType) {
+
+					StringType str = (StringType) resource.getNamedProperty("name").getValues().get(0);
+					if (str != null) {
+						return str.asStringValue();
 					}
-					return allNames;
+
+				} else if (nameObj instanceof HumanName) {
+
+					List<Base> nameList = resource.getNamedProperty("name").getValues();
+					if (!nameList.isEmpty()) {
+						String allNames = "";
+						Iterator<Base> iter = nameList.listIterator();
+						while (iter.hasNext()) {
+							Base humanNameBase = iter.next();
+							HumanName humanName = (HumanName) humanNameBase;
+							if (!humanName.getNameAsSingleString().trim().contentEquals("")) {
+								allNames += humanName.getNameAsSingleString();
+								if (iter.hasNext())
+									allNames += ", ";
+							}
+						}
+						return allNames;
+					}
 				}
+
 			}
+
 		}
 		return null;
 	}

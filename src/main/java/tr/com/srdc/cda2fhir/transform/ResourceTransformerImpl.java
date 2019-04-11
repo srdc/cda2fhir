@@ -250,6 +250,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (referenceString != null) {
 			reference.setDisplay(referenceString);
 		}
+		reference.setResource(resource);
 		return reference;
 	}
 
@@ -1985,6 +1986,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
 					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
 						fhirMedSt.setMedication(getReference(entry.getResource()));
+
 					}
 				}
 			}
@@ -2305,6 +2307,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						// We can only add either a reference here or a codeableconcept. Opting for
 						// Reference.
 						medRequest.setMedication(getReference(medicationResult));
+
 					}
 				}
 			}
@@ -3206,9 +3209,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							if (referenceString != null) {
 								resultRef.setDisplay(referenceString);
 							}
-
-							// fhirDiagReport.addResult().setReference(entry.getResource().getId());
-
 							fhirDiagReport.addResult(resultRef);
 
 						}
