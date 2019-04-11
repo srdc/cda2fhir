@@ -8,31 +8,16 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"code": "code[]",
-			"codeSystem": "system[]",
-			"displayName": "display[]",
+			"code": "coding[0].code",
+			"codeSystem": "coding[0].system",
+			"displayName": "coding[0].display",
 			"translation": {
-				"*": {
-					"code": "code[]",
-					"codeSystem": "system[]",
-					"displayName": "display[]"
-				}
+				"*": "coding[].->CDHelper"
 			}
 		}
 	},
 	{
-		"operation": "shift",
-		"spec": {
-			"code": {
-				"*": "coding[&].code"
-			},
-			"system": {
-				"*": "coding[&].system"
-			},
-			"display": {
-				"*": "coding[&].display"
-			}
-		}
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
 		"operation": "cardinality",

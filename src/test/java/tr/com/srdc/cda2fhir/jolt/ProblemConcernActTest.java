@@ -51,6 +51,20 @@ public class ProblemConcernActTest {
 		rt = new ResourceTransformerImpl();
 	}
 
+	@SuppressWarnings("unchecked")
+	private static Consumer<Map<String, Object>> getFloatUpdate(String current, String replacement) {
+		return r -> {
+			List<Object> codings = JoltUtil.findPathValue(r, "code.coding[]");
+			codings.forEach(coding -> {
+				Map<String, Object> codingAsMap = (Map<String, Object>) coding;
+				String code = (String) codingAsMap.get("code");
+				if (current.equals(code)) {
+					codingAsMap.put("code", replacement);
+				}
+			});
+		};
+	}
+
 	private static void reorderActObservations(ProblemConcernAct act, List<Condition> conditions) {
 		ValueSetsTransformerImpl vst = new ValueSetsTransformerImpl();
 		IdentifierMap<Integer> orderMap = IdentifierMapFactory.resourcesToOrder(conditions);
@@ -93,7 +107,7 @@ public class ProblemConcernActTest {
 		for (int index = 0; index < conditions.size(); ++index) {
 			Condition condition = conditions.get(index);
 			String filepath = String.format("%s%s%s%s%s", OUTPUT_PATH, caseName, "CDA2FHIRCondition",
-					index == 0 ? "" : index, "json");
+					index == 0 ? "" : index, ".json");
 			FHIRUtil.printJSON(condition, filepath);
 		}
 		if (generator != null) {
@@ -165,19 +179,9 @@ public class ProblemConcernActTest {
 		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSample3() throws Exception {
-		customJoltUpdate = r -> {
-			List<Object> codings = JoltUtil.findPathValue(r, "code.coding[]");
-			codings.forEach(coding -> {
-				Map<String, Object> codingAsMap = (Map<String, Object>) coding;
-				String code = (String) codingAsMap.get("code");
-				if ("346.1".equals(code)) {
-					codingAsMap.put("code", "346.10");
-				}
-			});
-		};
+		customJoltUpdate = getFloatUpdate("346.1", "346.10");
 		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
 		customJoltUpdate = null;
 	}
@@ -185,13 +189,21 @@ public class ProblemConcernActTest {
 	@Ignore
 	@Test
 	public void testEpicSample1() throws Exception {
+		customJoltUpdate = r -> {
+			getFloatUpdate("346.8", "346.80").accept(r);
+			getFloatUpdate("845", "845.00").accept(r);
+			getFloatUpdate("300", "300.00").accept(r);
+		};
 		runSampleTest("Epic/DOC0001.XML");
+		customJoltUpdate = null;
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample2() throws Exception {
+		customJoltUpdate = getFloatUpdate("300", "300.00");
 		runSampleTest("Epic/DOC0001 2.XML");
+		customJoltUpdate = null;
 	}
 
 	@Ignore
@@ -269,7 +281,9 @@ public class ProblemConcernActTest {
 	@Ignore
 	@Test
 	public void testEpicSample15() throws Exception {
+		customJoltUpdate = getFloatUpdate("346.9", "346.90");
 		runSampleTest("Epic/DOC0001 15.XML");
+		customJoltUpdate = null;
 	}
 
 	@Ignore

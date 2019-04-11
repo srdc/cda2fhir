@@ -86,5 +86,44 @@
 				}
 			]
 		}
+	},
+	{
+		"input": {
+			"code": 309471,
+			"codeSystem": "2.16.840.1.113883.6.88",
+			"codeSystemName": "RxNorm",
+			"translation": [
+				{
+					"code": 8430,
+					"codeSystem": "2.16.840.1.113883.6.253",
+					"codeSystemName": "MediSpan DDID",
+					"displayName": "Fiorinal\/Codeine #3"
+				},
+				{
+					"code": 8431,
+					"codeSystem": "2.16.840.1.113883.6.253",
+					"codeSystemName": "MediSpan DDID",
+					"displayName": "Fiorinal\/Codeine #4"
+				}
+			]
+		},
+		"expected": {
+			"coding": [
+				{
+					"code": "309471",
+					"system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+				},
+				{
+					"code": "8430",
+					"system": "urn:oid:2.16.840.1.113883.6.253",
+					"display": "Fiorinal\/Codeine #3"
+				},
+				{
+					"code": "8431",
+					"system": "urn:oid:2.16.840.1.113883.6.253",
+					"display": "Fiorinal\/Codeine #4"
+				}
+			]
+		}
 	}
 ]

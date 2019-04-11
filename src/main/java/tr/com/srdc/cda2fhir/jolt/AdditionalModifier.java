@@ -115,7 +115,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			if (datetimeWithZone.length() < 4) {
 				return Optional.empty();
 			}
-			String[] pieces = datetimeWithZone.split("-");
+			String[] pieces = datetimeWithZone.split("[-+]");
 			String datetime = pieces[0];
 			int length = datetime.length();
 			String result = datetime.substring(0, 4);
@@ -126,7 +126,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 					if (length > 11) {
 						result += "T" + datetime.substring(8, 10) + ":" + datetime.substring(10, 12);
 						if (length > 13) {
-							result += ":" + datetime.substring(12, 14);
+							result += ":" + datetime.substring(12, datetime.length());
 						} else {
 							result += ":00";
 						}
@@ -135,7 +135,8 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			}
 			String zone = pieces.length > 1 ? pieces[1] : null;
 			if (zone != null && zone.length() > 0) {
-				result += "-" + zone.substring(0, 2) + ":" + zone.substring(2, 4);
+				String sign = datetimeWithZone.indexOf("-") >= 0 ? "-" : "+";
+				result += sign + zone.substring(0, 2) + ":" + zone.substring(2, 4);
 			}
 			return Optional.of(result);
 		}
