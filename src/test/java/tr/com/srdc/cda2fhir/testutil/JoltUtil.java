@@ -606,18 +606,20 @@ public class JoltUtil {
 		Assert.assertNotNull("Jolt resource exists", joltResource);
 		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
 
-		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
+		Map<String, Object> joltClone = new LinkedHashMap<String, Object>(joltResource);
+
+		joltClone.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
 		if (info != null) {
 			String patientProperty = info.getPatientPropertyName();
 			if (patientProperty != null) {
 				Reference patientReference = info.getPatientReference();
-				JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient not implemented
+				JoltUtil.putReference(joltClone, patientProperty, patientReference); // patient not implemented
 			}
 
-			info.copyReferences(joltResource);
+			info.copyReferences(joltClone);
 		}
 
-		String joltResourceJson = JsonUtils.toPrettyJsonString(joltResource);
+		String joltResourceJson = JsonUtils.toPrettyJsonString(joltClone);
 		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");
 		FileUtils.writeStringToFile(joltResourceFile, joltResourceJson, Charset.defaultCharset());
 
@@ -698,13 +700,21 @@ public class JoltUtil {
 		Assert.assertNotNull("Jolt role has practitioner", joltPractitionerId);
 		Assert.assertNotNull("Jolt role has organization", joltOrgId);
 
+		Map<String, Object> joltClone = new LinkedHashMap<String, Object>(joltRole);
+
 		Map<String, Object> rolePractitioner = findPathMap(joltRole, "practitioner");
 		Map<String, Object> roleOrg = findPathMap(joltRole, "organization");
 
-		rolePractitioner.put("reference", role.getPractitioner().getReference());
-		roleOrg.put("reference", role.getOrganization().getReference());
+		Map<String, Object> rolePractitionerClone = new LinkedHashMap<String, Object>(rolePractitioner);
+		Map<String, Object> roleOrgClone = new LinkedHashMap<String, Object>(roleOrg);
 
-		verify(role, joltRole, null);
+		joltClone.put("practitioner", rolePractitionerClone);
+		joltClone.put("organization", roleOrgClone);
+
+		rolePractitionerClone.put("reference", role.getPractitioner().getReference());
+		roleOrgClone.put("reference", role.getOrganization().getReference());
+
+		verify(role, joltClone, null);
 	}
 
 	public void verifyEntity(String reference, String joltReference) throws Exception {
@@ -750,6 +760,8 @@ public class JoltUtil {
 	public void verify(AllergyIntolerance allergy, Map<String, Object> joltAllergy) throws Exception {
 		AllergyIntoleranceInfo info = new AllergyIntoleranceInfo(allergy);
 
+		Map<String, Object> joltClone = joltAllergy == null ? null : new LinkedHashMap<>(joltAllergy);
+
 		if (allergy.hasRecorder()) {
 			String reference = allergy.getRecorder().getReference();
 
@@ -759,13 +771,16 @@ public class JoltUtil {
 			verifyEntity(reference, joltReference);
 
 			Map<String, Object> recorder = findPathMap(joltAllergy, "recorder");
-			recorder.put("reference", reference);
+			Map<String, Object> recorderClone = new LinkedHashMap<>(recorder);
+			joltClone.put("recorder", recorderClone);
+
+			recorderClone.put("reference", reference);
 		} else {
 			String value = findPathString(joltAllergy, "recorder.reference");
 			Assert.assertNull("No recorder", value);
 		}
 
-		verify(allergy, joltAllergy, info);
+		verify(allergy, joltClone, info);
 	}
 
 	public void verify(AllergyIntolerance allergy) throws Exception {

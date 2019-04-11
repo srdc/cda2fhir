@@ -115,8 +115,6 @@ public class AllergiesSectionTest {
 			AllergyIntolerance allergy = allergyIntolerances.get(index);
 			Map<String, Object> joltAllergy = joltAllergies.get(index);
 
-			System.out.println(index);
-
 			joltUtil.verify(allergy, joltAllergy);
 		}
 	}
