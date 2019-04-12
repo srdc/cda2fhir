@@ -55,6 +55,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testProblemConcernActFull() throws Exception {
+		actualTest("ProblemConcernAct", true);
+	}
+
+	@Test
 	public void testProblemObservation() throws Exception {
 		actualTest("ProblemObservation");
 	}
@@ -67,6 +72,11 @@ public class MainTest {
 	@Test
 	public void testCD() throws Exception {
 		actualTest("CD");
+	}
+
+	@Test
+	public void testCD2() throws Exception {
+		actualTest("CD2");
 	}
 
 	@Test
@@ -105,6 +115,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testRTO() throws Exception {
+		actualTest("RTO");
+	}
+
+	@Test
 	public void testAuthorParticipation() throws Exception {
 		actualTest("AuthorParticipation");
 	}
@@ -127,6 +142,11 @@ public class MainTest {
 	@Test
 	public void testProcedureActivityProcedure() throws Exception {
 		actualTest("ProcedureActivityProcedure");
+	}
+
+	@Test
+	public void testProcedureActivityProcedureFull() throws Exception {
+		actualTest("ProcedureActivityProcedure", true);
 	}
 
 	@Test
@@ -165,8 +185,18 @@ public class MainTest {
 	}
 
 	@Test
+	public void testMedicationActivityFull() throws Exception {
+		actualTest("MedicationActivity", true);
+	}
+
+	@Test
 	public void testImmunizationActivity() throws Exception {
 		actualTest("ImmunizationActivity");
+	}
+
+	@Test
+	public void testImmunizationActivityFull() throws Exception {
+		actualTest("ImmunizationActivity", true);
 	}
 
 	@Test
@@ -185,12 +215,27 @@ public class MainTest {
 	}
 
 	@Test
+	public void testVitalSignsOrganizerFull() throws Exception {
+		actualTest("VitalSignsOrganizer", true);
+	}
+
+	@Test
 	public void testResultOrganizer() throws Exception {
-		actualTest("VitalSignsOrganizer");
+		actualTest("ResultOrganizer");
+	}
+
+	@Test
+	public void testResultOrganizerFull() throws Exception {
+		actualTest("ResultOrganizer", true);
 	}
 
 	@Test
 	public void testPatientRole() throws Exception {
 		actualTest("PatientRole");
+	}
+
+	@Test
+	public void testPatientRoleFull() throws Exception {
+		actualTest("PatientRole", true);
 	}
 }

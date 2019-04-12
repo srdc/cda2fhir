@@ -4,7 +4,7 @@ author.time.value,Condition.assertedDate,,"datetimeAdapter",nullFlavor isnull
 Practitioner,Condition.asserter.reference,,"getId"
 #constant,Condition.category[],,"constantValue('ConditionCategoryConstant')",nullFlavor isnull
 effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')",nullFlavor isnull
-value[],Condition.code[],CD,"lastElement",nullFlavor isnull
+value[],Condition.code[],CD2,"lastElement",nullFlavor isnull
 id[],Condition.identifier[],ID,,nullFlavor isnull
 effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.nullFlavor isnull,effectiveTime.low.value isnotnull,nullFlavor isnull
 effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",effectiveTime.low.value isnull,effectiveTime.nullFlavor isnull,nullFlavor isnull

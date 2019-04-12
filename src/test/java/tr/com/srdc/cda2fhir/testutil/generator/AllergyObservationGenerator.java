@@ -69,6 +69,11 @@ public class AllergyObservationGenerator {
 		return categoryGenerator != null;
 	}
 
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		authorGenerators.clear();
+		authorGenerators.add(authorGenerator);
+	}
+
 	public AllergyObservation generate(CDAFactories factories) {
 		AllergyObservation ao = factories.consol.createAllergyObservation();
 

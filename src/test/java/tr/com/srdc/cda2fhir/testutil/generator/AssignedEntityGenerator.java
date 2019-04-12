@@ -3,8 +3,10 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.cda.Person;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
@@ -35,6 +37,16 @@ public class AssignedEntityGenerator extends EntityGenerator {
 		@Override
 		public void setOrganization(Organization organization) {
 			entity.getRepresentedOrganizations().add(organization);
+		}
+
+		@Override
+		public void addAD(AD ad) {
+			entity.getAddrs().add(ad);
+		}
+
+		@Override
+		public void addTEL(TEL tel) {
+			entity.getTelecoms().add(tel);
 		}
 	}
 

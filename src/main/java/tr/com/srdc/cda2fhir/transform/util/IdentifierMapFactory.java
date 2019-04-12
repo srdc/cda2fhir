@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.Property;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.exceptions.FHIRException;
 
+import tr.com.srdc.cda2fhir.jolt.report.ReportException;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 
 public class IdentifierMapFactory {
@@ -65,6 +66,22 @@ public class IdentifierMapFactory {
 			}
 		}
 		return identifierMap;
+	}
+
+	public static IdentifierMap<Integer> resourcesToOrder(List<? extends Resource> resources) {
+		IdentifierMap<Integer> result = new IdentifierMap<Integer>();
+		for (int index = 0; index < resources.size(); ++index) {
+			Resource resource = resources.get(index);
+			Property property = resource.getNamedProperty("identifier");
+			if (property == null) {
+				throw new ReportException("No identifier. Cannot be ordered");
+			}
+			for (Base base : property.getValues()) {
+				Identifier identifier = resource.castToIdentifier(base);
+				result.put(resource.fhirType(), identifier, index);
+			}
+		}
+		return result;
 	}
 
 	public static IIdentifierMap<String> bundleToIds(Bundle bundle) {

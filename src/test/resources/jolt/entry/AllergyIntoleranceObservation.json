@@ -108,6 +108,12 @@
 		}
 	},
 	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"recorder": "=recursivelySquashNulls(@0)"
+		}
+	},
+	{
 		"operation": "remove",
 		"spec": {
 			"Practitioner": "",

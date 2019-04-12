@@ -28,6 +28,13 @@ public class AllergyConcernActGenerator {
 	private EffectiveTimeGenerator effectiveTimeGenerator;
 	private List<AllergyObservationGenerator> observationGenerators = new ArrayList<>();
 
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		if (observationGenerators.isEmpty()) {
+			observationGenerators.add(new AllergyObservationGenerator());
+		}
+		observationGenerators.get(observationGenerators.size() - 1).setAuthorGenerator(authorGenerator);
+	}
+
 	public AllergyProblemAct generate(CDAFactories factories) {
 		AllergyProblemAct apa = factories.consol.createAllergyProblemAct();
 
