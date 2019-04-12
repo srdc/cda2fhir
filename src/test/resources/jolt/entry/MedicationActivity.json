@@ -67,7 +67,7 @@
 			"Practitioner": "informationSource.reference",
 			"Medication": "medicationReference.reference",
 			"Condition": {
-				"*": "reasonReference[&].reference"
+				"*": ["reasonReference[&].reference", "reasonReference[&].display"]
 			}
 		}
 	},
@@ -86,7 +86,8 @@
 			},
 			"reasonReference": {
 				"*": {			
-					"reference": "=getId(@0)"
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
 				}
 			},
 			"dosage": {

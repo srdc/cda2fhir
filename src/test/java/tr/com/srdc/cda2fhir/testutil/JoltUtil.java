@@ -579,6 +579,10 @@ public class JoltUtil {
 				Assert.assertTrue("Reference is string", reference instanceof String);
 				Map<String, Object> r = new LinkedHashMap<String, Object>();
 				r.put("reference", referenceObject.getReference());
+				String display = (String) joltElement.get("display");
+				if (display != null) {
+					r.put("display", display);
+				}
 				itr.set(r);
 				++index;
 			}
