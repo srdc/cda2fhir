@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 public class UnmappedFieldTest {
 	final private static String INPUT_PATH = "src/test/resources/";
 	final private static String OUTPUT_PATH = System.getProperty("user.dir") + "/src/test/resources/unmapped/";
-	final private static String REPORT_PATH = "src/test/resources/gold/jolt-report/";
+	final private static String REPORT_PATH = "src/test/resources/gold/jolt-report/full/";
 	final private static DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
 	final private static XPath XPATH = XPathFactory.newInstance().newXPath();
 
@@ -104,8 +104,8 @@ public class UnmappedFieldTest {
 				} else if (searchTerms.size() == 2
 						&& node.getChildNodes().item(i).getAttributes().getNamedItem(searchTerms.get(1)) != null) {
 					node.removeChild(node.getChildNodes().item(i));
+					deleteNode = true;
 					for (int j = 0; j < node.getChildNodes().getLength(); j++) {
-						deleteNode = true;
 						if (node.getChildNodes().item(j).getNodeType() < 3) { // Ignore comments and text.
 							deleteNode = false;
 						}
@@ -185,7 +185,7 @@ public class UnmappedFieldTest {
 		NodeList xPathDocument = (NodeList) XPATH.evaluate("//section[code/@code='10160-0']", body,
 				XPathConstants.NODESET);
 
-//		generateFilteredNodeList(csvRecords, xPathDocument);
+		generateFilteredNodeList(csvRecords, xPathDocument);
 		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-MedicationActivity-unmapped.xml");
 	}
 

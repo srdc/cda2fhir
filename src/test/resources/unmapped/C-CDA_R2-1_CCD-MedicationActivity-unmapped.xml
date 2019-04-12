@@ -71,21 +71,6 @@
                   <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
                   <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
                   <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
-                  <manufacturedMaterial>
-                     <code code="573621"
-                           codeSystem="2.16.840.1.113883.6.88"
-                           codeSystemName="RxNorm"
-                           displayName="Proventil 0.09 MG/ACTUAT inhalant solution">
-											<!-- This code MAY contain zero or more [0..*] translation, which MAY be selected from ValueSet Clinical Substance -->
-                        <translation code="219483"
-                                     codeSystem="2.16.840.1.113883.6.88"
-                                     codeSystemName="RxNorm"
-                                     displayName="Proventil HFA"/>
-                     </code>
-                  </manufacturedMaterial>
-                  <manufacturerOrganization>
-                     <name>Medication Factory Inc.</name>
-                  </manufacturerOrganization>
                </manufacturedProduct>
             </consumable>
             <performer>
@@ -118,156 +103,6 @@
                   </playingEntity>
                </participantRole>
             </participant>
-            <entryRelationship typeCode="RSON">
-               <observation classCode="OBS" moodCode="EVN">
-									<!-- ** Indication (V2) ** -->
-                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.19"/>
-                  <templateId root="2.16.840.1.113883.10.20.22.4.19"/>
-                  <id extension="45665" root="db734647-fc99-424c-a864-7e3cda82e703"/>
-                  <code code="404684003"
-                        codeSystem="2.16.840.1.113883.6.96"
-                        codeSystemName="SNOMED-CT"
-                        displayName="Finding">
-									<!-- MAY contain
-										<translation code="75321-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Clinical finding"/>
-									-->
-									</code>
-                  <statusCode code="completed"/>
-                  <effectiveTime>
-                     <low value="20110103"/>
-                  </effectiveTime>
-                  <value code="195967001"
-                         codeSystem="2.16.840.1.113883.6.96"
-                         displayName="Asthma"
-                         xsi:type="CD"/>
-               </observation>
-            </entryRelationship>
-            <entryRelationship typeCode="REFR">
-               <supply classCode="SPLY" moodCode="INT">
-									<!-- ** Medication supply order (V2) ** -->
-                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.17"/>
-                  <templateId root="2.16.840.1.113883.10.20.22.4.17"/>
-                  <id nullFlavor="NI"/>
-                  <statusCode code="completed"/>
-                  <effectiveTime xsi:type="IVL_TS">
-                     <low value="20070103"/>
-                     <high nullFlavor="UNK"/>
-                  </effectiveTime>
-                  <repeatNumber value="1"/>
-                  <quantity value="75"/>
-                  <product>
-                     <manufacturedProduct classCode="MANU">
-											<!-- ** Medication information (V2) ** -->
-                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
-                        <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
-                        <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
-                        <manufacturedMaterial>
-                           <code code="573621"
-                                 codeSystem="2.16.840.1.113883.6.88"
-                                 displayName="Proventil 0.09 MG/ACTUAT inhalant solution">
-													<!-- i.	This code MAY contain zero or more [0..*] translation, which MAY be selected from ValueSet Clinical Substance
-													<translation code="219483" codeSystem="2.16.840.1.113883.6.88" displayName="Proventil HFA" codeSystemName="RxNorm"/>
-													-->
-												</code>
-                        </manufacturedMaterial>
-                        <manufacturerOrganization>
-                           <name>Medication Factory Inc.</name>
-                        </manufacturerOrganization>
-                     </manufacturedProduct>
-                  </product>
-                  <author typeCode="AUT">
-                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-                     <time value="201208151235-0800"/>
-                     <assignedAuthor>
-                        <id extension="5555555555" root="2.16.840.1.113883.4.6"/>
-                        <code code="207QA0505X"
-                              codeSystem="2.16.840.1.113883.6.101"
-                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                              displayName="Adult Medicine"/>
-                        <addr>
-                           <streetAddressLine>1004 Healthcare Drive </streetAddressLine>
-                           <city>Portland</city>
-                           <state>OR</state>
-                           <postalCode>99123</postalCode>
-                           <country>US</country>
-                        </addr>
-                        <telecom use="WP" value="tel:+1(555)555-1004"/>
-                        <assignedPerson>
-                           <name>
-                              <given>Patricia</given>
-                              <given qualifier="CL">Patty</given>
-                              <family>Primary</family>
-                              <suffix qualifier="AC">M.D.</suffix>
-                           </name>
-                        </assignedPerson>
-                     </assignedAuthor>
-                  </author>
-                  <entryRelationship inversionInd="true" typeCode="SUBJ">
-                     <act classCode="ACT" moodCode="INT">
-											<!-- ** Instruction (v2) ** -->
-                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.20"/>
-                        <templateId root="2.16.840.1.113883.10.20.22.4.20"/>
-                        <code code="409073007"
-                              codeSystem="2.16.840.1.113883.6.96"
-                              codeSystemName="SNOMED CT"
-                              displayName="instruction"/>
-                        <text> label in spanish </text>
-                        <statusCode code="completed"/>
-                     </act>
-                  </entryRelationship>
-               </supply>
-            </entryRelationship>
-            <entryRelationship typeCode="REFR">
-               <supply classCode="SPLY" moodCode="EVN">
-									<!-- ** Medication dispense (v2) ** -->
-                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.18"/>
-                  <templateId root="2.16.840.1.113883.10.20.22.4.18"/>
-                  <id extension="cb734647-fc99-424c-a864-7e3cda82e704" root="1.2.3.4.56789.1"/>
-                  <statusCode code="completed"/>
-                  <effectiveTime value="201208151450-0800"/>
-                  <repeatNumber value="1"/>
-                  <quantity value="75"/>
-                  <product>
-                     <manufacturedProduct classCode="MANU">
-											<!-- ** Medication information ** -->
-                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
-                        <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
-                        <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
-                        <manufacturedMaterial>
-                           <code code="573621"
-                                 codeSystem="2.16.840.1.113883.6.88"
-                                 displayName="Proventil 0.09 MG/ACTUAT inhalant solution"/>
-                        </manufacturedMaterial>
-                        <manufacturerOrganization>
-                           <name>Medication Factory Inc.</name>
-                        </manufacturerOrganization>
-                     </manufacturedProduct>
-                  </product>
-                  <performer>
-                     <assignedEntity>
-                        <id extension="333222222" root="2.16.840.1.113883.4.6"/>
-                        <addr>
-                           <streetAddressLine>1016 Health Drive</streetAddressLine>
-                           <city>Portland</city>
-                           <state>OR</state>
-                           <postalCode>99123</postalCode>
-                           <country>US</country>
-                        </addr>
-                        <telecom use="WP" value="tel:+1(555)555-1016"/>
-                        <assignedPerson>
-                           <name>
-                              <given>Susan</given>
-                              <family>Script</family>
-                              <suffix qualifier="AC">Pharm.D.</suffix>
-                           </name>
-                        </assignedPerson>
-                        <representedOrganization>
-                           <name>People's Pharmacy</name>
-                        </representedOrganization>
-                     </assignedEntity>
-                  </performer>
-               </supply>
-            </entryRelationship>
             <precondition typeCode="PRCN">
                <criterion>
 									<!-- ** Precondition for substance administration (V2) ** -->
@@ -307,62 +142,12 @@
                   <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
                   <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
                   <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
-                  <manufacturedMaterial>
-                     <code code="197380"
-                           codeSystem="2.16.840.1.113883.6.88"
-                           codeSystemName="RxNorm"
-                           displayName="Atenolol 25 MG Oral Tablet"/>
-                  </manufacturedMaterial>
                </manufacturedProduct>
             </consumable>
             <author typeCode="AUT">
                <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                <time value="201208151235-0800"/>
-               <assignedAuthor>
-                  <id extension="5555555555" root="2.16.840.1.113883.4.6"/>
-                  <code code="207QA0505X"
-                        codeSystem="2.16.840.1.113883.6.101"
-                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                        displayName="Adult Medicine"/>
-                  <addr>
-                     <streetAddressLine>1004 Healthcare Drive </streetAddressLine>
-                     <city>Portland</city>
-                     <state>OR</state>
-                     <postalCode>99123</postalCode>
-                     <country>US</country>
-                  </addr>
-                  <telecom use="WP" value="tel:+1(555)555-1004"/>
-                  <assignedPerson>
-                     <name>
-                        <given>Patricia</given>
-                        <given qualifier="CL">Patty</given>
-                        <family>Primary</family>
-                        <suffix qualifier="AC">M.D.</suffix>
-                     </name>
-                  </assignedPerson>
-               </assignedAuthor>
             </author>
-            <entryRelationship typeCode="RSON">
-               <observation classCode="OBS" moodCode="EVN">
-									<!-- ** Indication ** -->
-                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.19"/>
-                  <templateId root="2.16.840.1.113883.10.20.22.4.19"/>
-                  <id root="e63166c7-6482-4a44-83a1-37ccdbde725b"/>
-                  <code code="404684003"
-                        codeSystem="2.16.840.1.113883.6.96"
-                        codeSystemName="SNOMED-CT"
-                        displayName="Finding">
-										<!-- MAY
-										<translation code="75321-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Clinical finding"/>
-										-->
-									</code>
-                  <statusCode code="completed"/>
-                  <value code="38341003"
-                         codeSystem="2.16.840.1.113883.6.96"
-                         displayName="Hypertension"
-                         xsi:type="CD"/>
-               </observation>
-            </entryRelationship>
          </substanceAdministration>
       </entry>
    </section>
