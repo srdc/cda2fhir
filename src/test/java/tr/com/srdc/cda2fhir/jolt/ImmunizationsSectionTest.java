@@ -2,7 +2,7 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,13 +25,13 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.RTInvocationHandler;
+import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
-import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
-import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
@@ -39,30 +39,28 @@ public class ImmunizationsSectionTest {
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/ImmunizationsSection/";
 
 	private static CDAFactories factories;
-	private static ResourceTransformerImpl rt;
+	private static IResourceTransformer rt;
+
+	private static RTInvocationHandler<ImmunizationActivity> handler;
 
 	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-		rt = new ResourceTransformerImpl();
+
+		handler = new RTInvocationHandler<ImmunizationActivity>(new ResourceTransformerImpl());
+		rt = (IResourceTransformer) Proxy.newProxyInstance(IResourceTransformer.class.getClassLoader(),
+				new Class[] { IResourceTransformer.class }, handler);
+
 		factories = CDAFactories.init();
 	}
 
-	private static void reorderSectionActs(ImmunizationsSection section, List<Immunization> immunizations) {
-		IdentifierMap<Integer> orderMap = IdentifierMapFactory.resourcesToOrder(immunizations);
-		List<ImmunizationActivity> acts = new ArrayList<>();
-		section.getImmunizationActivities().forEach(r -> acts.add(r));
-		acts.sort((a, b) -> {
-			int aval = CDAUtilExtension.idValue("Immunization", a.getIds(), orderMap);
-			int bval = CDAUtilExtension.idValue("Immunization", b.getIds(), orderMap);
-			return aval - bval;
-		});
+	private static void reorderSection(ImmunizationsSection section, List<ImmunizationActivity> activities) {
 		section.getEntries().clear();
-		acts.forEach(act -> {
+		activities.forEach(activity -> {
 			Entry entry = factories.base.createEntry();
-			entry.setSubstanceAdministration(act);
+			entry.setSubstanceAdministration(activity);
 			section.getEntries().add(entry);
 		});
 	}
@@ -89,13 +87,14 @@ public class ImmunizationsSectionTest {
 		BundleInfo bundleInfo = new BundleInfo(rt);
 		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
 		bundleInfo.mergeIdedAnnotations(idedAnnotations);
+
+		handler.resetObjects();
 		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
-		Bundle bundle = sectionResult.getBundle();
-
-		List<Immunization> immunizations = FHIRUtil.findResources(bundle, Immunization.class);
-
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		reorderSectionActs(section, immunizations);
+		reorderSection(section, handler.getObjects());
+
+		Bundle bundle = sectionResult.getBundle();
+		List<Immunization> immunizations = FHIRUtil.findResources(bundle, Immunization.class);
 
 		String caseName = sourceName.substring(0, sourceName.length() - 4);
 		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);
@@ -124,13 +123,11 @@ public class ImmunizationsSectionTest {
 		runSampleTest("C-CDA_R2-1_CCD.xml");
 	}
 
-	@Ignore
 	@Test
 	public void testSample2() throws Exception {
 		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
 	}
 
-	@Ignore
 	@Test
 	public void testSample3() throws Exception {
 		customJoltUpdate = imm -> {
