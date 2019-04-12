@@ -115,6 +115,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testRTO() throws Exception {
+		actualTest("RTO");
+	}
+
+	@Test
 	public void testAuthorParticipation() throws Exception {
 		actualTest("AuthorParticipation");
 	}
