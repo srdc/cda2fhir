@@ -22,6 +22,7 @@ import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.DiagnosticReport.DiagnosticReportPerformerComponent;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
+import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -77,29 +78,8 @@ public class JoltUtil {
 			return immunization.getPatient();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void copyReferences(Map<String, Object> joltResult) {
-			JoltUtil.verifyUpdateReference(immunization.hasManufacturer(), immunization.getManufacturer(), joltResult,
-					"manufacturer");
-			List<Object> joltPractitioners = (List<Object>) joltResult.get("practitioner");
-			if (immunization.getPractitioner().isEmpty()) {
-				Assert.assertNull("No practitioner reference", joltPractitioners);
-			} else {
-				List<ImmunizationPractitionerComponent> practitioners = immunization.getPractitioner();
-				for (int index = 0; index < practitioners.size(); ++index) {
-					ImmunizationPractitionerComponent p = practitioners.get(index);
-					Map<String, Object> joltElement = (Map<String, Object>) joltPractitioners.get(index);
-					JoltUtil.verifyUpdateReference(p.hasActor(), p.getActor(), joltElement, "actor");
-					++index;
-				}
-			}
-			if (immunization.hasReaction()) {
-				List<Object> joltReactions = (List<Object>) joltResult.get("reaction");
-				Map<String, Object> joltReaction = (Map<String, Object>) joltReactions.get(0);
-				JoltUtil.verifyUpdateReference(immunization.hasReaction(),
-						immunization.getReaction().get(0).getDetail(), joltReaction, "detail");
-			}
 		}
 	}
 
@@ -120,21 +100,8 @@ public class JoltUtil {
 			return observation.getSubject();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void copyReferences(Map<String, Object> joltResult) {
-			List<Object> joltPerformers = (List<Object>) joltResult.get("performer");
-			if (observation.getPerformer().isEmpty()) {
-				Assert.assertNull("No observation performer reference", joltPerformers);
-			} else {
-				List<Reference> performers = observation.getPerformer();
-				for (int index = 0; index < performers.size(); ++index) {
-					Map<String, Object> r = new LinkedHashMap<String, Object>();
-					r.put("reference", performers.get(index).getReference());
-					joltPerformers.set(index, r);
-					++index;
-				}
-			}
 		}
 	}
 
@@ -688,7 +655,7 @@ public class JoltUtil {
 		JSONAssert.assertEquals("Jolt resource", resourceJson, joltResourceJson, true);
 	}
 
-	public void verify(Resource resource, ResourceInfo info) throws Exception {
+	private void verify(Resource resource, ResourceInfo info) throws Exception {
 		String resourceType = resource.getResourceType().name();
 
 		Map<String, Object> joltResource = TransformManager.chooseResource(result, resourceType);
@@ -699,21 +666,6 @@ public class JoltUtil {
 		}
 
 		verify(resource, joltResource, info);
-	}
-
-	public void verify(Immunization immunization) throws Exception {
-		ImmunizationInfo info = new ImmunizationInfo(immunization);
-		verify(immunization, info);
-	}
-
-	public void verify(Observation observation) throws Exception {
-		ObservationInfo info = new ObservationInfo(observation);
-		verify(observation, info);
-	}
-
-	public void verify(DiagnosticReport report) throws Exception {
-		DiagnosticReportInfo info = new DiagnosticReportInfo(report);
-		verify(report, info);
 	}
 
 	public void verify(Patient patient) throws Exception {
@@ -849,6 +801,151 @@ public class JoltUtil {
 		verify(allergy, joltAllergy);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void verify(Immunization immunization, Map<String, Object> joltImmunization) throws Exception {
+		ImmunizationInfo info = new ImmunizationInfo(immunization);
+
+		Map<String, Object> joltClone = joltImmunization == null ? null : new LinkedHashMap<>(joltImmunization);
+
+		if (immunization.hasPractitioner()) {
+			List<ImmunizationPractitionerComponent> practitioners = immunization.getPractitioner();
+			List<Object> joltPractitioners = (List<Object>) joltClone.get("practitioner");
+
+			Assert.assertEquals("Practitioner count", joltPractitioners.size(), practitioners.size());
+
+			for (int index = 0; index < practitioners.size(); ++index) {
+				ImmunizationPractitionerComponent practitioner = practitioners.get(index);
+				Map<String, Object> joltPractitioner = (Map<String, Object>) joltPractitioners.get(index);
+
+				joltPractitioner = new LinkedHashMap<String, Object>(joltPractitioner);
+				joltPractitioners.set(index, joltPractitioner);
+
+				String reference = practitioner.getActor().getReference();
+				String joltReference = findPathString(joltPractitioner, "actor.reference");
+
+				Assert.assertNotNull("Jolt actor reference exists", joltReference);
+
+				verifyEntity(reference, joltReference);
+
+				Map<String, Object> joltActor = (Map<String, Object>) joltPractitioner.get("actor");
+				joltActor = new LinkedHashMap<String, Object>(joltActor);
+				joltPractitioner.put("actor", joltActor);
+
+				joltActor.put("reference", reference);
+			}
+		} else {
+			Object value = joltImmunization.get("practitioner");
+			Assert.assertNull("No practitioner", value);
+		}
+
+		if (immunization.hasManufacturer()) {
+			String reference = immunization.getManufacturer().getReference();
+
+			String joltReference = findPathString(joltImmunization, "manufacturer.reference");
+			Assert.assertNotNull("Jolt manufacturer reference exists", joltReference);
+
+			Organization org = bundleUtil.getResourceFromReference(reference, Organization.class);
+			Map<String, Object> joltOrg = TransformManager.chooseResourceByReference(result, joltReference);
+			verify(org, joltOrg, null);
+
+			Map<String, Object> manufacturer = findPathMap(joltImmunization, "manufacturer");
+			Map<String, Object> manufacturerClone = new LinkedHashMap<>(manufacturer);
+			joltClone.put("manufacturer", manufacturerClone);
+
+			manufacturerClone.put("reference", reference);
+		} else {
+			Object value = joltImmunization.get("manufacturer");
+			Assert.assertNull("No practitioner", value);
+		}
+
+		if (immunization.hasReaction()) {
+			List<ImmunizationReactionComponent> reactions = immunization.getReaction();
+			List<Object> joltReactions = (List<Object>) joltClone.get("reaction");
+
+			Assert.assertEquals("Reaction count", joltReactions.size(), reactions.size());
+
+			for (int index = 0; index < reactions.size(); ++index) {
+				ImmunizationReactionComponent reaction = reactions.get(index);
+				Map<String, Object> joltReaction = (Map<String, Object>) joltReactions.get(index);
+
+				joltReaction = new LinkedHashMap<String, Object>(joltReaction);
+				joltReactions.set(index, joltReaction);
+
+				String reference = reaction.getDetail().getReference();
+				String joltReference = findPathString(joltReaction, "detail.reference");
+
+				Assert.assertNotNull("Jolt reaction reference exists", joltReference);
+
+				Observation observation = bundleUtil.getResourceFromReference(reference, Observation.class);
+				Map<String, Object> joltObservation = TransformManager.chooseResourceByReference(result, joltReference);
+
+				verify(observation, joltObservation);
+
+				Map<String, Object> joltDetail = (Map<String, Object>) joltReaction.get("detail");
+				joltDetail = new LinkedHashMap<String, Object>(joltDetail);
+				joltReaction.put("detail", joltDetail);
+
+				joltDetail.put("reference", reference);
+			}
+		} else {
+			Object value = joltImmunization.get("practitioner");
+			Assert.assertNull("No practitioner", value);
+		}
+
+		verify(immunization, joltClone, info);
+	}
+
+	public void verify(Immunization immunization) throws Exception {
+		Map<String, Object> joltImmunization = TransformManager.chooseResource(result, "Immunization");
+		verify(immunization, joltImmunization);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(Observation observation, Map<String, Object> joltObservation) throws Exception {
+		ObservationInfo info = new ObservationInfo(observation);
+
+		Map<String, Object> joltClone = joltObservation == null ? null : new LinkedHashMap<>(joltObservation);
+
+		if (observation.hasPerformer()) {
+			List<Reference> references = observation.getPerformer();
+			List<Object> joltReferences = (List<Object>) joltClone.get("performer");
+
+			Assert.assertEquals("Performer count", references.size(), joltReferences.size());
+
+			joltReferences = new ArrayList<Object>(joltReferences);
+			joltClone.put("performer", joltReferences);
+
+			for (int index = 0; index < references.size(); ++index) {
+				String reference = references.get(index).getReference();
+
+				Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index);
+				Assert.assertNotNull("Jolt performer exists", joltReferenceObject);
+				String joltReference = (String) joltReferenceObject.get("reference");
+
+				verifyEntity(reference, joltReference);
+
+				joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+				joltReferences.set(index, joltReferenceObject);
+				joltReferenceObject.put("reference", reference);
+			}
+		} else {
+			Object value = joltObservation.get("performer");
+			Assert.assertNull("No performer", value);
+		}
+
+		verify(observation, joltClone, info);
+	}
+
+	public void verify(Observation observation) throws Exception {
+		Map<String, Object> joltObservation = TransformManager.chooseResource(result, "Observation");
+		verify(observation, joltObservation);
+	}
+
+	public void verify(DiagnosticReport report) throws Exception {
+		DiagnosticReportInfo info = new DiagnosticReportInfo(report);
+		verify(report, info);
+	}
+
 	public void verify(Condition condition, Map<String, Object> joltCondition) throws Exception {
 		ConditionInfo info = new ConditionInfo(condition);
 
@@ -882,8 +979,7 @@ public class JoltUtil {
 		} else {
 			Assert.assertEquals("Organization count", observations.size(), joltObservations.size());
 			for (int index = 0; index < observations.size(); ++index) {
-				ObservationInfo info = new ObservationInfo(observations.get(index));
-				verify(observations.get(index), joltObservations.get(index), info);
+				verify(observations.get(index), joltObservations.get(index));
 			}
 		}
 	}

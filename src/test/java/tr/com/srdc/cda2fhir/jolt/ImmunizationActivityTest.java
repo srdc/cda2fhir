@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Immunization;
-import org.hl7.fhir.dstu3.model.Organization;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,14 +52,12 @@ public class ImmunizationActivityTest {
 
 		generator.verify(bundle);
 
-		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-
 		File xmlFile = CDAUtilExtension.writeAsXML(iag, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "ImmunizationActivity", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
+
 		joltUtil.verify(immunization);
-		joltUtil.verifyOrganizations(organizations);
 	}
 
 	@Test

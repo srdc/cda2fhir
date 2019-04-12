@@ -5,6 +5,7 @@ substanceAdministration.entryRelationship[].observation.code,Immunization.explan
 substanceAdministration.entryRelationship[].observation.value,Immunization.explanation.reason[],CD,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
 substanceAdministration.id[],Immunization.identifier[],ID,,nullFlavor isnull
 substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.lotNumberText,Immunization.lotNumber,,,nullFlavor isnull,substanceAdministration.consumable.nullFlavor isnull
+Organization,Immunization.manufacturer.display,,
 Organization,Immunization.manufacturer.reference,,"getId"
 substanceAdministration.negationInd,Immunization.notGiven,,,nullFlavor isnull
 Immunization.Practitioner,Immunization.practitioner[].actor.reference,,"getId"
