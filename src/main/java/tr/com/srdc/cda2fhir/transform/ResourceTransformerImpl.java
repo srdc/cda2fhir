@@ -21,6 +21,8 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,9 +37,9 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Annotation;
+import org.hl7.fhir.dstu3.model.Attachment;
 import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Base64BinaryType;
-import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.BooleanType;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -55,8 +57,11 @@ import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.DocumentReference;
+import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyMemberHistoryConditionComponent;
 import org.hl7.fhir.dstu3.model.Group;
@@ -3373,12 +3378,50 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return result;
 	}
 
-	public Binary tBinary(String documentBody) {
-		Binary binary = new Binary();
-		binary.setContentElement(new Base64BinaryType(Base64.encode(documentBody.getBytes())));
-		binary.setContentType("text/plain");
-		binary.setId(new IdType("Binary", getUniqueId()));
-		return binary;
+	public DocumentReference tDocumentReference(String documentBody) {
+
+		DocumentReference docReference = new DocumentReference();
+
+		// set id
+		docReference.setId(new IdType("DocumentReference", getUniqueId()));
+
+		// status -> current
+		docReference.setStatus(DocumentReferenceStatus.CURRENT);
+
+		// type -> 34133-9 (hard-coded from specification)
+		CodeableConcept docType = new CodeableConcept();
+		Coding docTypeCoding = new Coding();
+		docTypeCoding.setCode("34133-9");
+		docTypeCoding.setSystem("2.16.840.1.113883.6.1");
+		docTypeCoding.setDisplay("Summarization of Episode Note");
+		docType.addCoding(docTypeCoding);
+		docReference.setType(docType);
+
+		// attachment
+		Attachment docAttachment = new Attachment();
+		docAttachment.setContentType("text/plain");
+
+		// attachment doc
+		Base64BinaryType doc64 = new Base64BinaryType(Base64.encode(documentBody.getBytes()));
+		docAttachment.setDataElement(doc64);
+
+		// attachment hash
+		MessageDigest digest;
+		try {
+			digest = MessageDigest.getInstance("SHA-1");
+			byte[] encodedhash = digest.digest(documentBody.getBytes());
+			docAttachment.setHashElement(new Base64BinaryType(Base64.encode(encodedhash)));
+		} catch (NoSuchAlgorithmException e) {
+			logger.error(e.toString());
+		}
+
+		// set attachment
+		DocumentReferenceContentComponent docContent = new DocumentReferenceContentComponent();
+		docContent.setAttachment(docAttachment);
+		docReference.addContent(docContent);
+
+		return docReference;
+
 	}
 
 	public Device tDevice(Identifier assemblerDevice) {
@@ -3400,11 +3443,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		provenance.setId(new IdType("Provenance", getUniqueId()));
 
-		Binary binary = tBinary(documentBody);
-		bundle.addEntry(new BundleEntryComponent().setResource(binary));
+		DocumentReference documentReference = tDocumentReference(documentBody);
+		bundle.addEntry(new BundleEntryComponent().setResource(documentReference));
 		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
 		pec.setRole(ProvenanceEntityRole.SOURCE);
-		pec.setId(binary.getId());
+		pec.setId(documentReference.getId());
 		provenance.addEntity(pec);
 
 		Device device = tDevice(assemblerDevice);
