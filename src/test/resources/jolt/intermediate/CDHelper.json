@@ -1,0 +1,10 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"code": "code",
+			"codeSystem": "system",
+			"displayName": "display"
+		}
+	}
+]

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -36,6 +37,8 @@ public class AllergyObservationGenerator {
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCategory.json");
 	private static final Map<String, Object> ALLERGY_INTOLERANCE_CRITICALITY = JsonUtils
 			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceCriticality.json");
+	private static final Map<String, Object> ALLERGY_INTOLERANCE_CLINICAL_STATUS = JsonUtils
+			.filepathToMap("src/test/resources/jolt/value-maps/AllergyIntoleranceClinicalStatus.json");
 
 	private List<AuthorGenerator> authorGenerators = new ArrayList<>();
 	private List<PlayingEntityGenerator> codeGenerators = new ArrayList<>();
@@ -49,8 +52,26 @@ public class AllergyObservationGenerator {
 
 	private CECodeGenerator criticalityGenerator;
 
+	private CECodeGenerator clinicalStatusGenerator;
+
 	public List<AllergyReactionObservationGenerator> getReactionGenerators() {
 		return Collections.unmodifiableList(reactionGenerators);
+	}
+
+	public void setClinicalStatusCode(String code) {
+		if (clinicalStatusGenerator == null) {
+			clinicalStatusGenerator = new CECodeGenerator(ALLERGY_INTOLERANCE_CLINICAL_STATUS);
+		}
+		clinicalStatusGenerator.set(code);
+	}
+
+	public boolean hasCategoryGenerator() {
+		return categoryGenerator != null;
+	}
+
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		authorGenerators.clear();
+		authorGenerators.add(authorGenerator);
 	}
 
 	public AllergyObservation generate(CDAFactories factories) {
@@ -84,6 +105,19 @@ public class AllergyObservationGenerator {
 		if (effectiveTimeGenerator != null) {
 			IVL_TS ivlTs = effectiveTimeGenerator.generate(factories);
 			ao.setEffectiveTime(ivlTs);
+		}
+
+		if (clinicalStatusGenerator != null) {
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ao.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ);
+			er.setInversionInd(true);
+			Observation o = factories.consol.createAllergyStatusObservation();
+			II templateId = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.28");
+			o.getTemplateIds().add(templateId);
+			CE ce = clinicalStatusGenerator.generate(factories);
+			o.getValues().add(ce);
+			er.setObservation(o);
 		}
 
 		reactionGenerators.forEach(g -> {
@@ -127,6 +161,8 @@ public class AllergyObservationGenerator {
 		aog.reactionGenerators.add(AllergyReactionObservationGenerator.getDefaultInstance());
 		aog.criticalityGenerator = new CECodeGenerator(ALLERGY_INTOLERANCE_CRITICALITY);
 		aog.criticalityGenerator.set("crith");
+		aog.clinicalStatusGenerator = new CECodeGenerator(ALLERGY_INTOLERANCE_CLINICAL_STATUS);
+		aog.clinicalStatusGenerator.set("55561003");
 
 		return aog;
 	}
@@ -148,8 +184,6 @@ public class AllergyObservationGenerator {
 		Assert.assertNotNull("Clinical status exists", allergyIntolerance.hasClinicalStatus());
 		if (effectiveTimeGenerator == null) {
 			Assert.assertTrue("No allergy onset", !allergyIntolerance.hasOnset());
-
-			Assert.assertEquals("Clinical status", "active", allergyIntolerance.getClinicalStatus().toCode());
 		} else {
 			String value = effectiveTimeGenerator.getLowOrValue();
 			if (value == null) {
@@ -158,12 +192,13 @@ public class AllergyObservationGenerator {
 				String actual = FHIRUtil.toCDADatetime(allergyIntolerance.getOnsetDateTimeType().asStringValue());
 				Assert.assertEquals("Allergy offset", value, actual);
 			}
+		}
 
-			if (effectiveTimeGenerator.hasHigh()) {
-				Assert.assertEquals("Clinical status", "inactive", allergyIntolerance.getClinicalStatus().toCode());
-			} else {
-				Assert.assertEquals("Clinical status", "active", allergyIntolerance.getClinicalStatus().toCode());
-			}
+		if (clinicalStatusGenerator == null) {
+			Assert.assertTrue("No clinical status", !allergyIntolerance.hasClinicalStatus());
+		} else {
+			Assert.assertTrue("Clinical status exists", allergyIntolerance.hasClinicalStatus());
+			clinicalStatusGenerator.verify(allergyIntolerance.getClinicalStatus().toCode());
 		}
 
 		if (reactionGenerators.isEmpty()) {
@@ -197,5 +232,9 @@ public class AllergyObservationGenerator {
 			String practitionerId = allergyIntolerance.getRecorder().getReference();
 			ag.verifyFromPractionerId(bundle, practitionerId);
 		}
+	}
+
+	public static Set<String> getPossibleClinicalStatusCodes() {
+		return Collections.unmodifiableSet(ALLERGY_INTOLERANCE_CLINICAL_STATUS.keySet());
 	}
 }

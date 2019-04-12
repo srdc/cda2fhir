@@ -1,0 +1,56 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": ["code", "codeSystem", "displayName", "translation"]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"code": "coding[0].code",
+			"codeSystem": "coding[0].system",
+			"displayName": "coding[0].display",
+			"translation": {
+				"*": "coding[].->CDHelper"
+			},
+			"originalText": {
+				"reference": {
+					"value": "text"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"coding": {
+				"*": {
+					"code": "=toString(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"coding": {
+				"*": {
+					"system": "=systemAdapter(@0)"
+				}
+			},
+			"text": "=resolveText(@0)"
+		}
+	},
+	{
+		"operation":  "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+		}
+	}
+]

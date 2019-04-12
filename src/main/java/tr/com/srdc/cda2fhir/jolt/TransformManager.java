@@ -56,8 +56,8 @@ public class TransformManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Object> transformEntryInFile(String cdaName, String filepath) {
-		String specpath = String.format("src/test/resources/jolt/entry/%s.json", cdaName);
+	public static List<Object> transformInFile(String directory, String cdaName, String filepath) {
+		String specpath = String.format("%s%s.json", directory, cdaName);
 		List<Object> chainrSpec = JsonUtils.filepathToList(specpath);
 
 		Chainr chainr = Chainr.fromSpec(chainrSpec);
@@ -67,5 +67,13 @@ public class TransformManager {
 		chainr.transform(input, context);
 		List<Object> result = (List<Object>) context.get("Resources");
 		return result;
+	}
+
+	public static List<Object> transformEntryInFile(String cdaName, String filepath) {
+		return transformInFile("src/test/resources/jolt/entry/", cdaName, filepath);
+	}
+
+	public static List<Object> transformSectionInFile(String cdaName, String filepath) {
+		return transformInFile("src/test/resources/jolt/section/", cdaName, filepath);
 	}
 }

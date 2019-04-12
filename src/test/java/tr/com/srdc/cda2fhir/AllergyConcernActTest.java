@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
-import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -343,62 +342,6 @@ public class AllergyConcernActTest {
 
 			verifyAllergyIntoleranceType(act, fhirCategory);
 		}
-	}
-
-	@Test
-	public void testAllergyObservationStatusInactive() throws Exception {
-		AllergyProblemActImpl act = createAllergyConcernAct();
-		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0)
-				.getObservation();
-
-		String low = "2018-01-01";
-		String high = "2019-01-01";
-
-		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, high);
-
-		observation.setEffectiveTime(interval);
-		BundleInfo bundleInfo = new BundleInfo(rt);
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
-		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
-		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
-		String actual = clinicalStatus.toCode();
-
-		Assert.assertEquals("Inactive Allergy with high value", "inactive", actual);
-	}
-
-	@Test
-	public void testAllergyObservationStatusActive() throws Exception {
-		AllergyProblemActImpl act = createAllergyConcernAct();
-		AllergyObservationImpl observation = (AllergyObservationImpl) act.getEntryRelationships().get(0)
-				.getObservation();
-
-		String low = "2018-01-01";
-
-		IVL_TS interval = cdaTypeFactory.createIVL_TS(low, null);
-
-		observation.setEffectiveTime(interval);
-		BundleInfo bundleInfo = new BundleInfo(rt);
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
-		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
-		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
-		String actual = clinicalStatus.toCode();
-
-		Assert.assertEquals("Active Allergy with low value", "active", actual);
-	}
-
-	@Test
-	public void testAllergyObservationStatusNoDate() throws Exception {
-		AllergyProblemActImpl act = createAllergyConcernAct();
-		// AllergyObservationImpl observation = (AllergyObservationImpl)
-		// act.getEntryRelationships().get(0).getObservation();
-
-		BundleInfo bundleInfo = new BundleInfo(rt);
-		Bundle bundle = rt.tAllergyProblemAct2AllergyIntolerance(act, bundleInfo).getBundle();
-		AllergyIntolerance allergyIntolerance = findOneResource(bundle);
-		AllergyIntoleranceClinicalStatus clinicalStatus = allergyIntolerance.getClinicalStatus();
-		String actual = clinicalStatus.toCode();
-
-		Assert.assertEquals("No effective time defaults to active", "active", actual);
 	}
 
 	static private IVL_TS createEffectiveTimeLow(String value) {

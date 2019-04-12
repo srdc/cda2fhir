@@ -43,7 +43,7 @@ public class EMFUtil {
 						if (idValueMap != null && !idValueMap.isEmpty()) {
 							Object value = idValueMap.get(0).getValue();
 							if (value != null) {
-								result.put(id, value.toString());
+								result.put(id, value.toString().trim());
 							}
 						}
 					}
@@ -55,7 +55,7 @@ public class EMFUtil {
 
 	/***
 	 * Pulls text references out of source HTML for later use.
-	 * 
+	 *
 	 * @param text the structured text portion of the CCD document.
 	 * @return map of ids and values from that section.
 	 */
