@@ -38,7 +38,6 @@
             <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
             <!-- The statusCode represents the need to continue tracking the allergy -->
             <!-- This is of ongoing concern to the provider -->
-            <statusCode code="active"/>
             <author typeCode="AUT">
                <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                <!-- Same as Concern effectiveTime/low -->
@@ -63,12 +62,6 @@
                   </text>
                   <!-- Observation statusCode represents the status of the act of observing -->
                   <statusCode code="completed"/>
-                  <effectiveTime>
-										<!-- The low value reflects the date of onset of the allergy -->
-										<!-- Based on patient symptoms, presumed onset is May 1, 1998 -->
-                     <low value="19980501"/>
-                     <!-- The high value reflects when the allergy was known to be resolved (and will generally be absent) -->
-                  </effectiveTime>
                   <author typeCode="AUT">
                      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                      <time value="199805011145-0800"/>
@@ -106,7 +99,6 @@
                         </text>
                         <statusCode code="completed"/>
                         <effectiveTime>
-                           <low value="200802260805-0800"/>
                            <high value="200802281205-0800"/>
                         </effectiveTime>
                         <entryRelationship inversionInd="true" typeCode="SUBJ">
@@ -121,11 +113,6 @@
                                     codeSystemName="ActCode"
                                     displayName="Severity Observation"/>
                               <statusCode code="completed"/>
-                              <value code="255604002"
-                                     codeSystem="2.16.840.1.113883.6.96"
-                                     codeSystemName="SNOMED CT"
-                                     displayName="Mild"
-                                     xsi:type="CD"/>
                            </observation>
                         </entryRelationship>
                      </observation>
@@ -156,7 +143,6 @@
             <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
             <!-- The statusCode represents the need to continue tracking the allergy -->
             <!-- This is of ongoing concern to the provider -->
-            <statusCode code="active"/>
             <author typeCode="AUT">
                <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                <!-- Same as Concern effectiveTime/low -->
@@ -223,11 +209,6 @@
                                  <reference value="#reactionseverity2"/>
                               </text>
                               <statusCode code="completed"/>
-                              <value code="6736007"
-                                     codeSystem="2.16.840.1.113883.6.96"
-                                     codeSystemName="SNOMED CT"
-                                     displayName="Moderate"
-                                     xsi:type="CD"/>
                            </observation>
                         </entryRelationship>
                      </observation>

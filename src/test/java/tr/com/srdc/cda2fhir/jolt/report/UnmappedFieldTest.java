@@ -125,7 +125,9 @@ public class UnmappedFieldTest {
 	public void generateFilteredNodeList(List<List<String>> csvRecords, NodeList xPathDocument) {
 		for (int i = 1; i < csvRecords.size(); i++) { // The list at 0 is just the headers.
 			ArrayList<String> searchTerms = new ArrayList<String>();
-			searchTerms.add("entry");
+			if (!xPathDocument.item(0).getNodeName().contentEquals("recordTarget")) {
+				searchTerms.add("entry");
+			}
 			String[] csvFields = csvRecords.get(i).get(0).replaceAll("\\[]", "").split("\\.");
 			for (String csvField : csvFields) {
 				searchTerms.add(csvField);
@@ -203,6 +205,18 @@ public class UnmappedFieldTest {
 	}
 
 	// "Results" 30954-2
+
+	@Test // "PatientRole" no code.
+	public void testPatientRole() throws IOException, XPathExpressionException, ParserConfigurationException,
+			SAXException, TransformerFactoryConfigurationError, TransformerException {
+		List<List<String>> csvRecords = csvToList("PatientRole");
+		Document body = convertFileToDocument(INPUT_PATH + "C-CDA_R2-1_CCD.xml");
+
+		NodeList xPathDocument = (NodeList) XPATH.evaluate("//recordTarget", body, XPathConstants.NODESET);
+
+		generateFilteredNodeList(csvRecords, xPathDocument);
+		convertNodeListToFile(xPathDocument, OUTPUT_PATH + "C-CDA_R2-1_CCD-PatientRole-unmapped.xml");
+	}
 
 	@Test // "Problems" Code: 11450-4
 	public void testProblemConcernAct() throws IOException, XPathExpressionException, ParserConfigurationException,
