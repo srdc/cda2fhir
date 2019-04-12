@@ -358,9 +358,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 				if (ccdComposition != null) {
 					ccdComposition.addSection(fhirSec);
 				}
-
-				Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
-				bundleInfo.mergeIdedAnnotations(idedAnnotations);
+				if (cdaSec.getText() != null) {
+					Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
+					bundleInfo.mergeIdedAnnotations(idedAnnotations);
+				}
 
 				ISectionResult sectionResult = section.transform(bundleInfo);
 				if (sectionResult != null) {

@@ -21,10 +21,10 @@ public class CDACDMap<T> implements ICDACDMap<T>, ICDACDMapSource<T> {
 			cdMap = new HashMap<String, Map<String, T>>();
 		}
 		List<CD> cds = new ArrayList<CD>();
-		put(cd.getCodeSystemName(), cd.getCode(), value);
+		put(cd.getCodeSystem(), cd.getCode(), value);
 		if (cd.getTranslations() != null && !cd.getTranslations().isEmpty()) {
 			for (CD currCD : cd.getTranslations()) {
-				put(currCD.getCodeSystemName(), currCD.getCode(), value);
+				put(currCD.getCodeSystem(), currCD.getCode(), value);
 			}
 		}
 
@@ -76,13 +76,13 @@ public class CDACDMap<T> implements ICDACDMap<T>, ICDACDMapSource<T> {
 	public T get(CD cd) {
 		if (cdMap != null) {
 
-			Map<String, T> codeMap = cdMap.get(cd.getCodeSystemName());
+			Map<String, T> codeMap = cdMap.get(cd.getCodeSystem());
 			if (codeMap != null && codeMap.get(cd.getCode()) != null) {
 				return codeMap.get(cd.getCode());
 			}
 			if (cd.getTranslations() != null && !cd.getTranslations().isEmpty()) {
 				for (CD currCD : cd.getTranslations()) {
-					codeMap = cdMap.get(currCD.getCodeSystemName());
+					codeMap = cdMap.get(currCD.getCodeSystem());
 					if (codeMap != null && codeMap.get(currCD.getCode()) != null) {
 						return codeMap.get(currCD.getCode());
 					}
