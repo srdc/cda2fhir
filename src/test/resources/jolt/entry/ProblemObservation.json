@@ -22,7 +22,7 @@
 			},
 			"#constant": "category[]",
 			"value": {
-				"*": "code[].->CD"
+				"*": "code[].->CD2"
 			},
 			"effectiveTime": {
 				"high": {

@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -143,6 +144,17 @@ public class ProblemObservationGenerator {
 			String datetime = condition.getAssertedDateElement().asStringValue();
 			String actual = FHIRUtil.toCDADatetime(datetime);
 			Assert.assertEquals("Condition asserter date", authorTime, actual);
+		}
+	}
+
+	public void verify(Bundle bundle, Condition condition) throws Exception {
+		verify(condition);
+
+		if (authorGenerator == null) {
+			Assert.assertTrue("No recorder", !condition.hasAsserter());
+		} else {
+			String practitionerId = condition.getAsserter().getReference();
+			authorGenerator.verifyFromPractionerId(bundle, practitionerId);
 		}
 	}
 

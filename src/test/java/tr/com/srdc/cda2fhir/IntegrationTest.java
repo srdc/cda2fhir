@@ -2,12 +2,12 @@ package tr.com.srdc.cda2fhir;
 
 import java.io.IOException;
 
-import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Device;
+import org.hl7.fhir.dstu3.model.DocumentReference;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -89,7 +89,7 @@ public class IntegrationTest {
 
 		Bundle provenanceResults = (Bundle) client.search().forResource(Provenance.class).prettyPrint().execute();
 
-		Bundle binaryresults = (Bundle) client.search().forResource(Binary.class).prettyPrint().execute();
+		Bundle docRefresults = (Bundle) client.search().forResource(DocumentReference.class).prettyPrint().execute();
 
 		Bundle deviceResults = (Bundle) client.search().forResource(Device.class).prettyPrint().execute();
 
@@ -97,7 +97,7 @@ public class IntegrationTest {
 		Assert.assertEquals(33, practitionerResults.getTotal());
 		Assert.assertEquals(28, medicationResults.getTotal());
 		Assert.assertEquals(1, provenanceResults.getTotal());
-		Assert.assertEquals(1, binaryresults.getTotal());
+		Assert.assertEquals(1, docRefresults.getTotal());
 		Assert.assertEquals(1, deviceResults.getTotal());
 	}
 }

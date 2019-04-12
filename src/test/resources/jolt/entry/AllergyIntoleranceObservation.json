@@ -26,12 +26,7 @@
 		"operation": "shift",
 		"spec": {
 			"author": "->AuthorParticipation",
-			"effectiveTime": {
-				"high": {
-					"value": "clinicalStatus"
-				},
-				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
-			},
+			"effectiveTime": "onsetDateTime.->EffectiveTimeLowOrValue",
 			"value": {
 				"code": [
 					"category[]",
@@ -53,6 +48,13 @@
 										"@4": {
 											"value": {
 												"code": "criticality"
+											}
+										}
+									},
+									"2.16.840.1.113883.10.20.22.4.28": {
+										"@4": {
+											"value": {
+												"code": "clinicalStatus"
 											}
 										}
 									},
@@ -92,9 +94,9 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
 			"onsetDateTime": "=datetimeAdapter(@0)",
 			"criticality": "=valueSetAdapter('AllergyIntoleranceCriticality',@0)",
+			"clinicalStatus": "=valueSetAdapter('AllergyIntoleranceClinicalStatus',@0)",
 			"category": {
 				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
 			},
@@ -103,6 +105,12 @@
 				"reference": "=getId(@0)",
 				"display": "=getReferenceDisplay(@0)"
 			}
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"recorder": "=recursivelySquashNulls(@0)"
 		}
 	},
 	{

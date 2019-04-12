@@ -27,7 +27,7 @@
 					"*": "bodySite[].->CD"
 				},
 				"statusCode": "status.->NullFlavorableCode",
-				"code": "code.->CD",
+				"code": "code.->CD2",
 				"entryRelationship": {
 					"*": {
 						"typeCode": {
@@ -35,6 +35,17 @@
 								"@2": {
 									"observation": {
 										"code": "reasonCode[].->CD"
+									}
+								}
+							},
+							"SUBJ": {
+								"@2": {
+									"act": {
+										"text": {
+											"reference": {
+												"value": "note[].text"
+											}
+										}
 									}
 								}
 							}
@@ -86,6 +97,11 @@
 					"onBehalfOf": {
 						"reference": "=getId(@0)"
 					}
+				}
+			},
+			"note": {
+				"*": {
+					"text": "=resolveText(@0)"
 				}
 			}
 		}

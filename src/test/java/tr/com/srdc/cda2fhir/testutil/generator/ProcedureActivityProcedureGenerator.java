@@ -190,6 +190,8 @@ public class ProcedureActivityProcedureGenerator {
 				ProcedurePerformerComponent ppc = procedure.getPerformer().get(index);
 
 				String practitionerId = ppc.getActor().getReference();
+				pg.verifyFromPractionerId(bundle, practitionerId);
+
 				Practitioner practitioner = util.getResourceFromReference(practitionerId, Practitioner.class);
 				pg.verify(practitioner);
 
