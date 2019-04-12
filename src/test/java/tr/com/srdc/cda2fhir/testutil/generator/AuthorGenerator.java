@@ -4,8 +4,10 @@ import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.cda.Person;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.TEL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -40,6 +42,16 @@ public class AuthorGenerator extends EntityGenerator {
 		public void setOrganization(Organization organization) {
 			assignedAuthor.setRepresentedOrganization(organization);
 
+		}
+
+		@Override
+		public void addAD(AD ad) {
+			assignedAuthor.getAddrs().add(ad);
+		}
+
+		@Override
+		public void addTEL(TEL tel) {
+			assignedAuthor.getTelecoms().add(tel);
 		}
 	}
 

@@ -66,7 +66,6 @@ public abstract class CodeGenerator<T extends CE> {
 			}
 			Assert.assertEquals("Code", expected, code);
 		}
-
 	}
 
 	@SuppressWarnings("unchecked")

@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -27,6 +28,8 @@ import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
+import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.json.JSONArray;
@@ -135,29 +138,6 @@ public class JoltUtil {
 		}
 	}
 
-	private static class OrganizationInfo extends ResourceInfo {
-		private Organization organization;
-
-		public OrganizationInfo(Organization organization) {
-			this.organization = organization;
-		}
-
-		@Override
-		public String getPatientPropertyName() {
-			return null;
-		}
-
-		@Override
-		public Reference getPatientReference() {
-			return null;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void copyReferences(Map<String, Object> joltResult) {
-		}
-	}
-
 	private static class DiagnosticReportInfo extends ResourceInfo {
 		private DiagnosticReport report;
 
@@ -205,18 +185,6 @@ public class JoltUtil {
 		}
 	}
 
-	private static class PatientInfo extends ResourceInfo {
-		private Patient patient;
-
-		public PatientInfo(Patient patient) {
-			this.patient = patient;
-		}
-
-		@Override
-		public void copyReferences(Map<String, Object> joltResult) {
-		}
-	}
-
 	private static class AllergyIntoleranceInfo extends ResourceInfo {
 		private AllergyIntolerance allergyIntolerance;
 
@@ -232,6 +200,50 @@ public class JoltUtil {
 		@Override
 		public Reference getPatientReference() {
 			return allergyIntolerance.getPatient();
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+		}
+	}
+
+	private static class ConditionInfo extends ResourceInfo {
+		private Condition condition;
+
+		public ConditionInfo(Condition condition) {
+			this.condition = condition;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return condition.getSubject();
+		}
+
+		@Override
+		public void copyReferences(Map<String, Object> joltResult) {
+		}
+	}
+
+	private static class ProcedureInfo extends ResourceInfo {
+		private Procedure procedure;
+
+		public ProcedureInfo(Procedure procedure) {
+			this.procedure = procedure;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return procedure.getSubject();
 		}
 
 		@Override
@@ -311,6 +323,20 @@ public class JoltUtil {
 		Assert.assertEquals(path + " value count", 1, value.size());
 		Assert.assertTrue(path + " value is map", value.get(0) instanceof Map);
 		return (Map<String, Object>) value.get(0);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Consumer<Map<String, Object>> getFloatUpdate(String current, String replacement) {
+		return r -> {
+			List<Object> codings = JoltUtil.findPathValue(r, "code.coding[]");
+			codings.forEach(coding -> {
+				Map<String, Object> codingAsMap = (Map<String, Object>) coding;
+				Object code = codingAsMap.get("code");
+				if (code != null && current.equals(code.toString())) {
+					codingAsMap.put("code", replacement);
+				}
+			});
+		};
 	}
 
 	private static final Map<String, String> PATIENT_PROPERTY = new HashMap<>();
@@ -486,20 +512,36 @@ public class JoltUtil {
 		FileUtils.writeStringToFile(joltPractitionerFile, joltPractitionerJson, Charset.defaultCharset());
 	}
 
-	public static List<Object> findJoltResult(File xmlFile, String templateName, String caseName) throws Exception {
+	private static File toJsonFile(File xmlFile, String templateName, String caseName) throws Exception {
 		OrgJsonUtil util = OrgJsonUtil.readXML(xmlFile.toString());
 		JSONObject json = util.getJSONObject();
 		String parentPath = xmlFile.getParent();
-		File jsonFile = new File(parentPath, caseName + ".json");
+		String[] pieces = caseName.split("/");
+		String filename = pieces[pieces.length - 1];
+		File jsonFile = new File(parentPath, filename + ".json");
 		FileUtils.writeStringToFile(jsonFile, json.toString(4), Charset.defaultCharset());
+		return jsonFile;
+	}
 
+	public static List<Object> findJoltResult(File xmlFile, String templateName, String caseName) throws Exception {
+		File jsonFile = toJsonFile(xmlFile, templateName, caseName);
 		List<Object> joltResult = TransformManager.transformEntryInFile(templateName, jsonFile.toString());
+		return joltResult;
+	}
+
+	public static List<Object> findJoltSectionResult(File xmlFile, String templateName, String caseName)
+			throws Exception {
+		File jsonFile = toJsonFile(xmlFile, templateName, caseName);
+		List<Object> joltResult = TransformManager.transformSectionInFile(templateName, jsonFile.toString());
 		return joltResult;
 	}
 
 	public static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
 		Map<String, Object> r = new LinkedHashMap<String, Object>();
 		r.put("reference", reference.getReference());
+		if (reference.getDisplay() != null) {
+			r.put("display", reference.getDisplay());
+		}
 		joltResult.put(property, r);
 	}
 
@@ -625,18 +667,20 @@ public class JoltUtil {
 		Assert.assertNotNull("Jolt resource exists", joltResource);
 		Assert.assertNotNull("Jolt resource id exists", joltResource.get("id"));
 
-		joltResource.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
+		Map<String, Object> joltClone = new LinkedHashMap<String, Object>(joltResource);
+
+		joltClone.put("id", resource.getIdElement().getIdPart()); // ids do not have to match
 		if (info != null) {
 			String patientProperty = info.getPatientPropertyName();
 			if (patientProperty != null) {
 				Reference patientReference = info.getPatientReference();
-				JoltUtil.putReference(joltResource, patientProperty, patientReference); // patient not implemented
+				JoltUtil.putReference(joltClone, patientProperty, patientReference); // patient not implemented
 			}
 
-			info.copyReferences(joltResource);
+			info.copyReferences(joltClone);
 		}
 
-		String joltResourceJson = JsonUtils.toPrettyJsonString(joltResource);
+		String joltResourceJson = JsonUtils.toPrettyJsonString(joltClone);
 		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");
 		FileUtils.writeStringToFile(joltResourceFile, joltResourceJson, Charset.defaultCharset());
 
@@ -672,12 +716,8 @@ public class JoltUtil {
 		verify(report, info);
 	}
 
-	public void verify(Patient patient, Bundle bundle) throws Exception {
-		PatientInfo info = new PatientInfo(patient);
-
+	public void verify(Patient patient) throws Exception {
 		Map<String, Object> joltPatient = TransformManager.chooseResource(result, "Patient");
-
-		BundleUtil bundleUtil = new BundleUtil(bundle);
 
 		if (patient.hasManagingOrganization()) {
 			String reference = findPathString(joltPatient, "managingOrganization.reference");
@@ -687,8 +727,7 @@ public class JoltUtil {
 
 			String cda2FhirReference = patient.getManagingOrganization().getReference();
 			Organization organization = bundleUtil.getResourceFromReference(cda2FhirReference, Organization.class);
-			OrganizationInfo orgInfo = new OrganizationInfo(organization);
-			verify(organization, orgInfo);
+			verify(organization, null);
 
 			Map<String, Object> managingOrganization = findPathMap(joltPatient, "managingOrganization");
 			managingOrganization.put("reference", cda2FhirReference);
@@ -697,7 +736,7 @@ public class JoltUtil {
 			Assert.assertNull("No managing organization", value);
 		}
 
-		verify(patient, info);
+		verify(patient, null);
 	}
 
 	public Map<String, Object> findPractitionerRoleForPractitionerId(String practitionerId) {
@@ -722,13 +761,21 @@ public class JoltUtil {
 		Assert.assertNotNull("Jolt role has practitioner", joltPractitionerId);
 		Assert.assertNotNull("Jolt role has organization", joltOrgId);
 
+		Map<String, Object> joltClone = new LinkedHashMap<String, Object>(joltRole);
+
 		Map<String, Object> rolePractitioner = findPathMap(joltRole, "practitioner");
 		Map<String, Object> roleOrg = findPathMap(joltRole, "organization");
 
-		rolePractitioner.put("reference", role.getPractitioner().getReference());
-		roleOrg.put("reference", role.getOrganization().getReference());
+		Map<String, Object> rolePractitionerClone = new LinkedHashMap<String, Object>(rolePractitioner);
+		Map<String, Object> roleOrgClone = new LinkedHashMap<String, Object>(roleOrg);
 
-		verify(role, joltRole, null);
+		joltClone.put("practitioner", rolePractitionerClone);
+		joltClone.put("organization", roleOrgClone);
+
+		rolePractitionerClone.put("reference", role.getPractitioner().getReference());
+		roleOrgClone.put("reference", role.getOrganization().getReference());
+
+		verify(role, joltClone, null);
 	}
 
 	public void verifyEntity(String reference, String joltReference) throws Exception {
@@ -739,6 +786,20 @@ public class JoltUtil {
 
 		Map<String, Object> joltPractitioner = TransformManager.chooseResourceByReference(result, joltReference);
 		Assert.assertNotNull("Jolt practitioner", joltPractitioner);
+
+		if (practitioner.hasAddress()) {
+			practitioner.getAddress().forEach(address -> {
+				if (address.hasLine()) {
+					address.getLine().forEach(line -> {
+						String lineStr = line.asStringValue();
+						String cleanLineStr = line.asStringValue().trim();
+						if (!cleanLineStr.equals(lineStr)) {
+							line.setValueAsString(cleanLineStr);
+						}
+					});
+				}
+			});
+		}
 
 		verify(practitioner, joltPractitioner, null);
 
@@ -757,10 +818,10 @@ public class JoltUtil {
 		}
 	}
 
-	public void verify(AllergyIntolerance allergy) throws Exception {
+	public void verify(AllergyIntolerance allergy, Map<String, Object> joltAllergy) throws Exception {
 		AllergyIntoleranceInfo info = new AllergyIntoleranceInfo(allergy);
 
-		Map<String, Object> joltAllergy = TransformManager.chooseResource(result, "AllergyIntolerance");
+		Map<String, Object> joltClone = joltAllergy == null ? null : new LinkedHashMap<>(joltAllergy);
 
 		if (allergy.hasRecorder()) {
 			String reference = allergy.getRecorder().getReference();
@@ -771,13 +832,47 @@ public class JoltUtil {
 			verifyEntity(reference, joltReference);
 
 			Map<String, Object> recorder = findPathMap(joltAllergy, "recorder");
-			recorder.put("reference", reference);
+			Map<String, Object> recorderClone = new LinkedHashMap<>(recorder);
+			joltClone.put("recorder", recorderClone);
+
+			recorderClone.put("reference", reference);
 		} else {
 			String value = findPathString(joltAllergy, "recorder.reference");
 			Assert.assertNull("No recorder", value);
 		}
 
-		verify(allergy, joltAllergy, info);
+		verify(allergy, joltClone, info);
+	}
+
+	public void verify(AllergyIntolerance allergy) throws Exception {
+		Map<String, Object> joltAllergy = TransformManager.chooseResource(result, "AllergyIntolerance");
+		verify(allergy, joltAllergy);
+	}
+
+	public void verify(Condition condition, Map<String, Object> joltCondition) throws Exception {
+		ConditionInfo info = new ConditionInfo(condition);
+
+		Map<String, Object> joltClone = joltCondition == null ? null : new LinkedHashMap<>(joltCondition);
+
+		if (condition.hasAsserter()) {
+			String reference = condition.getAsserter().getReference();
+
+			String joltReference = findPathString(joltCondition, "asserter.reference");
+			Assert.assertNotNull("Jolt asserter reference exists", joltReference);
+
+			verifyEntity(reference, joltReference);
+
+			Map<String, Object> asserter = findPathMap(joltCondition, "asserter");
+			Map<String, Object> asserterClone = new LinkedHashMap<>(asserter);
+			joltClone.put("asserter", asserterClone);
+
+			asserterClone.put("reference", reference);
+		} else {
+			String value = findPathString(joltCondition, "asserter.reference");
+			Assert.assertNull("No asserter", value);
+		}
+
+		verify(condition, joltClone, info);
 	}
 
 	public void verifyObservations(List<Observation> observations) throws Exception {
@@ -792,4 +887,79 @@ public class JoltUtil {
 			}
 		}
 	}
+
+	public List<Map<String, Object>> findResources(String resourceType) {
+		return TransformManager.chooseResources(result, resourceType);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(Procedure procedure, Map<String, Object> joltProcedure) throws Exception {
+		ProcedureInfo info = new ProcedureInfo(procedure);
+
+		Map<String, Object> joltClone = joltProcedure == null ? null : new LinkedHashMap<>(joltProcedure);
+
+		if (procedure.hasPerformer()) {
+			List<ProcedurePerformerComponent> performers = procedure.getPerformer();
+			List<Object> joltPerformers = (List<Object>) joltClone.get("performer");
+
+			Assert.assertEquals("Performer count", joltPerformers.size(), performers.size());
+
+			for (int index = 0; index < performers.size(); ++index) {
+				ProcedurePerformerComponent performer = performers.get(index);
+				Map<String, Object> joltPerformer = (Map<String, Object>) joltPerformers.get(index);
+
+				if (performer.hasActor() || performer.hasOnBehalfOf()) {
+					joltPerformer = new LinkedHashMap<String, Object>(joltPerformer);
+					joltPerformers.set(index, joltPerformer);
+				}
+
+				if (performer.hasActor()) {
+					String reference = performer.getActor().getReference();
+					String joltReference = findPathString(joltPerformer, "actor.reference");
+
+					Assert.assertNotNull("Jolt actor reference exists", joltReference);
+
+					verifyEntity(reference, joltReference);
+
+					Map<String, Object> joltActor = (Map<String, Object>) joltPerformer.get("actor");
+					joltActor = new LinkedHashMap<String, Object>(joltActor);
+					joltPerformer.put("actor", joltActor);
+
+					joltActor.put("reference", reference);
+				} else {
+					Assert.assertNull("No performer actor", joltPerformer.get("actor"));
+				}
+				if (performer.hasOnBehalfOf()) {
+					String reference = performer.getOnBehalfOf().getReference();
+					String joltReference = findPathString(joltPerformer, "onBehalfOf.reference");
+
+					Assert.assertNotNull("Jolt ob behalf reference exists", joltReference);
+
+					Organization org = bundleUtil.getResourceFromReference(reference, Organization.class);
+					Map<String, Object> joltOrg = TransformManager.chooseResourceByReference(result, joltReference);
+
+					verify(org, joltOrg, null);
+
+					Map<String, Object> joltOnBehalfOf = (Map<String, Object>) joltPerformer.get("onBehalfOf");
+					joltOnBehalfOf = new LinkedHashMap<String, Object>(joltOnBehalfOf);
+					joltPerformer.put("onBehalfOf", joltOnBehalfOf);
+
+					joltOnBehalfOf.put("reference", reference);
+				} else {
+					Assert.assertNull("No performer on behalf", joltPerformer.get("onBehalf"));
+				}
+			}
+		} else {
+			String value = findPathString(joltProcedure, "recorder.reference");
+			Assert.assertNull("No recorder", value);
+		}
+
+		verify(procedure, joltClone, info);
+	}
+
+	public void verify(Procedure procedure) throws Exception {
+		Map<String, Object> joltProcedure = TransformManager.chooseResource(result, "Procedure");
+		verify(procedure, joltProcedure);
+	}
+
 }

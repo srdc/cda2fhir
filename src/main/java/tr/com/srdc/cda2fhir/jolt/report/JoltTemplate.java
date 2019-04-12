@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.IRootNodeUpdater;
 import tr.com.srdc.cda2fhir.jolt.RemoveWhen;
+import tr.com.srdc.cda2fhir.jolt.RemoveWhenNull;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
 
 public class JoltTemplate {
@@ -49,6 +50,11 @@ public class JoltTemplate {
 				}
 				if (operation.endsWith("RemoveWhen")) {
 					IRootNodeUpdater rootNodeUpdater = new RemoveWhen(spec);
+					result.rootNodeUpdater.add(rootNodeUpdater);
+					return;
+				}
+				if (operation.endsWith("RemoveWhenNull")) {
+					IRootNodeUpdater rootNodeUpdater = new RemoveWhenNull(spec);
 					result.rootNodeUpdater.add(rootNodeUpdater);
 					return;
 				}

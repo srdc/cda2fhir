@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -27,6 +28,13 @@ public class AllergyConcernActGenerator {
 	private EffectiveTimeGenerator effectiveTimeGenerator;
 	private List<AllergyObservationGenerator> observationGenerators = new ArrayList<>();
 
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		if (observationGenerators.isEmpty()) {
+			observationGenerators.add(new AllergyObservationGenerator());
+		}
+		observationGenerators.get(observationGenerators.size() - 1).setAuthorGenerator(authorGenerator);
+	}
+
 	public AllergyProblemAct generate(CDAFactories factories) {
 		AllergyProblemAct apa = factories.consol.createAllergyProblemAct();
 
@@ -48,6 +56,11 @@ public class AllergyConcernActGenerator {
 		observationGenerators.forEach(g -> apa.addObservation(g.generate(factories)));
 
 		return apa;
+	}
+
+	public void setObservationGenerator(AllergyObservationGenerator observationGenerator) {
+		observationGenerators.clear();
+		observationGenerators.add(observationGenerator);
 	}
 
 	public static AllergyConcernActGenerator getDefaultInstance() {
@@ -100,10 +113,18 @@ public class AllergyConcernActGenerator {
 		AllergyObservationGenerator aog = observationGenerators.get(observationGenerators.size() - 1);
 		aog.verify(allergy);
 
-		Assert.assertTrue("Categories exist", allergy.hasCategory());
-		Assert.assertEquals("Category count", observationGenerators.size(), allergy.getCategory().size());
+		int actualIndex = 0;
 		for (int index = 0; index < observationGenerators.size(); ++index) {
-			observationGenerators.get(index).verifyCategory(allergy.getCategory().get(index).asStringValue());
+			AllergyObservationGenerator g = observationGenerators.get(index);
+			if (g.hasCategoryGenerator()) {
+				g.verifyCategory(allergy.getCategory().get(actualIndex).asStringValue());
+				++actualIndex;
+			}
+		}
+		if (actualIndex == 0) {
+			Assert.assertTrue("No categories exist", !allergy.hasCategory());
+		} else {
+			Assert.assertEquals("Category count", actualIndex, allergy.getCategory().size());
 		}
 
 		{
@@ -127,5 +148,9 @@ public class AllergyConcernActGenerator {
 			AllergyObservationGenerator aog = observationGenerators.get(observationGenerators.size() - 1);
 			aog.verify(bundle);
 		}
+	}
+
+	public static Set<String> getPossibleClinicalStatusCodes() {
+		return AllergyObservationGenerator.getPossibleClinicalStatusCodes();
 	}
 }

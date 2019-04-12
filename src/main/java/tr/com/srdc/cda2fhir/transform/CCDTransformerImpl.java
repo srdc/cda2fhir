@@ -133,6 +133,11 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		supportedSectionTypes.add(sectionEnum);
 	}
 
+	public void setSection(CDASectionTypeEnum sectionEnum) {
+		supportedSectionTypes.clear();
+		supportedSectionTypes.add(sectionEnum);
+	}
+
 	/**
 	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
 	 *                           Document (CCD) instance to be transformed
@@ -300,6 +305,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 				return sectionType.toCDASection(section);
 			}
 		}
+		logger.info("Encountered unsupported section: " + section.getTitle().getText());
 		return null;
 	}
 

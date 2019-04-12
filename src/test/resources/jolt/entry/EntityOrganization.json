@@ -2,7 +2,6 @@
 	{
 		"operation": "cardinality",
 		"spec": {
-			"id": "ONE",
 			"representedOrganization": {
 				"id": "MANY",
 				"name": "ONE",

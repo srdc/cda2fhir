@@ -3,6 +3,8 @@
 		"operation": "cardinality",
 		"spec": {
 			"id": "MANY",
+			"addr": "MANY",
+			"telecom": "MANY",
 			"assignedPerson": {
 				"name": "MANY"
 			}
@@ -13,6 +15,12 @@
 		"spec": {
 			"id": {
 				"*": "identifier[].->ID"
+			},
+			"addr": {
+				"*": "address[].->AD"
+			},
+			"telecom": {
+				"*": "telecom[].->TEL"
 			},
 			"assignedPerson": {
 				"name": {

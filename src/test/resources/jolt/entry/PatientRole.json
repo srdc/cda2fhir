@@ -56,7 +56,7 @@
 				"telecom": {
 					"*": "telecom[].->TEL"
 				},
-				"providerOrganization": "managingOrganization.reference.->Organization",
+				"providerOrganization": ["managingOrganization.reference.->Organization", "managingOrganization.display.->Organization"],
 				"patient": {
 					"name": "name[].->PN",
 					"administrativeGenderCode": {
@@ -87,19 +87,7 @@
 								"name": "contact[&2].name.->PN"
 							}
 						}
-					},
-					"raceCode": "extension[0].valueCodeableConcept.->CD",
-					"#http://hl7.org/fhir/StructureDefinition/us-core-race": "extension[0].url",
-					"ethnicGroupCode": "extension[1].valueCodeableConcept.->CD",
-					"#http://hl7.org/fhir/StructureDefinition/us-core-ethnicity": "extension[1].url",
-					"religiousAffiliationCode": "extension[2].valueCodeableConcept.->CD",
-					"#http://hl7.org/fhir/StructureDefinition/us-core-religion": "extension[2].url",
-					"birthplace": {
-						"place": {
-							"addr": "extension[3].valueAddress.->AD"
-						}
-					},
-					"#http://hl7.org/fhir/StructureDefinition/birthPlace": "extension[3].url"
+					}
 				}
 			}
 		}
@@ -111,7 +99,8 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"managingOrganization": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"gender": "=valueSetAdapter('Gender','unknown',@0)",
 			"birthDate": "=datetimeAdapter(@0)",

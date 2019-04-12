@@ -37,12 +37,6 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
-		"spec": {
-			"Practitioner": "recorder.reference"
-		}
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"assertedDate": "=datetimeAdapter(@0)",
