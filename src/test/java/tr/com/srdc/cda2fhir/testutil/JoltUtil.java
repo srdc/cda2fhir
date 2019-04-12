@@ -173,8 +173,13 @@ public class JoltUtil {
 			} else {
 				List<Reference> results = report.getResult();
 				for (int index = 0; index < results.size(); ++index) {
+					Map<String, Object> joltElement = (Map<String, Object>) joltResults.get(index);
 					Map<String, Object> r = new LinkedHashMap<String, Object>();
 					r.put("reference", results.get(index).getReference());
+					String display = (String) joltElement.get("display");
+					if (display != null) {
+						r.put("display", display);
+					}
 					joltResults.set(index, r);
 					++index;
 				}
