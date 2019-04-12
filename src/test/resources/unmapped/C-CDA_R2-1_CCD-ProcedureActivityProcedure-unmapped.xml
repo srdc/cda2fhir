@@ -44,6 +44,8 @@
                   </specimenPlayingEntity>
                </specimenRole>
             </specimen>
+            <performer>
+							</performer>
             <participant typeCode="DEV">
                <participantRole classCode="MANU">
 									<!-- ** Product instance ** -->

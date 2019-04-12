@@ -3,35 +3,10 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <recordTarget>
       <patientRole>
-         <id extension="444222222" root="2.16.840.1.113883.4.1"/>
-         <!-- Example Social Security Number using the actual SSN OID. -->
-         <addr use="HP">
-				<!-- HP is "primary home" from codeSystem 2.16.840.1.113883.5.1119 -->
-            <streetAddressLine>2222 Home Street</streetAddressLine>
-            <city>Beaverton</city>
-            <state>OR</state>
-            <postalCode>97867</postalCode>
-            <country>US</country>
-            <!-- US is "United States" from ISO 3166-1 Country Codes: 1.0.3166.1 -->
-         </addr>
-         <telecom use="HP" value="tel:+1(555)555-2003"/>
-         <!-- HP is "primary home" from HL7 AddressUse 2.16.840.1.113883.5.1119 -->
+			<!-- Example Social Security Number using the actual SSN OID. -->
+			<!-- HP is "primary home" from HL7 AddressUse 2.16.840.1.113883.5.1119 -->
          <patient>
-            <name use="L">
-               <given>Eve</given>
-               <!-- The "SP" is "Spouse" from HL7 Code System EntityNamePartQualifier 2.16.840.1.113883.5.43 -->
-               <family qualifier="SP">Betterhalf</family>
-            </name>
-            <administrativeGenderCode code="F"
-                                      codeSystem="2.16.840.1.113883.5.1"
-                                      codeSystemName="AdministrativeGender"
-                                      displayName="Female"/>
-            <!-- Date of birth need only be precise to the day -->
-            <birthTime value="19750501"/>
-            <maritalStatusCode code="M"
-                               codeSystem="2.16.840.1.113883.5.2"
-                               codeSystemName="MaritalStatusCode"
-                               displayName="Married"/>
+				<!-- Date of birth need only be precise to the day -->
             <religiousAffiliationCode code="1013"
                                       codeSystem="2.16.840.1.113883.5.1076"
                                       codeSystemName="HL7 Religious Affiliation"
@@ -52,25 +27,8 @@
                              codeSystemName="Race &amp; Ethnicity - CDC"
                              displayName="Not Hispanic or Latino"/>
             <guardian>
-               <code code="POWATT"
-                     codeSystem="2.16.840.1.113883.1.11.19830"
-                     codeSystemName="ResponsibleParty"
-                     displayName="Power of Attorney"/>
-               <addr use="HP">
-                  <streetAddressLine>2222 Home Street</streetAddressLine>
-                  <city>Beaverton</city>
-                  <state>OR</state>
-                  <postalCode>97867</postalCode>
-                  <country>US</country>
-               </addr>
-               <telecom use="MC" value="tel:+1(555)555-2008"/>
                <guardianPerson>
-                  <name>
-                     <given>Boris</given>
-                     <given qualifier="CL">Bo</given>
-                     <family>Betterhalf</family>
-                  </name>
-               </guardianPerson>
+					</guardianPerson>
             </guardian>
             <birthplace>
                <place>
@@ -84,8 +42,7 @@
                </place>
             </birthplace>
             <languageCommunication>
-               <languageCode code="en"/>
-               <!-- "en" is ISO 639-1 alpha-2 code for "English" -->
+					<!-- "en" is ISO 639-1 alpha-2 code for "English" -->
                <modeCode code="ESP"
                          codeSystem="2.16.840.1.113883.5.60"
                          codeSystemName="LanguageAbilityMode"
@@ -95,21 +52,8 @@
                                      codeSystemName="LanguageAbilityProficiency"
                                      displayName="Good"/>
                <!-- Patient's preferred language -->
-               <preferenceInd value="true"/>
             </languageCommunication>
          </patient>
-         <providerOrganization>
-            <id extension="219BX" root="2.16.840.1.113883.4.6"/>
-            <name>The DoctorsTogether Physician Group</name>
-            <telecom use="WP" value="tel: +1(555)555-5000"/>
-            <addr>
-               <streetAddressLine>1007 Health Drive</streetAddressLine>
-               <city>Portland</city>
-               <state>OR</state>
-               <postalCode>99123</postalCode>
-               <country>US</country>
-            </addr>
-         </providerOrganization>
       </patientRole>
    </recordTarget>
 </root>

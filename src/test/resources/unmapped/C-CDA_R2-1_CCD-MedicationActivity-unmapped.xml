@@ -47,20 +47,6 @@
 							<!-- ** Medication Activity (V2) ** -->
             <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.16"/>
             <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
-            <id root="cdbd33f0-6cde-11db-9fe1-0800200c9a66"/>
-            <statusCode code="active"/>
-            <effectiveTime xsi:type="IVL_TS">
-               <low value="20110103"/>
-               <high nullFlavor="UNK"/>
-            </effectiveTime>
-            <effectiveTime institutionSpecified="true" operator="A" xsi:type="PIVL_TS">
-               <period unit="h" value="6"/>
-            </effectiveTime>
-            <routeCode code="C38216"
-                       codeSystem="2.16.840.1.113883.3.26.1.1"
-                       codeSystemName="NCI Thesaurus"
-                       displayName="RESPIRATORY (INHALATION)"/>
-            <doseQuantity value="2"/>
             <administrationUnitCode code="PUFF"
                                     codeSystem="2.16.840.1.113883.5.85"
                                     codeSystemName="orderableDrugForm"
@@ -122,20 +108,6 @@
 							<!-- ** Medication activity ** -->
             <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.16"/>
             <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
-            <id root="6c844c75-aa34-411c-b7bd-5e4a9f206e29"/>
-            <statusCode code="active"/>
-            <effectiveTime xsi:type="IVL_TS">
-               <low value="20120318"/>
-               <high nullFlavor="UNK"/>
-            </effectiveTime>
-            <effectiveTime institutionSpecified="true" operator="A" xsi:type="PIVL_TS">
-               <period unit="h" value="12"/>
-            </effectiveTime>
-            <routeCode code="C38288"
-                       codeSystem="2.16.840.1.113883.3.26.1.1"
-                       codeSystemName="NCI Thesaurus"
-                       displayName="ORAL"/>
-            <doseQuantity value="1"/>
             <consumable>
                <manufacturedProduct classCode="MANU">
 									<!-- ** Medication information ** -->
@@ -147,6 +119,10 @@
             <author typeCode="AUT">
                <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                <time value="201208151235-0800"/>
+               <assignedAuthor>
+                  <assignedPerson>
+									</assignedPerson>
+               </assignedAuthor>
             </author>
          </substanceAdministration>
       </entry>

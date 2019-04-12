@@ -59,6 +59,46 @@
                <low value="20120910"/>
                <high value="20120910"/>
             </effectiveTime>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation (V2) ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
          </organizer>
       </entry>
       <entry typeCode="DRIV">
@@ -82,6 +122,46 @@
                <low value="20110901"/>
                <high value="20110901"/>
             </effectiveTime>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
+            <component>
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Vital sign observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                  </author>
+               </observation>
+            </component>
          </organizer>
       </entry>
    </section>
