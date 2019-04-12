@@ -6,6 +6,7 @@ import java.util.List;
 import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.Enumeration;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -57,8 +58,10 @@ public class ReferenceInfo {
 					return outputString;
 				}
 			}
-			// for vaccines, take vaccine code.
-		} else if (resource.getNamedProperty("vaccineCode") != null) {
+		}
+
+		// for vaccines, take vaccine code.
+		if (resource.getNamedProperty("vaccineCode") != null) {
 			if (!resource.getNamedProperty("vaccineCode").getValues().isEmpty()) {
 				CodeableConcept vaccineCode = (CodeableConcept) resource.getNamedProperty("vaccineCode").getValues()
 						.get(0);
@@ -68,8 +71,10 @@ public class ReferenceInfo {
 				}
 
 			}
-			// for med statement/requests, get ref med.
-		} else if (resource.getNamedProperty("medicationReference") != null) {
+		}
+
+		// for med statement/requests, get ref med.
+		if (resource.getNamedProperty("medicationReference") != null) {
 			if (!resource.getNamedProperty("medicationReference").getValues().isEmpty()) {
 				Reference medRef = (Reference) resource.getNamedProperty("medicationReference").getValues().get(0);
 				if (medRef != null) {
@@ -80,19 +85,24 @@ public class ReferenceInfo {
 					}
 				}
 			}
+		}
 
-			// for encounter/device use type if present.
-		} else if (resource.getNamedProperty("type") != null) {
+		// for encounter/device use type if present.
+		if (resource.getNamedProperty("type") != null) {
 			if (!resource.getNamedProperty("type").getValues().isEmpty()) {
-				CodeableConcept typeCode = (CodeableConcept) resource.getNamedProperty("type").getValues().get(0);
-				String outputString = getStringFromConcept(typeCode);
-				if (outputString != null) {
-					return outputString;
+				Base val = resource.getNamedProperty("type").getValues().get(0);
+				if (!(val instanceof Enumeration)) {
+					CodeableConcept typeCode = (CodeableConcept) resource.getNamedProperty("type").getValues().get(0);
+					String outputString = getStringFromConcept(typeCode);
+					if (outputString != null) {
+						return outputString;
+					}
 				}
 			}
+		}
 
-			// for all others attempt to take name.
-		} else if (resource.getNamedProperty("name") != null) {
+		// for all others attempt to take name.
+		if (resource.getNamedProperty("name") != null) {
 			if (!resource.getNamedProperty("name").getValues().isEmpty()) {
 
 				Object nameObj = resource.getNamedProperty("name").getValues().get(0);
