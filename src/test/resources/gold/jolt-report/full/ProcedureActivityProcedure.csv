@@ -78,14 +78,16 @@ procedure.targetSiteCode[].translation[].codeSystem,Procedure.bodySite[].coding[
 procedure.code.code,Procedure.code.coding[0].code,,,nullFlavor isnull,procedure.code.nullFlavor isnull
 procedure.code.displayName,Procedure.code.coding[0].display,,,nullFlavor isnull,procedure.code.nullFlavor isnull
 procedure.code.codeSystem,Procedure.code.coding[0].system,,,nullFlavor isnull,procedure.code.nullFlavor isnull
-procedure.code.translation[].code,Procedure.code.coding[].code,,,nullFlavor isnull,procedure.code.nullFlavor isnull
-procedure.code.translation[].displayName,Procedure.code.coding[].display,,,nullFlavor isnull,procedure.code.nullFlavor isnull
-procedure.code.translation[].codeSystem,Procedure.code.coding[].system,,"systemAdapter",nullFlavor isnull,procedure.code.nullFlavor isnull
+procedure.code.translation[].code,Procedure.code.coding[].code,,,nullFlavor isnull
+procedure.code.translation[].displayName,Procedure.code.coding[].display,,,nullFlavor isnull
+procedure.code.translation[].codeSystem,Procedure.code.coding[].system,,"systemAdapter",nullFlavor isnull
+procedure.code.originalText.reference.value,Procedure.code.text,,"resolveText",nullFlavor isnull
 procedure.id[].assigningAuthorityName,Procedure.identifier[].assigner.display,,,nullFlavor isnull,procedure.id[].nullFlavor isnull
 procedure.id[].root,Procedure.identifier[].system,,"systemAdapter",nullFlavor isnull,procedure.id[].extension isnotnull,procedure.id[].nullFlavor isnull
 #official,Procedure.identifier[].use,,,nullFlavor isnull,procedure.id[].nullFlavor isnull
 procedure.id[].extension,Procedure.identifier[].value,,,nullFlavor isnull,procedure.id[].extension isnotnull,procedure.id[].nullFlavor isnull
 procedure.id[].root,Procedure.identifier[].value,,,nullFlavor isnull,procedure.id[].extension isnull,procedure.id[].nullFlavor isnull
+procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",nullFlavor isnull,procedure.entryRelationship[].typeCode equal SUBJ
 procedure.effectiveTime.high.value,Procedure.performedPeriod.end,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high.nullFlavor isnull,procedure.effectiveTime.nullFlavor isnull
 procedure.effectiveTime.low.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.low.nullFlavor isnull,procedure.effectiveTime.nullFlavor isnull
 procedure.effectiveTime.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high isnull,procedure.effectiveTime.low isnull,procedure.effectiveTime.nullFlavor isnull

@@ -3,8 +3,9 @@ procedure.performer[].assignedEntity,Organization[],EntityOrganization,,nullFlav
 procedure.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
 procedure.performer[].assignedEntity,Practitioner[],EntityPractitioner,,nullFlavor isnull
 procedure.targetSiteCode[],Procedure.bodySite[],CD,,nullFlavor isnull
-procedure.code,Procedure.code,CD,,nullFlavor isnull
+procedure.code,Procedure.code,CD2,,nullFlavor isnull
 procedure.id[],Procedure.identifier[],ID,,nullFlavor isnull
+procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",nullFlavor isnull,procedure.entryRelationship[].typeCode equal SUBJ
 procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,nullFlavor isnull
 PractitionerRole[].code.0,Procedure.performer[&2].role,,
 Practitioner[],Procedure.performer[].actor.reference,,"getId"

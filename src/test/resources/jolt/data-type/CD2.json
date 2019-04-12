@@ -2,8 +2,11 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"nullFlavor": ["code", "codeSystem", "displayName", "translation"]
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "shift",
