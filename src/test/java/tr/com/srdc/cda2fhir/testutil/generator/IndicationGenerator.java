@@ -50,6 +50,7 @@ public class IndicationGenerator {
 		});
 
 		if (effectiveTimeGenerator != null) {
+
 			IVL_TS ivlTs = effectiveTimeGenerator.generate(factories);
 			indication.setEffectiveTime(ivlTs);
 		}
@@ -74,7 +75,7 @@ public class IndicationGenerator {
 		indication.idGenerators.add(IDGenerator.getNextInstance());
 		indication.code = "75321-0";
 		indication.valueGenerators.add(CDGenerator.getNextInstance());
-		indication.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008");
+		indication.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008", "20190110");
 		indication.statusCode = "active";
 
 		return indication;

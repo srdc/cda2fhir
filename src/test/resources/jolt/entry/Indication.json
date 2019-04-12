@@ -36,6 +36,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
+			"clinicalStatus": "=ConditionClinicalStatusAdapter(@0)",
 			"category": {
 				"*": "=constantValue('EncounterConditionCategoryConstant')"
 			},

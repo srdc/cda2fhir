@@ -27,7 +27,7 @@ public class IndicationClinicalStatus implements ContextualTransform, IRootNodeU
 		INode highNode = nodes.get("#high");
 		INode valueNode = nodes.get("#value");
 
-		highNode.setPath("#resolved");
+		highNode.setPath("#inactive");
 		IParentNode highParent = highNode.getParent();
 		IParentNode newBaseHigh = highParent.separateChildLines("#high").get(0);
 		newBaseHigh.copyConditions(lowNode);
@@ -60,7 +60,7 @@ public class IndicationClinicalStatus implements ContextualTransform, IRootNodeU
 		}
 		List<Object> list = (List<Object>) clinicalStatus;
 		if (list.indexOf("high") >= 0 && list.indexOf("low") >= 0) {
-			inputAsMap.put("clinicalStatus", "resolved");
+			inputAsMap.put("clinicalStatus", "inactive");
 			return input;
 		}
 		if (list.indexOf("value") >= 0 || list.indexOf("low") >= 0) {

@@ -56,7 +56,7 @@
 		"expected": {
 			"abatementDateTime": "20190507",
 			"onsetDateTime": "20180311",
-			"clinicalStatus": "resolved"
+			"clinicalStatus": "inactive"
 		}
 	},
 	{
@@ -84,7 +84,7 @@
 		"expected": {
 			"abatementDateTime": "20190507",
 			"onsetDateTime": "20180311",
-			"clinicalStatus": "resolved"
+			"clinicalStatus": "inactive"
 		}
 	},
 	{
