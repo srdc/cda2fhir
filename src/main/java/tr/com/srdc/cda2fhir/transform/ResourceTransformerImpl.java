@@ -1911,26 +1911,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	}
 
-	private CD getRxNormCode(Material manufacturedMaterial) {
-		CE code = manufacturedMaterial.getCode();
-
-		if (code.getCodeSystemName() != null && code.getCodeSystemName().contentEquals("RxNorm")) {
-			return code;
-		} else {
-			List<CD> translations = code.getTranslations();
-			if (translations != null && !translations.isEmpty()) {
-				for (CD translation : translations) {
-					if (translation.getCodeSystemName() != null
-							&& translation.getCodeSystemName().contentEquals("RxNorm")) {
-						return translation;
-					}
-				}
-			}
-
-		}
-		return null;
-	}
-
 	@Override
 	public EntryResult tManufacturedProduct2Medication(ManufacturedProduct cdaManufacturedProduct,
 			IBundleInfo bundleInfo) {
