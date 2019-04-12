@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,8 +35,9 @@ public class ResultOrganizerTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	private static void runTest(ResultOrganizerGenerator generator, String caseName) throws Exception {
-		ResultOrganizer ro = generator.generate(factories);
+	private static void runTest(ResultOrganizer ro, String caseName, ResultOrganizerGenerator generator)
+			throws Exception {
+		File xmlFile = CDAUtilExtension.writeAsXML(ro, OUTPUT_PATH, caseName);
 
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
@@ -56,20 +54,15 @@ public class ResultOrganizerTest {
 		generator.verify(report);
 		generator.verify(bundle);
 
-		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
-		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
-		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-
-		File xmlFile = CDAUtilExtension.writeAsXML(ro, OUTPUT_PATH, caseName);
-
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "ResultOrganizer", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
-		joltUtil.verifyOrganizations(organizations);
-		joltUtil.verifyPractitioners(practitioners);
-		joltUtil.verifyPractitionerRoles(practitionerRoles);
-
 		joltUtil.verify(report);
+	}
+
+	private static void runTest(ResultOrganizerGenerator generator, String caseName) throws Exception {
+		ResultOrganizer ro = generator.generate(factories);
+		runTest(ro, caseName, generator);
 	}
 
 	@Test
