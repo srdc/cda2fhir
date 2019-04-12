@@ -72,10 +72,12 @@ public class ReferenceInfo {
 		} else if (resource.getNamedProperty("medicationReference") != null) {
 			if (!resource.getNamedProperty("medicationReference").getValues().isEmpty()) {
 				Reference medRef = (Reference) resource.getNamedProperty("medicationReference").getValues().get(0);
-				Medication med = (Medication) medRef.getResource();
-				String outputString = getStringFromConcept(med.getCode());
-				if (outputString != null) {
-					return outputString;
+				if (medRef != null) {
+					Medication med = (Medication) medRef.getResource();
+					String outputString = getStringFromConcept(med.getCode());
+					if (outputString != null) {
+						return outputString;
+					}
 				}
 			}
 
