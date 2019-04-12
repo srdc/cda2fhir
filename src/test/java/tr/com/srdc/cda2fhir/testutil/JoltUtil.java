@@ -855,7 +855,7 @@ public class JoltUtil {
 			manufacturerClone.put("reference", reference);
 		} else {
 			Object value = joltImmunization.get("manufacturer");
-			Assert.assertNull("No practitioner", value);
+			Assert.assertNull("No manufacturer", value);
 		}
 
 		if (immunization.hasReaction()) {
@@ -888,8 +888,8 @@ public class JoltUtil {
 				joltDetail.put("reference", reference);
 			}
 		} else {
-			Object value = joltImmunization.get("practitioner");
-			Assert.assertNull("No practitioner", value);
+			Object value = joltImmunization.get("reaction");
+			Assert.assertNull("No reaction", value);
 		}
 
 		verify(immunization, joltClone, info);

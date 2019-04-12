@@ -2,7 +2,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": ["code", "codeSystem", "displayName", "translation"]
+			"nullFlavor": ["code", "codeSystem", "displayName"]
 		}
 	},
 	{
@@ -17,11 +17,7 @@
 			"translation": {
 				"*": "coding[].->CDHelper"
 			},
-			"originalText": {
-				"reference": {
-					"value": "text"
-				}
-			}
+			"originalText": "text"
 		}
 	},
 	{

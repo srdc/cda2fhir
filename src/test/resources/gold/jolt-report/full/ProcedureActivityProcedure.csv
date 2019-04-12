@@ -81,7 +81,7 @@ procedure.code.codeSystem,Procedure.code.coding[0].system,,,nullFlavor isnull,pr
 procedure.code.translation[].code,Procedure.code.coding[].code,,,nullFlavor isnull
 procedure.code.translation[].displayName,Procedure.code.coding[].display,,,nullFlavor isnull
 procedure.code.translation[].codeSystem,Procedure.code.coding[].system,,"systemAdapter",nullFlavor isnull
-procedure.code.originalText.reference.value,Procedure.code.text,,"resolveText",nullFlavor isnull
+procedure.code.originalText,Procedure.code.text,,"resolveText",nullFlavor isnull
 procedure.id[].assigningAuthorityName,Procedure.identifier[].assigner.display,,,nullFlavor isnull,procedure.id[].nullFlavor isnull
 procedure.id[].root,Procedure.identifier[].system,,"systemAdapter",nullFlavor isnull,procedure.id[].extension isnotnull,procedure.id[].nullFlavor isnull
 #official,Procedure.identifier[].use,,,nullFlavor isnull,procedure.id[].nullFlavor isnull

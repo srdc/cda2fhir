@@ -19,7 +19,9 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"substanceAdministration": {
+				"nullFlavor": "*"
+			}
 		}
 	},
 	{

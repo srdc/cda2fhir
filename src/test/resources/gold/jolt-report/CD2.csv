@@ -5,4 +5,4 @@ codeSystem,coding[0].system,,,nullFlavor isnull
 translation[].code,coding[].code,,
 translation[].displayName,coding[].display,,
 translation[].codeSystem,coding[].system,,"systemAdapter"
-originalText.reference.value,text,,"resolveText"
+originalText,text,,"resolveText"

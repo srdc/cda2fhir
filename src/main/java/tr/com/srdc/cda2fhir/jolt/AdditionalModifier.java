@@ -108,7 +108,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
 
-			if (!(arg instanceof String || arg instanceof Integer)) {
+			if (!(arg instanceof String || arg instanceof Integer || arg instanceof Long)) {
 				return Optional.empty();
 			}
 			String datetimeWithZone = arg.toString();
@@ -478,14 +478,37 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
 			if (arg == null) {
-				return null;
-			}
-			if (!(arg instanceof String)) {
 				return Optional.of(null);
 			}
-			String currentValue = (String) arg;
+			if (arg instanceof String) {
+				String text = (String) arg;
+				if (text.isEmpty()) {
+					return Optional.of(null);
+				}
+				return Optional.of(text);
+			}
+			if (!(arg instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> argAsMap = (Map<String, Object>) arg;
+			Object reference = argAsMap.get("reference");
+			if (reference == null || !(reference instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> referenceAsMap = (Map<String, Object>) reference;
+			Object valueObject = referenceAsMap.get("value");
+			if (valueObject == null || !(valueObject instanceof String)) {
+				return Optional.of(null);
+			}
+			String currentValue = (String) valueObject;
+			if (currentValue.isEmpty()) {
+				return Optional.of(null);
+			}
+			if (currentValue.charAt(0) != '#') {
+				return Optional.of(currentValue);
+			}
 			Map<String, Object> map = (Map<String, Object>) temporaryContext.get("Annotations");
-			if (map == null || currentValue.isEmpty() || currentValue.charAt(0) != '#') {
+			if (map == null) {
 				return Optional.of(null);
 			}
 			String value = (String) map.get(currentValue.substring(1));
