@@ -20,9 +20,14 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
+import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -92,6 +97,24 @@ public class JoltUtil {
 		@Override
 		public Reference getPatientReference() {
 			return observation.getSubject();
+		}
+	}
+
+	private static class EncounterInfo extends ResourceInfo {
+		private Encounter encounter;
+
+		public EncounterInfo(Encounter encounter) {
+			this.encounter = encounter;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return encounter.getSubject();
 		}
 	}
 
@@ -1124,5 +1147,130 @@ public class JoltUtil {
 	public void verify(Procedure procedure) throws Exception {
 		Map<String, Object> joltProcedure = TransformManager.chooseResource(result, "Procedure");
 		verify(procedure, joltProcedure);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(Encounter encounter, Map<String, Object> joltEncounter) throws Exception {
+		EncounterInfo info = new EncounterInfo(encounter);
+
+		Map<String, Object> joltClone = joltEncounter == null ? null : new LinkedHashMap<>(joltEncounter);
+
+		if (encounter.hasParticipant()) {
+			List<EncounterParticipantComponent> participants = encounter.getParticipant();
+			List<Object> joltParticipants = (List<Object>) joltClone.get("participant");
+
+			Assert.assertEquals("Participant count", joltParticipants.size(), participants.size());
+
+			for (int index = 0; index < participants.size(); ++index) {
+				EncounterParticipantComponent participant = participants.get(index);
+				Map<String, Object> joltParticipant = (Map<String, Object>) joltParticipants.get(index);
+
+				if (participant.hasIndividual()) {
+					joltParticipant = new LinkedHashMap<String, Object>(joltParticipant);
+					joltParticipants.set(index, joltParticipant);
+
+					String reference = participant.getIndividual().getReference();
+					String joltReference = findPathString(joltParticipant, "individual.reference");
+
+					Assert.assertNotNull("Jolt individual reference exists", joltReference);
+
+					verifyEntity(reference, joltReference);
+
+					Map<String, Object> joltIndividual = (Map<String, Object>) joltParticipant.get("individual");
+					joltIndividual = new LinkedHashMap<String, Object>(joltIndividual);
+					joltParticipant.put("individual", joltIndividual);
+
+					joltIndividual.put("reference", reference);
+				} else {
+					Assert.assertNull("No participant individual", joltParticipant.get("individual"));
+				}
+			}
+		} else {
+			Object joltParticipant = joltEncounter.get("participant");
+			Assert.assertNull("No participant", joltParticipant);
+		}
+
+		if (encounter.hasDiagnosis()) {
+			List<DiagnosisComponent> diagnoses = encounter.getDiagnosis();
+			List<Object> joltDiagnoses = (List<Object>) joltClone.get("diagnosis");
+
+			Assert.assertEquals("Diagnosis count", joltDiagnoses.size(), diagnoses.size());
+
+			for (int index = 0; index < diagnoses.size(); ++index) {
+				DiagnosisComponent diagnosis = diagnoses.get(index);
+				Map<String, Object> joltDiagnosis = (Map<String, Object>) joltDiagnoses.get(index);
+
+				if (diagnosis.hasCondition()) {
+					joltDiagnosis = new LinkedHashMap<String, Object>(joltDiagnosis);
+					joltDiagnoses.set(index, joltDiagnosis);
+
+					String reference = diagnosis.getCondition().getReference();
+					String joltReference = findPathString(joltDiagnosis, "condition.reference");
+
+					Assert.assertNotNull("Jolt condition reference exists", joltReference);
+
+					Condition condition = bundleUtil.getResourceFromReference(reference, Condition.class);
+					Map<String, Object> joltCCondition = TransformManager.chooseResourceByReference(result,
+							joltReference);
+					verify(condition, joltCCondition);
+
+					Map<String, Object> joltCondition = (Map<String, Object>) joltDiagnosis.get("condition");
+					joltCondition = new LinkedHashMap<String, Object>(joltCondition);
+					joltDiagnosis.put("condition", joltCondition);
+
+					joltCondition.put("reference", reference);
+				} else {
+					Assert.assertNull("No diagnosis condition", joltDiagnosis.get("condition"));
+				}
+			}
+		} else {
+			Object joltDiagnosis = joltEncounter.get("diagnosis");
+			Assert.assertNull("No diagnosis", joltDiagnosis);
+		}
+
+		if (encounter.hasLocation()) {
+			List<EncounterLocationComponent> locations = encounter.getLocation();
+			List<Object> joltLocations = (List<Object>) joltClone.get("location");
+
+			Assert.assertEquals("Location count", joltLocations.size(), locations.size());
+
+			for (int index = 0; index < locations.size(); ++index) {
+				EncounterLocationComponent location = locations.get(index);
+				Map<String, Object> joltLocation = (Map<String, Object>) joltLocations.get(index);
+
+				if (location.hasLocation()) {
+					joltLocation = new LinkedHashMap<String, Object>(joltLocation);
+					joltLocations.set(index, joltLocation);
+
+					String reference = location.getLocation().getReference();
+					String joltReference = findPathString(joltLocation, "location.reference");
+
+					Assert.assertNotNull("Jolt location reference exists", joltReference);
+
+					Location rlocation = bundleUtil.getResourceFromReference(reference, Location.class);
+					Map<String, Object> joltRLocation = TransformManager.chooseResourceByReference(result,
+							joltReference);
+					verify(rlocation, joltRLocation, null);
+
+					Map<String, Object> joltLLocation = (Map<String, Object>) joltLocation.get("location");
+					joltLLocation = new LinkedHashMap<String, Object>(joltLLocation);
+					joltLocation.put("location", joltLLocation);
+
+					joltLLocation.put("reference", reference);
+				} else {
+					Assert.assertNull("No location location", joltLocation.get("location"));
+				}
+			}
+		} else {
+			Object joltDiagnosis = joltEncounter.get("diagnosis");
+			Assert.assertNull("No diagnosis", joltDiagnosis);
+		}
+
+		verify(encounter, joltClone, info);
+	}
+
+	public void verify(Encounter encounter) throws Exception {
+		Map<String, Object> joltEncounter = TransformManager.chooseResource(result, "Encounter");
+		verify(encounter, joltEncounter);
 	}
 }

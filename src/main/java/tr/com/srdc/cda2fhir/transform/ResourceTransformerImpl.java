@@ -1167,7 +1167,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						EncounterParticipantComponent fhirParticipant = new EncounterParticipantComponent();
 						// default encounter participant type code
 						fhirParticipant.addType().addCoding(Config.DEFAULT_ENCOUNTER_PARTICIPANT_TYPE_CODE);
-						fhirParticipant.setIndividual(entityResult.getPractitionerReference());
+						Reference reference = getReference(entityResult.getPractitioner());
+						fhirParticipant.setIndividual(reference);
 						fhirEncounter.addParticipant(fhirParticipant);
 					}
 				}
