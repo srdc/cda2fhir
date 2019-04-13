@@ -22,7 +22,7 @@
 				"id": {
 					"*": "identifier[].->ID"
 				},
-				"code": "code.->CD",
+				"code": "code.->CD2",
 				"statusCode": "status.->NullFlavorableCode",
 				"effectiveTime": "effectivePeriod.->IVL_TSPeriod",
 				"author": {

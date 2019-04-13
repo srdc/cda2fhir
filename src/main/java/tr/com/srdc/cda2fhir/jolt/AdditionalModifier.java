@@ -529,6 +529,55 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class ToString extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return Optional.of(null);
+			}
+			if (arg instanceof Double) {
+				String result = Double.toString((Double) arg);
+				return Optional.of(result);
+			}
+			if (arg instanceof Float) {
+				String result = Float.toString((Float) arg);
+				return Optional.of(result);
+			}
+			if (!(arg instanceof String)) {
+				return Optional.of(arg.toString());
+			}
+			return Optional.of(arg);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final class InterpretationCodeAdapter extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			int size = argList.size();
+			if (argList == null || size != 2) {
+				return Optional.empty();
+			}
+			String filename = (String) argList.get(0);
+			Object object = argList.get(1);
+			if (object == null) {
+				return Optional.empty();
+			}
+			Map<String, Object> value = (Map<String, Object>) object;
+			String code = (String) value.get("code");
+			if (code == null) {
+				return Optional.of(null);
+			}
+			Map<String, Object> map = JsonUtils
+					.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");
+			Object mappedValue = map.get(code);
+			if (mappedValue == null) {
+				return Optional.empty();
+			}
+			return Optional.of(mappedValue);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -536,6 +585,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("referenceAdapter", new ReferenceAdapter());
 		AMIDA_FUNCTIONS.put("referenceDisplayAdapter", new ReferenceDisplayAdapter());
 		AMIDA_FUNCTIONS.put("valueSetAdapter", new ValueSetAdapter());
+		AMIDA_FUNCTIONS.put("interpretationCodeAdapter", new InterpretationCodeAdapter());
 		AMIDA_FUNCTIONS.put("systemAdapter", new SystemAdapter());
 		AMIDA_FUNCTIONS.put("idSystemAdapter", new IdSystemAdapter());
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
@@ -552,6 +602,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("contentOrSelf", new ContentOrSelf());
 		AMIDA_FUNCTIONS.put("nullIfMap", new NullIfMap());
 		AMIDA_FUNCTIONS.put("resolveText", new ResolveText());
+		AMIDA_FUNCTIONS.put("toString", new ToString());
 	}
 
 	private Modifier.Overwritr modifier;

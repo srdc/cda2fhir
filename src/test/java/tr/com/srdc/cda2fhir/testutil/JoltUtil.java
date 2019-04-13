@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -254,6 +255,23 @@ public class JoltUtil {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
+	public static Consumer<Map<String, Object>> getIdentierValueUpdate(String current, String replacement) {
+		return r -> {
+			if (r == null) {
+				return;
+			}
+			List<Object> identifiers = JoltUtil.findPathValue(r, "identifier[]");
+			identifiers.forEach(identifier -> {
+				Map<String, Object> identifierAsMap = (Map<String, Object>) identifier;
+				Object value = identifierAsMap.get("value");
+				if (value != null && current.equals(value.toString())) {
+					identifierAsMap.put("value", replacement);
+				}
+			});
+		};
+	}
+
 	private static final Map<String, String> PATIENT_PROPERTY = new HashMap<>();
 	static {
 		PATIENT_PROPERTY.put("Immunization", "patient");
@@ -263,12 +281,22 @@ public class JoltUtil {
 	private String caseName;
 	private String outputPath;
 	private BundleUtil bundleUtil;
+	private Consumer<Map<String, Object>> valueChanger;
+	private BiConsumer<Map<String, Object>, Resource> customComparer;
 
 	public JoltUtil(List<Object> result, Bundle bundle, String caseName, String outputPath) {
 		this.result = result;
 		this.caseName = caseName;
 		this.outputPath = outputPath;
 		this.bundleUtil = new BundleUtil(bundle);
+	}
+
+	public void setValueChanger(Consumer<Map<String, Object>> valueChanger) {
+		this.valueChanger = valueChanger;
+	}
+
+	public void setValueChanger(BiConsumer<Map<String, Object>, Resource> customComparer) {
+		this.customComparer = customComparer;
 	}
 
 	public void verifyOrganizations(List<Organization> organizations) throws Exception {
@@ -593,12 +621,29 @@ public class JoltUtil {
 			}
 		}
 
+		if (valueChanger != null) {
+			valueChanger.accept(joltClone);
+		}
+
+		if (customComparer != null) {
+			customComparer.accept(joltClone, resource);
+		}
+
 		String joltResourceJson = JsonUtils.toPrettyJsonString(joltClone);
 		File joltResourceFile = new File(outputPath + caseName + "Jolt" + resourceType + ".json");
 		FileUtils.writeStringToFile(joltResourceFile, joltResourceJson, Charset.defaultCharset());
 
 		String resourceJson = FHIRUtil.encodeToJSON(resource);
-		JSONAssert.assertEquals("Jolt resource", resourceJson, joltResourceJson, true);
+		try {
+			JSONAssert.assertEquals("Jolt resource", resourceJson, joltResourceJson, true);
+		} catch (Throwable t) {
+			File joltErrorFileCDA2FHIR = new File(outputPath + caseName + "ErrorCDA2FHIR" + ".json");
+			FileUtils.writeStringToFile(joltErrorFileCDA2FHIR, resourceJson, Charset.defaultCharset());
+
+			File joltErrorFileJolt = new File(outputPath + caseName + "ErrorJolt" + ".json");
+			FileUtils.writeStringToFile(joltErrorFileJolt, joltResourceJson, Charset.defaultCharset());
+			throw t;
+		}
 	}
 
 	private void verify(Resource resource, ResourceInfo info) throws Exception {
@@ -706,6 +751,8 @@ public class JoltUtil {
 		if (role == null) {
 			Assert.assertNull("No jolt role", joltRole);
 		} else {
+			Assert.assertNotNull("Jolt role exists", joltRole);
+
 			String orgReference = role.getOrganization().getReference();
 			Organization org = bundleUtil.getResourceFromReference(orgReference, Organization.class);
 			String joltOrgReference = findPathString(joltRole, "organization.reference");
@@ -931,6 +978,7 @@ public class JoltUtil {
 		if (report.hasResult()) {
 			List<Reference> references = report.getResult();
 			List<Object> joltReferences = (List<Object>) joltClone.get("result");
+			Assert.assertNotNull("results exists", joltReferences);
 
 			Assert.assertEquals("result count", references.size(), joltReferences.size());
 

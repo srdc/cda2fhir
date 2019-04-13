@@ -1,5 +1,5 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-organizer.code,DiagnosticReport.code,CD,,nullFlavor isnull
+organizer.code,DiagnosticReport.code,CD2,,nullFlavor isnull
 organizer.effectiveTime,DiagnosticReport.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull
 organizer.id[],DiagnosticReport.identifier[],ID,,nullFlavor isnull
 Practitioner[],DiagnosticReport.performer[].actor.reference,,"getId"

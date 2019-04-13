@@ -41,7 +41,7 @@ public class ImmunizationsSectionTest {
 	private static CDAFactories factories;
 	private static IResourceTransformer rt;
 
-	private static RTInvocationHandler<ImmunizationActivity> handler;
+	private static RTInvocationHandler handler;
 
 	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
 
@@ -49,18 +49,19 @@ public class ImmunizationsSectionTest {
 	public static void init() {
 		CDAUtil.loadPackages();
 
-		handler = new RTInvocationHandler<ImmunizationActivity>(new ResourceTransformerImpl());
+		handler = new RTInvocationHandler(new ResourceTransformerImpl());
+		handler.addMethod("tImmunizationActivity2Immunization");
 		rt = (IResourceTransformer) Proxy.newProxyInstance(IResourceTransformer.class.getClassLoader(),
 				new Class[] { IResourceTransformer.class }, handler);
 
 		factories = CDAFactories.init();
 	}
 
-	private static void reorderSection(ImmunizationsSection section, List<ImmunizationActivity> activities) {
+	private static void reorderSection(ImmunizationsSection section, List<Object> activities) {
 		section.getEntries().clear();
 		activities.forEach(activity -> {
 			Entry entry = factories.base.createEntry();
-			entry.setSubstanceAdministration(activity);
+			entry.setSubstanceAdministration((ImmunizationActivity) activity);
 			section.getEntries().add(entry);
 		});
 	}
@@ -91,7 +92,7 @@ public class ImmunizationsSectionTest {
 		handler.resetObjects();
 		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		reorderSection(section, handler.getObjects());
+		reorderSection(section, handler.getObjects("tImmunizationActivity2Immunization"));
 
 		Bundle bundle = sectionResult.getBundle();
 		List<Immunization> immunizations = FHIRUtil.findResources(bundle, Immunization.class);
