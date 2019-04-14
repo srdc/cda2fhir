@@ -15,7 +15,7 @@
 		"spec": {
 			"section": {
 				"entry": {
-					"*": "Results[].->ResultOrganizer"
+					"*": "Results[].->EncounterActivity"
 				}
 			}
 		}
