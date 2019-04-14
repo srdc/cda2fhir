@@ -133,25 +133,25 @@ public class MedicationActivityTest {
 		runSampleTest("Epic/DOC0001 2.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample3() throws Exception {
 		runSampleTest("Epic/DOC0001 3.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample4() throws Exception {
 		runSampleTest("Epic/DOC0001 4.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample5() throws Exception {
 		runSampleTest("Epic/DOC0001 5.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample6() throws Exception {
 		runSampleTest("Epic/DOC0001 6.XML");
@@ -211,7 +211,7 @@ public class MedicationActivityTest {
 		runSampleTest("Epic/DOC0001 15.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample16() throws Exception {
 		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
