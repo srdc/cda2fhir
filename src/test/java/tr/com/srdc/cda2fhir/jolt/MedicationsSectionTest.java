@@ -134,6 +134,7 @@ public class MedicationsSectionTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testSample1() throws Exception {
 		runSampleTest("C-CDA_R2-1_CCD.xml");
@@ -144,6 +145,7 @@ public class MedicationsSectionTest {
 		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
 	}
 
+	@Ignore
 	@Test
 	public void testSample3() throws Exception {
 		runSampleTest("Vitera_CCDA_SMART_Sample.xml");

@@ -6,6 +6,19 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "translation",
+			"conditions": [{
+				"code": "y"
+			}, {
+				"displayName": "y"
+			}, {
+				"originalText": "y"
+			}]
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
 			"code": "coding[0].code",

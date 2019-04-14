@@ -10,7 +10,7 @@
 		"spec": {
 			"manufacturedProduct": {
 				"manufacturedMaterial": {
-					"code": "code.->CD"
+					"code": "code.->CD2"
 				},
 				"manufacturerOrganization": "Organization.->Organization"
 			}
