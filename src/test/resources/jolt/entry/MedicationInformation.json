@@ -22,14 +22,15 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Organization": "manufacturer.reference"
+			"Organization": ["manufacturer.reference", "manufacturer.display"]
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"manufacturer": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			}
 		}
 	},

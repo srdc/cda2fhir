@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -29,6 +28,9 @@ import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.MedicationRequest;
+import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestRequesterComponent;
+import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -115,6 +117,42 @@ public class JoltUtil {
 		@Override
 		public Reference getPatientReference() {
 			return encounter.getSubject();
+		}
+	}
+
+	private static class MedicationStatementInfo extends ResourceInfo {
+		private MedicationStatement medStatement;
+
+		public MedicationStatementInfo(MedicationStatement medStatement) {
+			this.medStatement = medStatement;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return medStatement.getSubject();
+		}
+	}
+
+	private static class MedicationRequestInfo extends ResourceInfo {
+		private MedicationRequest medRequest;
+
+		public MedicationRequestInfo(MedicationRequest medRequest) {
+			this.medRequest = medRequest;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return medRequest.getSubject();
 		}
 	}
 
@@ -322,162 +360,6 @@ public class JoltUtil {
 		this.customComparer = customComparer;
 	}
 
-	public void verifyOrganizations(List<Organization> organizations) throws Exception {
-		List<Map<String, Object>> joltOrganizations = TransformManager.chooseResources(result, "Organization");
-		if (organizations.isEmpty()) {
-			Assert.assertTrue("No organizations", joltOrganizations.isEmpty());
-		} else {
-			Assert.assertEquals("Organization count", organizations.size(), joltOrganizations.size());
-			for (int index = 0; index < organizations.size(); ++index) {
-				compareOrganization(organizations.get(index), joltOrganizations.get(index));
-			}
-		}
-	}
-
-	public void verifyPractitioners(List<Practitioner> practitioners) throws Exception {
-		List<Map<String, Object>> joltPractitioners = TransformManager.chooseResources(result, "Practitioner");
-		if (practitioners.isEmpty()) {
-			Assert.assertTrue("No practitioner", joltPractitioners.isEmpty());
-		} else {
-			for (int index = 0; index < practitioners.size(); ++index) {
-				boolean found = false;
-				for (int index2 = 0; index2 < joltPractitioners.size(); ++index2) {
-					try {
-						comparePractitioner(practitioners.get(index), joltPractitioners.get(index2));
-						found = true;
-					} catch (Error ex) {
-					}
-				}
-				Assert.assertTrue("Matched practitioner found", found);
-			}
-		}
-	}
-
-	public void verifyPractitionerRoles(List<PractitionerRole> roles) throws Exception {
-		List<Map<String, Object>> joltRoles = TransformManager.chooseResources(result, "PractitionerRole");
-		if (roles.isEmpty()) {
-			Assert.assertTrue("No jolt practitioner role", joltRoles.isEmpty());
-		} else {
-			for (int index = 0; index < roles.size(); ++index) {
-				compareRole(roles.get(index), joltRoles.get(index));
-			}
-		}
-	}
-
-	public void verifyConditions(List<Condition> conditions) throws Exception {
-		List<Map<String, Object>> joltConditions = TransformManager.chooseResources(result, "Condition");
-		if (conditions.isEmpty()) {
-			Assert.assertTrue("No jolt condition", joltConditions.isEmpty());
-		} else {
-			Assert.assertEquals("Condition count", conditions.size(), joltConditions.size());
-			for (int index = 0; index < conditions.size(); ++index) {
-				verifyCondition(conditions.get(index), joltConditions.get(index));
-			}
-		}
-	}
-
-	public void verifyMedications(List<Medication> medications) throws Exception {
-		List<Map<String, Object>> joltMedications = TransformManager.chooseResources(result, "Medication");
-		if (medications.isEmpty()) {
-			Assert.assertTrue("No jolt medication", joltMedications.isEmpty());
-		} else {
-			Assert.assertEquals("Medication count", medications.size(), joltMedications.size());
-			for (int index = 0; index < medications.size(); ++index) {
-				verifyMedication(medications.get(index), joltMedications.get(index));
-			}
-		}
-	}
-
-	public static void compareOrganization(Organization organization, Map<String, Object> joltOrganization)
-			throws Exception {
-		joltOrganization.put("id", organization.getIdElement().getIdPart()); // ids do not have to match
-
-		String expected = FHIRUtil.encodeToJSON(organization);
-		String actual = JsonUtils.toJsonString(joltOrganization);
-		JSONAssert.assertEquals("Jolt organization", expected, actual, true);
-	}
-
-	public void verifyMedication(Medication med, Map<String, Object> joltMed) throws Exception {
-		Assert.assertNotNull("Jolt medication", joltMed);
-		Assert.assertNotNull("Jolt medication id", joltMed.get("id"));
-
-		joltMed.put("id", med.getIdElement().getIdPart()); // ids do not have to match
-
-		verifyUpdateReference(med.hasManufacturer(), med.getManufacturer(), joltMed, "manufacturer");
-
-		String joltMedJson = JsonUtils.toPrettyJsonString(joltMed);
-		String medJson = FHIRUtil.encodeToJSON(med);
-		JSONAssert.assertEquals("Jolt medication", medJson, joltMedJson, true);
-	}
-
-	public void verifyMedication(Medication med) throws Exception {
-		Map<String, Object> joltMed = TransformManager.chooseResource(result, "Medication");
-
-		Assert.assertNotNull("Jolt medication", joltMed);
-		Assert.assertNotNull("Jolt medication id", joltMed.get("id"));
-
-		joltMed.put("id", med.getIdElement().getIdPart()); // ids do not have to match
-
-		verifyUpdateReference(med.hasManufacturer(), med.getManufacturer(), joltMed, "manufacturer");
-
-		String joltMedJson = JsonUtils.toPrettyJsonString(joltMed);
-		String medJson = FHIRUtil.encodeToJSON(med);
-		JSONAssert.assertEquals("Jolt medication", medJson, joltMedJson, true);
-	}
-
-	public void verifyCondition(Condition condition, Map<String, Object> joltCondition) throws Exception {
-		Assert.assertNotNull("Jolt condition", joltCondition);
-		Assert.assertNotNull("Jolt condition id", joltCondition.get("id"));
-
-		joltCondition.put("id", condition.getIdElement().getIdPart()); // ids do not have to match
-		JoltUtil.putReference(joltCondition, "subject", condition.getSubject()); // patient is not yet implemented
-
-		String joltConditionJson = JsonUtils.toPrettyJsonString(joltCondition);
-		String conditionJson = FHIRUtil.encodeToJSON(condition);
-		JSONAssert.assertEquals("Jolt condition", conditionJson, joltConditionJson, true);
-	}
-
-	private static void comparePractitioner(Practitioner practitioner, Map<String, Object> joltPractitioner)
-			throws Exception {
-		joltPractitioner.put("id", practitioner.getIdElement().getIdPart()); // ids do not have to match
-
-		String expected = FHIRUtil.encodeToJSON(practitioner);
-		String actual = JsonUtils.toJsonString(joltPractitioner);
-		JSONAssert.assertEquals("Jolt practitioner", expected, actual, true);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void compareRole(PractitionerRole practitionerRole, Map<String, Object> joltPractitionerRole)
-			throws Exception {
-		Assert.assertNotNull("Jolt practitioner", joltPractitionerRole);
-		Assert.assertNotNull("Jolt practitioner id", joltPractitionerRole.get("id"));
-		joltPractitionerRole.put("id", practitionerRole.getIdElement().getIdPart()); // ids do not have to match
-
-		Map<String, Object> practitioner = (Map<String, Object>) joltPractitionerRole.get("practitioner");
-		Assert.assertNotNull("Jolt role practitioner", practitioner);
-		Object practitionerReference = practitioner.get("reference");
-		Assert.assertNotNull("Jolt role practitioner reference", practitionerReference);
-		Assert.assertTrue("practitioner reference is string", practitionerReference instanceof String);
-		JoltUtil.putReference(joltPractitionerRole, "practitioner", practitionerRole.getPractitioner()); // reference
-																											// values
-																											// may
-		// not match
-
-		Map<String, Object> organization = (Map<String, Object>) joltPractitionerRole.get("organization");
-		Assert.assertNotNull("Jolt role organization", organization);
-		Object organizationReference = organization.get("reference");
-		Assert.assertNotNull("Jolt role organization reference", organizationReference);
-		Assert.assertTrue("organization reference is string", organizationReference instanceof String);
-		JoltUtil.putReference(joltPractitionerRole, "organization", practitionerRole.getOrganization()); // reference
-																											// values
-																											// may
-		// not match
-
-		String joltPractitionerJson = JsonUtils.toPrettyJsonString(joltPractitionerRole);
-		File joltPractitionerFile = new File(outputPath, caseName + "JoltPractitionerRole.json");
-		FileUtils.writeStringToFile(joltPractitionerFile, joltPractitionerJson, Charset.defaultCharset());
-	}
-
 	private static File toJsonFile(File xmlFile, String templateName, String caseName) throws Exception {
 		OrgJsonUtil util = OrgJsonUtil.readXML(xmlFile.toString());
 		JSONObject json = util.getJSONObject();
@@ -509,14 +391,6 @@ public class JoltUtil {
 			r.put("display", reference.getDisplay());
 		}
 		joltResult.put(property, r);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void checkReference(Map<String, Object> resource, String path, String id) {
-		Map<String, Object> parent = (Map<String, Object>) resource.get(path);
-		Assert.assertNotNull("Resource " + path, parent);
-		String actualId = (String) parent.get("reference");
-		Assert.assertEquals("Id for " + path, id, actualId);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -579,47 +453,6 @@ public class JoltUtil {
 			result.put("expected", expected);
 			return result;
 		}).collect(Collectors.toList());
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void verifyUpdateReference(boolean has, Reference referenceRoot, Map<String, Object> joltObject,
-			String key) {
-		if (has) {
-			Map<String, Object> joltObjectAsMap = (Map<String, Object>) joltObject.get(key);
-			Assert.assertNotNull("Jolt " + key, joltObjectAsMap);
-			Object reference = joltObjectAsMap.get("reference");
-			Assert.assertNotNull("Jolt " + key + " reference", reference);
-			Assert.assertTrue("Reference is string", reference instanceof String);
-			JoltUtil.putReference(joltObject, key, referenceRoot); // reference values may not match
-		} else {
-			Assert.assertNull("No jolt reference parent", joltObject.get(key));
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void verifyUpdateReferences(boolean has, List<Reference> referenceRoots,
-			Map<String, Object> joltObject, String key) {
-		if (has) {
-			Object joltResult = joltObject.get(key);
-			Assert.assertNotNull("Jolt list " + key, joltResult);
-			List<Object> joltList = (List<Object>) joltResult;
-			Assert.assertEquals("Jolt list count" + key, referenceRoots.size(), joltList.size());
-			ListIterator<Object> itr = joltList.listIterator();
-			int index = 0;
-			while (itr.hasNext()) {
-				Map<String, Object> joltElement = (Map<String, Object>) itr.next();
-				Reference referenceObject = referenceRoots.get(index);
-				Object reference = joltElement.get("reference");
-				Assert.assertNotNull("Jolt " + key + " reference", reference);
-				Assert.assertTrue("Reference is string", reference instanceof String);
-				Map<String, Object> r = new LinkedHashMap<String, Object>();
-				r.put("reference", referenceObject.getReference());
-				itr.set(r);
-				++index;
-			}
-		} else {
-			Assert.assertNull("No jolt reference parent", joltObject.get(key));
-		}
 	}
 
 	public void verify(Resource resource, Map<String, Object> joltResource, ResourceInfo info) throws Exception {
@@ -1272,5 +1105,181 @@ public class JoltUtil {
 	public void verify(Encounter encounter) throws Exception {
 		Map<String, Object> joltEncounter = TransformManager.chooseResource(result, "Encounter");
 		verify(encounter, joltEncounter);
+	}
+
+	public void verify(Medication med, Map<String, Object> joltMed) throws Exception {
+		Map<String, Object> joltClone = joltMed == null ? null : new LinkedHashMap<>(joltMed);
+
+		if (med.hasManufacturer()) {
+			String reference = med.getManufacturer().getReference();
+
+			String joltReference = findPathString(joltMed, "manufacturer.reference");
+			Assert.assertNotNull("Jolt manufacturer reference exists", joltReference);
+
+			Organization org = bundleUtil.getResourceFromReference(reference, Organization.class);
+			Map<String, Object> joltOrg = TransformManager.chooseResourceByReference(result, joltReference);
+			verify(org, joltOrg, null);
+
+			Map<String, Object> manufacturer = findPathMap(joltMed, "manufacturer");
+			Map<String, Object> manufacturerClone = new LinkedHashMap<>(manufacturer);
+			joltClone.put("manufacturer", manufacturerClone);
+
+			manufacturerClone.put("reference", reference);
+		} else {
+			String value = findPathString(joltMed, "manufacturer.reference");
+			Assert.assertNull("No manufacturer", value);
+		}
+
+		verify(med, joltClone, null);
+	}
+
+	public void verify(Medication med) throws Exception {
+		Map<String, Object> joltMed = TransformManager.chooseResource(result, "Medication");
+		verify(med, joltMed);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(MedicationStatement medStatement, Map<String, Object> joltMedStatement) throws Exception {
+		MedicationStatementInfo info = new MedicationStatementInfo(medStatement);
+
+		Map<String, Object> joltClone = joltMedStatement == null ? null : new LinkedHashMap<>(joltMedStatement);
+
+		if (medStatement.hasInformationSource()) {
+			String reference = medStatement.getInformationSource().getReference();
+
+			String joltReference = findPathString(joltMedStatement, "informationSource.reference");
+			Assert.assertNotNull("Jolt information source reference exists", joltReference);
+
+			verifyEntity(reference, joltReference);
+
+			Map<String, Object> source = findPathMap(joltMedStatement, "informationSource");
+			Map<String, Object> sourceClone = new LinkedHashMap<>(source);
+			joltClone.put("informationSource", sourceClone);
+
+			sourceClone.put("reference", reference);
+		} else {
+			String value = findPathString(joltMedStatement, "informationSource.reference");
+			Assert.assertNull("No source", value);
+		}
+
+		if (medStatement.hasMedicationReference()) {
+			String reference = medStatement.getMedicationReference().getReference();
+
+			String joltReference = findPathString(joltMedStatement, "medicationReference.reference");
+			Assert.assertNotNull("Jolt medication reference exists", joltReference);
+
+			Medication mMed = bundleUtil.getResourceFromReference(reference, Medication.class);
+			Map<String, Object> joltMMed = TransformManager.chooseResourceByReference(result, joltReference);
+			verify(mMed, joltMMed);
+
+			Map<String, Object> med = findPathMap(joltMedStatement, "medicationReference");
+			Map<String, Object> medClone = new LinkedHashMap<>(med);
+			joltClone.put("medicationReference", medClone);
+
+			medClone.put("reference", reference);
+		} else {
+			String value = findPathString(joltMedStatement, "medicationReference.reference");
+			Assert.assertNull("No med", value);
+		}
+
+		if (medStatement.hasReasonReference()) {
+			List<Reference> references = medStatement.getReasonReference();
+			List<Object> joltReferences = (List<Object>) joltClone.get("reasonReference");
+			Assert.assertNotNull("reason exists", joltReferences);
+
+			Assert.assertEquals("reason count", references.size(), joltReferences.size());
+
+			joltReferences = new ArrayList<Object>(joltReferences);
+			joltClone.put("reasonReference", joltReferences);
+
+			for (int index = 0; index < references.size(); ++index) {
+				String reference = references.get(index).getReference();
+
+				Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index);
+				Assert.assertNotNull("Jolt reason exists", joltReferenceObject);
+				String joltReference = (String) joltReferenceObject.get("reference");
+
+				Condition condition = bundleUtil.getResourceFromReference(reference, Condition.class);
+				Map<String, Object> joltCondition = TransformManager.chooseResourceByReference(result, joltReference);
+
+				verify(condition, joltCondition);
+
+				joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+				joltReferences.set(index, joltReferenceObject);
+				joltReferenceObject.put("reference", reference);
+			}
+		} else {
+			Object value = joltMedStatement.get("reasonReference");
+			Assert.assertNull("No reason", value);
+		}
+
+		verify(medStatement, joltClone, info);
+	}
+
+	public void verify(MedicationStatement medStatement) throws Exception {
+		Map<String, Object> joltMedStatement = TransformManager.chooseResource(result, "MedicationStatement");
+		verify(medStatement, joltMedStatement);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(MedicationRequest request, Map<String, Object> joltRequest) throws Exception {
+		MedicationRequestInfo info = new MedicationRequestInfo(request);
+
+		Map<String, Object> joltClone = joltRequest == null ? null : new LinkedHashMap<>(joltRequest);
+
+		if (request.hasRequester()) {
+			MedicationRequestRequesterComponent requester = request.getRequester();
+			Map<String, Object> joltRequester = (Map<String, Object>) joltClone.get("requester");
+
+			Assert.assertNotNull("Jolt requester  exists", joltRequester);
+
+			if (requester.hasAgent()) {
+				joltRequester = new LinkedHashMap<String, Object>(joltRequester);
+				joltClone.put("requester", joltRequester);
+
+				String reference = requester.getAgent().getReference();
+				String joltReference = findPathString(joltRequester, "agent.reference");
+
+				verifyEntity(reference, joltReference);
+
+				Map<String, Object> joltAgent = (Map<String, Object>) joltRequester.get("agent");
+				joltAgent = new LinkedHashMap<String, Object>(joltAgent);
+				joltRequester.put("agent", joltAgent);
+
+				joltAgent.put("reference", reference);
+			} else {
+				Assert.assertNull("No requester agent", joltRequester.get("agent"));
+			}
+		} else {
+			String value = findPathString(joltRequest, "requester");
+			Assert.assertNull("No requester", value);
+		}
+
+		if (request.hasMedicationReference()) {
+			String reference = request.getMedicationReference().getReference();
+
+			String joltReference = findPathString(joltRequest, "medicationReference.reference");
+			Assert.assertNotNull("Jolt medication reference exists", joltReference);
+
+			Medication mMed = bundleUtil.getResourceFromReference(reference, Medication.class);
+			Map<String, Object> joltMMed = TransformManager.chooseResourceByReference(result, joltReference);
+			verify(mMed, joltMMed);
+
+			Map<String, Object> med = findPathMap(joltRequest, "medicationReference");
+			Map<String, Object> medClone = new LinkedHashMap<>(med);
+			joltClone.put("medicationReference", medClone);
+
+			medClone.put("reference", reference);
+		} else {
+			String value = findPathString(joltRequest, "medicationReference.reference");
+			Assert.assertNull("No med", value);
+		}
+
+		verify(request, joltClone, info);
+	}
+
+	public void verify(MedicationRequest request) throws Exception {
+		Map<String, Object> joltRequest = TransformManager.chooseResource(result, "MedicationRequest");
+		verify(request, joltRequest);
 	}
 }

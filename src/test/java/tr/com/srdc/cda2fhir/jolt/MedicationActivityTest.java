@@ -1,27 +1,17 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Condition;
-import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
@@ -47,30 +37,6 @@ public class MedicationActivityTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	private static void compareMedStatements(String caseName, MedicationStatement medStatement,
-			Map<String, Object> joltMedStatement) throws Exception {
-		Assert.assertNotNull("Jolt med statement", joltMedStatement);
-		Assert.assertNotNull("Jolt  med statement id", joltMedStatement.get("id"));
-
-		joltMedStatement.put("id", medStatement.getIdElement().getIdPart()); // ids do not have to match
-		JoltUtil.putReference(joltMedStatement, "subject", medStatement.getSubject()); // patient is not yet implemented
-
-		JoltUtil.verifyUpdateReference(medStatement.hasInformationSource(), medStatement.getInformationSource(),
-				joltMedStatement, "informationSource");
-		JoltUtil.verifyUpdateReference(medStatement.hasMedicationReference(), medStatement.getMedicationReference(),
-				joltMedStatement, "medicationReference");
-
-		JoltUtil.verifyUpdateReferences(medStatement.hasMedicationReference(), medStatement.getReasonReference(),
-				joltMedStatement, "reasonReference");
-
-		String joltMedStatementJson = JsonUtils.toPrettyJsonString(joltMedStatement);
-		File joltMedStatementFile = new File(OUTPUT_PATH + caseName + "JoltMedStatement.json");
-		FileUtils.writeStringToFile(joltMedStatementFile, joltMedStatementJson, Charset.defaultCharset());
-
-		String medStatementJson = FHIRUtil.encodeToJSON(medStatement);
-		JSONAssert.assertEquals("Jolt Med Statement", medStatementJson, joltMedStatementJson, true);
-	}
-
 	private static void runTest(MedicationActivityGenerator generator, String caseName) throws Exception {
 		MedicationActivity ma = generator.generate(factories);
 
@@ -88,30 +54,20 @@ public class MedicationActivityTest {
 
 		generator.verify(bundle);
 
-		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
-		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
-		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
-		List<Medication> medications = FHIRUtil.findResources(bundle, Medication.class);
-
 		File xmlFile = CDAUtilExtension.writeAsXML(ma, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationActivity", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
-		joltUtil.verifyOrganizations(organizations);
-		joltUtil.verifyPractitioners(practitioners);
-		joltUtil.verifyPractitionerRoles(practitionerRoles);
-		joltUtil.verifyConditions(conditions);
-		joltUtil.verifyMedications(medications);
+		joltUtil.verify(medicationStatement);
 
-		BundleUtil.findOneResource(bundle, MedicationRequest.class);
-
-		Map<String, Object> joltMedStatement = TransformManager.chooseResource(joltResult, "MedicationStatement");
-		if (medicationStatement == null) {
-			Assert.assertNull("No medication statement", joltMedStatement);
+		List<MedicationRequest> resources = FHIRUtil.findResources(bundle, MedicationRequest.class);
+		Assert.assertTrue("One or zero request", resources.size() < 2);
+		if (resources.size() == 1) {
+			joltUtil.verify(resources.get(0));
 		} else {
-			compareMedStatements(caseName, medicationStatement, joltMedStatement);
+			List<Map<String, Object>> joltRequest = joltUtil.findResources("MedicationRequest");
+			Assert.assertTrue("No request", joltRequest.size() == 0);
 		}
 	}
 
