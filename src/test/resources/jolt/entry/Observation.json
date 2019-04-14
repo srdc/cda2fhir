@@ -144,8 +144,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
 		"spec": {
+			"recursive" : true
 		}
 	},
 	{
