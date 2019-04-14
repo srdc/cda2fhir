@@ -135,8 +135,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		// streetAddressLine -> line
 		if (ad.getStreetAddressLines() != null && !ad.getStreetAddressLines().isEmpty()) {
 			for (ADXP adxp : ad.getStreetAddressLines()) {
-				if (adxp != null && !adxp.isSetNullFlavor()) {
-					address.addLine(adxp.getText());
+				if (adxp != null && !adxp.isSetNullFlavor() && adxp.getText() != null) {
+					address.addLine(adxp.getText().trim());
 				}
 			}
 		}

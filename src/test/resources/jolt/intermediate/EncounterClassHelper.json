@@ -1,0 +1,18 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"translation": "MANY"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"translation": {
+				"*": {
+					"code": ""
+				}
+			}
+		}
+	}
+]

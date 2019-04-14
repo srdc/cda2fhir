@@ -28,7 +28,7 @@
 					"practitioner.display.->ID"
 				]
 			},
-			"code": "code[].->CD",
+			"code": "code[].->CD2",
 			"representedOrganization": {
 				"id": {
 					"0": [
