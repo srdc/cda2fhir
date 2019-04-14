@@ -43,17 +43,29 @@
 				"#unk": "taken",
 				"entryRelationship": {
 					"*": {
-						"typeCode": {
-							"RSON": {
-								"@2": "Condition[].->MedIndication"
-							},
-							"REFR": {
-								"@2": "MedicationRequest.->MedicationSupplyOrder"
+						"supply": {
+							"templateId": {
+								"0": {
+									"root": {
+										"2.16.840.1.113883.10.20.22.4.17": {
+											"@5": "MedicationRequest.->MedicationSupplyOrder"
+										}
+									}
+								}
+							}
+						},
+						"observation": {
+							"templateId": {
+								"0": {
+									"root": {
+										"2.16.840.1.113883.10.20.22.4.19": {
+											"@5": "Condition[].->MedIndication"
+										}
+									}
+								}
 							}
 						}
-						
 					}
-					
 				}
 			}
 		}
@@ -72,9 +84,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"status": "=valueSetAdapter('MedicationStatementStatus',@0)",
@@ -85,7 +94,7 @@
 				"reference": "=getId(@0)"
 			},
 			"reasonReference": {
-				"*": {			
+				"*": {
 					"reference": "=getId(@0)"
 				}
 			},

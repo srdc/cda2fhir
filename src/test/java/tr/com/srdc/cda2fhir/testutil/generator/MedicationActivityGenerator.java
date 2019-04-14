@@ -137,6 +137,8 @@ public class MedicationActivityGenerator {
 			ma.getEntryRelationships().add(er);
 			er.setTypeCode(x_ActRelationshipEntryRelationship.RSON);
 			Indication indication = ig.generate(factories);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.19");
+			indication.getTemplateIds().add(ii);
 			er.setObservation(indication);
 		});
 

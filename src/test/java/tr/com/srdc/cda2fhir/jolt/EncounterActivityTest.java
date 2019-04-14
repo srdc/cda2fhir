@@ -98,7 +98,6 @@ public class EncounterActivityTest {
 			runTest(activity, caseName, null);
 			++index;
 		}
-
 	}
 
 	@Test

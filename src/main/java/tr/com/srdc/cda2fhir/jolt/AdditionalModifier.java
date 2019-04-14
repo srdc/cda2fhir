@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.bazaarvoice.jolt.ContextualTransform;
@@ -607,10 +608,35 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 	private Modifier.Overwritr modifier;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object transform(final Object input, final Map<String, Object> context) {
 		temporaryContext = context; // TODO: Improve modifiers to have context available
-		return modifier.transform(input, context);
+		Object result = modifier.transform(input, context);
+		if (result == null || !(result instanceof Map)) {
+			return result;
+		}
+		Map<String, Object> resultAsMap = (Map<String, Object>) result;
+		Iterator<Entry<String, Object>> itr = resultAsMap.entrySet().iterator();
+		while (itr.hasNext()) {
+			Entry<String, Object> entry = itr.next();
+			Object value = entry.getValue();
+			if (value == null) {
+				itr.remove();
+				continue;
+			}
+			if (value instanceof Map) {
+				Map<String, Object> valueAsMap = (Map<String, Object>) value;
+				if (valueAsMap.isEmpty()) {
+					itr.remove();
+					continue;
+				}
+			}
+		}
+		if (resultAsMap.isEmpty()) {
+			return null;
+		}
+		return result;
 	}
 
 	public AdditionalModifier(final Object spec) {
