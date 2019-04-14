@@ -2106,7 +2106,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 												CodeableConcept timingCoding = new CodeableConcept();
 												Timing timing = new Timing();
 												fhirDosage.setTiming(timing);
-												timingCoding.setText(((ED) valueElement).getText());
+												timingCoding.setText(((ED) valueElement).getText().trim());
 												timing.setCode(timingCoding);
 											}
 										}

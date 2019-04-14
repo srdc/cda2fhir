@@ -1,15 +1,18 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-substanceAdministration.entryRelationship[],Condition[],MedIndication,,nullFlavor isnull,substanceAdministration.entryRelationship[].typeCode equal RSON
+substanceAdministration.entryRelationship[],Condition[],MedIndication,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
 substanceAdministration.consumable,Medication,MedicationInformation,,nullFlavor isnull
+Organization,Medication.manufacturer.display,,
 Organization,Medication.manufacturer.reference,,"getId"
-substanceAdministration.entryRelationship[],MedicationRequest,MedicationSupplyOrder,,nullFlavor isnull,substanceAdministration.entryRelationship[].typeCode equal REFR
+substanceAdministration.entryRelationship[],MedicationRequest,MedicationSupplyOrder,,nullFlavor isnull,substanceAdministration.entryRelationship[].supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+Organization,MedicationRequest.Medication.manufacturer.display,,
 Organization,MedicationRequest.Medication.manufacturer.reference,,"getId"
 Medication,MedicationRequest.medicationReference.reference,,"getId"
 Practitioner,MedicationRequest.requester.agent.reference,,"getId"
 substanceAdministration.doseQuantity,MedicationStatement.dosage[0].doseQuantity,IVL_PQSimpleQuantity,,nullFlavor isnull
 substanceAdministration.rateQuantity,MedicationStatement.dosage[0].rateRange,IVL_PQRange,,nullFlavor isnull
-substanceAdministration.routeCode,MedicationStatement.dosage[0].route,CD,,nullFlavor isnull
+substanceAdministration.routeCode,MedicationStatement.dosage[0].route,CD2,,nullFlavor isnull
 substanceAdministration.effectiveTime[],MedicationStatement.dosage[0].timing,PIVL_TSTiming,,nullFlavor isnull,substanceAdministration.effectiveTime[].xsi:type equal PIVL_TS
+substanceAdministration.entryRelationship[].observation.value.content,MedicationStatement.dosage[0].timing.code.text,,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.code.code equal FREQUENCY
 substanceAdministration.effectiveTime[],MedicationStatement.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS
 substanceAdministration.id[],MedicationStatement.identifier[],ID,,nullFlavor isnull
 Practitioner,MedicationStatement.informationSource.reference,,"getId"

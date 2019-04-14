@@ -95,16 +95,15 @@ public class MedicationActivityTest {
 		}
 	}
 
-	@Ignore
+	private static void runTest(MedicationActivityGenerator generator, String caseName) throws Exception {
+		MedicationActivity ma = generator.generate(factories);
+		runTest(ma, caseName, generator);
+	}
+
 	@Test
 	public void testDefault() throws Exception {
 		MedicationActivityGenerator generator = MedicationActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
-	}
-
-	private static void runTest(MedicationActivityGenerator generator, String caseName) throws Exception {
-		MedicationActivity ma = generator.generate(factories);
-		runTest(ma, caseName, generator);
 	}
 
 	@Test
@@ -112,13 +111,11 @@ public class MedicationActivityTest {
 		runSampleTest("C-CDA_R2-1_CCD.xml");
 	}
 
-	@Ignore
 	@Test
 	public void testSample2() throws Exception {
 		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
 	}
 
-	@Ignore
 	@Test
 	public void testSample3() throws Exception {
 		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
@@ -136,25 +133,25 @@ public class MedicationActivityTest {
 		runSampleTest("Epic/DOC0001 2.XML");
 	}
 
-	@Ignore
+	// @Ignore
 	@Test
 	public void testEpicSample3() throws Exception {
 		runSampleTest("Epic/DOC0001 3.XML");
 	}
 
-	@Ignore
+	// @Ignore
 	@Test
 	public void testEpicSample4() throws Exception {
 		runSampleTest("Epic/DOC0001 4.XML");
 	}
 
-	@Ignore
+	// @Ignore
 	@Test
 	public void testEpicSample5() throws Exception {
 		runSampleTest("Epic/DOC0001 5.XML");
 	}
 
-	@Ignore
+	// @Ignore
 	@Test
 	public void testEpicSample6() throws Exception {
 		runSampleTest("Epic/DOC0001 6.XML");
@@ -214,7 +211,7 @@ public class MedicationActivityTest {
 		runSampleTest("Epic/DOC0001 15.XML");
 	}
 
-	@Ignore
+	// @Ignore
 	@Test
 	public void testEpicSample16() throws Exception {
 		runSampleTest("Epic/HannahBanana_EpicCCD.xml");

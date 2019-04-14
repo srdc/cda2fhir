@@ -43,7 +43,8 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
 		"spec": {
-			"resourceType": "Medication"
+			"resourceType": "Medication",
+			"keepNull" : true
 		}
 	}
 ]

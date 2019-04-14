@@ -1251,7 +1251,7 @@ public class JoltUtil {
 				Assert.assertNull("No requester agent", joltRequester.get("agent"));
 			}
 		} else {
-			String value = findPathString(joltRequest, "requester");
+			Object value = joltRequest.get("requester");
 			Assert.assertNull("No requester", value);
 		}
 

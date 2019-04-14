@@ -1,5 +1,6 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 supply.product,Medication,MedicationInformation,,nullFlavor isnull
+Organization,Medication.manufacturer.display,,
 Organization,Medication.manufacturer.reference,,"getId"
 supply.repeatNumber.value,MedicationRequest.dispenseRequest.numberOfRepeatsAllowed,,,nullFlavor isnull
 supply.quantity,MedicationRequest.dispenseRequest.quantity,IVL_PQSimpleQuantity,,nullFlavor isnull

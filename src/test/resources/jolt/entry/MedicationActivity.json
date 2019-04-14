@@ -38,7 +38,7 @@
 					}
 				},
 				"doseQuantity": "dosage[0].doseQuantity.->IVL_PQSimpleQuantity",
-				"routeCode": "dosage[0].route.->CD",
+				"routeCode": "dosage[0].route.->CD2",
 				"rateQuantity": "dosage[0].rateRange.->IVL_PQRange",
 				"#unk": "taken",
 				"entryRelationship": {
@@ -60,6 +60,17 @@
 									"root": {
 										"2.16.840.1.113883.10.20.22.4.19": {
 											"@5": "Condition[].->MedIndication"
+										}
+									}
+								}
+							},
+							"code": {
+								"code": {
+									"FREQUENCY": {
+										"@3": {
+											"value": {
+												"content": "dosage[0].timing.code.text"
+											}
 										}
 									}
 								}

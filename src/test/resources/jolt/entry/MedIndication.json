@@ -27,9 +27,7 @@
 					"*": "code.->CD"
 				},
 				"effectiveTime": "->IndicationEffectiveTime",
-				"statusCode": {
-					"code": "verificationStatus"
-				}
+				"@0": "->MedIndicationStatusCode"
 			}
 		}
 	},
@@ -39,7 +37,6 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"verificationStatus": "=valueSetAdapter('ConditionVerificationStatus','unknown',@0)",
 			"category": {
 				"*": "=constantValue('MedicationConditionCategoryConstant')"
 			},

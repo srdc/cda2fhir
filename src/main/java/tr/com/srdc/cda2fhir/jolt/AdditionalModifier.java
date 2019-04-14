@@ -633,9 +633,6 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				}
 			}
 		}
-		if (resultAsMap.isEmpty()) {
-			return null;
-		}
 		return result;
 	}
 
