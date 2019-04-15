@@ -87,10 +87,10 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "informationSource.reference",
+			"Practitioner": ["informationSource.reference", "informationSource.display"],
 			"Medication": ["medicationReference.reference", "medicationReference.display"],
 			"Condition": {
-				"*": "reasonReference[&].reference"
+				"*": ["reasonReference[&].reference", "reasonReference[&].display"]
 			}
 		}
 	},
@@ -99,7 +99,8 @@
 		"spec": {
 			"status": "=valueSetAdapter('MedicationStatementStatus',@0)",
 			"informationSource": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"medicationReference": {
 				"reference": "=getId(@0)",
@@ -107,7 +108,8 @@
 			},
 			"reasonReference": {
 				"*": {
-					"reference": "=getId(@0)"
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
 				}
 			},
 			"dosage": {
