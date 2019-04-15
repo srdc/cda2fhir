@@ -62,7 +62,9 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			Object valueObject = map.get("value");
 			String value = valueObject == null ? null : valueObject.toString();
 			refsByIdentifier.put(resourceType, system, value, reference);
-			refDisplaysByIdentifier.put(resourceType, system, value, display);
+			if (display != null) {
+				refDisplaysByIdentifier.put(resourceType, system, value, display);
+			}
 			if (system != null && system.endsWith("0.0.0.0.0.0")) {
 				itr.remove();
 			}

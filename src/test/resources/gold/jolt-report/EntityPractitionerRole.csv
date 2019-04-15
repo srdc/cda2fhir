@@ -1,6 +1,6 @@
-CCDA Source,Target,Link,Format,Condition 1
-code,PractitionerRole.code[],CD,,representedOrganization.nullFlavor isnull
-representedOrganization.id.0,PractitionerRole.organization.display,ID,,representedOrganization.nullFlavor isnull
-representedOrganization.id.0,PractitionerRole.organization.reference,ID,"referenceAdapter('Organization')",representedOrganization.nullFlavor isnull
-id,PractitionerRole.practitioner.display,ID,,representedOrganization.nullFlavor isnull
-id,PractitionerRole.practitioner.reference,ID,"referenceAdapter('Practitioner')",representedOrganization.nullFlavor isnull
+CCDA Source,Target,Link,Format,Condition 1,Condition 2
+code,PractitionerRole.code[],CD,,representedOrganization isnotnull,representedOrganization.nullFlavor isnull
+representedOrganization.id.0,PractitionerRole.organization.display,ID,,representedOrganization isnotnull,representedOrganization.nullFlavor isnull
+representedOrganization.id.0,PractitionerRole.organization.reference,ID,"referenceAdapter('Organization')",representedOrganization isnotnull,representedOrganization.nullFlavor isnull
+id,PractitionerRole.practitioner.display,ID,,representedOrganization isnotnull,representedOrganization.nullFlavor isnull
+id,PractitionerRole.practitioner.reference,ID,"referenceAdapter('Practitioner')",representedOrganization isnotnull,representedOrganization.nullFlavor isnull

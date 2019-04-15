@@ -171,7 +171,7 @@ valOutcomeOs.close();
 fos.close();
 ```
 
-Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class.
+Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class
 
 ## Acknowledgement
 

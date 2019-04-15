@@ -118,7 +118,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			if (datetimeWithZone.length() < 4) {
 				return Optional.empty();
 			}
-			String[] pieces = datetimeWithZone.split("-");
+			String[] pieces = datetimeWithZone.split("[-+]");
 			String datetime = pieces[0];
 			int length = datetime.length();
 			String result = datetime.substring(0, 4);
@@ -129,7 +129,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 					if (length > 11) {
 						result += "T" + datetime.substring(8, 10) + ":" + datetime.substring(10, 12);
 						if (length > 13) {
-							result += ":" + datetime.substring(12, 14);
+							result += ":" + datetime.substring(12, datetime.length());
 						} else {
 							result += ":00";
 						}
@@ -138,7 +138,8 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			}
 			String zone = pieces.length > 1 ? pieces[1] : null;
 			if (zone != null && zone.length() > 0) {
-				result += "-" + zone.substring(0, 2) + ":" + zone.substring(2, 4);
+				String sign = datetimeWithZone.indexOf("-") >= 0 ? "-" : "+";
+				result += sign + zone.substring(0, 2) + ":" + zone.substring(2, 4);
 			}
 			return Optional.of(result);
 		}
@@ -261,11 +262,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			String value = (String) identifier.get("value");
 			IdentifierMap<String> map = (IdentifierMap<String>) temporaryContext.get("RefDisplaysByIdentifier");
 			if (map == null) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			String display = map.get(fhirType, system, value);
 			if (display == null) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			return Optional.of(display);
 		}
@@ -395,7 +396,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				return null;
 			}
 			if (argList.indexOf("high") >= 0 && argList.indexOf("low") >= 0) {
-				return Optional.of("resolved");
+				return Optional.of("inactive");
 			}
 			if (argList.indexOf("value") >= 0 || argList.indexOf("low") >= 0) {
 				return Optional.of("active");
@@ -460,6 +461,54 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final class ContentOrSelf extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return null;
+			}
+			if (!(arg instanceof Map)) {
+				return Optional.of(arg);
+			}
+			Map<String, Object> map = (Map<String, Object>) arg;
+			return Optional.of(map.get("content"));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final class ResolveText extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return null;
+			}
+			if (!(arg instanceof String)) {
+				return Optional.of(null);
+			}
+			String currentValue = (String) arg;
+			Map<String, Object> map = (Map<String, Object>) temporaryContext.get("Annotations");
+			if (map == null || currentValue.isEmpty() || currentValue.charAt(0) != '#') {
+				return Optional.of(null);
+			}
+			String value = (String) map.get(currentValue.substring(1));
+			return Optional.of(value);
+		}
+	}
+
+	public static final class NullIfMap extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return null;
+			}
+			if (arg instanceof Map) {
+				return Optional.of(null);
+			}
+			return Optional.empty();
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -480,6 +529,9 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("constantValue", new ConstantValue());
 		AMIDA_FUNCTIONS.put("true", new True());
 		AMIDA_FUNCTIONS.put("constantSystem", new ConstantSystem());
+		AMIDA_FUNCTIONS.put("contentOrSelf", new ContentOrSelf());
+		AMIDA_FUNCTIONS.put("nullIfMap", new NullIfMap());
+		AMIDA_FUNCTIONS.put("resolveText", new ResolveText());
 	}
 
 	private Modifier.Overwritr modifier;

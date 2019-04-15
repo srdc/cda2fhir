@@ -55,6 +55,8 @@ public class Config {
 
 	public static final String NARRATIVE_PROPERTIES_FILE_PATH = "file:src/main/resources/narrative/customnarrative.properties";
 
+	public static final String MEDICATION_CODE_SYSTEM = null;
+
 	private static boolean generateNarrative = false;
 	private static INarrativeGenerator narrativeGenerator;
 

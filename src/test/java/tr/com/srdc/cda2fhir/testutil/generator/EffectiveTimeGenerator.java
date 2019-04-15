@@ -28,7 +28,7 @@ public class EffectiveTimeGenerator {
 	}
 
 	public EffectiveTimeGenerator(String lowValue, String highValue) {
-		this.lowNullFlavor = lowValue;
+		this.lowValue = lowValue;
 		this.highValue = highValue;
 	}
 

@@ -1,5 +1,13 @@
 [
 	{
+		"operation": "cardinality",
+		"spec": {
+			"assignedAuthor": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdDefault",
 		"spec": {
 			"path": "assignedAuthor"
@@ -17,5 +25,8 @@
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdResolve"
 	}
 ]

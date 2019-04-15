@@ -33,4 +33,5 @@ public class SectionResultSingular<T extends Resource> extends SectionResult {
 		Bundle bundle = getBundle();
 		return FHIRUtil.findResources(bundle, clazz);
 	}
+
 }

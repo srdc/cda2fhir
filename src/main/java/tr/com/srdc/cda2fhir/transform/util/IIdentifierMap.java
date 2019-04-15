@@ -9,6 +9,8 @@ public interface IIdentifierMap<T> {
 
 	void put(String fhirType, String system, String value, T identifiedValue);
 
+	void put(String fhirType, List<Identifier> identifiers, T identifiedValue);
+
 	T get(String fhirType, Identifier identifier);
 
 	T get(String fhirType, String value);

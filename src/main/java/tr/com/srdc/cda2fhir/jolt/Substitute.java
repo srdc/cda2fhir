@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.bazaarvoice.jolt.Chainr;
@@ -23,18 +24,44 @@ public class Substitute implements ContextualTransform {
 		});
 	}
 
-	private Object findTemplateValue(Map<String, Object> map, Map<String, Object> context) {
+	private Optional<Object> findTemplateValue(Map<String, Object> map, Map<String, Object> context) {
 		Set<String> keys = map.keySet();
 		if (keys.size() != 1) {
-			return null;
+			return Optional.empty();
 		}
 		String key = keys.stream().findFirst().get();
 		Chainr chainr = templates.get(key);
 		if (chainr == null) {
-			return null;
+			return Optional.empty();
 		}
 		Object input = map.get(key);
 		Object replacement = chainr.transform(input, context);
+		if (replacement == null) {
+			return null;
+		}
+		return Optional.of(replacement);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Object handleMapObject(Object value, Iterator<T> itr, Map<String, Object> context) {
+		Map<String, Object> map = (Map<String, Object>) value;
+		Optional<Object> templateResult = findTemplateValue(map, context);
+		if (templateResult == null) {
+			itr.remove();
+			return null;
+		}
+		Object replacement = templateResult.isPresent() ? templateResult.get() : substitute(map, context);
+		if (replacement == null) {
+			itr.remove();
+			return null;
+		}
+		if (replacement instanceof Map) {
+			Map<String, Object> replacementAsMap = (Map<String, Object>) replacement;
+			if (replacementAsMap.isEmpty()) {
+				itr.remove();
+				return null;
+			}
+		}
 		return replacement;
 	}
 
@@ -59,18 +86,16 @@ public class Substitute implements ContextualTransform {
 			if (value instanceof List) {
 				List<Object> elements = (List<Object>) value;
 				Object newValue = substitute(elements, context);
+				if (newValue == null) {
+					itr.remove();
+					continue;
+				}
 				entry.setValue(newValue);
 				continue;
 			}
 			if (value instanceof Map) {
-				Map<String, Object> map = (Map<String, Object>) value;
-				Object replacement = findTemplateValue(map, context);
-				if (replacement == null) {
-					replacement = substitute(map, context);
-				}
-				if (replacement == null) {
-					itr.remove();
-				} else {
+				Object replacement = handleMapObject(value, itr, context);
+				if (replacement != null) {
 					entry.setValue(replacement);
 				}
 				continue;
@@ -81,7 +106,7 @@ public class Substitute implements ContextualTransform {
 			Object value = object.get(key);
 			Chainr chainr = templates.get(key);
 			Map<String, Object> additionalKeys = (Map<String, Object>) chainr.transform(value, context);
-			if (additionalKeys != null) {
+			if (additionalKeys != null && !additionalKeys.isEmpty()) {
 				object.putAll(additionalKeys);
 			}
 			object.remove(key);
@@ -99,6 +124,10 @@ public class Substitute implements ContextualTransform {
 		ListIterator<Object> itr = list.listIterator();
 		while (itr.hasNext()) {
 			Object element = itr.next();
+			if (element == null) {
+				itr.remove();
+				continue;
+			}
 			if (element instanceof List) {
 				Object replacement = substitute((List<Object>) element, context);
 				if (replacement == null) {
@@ -109,14 +138,8 @@ public class Substitute implements ContextualTransform {
 				continue;
 			}
 			if (element instanceof Map) {
-				Map<String, Object> map = (Map<String, Object>) element;
-				Object replacement = findTemplateValue(map, context);
-				if (replacement == null) {
-					replacement = substitute(map, context);
-				}
-				if (replacement == null) {
-					itr.remove();
-				} else {
+				Object replacement = handleMapObject(element, itr, context);
+				if (replacement != null) {
 					itr.set(replacement);
 				}
 				continue;
