@@ -1,13 +1,14 @@
+
 package tr.com.srdc.cda2fhir;
 
 import java.io.IOException;
 
-import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Device;
+import org.hl7.fhir.dstu3.model.DocumentReference;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -27,6 +28,7 @@ import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
 import tr.com.srdc.cda2fhir.validation.ValidatorImpl;
 
@@ -68,9 +70,8 @@ public class IntegrationTest {
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
 				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
-		// print pre-post bundle
-		// FHIRUtil.printJSON(transactionBundle,
-		// "src/test/resources/output/doc_001_15.json");
+//		// print pre-post bundle
+		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia-4-10.json");
 
 		// Send transaction bundle to server.
 		Bundle resp = client.transaction().withBundle(transactionBundle).execute();
@@ -89,15 +90,15 @@ public class IntegrationTest {
 
 		Bundle provenanceResults = (Bundle) client.search().forResource(Provenance.class).prettyPrint().execute();
 
-		Bundle binaryresults = (Bundle) client.search().forResource(Binary.class).prettyPrint().execute();
+		Bundle docRefresults = (Bundle) client.search().forResource(DocumentReference.class).prettyPrint().execute();
 
 		Bundle deviceResults = (Bundle) client.search().forResource(Device.class).prettyPrint().execute();
 
 		Assert.assertEquals(1, patientResults.getTotal());
 		Assert.assertEquals(33, practitionerResults.getTotal());
-		Assert.assertEquals(28, medicationResults.getTotal());
+		Assert.assertEquals(13, medicationResults.getTotal());
 		Assert.assertEquals(1, provenanceResults.getTotal());
-		Assert.assertEquals(1, binaryresults.getTotal());
+		Assert.assertEquals(1, docRefresults.getTotal());
 		Assert.assertEquals(1, deviceResults.getTotal());
 	}
 }

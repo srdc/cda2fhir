@@ -297,4 +297,12 @@ public class MedicationActivityGenerator {
 			medicationSupplyOrderGenerator.verify(bundle);
 		}
 	}
+
+	public void setMedicationInfoGenerator(MedicationInformationGenerator generator) {
+		this.medInfoGenerator = generator;
+	}
+
+	public void setMedicationSupplyOrderGenerator(MedicationSupplyOrderGenerator medicationSupplyOrderGenerator) {
+		this.medicationSupplyOrderGenerator = medicationSupplyOrderGenerator;
+	}
 }

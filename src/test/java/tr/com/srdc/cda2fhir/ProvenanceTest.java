@@ -1,11 +1,13 @@
 package tr.com.srdc.cda2fhir;
 
+import java.security.MessageDigest;
+
 import org.eclipse.emf.ecore.xml.type.internal.DataValue.Base64;
-import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Device;
+import org.hl7.fhir.dstu3.model.DocumentReference;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Medication;
@@ -49,10 +51,22 @@ public class ProvenanceTest {
 		BundleUtil.findOneResource(testBundle, Medication.class);
 		BundleUtil.findOneResource(testBundle, Patient.class);
 
-		Binary binary = BundleUtil.findOneResource(testBundle, Binary.class);
-		Assert.assertEquals(binary.getContentType(), "text/plain");
+		DocumentReference docRef = BundleUtil.findOneResource(testBundle, DocumentReference.class);
 
-		Assert.assertEquals(binary.getContentElement().asStringValue(), Base64.encode(documentBody.getBytes()));
+		// Test doc reference.
+		Assert.assertEquals(docRef.getStatus().toString(), "CURRENT");
+		Assert.assertEquals(docRef.getContent().get(0).getAttachment().getContentType(), "text/plain");
+		Assert.assertEquals(docRef.getType().getCoding().get(0).getCode(), "34133-9");
+
+		// Test encoding.
+		Assert.assertEquals(docRef.getContent().get(0).getAttachment().getDataElement().asStringValue(),
+				Base64.encode(documentBody.getBytes()));
+
+		// Test hash.
+		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+		byte[] encodedHash = digest.digest(documentBody.getBytes());
+		Assert.assertEquals(docRef.getContent().get(0).getAttachment().getHashElement().asStringValue(),
+				Base64.encode(encodedHash));
 
 		Device device = BundleUtil.findOneResource(testBundle, Device.class);
 		Assert.assertEquals(device.getText().getStatusAsString().toLowerCase(),
@@ -66,7 +80,7 @@ public class ProvenanceTest {
 		Assert.assertEquals(provenance.getTarget().get(0).getReference(), orgId.getValue());
 		Assert.assertEquals(provenance.getTarget().get(1).getReference(), medId.getValue());
 		Assert.assertEquals(provenance.getTarget().get(2).getReference(), patientId.getValue());
-		Assert.assertEquals(provenance.getTarget().get(3).getReference().substring(0, 6), "Binary");
+		Assert.assertEquals(provenance.getTarget().get(3).getReference().substring(0, 17), "DocumentReference");
 		Assert.assertEquals(provenance.getTarget().get(4).getReference().substring(0, 6), "Device");
 
 		Coding roleDevice = provenance.getAgentFirstRep().getRelatedAgentType().getCodingFirstRep();
@@ -83,7 +97,7 @@ public class ProvenanceTest {
 
 		Assert.assertEquals(provenance.getAgentFirstRep().getWhoReference().getReference().substring(0, 6), "Device");
 
-		Assert.assertEquals(provenance.getEntityFirstRep().getId().substring(0, 6), "Binary");
+		Assert.assertEquals(provenance.getEntityFirstRep().getId().substring(0, 17), "DocumentReference");
 		Assert.assertEquals(provenance.getEntityFirstRep().getRole(), ProvenanceEntityRole.SOURCE);
 	}
 }

@@ -30,4 +30,5 @@ public class SectionResultDynamic extends SectionResult {
 	public List<Resource> getSectionResources() {
 		return resources;
 	}
+
 }

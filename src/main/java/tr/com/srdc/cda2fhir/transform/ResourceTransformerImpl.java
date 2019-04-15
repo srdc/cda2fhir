@@ -21,6 +21,8 @@ package tr.com.srdc.cda2fhir.transform;
  */
 
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,9 +37,9 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Annotation;
+import org.hl7.fhir.dstu3.model.Attachment;
 import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Base64BinaryType;
-import org.hl7.fhir.dstu3.model.Binary;
 import org.hl7.fhir.dstu3.model.BooleanType;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
@@ -55,8 +57,11 @@ import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Device.FHIRDeviceStatus;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.DocumentReference;
+import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory;
 import org.hl7.fhir.dstu3.model.FamilyMemberHistory.FamilyMemberHistoryConditionComponent;
 import org.hl7.fhir.dstu3.model.Group;
@@ -1843,12 +1848,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// effectiveTime info -> clinicalStatus
 		if (cdaIndication.getEffectiveTime() != null && !cdaIndication.getEffectiveTime().isSetNullFlavor()) {
-			// high & low is present -> resolved
+			// high & low is present -> inactive
 			if (cdaIndication.getEffectiveTime().getLow() != null
 					&& !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()
 					&& cdaIndication.getEffectiveTime().getHigh() != null
 					&& !cdaIndication.getEffectiveTime().getHigh().isSetNullFlavor()) {
-				fhirCond.setClinicalStatus(ConditionClinicalStatus.RESOLVED);
+				fhirCond.setClinicalStatus(ConditionClinicalStatus.INACTIVE);
 			} else if (cdaIndication.getEffectiveTime().getLow() != null
 					&& !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()) {
 				// low is present, high is not present -> active
@@ -1870,14 +1875,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// only set verificationStatus if clinicalStatus is present.
-		if (fhirCond.getClinicalStatus() != null) {
-			CS statusCode = cdaIndication.getStatusCode();
-			String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null : statusCode.getCode();
-
-			// statusCode -> verificationStatus
-			fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
-		}
 		return fhirCond;
 	}
 
@@ -1916,6 +1913,28 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			return result;
 
 		Medication fhirMedication = new Medication();
+
+		if (cdaManufacturedProduct.getManufacturedMaterial() != null
+				&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
+			CD cd = cdaManufacturedProduct.getManufacturedMaterial().getCode();
+			if (cd != null) {
+
+				Medication previousMedication = (Medication) bundleInfo.findResourceResult(cd);
+				if (previousMedication != null) {
+					// Return Previously created medication
+					result.addExistingResource(previousMedication);
+					return result;
+				} else {
+					result.putCDResource(cd, fhirMedication);
+				}
+
+				// manufacturedMaterial.code -> code
+				fhirMedication.setCode(dtt.tCD2CodeableConcept(
+						cdaManufacturedProduct.getManufacturedMaterial().getCode(), bundleInfo.getIdedAnnotations()));
+			}
+		}
+
+		// add fhir resource after we check for previous value
 		result.addResource(fhirMedication);
 
 		// resource id
@@ -1925,16 +1944,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// meta.profile
 		if (Config.isGenerateDafProfileMetadata())
 			fhirMedication.getMeta().addProfile(Constants.PROFILE_DAF_MEDICATION);
-
-		// manufacturedMaterial -> code and ingredient
-		if (cdaManufacturedProduct.getManufacturedMaterial() != null
-				&& !cdaManufacturedProduct.getManufacturedMaterial().isSetNullFlavor()) {
-			if (cdaManufacturedProduct.getManufacturedMaterial().getCode() != null) {
-				// manufacturedMaterial.code -> code
-				fhirMedication.setCode(dtt.tCD2CodeableConcept(
-						cdaManufacturedProduct.getManufacturedMaterial().getCode(), bundleInfo.getIdedAnnotations()));
-			}
-		}
 
 		// manufacturerOrganization -> manufacturer
 		if (cdaManufacturedProduct.getManufacturerOrganization() != null
@@ -1975,6 +1984,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	public EntryResult tMedicationActivity2MedicationStatement(MedicationActivity cdaMedicationActivity,
 			IBundleInfo bundleInfo) {
 
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		EntryResult result = new EntryResult();
 
 		if (cdaMedicationActivity == null || cdaMedicationActivity.isSetNullFlavor()) {
@@ -2031,13 +2041,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// consumable.manufacturedProduct -> medication
 		if (cdaMedicationActivity.getConsumable() != null && !cdaMedicationActivity.getConsumable().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationActivity.getConsumable(),
-					bundleInfo);
-			if (fhirMedicationResult.hasResult()) {
-				result.updateFrom(fhirMedicationResult);
-				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
-					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
-						fhirMedSt.setMedication(getReference(entry.getResource()));
-					}
+					localBundleInfo);
+			result.updateFrom(fhirMedicationResult);
+			localBundleInfo.updateFrom(fhirMedicationResult);
+			for (BundleEntryComponent entry : fhirMedicationResult.getFullBundle().getEntry()) {
+				if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
+					fhirMedSt.setMedication(getReference(entry.getResource()));
 				}
 			}
 		}
@@ -2156,7 +2165,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		if (cdaMedicationActivity.getMedicationSupplyOrder() != null) {
 			IEntryResult medRequestResult = medicationSupplyOrder2MedicationRequest(
-					cdaMedicationActivity.getMedicationSupplyOrder(), bundleInfo);
+					cdaMedicationActivity.getMedicationSupplyOrder(), localBundleInfo);
+			localBundleInfo.updateFrom(medRequestResult);
 			result.updateFrom(medRequestResult);
 		}
 
@@ -2166,6 +2176,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	@Override
 	public EntryResult tMedicationDispense2MedicationDispense(
 			org.openhealthtools.mdht.uml.cda.consol.MedicationDispense cdaMedicationDispense, IBundleInfo bundleInfo) {
+
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		EntryResult result = new EntryResult();
 
 		if (cdaMedicationDispense == null || cdaMedicationDispense.isSetNullFlavor()) {
@@ -2219,15 +2231,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// ImmunizationMedicationInformation) -> medication
 		if (cdaMedicationDispense.getProduct() != null && !cdaMedicationDispense.getProduct().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationDispense.getProduct(),
-					bundleInfo);
-			if (fhirMedicationResult.hasResult()) {
-				result.updateFrom(fhirMedicationResult);
-				for (BundleEntryComponent entry : fhirMedicationResult.getBundle().getEntry()) {
-					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
-						Medication medicationResource = (Medication) entry.getResource();
-						fhirMediDisp.setMedication(getReference(medicationResource));
+					localBundleInfo);
+			result.updateFrom(fhirMedicationResult);
+			localBundleInfo.updateFrom(fhirMedicationResult);
+			for (BundleEntryComponent entry : fhirMedicationResult.getFullBundle().getEntry()) {
+				if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
+					Medication medicationResource = (Medication) entry.getResource();
+					fhirMediDisp.setMedication(getReference(medicationResource));
 
-					}
 				}
 			}
 		}
@@ -2236,7 +2247,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (cdaMedicationDispense.getPerformers() != null && !cdaMedicationDispense.getPerformers().isEmpty()) {
 			for (org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaMedicationDispense.getPerformers()) {
 				if (cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {
-					EntityResult entityResult = tPerformer22Practitioner(cdaPerformer, bundleInfo);
+					EntityResult entityResult = tPerformer22Practitioner(cdaPerformer, localBundleInfo);
+					localBundleInfo.updateFrom(entityResult);
 					result.updateFrom(entityResult);
 					if (entityResult.hasPractitioner()) {
 						fhirMediDisp.addPerformer().setActor(entityResult.getPractitionerReference());
@@ -2307,7 +2319,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	@Override
 	public EntryResult medicationSupplyOrder2MedicationRequest(MedicationSupplyOrder cdaSupplyOrder,
-			IBundleInfo localBundleInfo) {
+			IBundleInfo bundleInfo) {
+
+		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
 		EntryResult result = new EntryResult();
 
 		if (cdaSupplyOrder == null || cdaSupplyOrder.isSetNullFlavor())
@@ -2349,15 +2363,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (cdaSupplyOrder.getProduct() != null && !cdaSupplyOrder.getProduct().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaSupplyOrder.getProduct(),
 					localBundleInfo);
-			if (fhirMedicationResult.hasResult()) {
-				result.updateFrom(fhirMedicationResult);
-				for (BundleEntryComponent resultEntry : fhirMedicationResult.getBundle().getEntry()) {
-					if (resultEntry.getResource() instanceof Medication) {
-						Medication medicationResult = (Medication) resultEntry.getResource();
-						// We can only add either a reference here or a codeableconcept. Opting for
-						// Reference.
-						medRequest.setMedication(getReference(medicationResult));
-					}
+			result.updateFrom(fhirMedicationResult);
+			localBundleInfo.updateFrom(fhirMedicationResult);
+			for (BundleEntryComponent resultEntry : fhirMedicationResult.getFullBundle().getEntry()) {
+				if (resultEntry.getResource() instanceof Medication) {
+					Medication medicationResult = (Medication) resultEntry.getResource();
+					// We can only add either a reference here or a codeableconcept. Opting for
+					// Reference.
+					medRequest.setMedication(getReference(medicationResult));
 				}
 			}
 		}
@@ -2408,6 +2421,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (!cdaSupplyOrder.getAuthors().isEmpty()) {
 			Author author = cdaSupplyOrder.getAuthors().get(0);
 			EntityResult entityResult = tAuthor2Practitioner(author, localBundleInfo);
+			localBundleInfo.updateFrom(entityResult);
 			result.updateFrom(entityResult);
 			if (entityResult.hasPractitioner()) {
 				MedicationRequestRequesterComponent requester = new MedicationRequestRequesterComponent();
@@ -3374,12 +3388,50 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		return result;
 	}
 
-	public Binary tBinary(String documentBody) {
-		Binary binary = new Binary();
-		binary.setContentElement(new Base64BinaryType(Base64.encode(documentBody.getBytes())));
-		binary.setContentType("text/plain");
-		binary.setId(new IdType("Binary", getUniqueId()));
-		return binary;
+	public DocumentReference tDocumentReference(String documentBody) {
+
+		DocumentReference docReference = new DocumentReference();
+
+		// set id
+		docReference.setId(new IdType("DocumentReference", getUniqueId()));
+
+		// status -> current
+		docReference.setStatus(DocumentReferenceStatus.CURRENT);
+
+		// type -> 34133-9 (hard-coded from specification)
+		CodeableConcept docType = new CodeableConcept();
+		Coding docTypeCoding = new Coding();
+		docTypeCoding.setCode("34133-9");
+		docTypeCoding.setSystem("2.16.840.1.113883.6.1");
+		docTypeCoding.setDisplay("Summarization of Episode Note");
+		docType.addCoding(docTypeCoding);
+		docReference.setType(docType);
+
+		// attachment
+		Attachment docAttachment = new Attachment();
+		docAttachment.setContentType("text/plain");
+
+		// attachment doc
+		Base64BinaryType doc64 = new Base64BinaryType(Base64.encode(documentBody.getBytes()));
+		docAttachment.setDataElement(doc64);
+
+		// attachment hash
+		MessageDigest digest;
+		try {
+			digest = MessageDigest.getInstance("SHA-1");
+			byte[] encodedhash = digest.digest(documentBody.getBytes());
+			docAttachment.setHashElement(new Base64BinaryType(Base64.encode(encodedhash)));
+		} catch (NoSuchAlgorithmException e) {
+			logger.error(e.toString());
+		}
+
+		// set attachment
+		DocumentReferenceContentComponent docContent = new DocumentReferenceContentComponent();
+		docContent.setAttachment(docAttachment);
+		docReference.addContent(docContent);
+
+		return docReference;
+
 	}
 
 	public Device tDevice(Identifier assemblerDevice) {
@@ -3401,11 +3453,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		provenance.setId(new IdType("Provenance", getUniqueId()));
 
-		Binary binary = tBinary(documentBody);
-		bundle.addEntry(new BundleEntryComponent().setResource(binary));
+		DocumentReference documentReference = tDocumentReference(documentBody);
+		bundle.addEntry(new BundleEntryComponent().setResource(documentReference));
 		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
 		pec.setRole(ProvenanceEntityRole.SOURCE);
-		pec.setId(binary.getId());
+		pec.setId(documentReference.getId());
 		provenance.addEntity(pec);
 
 		Device device = tDevice(assemblerDevice);
