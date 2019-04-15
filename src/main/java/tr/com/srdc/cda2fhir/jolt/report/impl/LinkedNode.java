@@ -40,6 +40,7 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 	private static Set<String> ENTRY_TOP_PATHS = new HashSet<String>();
 	{
 		ENTRY_TOP_PATHS.add("observation");
+		ENTRY_TOP_PATHS.add("supply");
 	}
 
 	private List<INode> filterNewChildren(List<INode> newChildren) {
