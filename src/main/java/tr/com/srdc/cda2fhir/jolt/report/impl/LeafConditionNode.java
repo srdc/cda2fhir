@@ -32,8 +32,8 @@ public class LeafConditionNode extends LeafNode implements IConditionNode {
 		String parentPath = parent.getPath();
 		IParentNode grandParent = parent.getParent();
 
-		if (rank == 0) {
-			LeafNode result = new LeafNode(parent, parentPath, target);
+		if (rank <= grandParent.originalNodeCount()) {
+			LeafNode result = new LeafNode(grandParent, parentPath, target);
 			result.copyConditions(parent);
 			result.copyConditions(this);
 			grandParent.addChild(result);

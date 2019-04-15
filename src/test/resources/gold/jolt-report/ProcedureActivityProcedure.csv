@@ -5,10 +5,10 @@ procedure.performer[].assignedEntity,Practitioner[],EntityPractitioner,,nullFlav
 procedure.targetSiteCode[],Procedure.bodySite[],CD,,nullFlavor isnull
 procedure.code,Procedure.code,CD2,,nullFlavor isnull
 procedure.id[],Procedure.identifier[],ID,,nullFlavor isnull
-procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",nullFlavor isnull,procedure.entryRelationship[].typeCode equal SUBJ
+procedure.entryRelationship[].typeCode.act.text.reference.value,Procedure.note[].text,,"resolveText",nullFlavor isnull,procedure.entryRelationship[].typeCode equal SUBJ
 procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,nullFlavor isnull
 PractitionerRole[].code.0,Procedure.performer[&2].role,,
 Practitioner[],Procedure.performer[].actor.reference,,"getId"
 Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
-procedure.entryRelationship[].observation.code,Procedure.reasonCode[],CD,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].typeCode.observation.code,Procedure.reasonCode[],CD,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
 procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",nullFlavor isnull,procedure.statusCode.nullFlavor isnull

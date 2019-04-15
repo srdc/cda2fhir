@@ -1,5 +1,5 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isnull
+encounter.entryRelationship[].typeCode,Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isnull
 encounter.code.translation[].code,Encounter.class,,"lastElement",nullFlavor isnull
 Condition[],Encounter.diagnosis[].condition.display,,
 Encounter.Condition,Encounter.diagnosis[].condition.reference,,"getId"
