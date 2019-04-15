@@ -1,0 +1,10 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
+observation.effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapter",nullFlavor isnull,observation.effectiveTime.high.nullFlavor isnull,observation.effectiveTime.nullFlavor isnull
+#constant,Condition.category[],,"constantValue('MedicationConditionCategoryConstant')",nullFlavor isnull
+#high,Condition.clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,observation.effectiveTime.high.nullFlavor isnull,observation.effectiveTime.nullFlavor isnull
+#low,Condition.clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnull,observation.effectiveTime.nullFlavor isnull
+#value,Condition.clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,observation.effectiveTime.low isnull or observation.effectiveTime.low.nullFlavor isnotnull,observation.effectiveTime.nullFlavor isnull
+observation.value[],Condition.code,CD,,nullFlavor isnull
+observation.id[],Condition.identifier[],ID,,nullFlavor isnull
+observation.effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",nullFlavor isnull,observation.effectiveTime.low.nullFlavor isnull,observation.effectiveTime.nullFlavor isnull
+observation.effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",nullFlavor isnull,observation.effectiveTime.low isnull or observation.effectiveTime.low.nullFlavor isnotnull,observation.effectiveTime.nullFlavor isnull

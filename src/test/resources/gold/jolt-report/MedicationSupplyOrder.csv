@@ -1,0 +1,14 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2
+supply.product,Medication,MedicationInformation,,nullFlavor isnull
+Organization,Medication.manufacturer.reference,,"getId"
+supply.repeatNumber.value,MedicationRequest.dispenseRequest.numberOfRepeatsAllowed,,,nullFlavor isnull
+supply.quantity,MedicationRequest.dispenseRequest.quantity,IVL_PQSimpleQuantity,,nullFlavor isnull
+supply.effectiveTime,MedicationRequest.dispenseRequest.validityPeriod,IVL_TSPeriod,,nullFlavor isnull
+supply.id[],MedicationRequest.identifier[],ID,,nullFlavor isnull
+#instance-order,MedicationRequest.intent,,,nullFlavor isnull
+Medication,MedicationRequest.medicationReference.reference,,"getId"
+Practitioner,MedicationRequest.requester.agent.reference,,"getId"
+supply.statusCode.code,MedicationRequest.status,,"valueSetAdapter('MedicationRequestStatus','unknown')",nullFlavor isnull,supply.statusCode.nullFlavor isnull
+supply.author.assignedAuthor,Organization,EntityOrganization,,nullFlavor isnull
+supply.author.assignedAuthor,Practitioner,EntityPractitioner,,nullFlavor isnull
+supply.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,nullFlavor isnull

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
@@ -154,15 +155,17 @@ public class EncounterActivityTest {
 		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
 		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
 		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
+		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
 
 		File xmlFile = CDAUtilExtension.writeAsXML(ec, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "EncounterActivity", caseName);
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
 		joltUtil.verifyOrganizations(organizations);
 		joltUtil.verifyPractitioners(practitioners);
 		joltUtil.verifyPractitionerRoles(practitionerRoles);
+		joltUtil.verifyConditions(conditions);
 
 		Map<String, Object> joltEncounter = TransformManager.chooseResource(joltResult, "Encounter");
 		if (encounter == null) {

@@ -40,7 +40,15 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"use": "=valueSetAdapter('AddressUse','temp',@0)",
-			"type": "=valueSetAdapter('AddressType',@0)"
+			"type": "=valueSetAdapter('AddressType',@0)",
+			"line": {
+				"*": "=nullIfMap(@0)"
+			},
+			"city": "=nullIfMap(@0)",
+			"district": "=nullIfMap(@0)",
+			"country": "=nullIfMap(@0)",
+			"state": "=nullIfMap(@0)",
+			"postalCode": "=nullIfMap(@0)"
 		}
 	},
 	{
@@ -52,6 +60,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
 		"spec": {
+			"recursive": true
 		}
 	}
 ]

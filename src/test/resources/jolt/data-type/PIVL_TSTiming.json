@@ -1,0 +1,26 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"phase": "repeat.boundsPeriod.->IVL_TSPeriod",
+			"period": {
+				"unit": "repeat.periodUnit",
+				"value": "repeat.period"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+		}
+	}
+]

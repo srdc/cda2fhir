@@ -27,6 +27,28 @@ public class TransformManager {
 		return results.size() == 0 ? null : results.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> chooseResourceById(List<Object> resources, String resourceType, String id) {
+		for (Object resource : resources) {
+			Map<String, Object> map = (Map<String, Object>) resource;
+			String actualResourceType = (String) map.get("resourceType");
+			if (resourceType.equals(actualResourceType)) {
+				Object actualId = map.get("id");
+				if (actualId != null && id.equals(actualId.toString())) {
+					return map;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static Map<String, Object> chooseResourceByReference(List<Object> resources, String reference) {
+		String[] pieces = reference.split("/");
+		String resourceType = pieces[0];
+		String id = pieces[1];
+		return chooseResourceById(resources, resourceType, id);
+	}
+
 	private static Map<String, Object> getInitialContext() {
 		Map<String, Object> context = new HashMap<String, Object>();
 		context.put("Resources", new ArrayList<Object>());
@@ -34,8 +56,8 @@ public class TransformManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Object> transformEntryInFile(String cdaName, String filepath) {
-		String specpath = String.format("src/test/resources/jolt/entry/%s.json", cdaName);
+	public static List<Object> transformInFile(String directory, String cdaName, String filepath) {
+		String specpath = String.format("%s%s.json", directory, cdaName);
 		List<Object> chainrSpec = JsonUtils.filepathToList(specpath);
 
 		Chainr chainr = Chainr.fromSpec(chainrSpec);
@@ -45,5 +67,13 @@ public class TransformManager {
 		chainr.transform(input, context);
 		List<Object> result = (List<Object>) context.get("Resources");
 		return result;
+	}
+
+	public static List<Object> transformEntryInFile(String cdaName, String filepath) {
+		return transformInFile("src/test/resources/jolt/entry/", cdaName, filepath);
+	}
+
+	public static List<Object> transformSectionInFile(String cdaName, String filepath) {
+		return transformInFile("src/test/resources/jolt/section/", cdaName, filepath);
 	}
 }

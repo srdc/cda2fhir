@@ -1,24 +1,22 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.nio.charset.Charset;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
-import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -36,6 +34,8 @@ public class ProblemConcernActTest {
 
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/ProblemConcernAct/";
 
+	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
+
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
@@ -43,37 +43,8 @@ public class ProblemConcernActTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void compareConditions(String caseName, Condition condition, Map<String, Object> joltCondition)
+	private static void runTest(ProblemConcernAct pca, String caseName, ProblemConcernActGenerator generator)
 			throws Exception {
-		Assert.assertNotNull("Jolt condition", joltCondition);
-		Assert.assertNotNull("Jolt condition id", joltCondition.get("id"));
-
-		joltCondition.put("id", condition.getIdElement().getIdPart()); // ids do not have to match
-		JoltUtil.putReference(joltCondition, "subject", condition.getSubject()); // patient is not yet implemented
-
-		if (condition.hasAsserter()) {
-			Map<String, Object> asserter = (Map<String, Object>) joltCondition.get("asserter");
-			Assert.assertNotNull("Jolt condition asserter", asserter);
-			Object reference = asserter.get("reference");
-			Assert.assertNotNull("Jolt condition asserter reference", reference);
-			Assert.assertTrue("Reference is string", reference instanceof String);
-			JoltUtil.putReference(joltCondition, "asserter", condition.getAsserter()); // reference values may not match
-		} else {
-			Assert.assertNull("No jolt condition asserter", joltCondition.get("asserter"));
-		}
-
-		String joltConditionJson = JsonUtils.toPrettyJsonString(joltCondition);
-		File joltConditionFile = new File(OUTPUT_PATH + caseName + "JoltCondition.json");
-		FileUtils.writeStringToFile(joltConditionFile, joltConditionJson, Charset.defaultCharset());
-
-		String conditionJson = FHIRUtil.encodeToJSON(condition);
-		JSONAssert.assertEquals("Jolt condition", conditionJson, joltConditionJson, true);
-	}
-
-	private static void runTest(ProblemConcernActGenerator generator, String caseName) throws Exception {
-		ProblemConcernAct pca = generator.generate(factories);
-
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
@@ -85,23 +56,19 @@ public class ProblemConcernActTest {
 		for (int index = 0; index < conditions.size(); ++index) {
 			Condition condition = conditions.get(index);
 			String filepath = String.format("%s%s%s%s%s", OUTPUT_PATH, caseName, "CDA2FHIRCondition",
-					index == 0 ? "" : index, "json");
+					index == 0 ? "" : index, ".json");
 			FHIRUtil.printJSON(condition, filepath);
 		}
-		generator.verify(bundle);
+		if (generator != null) {
+			generator.verify(bundle);
+		}
 
-		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
-		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
-		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-
+		// CDAUtil reorders randomly, follow its order for easy comparison
+		ProblemConcernActGenerator.reorderActObservations(factories, pca, conditions);
 		File xmlFile = CDAUtilExtension.writeAsXML(pca, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "ProblemConcernAct", caseName);
-		JoltUtil joltUtil = new JoltUtil(joltResult, caseName, OUTPUT_PATH);
-
-		joltUtil.verifyOrganizations(organizations);
-		joltUtil.verifyPractitioners(practitioners);
-		joltUtil.verifyPractitionerRoles(practitionerRoles);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
 		List<Map<String, Object>> joltConditions = TransformManager.chooseResources(joltResult, "Condition");
 		if (conditions.isEmpty()) {
@@ -109,11 +76,33 @@ public class ProblemConcernActTest {
 		} else {
 			for (int index = 0; index < conditions.size(); ++index) {
 				Condition condition = conditions.get(index);
-				int joltIndex = condition.hasAsserter() ? 1 : 0; // TODO: fix, this is hack
+				Map<String, Object> joltCondition = joltConditions.get(index);
+				if (customJoltUpdate != null) {
+					customJoltUpdate.accept(joltCondition);
+				}
 
-				String indexStr = index == 0 ? "" : String.valueOf(index);
-				compareConditions(caseName + indexStr, condition, joltConditions.get(joltIndex));
+				joltUtil.verify(condition, joltCondition);
 			}
+		}
+	}
+
+	private static void runTest(ProblemConcernActGenerator generator, String caseName) throws Exception {
+		ProblemConcernAct pca = generator.generate(factories);
+		runTest(pca, caseName, generator);
+	}
+
+	private static void runSampleTest(String sourceName) throws Exception {
+		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+
+		ProblemSection section = cda.getProblemSection();
+
+		int index = 0;
+		for (ProblemConcernAct act : section.getConsolProblemConcerns()) {
+			String caseName = sourceName.substring(0, sourceName.length() - 4) + "_" + index;
+			runTest(act, caseName, null);
+			++index;
 		}
 	}
 
@@ -127,5 +116,140 @@ public class ProblemConcernActTest {
 	public void testFull() throws Exception {
 		ProblemConcernActGenerator generator = ProblemConcernActGenerator.getFullInstance();
 		runTest(generator, "fullCase");
+	}
+
+	@Test
+	public void testSample1() throws Exception {
+		runSampleTest("C-CDA_R2-1_CCD.xml");
+	}
+
+	@Test
+	public void testSample2() throws Exception {
+		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
+	}
+
+	@Test
+	public void testSample3() throws Exception {
+		customJoltUpdate = JoltUtil.getFloatUpdate("346.1", "346.10");
+		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
+		customJoltUpdate = null;
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample1() throws Exception {
+		customJoltUpdate = r -> {
+			JoltUtil.getFloatUpdate("346.8", "346.80").accept(r);
+			JoltUtil.getFloatUpdate("845", "845.00").accept(r);
+			JoltUtil.getFloatUpdate("300", "300.00").accept(r);
+		};
+		runSampleTest("Epic/DOC0001.XML");
+		customJoltUpdate = null;
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample2() throws Exception {
+		customJoltUpdate = JoltUtil.getFloatUpdate("300", "300.00");
+		runSampleTest("Epic/DOC0001 2.XML");
+		customJoltUpdate = null;
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample3() throws Exception {
+		runSampleTest("Epic/DOC0001 3.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample4() throws Exception {
+		runSampleTest("Epic/DOC0001 4.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample5() throws Exception {
+		runSampleTest("Epic/DOC0001 5.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample6() throws Exception {
+		runSampleTest("Epic/DOC0001 6.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample7() throws Exception {
+		runSampleTest("Epic/DOC0001 7.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample8() throws Exception {
+		runSampleTest("Epic/DOC0001 8.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample9() throws Exception {
+		runSampleTest("Epic/DOC0001 9.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample10() throws Exception {
+		runSampleTest("Epic/DOC0001 10.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample11() throws Exception {
+		runSampleTest("Epic/DOC0001 11.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample12() throws Exception {
+		runSampleTest("Epic/DOC0001 12.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample13() throws Exception {
+		runSampleTest("Epic/DOC0001 13.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample14() throws Exception {
+		runSampleTest("Epic/DOC0001 14.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample15() throws Exception {
+		customJoltUpdate = JoltUtil.getFloatUpdate("346.9", "346.90");
+		runSampleTest("Epic/DOC0001 15.XML");
+		customJoltUpdate = null;
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample16() throws Exception {
+		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample1() throws Exception {
+		runSampleTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample2() throws Exception {
+		runSampleTest("Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
 	}
 }

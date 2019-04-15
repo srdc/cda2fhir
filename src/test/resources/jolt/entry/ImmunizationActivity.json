@@ -1,0 +1,140 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"substanceAdministration": {
+				"id": "MANY",
+				"performer": "MANY",
+				"approachSiteCode": "MANY",
+				"entryRelationship": {
+					"*": {
+						"observation": {
+							"value": "ONE"
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"substanceAdministration": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"negationInd": "notGiven",
+				"effectiveTime": "date.->NullFlavorableValue",
+				"consumable": "->ImmunizationMedicationInformation",
+				"performer": {
+					"*": "Performer[].->AssignedEntity"
+				},
+				"approachSiteCode": {
+					"*": "site.->CD"
+				},
+				"routeCode": "route.->CD",
+				"doseQuantity": "doseQuantity.->IVL_PQSimpleQuantity",
+				"statusCode": "status.->NullFlavorableCode",
+				"entryRelationship": {
+					"*": {
+						"observation": {
+							"templateId": {
+								"0": {
+									"root": {
+										"2.16.840.1.113883.10.20.22.4.53": {
+											"@4": {
+												"code": "explanation.reasonNotGiven[].->CD"
+											}
+										},
+										"2.16.840.1.113883.10.20.22.4.19": {
+											"@4": {
+												"value": "explanation.reason[].->CD"
+											}
+										},
+										"2.16.840.1.113883.10.20.22.4.9": {
+											"@5": "Observation.->Observation"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": [
+					"practitioner[&].actor.reference",
+					"practitioner[&1].role",
+					"primarySource"
+				]
+			},
+			"Observation": {
+				"effectivePeriod": {
+					"start": "reaction[0].date"
+				},
+				"@0": "reaction[0].detail.reference"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"date": "=datetimeAdapter(@0)",
+			"practitioner": {
+				"*": {
+					"actor": {
+						"reference": "=getId(@0)"
+					},
+					"role": "=constantValue('ImmunizationRoleConstant')"
+				}
+			},
+			"reaction": {
+				"*": {
+					"detail": {
+						"reference": "=getId(@0)"
+					},
+					"date": "=datetimeAdapter(@0)"
+				}
+			},
+			"primarySource": "=true(@0)",
+			"site": "=lastElement(@0)",
+			"status": "=valueSetAdapter('ImmunizationStatus',@0)",
+			"doseQuantity": "=constantSystem('http://unitsofmeasure.org/ucum.html','pq',@0)"
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": "",
+			"Observation": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Immunization"
+		}
+	}
+]

@@ -1,19 +1,16 @@
 [
 	{
+		"operation": "cardinality",
+		"spec": {
+			"author": "ONE"
+		}
+	},
+	{
 		"operation": "default",
 		"spec": {
 			"effectiveTime": {
 				"high": {
 					"value": ""
-				}
-			},
-			"participant": {
-				"participantRole": {
-					"playingEntity": {
-						"code": {
-							"nullFlavor": ""
-						}
-					}
 				}
 			}
 		}
@@ -28,27 +25,17 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"effectiveTime": {
-				"high": {
-					"value": "clinicalStatus"
-				},
-				"*": "onsetDateTime.->EffectiveTimeLowOrValue"
-			},
+			"author": "->AuthorParticipation",
+			"effectiveTime": "onsetDateTime.->EffectiveTimeLowOrValue",
 			"value": {
-				"code": ["category[]", "type"]
+				"code": [
+					"category[]",
+					"type"
+				]
 			},
 			"participant": {
 				"participantRole": {
-					"playingEntity": {
-						"code": {
-							"nullFlavor": {
-								"": {
-									"@2": "code.->CD"
-								},
-								"*": null
-							}
-						}
-					}
+					"playingEntity": "->PlayingEntity"
 				}
 			},
 			"entryRelationship": {
@@ -61,6 +48,13 @@
 										"@4": {
 											"value": {
 												"code": "criticality"
+											}
+										}
+									},
+									"2.16.840.1.113883.10.20.22.4.28": {
+										"@4": {
+											"value": {
+												"code": "clinicalStatus"
 											}
 										}
 									},
@@ -79,6 +73,12 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": ["recorder.reference", "recorder.display"]
+		}
+	},
+	{
 		"operation": "modify-overwrite-beta",
 		"spec": {
 			"reaction": "=recursivelySquashNulls(@0)",
@@ -94,13 +94,31 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"clinicalStatus": "=selectOnNull('active','inactive',@0)",
 			"onsetDateTime": "=datetimeAdapter(@0)",
 			"criticality": "=valueSetAdapter('AllergyIntoleranceCriticality',@0)",
+			"clinicalStatus": "=valueSetAdapter('AllergyIntoleranceClinicalStatus',@0)",
 			"category": {
 				"*": "=valueSetAdapter('AllergyIntoleranceCategory',@0)"
 			},
-			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)"
+			"type": "=valueSetAdapter('AllergyIntoleranceType',@0)",
+			"recorder": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			}
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"recorder": "=recursivelySquashNulls(@0)"
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	}
 ]

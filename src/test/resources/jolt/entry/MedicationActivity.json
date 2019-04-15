@@ -1,0 +1,128 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"substanceAdministration": {
+				"id": "MANY",
+				"author": "ONE",
+				"effectiveTime": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"substanceAdministration": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"statusCode": "status.->NullFlavorableCode",
+				"author": "->AuthorParticipation",
+				"consumable": "Medication.->MedicationInformation",
+				"effectiveTime": {
+					"*": {
+						"xsi:type": {
+							"IVL_TS": {
+								"@2": "effectivePeriod.->IVL_TSPeriod"
+							},
+							"PIVL_TS": {
+								"@2": "dosage[0].timing.->PIVL_TSTiming"
+							}
+						}
+					}
+				},
+				"doseQuantity": "dosage[0].doseQuantity.->IVL_PQSimpleQuantity",
+				"routeCode": "dosage[0].route.->CD",
+				"rateQuantity": "dosage[0].rateRange.->IVL_PQRange",
+				"#unk": "taken",
+				"entryRelationship": {
+					"*": {
+						"typeCode": {
+							"RSON": {
+								"@2": "Condition[].->MedIndication"
+							},
+							"REFR": {
+								"@2": "MedicationRequest.->MedicationSupplyOrder"
+							}
+						}
+						
+					}
+					
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": "informationSource.reference",
+			"Medication": "medicationReference.reference",
+			"Condition": {
+				"*": "reasonReference[&].reference"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('MedicationStatementStatus',@0)",
+			"informationSource": {
+				"reference": "=getId(@0)"
+			},
+			"medicationReference": {
+				"reference": "=getId(@0)"
+			},
+			"reasonReference": {
+				"*": {			
+					"reference": "=getId(@0)"
+				}
+			},
+			"dosage": {
+				"*": {
+					"doseQuantity": "=constantSystem('http://unitsofmeasure.org/ucum.html','pq',@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": "",
+			"Medication": "",
+			"Condition": "",
+			"MedicationRequest": "",
+			"dosage": {
+				"0": {
+					"rateRange": {
+						"high": {
+							"system": ""
+						},
+						"low": {
+							"system": ""
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "MedicationStatement"
+		}
+	}
+]

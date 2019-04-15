@@ -2,7 +2,6 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
@@ -13,18 +12,17 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 
-import com.bazaarvoice.jolt.JsonUtils;
-
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class IndicationGenerator {
-	private static final Map<String, Object> CONDITION_VERIFICATION_STATUS = JsonUtils
-			.filepathToMap("src/test/resources/jolt/value-maps/ConditionVerificationStatus.json");
 
 	private List<IDGenerator> idGenerators = new ArrayList<>();
 
 	private String code;
+	private String constCodeCode;
+	private String constCodeDisplay;
+	private String constCodeSystem;
 
 	private List<CDGenerator> valueGenerators = new ArrayList<>();
 
@@ -40,7 +38,7 @@ public class IndicationGenerator {
 			indication.getIds().add(ii);
 		});
 
-		if (code != null) {
+		if (code != null && constCodeCode != null) {
 			CD cd = factories.datatype.createCD();
 			cd.setCode(code);
 			indication.setCode(cd);
@@ -52,6 +50,7 @@ public class IndicationGenerator {
 		});
 
 		if (effectiveTimeGenerator != null) {
+
 			IVL_TS ivlTs = effectiveTimeGenerator.generate(factories);
 			indication.setEffectiveTime(ivlTs);
 		}
@@ -64,13 +63,19 @@ public class IndicationGenerator {
 		return indication;
 	}
 
+	public void setConstantCode(String constCodeCode, String constCodeDisplay, String constCodeSystem) {
+		this.constCodeCode = constCodeCode;
+		this.constCodeDisplay = constCodeDisplay;
+		this.constCodeSystem = constCodeSystem;
+	}
+
 	public static IndicationGenerator getDefaultInstance() {
 		IndicationGenerator indication = new IndicationGenerator();
 
 		indication.idGenerators.add(IDGenerator.getNextInstance());
 		indication.code = "75321-0";
 		indication.valueGenerators.add(CDGenerator.getNextInstance());
-		indication.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008");
+		indication.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008", "20190110");
 		indication.statusCode = "active";
 
 		return indication;
@@ -85,13 +90,15 @@ public class IndicationGenerator {
 			Assert.assertTrue("No condition identifier", !condition.hasIdentifier());
 		}
 
-		if (code != null) {
+		if (code != null && constCodeCode == null) {
+			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
+			// throw new NotImplementedException("NOt yet implemented");
+		} else if (constCodeCode != null) {
 			Assert.assertEquals("Condition category count", 1, condition.getCategory().size());
 			Coding actual = condition.getCategory().get(0).getCoding().get(0);
-			Assert.assertEquals("Condition category code", "encounter-diagnosis", actual.getCode());
-			Assert.assertEquals("Condition category system", "http://hl7.org/fhir/condition-category",
-					actual.getSystem());
-			Assert.assertEquals("Condition category display", "Encounter Diagnosis", actual.getDisplay());
+			Assert.assertEquals("Condition category code", constCodeCode, actual.getCode());
+			Assert.assertEquals("Condition category system", constCodeSystem, actual.getSystem());
+			Assert.assertEquals("Condition category display", constCodeDisplay, actual.getDisplay());
 		} else {
 			Assert.assertTrue("No condition category", !condition.hasCategory());
 		}
@@ -115,14 +122,5 @@ public class IndicationGenerator {
 			}
 		}
 
-		if (statusCode == null) {
-			Assert.assertEquals("Condition verification status", "unknown", condition.getVerificationStatus().toCode());
-		} else {
-			String actual = (String) CONDITION_VERIFICATION_STATUS.get(statusCode);
-			if (actual == null) {
-				actual = "unknown";
-			}
-			Assert.assertEquals("Condition verification status", actual, condition.getVerificationStatus().toCode());
-		}
 	}
 }

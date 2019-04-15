@@ -2,12 +2,14 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.Map;
 
+import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVXB_TS;
 import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class EffectiveTimeGenerator {
 	private String lowNullFlavor;
@@ -18,12 +20,15 @@ public class EffectiveTimeGenerator {
 	private String highValue;
 	private String value;
 
+	public EffectiveTimeGenerator() {
+	}
+
 	public EffectiveTimeGenerator(String lowValue) {
 		this.lowValue = lowValue;
 	}
 
 	public EffectiveTimeGenerator(String lowValue, String highValue) {
-		this.lowNullFlavor = lowValue;
+		this.lowValue = lowValue;
 		this.highValue = highValue;
 	}
 
@@ -53,6 +58,10 @@ public class EffectiveTimeGenerator {
 			}
 		}
 		return null;
+	}
+
+	public boolean hasHigh() {
+		return highValue != null && highNullFlavor == null;
 	}
 
 	public IVL_TS generate(CDAFactories factories) {
@@ -92,5 +101,20 @@ public class EffectiveTimeGenerator {
 			}
 		}
 		return ivlTs;
+	}
+
+	public void verifyValue(String fhirValue) {
+		if (this.value == null) {
+			Assert.assertNull("No date or time", fhirValue);
+		} else {
+			String expected = FHIRUtil.toFHIRDatetime(value);
+			Assert.assertEquals("Effective time value", expected, fhirValue);
+		}
+	}
+
+	public static EffectiveTimeGenerator getValueOnlyInstance(String value) {
+		EffectiveTimeGenerator result = new EffectiveTimeGenerator();
+		result.value = value;
+		return result;
 	}
 }

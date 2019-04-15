@@ -1,0 +1,132 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"patientRole": {
+				"id": "MANY",
+				"addr": "MANY",
+				"telecom": "MANY",
+				"patient": {
+					"name": "ONE",
+					"languageCommunication": "MANY",
+					"guardian": "MANY"
+				}
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"patientRole": {
+				"patient": {
+					"guardian": {
+						"*": {
+							"addr": "ONE",
+							"telecom": "MANY",
+							"guardianPerson": {
+								"name": "ONE"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"patientRole": {
+				"nullFlavor": "*"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"patientRole": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"addr": {
+					"*": "address[].->AD"
+				},
+				"telecom": {
+					"*": "telecom[].->TEL"
+				},
+				"providerOrganization": ["managingOrganization.reference.->Organization", "managingOrganization.display.->Organization"],
+				"patient": {
+					"name": "name[].->PN",
+					"administrativeGenderCode": {
+						"code": "gender"
+					},
+					"birthTime": "birthDate.->NullFlavorableValue",
+					"maritalStatusCode": {
+						"code": "maritalStatus.coding"
+					},
+					"languageCommunication": {
+						"*": {
+							"languageCode": "communication[&1].language.->CD",
+							"preferenceInd": {
+								"value": "communication[&2].preferred"
+							}
+						}
+					},
+					"guardian": {
+						"*": {
+							"addr": "contact[&1].address.->AD",
+							"telecom": {
+								"*": "contact[&2].telecom[&].->TEL"
+							},
+							"code": {
+								"code": "contact[&2].relationship[].coding"
+							},
+							"guardianPerson": {
+								"name": "contact[&2].name.->PN"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"managingOrganization": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			},
+			"gender": "=valueSetAdapter('Gender','unknown',@0)",
+			"birthDate": "=datetimeAdapter(@0)",
+			"maritalStatus": {
+				"coding": "=valueSetAdapter('MaritalStatus',@0)"
+			},
+			"communication": {
+				"*": {
+					"language": "=constantSystem('http://hl7.org/fhir/ValueSet/languages','cd',@0)"
+				}
+			},
+			"contact": {
+				"*": {
+					"relationship": {
+						"*": {
+							"coding": "=valueSetAdapter('ContactRelationship',@0)"
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Patient"
+		}
+	}
+]

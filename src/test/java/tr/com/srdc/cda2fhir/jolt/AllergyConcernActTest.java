@@ -1,237 +1,304 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.util.LinkedHashMap;
+import java.io.FileInputStream;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.bazaarvoice.jolt.JsonUtils;
-
+import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
-import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
+import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
+import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.generator.ADGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.ADXPGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.AllergyConcernActGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.AllergyObservationGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.AuthorGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.ENXPGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.OrganizationGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.PNGenerator;
+import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class AllergyConcernActTest {
+	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/AllergyConcernAct/";
+
+	private static CDAFactories factories;
+	private static ResourceTransformerImpl rt;
+
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
+		factories = CDAFactories.init();
+		rt = new ResourceTransformerImpl();
 	}
 
-	private static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
-		Map<String, Object> r = new LinkedHashMap<String, Object>();
-		r.put("reference", reference.getReference());
-		joltResult.put(property, r);
-	}
-
-	private static void compare(Map<String, Object> joltResult, AllergyIntolerance cda2FHIRResult, String caseName)
+	private static void runTest(AllergyProblemAct act, String caseName, AllergyConcernActGenerator generator)
 			throws Exception {
-		joltResult.put("id", cda2FHIRResult.getId().split("/")[1]); // ids are not expected to be equal
-		putReference(joltResult, "patient", cda2FHIRResult.getPatient()); // patient is not yet implemented
-		if (cda2FHIRResult.hasRecorder()) {
-			putReference(joltResult, "recorder", cda2FHIRResult.getRecorder()); // do not check recorder for now, ids
-																				// are
-		} // different
-		String expected = FHIRUtil.encodeToJSON(cda2FHIRResult);
-		String actual = JsonUtils.toJsonString(joltResult);
-		JSONAssert.assertEquals(caseName + " jolt output", expected, actual, true);
+		File xmlFile = CDAUtilExtension.writeAsXML(act, OUTPUT_PATH, caseName);
+
+		Config.setGenerateNarrative(false);
+		Config.setGenerateDafProfileMetadata(false);
+
+		IEntryResult cda2FhirResult = rt.tAllergyProblemAct2AllergyIntolerance(act, new BundleInfo(rt));
+
+		Bundle bundle = cda2FhirResult.getBundle();
+		Assert.assertNotNull("Allergy bundle", bundle);
+
+		AllergyIntolerance allergy = BundleUtil.findOneResource(bundle, AllergyIntolerance.class);
+		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIRAllergyIntolerance", "json");
+		FHIRUtil.printJSON(bundle, filepath);
+
+		if (generator != null) {
+			generator.verify(bundle);
+		}
+
+		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "AllergyConcernAct", caseName);
+
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
+		joltUtil.verify(allergy);
 	}
 
-	private static void comparePractitioner(Map<String, Object> joltResult, Practitioner cda2FHIRResult)
-			throws Exception {
-		joltResult.put("id", cda2FHIRResult.getId().split("/")[1]); // ids are not expected to be equal
-																	// different
-		String expected = FHIRUtil.encodeToJSON(cda2FHIRResult);
-		String actual = JsonUtils.toJsonString(joltResult);
-		JSONAssert.assertEquals("jolt output vs CDA2FHIR output", expected, actual, true);
+	private static void runTest(AllergyConcernActGenerator generator, String caseName) throws Exception {
+		AllergyProblemAct act = generator.generate(factories);
+		runTest(act, caseName, generator);
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void testAllergies(String sourceName) throws Exception {
-		String baseName = "src/test/resources/output/jolt/" + sourceName.substring(0, sourceName.length() - 4);
-		BundleUtil util = BundleUtil.getInstance(sourceName);
-		FHIRUtil.printJSON(util.getBundle(), baseName + ".json");
+	private static void runSampleTest(String sourceName) throws Exception {
+		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
 
-		OrgJsonUtil jsonUtil = OrgJsonUtil.readXML("src/test/resources/" + sourceName);
+		AllergiesSection section = cda.getAllergiesSection();
 
-		JSONArray allergies = jsonUtil.getAllergiesSectionEntries();
-
-		int count = allergies == null ? 0 : allergies.length();
-		util.checkResourceCount(AllergyIntolerance.class, count);
-
-		for (int index = 0; index < count; ++index) {
-			String caseName = String.format("%s allergy %s", sourceName, index);
-			JSONObject entry = allergies.getJSONObject(index);
-			String cdaJSONFile = baseName + " allergies entry " + index + ".json";
-			FileUtils.writeStringToFile(new File(cdaJSONFile), entry.toString(4), Charset.defaultCharset());
-
-			List<Object> joltResultList = TransformManager.transformEntryInFile("AllergyConcernAct", cdaJSONFile);
-			String prettyJson = JsonUtils.toPrettyJsonString(joltResultList);
-			String resultFile = baseName + " allergies entry " + index + " - result" + ".json";
-			FileUtils.writeStringToFile(new File(resultFile), prettyJson, Charset.defaultCharset());
-
-			Map<String, Object> joltResult = TransformManager.chooseResource(joltResultList, "AllergyIntolerance");
-			List<Object> identifiers = (List<Object>) joltResult.get("identifier");
-			AllergyIntolerance cda2FHIRResult = (AllergyIntolerance) util.getFromJSONArray("AllergyIntolerance",
-					identifiers);
-			String cda2FHIRFile = baseName + " allergies entry " + index + " - ccda2fhir" + ".json";
-			FileUtils.writeStringToFile(new File(cda2FHIRFile), FHIRUtil.encodeToJSON(cda2FHIRResult),
-					Charset.defaultCharset());
-
-			compare(joltResult, cda2FHIRResult, caseName);
-
-			Map<String, Object> joltPractitioner = TransformManager.chooseResource(joltResultList, "Practitioner");
-			if (joltPractitioner == null) {
-				Reference recorder = cda2FHIRResult.getRecorder();
-				Assert.assertNull("Practitioner reference", recorder.getReference());
-			} else {
-				List<Object> identifiersPractitioner = (List<Object>) joltPractitioner.get("identifier");
-				Practitioner cda2FHIRPractitioner = (Practitioner) util.getFromJSONArray("Practitioner",
-						identifiersPractitioner);
-				String cda2FHIRPractitionerFile = baseName + " allergies entry practitioner" + index + " - ccda2fhir"
-						+ ".json";
-				FileUtils.writeStringToFile(new File(cda2FHIRPractitionerFile),
-						FHIRUtil.encodeToJSON(cda2FHIRPractitioner), Charset.defaultCharset());
-
-				comparePractitioner(joltPractitioner, cda2FHIRPractitioner);
-			}
+		int index = 0;
+		for (AllergyProblemAct act : section.getAllergyProblemActs()) {
+			String caseName = sourceName.substring(0, sourceName.length() - 4) + "_" + index;
+			runTest(act, caseName, null);
+			++index;
 		}
 	}
 
 	@Test
+	public void testEmpty() throws Exception {
+		AllergyConcernActGenerator generator = new AllergyConcernActGenerator();
+		runTest(generator, "empty");
+	}
+
+	@Test
+	public void testDefault() throws Exception {
+		AllergyConcernActGenerator generator = AllergyConcernActGenerator.getDefaultInstance();
+		runTest(generator, "default");
+	}
+
+	@Test
+	public void testClinicalStatus() throws Exception {
+		Set<String> codes = AllergyConcernActGenerator.getPossibleClinicalStatusCodes();
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+		AllergyObservationGenerator aog = new AllergyObservationGenerator();
+		acag.setObservationGenerator(aog);
+		for (String code : codes) {
+			aog.setClinicalStatusCode(code);
+			runTest(acag, "clinicalStatus" + code);
+		}
+	}
+
+	@Test
+	public void testNoOrganization() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+		AuthorGenerator ag = AuthorGenerator.getDefaultInstance();
+		ag.removeOrganizationGenerator();
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "noOrganization");
+	}
+
+	@Test
+	public void testNullFlavorRecorderPersonWithName() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+		AuthorGenerator ag = new AuthorGenerator();
+		ag.setCode("thecode", "The Code Print");
+		PNGenerator pnGenerator = new PNGenerator();
+		pnGenerator.setFamilyNullFlavor();
+		pnGenerator.setGivensNullFlavor();
+		ag.setPNGenerator(pnGenerator);
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "nullFlavorRecorderPersonWithName");
+	}
+
+	@Test
+	public void testNullFlavorRecorderPersonNoName() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+		AuthorGenerator ag = new AuthorGenerator();
+		ag.setCode("thecode", "The Code Print");
+		PNGenerator pnGenerator = new PNGenerator();
+		ENXPGenerator nullFlavorGenerator = new ENXPGenerator(true);
+		nullFlavorGenerator.setNullFlavor("UNK");
+		pnGenerator.setFamilyGenerator(nullFlavorGenerator);
+		pnGenerator.setGivensGenerator(nullFlavorGenerator);
+		ag.setPNGenerator(pnGenerator);
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "nullFlavorRecorderPersonNoName");
+	}
+
+	@Test
+	public void testNullFlavorOrgAddress() throws Exception {
+		AllergyConcernActGenerator acag = new AllergyConcernActGenerator();
+
+		AuthorGenerator ag = new AuthorGenerator();
+		ag.setCode("thecode", "The Code Print");
+		OrganizationGenerator orgGenerator = new OrganizationGenerator("The Org Name");
+
+		ADGenerator adGenerator = new ADGenerator();
+
+		ADXPGenerator nullFlavorGenerator = new ADXPGenerator("Text");
+		nullFlavorGenerator.setNullFlavor("UNK");
+		adGenerator.setCity(nullFlavorGenerator);
+		adGenerator.setCountry(nullFlavorGenerator);
+		adGenerator.setCounty(nullFlavorGenerator);
+		adGenerator.setLine(nullFlavorGenerator);
+		adGenerator.setPostalCode(new ADXPGenerator("20876"));
+		adGenerator.setState(new ADXPGenerator("MD"));
+
+		orgGenerator.setADGenerator(adGenerator);
+		ag.setOrganizationGenerator(orgGenerator);
+		acag.setAuthorGenerator(ag);
+		runTest(acag, "nullFlavorOrgAddress");
+	}
+
+	@Test
 	public void testSample1() throws Exception {
-		testAllergies("C-CDA_R2-1_CCD.xml");
+		runSampleTest("C-CDA_R2-1_CCD.xml");
 	}
 
 	@Test
 	public void testSample2() throws Exception {
-		testAllergies("170.315_b1_toc_gold_sample2_v1.xml");
+		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
 	}
 
-	@Ignore
 	@Test
 	public void testSample3() throws Exception {
-		testAllergies("Vitera_CCDA_SMART_Sample.xml");
+		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample1() throws Exception {
-		testAllergies("Epic/DOC0001.XML");
+		runSampleTest("Epic/DOC0001.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample2() throws Exception {
-		testAllergies("Epic/DOC0001 2.XML");
+		runSampleTest("Epic/DOC0001 2.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample3() throws Exception {
-		testAllergies("Epic/DOC0001 3.XML");
+		runSampleTest("Epic/DOC0001 3.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample4() throws Exception {
-		testAllergies("Epic/DOC0001 4.XML");
+		runSampleTest("Epic/DOC0001 4.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample5() throws Exception {
-		testAllergies("Epic/DOC0001 5.XML");
+		runSampleTest("Epic/DOC0001 5.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample6() throws Exception {
-		testAllergies("Epic/DOC0001 6.XML");
+		runSampleTest("Epic/DOC0001 6.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample7() throws Exception {
-		testAllergies("Epic/DOC0001 7.XML");
+		runSampleTest("Epic/DOC0001 7.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample8() throws Exception {
-		testAllergies("Epic/DOC0001 8.XML");
+		runSampleTest("Epic/DOC0001 8.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample9() throws Exception {
-		testAllergies("Epic/DOC0001 9.XML");
+		runSampleTest("Epic/DOC0001 9.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample10() throws Exception {
-		testAllergies("Epic/DOC0001 10.XML");
+		runSampleTest("Epic/DOC0001 10.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample11() throws Exception {
-		testAllergies("Epic/DOC0001 11.XML");
+		runSampleTest("Epic/DOC0001 11.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample12() throws Exception {
-		testAllergies("Epic/DOC0001 12.XML");
+		runSampleTest("Epic/DOC0001 12.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample13() throws Exception {
-		testAllergies("Epic/DOC0001 13.XML");
+		runSampleTest("Epic/DOC0001 13.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample14() throws Exception {
-		testAllergies("Epic/DOC0001 14.XML");
+		runSampleTest("Epic/DOC0001 14.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample15() throws Exception {
-		testAllergies("Epic/DOC0001 15.XML");
+		runSampleTest("Epic/DOC0001 15.XML");
 	}
 
 	@Ignore
 	@Test
 	public void testEpicSample16() throws Exception {
-		testAllergies("Epic/HannahBanana_EpicCCD.xml");
+		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
 	}
 
-	@Ignore
 	@Test
 	public void testCernerSample1() throws Exception {
-		testAllergies("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+		runSampleTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
 	}
 
 	@Ignore
 	@Test
 	public void testCernerSample2() throws Exception {
-		testAllergies("Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
+		runSampleTest("Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
 	}
 }

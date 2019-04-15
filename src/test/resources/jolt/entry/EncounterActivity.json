@@ -57,13 +57,13 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": ["participant[&].individual.reference", "participant[&].type"]
+				"*": ["participant[&].individual.reference", "participant[&].individual.display", "participant[&].type"]
 			},
 			"Condition": {
-				"*": "diagnosis[&].condition.reference"
+				"*": ["diagnosis[&].condition.reference", "diagnosis[&].condition.display"]
 			},
 			"Location": {
-				"*": "location[&].location.reference"
+				"*": ["location[&].location.reference", "location[&].location.display"]
 			}
 		}
 	},
@@ -74,7 +74,8 @@
 			"participant": {
 				"*": {
 					"individual": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					},
 					"type": "=constantValue('ParticipantTypeConstant')"
 				}
@@ -82,14 +83,16 @@
 			"diagnosis": {
 				"*": {
 					"condition": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					}
 				}
 			},
 			"location": {
 				"*": {
 					"location": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					}
 				}
 			}			

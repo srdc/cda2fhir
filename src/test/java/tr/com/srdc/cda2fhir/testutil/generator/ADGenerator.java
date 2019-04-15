@@ -6,11 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hl7.fhir.dstu3.model.Address;
-import org.hl7.fhir.dstu3.model.StringType;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ADXP;
 import org.openhealthtools.mdht.uml.hl7.vocab.PostalAddressUse;
 
 import com.bazaarvoice.jolt.JsonUtils;
@@ -33,26 +34,51 @@ public class ADGenerator {
 	private String text;
 	private String use;
 
-	private List<String> lines = new ArrayList<>();
-	private String city;
-	private String county;
-	private String country;
-	private String state;
-	private String postalCode;
+	private List<ADXPGenerator> lines = new ArrayList<>();
+	private ADXPGenerator city;
+	private ADXPGenerator county;
+	private ADXPGenerator country;
+	private ADXPGenerator state;
+	private ADXPGenerator postalCode;
 
 	public ADGenerator() {
 	}
 
+	public void setLine(ADXPGenerator line) {
+		lines.clear();
+		lines.add(line);
+	}
+
+	public void setCity(ADXPGenerator city) {
+		this.city = city;
+	}
+
+	public void setCounty(ADXPGenerator county) {
+		this.county = county;
+	}
+
+	public void setCountry(ADXPGenerator country) {
+		this.country = country;
+	}
+
+	public void setState(ADXPGenerator state) {
+		this.state = state;
+	}
+
+	public void setPostalCode(ADXPGenerator postalCode) {
+		this.postalCode = postalCode;
+	}
+
 	@SuppressWarnings("unchecked")
 	public ADGenerator(Map<String, Object> json) {
-		city = (String) json.get("city");
+		city = new ADXPGenerator((String) json.get("city"));
 		Object rawPostalCode = json.get("postalCode");
-		postalCode = rawPostalCode == null ? null : rawPostalCode.toString();
-		county = (String) json.get("county");
-		state = (String) json.get("state");
+		postalCode = rawPostalCode == null ? null : new ADXPGenerator(rawPostalCode.toString());
+		county = new ADXPGenerator((String) json.get("county"));
+		state = new ADXPGenerator((String) json.get("state"));
 		List<Object> lineObject = (List<Object>) json.get("streetAddressLine");
 		if (lineObject != null) {
-			lineObject.forEach(element -> lines.add((String) element));
+			lineObject.forEach(element -> lines.add(new ADXPGenerator((String) element)));
 		}
 	}
 
@@ -73,27 +99,28 @@ public class ADGenerator {
 		}
 
 		lines.forEach(line -> {
-			address.addStreetAddressLine(line);
+			ADXP adxp = line.generate(factories);
+			address.getStreetAddressLines().add(adxp);
 		});
 
 		if (city != null) {
-			address.addCity(city);
+			address.getCities().add(city.generate(factories));
 		}
 
 		if (county != null) {
-			address.addCounty(county);
+			address.getCounties().add(county.generate(factories));
 		}
 
 		if (country != null) {
-			address.addCountry(country);
+			address.getCountries().add(country.generate(factories));
 		}
 
 		if (state != null) {
-			address.addState(state);
+			address.getStates().add(state.generate(factories));
 		}
 
 		if (postalCode != null) {
-			address.addPostalCode(postalCode);
+			address.getPostalCodes().add(postalCode.generate(factories));
 		}
 
 		return address;
@@ -102,10 +129,10 @@ public class ADGenerator {
 	public static ADGenerator getDefaultInstance() {
 		ADGenerator ag = new ADGenerator();
 
-		ag.lines.add(LINE);
-		ag.city = CITY;
-		ag.state = STATE;
-		ag.postalCode = POSTAL_CODE;
+		ag.lines.add(new ADXPGenerator(LINE));
+		ag.city = new ADXPGenerator(CITY);
+		ag.state = new ADXPGenerator(STATE);
+		ag.postalCode = new ADXPGenerator(POSTAL_CODE);
 
 		return ag;
 	}
@@ -113,12 +140,12 @@ public class ADGenerator {
 	public static ADGenerator getFullInstance() {
 		ADGenerator ag = new ADGenerator();
 
-		ag.lines.add(LINE);
-		ag.lines.add(LINE_2);
-		ag.city = CITY;
-		ag.state = STATE;
-		ag.county = COUNTY;
-		ag.postalCode = POSTAL_CODE;
+		ag.lines.add(new ADXPGenerator(LINE));
+		ag.lines.add(new ADXPGenerator(LINE_2));
+		ag.city = new ADXPGenerator(CITY);
+		ag.state = new ADXPGenerator(STATE);
+		ag.county = new ADXPGenerator(COUNTY);
+		ag.postalCode = new ADXPGenerator(POSTAL_CODE);
 		ag.use = "H";
 
 		return ag;
@@ -131,42 +158,38 @@ public class ADGenerator {
 			Assert.assertEquals("Address text", text, address.getText());
 		}
 
-		List<StringType> addressLines = address.getLine();
-		int lineCount = lines.size();
-		Assert.assertEquals("Address line count", lineCount, addressLines.size());
-		for (int index = 0; index < lineCount; ++index) {
-			Assert.assertEquals("Address line " + index, lines.get(index), addressLines.get(index).toString());
-		}
+		BaseStringGenerator.verifyList(address.getLine(), lines);
 
 		if (city == null) {
 			Assert.assertTrue("Mssing address city", !address.hasCity());
 		} else {
-			Assert.assertEquals("Address city", city, address.getCity());
+			city.verify(address.getCity());
 		}
 
 		if (county == null) {
 			Assert.assertTrue("Missing address county", !address.hasDistrictElement());
 		} else {
-			Assert.assertEquals("Address county", county, address.getDistrict());
+			county.verify(address.getDistrict());
 		}
 
 		if (country == null) {
 			Assert.assertTrue("Missing address country", !address.hasCountry());
 		} else {
-			Assert.assertEquals("Address country", country, address.getCountry());
+			country.verify(address.getCountry());
 		}
 
 		if (state == null) {
 			Assert.assertTrue("Missing address state", !address.hasState());
 		} else {
-			Assert.assertEquals("Address state", state, address.getState());
+			state.verify(address.getState());
 		}
 
 		if (postalCode == null) {
 			Assert.assertTrue("Missing address postalCode", !address.hasPostalCode());
 		} else {
-			Assert.assertEquals("Address postalCode", postalCode, address.getPostalCode());
+			postalCode.verify(address.getPostalCode());
 		}
+
 		if (use != null) {
 			String addressType = (String) ADDRESS_TYPE.get(use);
 			if (addressType != null) {
@@ -186,22 +209,23 @@ public class ADGenerator {
 		Map<String, Object> result = new LinkedHashMap<>();
 
 		if (!lines.isEmpty()) {
-			result.put("line", new ArrayList<Object>(lines));
+			List<Object> list = lines.stream().map(r -> r.getValue()).collect(Collectors.toList());
+			result.put("line", list);
 		}
 		if (city != null) {
-			result.put("city", city);
+			result.put("city", city.getValue());
 		}
 		if (county != null) {
-			result.put("district", county);
+			result.put("district", county.getValue());
 		}
 		if (country != null) {
-			result.put("country", country);
+			result.put("country", country.getValue());
 		}
 		if (state != null) {
-			result.put("state", state);
+			result.put("state", state.getValue());
 		}
 		if (postalCode != null) {
-			result.put("postalCode", postalCode);
+			result.put("postalCode", postalCode.getValue());
 		}
 		if (use != null) {
 			String addressType = (String) ADDRESS_TYPE.get(use);
@@ -215,8 +239,9 @@ public class ADGenerator {
 				result.put("use", addressUse);
 			}
 		}
-		if (result.isEmpty())
+		if (result.isEmpty()) {
 			return null;
+		}
 		return result;
 	}
 
@@ -225,5 +250,12 @@ public class ADGenerator {
 		result.addAll(ADDRESS_TYPE.keySet());
 		result.addAll(ADDRESS_USE.keySet());
 		return result;
+	}
+
+	public static void verifyList(List<Address> actual, List<ADGenerator> expected) {
+		Assert.assertEquals("Address count", expected.size(), actual.size());
+		for (int index = 0; index < actual.size(); ++index) {
+			expected.get(index).verify(actual.get(index));
+		}
 	}
 }

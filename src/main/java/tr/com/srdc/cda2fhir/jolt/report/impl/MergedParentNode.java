@@ -8,6 +8,13 @@ public class MergedParentNode extends ParentNode {
 	}
 
 	@Override
+	public MergedParentNode clone(IParentNode parent) {
+		MergedParentNode result = new MergedParentNode(parent, getPath());
+		copyToClone(result);
+		return result;
+	}
+
+	@Override
 	public MergedParentNode cloneEmpty() {
 		IParentNode parent = getParent();
 		String path = getPath();

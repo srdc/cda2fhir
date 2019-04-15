@@ -14,13 +14,19 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhenNull",
+		"spec": {
+			"representedOrganization": ""
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
-			"id": "practitioner.reference.->ID",
-			"code": "code.->CD",
+			"id": ["practitioner.reference.->ID", "practitioner.display.->ID"],
+			"code": "code[].->CD",
 			"representedOrganization": {
 				"id": {
-					"0": "organization.reference.->ID"
+					"0": ["organization.reference.->ID", "organization.display.->ID"]
 				}
 			}
 		}
@@ -32,11 +38,19 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"practitioner": {
-				"reference": "=referenceAdapter('Practitioner',@0)"
+				"reference": "=referenceAdapter('Practitioner',@0)", 
+				"display": "=referenceDisplayAdapter('Practitioner',@0)"
 			},
 			"organization": {
-				"reference": "=referenceAdapter('Organization',@0)"
+				"reference": "=referenceAdapter('Organization',@0)",
+				"display": "=referenceDisplayAdapter('Organization',@0)"
 			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{

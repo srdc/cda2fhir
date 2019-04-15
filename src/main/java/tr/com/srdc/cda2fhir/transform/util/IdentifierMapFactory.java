@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.Property;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.exceptions.FHIRException;
 
+import tr.com.srdc.cda2fhir.jolt.report.ReportException;
 import tr.com.srdc.cda2fhir.transform.util.impl.IdentifierMap;
 
 public class IdentifierMapFactory {
@@ -40,6 +41,47 @@ public class IdentifierMapFactory {
 			}
 		}
 		return identifierMap;
+	}
+
+	public static <T> IIdentifierMap<T> resourcesToResourceInfo(List<? extends Resource> resources,
+			ResourceInfo<T> resourceInfo) {
+		IdentifierMap<T> identifierMap = new IdentifierMap<T>();
+		for (Resource resource : resources) {
+			Property property = resource.getNamedProperty("identifier");
+			if (property != null) {
+				List<Base> bases = property.getValues();
+				if (!bases.isEmpty()) {
+					for (Base base : bases) {
+						try {
+							Identifier identifier = resource.castToIdentifier(base);
+							String fhirType = resource.fhirType();
+							T info = resourceInfo.get(resource);
+							if (info != null) {
+								identifierMap.put(fhirType, identifier, info);
+							}
+						} catch (FHIRException e) {
+						}
+					}
+				}
+			}
+		}
+		return identifierMap;
+	}
+
+	public static IdentifierMap<Integer> resourcesToOrder(List<? extends Resource> resources) {
+		IdentifierMap<Integer> result = new IdentifierMap<Integer>();
+		for (int index = 0; index < resources.size(); ++index) {
+			Resource resource = resources.get(index);
+			Property property = resource.getNamedProperty("identifier");
+			if (property == null) {
+				throw new ReportException("No identifier. Cannot be ordered");
+			}
+			for (Base base : property.getValues()) {
+				Identifier identifier = resource.castToIdentifier(base);
+				result.put(resource.fhirType(), identifier, index);
+			}
+		}
+		return result;
 	}
 
 	public static IIdentifierMap<String> bundleToIds(Bundle bundle) {

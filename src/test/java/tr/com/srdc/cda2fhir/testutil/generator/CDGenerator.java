@@ -84,4 +84,11 @@ public class CDGenerator {
 
 		return new CDGenerator(code, codeSystem, codeSystemName, displayName);
 	}
+
+	public static void verifyList(List<CodeableConcept> actual, List<CDGenerator> expected) {
+		Assert.assertEquals("Codeable concept count", expected.size(), actual.size());
+		for (int index = 0; index < actual.size(); ++index) {
+			expected.get(index).verify(actual.get(index));
+		}
+	}
 }

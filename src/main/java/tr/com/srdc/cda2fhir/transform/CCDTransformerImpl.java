@@ -132,6 +132,11 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		supportedSectionTypes.add(sectionEnum);
 	}
 
+	public void setSection(CDASectionTypeEnum sectionEnum) {
+		supportedSectionTypes.clear();
+		supportedSectionTypes.add(sectionEnum);
+	}
+
 	/**
 	 * @param cda                A Consolidated CDA (C-CDA) 2.1 Continuity of Care
 	 *                           Document (CCD) instance to be transformed
@@ -299,6 +304,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 				return sectionType.toCDASection(section);
 			}
 		}
+		logger.info("Encountered unsupported section: " + section.getTitle().getText());
 		return null;
 	}
 
@@ -357,9 +363,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 				if (ccdComposition != null) {
 					ccdComposition.addSection(fhirSec);
 				}
-
-				Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
-				bundleInfo.mergeIdedAnnotations(idedAnnotations);
+				if (cdaSec.getText() != null) {
+					Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
+					bundleInfo.mergeIdedAnnotations(idedAnnotations);
+				}
 
 				ISectionResult sectionResult = section.transform(bundleInfo);
 				if (sectionResult != null) {
@@ -371,7 +378,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 							ref.setReference(resource.getId());
 						}
 					}
-					if (sectionResult.hasDefferredReferences()) {
+					if (sectionResult.hasDeferredReferences()) {
 						deferredReferences.addAll(sectionResult.getDeferredReferences());
 					}
 					bundleInfo.updateFrom(sectionResult);

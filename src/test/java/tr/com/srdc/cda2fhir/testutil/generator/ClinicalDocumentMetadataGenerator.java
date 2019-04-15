@@ -1,10 +1,16 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
+import java.util.List;
+
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.Component2;
+import org.openhealthtools.mdht.uml.cda.Component3;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
 import org.openhealthtools.mdht.uml.cda.Performer1;
 import org.openhealthtools.mdht.uml.cda.ServiceEvent;
+import org.openhealthtools.mdht.uml.cda.StructuredBody;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -17,7 +23,7 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class ClinicalDocumentMetadataGenerator {
 
-	ClinicalDocument doc;
+	ContinuityOfCareDocument doc;
 	CDAFactories factories;
 
 	private static AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
@@ -45,10 +51,9 @@ public class ClinicalDocumentMetadataGenerator {
 		factories = CDAFactories.init();
 	}
 
-	public ClinicalDocument generateClinicalDoc(CDAFactories factories) {
+	public ContinuityOfCareDocument generateClinicalDoc(CDAFactories factories) {
 
-		ClinicalDocument doc = factories.base.createClinicalDocument();
-
+		doc = factories.consol.createContinuityOfCareDocument();
 		// No way to set realm code?
 		// CS realmCode = genRealmCode(factories, DEFAULT_REALM_CODE);
 		II id = genId(factories, DEFAULT_ID_ROOT, DEFAULT_ASSN_AUTH);
@@ -143,6 +148,15 @@ public class ClinicalDocumentMetadataGenerator {
 		INT version = factories.datatype.createINT();
 		version.setValue(Integer.getInteger(versionNum));
 		return version;
+	}
+
+	public static void setStructuredBody(CDAFactories factories, ClinicalDocument document,
+			List<Component3> components) {
+		Component2 component2 = factories.base.createComponent2();
+		StructuredBody structuredBody = factories.base.createStructuredBody();
+		structuredBody.getComponents().addAll(components);
+		component2.setStructuredBody(structuredBody);
+		document.setComponent(component2);
 	}
 
 }

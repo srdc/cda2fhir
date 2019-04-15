@@ -13,10 +13,8 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	private Map<String, T> rootMap;
 	private Map<String, Map<String, T>> extensionMaps;
 
-	public void put(II id, T value) {
-		String root = id.getRoot();
+	public void put(String root, String extension, T value) {
 		if (root != null) {
-			String extension = id.getExtension();
 			if (extension != null) {
 				if (extensionMaps == null) {
 					extensionMaps = new HashMap<String, Map<String, T>>();
@@ -36,6 +34,11 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 		}
 	}
 
+	@Override
+	public void put(II id, T value) {
+		put(id.getRoot(), id.getExtension(), value);
+	}
+
 	public void put(List<II> ids, T value) {
 		for (II id : ids) {
 			put(id, value);
@@ -43,6 +46,8 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	}
 
 	public void put(ICDAIIMapSource<T> source) {
+		if (source == null)
+			return;
 		if (rootMap == null) {
 			rootMap = new HashMap<String, T>();
 		}
@@ -51,6 +56,22 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 			extensionMaps = new HashMap<String, Map<String, T>>();
 		}
 		source.putExtensionValuesTo(extensionMaps);
+	}
+
+	public void jput(Map<String, Object> identifier, T value) {
+		String root = (String) identifier.get("root");
+		Object extensionObject = identifier.get("extension");
+		String extension = extensionObject == null ? null : extensionObject.toString();
+		put(root, extension, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void jput(Object identifier, T value) {
+		jput((Map<String, Object>) identifier, value);
+	}
+
+	public void jput(List<Object> identifiers, T value) {
+		identifiers.forEach(identifier -> jput(identifier, value));
 	}
 
 	private T get(String root, String extension) {
@@ -93,6 +114,28 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 		return null;
 	}
 
+	public T jget(Map<String, Object> identifier) {
+		String root = (String) identifier.get("root");
+		Object extensionObject = identifier.get("extension");
+		String extension = extensionObject == null ? null : extensionObject.toString();
+		return get(root, extension);
+	}
+
+	@SuppressWarnings("unchecked")
+	public T jget(Object identifier) {
+		return jget((Map<String, Object>) identifier);
+	}
+
+	public T jget(List<Object> identifiers) {
+		for (Object identifier : identifiers) {
+			T value = jget(identifier);
+			if (value != null) {
+				return value;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public void putRootValuesTo(Map<String, T> target) {
 		if (rootMap != null) {
@@ -120,4 +163,13 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	public boolean hasIIMapValues() {
 		return rootMap != null || extensionMaps != null;
 	}
+
+	public Map<String, T> getRootMap() {
+		return rootMap;
+	}
+
+	public Map<String, Map<String, T>> getExtensionMap() {
+		return extensionMaps;
+	}
+
 }

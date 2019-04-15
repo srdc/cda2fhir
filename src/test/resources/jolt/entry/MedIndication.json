@@ -1,0 +1,52 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"observation": {
+				"id": "MANY",
+				"code": "ONE",
+				"value": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": "*"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"observation": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"#constant": "category[]",
+				"value": {
+					"*": "code.->CD"
+				},
+				"effectiveTime": "->IndicationEffectiveTime"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"category": {
+				"*": "=constantValue('MedicationConditionCategoryConstant')"
+			},
+			"onsetDateTime": "=datetimeAdapter(@0)",
+			"abatementDateTime": "=datetimeAdapter(@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Condition"
+		}
+	}
+]
