@@ -34,22 +34,25 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 			Map<String, Object> code = (Map<String, Object>) map.get("code");
 
-			if (code.get("coding") instanceof List) {
+			if (code.get("text") instanceof String) {
+				display = (String) code.get("text");
+			} else if (code.get("coding") instanceof List) {
 
 				List<Object> coding = (List<Object>) code.get("coding");
 
 				if (!coding.isEmpty() && coding.get(0) instanceof Map) {
 
-					Map<String, Object> codeIndx0 = (Map<String, Object>) coding.get(0);
+					for (Object entry : coding) {
+						Map<String, Object> currentEntry = (Map<String, Object>) entry;
 
-					if (codeIndx0.get("text") instanceof String) {
-
-						display = (String) codeIndx0.get("text");
+						if (currentEntry.get("display") instanceof String) {
+							display = (String) currentEntry.get("display");
+							break;
+						}
 
 					}
 				}
 			}
-
 		} else if (map.get("name") != null) {
 
 			Object name = map.get("name");

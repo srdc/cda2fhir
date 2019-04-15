@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <section>
+					<!-- *** Immunizations Section (entries required) (V2) *** -->
+      <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.2.2.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.2.1"/>
+      <code code="11369-6"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"
+            displayName="History of immunizations"/>
+      <title>IMMUNIZATIONS</title>
+      <text>
+         <content ID="immunSect"/>
+         <table border="1" width="100%">
+            <thead>
+               <tr>
+                  <th>Vaccine</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Series number</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td>
+                     <content ID="immi1"/> Influenza, seasonal, IM </td>
+                  <td>Nov 1999</td>
+                  <td>Completed</td>
+                  <td>N/A</td>
+               </tr>
+               <tr>
+                  <td>
+                     <content ID="immi2"/> Influenza, seasonal, IM </td>
+                  <td>Dec 1998</td>
+                  <td>Completed</td>
+                  <td>N/A</td>
+               </tr>
+               <tr>
+                  <td>
+                     <content ID="immi3"/> Pneumococcal polysaccharide vaccine, IM </td>
+                  <td>Dec 1998</td>
+                  <td>Completed</td>
+                  <td>N/A</td>
+               </tr>
+               <tr>
+                  <td>
+                     <content ID="immi4"/> Tetanus and diphtheria toxoids, IM </td>
+                  <td>1997</td>
+                  <td>Refused</td>
+                  <td>N/A</td>
+               </tr>
+               <tr>
+                  <td>Hepatitis B</td>
+                  <td>Aug 1, 2013</td>
+                  <td>Completed</td>
+                  <td>3rd</td>
+               </tr>
+            </tbody>
+         </table>
+      </text>
+   </section>
+</root>

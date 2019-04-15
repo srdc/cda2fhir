@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <section>
+					<!-- *** Allergies and Intolerances Section (entries required) (V3) *** -->
+      <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.2.6.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+      <code code="48765-2"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"/>
+      <title>ALLERGIES AND ADVERSE REACTIONS</title>
+      <text>
+         <table border="1" width="100%">
+            <thead>
+               <tr>
+                  <th>Substance</th>
+                  <th>Reaction</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td ID="substance1">Penicillin</td>
+                  <td ID="reaction1">Nausea</td>
+               </tr>
+               <tr>
+                  <td ID="substance2">Codeine</td>
+                  <td ID="reaction2">Wheezing</td>
+               </tr>
+            </tbody>
+         </table>
+      </text>
+      <entry typeCode="DRIV">
+         <act classCode="ACT" moodCode="EVN">
+							<!-- ** Allergy Concern Act (V3) ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
+            <!--Critical Change-->
+            <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+            <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+            <!-- The statusCode represents the need to continue tracking the allergy -->
+            <!-- This is of ongoing concern to the provider -->
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <!-- Same as Concern effectiveTime/low -->
+               <time value="199805011145-0800"/>
+               <assignedAuthor>
+                  <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                  <code code="207QA0505X"
+                        codeSystem="2.16.840.1.113883.6.101"
+                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                        displayName="Adult Medicine"/>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Allergy observation (V2) ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <id root="4adc1020-7b14-11db-9fe1-0800200c9a66"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                     <reference value="#allergytype1"/>
+                  </text>
+                  <!-- Observation statusCode represents the status of the act of observing -->
+                  <statusCode code="completed"/>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="199805011145-0800"/>
+                  </author>
+                  <participant typeCode="CSM">
+                     <participantRole classCode="MANU">
+										</participantRole>
+                  </participant>
+                  <entryRelationship inversionInd="true" typeCode="SUBJ">
+                     <observation classCode="OBS" moodCode="EVN">
+											<!-- ** Severity Observation  (V2)** -->
+											<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
+                        When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <code code="SEV"
+                              codeSystem="2.16.840.1.113883.5.4"
+                              codeSystemName="ActCode"
+                              displayName="Severity Observation"/>
+                        <text>
+                           <reference value="#allergyseverity1"/>
+                        </text>
+                        <statusCode code="completed"/>
+                     </observation>
+                  </entryRelationship>
+                  <entryRelationship inversionInd="true" typeCode="MFST">
+                     <observation classCode="OBS" moodCode="EVN">
+											<!-- ** Reaction Observation (V2) ** -->
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <id root="4adc1020-7b14-11db-9fe1-0800200c9a64"/>
+                        <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                        <text>
+                           <reference value="#reaction1"/>
+                        </text>
+                        <statusCode code="completed"/>
+                        <effectiveTime>
+                           <high value="200802281205-0800"/>
+                        </effectiveTime>
+                        <entryRelationship inversionInd="true" typeCode="SUBJ">
+                           <observation classCode="OBS" moodCode="EVN">
+													<!-- ** Severity observation ** -->
+													<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
+														 When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
+                              <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <code code="SEV"
+                                    codeSystem="2.16.840.1.113883.5.4"
+                                    codeSystemName="ActCode"
+                                    displayName="Severity Observation"/>
+                              <statusCode code="completed"/>
+                           </observation>
+                        </entryRelationship>
+                     </observation>
+                  </entryRelationship>
+                  <entryRelationship>
+                     <observation classCode="OBS" moodCode="EVN">
+											<!-- ** Criticality observation ** -->
+                        <templateId root="2.16.840.1.113883.10.20.22.4.145"/>
+                        <code code="NEW-LOINC-CRITICALITY"
+                              codeSystem="2.16.840.1.113883.6.1"
+                              displayName="Criticality"/>
+                        <text>
+                           <reference value="#criticality"/>
+                        </text>
+                        <statusCode code="completed"/>
+                     </observation>
+                  </entryRelationship>
+               </observation>
+            </entryRelationship>
+         </act>
+      </entry>
+      <entry typeCode="DRIV">
+         <act classCode="ACT" moodCode="EVN">
+							<!-- ** Allergy concern act ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.30"/>
+            <!--Critical Change-->
+            <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+            <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+            <!-- The statusCode represents the need to continue tracking the allergy -->
+            <!-- This is of ongoing concern to the provider -->
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <!-- Same as Concern effectiveTime/low -->
+               <time value="199805011145-0800"/>
+               <assignedAuthor>
+                  <id extension="555555555" root="2.16.840.1.113883.4.6"/>
+                  <code code="207QA0505X"
+                        codeSystem="2.16.840.1.113883.6.101"
+                        codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
+                        displayName="Adult Medicine"/>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="SUBJ">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Allergy observation ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <id root="901db0f8-9355-4794-81cd-fd951ef07917"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                     <reference value="#allergytype2"/>
+                  </text>
+                  <!-- Observation statusCode represents the status of the act of observing -->
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+										<!-- The low value reflects the date of onset of the allergy -->
+                     <low nullFlavor="UNK"/>
+                     <!-- The high value reflects when the allergy was known to be resolved (and will generally be absent) -->
+                  </effectiveTime>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201010110915-0800"/>
+                  </author>
+                  <participant typeCode="CSM">
+                     <participantRole classCode="MANU">
+										</participantRole>
+                  </participant>
+                  <entryRelationship inversionInd="true" typeCode="MFST">
+                     <observation classCode="OBS" moodCode="EVN">
+											<!-- ** Reaction observation ** -->
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                        <id root="38c63dea-1a43-4f84-ab71-1ffd04f6a1dd"/>
+                        <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                        <text>
+                           <reference value="#reaction2"/>
+                        </text>
+                        <statusCode code="completed"/>
+                        <effectiveTime>
+                           <low nullFlavor="UNK"/>
+                        </effectiveTime>
+                        <entryRelationship inversionInd="true" typeCode="SUBJ">
+                           <observation classCode="OBS" moodCode="EVN">
+													<!-- ** Severity observation ** -->
+													<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
+										             When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
+                              <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                              <code code="SEV"
+                                    codeSystem="2.16.840.1.113883.5.4"
+                                    codeSystemName="ActCode"
+                                    displayName="Severity Observation"/>
+                              <text>
+                                 <reference value="#reactionseverity2"/>
+                              </text>
+                              <statusCode code="completed"/>
+                           </observation>
+                        </entryRelationship>
+                     </observation>
+                  </entryRelationship>
+                  <entryRelationship inversionInd="true" typeCode="SUBJ">
+                     <observation classCode="OBS" moodCode="EVN">
+											<!-- ** Severity observation ** -->
+											<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
+										          When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                        <code code="SEV"
+                              codeSystem="2.16.840.1.113883.5.4"
+                              codeSystemName="ActCode"
+                              displayName="Severity Observation"/>
+                        <text>
+                           <reference value="#allergyseverity2"/>
+                        </text>
+                        <statusCode code="completed"/>
+                     </observation>
+                  </entryRelationship>
+               </observation>
+            </entryRelationship>
+         </act>
+      </entry>
+   </section>
+</root>

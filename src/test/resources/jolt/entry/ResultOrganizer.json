@@ -47,10 +47,10 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": "performer[&].actor.reference"
+				"*": ["performer[&].actor.reference", "performer[&].actor.display"]
 			},
 			"Observation": {
-				"*": "result[&].reference"
+				"*": ["result[&].reference", "result[&].display"]
 			}
 		}
 	},
@@ -61,13 +61,15 @@
 			"performer": {
 				"*": {
 					"actor": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					}
 				}
 			},
 			"result": {
 				"*": {
-					"reference": "=getId(@0)"
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
 				}
 			}
 		}

@@ -55,6 +55,7 @@ import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
 import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.ReferenceInfo;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 import tr.com.srdc.cda2fhir.util.IdGeneratorEnum;
@@ -342,6 +343,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			List<Patient> patients = FHIRUtil.findResources(ccdBundle, Patient.class);
 			if (patients.size() > 0) {
 				patientRef = new Reference(patients.get(0).getId());
+				String referenceString = ReferenceInfo.getDisplay(patients.get(0));
+				if (referenceString != null) {
+					patientRef.setDisplay(referenceString);
+				}
 			}
 		} else if (ccdComposition != null) { // Correct the subject at composition with given patient reference.
 			ccdComposition.setSubject(patientRef);
@@ -364,6 +369,8 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 				if (ccdComposition != null) {
 					ccdComposition.addSection(fhirSec);
 				}
+
+				// add text annotation lookups.
 				if (cdaSec.getText() != null) {
 					Map<String, String> idedAnnotations = EMFUtil.findReferences(cdaSec.getText());
 					bundleInfo.mergeIdedAnnotations(idedAnnotations);
@@ -374,9 +381,14 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 					FHIRUtil.mergeBundle(sectionResult.getBundle(), ccdBundle);
 					if (fhirSec != null) {
 						List<? extends Resource> resources = sectionResult.getSectionResources();
+
 						for (Resource resource : resources) {
 							Reference ref = fhirSec.addEntry();
 							ref.setReference(resource.getId());
+							String referenceString = ReferenceInfo.getDisplay(resource);
+							if (referenceString != null) {
+								ref.setDisplay(referenceString);
+							}
 						}
 					}
 					if (sectionResult.hasDeferredReferences()) {
@@ -389,11 +401,16 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 
 		IIdentifierMap<String> identifierMap = IdentifierMapFactory.bundleToIds(ccdBundle);
 
+		// deferred references only present for procedure encounters.
 		if (!deferredReferences.isEmpty()) {
 			for (IDeferredReference dr : deferredReferences) {
 				String id = identifierMap.get(dr.getFhirType(), dr.getIdentifier());
 				if (id != null) {
 					Reference reference = new Reference(id);
+					String referenceString = ReferenceInfo.getDisplay(dr.getResource());
+					if (referenceString != null) {
+						reference.setDisplay(referenceString);
+					}
 					dr.resolve(reference);
 				} else {
 					String msg = String.format("%s %s is referred but not found", dr.getFhirType(),
