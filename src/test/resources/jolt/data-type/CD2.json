@@ -1,5 +1,11 @@
 [
 	{
+		"operation": "cardinality",
+		"spec": {
+			"translation": "MANY"
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
 			"nullFlavor": ["code", "codeSystem", "displayName"]
