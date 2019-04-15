@@ -134,7 +134,6 @@ public class MedicationsSectionTest {
 		}
 	}
 
-	@Ignore
 	@Test
 	public void testSample1() throws Exception {
 		runSampleTest("C-CDA_R2-1_CCD.xml");

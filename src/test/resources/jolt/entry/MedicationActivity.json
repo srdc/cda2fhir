@@ -88,7 +88,7 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": "informationSource.reference",
-			"Medication": "medicationReference.reference",
+			"Medication": ["medicationReference.reference", "medicationReference.display"],
 			"Condition": {
 				"*": "reasonReference[&].reference"
 			}
@@ -102,7 +102,8 @@
 				"reference": "=getId(@0)"
 			},
 			"medicationReference": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"reasonReference": {
 				"*": {
@@ -139,6 +140,12 @@
 			}
 		}
 	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
+		}
+	},	
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
 		"spec": {

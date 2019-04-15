@@ -16,6 +16,7 @@ substanceAdministration.entryRelationship[].observation.value.content,Medication
 substanceAdministration.effectiveTime[].xsi:type,MedicationStatement.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS
 substanceAdministration.id[],MedicationStatement.identifier[],ID,,nullFlavor isnull
 Practitioner,MedicationStatement.informationSource.reference,,"getId"
+Medication,MedicationStatement.medicationReference.display,,
 Medication,MedicationStatement.medicationReference.reference,,"getId"
 Condition[],MedicationStatement.reasonReference[].reference,,"getId"
 substanceAdministration.statusCode.code,MedicationStatement.status,,"valueSetAdapter('MedicationStatementStatus')",nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull

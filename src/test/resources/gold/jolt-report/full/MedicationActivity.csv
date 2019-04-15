@@ -1,5 +1,4 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3,Condition 4,Condition 5,Condition 6
-substanceAdministration.entryRelationship[].observation,MedicationStatement.Condition[],MedIndicationStatusCode,,nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
 substanceAdministration.entryRelationship[].observation.effectiveTime.high.value,MedicationStatement.Condition[].abatementDateTime,,"datetimeAdapter",nullFlavor isnull,substanceAdministration.entryRelationship[].observation.effectiveTime.high.nullFlavor isnull,substanceAdministration.entryRelationship[].observation.effectiveTime.nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
 #constant,MedicationStatement.Condition[].category[],,"constantValue('MedicationConditionCategoryConstant')",nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
 #high,MedicationStatement.Condition[].clinicalStatus,,"conditionClinicalStatusAdapter",nullFlavor isnull,substanceAdministration.entryRelationship[].observation.effectiveTime.high.nullFlavor isnull,substanceAdministration.entryRelationship[].observation.effectiveTime.nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19
@@ -257,6 +256,7 @@ substanceAdministration.id[].root,MedicationStatement.identifier[].system,,"idSy
 substanceAdministration.id[].extension,MedicationStatement.identifier[].value,,"toString",nullFlavor isnull,substanceAdministration.id[].extension isnotnull,substanceAdministration.id[].nullFlavor isnull
 substanceAdministration.id[].root,MedicationStatement.identifier[].value,,"toString",nullFlavor isnull,substanceAdministration.id[].extension isnull,substanceAdministration.id[].nullFlavor isnull
 MedicationStatement.Practitioner,MedicationStatement.informationSource.reference,,"getId"
+MedicationStatement.Medication,MedicationStatement.medicationReference.display,,
 MedicationStatement.Medication,MedicationStatement.medicationReference.reference,,"getId"
 MedicationStatement.Condition[],MedicationStatement.reasonReference[].reference,,"getId"
 substanceAdministration.statusCode.code,MedicationStatement.status,,"valueSetAdapter('MedicationStatementStatus')",nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull

@@ -38,6 +38,16 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		if (resource == null) {
 			resource = new LinkedHashMap<String, Object>();
 		}
+		if (input != null && "Medication".equals(resourceType)) {
+			CodeableConceptMap medicationMap = (CodeableConceptMap) context.get("MEDICATION_MAP");
+			if (medicationMap != null) {
+				Map<String, Object> existing = medicationMap.get(resource.get("code"));
+				if (existing != null) {
+					return existing;
+				}
+			}
+		}
+
 		List<Object> resources = (List<Object>) context.get("Resources");
 		if (resources == null) {
 			resources = new ArrayList<Object>();
@@ -47,6 +57,16 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		resource.put("resourceType", resourceType);
 		resource.put("id", id);
 		resources.add(resource);
+
+		if ("Medication".equals(resourceType)) {
+			CodeableConceptMap medicationMap = (CodeableConceptMap) context.get("MEDICATION_MAP");
+			if (medicationMap == null) {
+				medicationMap = new CodeableConceptMap();
+				context.put("MEDICATION_MAP", medicationMap);
+			}
+			medicationMap.put(resource.get("code"), resource);
+		}
+
 		String reference = String.format("%s/%s", resourceType, id);
 		String display = AdditionalModifier.getDisplay(resource);
 		List<Object> identifiers = (List<Object>) resource.get("identifier");
