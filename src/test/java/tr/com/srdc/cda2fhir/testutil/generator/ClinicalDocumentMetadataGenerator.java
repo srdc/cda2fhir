@@ -3,14 +3,20 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.List;
 
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
+import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Component2;
 import org.openhealthtools.mdht.uml.cda.Component3;
+import org.openhealthtools.mdht.uml.cda.Custodian;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
 import org.openhealthtools.mdht.uml.cda.Performer1;
+import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.ServiceEvent;
 import org.openhealthtools.mdht.uml.cda.StructuredBody;
+import org.openhealthtools.mdht.uml.cda.consol.AssignedAuthor;
+import org.openhealthtools.mdht.uml.cda.consol.AssignedCustodian;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.PatientRole;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -150,6 +156,7 @@ public class ClinicalDocumentMetadataGenerator {
 		return version;
 	}
 
+	// TODO: Refactor these last three static methods into generators.
 	public static void setStructuredBody(CDAFactories factories, ClinicalDocument document,
 			List<Component3> components) {
 		Component2 component2 = factories.base.createComponent2();
@@ -157,6 +164,25 @@ public class ClinicalDocumentMetadataGenerator {
 		structuredBody.getComponents().addAll(components);
 		component2.setStructuredBody(structuredBody);
 		document.setComponent(component2);
+	}
+
+	public static void setRecordTarget(CDAFactories factories, ClinicalDocument document, PatientRole patientRole) {
+		RecordTarget recordTarget = factories.base.createRecordTarget();
+		recordTarget.setPatientRole(patientRole);
+		document.getRecordTargets().add(recordTarget);
+	}
+
+	public static void setAuthor(CDAFactories factories, ClinicalDocument document, AssignedAuthor assignedAuthor) {
+		Author author = factories.base.createAuthor();
+		author.setAssignedAuthor(assignedAuthor);
+		document.getAuthors().add(author);
+	}
+
+	public static void setCustodian(CDAFactories factories, ClinicalDocument document,
+			AssignedCustodian assignedustodian) {
+		Custodian custodian = factories.base.createCustodian();
+		custodian.setAssignedCustodian(assignedustodian);
+		document.setCustodian(custodian);
 	}
 
 }

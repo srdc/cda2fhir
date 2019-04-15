@@ -278,4 +278,8 @@ public class ImmunizationActivityGenerator {
 		}
 
 	}
+
+	public void setMedicationInformationGenerator(ImmunizationMedicationInformationGenerator medInfoGenerator) {
+		this.medInfoGenerator = medInfoGenerator;
+	}
 }

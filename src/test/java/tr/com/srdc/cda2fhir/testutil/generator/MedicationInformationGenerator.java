@@ -73,4 +73,8 @@ public class MedicationInformationGenerator {
 			orgGenerator.verify(org);
 		}
 	}
+
+	public void setOrganizationGenerator(OrganizationGenerator orgGenerator) {
+		this.orgGenerator = orgGenerator;
+	}
 }

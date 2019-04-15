@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
 import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -46,6 +47,30 @@ public class OrganizationGenerator {
 
 	public boolean isNullFlavor() {
 		return nullFlavor != null;
+	}
+
+	public CustodianOrganization generateCustodianOrg(CDAFactories factories) {
+		CustodianOrganization custodianOrg = factories.base.createCustodianOrganization();
+		Organization org = generate(factories);
+		if (org.getNames() != null) {
+			custodianOrg.getNames().addAll(org.getNames());
+		}
+
+		if (org.getIds() != null) {
+			custodianOrg.getIds().addAll(org.getIds());
+		}
+
+		if (org.getAddrs() != null) {
+			custodianOrg.getAddrs().addAll(org.getAddrs());
+		}
+
+		if (org.getTelecoms() != null) {
+			custodianOrg.getTelecoms().addAll(org.getTelecoms());
+		}
+
+		if (org.getNullFlavor() != null) {
+			custodianOrg.setNullFlavor(org.getNullFlavor());
+		}
 	}
 
 	public Organization generate(CDAFactories factories) {
