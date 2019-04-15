@@ -227,4 +227,8 @@ public class MedicationSupplyOrderGenerator {
 			}
 		}
 	}
+
+	public void setMedicationInfoGenerator(MedicationInformationGenerator generator) {
+		this.medInfoGenerator = generator;
+	}
 }

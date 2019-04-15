@@ -34,6 +34,7 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 		}
 	}
 
+	@Override
 	public void put(II id, T value) {
 		put(id.getRoot(), id.getExtension(), value);
 	}
@@ -45,6 +46,8 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	}
 
 	public void put(ICDAIIMapSource<T> source) {
+		if (source == null)
+			return;
 		if (rootMap == null) {
 			rootMap = new HashMap<String, T>();
 		}
@@ -160,4 +163,13 @@ public class CDAIIMap<T> implements ICDAIIMap<T>, ICDAIIMapSource<T> {
 	public boolean hasIIMapValues() {
 		return rootMap != null || extensionMaps != null;
 	}
+
+	public Map<String, T> getRootMap() {
+		return rootMap;
+	}
+
+	public Map<String, Map<String, T>> getExtensionMap() {
+		return extensionMaps;
+	}
+
 }

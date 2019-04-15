@@ -60,9 +60,12 @@ public class EMFUtil {
 	 * @return map of ids and values from that section.
 	 */
 	static public Map<String, String> findReferences(StrucDocText text) {
-		Map<String, String> result = new HashMap<String, String>();
-		FeatureMap featureMap = text.getMixed();
-		putReferences(featureMap, result);
-		return result;
+		if(text != null) {
+			Map<String, String> result = new HashMap<String, String>();
+			FeatureMap featureMap = text.getMixed();
+			putReferences(featureMap, result);
+			return result;
+		}
+		return null;
 	}
 }
