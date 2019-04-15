@@ -1847,12 +1847,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// effectiveTime info -> clinicalStatus
 		if (cdaIndication.getEffectiveTime() != null && !cdaIndication.getEffectiveTime().isSetNullFlavor()) {
-			// high & low is present -> resolved
+			// high & low is present -> inactive
 			if (cdaIndication.getEffectiveTime().getLow() != null
 					&& !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()
 					&& cdaIndication.getEffectiveTime().getHigh() != null
 					&& !cdaIndication.getEffectiveTime().getHigh().isSetNullFlavor()) {
-				fhirCond.setClinicalStatus(ConditionClinicalStatus.RESOLVED);
+				fhirCond.setClinicalStatus(ConditionClinicalStatus.INACTIVE);
 			} else if (cdaIndication.getEffectiveTime().getLow() != null
 					&& !cdaIndication.getEffectiveTime().getLow().isSetNullFlavor()) {
 				// low is present, high is not present -> active
@@ -1874,14 +1874,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// only set verificationStatus if clinicalStatus is present.
-		if (fhirCond.getClinicalStatus() != null) {
-			CS statusCode = cdaIndication.getStatusCode();
-			String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null : statusCode.getCode();
-
-			// statusCode -> verificationStatus
-			fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
-		}
 		return fhirCond;
 	}
 

@@ -2,7 +2,6 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
@@ -13,14 +12,10 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
 
-import com.bazaarvoice.jolt.JsonUtils;
-
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class IndicationGenerator {
-	private static final Map<String, Object> CONDITION_VERIFICATION_STATUS = JsonUtils
-			.filepathToMap("src/test/resources/jolt/value-maps/ConditionVerificationStatus.json");
 
 	private List<IDGenerator> idGenerators = new ArrayList<>();
 
@@ -55,6 +50,7 @@ public class IndicationGenerator {
 		});
 
 		if (effectiveTimeGenerator != null) {
+
 			IVL_TS ivlTs = effectiveTimeGenerator.generate(factories);
 			indication.setEffectiveTime(ivlTs);
 		}
@@ -79,7 +75,7 @@ public class IndicationGenerator {
 		indication.idGenerators.add(IDGenerator.getNextInstance());
 		indication.code = "75321-0";
 		indication.valueGenerators.add(CDGenerator.getNextInstance());
-		indication.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008");
+		indication.effectiveTimeGenerator = new EffectiveTimeGenerator("20171008", "20190110");
 		indication.statusCode = "active";
 
 		return indication;
@@ -126,14 +122,5 @@ public class IndicationGenerator {
 			}
 		}
 
-		if (statusCode == null) {
-			Assert.assertEquals("Condition verification status", "unknown", condition.getVerificationStatus().toCode());
-		} else {
-			String actual = (String) CONDITION_VERIFICATION_STATUS.get(statusCode);
-			if (actual == null) {
-				actual = "unknown";
-			}
-			Assert.assertEquals("Condition verification status", actual, condition.getVerificationStatus().toCode());
-		}
 	}
 }

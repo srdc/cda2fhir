@@ -393,7 +393,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				return null;
 			}
 			if (argList.indexOf("high") >= 0 && argList.indexOf("low") >= 0) {
-				return Optional.of("resolved");
+				return Optional.of("inactive");
 			}
 			if (argList.indexOf("value") >= 0 || argList.indexOf("low") >= 0) {
 				return Optional.of("active");
