@@ -11,6 +11,16 @@ public class LinkedWildcardNode extends LinkedNode implements IWildcardNode {
 	}
 
 	@Override
+	public LinkedWildcardNode clone(IParentNode parent) {
+		String path = getPath();
+		String target = getTarget();
+		String link = getLink();
+		LinkedWildcardNode result = new LinkedWildcardNode(parent, path, target, link);
+		result.addConditions(getConditions());
+		return result;
+	}
+
+	@Override
 	public void fillWildcardNodes(List<IWildcardNode> result) {
 		result.add(this);
 	}
