@@ -47,7 +47,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "asserter.reference"
+			"Practitioner": ["asserter.reference", "asserter.display"]
 		}
 	},
 	{
@@ -74,16 +74,17 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
-		"spec": {
-		}
-	},
-	{
 		"operation": "remove",
 		"spec": {
 			"Practitioner": "",
 			"PractitionerRole": "",
 			"Organization": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{
