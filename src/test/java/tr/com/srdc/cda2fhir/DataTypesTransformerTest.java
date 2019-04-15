@@ -689,6 +689,21 @@ public class DataTypesTransformerTest {
 	}
 
 	@Test
+	public void testREAL2String() {
+		// simple instance test
+		REAL real = DatatypesFactory.eINSTANCE.createREAL();
+		real.setValue(11000.5478);
+
+		StringType string = dtt.tREAL2String(real);
+		Assert.assertEquals("REAL.value was transformed", "11000.5478", string.getValue());
+
+		// null instance test
+		REAL real2 = null;
+		StringType string2 = dtt.tREAL2String(real2);
+		Assert.assertNull("REAL null instance transform failed", real2);
+	}
+
+	@Test
 	public void testString2DateTime() {
 		// null instance test
 		String nullStr = null;

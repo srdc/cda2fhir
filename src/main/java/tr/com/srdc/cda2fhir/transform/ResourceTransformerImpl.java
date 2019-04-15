@@ -2539,7 +2539,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					} else if (value instanceof BL) {
 						fhirObs.setValue(dtt.tBL2Boolean((BL) value));
 					} else if (value instanceof REAL) {
-						fhirObs.setValue(dtt.tREAL2DecimalType((REAL) value));
+						fhirObs.setValue(dtt.tREAL2String((REAL) value));
 					}
 				}
 			}
