@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <recordTarget>
+      <patientRole>
+			<!-- Example Social Security Number using the actual SSN OID. -->
+			<!-- HP is "primary home" from HL7 AddressUse 2.16.840.1.113883.5.1119 -->
+         <patient>
+				<!-- Date of birth need only be precise to the day -->
+            <religiousAffiliationCode code="1013"
+                                      codeSystem="2.16.840.1.113883.5.1076"
+                                      codeSystemName="HL7 Religious Affiliation"
+                                      displayName="Christian (non-Catholic, non-specific)"/>
+            <!-- CDC Race and Ethnicity code set contains the five minimum race and ethnicity 
+					categories defined by OMB Standards -->
+            <raceCode code="2106-3"
+                      codeSystem="2.16.840.1.113883.6.238"
+                      codeSystemName="Race &amp; Ethnicity - CDC"
+                      displayName="White"/>
+            <!-- The raceCode extension is only used if raceCode is valued -->
+            <sdtc:raceCode code="2076-8"
+                           codeSystem="2.16.840.1.113883.6.238"
+                           codeSystemName="Race &amp; Ethnicity - CDC"
+                           displayName="Hawaiian or Other Pacific Islander"/>
+            <ethnicGroupCode code="2186-5"
+                             codeSystem="2.16.840.1.113883.6.238"
+                             codeSystemName="Race &amp; Ethnicity - CDC"
+                             displayName="Not Hispanic or Latino"/>
+            <guardian>
+               <guardianPerson>
+					</guardianPerson>
+            </guardian>
+            <birthplace>
+               <place>
+                  <addr>
+                     <streetAddressLine>4444 Home Street</streetAddressLine>
+                     <city>Beaverton</city>
+                     <state>OR</state>
+                     <postalCode>97867</postalCode>
+                     <country>US</country>
+                  </addr>
+               </place>
+            </birthplace>
+            <languageCommunication>
+					<!-- "en" is ISO 639-1 alpha-2 code for "English" -->
+               <modeCode code="ESP"
+                         codeSystem="2.16.840.1.113883.5.60"
+                         codeSystemName="LanguageAbilityMode"
+                         displayName="Expressed spoken"/>
+               <proficiencyLevelCode code="G"
+                                     codeSystem="2.16.840.1.113883.5.61"
+                                     codeSystemName="LanguageAbilityProficiency"
+                                     displayName="Good"/>
+               <!-- Patient's preferred language -->
+            </languageCommunication>
+         </patient>
+      </patientRole>
+   </recordTarget>
+</root>
