@@ -168,6 +168,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PIVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
@@ -2537,6 +2538,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						fhirObs.setValue(dtt.tTS2DateTime((TS) value));
 					} else if (value instanceof BL) {
 						fhirObs.setValue(dtt.tBL2Boolean((BL) value));
+					} else if (value instanceof REAL) {
+						fhirObs.setValue(dtt.tREAL2DecimalType((REAL) value));
 					}
 				}
 			}
