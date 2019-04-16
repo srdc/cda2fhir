@@ -242,12 +242,12 @@ public interface IDataTypesTransformer {
 	DecimalType tREAL2DecimalType(REAL real);
 
 	/**
-	 * Transforms a CDA REAL instance to a FHIR String primitive datatype instance.
+	 * Transforms a CDA REAL instance to a FHIR quantity datatype instance.
 	 *
 	 * @param real a CDA REAL instance
-	 * @return A String primitive datatype instance
+	 * @return A FHIR quantity datatype instance
 	 */
-	StringType tREAL2String(REAL real);
+	Quantity tREAL2Quantity(REAL real);
 
 	/**
 	 * Transforms a CDA RTO instance to a FHIR Ratio composite datatype instance.

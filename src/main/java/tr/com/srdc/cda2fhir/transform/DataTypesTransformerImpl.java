@@ -728,11 +728,13 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	}
 
 	@Override
-	public StringType tREAL2String(REAL real) {
+	public Quantity tREAL2Quantity(REAL real) {
 		if (real == null || real.isSetNullFlavor() || real.getValue() == null) {
 			return null;
 		} else {
-			return new StringType(real.getValue().toString());
+			Quantity quantity = new Quantity();
+			quantity.setValue(real.getValue());
+			return quantity;
 		}
 	}
 

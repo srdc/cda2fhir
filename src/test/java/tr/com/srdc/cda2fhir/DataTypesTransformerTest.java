@@ -689,18 +689,32 @@ public class DataTypesTransformerTest {
 	}
 
 	@Test
-	public void testREAL2String() {
+	public void testREAL2Quantity() {
 		// simple instance test
 		REAL real = DatatypesFactory.eINSTANCE.createREAL();
 		real.setValue(11000.5478);
-
-		StringType string = dtt.tREAL2String(real);
-		Assert.assertEquals("REAL.value was transformed", "11000.5478", string.getValue());
+		Quantity quantity1 = dtt.tREAL2Quantity(real);
+		Assert.assertEquals("REAL.value was transformed", "11000.5478", quantity1.getValue().toString());
 
 		// null instance test
 		REAL real2 = null;
-		StringType string2 = dtt.tREAL2String(real2);
-		Assert.assertNull("REAL null instance transform failed", real2);
+		Quantity quantity2 = dtt.tREAL2Quantity(real2);
+		Assert.assertNull("REAL null instance transform failed", quantity2);
+	}
+
+	@Test
+	public void testNew() {
+
+		// simple instance test
+		ST st = DatatypesFactory.eINSTANCE.createST();
+		st.addText("theText");
+		StringType string = dtt.tST2String(st);
+		Assert.assertEquals("ST.text was not transformed", "theText", string.getValue());
+
+		// null instance test
+		ST st2 = null;
+		StringType string2 = dtt.tST2String(st2);
+		Assert.assertNull("ST null instance transform failed", string2);
 	}
 
 	@Test

@@ -98,6 +98,7 @@ import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
+import org.hl7.fhir.dstu3.model.Quantity;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.SimpleQuantity;
@@ -2539,7 +2540,37 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					} else if (value instanceof BL) {
 						fhirObs.setValue(dtt.tBL2Boolean((BL) value));
 					} else if (value instanceof REAL) {
-						fhirObs.setValue(dtt.tREAL2String((REAL) value));
+
+						fhirObs.setValue(dtt.tREAL2Quantity((REAL) value));
+
+						// Epic specific: attempt to get REAL units from custom observation.
+						String SNOMED_OID = "2.16.840.1.113883.6.96";
+						String SNOMED_VAL = "246514001";
+
+						for (EntryRelationship er : cdaObservation.getEntryRelationships()) {
+							Observation obs = er.getObservation();
+							if (obs != null) {
+								if (obs.getCode() != null) {
+									if (obs.getCode().getCodeSystem() != null && obs.getCode().getCode() != null) {
+										// Look for SNOMED unit encoding.
+										if (obs.getCode().getCodeSystem().equals(SNOMED_OID)
+												&& obs.getCode().getCode().equals(SNOMED_VAL)) {
+											for (ANY val : obs.getValues()) {
+												if (val instanceof ST) {
+													ST stVal = (ST) val;
+													String units = stVal.getText();
+													Quantity fhirVal = (Quantity) fhirObs.getValue();
+													fhirVal.setUnit(units);
+													fhirVal.setSystem(vst.tOid2Url(SNOMED_OID));
+													fhirVal.setCode(SNOMED_VAL);
+													break;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
