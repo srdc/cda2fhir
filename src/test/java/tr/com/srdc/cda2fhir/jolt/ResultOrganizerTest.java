@@ -166,6 +166,7 @@ public class ResultOrganizerTest {
 		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
 	}
 
+	@Test
 	public void testSample3() throws Exception {
 		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
 	}
@@ -324,7 +325,7 @@ public class ResultOrganizerTest {
 		runSampleTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testCernerSample2() throws Exception {
 		runSampleTest("Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
