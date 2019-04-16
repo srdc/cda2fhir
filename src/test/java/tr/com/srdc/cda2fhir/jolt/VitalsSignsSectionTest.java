@@ -13,6 +13,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Component4;
 import org.openhealthtools.mdht.uml.cda.Entry;
@@ -184,109 +185,109 @@ public class VitalsSignsSectionTest {
 		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample1() throws Exception {
 		runSampleTest("Epic/DOC0001.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample2() throws Exception {
 		runSampleTest("Epic/DOC0001 2.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample3() throws Exception {
 		runSampleTest("Epic/DOC0001 3.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample4() throws Exception {
 		runSampleTest("Epic/DOC0001 4.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample5() throws Exception {
 		runSampleTest("Epic/DOC0001 5.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample6() throws Exception {
 		runSampleTest("Epic/DOC0001 6.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample7() throws Exception {
 		runSampleTest("Epic/DOC0001 7.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample8() throws Exception {
 		runSampleTest("Epic/DOC0001 8.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample9() throws Exception {
 		runSampleTest("Epic/DOC0001 9.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample10() throws Exception {
 		runSampleTest("Epic/DOC0001 10.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample11() throws Exception {
 		runSampleTest("Epic/DOC0001 11.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample12() throws Exception {
 		runSampleTest("Epic/DOC0001 12.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample13() throws Exception {
 		runSampleTest("Epic/DOC0001 13.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample14() throws Exception {
 		runSampleTest("Epic/DOC0001 14.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample15() throws Exception {
 		runSampleTest("Epic/DOC0001 15.XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testEpicSample16() throws Exception {
 		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testCernerSample1() throws Exception {
 		runSampleTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
 	}
 
-	// @Ignore
+	@Ignore
 	@Test
 	public void testCernerSample2() throws Exception {
 		runSampleTest("Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
