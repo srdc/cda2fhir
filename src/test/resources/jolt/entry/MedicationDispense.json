@@ -25,7 +25,9 @@
 				},
 				"performer": {
 					"*": "Performer[].->AssignedEntity"
-				}
+				},
+				"statusCode": "status.->NullFlavorableCode",				
+				"product": "Medication.->MedicationInformation"
 			}
 		}
 	},
@@ -43,6 +45,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
+			"Medication": ["medicationReference.reference", "medicationReference.display"],
 			"Practitioner": {
 				"*":  ["performer[&].actor.reference", "performer[&].actor.display"]
 			}
@@ -69,9 +72,16 @@
 	{
 		"operation": "remove",
 		"spec": {
+			"Medication": "",
 			"Practitioner": "",
 			"Organization": "",
 			"PractitionerRole": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('MedicationDispenseStatus',@0)"
 		}
 	},
 	{

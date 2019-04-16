@@ -1345,6 +1345,26 @@ public class JoltUtil {
 			}
 		}
 
+		if (dispense.hasMedicationReference()) {
+			String reference = dispense.getMedicationReference().getReference();
+
+			String joltReference = findPathString(joltDispense, "medicationReference.reference");
+			Assert.assertNotNull("Jolt medication reference exists", joltReference);
+
+			Medication mMed = bundleUtil.getResourceFromReference(reference, Medication.class);
+			Map<String, Object> joltMMed = TransformManager.chooseResourceByReference(result, joltReference);
+			verify(mMed, joltMMed);
+
+			Map<String, Object> med = findPathMap(joltDispense, "medicationReference");
+			Map<String, Object> medClone = new LinkedHashMap<>(med);
+			joltClone.put("medicationReference", medClone);
+
+			medClone.put("reference", reference);
+		} else {
+			String value = findPathString(joltDispense, "medicationReference.reference");
+			Assert.assertNull("No med", value);
+		}
+
 		verify(dispense, joltClone, info);
 	}
 

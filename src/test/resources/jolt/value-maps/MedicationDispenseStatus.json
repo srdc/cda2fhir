@@ -1,0 +1,13 @@
+{
+	"stopped": "stopped",
+	"entered-in-error": "entered-in-error",
+	"error": "entered-in-error",
+	"nullified": "entered-in-error",
+	"completed": "completed",
+	"on-hold": "on-hold",
+	"onhold": "on-hold",
+	"suspended": "on-hold",
+	"active": "in-progress",
+	"in-progress": "in-progress",
+	"inprogress": "in-progress"
+}

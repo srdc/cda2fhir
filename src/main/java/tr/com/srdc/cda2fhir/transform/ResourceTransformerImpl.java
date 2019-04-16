@@ -2193,7 +2193,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// performer -> dispenser
+		// performer -> performer
 		if (cdaMedicationDispense.getPerformers() != null && !cdaMedicationDispense.getPerformers().isEmpty()) {
 			for (org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaMedicationDispense.getPerformers()) {
 				if (cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {
