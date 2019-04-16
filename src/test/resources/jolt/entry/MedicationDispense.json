@@ -4,7 +4,8 @@
 		"spec": {
 			"supply": {
 				"id": "MANY",
-				"performer": "MANY"
+				"performer": "MANY",
+				"effectiveTime": "MANY"
 			}
 		}
 	},
@@ -26,12 +27,21 @@
 				"performer": {
 					"*": "Performer[].->AssignedEntity"
 				},
-				"statusCode": "status.->NullFlavorableCode",				
+				"statusCode": "status.->NullFlavorableCode",
 				"product": "Medication.->MedicationInformation",
-				"quantity": ["quantity.->IVL_PQSimpleQuantity", "dosageInstruction[0].doseQuantity"],
+				"quantity": [
+					"quantity.->IVL_PQSimpleQuantity",
+					"dosageInstruction[0].doseQuantity.->IVL_PQSimpleQuantity"
+				],
 				"effectiveTime": {
-					"0": ["whenPrepared.->NullFlavorableValue", "dosageInstruction[0].timing.event[&].->NullFlavorableValue"],
-					"1": ["whenHandedOver.->NullFlavorableValue", "dosageInstruction[0].timing.event[&].->NullFlavorableValue"]
+					"0": [
+						"whenPrepared.->NullFlavorableValue",
+						"dosageInstruction[0].timing.event[&].->NullFlavorableValue"
+					],
+					"1": [
+						"whenHandedOver.->NullFlavorableValue",
+						"dosageInstruction[0].timing.event[&].->NullFlavorableValue"
+					]
 				}
 			}
 		}
@@ -46,13 +56,34 @@
 		"spec": {
 			"Performer": ""
 		}
-	},	
+	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Medication": ["medicationReference.reference", "medicationReference.display"],
+			"Medication": [
+				"medicationReference.reference",
+				"medicationReference.display"
+			],
 			"Practitioner": {
-				"*":  ["performer[&].actor.reference", "performer[&].actor.display"]
+				"*": [
+					"performer[&].actor.reference",
+					"performer[&].actor.display"
+				]
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "default",
+		"spec": {
+			"dosageInstruction": {
+				"*": {
+					"doseQuantity": {
+						"unit": "1"
+					}
+				}
 			}
 		}
 	},
@@ -76,6 +107,9 @@
 			"whenHandedOver": "=datetimeAdapter(@0)",
 			"dosageInstruction": {
 				"*": {
+					"doseQuantity": {
+						"unit": "=defaultValue('1',@0)"
+					},
 					"timing": {
 						"event": {
 							"*": "=datetimeAdapter(@0)"

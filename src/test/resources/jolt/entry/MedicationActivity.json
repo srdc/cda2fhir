@@ -49,6 +49,9 @@
 									"root": {
 										"2.16.840.1.113883.10.20.22.4.17": {
 											"@5": "MedicationRequest.->MedicationSupplyOrder"
+										},
+										"2.16.840.1.113883.10.20.22.4.18": {
+											"@5": "MedicationRequest.->MedicationDispense"
 										}
 									}
 								}

@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.MedicationDispense;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.junit.Assert;
@@ -23,6 +25,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.generator.IDGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationActivityGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
@@ -34,6 +37,8 @@ public class MedicationActivityTest {
 	private static ResourceTransformerImpl rt;
 
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/MedicationActivity/";
+
+	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
 
 	@BeforeClass
 	public static void init() {
@@ -64,6 +69,12 @@ public class MedicationActivityTest {
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationActivity", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
+		if (customJoltUpdate != null) {
+			Map<String, Object> joltDispense = TransformManager.chooseResource(joltResult, "MedicationDispense");
+			if (joltDispense != null) {
+				customJoltUpdate.accept(joltDispense);
+			}
+		}
 
 		joltUtil.verify(medicationStatement);
 
@@ -74,6 +85,15 @@ public class MedicationActivityTest {
 		} else {
 			List<Map<String, Object>> joltRequest = joltUtil.findResources("MedicationRequest");
 			Assert.assertTrue("No request", joltRequest.size() == 0);
+		}
+
+		List<MedicationDispense> dispenses = FHIRUtil.findResources(bundle, MedicationDispense.class);
+		Assert.assertTrue("One or zero dispences", dispenses.size() < 2);
+		if (dispenses.size() == 1) {
+			joltUtil.verify(dispenses.get(0));
+		} else {
+			List<Map<String, Object>> joltDispense = joltUtil.findResources("MedicationDispense");
+			Assert.assertTrue("No dispense", joltDispense.size() == 0);
 		}
 	}
 
@@ -101,9 +121,22 @@ public class MedicationActivityTest {
 	}
 
 	@Test
+	public void testidentifierOnly() throws Exception {
+		MedicationActivityGenerator generator = new MedicationActivityGenerator();
+		generator.setIDGenerator(IDGenerator.getNextInstance());
+		runTest(generator, "identifierOnlyCase");
+		customJoltUpdate = null;
+	}
+
+	@Test
 	public void testDefault() throws Exception {
+		customJoltUpdate = (r) -> {
+			Map<String, Object> map = JoltUtil.findPathMap(r, "dosageInstruction[].doseQuantity");
+			map.remove("xsi:type");
+		};
 		MedicationActivityGenerator generator = MedicationActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
+		customJoltUpdate = null;
 	}
 
 	@Test

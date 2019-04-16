@@ -1309,6 +1309,8 @@ public class JoltUtil {
 		Map<String, Object> joltClone = joltDispense == null ? null : new LinkedHashMap<>(joltDispense);
 
 		if (dispense.hasPerformer()) {
+			Assert.assertNotNull("Dispense exists", joltDispense);
+
 			List<MedicationDispense.MedicationDispensePerformerComponent> performers = dispense.getPerformer();
 			List<Object> joltPerformers = (List<Object>) joltClone.get("performer");
 

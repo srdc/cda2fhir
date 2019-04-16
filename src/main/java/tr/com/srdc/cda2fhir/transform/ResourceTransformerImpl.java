@@ -135,6 +135,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.Instructions;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationDispense;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
@@ -2118,6 +2119,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					cdaMedicationActivity.getMedicationSupplyOrder(), localBundleInfo);
 			localBundleInfo.updateFrom(medRequestResult);
 			result.updateFrom(medRequestResult);
+		}
+
+		EList<MedicationDispense> dispenses = cdaMedicationActivity.getMedicationDispenses();
+		if (dispenses != null && !dispenses.isEmpty()) {
+			MedicationDispense dispense = dispenses.get(0); // Cardinality is 1 in spec
+			IEntryResult medDispenseResult = tMedicationDispense2MedicationDispense(dispense, localBundleInfo);
+			localBundleInfo.updateFrom(medDispenseResult);
+			result.updateFrom(medDispenseResult);
 		}
 
 		return result;
