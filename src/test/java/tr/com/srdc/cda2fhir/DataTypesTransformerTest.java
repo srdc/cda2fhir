@@ -703,21 +703,6 @@ public class DataTypesTransformerTest {
 	}
 
 	@Test
-	public void testNew() {
-
-		// simple instance test
-		ST st = DatatypesFactory.eINSTANCE.createST();
-		st.addText("theText");
-		StringType string = dtt.tST2String(st);
-		Assert.assertEquals("ST.text was not transformed", "theText", string.getValue());
-
-		// null instance test
-		ST st2 = null;
-		StringType string2 = dtt.tST2String(st2);
-		Assert.assertNull("ST null instance transform failed", string2);
-	}
-
-	@Test
 	public void testString2DateTime() {
 		// null instance test
 		String nullStr = null;
