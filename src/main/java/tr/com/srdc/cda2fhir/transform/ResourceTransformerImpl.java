@@ -2543,7 +2543,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 						fhirObs.setValue(dtt.tREAL2Quantity((REAL) value));
 
-						// Epic specific: attempt to get REAL units from custom observation.
+						// Epic specific: attempt to get units from custom observation.
 						String SNOMED_OID = "2.16.840.1.113883.6.96";
 						String SNOMED_VAL = "246514001";
 
@@ -2561,8 +2561,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 													String units = stVal.getText();
 													Quantity fhirVal = (Quantity) fhirObs.getValue();
 													fhirVal.setUnit(units);
-													fhirVal.setSystem(vst.tOid2Url(SNOMED_OID));
-													fhirVal.setCode(SNOMED_VAL);
 													break;
 												}
 											}
