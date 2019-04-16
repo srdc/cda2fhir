@@ -6,10 +6,11 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Immunization;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -43,7 +44,7 @@ public class ImmunizationsSectionTest {
 
 	private static RTInvocationHandler handler;
 
-	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
+	private static BiConsumer<Map<String, Object>, Resource> customJoltUpdate2; // Hack for now
 
 	@BeforeClass
 	public static void init() {
@@ -111,10 +112,9 @@ public class ImmunizationsSectionTest {
 		for (int index = 0; index < count; ++index) {
 			Immunization immunization = immunizations.get(index);
 			Map<String, Object> joltImmunization = joltImmunizations.get(index);
-			if (customJoltUpdate != null) {
-				customJoltUpdate.accept(joltImmunization);
+			if (customJoltUpdate2 != null) {
+				customJoltUpdate2.accept(joltImmunization, immunization);
 			}
-
 			joltUtil.verify(immunization, joltImmunization);
 		}
 	}
@@ -131,16 +131,17 @@ public class ImmunizationsSectionTest {
 
 	@Test
 	public void testSample3() throws Exception {
-		customJoltUpdate = imm -> {
-			if (imm != null) {
-				Object date = imm.get("date");
-				if ("2006-06-28T14:24:00".equals(date)) {
-					imm.put("date", "2006-06-28T14:24:00-05:00");
+		customJoltUpdate2 = (r, resource) -> {
+			String date = (String) r.get("date");
+			if ("2006-06-28T14:24:00".equals(date)) {
+				if (resource instanceof Immunization) {
+					Immunization imm = (Immunization) resource;
+					r.put("date", imm.getDateElement().asStringValue());
 				}
 			}
 		};
 		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
-		customJoltUpdate = null;
+		customJoltUpdate2 = null;
 	}
 
 	@Ignore
