@@ -13,6 +13,7 @@ import org.openhealthtools.mdht.uml.cda.Performer2;
 import org.openhealthtools.mdht.uml.cda.Product;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
+import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
@@ -30,6 +31,8 @@ public class MedicationDispenseGenerator {
 	private CSCodeGenerator statusCodeGenerator;
 
 	private MedicationInformationGenerator medInfoGenerator;
+
+	private IVL_PQSimpleQuantityGenerator quantityGenerator;
 
 	MedicationDispenseGenerator() {
 	}
@@ -59,6 +62,11 @@ public class MedicationDispenseGenerator {
 			md.setProduct(product);
 		}
 
+		if (quantityGenerator != null) {
+			PQ pq = quantityGenerator.generate(factories);
+			md.setQuantity(pq);
+		}
+
 		return md;
 	}
 
@@ -69,6 +77,7 @@ public class MedicationDispenseGenerator {
 		md.performerGenerators.add(PerformerGenerator.getDefaultInstance());
 		md.statusCodeGenerator = CSCodeGenerator.getInstanceWithValue(STATUS, "active");
 		md.medInfoGenerator = MedicationInformationGenerator.getDefaultInstance();
+		md.quantityGenerator = IVL_PQSimpleQuantityGenerator.getDefaultInstance();
 
 		return md;
 	}
@@ -84,6 +93,12 @@ public class MedicationDispenseGenerator {
 			Assert.assertTrue("No med dispense status", !medDispense.hasStatus());
 		} else {
 			statusCodeGenerator.verify(medDispense.getStatus().toCode());
+		}
+
+		if (quantityGenerator == null) {
+			Assert.assertTrue("No med dispense quantity", !medDispense.hasQuantity());
+		} else {
+			quantityGenerator.verify(medDispense.getQuantity());
 		}
 	}
 

@@ -27,7 +27,8 @@
 					"*": "Performer[].->AssignedEntity"
 				},
 				"statusCode": "status.->NullFlavorableCode",				
-				"product": "Medication.->MedicationInformation"
+				"product": "Medication.->MedicationInformation",
+				"quantity": ["quantity.->IVL_PQSimpleQuantity", "dosageInstruction[0].doseQuantity"]
 			}
 		}
 	},

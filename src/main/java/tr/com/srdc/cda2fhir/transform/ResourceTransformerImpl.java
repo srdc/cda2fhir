@@ -2177,8 +2177,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			fhirMediDisp.setType(dtt.tCD2CodeableConcept(cdaMedicationDispense.getCode()));
 		}
 
-		// product.manufacturedProduct(MedicationInformation ||
-		// ImmunizationMedicationInformation) -> medication
+		// product -> medication (reference)
 		if (cdaMedicationDispense.getProduct() != null && !cdaMedicationDispense.getProduct().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationDispense.getProduct(),
 					localBundleInfo);

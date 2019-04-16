@@ -2,6 +2,8 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.MedicationDispense;
@@ -27,6 +29,8 @@ public class MedicationDispenseTest {
 
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/MedicationDispense/";
 
+	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
+
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
@@ -50,18 +54,30 @@ public class MedicationDispenseTest {
 		FHIRUtil.printJSON(medDispense, filepath);
 
 		generator.verify(medDispense);
+		generator.verify(bundle);
 
 		File xmlFile = CDAUtilExtension.writeAsXML(md, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationDispense", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
+		if (customJoltUpdate != null) {
+			Map<String, Object> joltDispense = TransformManager.chooseResource(joltResult, "MedicationDispense");
+			if (joltDispense != null) {
+				customJoltUpdate.accept(joltDispense);
+			}
+		}
 
 		joltUtil.verify(medDispense);
 	}
 
 	@Test
 	public void testDefault() throws Exception {
+		customJoltUpdate = (r) -> {
+			Map<String, Object> map = JoltUtil.findPathMap(r, "dosageInstruction[].doseQuantity");
+			map.remove("xsi:type");
+		};
 		MedicationDispenseGenerator generator = MedicationDispenseGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
+		customJoltUpdate = null;
 	}
 }
