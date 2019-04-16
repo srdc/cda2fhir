@@ -154,7 +154,9 @@ substanceAdministration.entryRelationship[].supply.id[].root,MedicationStatement
 substanceAdministration.entryRelationship[].supply.id[].extension,MedicationStatement.MedicationRequest.identifier[].value,,"toString",nullFlavor isnull,substanceAdministration.entryRelationship[].supply.id[].extension isnotnull,substanceAdministration.entryRelationship[].supply.id[].nullFlavor isnull,substanceAdministration.entryRelationship[].supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
 substanceAdministration.entryRelationship[].supply.id[].root,MedicationStatement.MedicationRequest.identifier[].value,,"toString",nullFlavor isnull,substanceAdministration.entryRelationship[].supply.id[].extension isnull,substanceAdministration.entryRelationship[].supply.id[].nullFlavor isnull,substanceAdministration.entryRelationship[].supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
 #instance-order,MedicationStatement.MedicationRequest.intent,,,nullFlavor isnull,substanceAdministration.entryRelationship[].supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+MedicationStatement.Medication,MedicationStatement.MedicationRequest.medicationReference.display,,
 MedicationStatement.Medication,MedicationStatement.MedicationRequest.medicationReference.reference,,"getId"
+MedicationStatement.Practitioner,MedicationStatement.MedicationRequest.requester.agent.display,,"getReferenceDisplay"
 MedicationStatement.Practitioner,MedicationStatement.MedicationRequest.requester.agent.reference,,"getId"
 substanceAdministration.entryRelationship[].supply.statusCode.code,MedicationStatement.MedicationRequest.status,,"valueSetAdapter('MedicationRequestStatus','unknown')",nullFlavor isnull,substanceAdministration.entryRelationship[].supply.statusCode.nullFlavor isnull,substanceAdministration.entryRelationship[].supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
 substanceAdministration.author.assignedAuthor.representedOrganization.addr[].city,MedicationStatement.Organization.address[].city,,"nullIfMap",nullFlavor isnull,substanceAdministration.author.assignedAuthor.representedOrganization.addr[].nullFlavor isnull,substanceAdministration.author.assignedAuthor.representedOrganization.nullFlavor isnull
@@ -255,9 +257,11 @@ substanceAdministration.id[].root,MedicationStatement.identifier[].system,,"idSy
 #official,MedicationStatement.identifier[].use,,,nullFlavor isnull,substanceAdministration.id[].nullFlavor isnull
 substanceAdministration.id[].extension,MedicationStatement.identifier[].value,,"toString",nullFlavor isnull,substanceAdministration.id[].extension isnotnull,substanceAdministration.id[].nullFlavor isnull
 substanceAdministration.id[].root,MedicationStatement.identifier[].value,,"toString",nullFlavor isnull,substanceAdministration.id[].extension isnull,substanceAdministration.id[].nullFlavor isnull
+MedicationStatement.Practitioner,MedicationStatement.informationSource.display,,
 MedicationStatement.Practitioner,MedicationStatement.informationSource.reference,,"getId"
 MedicationStatement.Medication,MedicationStatement.medicationReference.display,,
 MedicationStatement.Medication,MedicationStatement.medicationReference.reference,,"getId"
-MedicationStatement.Condition[],MedicationStatement.reasonReference[].reference,,"getId"
+MedicationStatement.Condition[],MedicationStatement.reasonReference[].display,,"getReferenceDisplay"
+MedicationStatement.Condition,MedicationStatement.reasonReference[].reference,,"getId"
 substanceAdministration.statusCode.code,MedicationStatement.status,,"valueSetAdapter('MedicationStatementStatus')",nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
 #unk,MedicationStatement.taken,,,nullFlavor isnull

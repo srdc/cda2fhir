@@ -2,8 +2,10 @@ CCDA Source,Target,Link,Format,Condition 1,Condition 2
 organizer.code,DiagnosticReport.code,CD2,,nullFlavor isnull
 organizer.effectiveTime,DiagnosticReport.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull
 organizer.id[],DiagnosticReport.identifier[],ID,,nullFlavor isnull
-Practitioner[],DiagnosticReport.performer[].actor.reference,,"getId"
-Observation[],DiagnosticReport.result[].reference,,"getId"
+Practitioner[],DiagnosticReport.performer[].actor.display,,
+DiagnosticReport.Practitioner,DiagnosticReport.performer[].actor.reference,,"getId"
+Observation[],DiagnosticReport.result[].display,,"getReferenceDisplay"
+DiagnosticReport.Observation,DiagnosticReport.result[].reference,,"getId"
 organizer.statusCode.code,DiagnosticReport.status,,"valueSetAdapter('DiagnosticReportStatus')",nullFlavor isnull,organizer.statusCode.nullFlavor isnull
 organizer.component[],Observation[],Observation,,nullFlavor isnull
 Practitioner[],Observation[].performer[].reference,,"getId"

@@ -37,7 +37,6 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionCom
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Annotation;
 import org.hl7.fhir.dstu3.model.Attachment;
-import org.hl7.fhir.dstu3.model.Base;
 import org.hl7.fhir.dstu3.model.Base64BinaryType;
 import org.hl7.fhir.dstu3.model.BooleanType;
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -1992,14 +1991,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (cdaMedicationActivity.getConsumable() != null && !cdaMedicationActivity.getConsumable().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationActivity.getConsumable(),
 					localBundleInfo);
-			if (fhirMedicationResult.hasResult()) {
-				result.updateFrom(fhirMedicationResult);
-        localBundleInfo.updateFrom(fhirMedicationResult);
-				for (BundleEntryComponent entry : fhirMedicationResult.getFullBundle().getEntry()) {
-					if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
-						fhirMedSt.setMedication(getReference(entry.getResource()));
-					}
+			result.updateFrom(fhirMedicationResult);
+			localBundleInfo.updateFrom(fhirMedicationResult);
+			for (BundleEntryComponent entry : fhirMedicationResult.getFullBundle().getEntry()) {
+				if (entry.getResource() instanceof org.hl7.fhir.dstu3.model.Medication) {
+					fhirMedSt.setMedication(getReference(entry.getResource()));
 				}
+
 			}
 		}
 
@@ -2315,17 +2313,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (cdaSupplyOrder.getProduct() != null && !cdaSupplyOrder.getProduct().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaSupplyOrder.getProduct(),
 					localBundleInfo);
-			if (fhirMedicationResult.hasResult()) {
-				result.updateFrom(fhirMedicationResult);
-        localBundleInfo.updateFrom(fhirMedicationResult);
-				for (BundleEntryComponent resultEntry : fhirMedicationResult.getFullBundle().getEntry()) {
-					if (resultEntry.getResource() instanceof Medication) {
-						Medication medicationResult = (Medication) resultEntry.getResource();
-						// We can only add either a reference here or a codeableconcept. Opting for
-						// Reference.
-						medRequest.setMedication(getReference(medicationResult));
+			result.updateFrom(fhirMedicationResult);
+			localBundleInfo.updateFrom(fhirMedicationResult);
+			for (BundleEntryComponent resultEntry : fhirMedicationResult.getFullBundle().getEntry()) {
+				if (resultEntry.getResource() instanceof Medication) {
+					Medication medicationResult = (Medication) resultEntry.getResource();
+					// We can only add either a reference here or a codeableconcept. Opting for
+					// Reference.
+					medRequest.setMedication(getReference(medicationResult));
 
-					}
 				}
 			}
 		}
