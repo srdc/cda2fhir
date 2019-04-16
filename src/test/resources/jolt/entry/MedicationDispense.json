@@ -1,0 +1,89 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"supply": {
+				"id": "MANY",
+				"performer": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"supply": {
+				"nullFlavor": "*"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"supply": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"performer": {
+					"*": "Performer[].->AssignedEntity"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},	
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*":  ["performer[&].actor.reference", "performer[&].actor.display"]
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('MedicationRequestStatus','unknown',@0)",
+			"medicationReference": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			},
+			"performer": {
+				"*": {
+					"actor": {
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"Organization": "",
+			"PractitionerRole": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "MedicationDispense"
+		}
+	}
+]

@@ -28,6 +28,7 @@ import org.hl7.fhir.dstu3.model.Immunization.ImmunizationPractitionerComponent;
 import org.hl7.fhir.dstu3.model.Immunization.ImmunizationReactionComponent;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.MedicationDispense;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestRequesterComponent;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
@@ -153,6 +154,24 @@ public class JoltUtil {
 		@Override
 		public Reference getPatientReference() {
 			return medRequest.getSubject();
+		}
+	}
+
+	private static class MedicationDispenseInfo extends ResourceInfo {
+		private MedicationDispense medDispense;
+
+		public MedicationDispenseInfo(MedicationDispense medDispense) {
+			this.medDispense = medDispense;
+		}
+
+		@Override
+		public String getPatientPropertyName() {
+			return "subject";
+		}
+
+		@Override
+		public Reference getPatientReference() {
+			return medDispense.getSubject();
 		}
 	}
 
@@ -1281,5 +1300,56 @@ public class JoltUtil {
 	public void verify(MedicationRequest request) throws Exception {
 		Map<String, Object> joltRequest = TransformManager.chooseResource(result, "MedicationRequest");
 		verify(request, joltRequest);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(MedicationDispense dispense, Map<String, Object> joltDispense) throws Exception {
+		MedicationDispenseInfo info = new MedicationDispenseInfo(dispense);
+
+		Map<String, Object> joltClone = joltDispense == null ? null : new LinkedHashMap<>(joltDispense);
+
+		if (dispense.hasPerformer()) {
+			List<MedicationDispense.MedicationDispensePerformerComponent> performers = dispense.getPerformer();
+			List<Object> joltPerformers = (List<Object>) joltClone.get("performer");
+
+			Assert.assertEquals("Performer count", joltPerformers.size(), performers.size());
+
+			for (int index = 0; index < performers.size(); ++index) {
+				MedicationDispense.MedicationDispensePerformerComponent performer = performers.get(index);
+				Map<String, Object> joltPerformer = (Map<String, Object>) joltPerformers.get(index);
+
+				if (performer.hasActor()) {
+					joltPerformer = new LinkedHashMap<String, Object>(joltPerformer);
+					joltPerformers.set(index, joltPerformer);
+
+					String reference = performer.getActor().getReference();
+					String joltReference = findPathString(joltPerformer, "actor.reference");
+
+					Assert.assertNotNull("Jolt actor reference exists", joltReference);
+
+					verifyEntity(reference, joltReference);
+
+					Map<String, Object> joltActor = (Map<String, Object>) joltPerformer.get("actor");
+					joltActor = new LinkedHashMap<String, Object>(joltActor);
+					joltPerformer.put("actor", joltActor);
+
+					joltActor.put("reference", reference);
+				} else {
+					Assert.assertNull("No performer actor", joltPerformer.get("actor"));
+				}
+			}
+		} else {
+			if (joltDispense != null) {
+				String value = (String) joltDispense.get("performer");
+				Assert.assertNull("No performer", value);
+			}
+		}
+
+		verify(dispense, joltClone, info);
+	}
+
+	public void verify(MedicationDispense dispense) throws Exception {
+		Map<String, Object> joltDispense = TransformManager.chooseResource(result, "MedicationDispense");
+		verify(dispense, joltDispense);
 	}
 }
