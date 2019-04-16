@@ -1,0 +1,49 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"effectiveTime": {
+				"nullFlavor": "*"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "statusCode",
+			"conditions": [{
+				"effectiveTime": {
+					"low": {
+						"value": "y",
+						"nullFlavor": "n"
+					}
+				}
+			}, {
+				"effectiveTime": {
+					"high": {
+						"value": "y",
+						"nullFlavor": "n"
+					}
+				}
+			}, {
+				"effectiveTime": {
+					"value": "y"
+				}
+			}]
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"statusCode": {
+				"code": "verificationStatus"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"verificationStatus": "=valueSetAdapter('ConditionVerificationStatus','unknown',@0)"
+		}
+	}
+]

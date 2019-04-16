@@ -1,9 +1,12 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 observation.targetSiteCode,Observation.bodySite,CD,,nullFlavor isnull
-observation.code,Observation.code,CD,,nullFlavor isnull
+observation.code,Observation.code,CD2,,nullFlavor isnull
+observation.value.nullFlavor,Observation.dataAbsentReason.coding[],,,nullFlavor isnull
 observation.effectiveTime,Observation.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull
 observation.id[],Observation.identifier[],ID,,nullFlavor isnull
-observation.interpretationCode.code,Observation.interpretation.coding[],,,nullFlavor isnull
+observation.interpretationCode.code,Observation.interpretation.coding[].code,,,nullFlavor isnull
+observation.interpretationCode.displayName,Observation.interpretation.coding[].display,,,nullFlavor isnull
+#http://hl7.org/fhir/v2/0078,Observation.interpretation.coding[].system,,,nullFlavor isnull
 observation.author[].time.value,Observation.issued,,"datetimeAdapter",nullFlavor isnull
 observation.methodCode[],Observation.method,CD,"lastElement",nullFlavor isnull
 Practitioner[],Observation.performer[].reference,,"getId"

@@ -1,0 +1,28 @@
+[
+	{
+		"input": {
+			"originalText": "CBC AND DIFF W\/ PLATELETS",
+			"codeSystem": "2.16.840.1.113883.6.1",
+			"codeSystemName": "LOINC",
+			"translation": [
+				{
+					"code": 15874,
+					"codeSystem": "1.2.840.114350.1.13.88.3.7.2.696580",
+					"codeSystemName": "Epic.EAP.ID",
+					"displayName": "CBC AND DIFF W\/ PLATELETS"
+				}
+			],
+			"nullFlavor": "UNK"
+		},
+		"expected": {
+			"coding": [
+				{
+					"system": "urn:oid:1.2.840.114350.1.13.88.3.7.2.696580",
+					"code": "15874",
+					"display": "CBC AND DIFF W/ PLATELETS"
+				}
+			],
+			"text": "CBC AND DIFF W/ PLATELETS"
+		}
+	}
+]

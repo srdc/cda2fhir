@@ -170,6 +170,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testEncounterActivityFull() throws Exception {
+		actualTest("EncounterActivity", true);
+	}
+
+	@Test
 	public void testMedicationInformation() throws Exception {
 		actualTest("MedicationInformation");
 	}

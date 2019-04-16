@@ -19,7 +19,9 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"substanceAdministration": {
+				"nullFlavor": "*"
+			}
 		}
 	},
 	{
@@ -70,7 +72,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
@@ -84,6 +88,7 @@
 			"Practitioner": {
 				"*": [
 					"practitioner[&].actor.reference",
+					"practitioner[&].actor.display",
 					"practitioner[&1].role",
 					"primarySource"
 				]
@@ -92,7 +97,7 @@
 				"effectivePeriod": {
 					"start": "reaction[0].date"
 				},
-				"@0": "reaction[0].detail.reference"
+				"@0": ["reaction[0].detail.reference", "reaction[0].detail.display"]
 			}
 		}
 	},
@@ -103,7 +108,8 @@
 			"practitioner": {
 				"*": {
 					"actor": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					},
 					"role": "=constantValue('ImmunizationRoleConstant')"
 				}
@@ -111,7 +117,8 @@
 			"reaction": {
 				"*": {
 					"detail": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					},
 					"date": "=datetimeAdapter(@0)"
 				}
@@ -129,6 +136,12 @@
 			"PractitionerRole": "",
 			"Organization": "",
 			"Observation": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{

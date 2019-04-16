@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.bazaarvoice.jolt.ContextualTransform;
@@ -33,22 +34,25 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 			Map<String, Object> code = (Map<String, Object>) map.get("code");
 
-			if (code.get("coding") instanceof List) {
+			if (code.get("text") instanceof String) {
+				display = (String) code.get("text");
+			} else if (code.get("coding") instanceof List) {
 
 				List<Object> coding = (List<Object>) code.get("coding");
 
 				if (!coding.isEmpty() && coding.get(0) instanceof Map) {
 
-					Map<String, Object> codeIndx0 = (Map<String, Object>) coding.get(0);
+					for (Object entry : coding) {
+						Map<String, Object> currentEntry = (Map<String, Object>) entry;
 
-					if (codeIndx0.get("text") instanceof String) {
-
-						display = (String) codeIndx0.get("text");
+						if (currentEntry.get("display") instanceof String) {
+							display = (String) currentEntry.get("display");
+							break;
+						}
 
 					}
 				}
 			}
-
 		} else if (map.get("name") != null) {
 
 			Object name = map.get("name");
@@ -108,7 +112,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
 
-			if (!(arg instanceof String || arg instanceof Integer)) {
+			if (!(arg instanceof String || arg instanceof Integer || arg instanceof Long)) {
 				return Optional.empty();
 			}
 			String datetimeWithZone = arg.toString();
@@ -478,14 +482,37 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
 			if (arg == null) {
-				return null;
-			}
-			if (!(arg instanceof String)) {
 				return Optional.of(null);
 			}
-			String currentValue = (String) arg;
+			if (arg instanceof String) {
+				String text = (String) arg;
+				if (text.isEmpty()) {
+					return Optional.of(null);
+				}
+				return Optional.of(text);
+			}
+			if (!(arg instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> argAsMap = (Map<String, Object>) arg;
+			Object reference = argAsMap.get("reference");
+			if (reference == null || !(reference instanceof Map)) {
+				return Optional.of(null);
+			}
+			Map<String, Object> referenceAsMap = (Map<String, Object>) reference;
+			Object valueObject = referenceAsMap.get("value");
+			if (valueObject == null || !(valueObject instanceof String)) {
+				return Optional.of(null);
+			}
+			String currentValue = (String) valueObject;
+			if (currentValue.isEmpty()) {
+				return Optional.of(null);
+			}
+			if (currentValue.charAt(0) != '#') {
+				return Optional.of(currentValue);
+			}
 			Map<String, Object> map = (Map<String, Object>) temporaryContext.get("Annotations");
-			if (map == null || currentValue.isEmpty() || currentValue.charAt(0) != '#') {
+			if (map == null) {
 				return Optional.of(null);
 			}
 			String value = (String) map.get(currentValue.substring(1));
@@ -506,6 +533,55 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class ToString extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			if (arg == null) {
+				return Optional.of(null);
+			}
+			if (arg instanceof Double) {
+				String result = Double.toString((Double) arg);
+				return Optional.of(result);
+			}
+			if (arg instanceof Float) {
+				String result = Float.toString((Float) arg);
+				return Optional.of(result);
+			}
+			if (!(arg instanceof String)) {
+				return Optional.of(arg.toString());
+			}
+			return Optional.of(arg);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final class InterpretationCodeAdapter extends Function.ListFunction {
+		@Override
+		protected Optional<Object> applyList(List<Object> argList) {
+			int size = argList.size();
+			if (argList == null || size != 2) {
+				return Optional.empty();
+			}
+			String filename = (String) argList.get(0);
+			Object object = argList.get(1);
+			if (object == null) {
+				return Optional.empty();
+			}
+			Map<String, Object> value = (Map<String, Object>) object;
+			String code = (String) value.get("code");
+			if (code == null) {
+				return Optional.of(null);
+			}
+			Map<String, Object> map = JsonUtils
+					.filepathToMap("src/test/resources/jolt/value-maps/" + filename + ".json");
+			Object mappedValue = map.get(code);
+			if (mappedValue == null) {
+				return Optional.empty();
+			}
+			return Optional.of(mappedValue);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -513,6 +589,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("referenceAdapter", new ReferenceAdapter());
 		AMIDA_FUNCTIONS.put("referenceDisplayAdapter", new ReferenceDisplayAdapter());
 		AMIDA_FUNCTIONS.put("valueSetAdapter", new ValueSetAdapter());
+		AMIDA_FUNCTIONS.put("interpretationCodeAdapter", new InterpretationCodeAdapter());
 		AMIDA_FUNCTIONS.put("systemAdapter", new SystemAdapter());
 		AMIDA_FUNCTIONS.put("idSystemAdapter", new IdSystemAdapter());
 		AMIDA_FUNCTIONS.put("maxDateTime", new MaxDateTime());
@@ -529,14 +606,37 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("contentOrSelf", new ContentOrSelf());
 		AMIDA_FUNCTIONS.put("nullIfMap", new NullIfMap());
 		AMIDA_FUNCTIONS.put("resolveText", new ResolveText());
+		AMIDA_FUNCTIONS.put("toString", new ToString());
 	}
 
 	private Modifier.Overwritr modifier;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object transform(final Object input, final Map<String, Object> context) {
 		temporaryContext = context; // TODO: Improve modifiers to have context available
-		return modifier.transform(input, context);
+		Object result = modifier.transform(input, context);
+		if (result == null || !(result instanceof Map)) {
+			return result;
+		}
+		Map<String, Object> resultAsMap = (Map<String, Object>) result;
+		Iterator<Entry<String, Object>> itr = resultAsMap.entrySet().iterator();
+		while (itr.hasNext()) {
+			Entry<String, Object> entry = itr.next();
+			Object value = entry.getValue();
+			if (value == null) {
+				itr.remove();
+				continue;
+			}
+			if (value instanceof Map) {
+				Map<String, Object> valueAsMap = (Map<String, Object>) value;
+				if (valueAsMap.isEmpty()) {
+					itr.remove();
+					continue;
+				}
+			}
+		}
+		return result;
 	}
 
 	public AdditionalModifier(final Object spec) {

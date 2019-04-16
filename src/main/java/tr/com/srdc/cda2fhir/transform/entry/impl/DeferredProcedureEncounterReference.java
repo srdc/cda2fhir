@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.transform.entry.impl;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 
@@ -23,6 +24,11 @@ public class DeferredProcedureEncounterReference implements IDeferredReference {
 	@Override
 	public Identifier getIdentifier() {
 		return identifier;
+	}
+
+	@Override
+	public Resource getResource() {
+		return procedure;
 	}
 
 	@Override

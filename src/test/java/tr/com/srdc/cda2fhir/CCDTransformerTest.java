@@ -230,7 +230,7 @@ public class CCDTransformerTest {
 		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.19.5.9999.456", "2981823", null, "1001 Village Avenue");
 		util.spotCheckAttesterPractitioner(CompositionAttestationMode.PROFESSIONAL, "Primary", "207QA0505X", null);
 		util.spotCheckAttesterPractitioner(CompositionAttestationMode.LEGAL, "Primary", "207QA0505X", null);
-		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.4.6", "5555555555", "Primary", "1004 Healthcare Drive ");
+		util.spotCheckPractitioner("urn:oid:2.16.840.1.113883.4.6", "5555555555", "Primary", "1004 Healthcare Drive");
 		util.spotCheckAuthorPractitioner("Primary", "207QA0505X", null);
 		util.spotCheckObservationPractitioner("b63a8636-cfff-4461-b018-40ba58ba8b32", null, null, null);
 		util.spotCheckMedStatementPractitioner("6c844c75-aa34-411c-b7bd-5e4a9f206e29", "Primary", null, null);

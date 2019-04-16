@@ -26,11 +26,12 @@
 				"id": {
 					"*": "identifier[].->ID"
 				},
-				"code": "code.->CD",
+				"code": "code.->CD2",
 				"statusCode": "status.->NullFlavorableCode",
 				"targetSiteCode": "bodySite.->CD",
 				"effectiveTime": "effectivePeriod.->IVL_TSPeriod",
 				"value": {
+					"nullFlavor": "dataAbsentReason.coding[]",
 					"xsi:type": {
 						"CD": {
 							"@2": "valueCodeableConcept.->CD"
@@ -67,14 +68,15 @@
 					}
 				},
 				"author": {
-					"*": ["Author[&].->AuthorParticipation", "issued.->Time"]
+					"*": [
+						"Author[&].->AuthorParticipation",
+						"issued.->Time"
+					]
 				},
 				"methodCode": {
 					"*": "method.->CD"
 				},
-				"interpretationCode": {
-					"code": "interpretation.coding[]"
-				},
+				"interpretationCode": "interpretation.coding[].->InterpretationCode",
 				"referenceRange": {
 					"*": {
 						"observationRange": {
@@ -88,7 +90,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
@@ -110,10 +114,20 @@
 			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)",
 			"interpretation": {
 				"coding": {
-					"*": "=valueSetAdapter('ObservationInterpretation',@0)"
+					"*": "=interpretationCodeAdapter('ObservationInterpretation',@0)"
+				}
+			},
+			"referenceRange": {
+				"*": {
+					"text": "=contentOrSelf(@0)"
 				}
 			},
 			"valueDateTime": "=datetimeAdapter(@0)",
+			"dataAbsentReason": {
+				"coding": {
+					"*": "=valueSetAdapter('ObservationDataAbsentReason',@0)"
+				}
+			},
 			"performer": {
 				"*": {
 					"reference": "=getId(@0)"
@@ -132,8 +146,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
 		"spec": {
+			"recursive" : true
 		}
 	},
 	{
