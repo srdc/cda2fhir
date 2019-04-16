@@ -28,7 +28,11 @@
 				},
 				"statusCode": "status.->NullFlavorableCode",				
 				"product": "Medication.->MedicationInformation",
-				"quantity": ["quantity.->IVL_PQSimpleQuantity", "dosageInstruction[0].doseQuantity"]
+				"quantity": ["quantity.->IVL_PQSimpleQuantity", "dosageInstruction[0].doseQuantity"],
+				"effectiveTime": {
+					"0": ["whenPrepared.->NullFlavorableValue", "dosageInstruction[0].timing.event[&].->NullFlavorableValue"],
+					"1": ["whenHandedOver.->NullFlavorableValue", "dosageInstruction[0].timing.event[&].->NullFlavorableValue"]
+				}
 			}
 		}
 	},
@@ -55,7 +59,6 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"status": "=valueSetAdapter('MedicationRequestStatus','unknown',@0)",
 			"medicationReference": {
 				"reference": "=getId(@0)",
 				"display": "=getReferenceDisplay(@0)"
@@ -65,6 +68,18 @@
 					"actor": {
 						"reference": "=getId(@0)",
 						"display": "=getReferenceDisplay(@0)"
+					}
+				}
+			},
+			"status": "=valueSetAdapter('MedicationDispenseStatus',@0)",
+			"whenPrepared": "=datetimeAdapter(@0)",
+			"whenHandedOver": "=datetimeAdapter(@0)",
+			"dosageInstruction": {
+				"*": {
+					"timing": {
+						"event": {
+							"*": "=datetimeAdapter(@0)"
+						}
 					}
 				}
 			}
@@ -77,12 +92,6 @@
 			"Practitioner": "",
 			"Organization": "",
 			"PractitionerRole": ""
-		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
-		"spec": {
-			"status": "=valueSetAdapter('MedicationDispenseStatus',@0)"
 		}
 	},
 	{

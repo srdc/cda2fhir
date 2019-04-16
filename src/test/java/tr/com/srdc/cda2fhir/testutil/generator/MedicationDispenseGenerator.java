@@ -14,6 +14,7 @@ import org.openhealthtools.mdht.uml.cda.Product;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
@@ -33,6 +34,8 @@ public class MedicationDispenseGenerator {
 	private MedicationInformationGenerator medInfoGenerator;
 
 	private IVL_PQSimpleQuantityGenerator quantityGenerator;
+
+	private List<SXCM_TSGenerator> effectiveTimeGenerators = new ArrayList<>();
 
 	MedicationDispenseGenerator() {
 	}
@@ -67,6 +70,11 @@ public class MedicationDispenseGenerator {
 			md.setQuantity(pq);
 		}
 
+		effectiveTimeGenerators.forEach(effectiveTimeGenerator -> {
+			SXCM_TS ts = effectiveTimeGenerator.generate(factories);
+			md.getEffectiveTimes().add(ts);
+		});
+
 		return md;
 	}
 
@@ -78,6 +86,8 @@ public class MedicationDispenseGenerator {
 		md.statusCodeGenerator = CSCodeGenerator.getInstanceWithValue(STATUS, "active");
 		md.medInfoGenerator = MedicationInformationGenerator.getDefaultInstance();
 		md.quantityGenerator = IVL_PQSimpleQuantityGenerator.getDefaultInstance();
+		md.effectiveTimeGenerators.add(new SXCM_TSGenerator("20180422"));
+		md.effectiveTimeGenerators.add(new SXCM_TSGenerator("20190123"));
 
 		return md;
 	}
@@ -99,6 +109,19 @@ public class MedicationDispenseGenerator {
 			Assert.assertTrue("No med dispense quantity", !medDispense.hasQuantity());
 		} else {
 			quantityGenerator.verify(medDispense.getQuantity());
+		}
+
+		if (effectiveTimeGenerators.isEmpty()) {
+			Assert.assertTrue("No med dispense when prepared", !medDispense.hasWhenPrepared());
+			Assert.assertTrue("No med dispense when handed over", !medDispense.hasWhenHandedOver());
+		} else {
+			effectiveTimeGenerators.get(0).verify(medDispense.getWhenPreparedElement().asStringValue());
+			int count = effectiveTimeGenerators.size();
+			if (count < 2) {
+				Assert.assertTrue("No med dispense when handed over", !medDispense.hasWhenHandedOver());
+			} else {
+				effectiveTimeGenerators.get(1).verify(medDispense.getWhenHandedOverElement().asStringValue());
+			}
 		}
 	}
 
