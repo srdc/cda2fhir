@@ -1,0 +1,62 @@
+{
+	"UNK": {
+		"code": "unknown",
+		"display": "Unkown",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"ASKU": {
+		"code": "asked",
+		"display": "Asked",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"MSK": {
+		"code": "masked",
+		"display": "Masked",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"NA": {
+		"code": "unsupported",
+		"display": "Unsupported",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"NASK": {
+		"code": "not-asked",
+		"display": "Not Asked",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"NAV": {
+		"code": "temp",
+		"display": "Temp",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"NI": {
+		"code": "error",
+		"display": "Error",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"NINF": {
+		"code": "NaN",
+		"display": "Not a Number",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"NP": {
+		"code": "unknown",
+		"display": "Unkown",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"OTH": {
+		"code": "error",
+		"display": "Error",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"PINF": {
+		"code": "NaN",
+		"display": "Not a Number",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	},
+	"TRC": {
+		"code": "NaN",
+		"display": "Not a Number",
+		"system": "http://hl7.org/fhir/data-absent-reason"
+	}
+}

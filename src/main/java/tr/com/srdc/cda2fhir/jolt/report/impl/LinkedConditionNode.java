@@ -34,8 +34,11 @@ public class LinkedConditionNode extends LinkedNode implements IConditionNode {
 		String parentPath = parent.getPath();
 		IParentNode grandParent = parent.getParent();
 
-		if (rank <= parent.originalNodeCount()) {
-			LeafNode result = new LinkedNode(parent, parentPath, target, link);
+		if (rank <= grandParent.originalNodeCount()) {
+			LinkedNode result = new LinkedNode(grandParent, parentPath, target, link);
+			if (rank == 1) {
+				result.removeExtra = true;
+			}
 			result.copyConditions(parent);
 			result.copyConditions(this);
 			grandParent.addChild(result);

@@ -11,6 +11,15 @@ public class LeafWildcardNode extends LeafNode implements IWildcardNode {
 	}
 
 	@Override
+	public LeafWildcardNode clone(IParentNode parent) {
+		String path = getPath();
+		String target = getTarget();
+		LeafWildcardNode result = new LeafWildcardNode(parent, path, target);
+		result.addConditions(getConditions());
+		return result;
+	}
+
+	@Override
 	public void fillWildcardNodes(List<IWildcardNode> result) {
 		result.add(this);
 	}

@@ -82,7 +82,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		String output = transformationCSV("ProcedureActivityProcedure", false);
+		String output = transformationCSV("ReactionObservation", false);
 		System.out.print(output);
 	}
 }

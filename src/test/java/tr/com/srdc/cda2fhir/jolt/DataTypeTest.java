@@ -60,6 +60,11 @@ public class DataTypeTest {
 	}
 
 	@Test
+	public void testCD2() throws Exception {
+		runDataTypeTests("CD2", false);
+	}
+
+	@Test
 	public void testTEL() throws Exception {
 		runDataTypeTests("TEL", true);
 	}

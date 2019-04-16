@@ -1,12 +1,28 @@
 [
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"operation": "cardinality",
 		"spec": {
-			"nullFlavor": ["code", "codeSystem", "displayName", "translation"]
+			"translation": "MANY"
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"nullFlavor": ["code", "codeSystem", "displayName"]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "translation",
+			"conditions": [{
+				"code": "y"
+			}, {
+				"displayName": "y"
+			}, {
+				"originalText": "y"
+			}]
+		}
 	},
 	{
 		"operation": "shift",
@@ -17,15 +33,13 @@
 			"translation": {
 				"*": "coding[].->CDHelper"
 			},
-			"originalText": {
-				"reference": {
-					"value": "text"
-				}
-			}
+			"originalText": "text"
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "modify-overwrite-beta",

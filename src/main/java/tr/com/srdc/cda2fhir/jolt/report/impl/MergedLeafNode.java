@@ -8,6 +8,15 @@ public class MergedLeafNode extends LeafNode {
 	}
 
 	@Override
+	public MergedLeafNode clone(IParentNode parent) {
+		String path = getPath();
+		String target = getTarget();
+		MergedLeafNode result = new MergedLeafNode(parent, path, target);
+		result.addConditions(getConditions());
+		return result;
+	}
+
+	@Override
 	public int originalNodeCount() {
 		return 1;
 	}

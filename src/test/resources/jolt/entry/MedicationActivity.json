@@ -38,55 +38,80 @@
 					}
 				},
 				"doseQuantity": "dosage[0].doseQuantity.->IVL_PQSimpleQuantity",
-				"routeCode": "dosage[0].route.->CD",
+				"routeCode": "dosage[0].route.->CD2",
 				"rateQuantity": "dosage[0].rateRange.->IVL_PQRange",
 				"#unk": "taken",
 				"entryRelationship": {
 					"*": {
-						"typeCode": {
-							"RSON": {
-								"@2": "Condition[].->MedIndication"
+						"supply": {
+							"templateId": {
+								"0": {
+									"root": {
+										"2.16.840.1.113883.10.20.22.4.17": {
+											"@5": "MedicationRequest.->MedicationSupplyOrder"
+										}
+									}
+								}
+							}
+						},
+						"observation": {
+							"templateId": {
+								"0": {
+									"root": {
+										"2.16.840.1.113883.10.20.22.4.19": {
+											"@5": "Condition[].->MedIndication"
+										}
+									}
+								}
 							},
-							"REFR": {
-								"@2": "MedicationRequest.->MedicationSupplyOrder"
+							"code": {
+								"code": {
+									"FREQUENCY": {
+										"@3": {
+											"value": {
+												"content": "dosage[0].timing.code.text"
+											}
+										}
+									}
+								}
 							}
 						}
-						
 					}
-					
 				}
 			}
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "informationSource.reference",
-			"Medication": "medicationReference.reference",
+			"Practitioner": ["informationSource.reference", "informationSource.display"],
+			"Medication": ["medicationReference.reference", "medicationReference.display"],
 			"Condition": {
-				"*": "reasonReference[&].reference"
+				"*": ["reasonReference[&].reference", "reasonReference[&].display"]
 			}
 		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"status": "=valueSetAdapter('MedicationStatementStatus',@0)",
 			"informationSource": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"medicationReference": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"reasonReference": {
-				"*": {			
-					"reference": "=getId(@0)"
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
 				}
 			},
 			"dosage": {
@@ -119,6 +144,12 @@
 			}
 		}
 	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
+		}
+	},	
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
 		"spec": {

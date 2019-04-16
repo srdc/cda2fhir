@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import tr.com.srdc.cda2fhir.jolt.report.impl.NotNullCondition;
@@ -79,6 +80,7 @@ public class TableTest {
 		return result;
 	}
 
+	@Ignore
 	@Test
 	public void testIndicationEffectiveTime() throws Exception {
 		JoltTemplate template = Main.readTemplate("intermediate/IndicationEffectiveTime");
@@ -87,4 +89,12 @@ public class TableTest {
 		Table expected = getExpectedIndicationEffectiveTable();
 		compare(actual, expected);
 	}
+
+	@Test
+	public void testReactionObservation() throws Exception {
+		JoltTemplate template = Main.readTemplate("entry/ImmunizationActivity");
+		Table actual = template.createTable(Collections.<String, JoltTemplate>emptyMap(), false);
+		actual.sort();
+	}
+
 }

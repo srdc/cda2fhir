@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Observation;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -62,18 +59,10 @@ public class ObservationTest {
 
 		generator.verify(bundle);
 
-		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
-		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
-		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-
 		File xmlFile = CDAUtilExtension.writeAsXML(cdaObs, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "Observation", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
-
-		joltUtil.verifyOrganizations(organizations);
-		joltUtil.verifyPractitioners(practitioners);
-		joltUtil.verifyPractitionerRoles(practitionerRoles);
 
 		joltUtil.verify(observation);
 	}

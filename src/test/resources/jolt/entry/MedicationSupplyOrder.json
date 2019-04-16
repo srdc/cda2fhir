@@ -35,13 +35,15 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Medication": "medicationReference.reference",
-			"Practitioner": "requester.agent.reference"
+			"Medication": ["medicationReference.reference", "medicationReference.display"],
+			"Practitioner": ["requester.agent.reference", "requester.agent.display"]
 		}
 	},
 	{
@@ -49,11 +51,13 @@
 		"spec": {
 			"status": "=valueSetAdapter('MedicationRequestStatus','unknown',@0)",
 			"medicationReference": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"requester": {
 				"agent": {
-					"reference": "=getId(@0)"
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
 				}
 			}
 		}
@@ -70,6 +74,12 @@
 					"system": ""
 				}
 			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{
