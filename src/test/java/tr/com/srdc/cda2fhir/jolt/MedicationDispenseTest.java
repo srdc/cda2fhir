@@ -17,6 +17,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.generator.IDGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationDispenseGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
@@ -79,5 +80,13 @@ public class MedicationDispenseTest {
 		MedicationDispenseGenerator generator = MedicationDispenseGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
 		customJoltUpdate = null;
+	}
+
+	@Test
+	public void testOnlyIdentifier() throws Exception {
+		MedicationDispenseGenerator generator = new MedicationDispenseGenerator();
+		IDGenerator idGenerator = IDGenerator.getNextInstance();
+		generator.setIDGenerator(idGenerator);
+		runTest(generator, "onlyIdentifierCase");
 	}
 }

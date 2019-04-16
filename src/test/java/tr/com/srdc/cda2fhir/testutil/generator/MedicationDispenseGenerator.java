@@ -37,7 +37,11 @@ public class MedicationDispenseGenerator {
 
 	private List<SXCM_TSGenerator> effectiveTimeGenerators = new ArrayList<>();
 
-	MedicationDispenseGenerator() {
+	public MedicationDispenseGenerator() {
+	}
+
+	public void setIDGenerator(IDGenerator idGenerator) {
+		idGenerators.add(idGenerator);
 	}
 
 	public org.openhealthtools.mdht.uml.cda.consol.MedicationDispense generate(CDAFactories factories) {
