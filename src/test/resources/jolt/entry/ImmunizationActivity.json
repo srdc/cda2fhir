@@ -44,29 +44,11 @@
 				"doseQuantity": "doseQuantity.->IVL_PQSimpleQuantity",
 				"statusCode": "status.->NullFlavorableCode",
 				"entryRelationship": {
-					"*": {
-						"observation": {
-							"templateId": {
-								"0": {
-									"root": {
-										"2.16.840.1.113883.10.20.22.4.53": {
-											"@4": {
-												"code": "explanation.reasonNotGiven[].->CD"
-											}
-										},
-										"2.16.840.1.113883.10.20.22.4.19": {
-											"@4": {
-												"value": "explanation.reason[].->CD"
-											}
-										},
-										"2.16.840.1.113883.10.20.22.4.9": {
-											"@5": "Observation.->Observation"
-										}
-									}
-								}
-							}
-						}
-					}
+					"*": [
+						"explanation.reasonNotGiven[].->ImmunizationRefusalReason",
+						"explanation.reason[].->ImmunizationIndication",
+						"Observation.->ImmunizationObservation"
+					]
 				}
 			}
 		}
@@ -74,6 +56,12 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
 		"spec": {
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"Observation": "ONE"
 		}
 	},
 	{

@@ -1,8 +1,8 @@
-CCDA Source,Target,Link,Format,Condition 1,Condition 2
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
 substanceAdministration.effectiveTime.value,Immunization.date,,"datetimeAdapter",substanceAdministration.effectiveTime.nullFlavor isnull,substanceAdministration.nullFlavor isnull
 substanceAdministration.doseQuantity,Immunization.doseQuantity,IVL_PQSimpleQuantity,"constantSystem('http://unitsofmeasure.org/ucum.html','pq')",substanceAdministration.nullFlavor isnull
-substanceAdministration.entryRelationship[].observation.code,Immunization.explanation.reasonNotGiven[],CD,,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.53,substanceAdministration.nullFlavor isnull
-substanceAdministration.entryRelationship[].observation.value,Immunization.explanation.reason[],CD,,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[].observation.code,Immunization.explanation.reasonNotGiven[],CD,,substanceAdministration.entryRelationship[].observation.nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.53,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[].observation.value,Immunization.explanation.reason[],CD,,substanceAdministration.entryRelationship[].observation.nullFlavor isnull,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19,substanceAdministration.nullFlavor isnull
 substanceAdministration.id[],Immunization.identifier[],ID,,substanceAdministration.nullFlavor isnull
 substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.lotNumberText,Immunization.lotNumber,,"nullIfMap",substanceAdministration.consumable.nullFlavor isnull,substanceAdministration.nullFlavor isnull
 Organization,Immunization.manufacturer.display,,"getReferenceDisplay"
@@ -19,7 +19,7 @@ substanceAdministration.routeCode,Immunization.route,CD,,substanceAdministration
 substanceAdministration.approachSiteCode[],Immunization.site,CD,"lastElement",substanceAdministration.nullFlavor isnull
 substanceAdministration.statusCode.code,Immunization.status,,"valueSetAdapter('ImmunizationStatus')",substanceAdministration.nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
 substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.code,Immunization.vaccineCode,CD2,,substanceAdministration.consumable.nullFlavor isnull,substanceAdministration.nullFlavor isnull
-substanceAdministration.entryRelationship[],Observation,Observation,,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[],Observation,ImmunizationObservation,,substanceAdministration.nullFlavor isnull
 substanceAdministration.consumable.manufacturedProduct.manufacturerOrganization,Organization,Organization,,substanceAdministration.consumable.nullFlavor isnull,substanceAdministration.nullFlavor isnull
 substanceAdministration.performer[].assignedEntity,Organization[],EntityOrganization,,substanceAdministration.nullFlavor isnull
 substanceAdministration.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,substanceAdministration.nullFlavor isnull

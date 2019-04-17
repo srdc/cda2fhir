@@ -215,6 +215,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testImmunizationObservation() throws Exception {
+		actualTest("ImmunizationObservation");
+	}
+
+	@Test
 	public void testObservation() throws Exception {
 		actualTest("Observation");
 	}
