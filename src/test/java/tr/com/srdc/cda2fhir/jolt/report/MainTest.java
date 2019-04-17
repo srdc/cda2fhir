@@ -185,6 +185,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testMedicationDispense() throws Exception {
+		actualTest("MedicationDispense");
+	}
+
+	@Test
 	public void testMedicationActivity() throws Exception {
 		actualTest("MedicationActivity");
 	}

@@ -73,21 +73,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},
-	{
-		"operation": "default",
-		"spec": {
-			"dosageInstruction": {
-				"*": {
-					"doseQuantity": {
-						"unit": "1"
-					}
-				}
-			}
-		}
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"medicationReference": {
@@ -107,9 +92,6 @@
 			"whenHandedOver": "=datetimeAdapter(@0)",
 			"dosageInstruction": {
 				"*": {
-					"doseQuantity": {
-						"unit": "=defaultValue('1',@0)"
-					},
 					"timing": {
 						"event": {
 							"*": "=datetimeAdapter(@0)"
