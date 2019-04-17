@@ -36,9 +36,6 @@ public class LinkedConditionNode extends LinkedNode implements IConditionNode {
 
 		if (rank == 0) {
 			LinkedNode result = new LinkedNode(grandParent, parentPath, target, link);
-			if (rank == 1) {
-				result.removeExtra = true;
-			}
 			result.copyConditions(parent);
 			result.copyConditions(this);
 			grandParent.addChild(result);
