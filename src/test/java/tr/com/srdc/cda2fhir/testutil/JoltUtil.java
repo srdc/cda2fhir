@@ -1248,8 +1248,8 @@ public class JoltUtil {
 
 		if (request.hasRequester()) {
 			MedicationRequestRequesterComponent requester = request.getRequester();
-			Map<String, Object> joltRequester = (Map<String, Object>) joltClone.get("requester");
 
+			Map<String, Object> joltRequester = (Map<String, Object>) joltClone.get("requester");
 			Assert.assertNotNull("Jolt requester  exists", joltRequester);
 
 			if (requester.hasAgent()) {
@@ -1314,6 +1314,7 @@ public class JoltUtil {
 			List<MedicationDispense.MedicationDispensePerformerComponent> performers = dispense.getPerformer();
 			List<Object> joltPerformers = (List<Object>) joltClone.get("performer");
 
+			Assert.assertNotNull("Performer exists", joltPerformers);
 			Assert.assertEquals("Performer count", joltPerformers.size(), performers.size());
 
 			for (int index = 0; index < performers.size(); ++index) {

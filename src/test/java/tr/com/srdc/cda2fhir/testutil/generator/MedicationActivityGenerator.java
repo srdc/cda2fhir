@@ -144,8 +144,6 @@ public class MedicationActivityGenerator {
 			ma.getEntryRelationships().add(er);
 			er.setTypeCode(x_ActRelationshipEntryRelationship.RSON);
 			Indication indication = ig.generate(factories);
-			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.19");
-			indication.getTemplateIds().add(ii);
 			er.setObservation(indication);
 		});
 
@@ -154,8 +152,6 @@ public class MedicationActivityGenerator {
 			EntryRelationship er = factories.base.createEntryRelationship();
 			ma.getEntryRelationships().add(er);
 			er.setTypeCode(x_ActRelationshipEntryRelationship.REFR);
-			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.17");
-			mso.getTemplateIds().add(ii);
 			er.setSupply(mso);
 		}
 
@@ -165,8 +161,6 @@ public class MedicationActivityGenerator {
 			EntryRelationship er = factories.base.createEntryRelationship();
 			ma.getEntryRelationships().add(er);
 			er.setTypeCode(x_ActRelationshipEntryRelationship.REFR);
-			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.18");
-			md.getTemplateIds().add(ii);
 			er.setSupply(md);
 		}
 

@@ -47,6 +47,11 @@ public class MedicationDispenseGenerator {
 	public org.openhealthtools.mdht.uml.cda.consol.MedicationDispense generate(CDAFactories factories) {
 		org.openhealthtools.mdht.uml.cda.consol.MedicationDispense md = factories.consol.createMedicationDispense();
 
+		{
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.18");
+			md.getTemplateIds().add(ii);
+		}
+
 		idGenerators.forEach(idGenerator -> {
 			II ii = idGenerator.generate(factories);
 			md.getIds().add(ii);

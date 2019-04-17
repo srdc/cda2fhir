@@ -1,0 +1,20 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"observation": {
+				"code": {
+					"code": {
+						"FREQUENCY": {
+							"@3": {
+								"value": {
+									"content": "code.text"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+]

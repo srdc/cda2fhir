@@ -1,5 +1,26 @@
 [
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"supply": {
+						"nullFlavor": "n",
+						"templateId": {
+							"0": {
+								"root": "=a"
+							}
+						}
+					}
+				}
+			],
+			"values": {
+				"a": "2.16.840.1.113883.10.20.22.4.17"
+			}
+		}
+	},
+	{
 		"operation": "cardinality",
 		"spec": {
 			"supply": {
@@ -7,12 +28,6 @@
 				"effectiveTime": "ONE",
 				"author": "ONE"
 			}
-		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
-		"spec": {
-			"nullFlavor": "*"
 		}
 	},
 	{
@@ -42,8 +57,14 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Medication": ["medicationReference.reference", "medicationReference.display"],
-			"Practitioner": ["requester.agent.reference", "requester.agent.display"]
+			"Medication": [
+				"medicationReference.reference",
+				"medicationReference.display"
+			],
+			"Practitioner": [
+				"requester.agent.reference",
+				"requester.agent.display"
+			]
 		}
 	},
 	{
