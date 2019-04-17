@@ -1,12 +1,12 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 patientRole.addr[],Patient.address[],AD,,patientRole.nullFlavor isnull
 patientRole.patient.birthTime.value,Patient.birthDate,,"datetimeAdapter",patientRole.nullFlavor isnull,patientRole.patient.birthTime.nullFlavor isnull
-patientRole.patient.languageCommunication[].preferenceInd.value,Patient.communication[&2].preferred,,,patientRole.nullFlavor isnull
 patientRole.patient.languageCommunication[].languageCode,Patient.communication[].language,CD,"constantSystem('http://hl7.org/fhir/ValueSet/languages','cd')",patientRole.nullFlavor isnull
-patientRole.patient.guardian[].guardianPerson.name,Patient.contact[&2].name,PN,,patientRole.nullFlavor isnull
-patientRole.patient.guardian[].code.code,Patient.contact[&2].relationship[].coding,,,patientRole.nullFlavor isnull
-patientRole.patient.guardian[].telecom[],Patient.contact[&2].telecom[],TEL,,patientRole.nullFlavor isnull
+patientRole.patient.languageCommunication[].preferenceInd.value,Patient.communication[].preferred,,,patientRole.nullFlavor isnull
 patientRole.patient.guardian[].addr,Patient.contact[].address,AD,,patientRole.nullFlavor isnull
+patientRole.patient.guardian[].guardianPerson.name,Patient.contact[].name,PN,,patientRole.nullFlavor isnull
+patientRole.patient.guardian[].code.code,Patient.contact[].relationship[].coding,,"valueSetAdapter('ContactRelationship')",patientRole.nullFlavor isnull
+patientRole.patient.guardian[].telecom[],Patient.contact[].telecom[],TEL,,patientRole.nullFlavor isnull
 patientRole.patient.administrativeGenderCode.code,Patient.gender,,"valueSetAdapter('Gender','unknown')",patientRole.nullFlavor isnull
 patientRole.id[],Patient.identifier[],ID,,patientRole.nullFlavor isnull
 patientRole.patient.maritalStatusCode.code,Patient.maritalStatus.coding,,"valueSetAdapter('MaritalStatus')",patientRole.nullFlavor isnull

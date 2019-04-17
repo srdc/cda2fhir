@@ -92,10 +92,10 @@ procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"r
 procedure.effectiveTime.high.value,Procedure.performedPeriod.end,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high.nullFlavor isnull,procedure.effectiveTime.nullFlavor isnull
 procedure.effectiveTime.low.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.low.nullFlavor isnull,procedure.effectiveTime.nullFlavor isnull
 procedure.effectiveTime.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high isnull,procedure.effectiveTime.low isnull,procedure.effectiveTime.nullFlavor isnull
-Procedure.PractitionerRole[].code.0,Procedure.performer[&2].role,,
 Procedure.Practitioner[],Procedure.performer[].actor.display,,"getReferenceDisplay"
 Procedure.Practitioner[],Procedure.performer[].actor.reference,,"getId"
 Procedure.Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
+Procedure.PractitionerRole[].code.0,Procedure.performer[].role,,
 procedure.entryRelationship[].observation.code.code,Procedure.reasonCode[].coding[0].code,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
 procedure.entryRelationship[].observation.code.displayName,Procedure.reasonCode[].coding[0].display,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
 procedure.entryRelationship[].observation.code.codeSystem,Procedure.reasonCode[].coding[0].system,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
