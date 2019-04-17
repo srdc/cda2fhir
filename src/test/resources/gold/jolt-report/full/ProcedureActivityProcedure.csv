@@ -94,7 +94,7 @@ procedure.effectiveTime.low.value,Procedure.performedPeriod.start,,"datetimeAdap
 procedure.effectiveTime.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high isnull,procedure.effectiveTime.low isnull,procedure.effectiveTime.nullFlavor isnull
 Procedure.PractitionerRole[].code.0,Procedure.performer[&2].role,,
 Procedure.Practitioner[],Procedure.performer[].actor.display,,
-Procedure.Practitioner,Procedure.performer[].actor.reference,,"getId"
+Procedure.Practitioner[],Procedure.performer[].actor.reference,,"getId"
 Procedure.Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
 procedure.entryRelationship[].observation.code.code,Procedure.reasonCode[].coding[0].code,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
 procedure.entryRelationship[].observation.code.displayName,Procedure.reasonCode[].coding[0].display,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON

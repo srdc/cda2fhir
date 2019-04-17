@@ -9,7 +9,7 @@ procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"r
 procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,nullFlavor isnull
 PractitionerRole[].code.0,Procedure.performer[&2].role,,
 Practitioner[],Procedure.performer[].actor.display,,
-Procedure.Practitioner,Procedure.performer[].actor.reference,,"getId"
+Practitioner[],Procedure.performer[].actor.reference,,"getId"
 Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
 procedure.entryRelationship[].observation.code,Procedure.reasonCode[],CD,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
 procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",nullFlavor isnull,procedure.statusCode.nullFlavor isnull

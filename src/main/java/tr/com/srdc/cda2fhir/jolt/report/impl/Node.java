@@ -132,9 +132,9 @@ public abstract class Node implements INode {
 
 	public boolean addSquareBrackets() {
 		String path = parent.getPath();
-		// Hardcode entryRelationship for now.
-		// A better condition than sibling is needed for that case.
-		return "entryRelationship".equals(path) || !hasSibling();
+		// Hardcode entryRelationship and linked resources for now.
+		// A better condition than sibling is needed for those cases.
+		return "entryRelationship".equals(path) || Character.isUpperCase(path.charAt(0)) || !hasSibling();
 	}
 
 	@Override

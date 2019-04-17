@@ -246,9 +246,9 @@ substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.lotN
 Immunization.Organization,Immunization.manufacturer.display,,
 Immunization.Organization,Immunization.manufacturer.reference,,"getId"
 substanceAdministration.negationInd,Immunization.notGiven,,,substanceAdministration.nullFlavor isnull
-Immunization.Practitioner,Immunization.practitioner[].actor.display,,
-Immunization.Practitioner,Immunization.practitioner[].actor.reference,,"getId"
-Immunization.Practitioner,Immunization.practitioner[].role,,"constantValue('ImmunizationRoleConstant')"
+Immunization.Practitioner[],Immunization.practitioner[].actor.display,,
+Immunization.Practitioner[],Immunization.practitioner[].actor.reference,,"getId"
+Immunization.Practitioner[],Immunization.practitioner[].role,,"constantValue('ImmunizationRoleConstant')"
 Immunization.Practitioner[],Immunization.primarySource,,"true"
 Immunization.Observation.effectivePeriod.start,Immunization.reaction[0].date,,
 Immunization.Observation,Immunization.reaction[0].detail.display,,

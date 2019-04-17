@@ -7,7 +7,7 @@ supply.id[],MedicationDispense.identifier[],ID,,supply.nullFlavor isnull,supply.
 Medication,MedicationDispense.medicationReference.display,,
 Medication,MedicationDispense.medicationReference.reference,,"getId"
 Practitioner[],MedicationDispense.performer[].actor.display,,
-MedicationDispense.Practitioner,MedicationDispense.performer[].actor.reference,,"getId"
+Practitioner[],MedicationDispense.performer[].actor.reference,,"getId"
 supply.quantity,MedicationDispense.quantity,IVL_PQSimpleQuantity,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
 supply.statusCode.code,MedicationDispense.status,,"valueSetAdapter('MedicationDispenseStatus')",supply.nullFlavor isnull,supply.statusCode.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
 supply.effectiveTime.1.value,MedicationDispense.whenHandedOver,,"datetimeAdapter",supply.effectiveTime.1.nullFlavor isnull,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18

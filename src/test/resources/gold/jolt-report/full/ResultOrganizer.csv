@@ -220,7 +220,7 @@ organizer.id[].root,DiagnosticReport.identifier[].system,,"idSystemAdapter",null
 organizer.id[].extension,DiagnosticReport.identifier[].value,,"toString",nullFlavor isnull,organizer.id[].extension isnotnull,organizer.id[].nullFlavor isnull
 organizer.id[].root,DiagnosticReport.identifier[].value,,"toString",nullFlavor isnull,organizer.id[].extension isnull,organizer.id[].nullFlavor isnull
 DiagnosticReport.Practitioner[],DiagnosticReport.performer[].actor.display,,
-DiagnosticReport.Practitioner,DiagnosticReport.performer[].actor.reference,,"getId"
+DiagnosticReport.Practitioner[],DiagnosticReport.performer[].actor.reference,,"getId"
 DiagnosticReport.Observation[],DiagnosticReport.result[].display,,"getReferenceDisplay"
-DiagnosticReport.Observation,DiagnosticReport.result[].reference,,"getId"
+DiagnosticReport.Observation[],DiagnosticReport.result[].reference,,"getId"
 organizer.statusCode.code,DiagnosticReport.status,,"valueSetAdapter('DiagnosticReportStatus')",nullFlavor isnull,organizer.statusCode.nullFlavor isnull

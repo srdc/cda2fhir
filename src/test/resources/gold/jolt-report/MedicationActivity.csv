@@ -15,7 +15,7 @@ Practitioner,MedicationStatement.informationSource.reference,,"getId"
 Medication,MedicationStatement.medicationReference.display,,
 Medication,MedicationStatement.medicationReference.reference,,"getId"
 Condition[],MedicationStatement.reasonReference[].display,,"getReferenceDisplay"
-MedicationStatement.Condition,MedicationStatement.reasonReference[].reference,,"getId"
+Condition[],MedicationStatement.reasonReference[].reference,,"getId"
 substanceAdministration.statusCode.code,MedicationStatement.status,,"valueSetAdapter('MedicationStatementStatus')",substanceAdministration.nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
 #unk,MedicationStatement.taken,,,substanceAdministration.nullFlavor isnull
 substanceAdministration.author.assignedAuthor,Organization,EntityOrganization,,substanceAdministration.nullFlavor isnull
