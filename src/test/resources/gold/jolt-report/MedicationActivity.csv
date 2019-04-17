@@ -20,9 +20,9 @@ Practitioner,MedicationRequest.requester.agent.reference,,"getId"
 substanceAdministration.doseQuantity,MedicationStatement.dosage[0].doseQuantity,IVL_PQSimpleQuantity,,substanceAdministration.nullFlavor isnull
 substanceAdministration.rateQuantity,MedicationStatement.dosage[0].rateRange,IVL_PQRange,,substanceAdministration.nullFlavor isnull
 substanceAdministration.routeCode,MedicationStatement.dosage[0].route,CD2,,substanceAdministration.nullFlavor isnull
-substanceAdministration.effectiveTime[].xsi:type,MedicationStatement.dosage[0].timing,PIVL_TSTiming,,substanceAdministration.effectiveTime[].xsi:type equal PIVL_TS,substanceAdministration.nullFlavor isnull
+substanceAdministration.effectiveTime[],MedicationStatement.dosage[0].timing,PIVL_TSTiming,,substanceAdministration.effectiveTime[].xsi:type equal PIVL_TS,substanceAdministration.nullFlavor isnull
 substanceAdministration.entryRelationship[].observation.value.content,MedicationStatement.dosage[0].timing.code.text,,,substanceAdministration.entryRelationship[].observation.code.code equal FREQUENCY,substanceAdministration.nullFlavor isnull
-substanceAdministration.effectiveTime[].xsi:type,MedicationStatement.effectivePeriod,IVL_TSPeriod,,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS,substanceAdministration.nullFlavor isnull
+substanceAdministration.effectiveTime[],MedicationStatement.effectivePeriod,IVL_TSPeriod,,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS,substanceAdministration.nullFlavor isnull
 substanceAdministration.id[],MedicationStatement.identifier[],ID,,substanceAdministration.nullFlavor isnull
 Practitioner,MedicationStatement.informationSource.display,,
 Practitioner,MedicationStatement.informationSource.reference,,"getId"
