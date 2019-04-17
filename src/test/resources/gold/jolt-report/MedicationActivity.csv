@@ -10,9 +10,9 @@ substanceAdministration.effectiveTime[],MedicationStatement.dosage[0].timing,PIV
 substanceAdministration.entryRelationship[].observation.value.content,MedicationStatement.dosage[0].timing.code.text,,,substanceAdministration.entryRelationship[].observation.code.code equal FREQUENCY,substanceAdministration.nullFlavor isnull
 substanceAdministration.effectiveTime[],MedicationStatement.effectivePeriod,IVL_TSPeriod,,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS,substanceAdministration.nullFlavor isnull
 substanceAdministration.id[],MedicationStatement.identifier[],ID,,substanceAdministration.nullFlavor isnull
-Practitioner,MedicationStatement.informationSource.display,,
+Practitioner,MedicationStatement.informationSource.display,,"getReferenceDisplay"
 Practitioner,MedicationStatement.informationSource.reference,,"getId"
-Medication,MedicationStatement.medicationReference.display,,
+Medication,MedicationStatement.medicationReference.display,,"getReferenceDisplay"
 Medication,MedicationStatement.medicationReference.reference,,"getId"
 Condition[],MedicationStatement.reasonReference[].display,,"getReferenceDisplay"
 Condition[],MedicationStatement.reasonReference[].reference,,"getId"

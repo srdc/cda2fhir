@@ -102,16 +102,16 @@ encounter.performer[].assignedEntity.id.0.root.#official,Encounter.Performer[].P
 encounter.performer[].assignedEntity.id.0.extension,Encounter.Performer[].PractitionerRole.practitioner.reference.value,,"toString",encounter.performer[].assignedEntity.id.0.extension isnotnull,encounter.performer[].assignedEntity.id.0.nullFlavor isnull,encounter.performer[].assignedEntity.representedOrganization isnotnull,encounter.performer[].assignedEntity.representedOrganization.nullFlavor isnull,nullFlavor isnull
 encounter.performer[].assignedEntity.id.0.root,Encounter.Performer[].PractitionerRole.practitioner.reference.value,,"toString",encounter.performer[].assignedEntity.id.0.extension isnull,encounter.performer[].assignedEntity.id.0.nullFlavor isnull,encounter.performer[].assignedEntity.representedOrganization isnotnull,encounter.performer[].assignedEntity.representedOrganization.nullFlavor isnull,nullFlavor isnull
 encounter.code.translation[].code,Encounter.class,,"lastElement",nullFlavor isnull
-Encounter.Condition[],Encounter.diagnosis[].condition.display,,
+Encounter.Condition[],Encounter.diagnosis[].condition.display,,"getReferenceDisplay"
 Encounter.Condition[],Encounter.diagnosis[].condition.reference,,"getId"
 encounter.id[].assigningAuthorityName,Encounter.identifier[].assigner.display,,,encounter.id[].nullFlavor isnull,nullFlavor isnull
 encounter.id[].root,Encounter.identifier[].system,,"idSystemAdapter",encounter.id[].extension isnotnull,encounter.id[].nullFlavor isnull,nullFlavor isnull
 encounter.id[].root.#official,Encounter.identifier[].use,,,encounter.id[].nullFlavor isnull,nullFlavor isnull
 encounter.id[].extension,Encounter.identifier[].value,,"toString",encounter.id[].extension isnotnull,encounter.id[].nullFlavor isnull,nullFlavor isnull
 encounter.id[].root,Encounter.identifier[].value,,"toString",encounter.id[].extension isnull,encounter.id[].nullFlavor isnull,nullFlavor isnull
-Encounter.Location[],Encounter.location[].location.display,,
+Encounter.Location[],Encounter.location[].location.display,,"getReferenceDisplay"
 Encounter.Location[],Encounter.location[].location.reference,,"getId"
-Encounter.Practitioner[],Encounter.participant[].individual.display,,
+Encounter.Practitioner[],Encounter.participant[].individual.display,,"getReferenceDisplay"
 Encounter.Practitioner[],Encounter.participant[].individual.reference,,"getId"
 Encounter.Practitioner[],Encounter.participant[].type,,"constantValue('ParticipantTypeConstant')"
 encounter.effectiveTime.high.value,Encounter.period.end,,"datetimeAdapter",encounter.effectiveTime.high.nullFlavor isnull,encounter.effectiveTime.nullFlavor isnull,nullFlavor isnull

@@ -243,10 +243,10 @@ substanceAdministration.id[].root.#official,Immunization.identifier[].use,,,subs
 substanceAdministration.id[].extension,Immunization.identifier[].value,,"toString",substanceAdministration.id[].extension isnotnull,substanceAdministration.id[].nullFlavor isnull,substanceAdministration.nullFlavor isnull
 substanceAdministration.id[].root,Immunization.identifier[].value,,"toString",substanceAdministration.id[].extension isnull,substanceAdministration.id[].nullFlavor isnull,substanceAdministration.nullFlavor isnull
 substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.lotNumberText,Immunization.lotNumber,,"nullIfMap",substanceAdministration.consumable.nullFlavor isnull,substanceAdministration.nullFlavor isnull
-Immunization.Organization,Immunization.manufacturer.display,,
+Immunization.Organization,Immunization.manufacturer.display,,"getReferenceDisplay"
 Immunization.Organization,Immunization.manufacturer.reference,,"getId"
 substanceAdministration.negationInd,Immunization.notGiven,,,substanceAdministration.nullFlavor isnull
-Immunization.Practitioner[],Immunization.practitioner[].actor.display,,
+Immunization.Practitioner[],Immunization.practitioner[].actor.display,,"getReferenceDisplay"
 Immunization.Practitioner[],Immunization.practitioner[].actor.reference,,"getId"
 Immunization.Practitioner[],Immunization.practitioner[].role,,"constantValue('ImmunizationRoleConstant')"
 Immunization.Practitioner[],Immunization.primarySource,,"true"

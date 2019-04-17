@@ -1,12 +1,12 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isnull
 encounter.code.translation[].code,Encounter.class,,"lastElement",nullFlavor isnull
-Condition[],Encounter.diagnosis[].condition.display,,
+Condition[],Encounter.diagnosis[].condition.display,,"getReferenceDisplay"
 Condition[],Encounter.diagnosis[].condition.reference,,"getId"
 encounter.id[],Encounter.identifier[],ID,,nullFlavor isnull
-Location[],Encounter.location[].location.display,,
+Location[],Encounter.location[].location.display,,"getReferenceDisplay"
 Location[],Encounter.location[].location.reference,,"getId"
-Practitioner[],Encounter.participant[].individual.display,,
+Practitioner[],Encounter.participant[].individual.display,,"getReferenceDisplay"
 Practitioner[],Encounter.participant[].individual.reference,,"getId"
 Practitioner[],Encounter.participant[].type,,"constantValue('ParticipantTypeConstant')"
 encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,nullFlavor isnull

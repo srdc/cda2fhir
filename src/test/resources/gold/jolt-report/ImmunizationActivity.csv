@@ -5,10 +5,10 @@ substanceAdministration.entryRelationship[].observation.code,Immunization.explan
 substanceAdministration.entryRelationship[].observation.value,Immunization.explanation.reason[],CD,,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.19,substanceAdministration.nullFlavor isnull
 substanceAdministration.id[],Immunization.identifier[],ID,,substanceAdministration.nullFlavor isnull
 substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.lotNumberText,Immunization.lotNumber,,"nullIfMap",substanceAdministration.consumable.nullFlavor isnull,substanceAdministration.nullFlavor isnull
-Organization,Immunization.manufacturer.display,,
+Organization,Immunization.manufacturer.display,,"getReferenceDisplay"
 Organization,Immunization.manufacturer.reference,,"getId"
 substanceAdministration.negationInd,Immunization.notGiven,,,substanceAdministration.nullFlavor isnull
-Practitioner[],Immunization.practitioner[].actor.display,,
+Practitioner[],Immunization.practitioner[].actor.display,,"getReferenceDisplay"
 Practitioner[],Immunization.practitioner[].actor.reference,,"getId"
 Practitioner[],Immunization.practitioner[].role,,"constantValue('ImmunizationRoleConstant')"
 Practitioner[],Immunization.primarySource,,"true"

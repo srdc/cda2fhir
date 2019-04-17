@@ -93,7 +93,7 @@ procedure.effectiveTime.high.value,Procedure.performedPeriod.end,,"datetimeAdapt
 procedure.effectiveTime.low.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.low.nullFlavor isnull,procedure.effectiveTime.nullFlavor isnull
 procedure.effectiveTime.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high isnull,procedure.effectiveTime.low isnull,procedure.effectiveTime.nullFlavor isnull
 Procedure.PractitionerRole[].code.0,Procedure.performer[&2].role,,
-Procedure.Practitioner[],Procedure.performer[].actor.display,,
+Procedure.Practitioner[],Procedure.performer[].actor.display,,"getReferenceDisplay"
 Procedure.Practitioner[],Procedure.performer[].actor.reference,,"getId"
 Procedure.Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
 procedure.entryRelationship[].observation.code.code,Procedure.reasonCode[].coding[0].code,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
