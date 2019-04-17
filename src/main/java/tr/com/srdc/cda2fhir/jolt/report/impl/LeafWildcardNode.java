@@ -30,7 +30,7 @@ public class LeafWildcardNode extends LeafNode implements IWildcardNode {
 		IParentNode grandparent = parent.getParent();
 		String parentPath = parent.getPath();
 		String newPath = addSquareBrackets() ? parentPath + "[]" : parentPath;
-		MergedLeafNode result = new MergedLeafNode(grandparent, newPath, this.getTarget());
+		LeafNode result = new LeafNode(grandparent, newPath, this.getTarget());
 		grandparent.addChild(result);
 		parent.removeChild(this);
 		result.copyConditions(parent);
