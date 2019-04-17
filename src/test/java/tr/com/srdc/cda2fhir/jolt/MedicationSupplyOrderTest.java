@@ -1,22 +1,15 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
@@ -42,29 +35,6 @@ public class MedicationSupplyOrderTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void compareMedicationRequests(String caseName, MedicationRequest medicationRequest,
-			Map<String, Object> joltMedicationRequest) throws Exception {
-		Assert.assertNotNull("Jolt medicationRequest", joltMedicationRequest);
-		Assert.assertNotNull("Jolt medicationRequest id", joltMedicationRequest.get("id"));
-
-		joltMedicationRequest.put("id", medicationRequest.getIdElement().getIdPart()); // ids do not have to match
-		JoltUtil.putReference(joltMedicationRequest, "subject", medicationRequest.getSubject()); // patient is not yet
-																									// implemented
-
-		JoltUtil.verifyUpdateReference(medicationRequest.hasMedicationReference(),
-				medicationRequest.getMedicationReference(), joltMedicationRequest, "medicationReference");
-		JoltUtil.verifyUpdateReference(medicationRequest.hasRequester(), medicationRequest.getRequester().getAgent(),
-				(Map<String, Object>) joltMedicationRequest.get("requester"), "agent");
-
-		String joltMedicationRequestJson = JsonUtils.toPrettyJsonString(joltMedicationRequest);
-		File joltMedicationRequestFile = new File(OUTPUT_PATH + caseName + "JoltMedicationRequest.json");
-		FileUtils.writeStringToFile(joltMedicationRequestFile, joltMedicationRequestJson, Charset.defaultCharset());
-
-		String medicationRequestJson = FHIRUtil.encodeToJSON(medicationRequest);
-		JSONAssert.assertEquals("Jolt medicationRequest", medicationRequestJson, joltMedicationRequestJson, true);
-	}
-
 	private static void runTest(MedicationSupplyOrderGenerator generator, String caseName) throws Exception {
 		MedicationSupplyOrder mso = generator.generate(factories);
 
@@ -87,11 +57,7 @@ public class MedicationSupplyOrderTest {
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationSupplyOrder", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
-		Medication med = BundleUtil.findOneResource(bundle, Medication.class);
-		joltUtil.verifyMedication(med);
-
-		Map<String, Object> joltMedRequest = TransformManager.chooseResource(joltResult, "MedicationRequest");
-		compareMedicationRequests(caseName, medRequest, joltMedRequest);
+		joltUtil.verify(medRequest);
 	}
 
 	@Test

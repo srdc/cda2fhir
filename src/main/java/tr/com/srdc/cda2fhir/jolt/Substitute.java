@@ -9,10 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.ContextualTransform;
+import com.bazaarvoice.jolt.SpecDriven;
 
-public class Substitute implements ContextualTransform {
+public class Substitute implements SpecDriven, ContextualTransform {
 	static Map<String, Chainr> templates = new HashMap<String, Chainr>();
 	static {
 		Map<String, List<Object>> rawTemplates = Utility.readTemplates();
@@ -22,6 +25,10 @@ public class Substitute implements ContextualTransform {
 			Chainr chainr = Chainr.fromSpec(value);
 			templates.put("->" + name, chainr);
 		});
+	}
+
+	@Inject
+	public Substitute(Object spec) {
 	}
 
 	private Optional<Object> findTemplateValue(Map<String, Object> map, Map<String, Object> context) {

@@ -1,0 +1,92 @@
+{
+	"amb": {
+		"code": "AMB",
+		"display": "ambulatory",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"ambulatory": {
+		"code": "AMB",
+		"display": "ambulatory",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"out": {
+		"code": "AMB",
+		"display": "ambulatory",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"outpatient": {
+		"code": "AMB",
+		"display": "ambulatory",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"day": {
+		"code": "AMB",
+		"display": "ambulatory",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"daytime": {
+		"code": "AMB",
+		"display": "ambulatory",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"in": {
+		"code": "IMP",
+		"display": "inpatient encounter",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"inp": {
+		"code": "IMP",
+		"display": "inpatient encounter",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"inpatient": {
+		"code": "IMP",
+		"display": "inpatient encounter",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"em": {
+		"code": "EMER",
+		"display": "emergency",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"eme": {
+		"code": "EMER",
+		"display": "emergency",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"emergency": {
+		"code": "EMER",
+		"display": "emergency",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"hom": {
+		"code": "HH",
+		"display": "home health",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"home": {
+		"code": "HH",
+		"display": "home health",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"vir": {
+		"code": "VR",
+		"display": "virtual",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"virtual": {
+		"code": "VR",
+		"display": "virtual",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"fie": {
+		"code": "FLD",
+		"display": "field",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"field": {
+		"code": "FLD",
+		"display": "field",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	}
+}

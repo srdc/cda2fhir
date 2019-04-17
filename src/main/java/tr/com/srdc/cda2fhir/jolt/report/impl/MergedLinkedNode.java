@@ -8,6 +8,16 @@ public class MergedLinkedNode extends LinkedNode {
 	}
 
 	@Override
+	public MergedLinkedNode clone(IParentNode parent) {
+		String path = this.getPath();
+		String target = this.getTarget();
+		String link = this.getLink();
+		MergedLinkedNode result = new MergedLinkedNode(parent, path, target, link);
+		result.addConditions(getConditions());
+		return result;
+	}
+
+	@Override
 	public int originalNodeCount() {
 		return 1;
 	}

@@ -37,6 +37,10 @@ public class TableRow implements Comparable<TableRow> {
 		return row;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
 	public String getTarget() {
 		return target;
 	}

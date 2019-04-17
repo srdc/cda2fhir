@@ -34,15 +34,10 @@
 		}
 	},
 	{
-		"operation": "modify-overwrite-beta",
-		"spec": {
-			"value": "=toString(@0)"
-		}
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"system": "=systemAdapter(@0)"
+			"system": "=idSystemAdapter(@0)",
+			"value": "=toString(@0)"
 		}
 	}
 ]

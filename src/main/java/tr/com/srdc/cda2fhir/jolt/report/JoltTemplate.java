@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.IRootNodeUpdater;
+import tr.com.srdc.cda2fhir.jolt.KeepWhen;
 import tr.com.srdc.cda2fhir.jolt.RemoveWhen;
 import tr.com.srdc.cda2fhir.jolt.RemoveWhenNull;
 import tr.com.srdc.cda2fhir.jolt.report.impl.RootNode;
@@ -55,6 +56,11 @@ public class JoltTemplate {
 				}
 				if (operation.endsWith("RemoveWhenNull")) {
 					IRootNodeUpdater rootNodeUpdater = new RemoveWhenNull(spec);
+					result.rootNodeUpdater.add(rootNodeUpdater);
+					return;
+				}
+				if (operation.endsWith("KeepWhen")) {
+					IRootNodeUpdater rootNodeUpdater = new KeepWhen(spec);
 					result.rootNodeUpdater.add(rootNodeUpdater);
 					return;
 				}
