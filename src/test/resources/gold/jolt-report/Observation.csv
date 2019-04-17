@@ -6,7 +6,7 @@ observation.effectiveTime,Observation.effectivePeriod,IVL_TSPeriod,,nullFlavor i
 observation.id[],Observation.identifier[],ID,,nullFlavor isnull
 observation.interpretationCode.code,Observation.interpretation.coding[].code,,,nullFlavor isnull
 observation.interpretationCode.displayName,Observation.interpretation.coding[].display,,,nullFlavor isnull
-#http://hl7.org/fhir/v2/0078,Observation.interpretation.coding[].system,,,nullFlavor isnull
+observation.interpretationCode.#http://hl7.org/fhir/v2/0078,Observation.interpretation.coding[].system,,,nullFlavor isnull
 observation.author[].time.value,Observation.issued,,"datetimeAdapter",nullFlavor isnull
 observation.methodCode[],Observation.method,CD,"lastElement",nullFlavor isnull
 Practitioner[],Observation.performer[].reference,,"getId"

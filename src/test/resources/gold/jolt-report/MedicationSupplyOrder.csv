@@ -4,7 +4,7 @@ supply.repeatNumber.value,MedicationRequest.dispenseRequest.numberOfRepeatsAllow
 supply.quantity,MedicationRequest.dispenseRequest.quantity,IVL_PQSimpleQuantity,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
 supply.effectiveTime,MedicationRequest.dispenseRequest.validityPeriod,IVL_TSPeriod,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
 supply.id[],MedicationRequest.identifier[],ID,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-#instance-order,MedicationRequest.intent,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.#instance-order,MedicationRequest.intent,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
 Medication,MedicationRequest.medicationReference.display,,
 Medication,MedicationRequest.medicationReference.reference,,"getId"
 Practitioner,MedicationRequest.requester.agent.display,,"getReferenceDisplay"
