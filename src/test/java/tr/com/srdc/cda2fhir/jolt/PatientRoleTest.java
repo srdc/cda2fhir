@@ -18,6 +18,8 @@ import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.PatientRoleGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class PatientRoleTest {
@@ -39,7 +41,8 @@ public class PatientRoleTest {
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
-		Bundle bundle = rt.tPatientRole2Patient(pr);
+		IEntryResult result = rt.tPatientRole2Patient(pr, new BundleInfo(rt));
+		Bundle bundle = result.getBundle();
 
 		Assert.assertNotNull("Patient bundle", bundle);
 

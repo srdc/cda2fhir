@@ -10,7 +10,7 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class IDGenerator {
 	private static final String[] ROOTS = { "1.3.5.7", "4.5.2.4", "4.1.12.67", "43.45.78.12", "3.5.6.8", "12.12.12.1",
-			"9.0.3.6", "12.34.56.78" };
+			"9.0.3.6", "12.34.56.78", "3.5.4.2", "20.20.20.20", "30.50.60.70" };
 
 	private static int NEXT_INDEX = 1;
 

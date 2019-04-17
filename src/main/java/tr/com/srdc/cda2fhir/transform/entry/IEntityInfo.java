@@ -10,4 +10,8 @@ public interface IEntityInfo {
 	PractitionerRole getPractitionerRole();
 
 	Organization getOrganization();
+
+	boolean isOrgNew();
+
+	void setOrgIsNew(boolean orgIsNew);
 }

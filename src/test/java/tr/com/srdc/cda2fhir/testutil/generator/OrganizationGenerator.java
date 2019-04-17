@@ -53,7 +53,10 @@ public class OrganizationGenerator {
 		CustodianOrganization custodianOrg = factories.base.createCustodianOrganization();
 		Organization org = generate(factories);
 		if (org.getNames() != null) {
-			custodianOrg.getNames().addAll(org.getNames());
+
+			for (int i = 0; i < org.getNames().size(); i++) {
+				custodianOrg.setName(org.getNames().get(i));
+			}
 		}
 
 		if (org.getIds() != null) {
@@ -61,16 +64,22 @@ public class OrganizationGenerator {
 		}
 
 		if (org.getAddrs() != null) {
-			custodianOrg.getAddrs().addAll(org.getAddrs());
+			for (int i = 0; i < org.getAddrs().size(); i++) {
+				custodianOrg.setAddr(org.getAddrs().get(i));
+			}
 		}
 
 		if (org.getTelecoms() != null) {
-			custodianOrg.getTelecoms().addAll(org.getTelecoms());
+			for (int i = 0; i < org.getTelecoms().size(); i++) {
+				custodianOrg.setTelecom(org.getTelecoms().get(i));
+			}
 		}
 
 		if (org.getNullFlavor() != null) {
 			custodianOrg.setNullFlavor(org.getNullFlavor());
 		}
+
+		return custodianOrg;
 	}
 
 	public Organization generate(CDAFactories factories) {
@@ -112,6 +121,8 @@ public class OrganizationGenerator {
 		OrganizationGenerator og = new OrganizationGenerator();
 
 		og.name = NAME;
+
+		og.idGenerators.add(IDGenerator.getNextInstance());
 
 		ADGenerator adGenerator = ADGenerator.getDefaultInstance();
 		TELGenerator telGenerator = TELGenerator.getDefaultInstance();

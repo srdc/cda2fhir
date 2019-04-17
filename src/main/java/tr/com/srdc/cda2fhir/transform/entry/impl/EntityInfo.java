@@ -10,6 +10,7 @@ public class EntityInfo implements IEntityInfo {
 	private Practitioner practitioner;
 	private PractitionerRole role;
 	private Organization organization;
+	private boolean orgIsNew = false;
 
 	public void setPractitioner(Practitioner practitioner) {
 		this.practitioner = practitioner;
@@ -36,5 +37,13 @@ public class EntityInfo implements IEntityInfo {
 	@Override
 	public Organization getOrganization() {
 		return organization;
+	}
+
+	public boolean isOrgNew() {
+		return orgIsNew;
+	}
+
+	public void setOrgIsNew(boolean orgIsNew) {
+		this.orgIsNew = orgIsNew;
 	}
 }

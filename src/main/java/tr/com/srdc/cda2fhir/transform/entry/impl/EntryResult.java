@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.transform.entry.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.entry.IMedicationsInformation;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDACDMap;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDAIIMap;
@@ -27,13 +29,14 @@ public class EntryResult implements IEntryResult {
 	private List<IDeferredReference> deferredReferences;
 	private CDAIIMap<IEntityInfo> entities;
 	private CDAIIResourceMaps<IBaseResource> resourceMaps;
-	private CDACDMap<IBaseResource> cdMap;
+	private CDACDMap<IMedicationsInformation> cdMap;
 
 	@Override
 	public Bundle getBundle() {
 		return newResourceBundle;
 	}
 
+	@Override
 	public Bundle getFullBundle() {
 		return fullBundle;
 	}
@@ -68,7 +71,13 @@ public class EntryResult implements IEntryResult {
 		// copy external bundle's new resources to both our new resource bundle
 		// as well as our full bundle. The resources not in the new resource bundle
 		// are presumably already recorded and can be ignored.
+		if (newResourceBundle == null) {
+			newResourceBundle = new Bundle();
+		}
 		entryResult.copyTo(newResourceBundle);
+		if (fullBundle == null) {
+			fullBundle = new Bundle();
+		}
 		entryResult.copyTo(fullBundle);
 		if (entryResult.hasDeferredReferences()) {
 			addDeferredReferences(entryResult.getDeferredReferences());
@@ -92,6 +101,7 @@ public class EntryResult implements IEntryResult {
 		if (entryResult.hasMapValues()) {
 			updateMapsFrom(entryResult);
 		}
+
 	}
 
 	public void addDeferredReferences(List<IDeferredReference> references) {
@@ -126,6 +136,13 @@ public class EntryResult implements IEntryResult {
 			entityResult.copyTo(newResourceBundle);
 			entityResult.copyTo(fullBundle);
 		}
+		if (entityResult.hasIIResourceMaps()) {
+			if (resourceMaps == null) {
+				resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+			}
+			resourceMaps.put(entityResult.getResourceMaps());
+		}
+
 	}
 
 	public void updateEntitiesFrom(IEntryResult entryResult) {
@@ -150,7 +167,7 @@ public class EntryResult implements IEntryResult {
 	public void updateCDResourcesFrom(IEntryResult entryResult) {
 		if (entryResult.hasCDMap()) {
 			if (cdMap == null) {
-				cdMap = new CDACDMap<IBaseResource>();
+				cdMap = new CDACDMap<IMedicationsInformation>();
 			}
 			cdMap.put(entryResult);
 		}
@@ -244,7 +261,7 @@ public class EntryResult implements IEntryResult {
 	}
 
 	@Override
-	public void putCDValuesTo(Map<String, Map<String, IBaseResource>> target) {
+	public void putCDValuesTo(Map<String, Map<String, IMedicationsInformation>> target) {
 		if (cdMap != null) {
 			cdMap.putCDValuesTo(target);
 		}
@@ -256,11 +273,40 @@ public class EntryResult implements IEntryResult {
 	}
 
 	@Override
-	public void putCDResource(CD cd, IBaseResource resource) {
+	public void putCDResource(CD cd, IMedicationsInformation resource) {
 		if (cdMap == null) {
-			cdMap = new CDACDMap<IBaseResource>();
+			cdMap = new CDACDMap<IMedicationsInformation>();
 		}
 		cdMap.put(cd, resource);
+	}
+
+	@Override
+	public void putIIResource(II ii, Class<? extends IBaseResource> clazz, IBaseResource resource) {
+		if (resourceMaps == null) {
+			resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+		}
+		resourceMaps.put(ii, clazz, resource);
+	}
+
+	@Override
+	public void putIIResource(List<II> iis, Class<? extends IBaseResource> clazz, IBaseResource resource) {
+		if (resourceMaps == null) {
+			resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+		}
+		resourceMaps.put(iis, clazz, resource);
+	}
+
+	@Override
+	public CDAIIResourceMaps<IBaseResource> getResourceMaps() {
+		return resourceMaps;
+	}
+
+	@Override
+	public Collection<Class<? extends IBaseResource>> keySet() {
+		if (resourceMaps == null) {
+			resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+		}
+		return resourceMaps.keySet();
 	}
 
 }

@@ -282,4 +282,12 @@ public class ImmunizationActivityGenerator {
 	public void setMedicationInformationGenerator(ImmunizationMedicationInformationGenerator medInfoGenerator) {
 		this.medInfoGenerator = medInfoGenerator;
 	}
+
+	public void setReactionObservationGenerator(ReactionObservationGenerator reactObsGen) {
+		this.reactionObservationGenerator = reactObsGen;
+	}
+
+	public List<PerformerGenerator> getPerformerGenerators() {
+		return this.performerGenerators;
+	}
 }

@@ -9,14 +9,12 @@ import org.openhealthtools.mdht.uml.cda.Component2;
 import org.openhealthtools.mdht.uml.cda.Component3;
 import org.openhealthtools.mdht.uml.cda.Custodian;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
+import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.Performer1;
 import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.ServiceEvent;
 import org.openhealthtools.mdht.uml.cda.StructuredBody;
-import org.openhealthtools.mdht.uml.cda.consol.AssignedAuthor;
-import org.openhealthtools.mdht.uml.cda.consol.AssignedCustodian;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.PatientRole;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -32,7 +30,7 @@ public class ClinicalDocumentMetadataGenerator {
 	ContinuityOfCareDocument doc;
 	CDAFactories factories;
 
-	private static AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
+	private AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
 
 	static final public String DEFAULT_REALM_CODE = "US";
 	static final public String DEFAULT_ID_ROOT = "1.2.345.678901.7.89.10.1.2.3.123456.12345678";
@@ -74,8 +72,11 @@ public class ClinicalDocumentMetadataGenerator {
 		INT version = genVersion(factories, DEFAULT_VERSION_NUMBER);
 
 		IVL_TS eventEffTime = genTime(factories, DEFAULT_EVENT_TIME_LOW, DEFAULT_EVENT_TIME_HIGH);
-		DocumentationOf docOf = genDocumentationOf(eventEffTime, assignedEntityGenerator.generate(factories));
-		doc.getDocumentationOfs().add(docOf);
+		if (assignedEntityGenerator != null) {
+			DocumentationOf docOf = genDocumentationOf(eventEffTime, assignedEntityGenerator.generate(factories));
+			doc.getDocumentationOfs().add(docOf);
+
+		}
 		doc.setId(id);
 		doc.setCode(code);
 		doc.setTitle(title);
@@ -172,17 +173,16 @@ public class ClinicalDocumentMetadataGenerator {
 		document.getRecordTargets().add(recordTarget);
 	}
 
-	public static void setAuthor(CDAFactories factories, ClinicalDocument document, AssignedAuthor assignedAuthor) {
-		Author author = factories.base.createAuthor();
-		author.setAssignedAuthor(assignedAuthor);
+	public static void setAuthor(CDAFactories factories, ClinicalDocument document, Author author) {
 		document.getAuthors().add(author);
 	}
 
-	public static void setCustodian(CDAFactories factories, ClinicalDocument document,
-			AssignedCustodian assignedustodian) {
-		Custodian custodian = factories.base.createCustodian();
-		custodian.setAssignedCustodian(assignedustodian);
+	public static void setCustodian(CDAFactories factories, ClinicalDocument document, Custodian custodian) {
 		document.setCustodian(custodian);
+	}
+
+	public void setAssignedEntityGenerator(AssignedEntityGenerator assignedEntityGenerator) {
+		this.assignedEntityGenerator = assignedEntityGenerator;
 	}
 
 }

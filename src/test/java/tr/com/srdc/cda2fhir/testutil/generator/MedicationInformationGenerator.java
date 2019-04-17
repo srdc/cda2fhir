@@ -77,4 +77,16 @@ public class MedicationInformationGenerator {
 	public void setOrganizationGenerator(OrganizationGenerator orgGenerator) {
 		this.orgGenerator = orgGenerator;
 	}
+
+	public OrganizationGenerator getOrganizationGenerator() {
+		return this.orgGenerator;
+	}
+
+	public void setCodeGenerator(CEGenerator codeGenerator) {
+		this.codeGenerator = codeGenerator;
+	}
+
+	public CEGenerator getCodeGenerator() {
+		return this.codeGenerator;
+	}
 }
