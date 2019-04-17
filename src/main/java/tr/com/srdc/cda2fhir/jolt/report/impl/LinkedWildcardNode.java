@@ -30,7 +30,7 @@ public class LinkedWildcardNode extends LinkedNode implements IWildcardNode {
 		IParentNode parent = getParent();
 		IParentNode grandparent = parent.getParent();
 		String parentPath = parent.getPath();
-		String newPath = hasSibling() ? parentPath : parentPath + "[]";
+		String newPath = addSquareBrackets() ? parentPath + "[]" : parentPath;
 		MergedLinkedNode result = new MergedLinkedNode(grandparent, newPath, this.getTarget(), this.getLink());
 		grandparent.addChild(result);
 		parent.removeChild(this);
