@@ -85,6 +85,7 @@ import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.Narrative.NarrativeStatus;
 import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
+import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Patient.ContactComponent;
 import org.hl7.fhir.dstu3.model.Patient.PatientCommunicationComponent;
@@ -610,6 +611,64 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
+	public EntityResult tAssignedAuthor2Device(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo) {
+		if (cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor()) {
+			return new EntityResult();
+		}
+		List<II> ids = null;
+		if (cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty()) {
+			for (II ii : cdaAssignedAuthor.getIds()) {
+				if (ii != null && !ii.isSetNullFlavor()) {
+					if (ids == null) {
+						ids = new ArrayList<II>();
+					}
+					ids.add(ii);
+				}
+			}
+		}
+
+		if (ids != null) {
+			IEntityInfo existingInfo = bundleInfo.findEntityResult(ids);
+			if (existingInfo != null) {
+				return new EntityResult(existingInfo);
+			}
+		}
+
+		EntityInfo info = new EntityInfo();
+
+		Device fhirDevice = new Device();
+		info.setDevice(fhirDevice);
+
+		// resource id
+		IdType resourceDeviceId = new IdType("Device", getUniqueId());
+		fhirDevice.setId(resourceDeviceId);
+
+		// id -> identifier
+		if (ids != null) {
+			for (II id : ids) {
+				fhirDevice.addIdentifier(dtt.tII2Identifier(id));
+			}
+		}
+
+		// All things with the Device.
+		if (cdaAssignedAuthor.getAssignedAuthoringDevice() != null
+				&& !cdaAssignedAuthor.getAssignedAuthoringDevice().isSetNullFlavor()) {
+			fhirDevice.setManufacturer(
+					cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getDisplayName());
+			fhirDevice.setVersion(cdaAssignedAuthor.getAssignedAuthoringDevice().getSoftwareName().getText());
+		}
+
+		// representedOrganization -> EntityInfo.organization
+		if (cdaAssignedAuthor.getRepresentedOrganization() != null
+				&& !cdaAssignedAuthor.getRepresentedOrganization().isSetNullFlavor()) {
+			Organization fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
+			info.setOrganization(fhirOrganization);
+		}
+
+		return new EntityResult(info, ids);
+	}
+
+	@Override
 	public EntityResult tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo) {
 		if (cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor()) {
 			return new EntityResult();
@@ -934,17 +993,30 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// author.assignedAuthor -> author
+		// author.assignedAuthor -> author JAMES
 		if (cdaClinicalDocument.getAuthors() != null && !cdaClinicalDocument.getAuthors().isEmpty()) {
 			for (Author author : cdaClinicalDocument.getAuthors()) {
 				// Asserting that at most one author exists
 				if (author != null && !author.isSetNullFlavor()) {
 					if (author.getAssignedAuthor() != null && !author.getAssignedAuthor().isSetNullFlavor()) {
-						EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
-						result.updateFrom(entityResult);
-						bundleInfo.updateFrom(entityResult);
-						if (fhirComp != null && entityResult.hasPractitioner()) {
-							fhirComp.addAuthor().setReference(entityResult.getPractitionerId());
+						if (author.getAssignedAuthor().getAssignedPerson() != null
+								&& !author.getAssignedAuthor().getAssignedPerson().isSetNullFlavor()) {
+							EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
+							result.updateFrom(entityResult);
+							bundleInfo.updateFrom(entityResult);
+							if (fhirComp != null && entityResult.hasPractitioner()) {
+								fhirComp.addAuthor().setReference(entityResult.getPractitionerId());
+							}
+						} else if (author.getAssignedAuthor().getAssignedAuthoringDevice() != null
+								&& author.getAssignedAuthor().getRepresentedOrganization() != null
+								&& !author.getAssignedAuthor().getRepresentedOrganization().isSetNullFlavor()
+								&& !author.getAssignedAuthor().getAssignedAuthoringDevice().isSetNullFlavor()) {
+							EntityResult entityResult = tAssignedAuthor2Device(author.getAssignedAuthor(), bundleInfo);
+							result.updateFrom(entityResult);
+							bundleInfo.updateFrom(entityResult);
+							if (fhirComp != null && entityResult.hasDevice()) {
+								fhirComp.addAuthor().setReference(entityResult.getPractitionerId());
+							}
 						}
 					}
 				}
