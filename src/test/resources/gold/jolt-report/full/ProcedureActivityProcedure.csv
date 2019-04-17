@@ -88,7 +88,7 @@ procedure.id[].root,Procedure.identifier[].system,,"idSystemAdapter",nullFlavor 
 #official,Procedure.identifier[].use,,,nullFlavor isnull,procedure.id[].nullFlavor isnull
 procedure.id[].extension,Procedure.identifier[].value,,"toString",nullFlavor isnull,procedure.id[].extension isnotnull,procedure.id[].nullFlavor isnull
 procedure.id[].root,Procedure.identifier[].value,,"toString",nullFlavor isnull,procedure.id[].extension isnull,procedure.id[].nullFlavor isnull
-procedure.entryRelationship[].typeCode.act.text.reference.value,Procedure.note[].text,,"resolveText",nullFlavor isnull,procedure.entryRelationship[].typeCode equal SUBJ
+procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",nullFlavor isnull,procedure.entryRelationship[].typeCode equal SUBJ
 procedure.effectiveTime.high.value,Procedure.performedPeriod.end,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high.nullFlavor isnull,procedure.effectiveTime.nullFlavor isnull
 procedure.effectiveTime.low.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.low.nullFlavor isnull,procedure.effectiveTime.nullFlavor isnull
 procedure.effectiveTime.value,Procedure.performedPeriod.start,,"datetimeAdapter",nullFlavor isnull,procedure.effectiveTime.high isnull,procedure.effectiveTime.low isnull,procedure.effectiveTime.nullFlavor isnull
@@ -96,10 +96,10 @@ Procedure.PractitionerRole[].code.0,Procedure.performer[&2].role,,
 Procedure.Practitioner[],Procedure.performer[].actor.display,,
 Procedure.Practitioner,Procedure.performer[].actor.reference,,"getId"
 Procedure.Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
-procedure.entryRelationship[].typeCode.observation.code.code,Procedure.reasonCode[].coding[0].code,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.entryRelationship[].typeCode.observation.code.nullFlavor isnull
-procedure.entryRelationship[].typeCode.observation.code.displayName,Procedure.reasonCode[].coding[0].display,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.entryRelationship[].typeCode.observation.code.nullFlavor isnull
-procedure.entryRelationship[].typeCode.observation.code.codeSystem,Procedure.reasonCode[].coding[0].system,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.entryRelationship[].typeCode.observation.code.nullFlavor isnull
-procedure.entryRelationship[].typeCode.observation.code.translation[].code,Procedure.reasonCode[].coding[].code,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.entryRelationship[].typeCode.observation.code.nullFlavor isnull
-procedure.entryRelationship[].typeCode.observation.code.translation[].displayName,Procedure.reasonCode[].coding[].display,,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.entryRelationship[].typeCode.observation.code.nullFlavor isnull
-procedure.entryRelationship[].typeCode.observation.code.translation[].codeSystem,Procedure.reasonCode[].coding[].system,,"systemAdapter",nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.entryRelationship[].typeCode.observation.code.nullFlavor isnull
+procedure.entryRelationship[].observation.code.code,Procedure.reasonCode[].coding[0].code,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.displayName,Procedure.reasonCode[].coding[0].display,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.codeSystem,Procedure.reasonCode[].coding[0].system,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.translation[].code,Procedure.reasonCode[].coding[].code,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.translation[].displayName,Procedure.reasonCode[].coding[].display,,,nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
+procedure.entryRelationship[].observation.code.translation[].codeSystem,Procedure.reasonCode[].coding[].system,,"systemAdapter",nullFlavor isnull,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
 procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",nullFlavor isnull,procedure.statusCode.nullFlavor isnull

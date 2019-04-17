@@ -8,7 +8,6 @@ Observation[],DiagnosticReport.result[].display,,"getReferenceDisplay"
 DiagnosticReport.Observation,DiagnosticReport.result[].reference,,"getId"
 organizer.statusCode.code,DiagnosticReport.status,,"valueSetAdapter('DiagnosticReportStatus')",nullFlavor isnull,organizer.statusCode.nullFlavor isnull
 organizer.component[],Observation[],Observation,,nullFlavor isnull
-Practitioner[],Observation[].performer[].reference,,"getId"
 organizer.author[].assignedAuthor,Organization[],EntityOrganization,,nullFlavor isnull
 organizer.author[].assignedAuthor,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
 organizer.author[].assignedAuthor,Practitioner[],EntityPractitioner,,nullFlavor isnull

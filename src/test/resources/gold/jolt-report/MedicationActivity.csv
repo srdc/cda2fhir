@@ -1,22 +1,8 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 substanceAdministration.entryRelationship[],Condition[],MedIndication,,substanceAdministration.nullFlavor isnull
 substanceAdministration.consumable,Medication,MedicationInformation,,substanceAdministration.nullFlavor isnull
-Organization,Medication.manufacturer.display,,
-Organization,Medication.manufacturer.reference,,"getId"
 substanceAdministration.entryRelationship[],MedicationDispense,MedicationDispense,,substanceAdministration.nullFlavor isnull
-Organization,MedicationDispense.Medication.manufacturer.display,,
-Organization,MedicationDispense.Medication.manufacturer.reference,,"getId"
-Medication,MedicationDispense.medicationReference.display,,
-Medication,MedicationDispense.medicationReference.reference,,"getId"
-MedicationStatement.Practitioner[],MedicationDispense.performer[].actor.display,,
-Practitioner,MedicationDispense.performer[].actor.reference,,"getId"
 substanceAdministration.entryRelationship[],MedicationRequest,MedicationSupplyOrder,,substanceAdministration.nullFlavor isnull
-Organization,MedicationRequest.Medication.manufacturer.display,,
-Organization,MedicationRequest.Medication.manufacturer.reference,,"getId"
-Medication,MedicationRequest.medicationReference.display,,
-Medication,MedicationRequest.medicationReference.reference,,"getId"
-Practitioner,MedicationRequest.requester.agent.display,,"getReferenceDisplay"
-Practitioner,MedicationRequest.requester.agent.reference,,"getId"
 substanceAdministration.doseQuantity,MedicationStatement.dosage[0].doseQuantity,IVL_PQSimpleQuantity,,substanceAdministration.nullFlavor isnull
 substanceAdministration.rateQuantity,MedicationStatement.dosage[0].rateRange,IVL_PQRange,,substanceAdministration.nullFlavor isnull
 substanceAdministration.routeCode,MedicationStatement.dosage[0].route,CD2,,substanceAdministration.nullFlavor isnull

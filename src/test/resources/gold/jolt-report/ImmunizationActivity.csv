@@ -20,7 +20,6 @@ substanceAdministration.approachSiteCode[],Immunization.site,CD,"lastElement",su
 substanceAdministration.statusCode.code,Immunization.status,,"valueSetAdapter('ImmunizationStatus')",substanceAdministration.nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
 substanceAdministration.consumable.manufacturedProduct.manufacturedMaterial.code,Immunization.vaccineCode,CD2,,substanceAdministration.consumable.nullFlavor isnull,substanceAdministration.nullFlavor isnull
 substanceAdministration.entryRelationship[],Observation,Observation,,substanceAdministration.entryRelationship[].observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,substanceAdministration.nullFlavor isnull
-Practitioner[],Observation.performer[].reference,,"getId"
 substanceAdministration.consumable.manufacturedProduct.manufacturerOrganization,Organization,Organization,,substanceAdministration.consumable.nullFlavor isnull,substanceAdministration.nullFlavor isnull
 substanceAdministration.performer[].assignedEntity,Organization[],EntityOrganization,,substanceAdministration.nullFlavor isnull
 substanceAdministration.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,substanceAdministration.nullFlavor isnull
