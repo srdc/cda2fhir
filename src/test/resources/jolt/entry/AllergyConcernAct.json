@@ -39,6 +39,11 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"assertedDate": "=datetimeAdapter(@0)",
