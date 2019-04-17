@@ -1,6 +1,8 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,7 @@ public class KeepWhen implements ContextualTransform, SpecDriven, IRootNodeUpdat
 	private List<Map<String, Object>> orConditions;
 	private String target;
 	private Map<String, Object> values;
-	private ICondition condition;
+	private Collection<ICondition> conditions;
 	private List<Set<String>> orConditionVariables = new ArrayList<>();
 
 	@SuppressWarnings("unchecked")
@@ -41,10 +43,10 @@ public class KeepWhen implements ContextualTransform, SpecDriven, IRootNodeUpdat
 		values = (Map<String, Object>) specAsMap.get("values");
 		List<Object> rawOrConditions = (List<Object>) specAsMap.get("conditions");
 		orConditions = rawOrConditions.stream().map(r -> (Map<String, Object>) r).collect(Collectors.toList());
-		condition = getCondition();
+		conditions = getCondition();
 	}
 
-	private ICondition getCondition() {
+	private Collection<ICondition> getCondition() {
 		List<ICondition> orResults = orConditions.stream().map(orCondition -> {
 			RootNode rootNode = NodeFactory.getInstance(orCondition);
 			Table table = rootNode.toTable(new Templates());
@@ -80,20 +82,28 @@ public class KeepWhen implements ContextualTransform, SpecDriven, IRootNodeUpdat
 			return new MultiAndCondition(conditions);
 		}).collect(Collectors.toList());
 		if (orResults.size() == 1) {
-			return orResults.get(0);
+			ICondition singleCondition = orResults.get(0);
+			if (!(singleCondition instanceof MultiAndCondition)) {
+				return Collections.singletonList(singleCondition);
+			}
+			MultiAndCondition multiAndCondition = (MultiAndCondition) singleCondition;
+			return multiAndCondition.getChildConditions();
 		}
-		return new MultiOrCondition(orResults);
+		return Collections.singletonList(new MultiOrCondition(orResults));
 	}
 
 	@Override
 	public void update(RootNode rootNode) {
 		rootNode.updateBase(base -> {
 			if ("*".equals(target)) {
-				base.addCondition(condition);
+				conditions.forEach(condition -> base.addCondition(condition));
+				return;
 			}
 			List<IParentNode> newBases = base.separateChildLines(target);
 			newBases.forEach(newBase -> {
-				newBase.addCondition(condition);
+				conditions.forEach(condition -> {
+					newBase.addCondition(condition);
+				});
 				if (base != newBase) {
 					rootNode.addRootChild(newBase);
 				}

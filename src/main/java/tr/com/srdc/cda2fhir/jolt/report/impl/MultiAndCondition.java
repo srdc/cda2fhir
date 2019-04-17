@@ -79,4 +79,8 @@ public class MultiAndCondition implements ICondition {
 	public void addCondition(ICondition condition) {
 		conditions.add(condition);
 	}
+
+	public Collection<ICondition> getChildConditions() {
+		return conditions;
+	}
 }
