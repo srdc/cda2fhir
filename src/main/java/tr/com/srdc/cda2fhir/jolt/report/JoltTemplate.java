@@ -173,8 +173,8 @@ public class JoltTemplate {
 	}
 
 	private Table createTable(Map<String, JoltTemplate> map, Map<String, JoltTemplate> leafTemplates) {
-		JoltFormat resolvedFormat = getResolvedFormat(map);
-		Table assignTable = getAssignTable(map);
+		JoltFormat resolvedFormat = getResolvedFormat(leafTemplates);
+		Table assignTable = getAssignTable(leafTemplates);
 		if (assignTable != null) {
 			assignTable.correctArrayOnFormat();
 		}

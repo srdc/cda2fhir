@@ -65,7 +65,6 @@
 									<!-- ** Problem observation  (V3)** -->
                   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
                   <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-                  <id root="ab1791b0-5c71-11db-b0de-0800200c9a66"/>
                   <code code="64572001"
                         codeSystem="2.16.840.1.113883.6.96"
                         codeSystemName="SNOMED-CT"
@@ -77,28 +76,8 @@
                   </code>
                   <!-- The statusCode reflects the status of the observation itself -->
                   <statusCode code="completed"/>
-                  <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-										<!-- Based on patient symptoms, presumed onset is July 3, 2013 -->
-                     <low value="20130703"/>
-                     <!-- The high value reflects when the problem was known to be resolved -->
-                     <!-- Based on signs and symptoms, appears to be resolved on Aug 14, 2013 -->
-                     <high value="20080814"/>
-                  </effectiveTime>
-                  <value code="233604007"
-                         codeSystem="2.16.840.1.113883.6.96"
-                         displayName="Pneumonia"
-                         xsi:type="CD"/>
                   <author typeCode="AUT">
                      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-                     <time value="200808141030-0800"/>
-                     <assignedAuthor>
-                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-                        <code code="207QA0505X"
-                              codeSystem="2.16.840.1.113883.6.101"
-                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                              displayName="Adult Medicine"/>
-                     </assignedAuthor>
                   </author>
                </observation>
             </entryRelationship>
@@ -137,7 +116,6 @@
 									<!-- ** Problem observation ** -->
                   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
                   <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-                  <id root="11d088a8-b957-401c-8ee0-3bd20a772fc0"/>
                   <code code="64572001"
                         codeSystem="2.16.840.1.113883.6.96"
                         codeSystemName="SNOMED-CT"
@@ -149,26 +127,8 @@
                   </code>
                   <!-- The statusCode reflects the status of the observation itself -->
                   <statusCode code="completed"/>
-                  <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-                     <low value="20070414"/>
-                     <!-- Based on patient symptoms, presumed onset is July 3, 2013 -->
-                     <!-- Absence of effectiveTime/high means the condition is not resolved -->
-                  </effectiveTime>
-                  <value code="29857009"
-                         codeSystem="2.16.840.1.113883.6.96"
-                         displayName="Chest pain"
-                         xsi:type="CD"/>
                   <author typeCode="AUT">
                      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-                     <time value="200704141515-0800"/>
-                     <assignedAuthor>
-                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-                        <code code="207QA0505X"
-                              codeSystem="2.16.840.1.113883.6.101"
-                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                              displayName="Adult Medicine"/>
-                     </assignedAuthor>
                   </author>
                </observation>
             </entryRelationship>
@@ -177,7 +137,6 @@
 									<!-- ** Problem observation ** -->
                   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
                   <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-                  <id root="4991db40-4c4f-41e8-9146-50c12d716424"/>
                   <code code="64572001"
                         codeSystem="2.16.840.1.113883.6.96"
                         codeSystemName="SNOMED-CT"
@@ -189,25 +148,8 @@
                   </code>
                   <!-- The statusCode reflects the status of the observation itself -->
                   <statusCode code="completed"/>
-                  <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-                     <low value="20070417"/>
-                     <!-- Absence of effectiveTime/high means the condition is not resolved -->
-                  </effectiveTime>
-                  <value code="194828000"
-                         codeSystem="2.16.840.1.113883.6.96"
-                         displayName="Angina"
-                         xsi:type="CD"/>
                   <author typeCode="AUT">
                      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-                     <time value="200704171515-0800"/>
-                     <assignedAuthor>
-                        <id extension="222334444" root="2.16.840.1.113883.4.6"/>
-                        <code code="207QA0505X"
-                              codeSystem="2.16.840.1.113883.6.101"
-                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                              displayName="Adult Medicine"/>
-                     </assignedAuthor>
                   </author>
                </observation>
             </entryRelationship>
@@ -249,7 +191,6 @@
 									<!-- ** Problem observation (V2) ** -->
                   <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.4"/>
                   <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
-                  <id root="10506b4d-c30a-4220-8bec-97bff9568fd1"/>
                   <code code="64572001"
                         codeSystem="2.16.840.1.113883.6.96"
                         codeSystemName="SNOMED-CT"
@@ -261,32 +202,8 @@
                   </code>
                   <!-- The statusCode reflects the status of the observation itself -->
                   <statusCode code="completed"/>
-                  <effectiveTime>
-										<!-- The low value reflects the date of onset -->
-										<!-- Based on patient symptoms, presumed onset is Mar 10, 1998 -->
-                     <low value="19980310"/>
-                     <!-- The high value reflects when the problem was known to be resolved -->
-                     <high value="19980316"/>
-                  </effectiveTime>
-                  <value code="233604007"
-                         codeSystem="2.16.840.1.113883.6.96"
-                         displayName="Pneumonia"
-                         xsi:type="CD">
-                     <qualifier>
-                        <name code="363698007" displayName="Finding site"/>
-                        <value code="41224006" displayName="Left lower lobe of lung"/>
-                     </qualifier>
-                  </value>
                   <author typeCode="AUT">
                      <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-                     <time value="199803161030-0800"/>
-                     <assignedAuthor>
-                        <id extension="555555555" root="2.16.840.1.113883.4.6"/>
-                        <code code="207QA0505X"
-                              codeSystem="2.16.840.1.113883.6.101"
-                              codeSystemName="Healthcare Provider Taxonomy (HIPAA)"
-                              displayName="Adult Medicine"/>
-                     </assignedAuthor>
                   </author>
                </observation>
             </entryRelationship>

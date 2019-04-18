@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
 effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapter",nullFlavor isnull
 author.time.value,Condition.assertedDate,,"datetimeAdapter",nullFlavor isnull
-Practitioner,Condition.asserter.display,,
+Practitioner,Condition.asserter.display,,"getReferenceDisplay"
 Practitioner,Condition.asserter.reference,,"getId"
 #constant,Condition.category[],,"constantValue('ConditionCategoryConstant')",nullFlavor isnull
 effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')",nullFlavor isnull

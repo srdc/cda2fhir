@@ -12,7 +12,9 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"substanceAdministration": {
+				"nullFlavor": "*"
+			}
 		}
 	},
 	{
@@ -42,44 +44,12 @@
 				"rateQuantity": "dosage[0].rateRange.->IVL_PQRange",
 				"#unk": "taken",
 				"entryRelationship": {
-					"*": {
-						"supply": {
-							"templateId": {
-								"0": {
-									"root": {
-										"2.16.840.1.113883.10.20.22.4.17": {
-											"@5": "MedicationRequest.->MedicationSupplyOrder"
-										},
-										"2.16.840.1.113883.10.20.22.4.18": {
-											"@5": "MedicationRequest.->MedicationDispense"
-										}
-									}
-								}
-							}
-						},
-						"observation": {
-							"templateId": {
-								"0": {
-									"root": {
-										"2.16.840.1.113883.10.20.22.4.19": {
-											"@5": "Condition[].->MedIndication"
-										}
-									}
-								}
-							},
-							"code": {
-								"code": {
-									"FREQUENCY": {
-										"@3": {
-											"value": {
-												"content": "dosage[0].timing.code.text"
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					"*": [
+						"MedicationRequest.->MedicationSupplyOrder",
+						"MedicationDispense.->MedicationDispense",
+						"Condition[].->MedIndication",
+						"dosage[0].timing.->MedActivityCustomFrequency"
+					]
 				}
 			}
 		}
@@ -92,10 +62,19 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": ["informationSource.reference", "informationSource.display"],
-			"Medication": ["medicationReference.reference", "medicationReference.display"],
+			"Practitioner": [
+				"informationSource.reference",
+				"informationSource.display"
+			],
+			"Medication": [
+				"medicationReference.reference",
+				"medicationReference.display"
+			],
 			"Condition": {
-				"*": ["reasonReference[&].reference", "reasonReference[&].display"]
+				"*": [
+					"reasonReference[&].reference",
+					"reasonReference[&].display"
+				]
 			}
 		}
 	},
@@ -119,6 +98,7 @@
 			},
 			"dosage": {
 				"*": {
+					"timing": "=lastElement(@0)",
 					"doseQuantity": "=constantSystem('http://unitsofmeasure.org/ucum.html','pq',@0)"
 				}
 			}
@@ -133,6 +113,7 @@
 			"Medication": "",
 			"Condition": "",
 			"MedicationRequest": "",
+			"MedicationDispense": "",
 			"dosage": {
 				"0": {
 					"rateRange": {
@@ -152,7 +133,7 @@
 		"spec": {
 			"recursive": true
 		}
-	},	
+	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
 		"spec": {

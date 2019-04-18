@@ -1,0 +1,175 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"observation": {
+						"nullFlavor": "n",
+						"templateId": {
+							"0": {
+								"root": "=a"
+							}
+						}
+					}
+				}
+			],
+			"values": {
+				"a": "2.16.840.1.113883.10.20.22.4.9"
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"observation": {
+				"id": "MANY",
+				"targetSiteCode": "ONE",
+				"value": "ONE",
+				"author": "MANY",
+				"methodCode": "MANY",
+				"interpretationCode": "ONE",
+				"referenceRange": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"observation": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"code": "code.->CD2",
+				"statusCode": "status.->NullFlavorableCode",
+				"targetSiteCode": "bodySite.->CD",
+				"effectiveTime": "effectivePeriod.->IVL_TSPeriod",
+				"value": {
+					"nullFlavor": "dataAbsentReason.coding[]",
+					"xsi:type": {
+						"CD": {
+							"@2": "valueCodeableConcept.->CD"
+						},
+						"PQ": {
+							"@2": "valueQuantity.->PQ"
+						},
+						"ST": {
+							"@2": {
+								"content": "valueString"
+							}
+						},
+						"IVL_PQ": {
+							"@2": "valueRange.->IVL_PQ"
+						},
+						"RTO": {
+							"@2": "valueRatio.->RTO"
+						},
+						"ED": {
+							"@2": {
+								"content": "valueAttachment.data"
+							}
+						},
+						"TS": {
+							"@2": {
+								"value": "valueDateTime"
+							}
+						},
+						"BL": {
+							"@2": {
+								"value": "valueBoolean"
+							}
+						}
+					}
+				},
+				"author": {
+					"*": [
+						"Author[&].->AuthorParticipation",
+						"issued.->Time"
+					]
+				},
+				"methodCode": {
+					"*": "method.->CD"
+				},
+				"interpretationCode": "interpretation.coding[].->InterpretationCode",
+				"referenceRange": {
+					"*": {
+						"observationRange": {
+							"value": "referenceRange[&2].->IVL_PQRange",
+							"interpretationCode": "referenceRange[&2].type.->CD",
+							"text": "referenceRange[&2].text"
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Author": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": "performer[&].reference"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"status": "=valueSetAdapter('ObservationStatus','unknown',@0)",
+			"interpretation": {
+				"coding": {
+					"*": "=interpretationCodeAdapter('ObservationInterpretation',@0)"
+				}
+			},
+			"referenceRange": {
+				"*": {
+					"text": "=contentOrSelf(@0)"
+				}
+			},
+			"valueDateTime": "=datetimeAdapter(@0)",
+			"dataAbsentReason": {
+				"coding": {
+					"*": "=valueSetAdapter('ObservationDataAbsentReason',@0)"
+				}
+			},
+			"performer": {
+				"*": {
+					"reference": "=getId(@0)"
+				}
+			},
+			"method": "=lastElement(@0)",
+			"issued": "=datetimeAdapter(@0)"
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive" : true
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Observation"
+		}
+	}
+]
