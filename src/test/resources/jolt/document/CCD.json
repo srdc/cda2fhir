@@ -6,7 +6,8 @@
 				"id": "ONE",
 				"author": "ONE",
 				"authenticator": "MANY",
-				"documentationOf": "MANY"
+				"documentationOf": "MANY",
+				"recordTarget": "MANY"
 			}
 		}
 	},
@@ -35,9 +36,15 @@
 					"assignedCustodian": {
 						"representedCustodianOrganization": "Custodian.->Organization"
 					}
+				},
+				"recordTarget": {
+					"0": "Subject.->PatientRole"
 				}
 			}
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
@@ -54,6 +61,10 @@
 			"Custodian": [
 				"custodian.reference",
 				"custodian.display"
+			],
+			"Subject": [
+				"subject.reference",
+				"subject.display"
 			]
 		}
 	},
@@ -75,6 +86,10 @@
 			"custodian": {
 				"reference": "=getId(@0)",
 				"display": "=getReferenceDisplay(@0)"
+			},
+			"subject": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			}
 		}
 	},
@@ -84,7 +99,8 @@
 			"Practitioner": "",
 			"PractitionerRole": "",
 			"Organization": "",
-			"Custodian": ""
+			"Custodian": "",
+			"Subject": ""
 		}
 	},
 	{

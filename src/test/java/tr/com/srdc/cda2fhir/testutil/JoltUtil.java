@@ -542,9 +542,7 @@ public class JoltUtil {
 		verify(resource, joltResource, info);
 	}
 
-	public void verify(Patient patient) throws Exception {
-		Map<String, Object> joltPatient = TransformManager.chooseResource(result, "Patient");
-
+	public void verify(Patient patient, Map<String, Object> joltPatient) throws Exception {
 		if (patient.hasManagingOrganization()) {
 			String reference = findPathString(joltPatient, "managingOrganization.reference");
 			Assert.assertNotNull("Managing organization reference exists", reference);
@@ -562,7 +560,12 @@ public class JoltUtil {
 			Assert.assertNull("No managing organization", value);
 		}
 
-		verify(patient, null);
+		verify(patient, joltPatient, null);
+	}
+
+	public void verify(Patient patient) throws Exception {
+		Map<String, Object> joltPatient = TransformManager.chooseResource(result, "Patient");
+		verify(patient, joltPatient);
 	}
 
 	public Map<String, Object> findPractitionerRoleForPractitionerId(String practitionerId) {
@@ -1530,6 +1533,27 @@ public class JoltUtil {
 			if (joltClone != null) {
 				Object value = joltClone.get("custodian");
 				Assert.assertNull("No custodian", value);
+			}
+		}
+
+		if (composition.hasSubject()) {
+			String reference = composition.getSubject().getReference();
+			Map<String, Object> joltReferenceObject = (Map<String, Object>) joltClone.get("subject");
+			Assert.assertNotNull("Jolt subject exists", joltReferenceObject);
+			String joltReference = (String) joltReferenceObject.get("reference");
+
+			Patient patient = bundleUtil.getResourceFromReference(reference, Patient.class);
+			Map<String, Object> joltPatient = TransformManager.chooseResourceByReference(result, joltReference);
+
+			verify(patient, joltPatient);
+
+			joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+			joltClone.put("subject", joltReferenceObject);
+			joltReferenceObject.put("reference", reference);
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("subject");
+				Assert.assertNull("No subject", value);
 			}
 		}
 

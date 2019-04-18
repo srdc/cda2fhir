@@ -9,6 +9,7 @@ import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
 import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.AssignedCustodian;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
@@ -18,6 +19,8 @@ import org.openhealthtools.mdht.uml.cda.Custodian;
 import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
 import org.openhealthtools.mdht.uml.cda.LegalAuthenticator;
+import org.openhealthtools.mdht.uml.cda.PatientRole;
+import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 
@@ -38,6 +41,8 @@ public class CCDGenerator {
 	private List<TSGenerator> authenticatorTimeGenerators = new ArrayList<>();
 	private List<DocumentationOfGenerator> documentOfGenerators = new ArrayList<>();
 	private CustodianOrganizationGenerator organizationGenerator;
+
+	private PatientRoleGenerator patientRoleGenerator;
 
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
@@ -106,6 +111,13 @@ public class CCDGenerator {
 			ccd.setCustodian(custodian);
 		}
 
+		if (patientRoleGenerator != null) {
+			PatientRole patientRole = patientRoleGenerator.generate(factories);
+			RecordTarget recordTarget = factories.base.createRecordTarget();
+			recordTarget.setPatientRole(patientRole);
+			ccd.getRecordTargets().add(recordTarget);
+		}
+
 		return ccd;
 	}
 
@@ -124,6 +136,7 @@ public class CCDGenerator {
 		generator.authenticatorTimeGenerators.add(TSGenerator.getNextInstance());
 		generator.documentOfGenerators.add(DocumentationOfGenerator.getDefaultInstance());
 		generator.organizationGenerator = CustodianOrganizationGenerator.getDefaultInstance();
+		generator.patientRoleGenerator = PatientRoleGenerator.getDefaultInstance();
 
 		return generator;
 	}
@@ -234,6 +247,15 @@ public class CCDGenerator {
 			org.hl7.fhir.dstu3.model.Organization organization = bundleUtil.getResourceFromReference(organizationId,
 					org.hl7.fhir.dstu3.model.Organization.class);
 			organizationGenerator.verify(organization);
+		}
+
+		if (patientRoleGenerator == null) {
+			Assert.assertTrue("No subject", !composition.hasSubject());
+		} else {
+			String patientId = composition.getSubject().getReference();
+			Patient patient = bundleUtil.getResourceFromReference(patientId, Patient.class);
+			Assert.assertNotNull("Patient exists", patient);
+			patientRoleGenerator.verify(bundle);
 		}
 	}
 }
