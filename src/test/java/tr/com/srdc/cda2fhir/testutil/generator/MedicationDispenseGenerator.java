@@ -1,8 +1,10 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Medication;
@@ -42,6 +44,14 @@ public class MedicationDispenseGenerator {
 
 	public void setIDGenerator(IDGenerator idGenerator) {
 		idGenerators.add(idGenerator);
+	}
+
+	public void setStatusCodeGenerator(String value) {
+		if (statusCodeGenerator == null) {
+			statusCodeGenerator = CSCodeGenerator.getInstanceWithValue(STATUS, value);
+		} else {
+			statusCodeGenerator.set(value);
+		}
 	}
 
 	public org.openhealthtools.mdht.uml.cda.consol.MedicationDispense generate(CDAFactories factories) {
@@ -92,7 +102,7 @@ public class MedicationDispenseGenerator {
 
 		md.idGenerators.add(IDGenerator.getNextInstance());
 		md.performerGenerators.add(PerformerGenerator.getDefaultInstance());
-		md.statusCodeGenerator = CSCodeGenerator.getInstanceWithValue(STATUS, "active");
+		md.statusCodeGenerator = CSCodeGenerator.getInstanceWithValue(STATUS, "completed");
 		md.medInfoGenerator = MedicationInformationGenerator.getDefaultInstance();
 		md.quantityGenerator = IVL_PQSimpleQuantityGenerator.getDefaultInstance();
 		md.effectiveTimeGenerators.add(new SXCM_TSGenerator("20180422"));
@@ -159,5 +169,9 @@ public class MedicationDispenseGenerator {
 				performerGenerators.get(index).verifyFromPractionerId(bundle, practitionerId);
 			}
 		}
+	}
+
+	public static Set<String> getAvailableStatusCodes() {
+		return Collections.unmodifiableSet(STATUS.keySet());
 	}
 }
