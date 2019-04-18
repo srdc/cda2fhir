@@ -30,6 +30,11 @@
 				},
 				"documentationOf": {
 					"*": "event[].->ServiceEvent"
+				},
+				"custodian": {
+					"assignedCustodian": {
+						"representedCustodianOrganization": "Custodian.->Organization"
+					}
 				}
 			}
 		}
@@ -45,6 +50,10 @@
 			"Practitioner": [
 				"author[0].reference",
 				"author[0].display"
+			],
+			"Custodian": [
+				"custodian.reference",
+				"custodian.display"
 			]
 		}
 	},
@@ -62,6 +71,10 @@
 					"reference": "=getId(@0)",
 					"display": "=getReferenceDisplay(@0)"
 				}
+			},
+			"custodian": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			}
 		}
 	},
@@ -70,7 +83,8 @@
 		"spec": {
 			"Practitioner": "",
 			"PractitionerRole": "",
-			"Organization": ""
+			"Organization": "",
+			"Custodian": ""
 		}
 	},
 	{

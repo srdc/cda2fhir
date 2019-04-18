@@ -1456,7 +1456,7 @@ public class JoltUtil {
 			}
 		} else {
 			if (joltClone != null) {
-				String value = (String) joltClone.get("attester");
+				Object value = joltClone.get("attester");
 				Assert.assertNull("No attester", value);
 			}
 		}
@@ -1509,6 +1509,27 @@ public class JoltUtil {
 			if (joltClone != null) {
 				String value = (String) joltClone.get("attester");
 				Assert.assertNull("No attester", value);
+			}
+		}
+
+		if (composition.hasCustodian()) {
+			String reference = composition.getCustodian().getReference();
+			Map<String, Object> joltReferenceObject = (Map<String, Object>) joltClone.get("custodian");
+			Assert.assertNotNull("Jolt custodian exists", joltReferenceObject);
+			String joltReference = (String) joltReferenceObject.get("reference");
+
+			Organization organization = bundleUtil.getResourceFromReference(reference, Organization.class);
+			Map<String, Object> joltOrganization = TransformManager.chooseResourceByReference(result, joltReference);
+
+			verify(organization, joltOrganization, null);
+
+			joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+			joltClone.put("custodian", joltReferenceObject);
+			joltReferenceObject.put("reference", reference);
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("custodian");
+				Assert.assertNull("No custodian", value);
 			}
 		}
 

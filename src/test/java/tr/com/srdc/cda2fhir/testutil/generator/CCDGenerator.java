@@ -10,9 +10,12 @@ import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
 import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.AssignedCustodian;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Authenticator;
 import org.openhealthtools.mdht.uml.cda.Author;
+import org.openhealthtools.mdht.uml.cda.Custodian;
+import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
 import org.openhealthtools.mdht.uml.cda.LegalAuthenticator;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
@@ -34,6 +37,7 @@ public class CCDGenerator {
 	private List<AssignedEntityGenerator> authenticatorGenerators = new ArrayList<>();
 	private List<TSGenerator> authenticatorTimeGenerators = new ArrayList<>();
 	private List<DocumentationOfGenerator> documentOfGenerators = new ArrayList<>();
+	private CustodianOrganizationGenerator organizationGenerator;
 
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
@@ -93,6 +97,15 @@ public class CCDGenerator {
 			ccd.getDocumentationOfs().add(docOf);
 		});
 
+		if (organizationGenerator != null) {
+			Custodian custodian = factories.base.createCustodian();
+			AssignedCustodian assignedCustodian = factories.base.createAssignedCustodian();
+			CustodianOrganization custodianOrganization = organizationGenerator.generate(factories);
+			assignedCustodian.setRepresentedCustodianOrganization(custodianOrganization);
+			custodian.setAssignedCustodian(assignedCustodian);
+			ccd.setCustodian(custodian);
+		}
+
 		return ccd;
 	}
 
@@ -110,6 +123,7 @@ public class CCDGenerator {
 		generator.authenticatorGenerators.add(AssignedEntityGenerator.getDefaultInstance());
 		generator.authenticatorTimeGenerators.add(TSGenerator.getNextInstance());
 		generator.documentOfGenerators.add(DocumentationOfGenerator.getDefaultInstance());
+		generator.organizationGenerator = CustodianOrganizationGenerator.getDefaultInstance();
 
 		return generator;
 	}
@@ -154,6 +168,8 @@ public class CCDGenerator {
 		Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
 
 		verify(composition);
+
+		BundleUtil bundleUtil = new BundleUtil(bundle);
 
 		if (authorGenerator == null) {
 			Assert.assertTrue("No composition author", !composition.hasAuthor());
@@ -209,6 +225,15 @@ public class CCDGenerator {
 				CompositionEventComponent event = events.get(index);
 				documentOfGenerators.get(index).verify(bundle, event);
 			}
+		}
+
+		if (organizationGenerator == null) {
+			Assert.assertTrue("No custodian", !composition.hasCustodian());
+		} else {
+			String organizationId = composition.getCustodian().getReference();
+			org.hl7.fhir.dstu3.model.Organization organization = bundleUtil.getResourceFromReference(organizationId,
+					org.hl7.fhir.dstu3.model.Organization.class);
+			organizationGenerator.verify(organization);
 		}
 	}
 }
