@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
@@ -400,6 +401,13 @@ public class JoltUtil {
 			throws Exception {
 		File jsonFile = toJsonFile(xmlFile, templateName, caseName);
 		List<Object> joltResult = TransformManager.transformSectionInFile(templateName, jsonFile.toString());
+		return joltResult;
+	}
+
+	public static List<Object> findJoltDocumentResult(File xmlFile, String templateName, String caseName)
+			throws Exception {
+		File jsonFile = toJsonFile(xmlFile, templateName, caseName);
+		List<Object> joltResult = TransformManager.transformDocumentInFile(templateName, jsonFile.toString());
 		return joltResult;
 	}
 
@@ -1374,5 +1382,14 @@ public class JoltUtil {
 	public void verify(MedicationDispense dispense) throws Exception {
 		Map<String, Object> joltDispense = TransformManager.chooseResource(result, "MedicationDispense");
 		verify(dispense, joltDispense);
+	}
+
+	public void verify(Composition composition, Map<String, Object> joltComposition) throws Exception {
+		verify(composition, joltComposition, null);
+	}
+
+	public void verify(Composition composition) throws Exception {
+		Map<String, Object> joltComposition = TransformManager.chooseResource(result, "Composition");
+		verify(composition, joltComposition);
 	}
 }

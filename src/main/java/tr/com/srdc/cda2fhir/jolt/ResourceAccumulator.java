@@ -69,6 +69,11 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 
 		String reference = String.format("%s/%s", resourceType, id);
 		String display = AdditionalModifier.getDisplay(resource);
+
+		if (resourceType.equals("Composition")) {
+			return resource;
+		}
+
 		List<Object> identifiers = (List<Object>) resource.get("identifier");
 		if (identifiers == null) {
 			return resource;

@@ -1,0 +1,41 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"clinicalDocument": {
+				"id": "ONE"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"clinicalDocument": {
+				"id": "identifier.->ID",
+				"#preliminary": "status",
+				"#constantClass": "class.coding[]"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"class": {
+				"coding": {
+					"*": "=constantValue('CCDClassConstant')"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Composition"
+		}
+	}
+]
