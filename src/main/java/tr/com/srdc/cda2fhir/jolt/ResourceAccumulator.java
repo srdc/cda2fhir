@@ -48,6 +48,35 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			}
 		}
 
+		if (input != null && "Organization".equals(resourceType)) {
+			IdentifierMap<Map<String, Object>> organizationMap = (IdentifierMap<Map<String, Object>>) context
+					.get("ORGANIZATION_MAP");
+
+			if (resource.get("identifier") != null) {
+				List<Map<String, String>> identifiers = (List<Map<String, String>>) resource.get("identifier");
+
+				if (organizationMap != null && identifiers != null) {
+
+					for (Object identifierObj : identifiers) {
+
+						if (identifierObj != null) {
+
+							Map<String, String> identifier = (Map<String, String>) identifierObj;
+							String system = identifier.get("system");
+							String value = identifier.get("value");
+
+							Map<String, Object> existing = organizationMap.get(system, value);
+
+							if (existing != null) {
+								return existing;
+							}
+						}
+
+					}
+				}
+			}
+		}
+
 		List<Object> resources = (List<Object>) context.get("Resources");
 		if (resources == null) {
 			resources = new ArrayList<Object>();
@@ -65,6 +94,23 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 				context.put("MEDICATION_MAP", medicationMap);
 			}
 			medicationMap.put(resource.get("code"), resource);
+		}
+		if ("Organization".equals(resourceType)) {
+			IdentifierMap<Map<String, Object>> organizationMap = (IdentifierMap<Map<String, Object>>) context
+					.get("ORGANIZATION_MAP");
+			if (organizationMap == null) {
+				organizationMap = new IdentifierMap<Map<String, Object>>();
+				context.put("ORGANIZATION_MAP", organizationMap);
+			}
+			List<Map<String, String>> identifiers = (List<Map<String, String>>) resource.get("identifier");
+			if (identifiers != null) {
+				for (Map<String, String> identifier : identifiers) {
+					String system = identifier.get("system");
+					String value = identifier.get("value");
+					organizationMap.put(resourceType, system, value, resource);
+				}
+			}
+
 		}
 
 		String reference = String.format("%s/%s", resourceType, id);

@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -31,6 +32,23 @@ public class Substitute implements SpecDriven, ContextualTransform {
 	public Substitute(Object spec) {
 	}
 
+	@SuppressWarnings("unchecked")
+	private Object applyTransform(Chainr chainr, Object input, Map<String, Object> context) {
+		if (input instanceof Map) {
+			return chainr.transform(input, context);
+		}
+		if (input instanceof List) {
+			List<Object> list = (List<Object>) input;
+			List<Object> result = list.stream().map(e -> chainr.transform(e, context)).filter(e -> e != null)
+					.collect(Collectors.toList());
+			if (result.isEmpty()) {
+				return null;
+			}
+			return result;
+		}
+		return null;
+	}
+
 	private Optional<Object> findTemplateValue(Map<String, Object> map, Map<String, Object> context) {
 		Set<String> keys = map.keySet();
 		if (keys.size() != 1) {
@@ -42,7 +60,7 @@ public class Substitute implements SpecDriven, ContextualTransform {
 			return Optional.empty();
 		}
 		Object input = map.get(key);
-		Object replacement = chainr.transform(input, context);
+		Object replacement = applyTransform(chainr, input, context);
 		if (replacement == null) {
 			return null;
 		}
@@ -65,6 +83,13 @@ public class Substitute implements SpecDriven, ContextualTransform {
 		if (replacement instanceof Map) {
 			Map<String, Object> replacementAsMap = (Map<String, Object>) replacement;
 			if (replacementAsMap.isEmpty()) {
+				itr.remove();
+				return null;
+			}
+		}
+		if (replacement instanceof List) {
+			List<Object> replacementAsList = (List<Object>) replacement;
+			if (replacementAsList.isEmpty()) {
 				itr.remove();
 				return null;
 			}

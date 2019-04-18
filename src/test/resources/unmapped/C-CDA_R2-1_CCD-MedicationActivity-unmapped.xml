@@ -48,11 +48,7 @@
             <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.16"/>
             <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
             <effectiveTime xsi:type="IVL_TS">
-               <low value="20110103"/>
                <high nullFlavor="UNK"/>
-            </effectiveTime>
-            <effectiveTime institutionSpecified="true" operator="A" xsi:type="PIVL_TS">
-               <period unit="h" value="6"/>
             </effectiveTime>
             <administrationUnitCode code="PUFF"
                                     codeSystem="2.16.840.1.113883.5.85"
@@ -167,25 +163,8 @@
                   </product>
                   <performer>
                      <assignedEntity>
-                        <id extension="333222222" root="2.16.840.1.113883.4.6"/>
-                        <addr>
-                           <streetAddressLine>1016 Health Drive</streetAddressLine>
-                           <city>Portland</city>
-                           <state>OR</state>
-                           <postalCode>99123</postalCode>
-                           <country>US</country>
-                        </addr>
-                        <telecom use="WP" value="tel:+1(555)555-1016"/>
                         <assignedPerson>
-                           <name>
-                              <given>Susan</given>
-                              <family>Script</family>
-                              <suffix qualifier="AC">Pharm.D.</suffix>
-                           </name>
-                        </assignedPerson>
-                        <representedOrganization>
-                           <name>People's Pharmacy</name>
-                        </representedOrganization>
+											</assignedPerson>
                      </assignedEntity>
                   </performer>
                </supply>
@@ -210,11 +189,7 @@
             <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.16"/>
             <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
             <effectiveTime xsi:type="IVL_TS">
-               <low value="20120318"/>
                <high nullFlavor="UNK"/>
-            </effectiveTime>
-            <effectiveTime institutionSpecified="true" operator="A" xsi:type="PIVL_TS">
-               <period unit="h" value="12"/>
             </effectiveTime>
             <consumable>
                <manufacturedProduct classCode="MANU">

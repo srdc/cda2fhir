@@ -185,6 +185,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testMedicationDispense() throws Exception {
+		actualTest("MedicationDispense");
+	}
+
+	@Test
 	public void testMedicationActivity() throws Exception {
 		actualTest("MedicationActivity");
 	}
@@ -207,6 +212,11 @@ public class MainTest {
 	@Test
 	public void testImmunizationMedicationInformation() throws Exception {
 		actualTest("ImmunizationMedicationInformation");
+	}
+
+	@Test
+	public void testImmunizationObservation() throws Exception {
+		actualTest("ImmunizationObservation");
 	}
 
 	@Test

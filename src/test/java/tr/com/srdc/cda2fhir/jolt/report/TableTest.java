@@ -92,7 +92,7 @@ public class TableTest {
 
 	@Test
 	public void testReactionObservation() throws Exception {
-		JoltTemplate template = Main.readTemplate("entry/ImmunizationActivity");
+		JoltTemplate template = Main.readTemplate("entry/MedicationActivity");
 		Table actual = template.createTable(Collections.<String, JoltTemplate>emptyMap(), false);
 		actual.sort();
 	}

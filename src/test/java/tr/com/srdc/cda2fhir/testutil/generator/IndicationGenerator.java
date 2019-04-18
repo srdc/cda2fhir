@@ -33,6 +33,11 @@ public class IndicationGenerator {
 	public Indication generate(CDAFactories factories) {
 		Indication indication = factories.consol.createIndication();
 
+		{
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.19");
+			indication.getTemplateIds().add(ii);
+		}
+
 		idGenerators.forEach(idGenerator -> {
 			II ii = idGenerator.generate(factories);
 			indication.getIds().add(ii);
