@@ -1,5 +1,5 @@
 <!--
-Copyright (C) 2016 SRDC Yazilim Arastirma ve Gelistirme ve Danismanlik Tic. A.S.
+Copyright (C) 2019 Amida Technoloy Solutions, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,24 +19,52 @@ cda2fhir
 [![License Info](http://img.shields.io/badge/license-Apache%202.0-brightgreen.svg)](https://github.com/srdc/cda2fhir/blob/master/LICENSE.txt)
 [![Jenkins CI](https://jenkins.amida.com/buildStatus/icon?job=CDA2FHIR%20Tests/)](https://jenkins.amida.com/job/CDA2FHIR%20Tests/)
 
+##Overview
+cda2fhir is a Java library to transform HL7 [CDA R2](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=7) instances to HL7 [FHIR](https://www.hl7.org/fhir/) resources. More specifically, cda2fhir enables automatic transformation of
+Consolidated CDA (C-CDA) Release 2.1 compliant documents to corresponding FHIR STU3 resources. For this purpose, cda2fhir provides extensible
+document transformers, resource transformers, data type transformers and value set transformers.
 
-cda2fhir is a Java library to transform HL7 CDA R2 instances to HL7 FHIR resources. More specifically, cda2fhir enables automatic transformation of
-Consolidated CDA (C-CDA) Release 2.1 compliant document instances to the corresponding FHIR STU3 resources. For this purpose, cda2fhir provides extensible
-document transformers, resource transformers, data type transformers and value set transformers. The current implementation provides a
-document transformer for Continuity of Care Document (CCD), but further document transformers, e.g. for Discharge Summary or Referral Note,
+The current implementation provides a
+document transformer for the Continuity of Care Document (CCD) template, but further document transformers, e.g. for Discharge Summary or Referral Note,
 can be easily introduced by reusing the already existing section and entry transformers. Although the cda2fhir library expects C-CDA R2.1 compliant
 documents/entries, it has been tested as well with several older document instances compliant with earlier releases of C-CDA. The 
 [HAPI FHIR Validator](http://hapifhir.io/doc_validation.html) is also integrated for automated validation of the generated FHIR resources.
 
-All the mappings implemented between CDA artifacts and FHIR resources, data types and value sets are documented in this sheet:
-[CDA to STU3 Mapping](https://docs.google.com/spreadsheets/d/e/2PACX-1vSVo_OoZXDxaLHwllt7EfOtePIY8EpiphlCrNssOrq7rvzVgdO361eTXQ96xiHugTJvY12J_-zibpeJ/pubhtml#)
+##Latest Updates
+The original cda2fhir library created by [srdc](https://github.com/srdc/cda2fhir) mapped C-CDA resources to FHIR DSTU2-compliant resources. Amida has created this fork of this library, incorporating the work of [CarthageKing](https://github.com/CarthageKing/cda2fhir), to instead map C-CDA resources to FHIR STU3-compliant resources. [Model Driven Health Tools (MDHT)](https://projects.eclipse.org/projects/modeling.mdht) is used for CDA manipulation and
+[HAPI](http://hapifhir.io/) is used for FHIR manipulation.This version of cda2fhir currently supports the following C-CDA resource mappings:
 
-[Model Driven Health Tools (MDHT)](https://projects.eclipse.org/projects/modeling.mdht) is used for CDA manipulation and
-[HAPI](http://hapifhir.io/) is used for FHIR manipulation. The current implementation produces STU3 resources.
+|C-CDA Sections    | FHIR Resource(s)   |
+|------------------|-----------------|
+|Medications           |AllergyIntolerance|
+|Procedures           |AllergyIntolerance|
+|Immunizations |
+|Results|
+|Vital Signs|
+|Problems|
+|Allergies and Intolerances|
+|Encounters|
+
+
+<LIST of mappings>
+
+In addition, Amida has implemented a number of additional features. These include:
+
+* cda2fhir is now capable of generating transactional bundles.
+* cda2fhir now supports the generation of Provenance objects, optionally taking in an Identifier resource and string representation of the source file to generate the accompanying Device and DocumentReference resources respectively.
+* Bundles now de-duplicate resources against themselves. Resources are de-duplicated using the identifier field, with the exceptions of:
+  * Medication - De-duplicated using the code field.
+  * Organization - De-duplicated 
+* Bundles now use the ifNoneExist parameter to prevent duplicate resources from being created on a target FHIR server. The URLs generated use the same parameters as the bundle de-duplication logic. 
+* An integration test now uses Docker to automatically provision a HAPI FHIR server, post a transactional bundle to it, spot check for issues, and automatically de-provision the server.
+* Field-level data mappings are no longer statically maintained, and are instead generated from the source code using Jolt. These mappings are validated by testing resources against the output of the cda2fhir library against the output created using Jolt templates. For instructions on generating the documentation, look here.
+* cda2fhir now has a utility that enables users to generate documentation of un-mapped fields for a given document. Instructions on how to use this utility may be found here.
+
+Amida has also made numerous small improvements to the code, please review the changelog for complete details.
 
 ## Installation
 
-Apache Maven is required to build cda2fhir. Please visit http://maven.apache.org/ in order to install Maven on your system.
+Apache Maven is required to build cda2fhir. Please visit [Maven's website](http://maven.apache.org/) in order to install Maven on your system.
 
 Under the root directory of the cda2fhir project run the following:
 
@@ -47,7 +75,7 @@ In order to make a clean install run the following:
 	$ cda2fhir> mvn clean install
 
 These will build the cda2fhir library and also run a number of test cases, which will transform some C-CDA Continuity of Care Document (CCD) instances,
-and some manually crafted CDA artifacts (e.g. entry class instances) and datatype instances to corresponding FHIR resources, wherever possible using the DAF profile.
+and some manually crafted CDA artifacts (e.g. entry class instances) and datatype instances to corresponding FHIR resources.
 
 This project incrementally builds and releases files for use in maven projects, using the instructions provided [here](./doc/maven-instructions.md). To use, add the repository and dependency to your pom.xml like so, replacing the `X.Y.Z` with a version number.
 
@@ -64,6 +92,8 @@ This project incrementally builds and releases files for use in maven projects, 
   <version>X.Y.Z</version>	        
 </dependency>
 ```
+
+## Getting Started
 
 
 
