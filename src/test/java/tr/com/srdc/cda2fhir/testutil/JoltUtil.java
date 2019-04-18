@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
@@ -1555,6 +1556,54 @@ public class JoltUtil {
 				Object value = joltClone.get("subject");
 				Assert.assertNull("No subject", value);
 			}
+		}
+
+		if (composition.hasSection()) {
+			List<SectionComponent> sections = composition.getSection();
+			List<Object> joltSections = (List<Object>) joltClone.get("section");
+			Assert.assertEquals("Section count", sections.size(), joltSections.size());
+			for (int index = 0; index < sections.size(); ++index) {
+				SectionComponent section = sections.get(index);
+
+				Map<String, Object> joltSection = (Map<String, Object>) joltSections.get(index);
+				joltSection = new LinkedHashMap<String, Object>(joltSection);
+				joltSections.set(index, joltSection);
+
+				String code = section.getCode().getCoding().get(0).getCode();
+
+				List<Reference> references = section.getEntry();
+				List<Object> joltReferences = (List<Object>) joltSection.get("entry");
+				joltReferences = new ArrayList<Object>(joltReferences);
+				joltSection.put("entry", joltReferences);
+
+				Assert.assertEquals("Entry count", references.size(), joltReferences.size());
+
+				for (int index2 = 0; index2 < references.size(); ++index2) {
+					String reference = references.get(index2).getReference();
+
+					Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index2);
+					Assert.assertNotNull("Jolt entry exists", joltReferenceObject);
+					String joltReference = (String) joltReferenceObject.get("reference");
+
+					joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+					joltReferences.set(index2, joltReferenceObject);
+					joltReferenceObject.put("reference", reference);
+					if (code.equals("48765-2")) {
+						AllergyIntolerance allergy = bundleUtil.getResourceFromReference(reference,
+								AllergyIntolerance.class);
+						Map<String, Object> joltAllergy = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(allergy, joltAllergy);
+					}
+				}
+			}
+
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("section");
+				Assert.assertNull("No section", value);
+			}
+
 		}
 
 		verify(composition, joltClone, null);

@@ -33,9 +33,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},
-	{
 		"operation": "shift",
 		"spec": {
 			"clinicalDocument": {
@@ -70,9 +67,9 @@
 							"*": {
 								"section": {
 									"code": "section[&2].code.->CD2",
-									"mode": "snapshot",
+									"#snapshot": "section[&2].mode",
 									"entry": {
-										"*": "section[&3].entry[&].AllergyConcernAct.->AllergyConcernAct"
+										"*": ["section[&3].entry[&].reference.->AllergyConcernAct", "section[&3].entry[&].display.->AllergyConcernAct"]
 									}
 								}
 							}
@@ -91,6 +88,9 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": [
@@ -104,19 +104,7 @@
 			"Subject": [
 				"subject.reference",
 				"subject.display"
-			],
-			"section": {
-				"*": {
-					"entry": {
-						"*": {
-							"AllergyConcernAct": [
-								"section[&2].entry[&1].reference",
-								"section[&2].entry[&1].display"
-							]
-						}
-					}
-				}
-			}
+			]
 		}
 	},
 	{
@@ -172,7 +160,7 @@
 				"*": {
 					"entry": {
 						"*": {
-							"AllergyConcernAct": "="
+							"AllergyConcernAct": ""
 						}
 					}
 				}
