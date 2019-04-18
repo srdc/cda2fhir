@@ -64,15 +64,7 @@
 				"component": {
 					"structuredBody": {
 						"component": {
-							"*": {
-								"section": {
-									"code": "section[&2].code.->CD2",
-									"#snapshot": "section[&2].mode",
-									"entry": {
-										"*": ["section[&3].entry[&].reference.->AllergyConcernAct", "section[&3].entry[&].display.->AllergyConcernAct"]
-									}
-								}
-							}
+							"*": "section[&].->AllergiesSection2" 
 						}
 					}
 				}
@@ -132,16 +124,6 @@
 			"subject": {
 				"reference": "=getId(@0)",
 				"display": "=getReferenceDisplay(@0)"
-			},
-			"section": {
-				"*": {
-					"entry": {
-						"*": {
-							"reference": "=getId(@0)",
-							"display": "=getReferenceDisplay(@0)"
-						}
-					}
-				}
 			}
 		}
 	},
@@ -155,16 +137,7 @@
 			"PractitionerRole": "",
 			"Organization": "",
 			"Custodian": "",
-			"Subject": "",
-			"section": {
-				"*": {
-					"entry": {
-						"*": {
-							"AllergyConcernAct": ""
-						}
-					}
-				}
-			}
+			"Subject": ""
 		}
 	},
 	{
