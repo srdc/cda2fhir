@@ -89,4 +89,13 @@ public class MedicationDispenseTest {
 		generator.setIDGenerator(idGenerator);
 		runTest(generator, "onlyIdentifierCase");
 	}
+
+	@Test
+	public void testStatus() throws Exception {
+		MedicationDispenseGenerator generator = new MedicationDispenseGenerator();
+		for (String statusCode : MedicationDispenseGenerator.getAvailableStatusCodes()) {
+			generator.setStatusCodeGenerator(statusCode);
+			runTest(generator, "statusCode");
+		}
+	}
 }
