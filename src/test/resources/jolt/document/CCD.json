@@ -7,9 +7,33 @@
 				"author": "ONE",
 				"authenticator": "MANY",
 				"documentationOf": "MANY",
-				"recordTarget": "MANY"
+				"recordTarget": "MANY",
+				"component": {
+					"structuredBody": {
+						"component": "MANY"
+					}
+				}
 			}
 		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"clinicalDocument": {
+				"component": {
+					"structuredBody": {
+						"component": {
+							"section": {
+								"entry": "MANY"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "shift",
@@ -39,6 +63,21 @@
 				},
 				"recordTarget": {
 					"0": "Subject.->PatientRole"
+				},
+				"component": {
+					"structuredBody": {
+						"component": {
+							"*": {
+								"section": {
+									"code": "section[&2].code.->CD2",
+									"mode": "snapshot",
+									"entry": {
+										"*": "section[&3].entry[&].AllergyConcernAct.->AllergyConcernAct"
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -65,8 +104,23 @@
 			"Subject": [
 				"subject.reference",
 				"subject.display"
-			]
+			],
+			"section": {
+				"*": {
+					"entry": {
+						"*": {
+							"AllergyConcernAct": [
+								"section[&2].entry[&1].reference",
+								"section[&2].entry[&1].display"
+							]
+						}
+					}
+				}
+			}
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
@@ -90,8 +144,21 @@
 			"subject": {
 				"reference": "=getId(@0)",
 				"display": "=getReferenceDisplay(@0)"
+			},
+			"section": {
+				"*": {
+					"entry": {
+						"*": {
+							"reference": "=getId(@0)",
+							"display": "=getReferenceDisplay(@0)"
+						}
+					}
+				}
 			}
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "remove",
@@ -100,7 +167,16 @@
 			"PractitionerRole": "",
 			"Organization": "",
 			"Custodian": "",
-			"Subject": ""
+			"Subject": "",
+			"section": {
+				"*": {
+					"entry": {
+						"*": {
+							"AllergyConcernAct": "="
+						}
+					}
+				}
+			}
 		}
 	},
 	{

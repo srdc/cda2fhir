@@ -17,21 +17,18 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.CCDGenerator;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class CCDTest {
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/CCD/";
 
 	private static CDAFactories factories;
-	private static ResourceTransformerImpl rt;
 
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
 		factories = CDAFactories.init();
-		rt = new ResourceTransformerImpl();
 	}
 
 	private static void runTest(ContinuityOfCareDocument ccd, String caseName, CCDGenerator generator)
@@ -41,9 +38,10 @@ public class CCDTest {
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
-		IEntryResult cda2FhirResult = rt.tClinicalDocument2Bundle(ccd, true);
+		CCDTransformerImpl ccdTransform = new CCDTransformerImpl();
 
-		Bundle bundle = cda2FhirResult.getBundle();
+		Bundle bundle = ccdTransform.transformDocument(ccd);
+
 		Assert.assertNotNull("CCD bundle", bundle);
 
 		Composition composition = BundleUtil.findOneResource(bundle, Composition.class);
@@ -52,6 +50,7 @@ public class CCDTest {
 
 		if (generator != null) {
 			generator.verify(composition);
+			generator.verify(bundle);
 		}
 
 		List<Object> joltResult = JoltUtil.findJoltDocumentResult(xmlFile, "CCD", caseName);

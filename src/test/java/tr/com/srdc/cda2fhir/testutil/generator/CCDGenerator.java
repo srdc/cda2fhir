@@ -3,7 +3,9 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
@@ -15,14 +17,21 @@ import org.openhealthtools.mdht.uml.cda.AssignedCustodian;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
 import org.openhealthtools.mdht.uml.cda.Authenticator;
 import org.openhealthtools.mdht.uml.cda.Author;
+import org.openhealthtools.mdht.uml.cda.Component2;
+import org.openhealthtools.mdht.uml.cda.Component3;
 import org.openhealthtools.mdht.uml.cda.Custodian;
 import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
+import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.LegalAuthenticator;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.RecordTarget;
+import org.openhealthtools.mdht.uml.cda.StructuredBody;
+import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
@@ -43,6 +52,8 @@ public class CCDGenerator {
 	private CustodianOrganizationGenerator organizationGenerator;
 
 	private PatientRoleGenerator patientRoleGenerator;
+
+	private List<AllergyConcernActGenerator> allergyGenerators = new ArrayList<>();
 
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
@@ -78,7 +89,7 @@ public class CCDGenerator {
 			AssignedEntity ae = legalAuthenticatorGenerator.generate(factories);
 			legalAuthenticator.setAssignedEntity(ae);
 			if (legalAuthenticatorTimeGenerator != null) {
-				legalAuthenticator.setTime(legalAuthenticatorTimeGenerator.create(factories));
+				legalAuthenticator.setTime(legalAuthenticatorTimeGenerator.generate(factories));
 			}
 			ccd.setLegalAuthenticator(legalAuthenticator);
 		}
@@ -118,6 +129,27 @@ public class CCDGenerator {
 			ccd.getRecordTargets().add(recordTarget);
 		}
 
+		if (!allergyGenerators.isEmpty()) {
+			AllergiesSection section = factories.consol.createAllergiesSection();
+			CE ce = factories.datatype.createCE("48765-2", "2.16.840.1.113883.6.1");
+			section.setCode(ce);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.2.6.1");
+			section.getTemplateIds().add(ii);
+			allergyGenerators.forEach(ag -> {
+				AllergyProblemAct act = ag.generate(factories);
+				Entry entry = factories.base.createEntry();
+				entry.setAct(act);
+				section.getEntries().add(entry);
+			});
+			Component3 component3 = factories.base.createComponent3();
+			component3.setSection(section);
+			Component2 component2 = factories.base.createComponent2();
+			StructuredBody structuredBody = factories.base.createStructuredBody();
+			structuredBody.getComponents().add(component3);
+			component2.setStructuredBody(structuredBody);
+			ccd.setComponent(component2);
+		}
+
 		return ccd;
 	}
 
@@ -137,6 +169,7 @@ public class CCDGenerator {
 		generator.documentOfGenerators.add(DocumentationOfGenerator.getDefaultInstance());
 		generator.organizationGenerator = CustodianOrganizationGenerator.getDefaultInstance();
 		generator.patientRoleGenerator = PatientRoleGenerator.getDefaultInstance();
+		generator.allergyGenerators.add(AllergyConcernActGenerator.getDefaultInstance());
 
 		return generator;
 	}
@@ -175,6 +208,22 @@ public class CCDGenerator {
 			String actual = composition.getConfidentiality().toCode();
 			Assert.assertEquals("Composition confidentiality code", confidentialityGenerator.getCode(), actual);
 		}
+	}
+
+	private Composition.SectionComponent findCompositionSection(Composition composition, String sectionCode) {
+		for (Composition.SectionComponent section : composition.getSection()) {
+			if (section.hasCode()) {
+				List<Coding> codings = section.getCode().getCoding();
+				if (!codings.isEmpty()) {
+					Coding coding = codings.get(0);
+					String code = coding.getCode();
+					if (sectionCode.equals(code)) {
+						return section;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public void verify(Bundle bundle) throws Exception {
@@ -257,5 +306,20 @@ public class CCDGenerator {
 			Assert.assertNotNull("Patient exists", patient);
 			patientRoleGenerator.verify(bundle);
 		}
+
+		Composition.SectionComponent allergiesSection = findCompositionSection(composition, "48765-2");
+		if (allergyGenerators.isEmpty()) {
+			Assert.assertTrue("No allergies section", allergiesSection == null || !allergiesSection.hasEntry());
+		} else {
+			Assert.assertNotNull("Allergies section exists", allergiesSection);
+			int count = allergyGenerators.size();
+			Assert.assertEquals("Allergies entry count", count, allergiesSection.getEntry().size());
+			for (int index = 0; index < count; ++index) {
+				String reference = allergiesSection.getEntry().get(index).getReference();
+				AllergyIntolerance allergy = bundleUtil.getResourceFromReference(reference, AllergyIntolerance.class);
+				allergyGenerators.get(index).verify(bundle, allergy);
+			}
+		}
+
 	}
 }
