@@ -59,7 +59,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
@@ -71,7 +73,7 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": "performer[&].actor.reference"
+				"*": ["performer[&].actor.reference", "performer[&].actor.display"]
 			},
 			"Organization": {
 				"*": "performer[&].onBehalfOf.reference"
@@ -92,7 +94,8 @@
 			"performer": {
 				"*": {
 					"actor": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					},
 					"onBehalfOf": {
 						"reference": "=getId(@0)"
@@ -112,6 +115,12 @@
 			"Practitioner": "",
 			"PractitionerRole": "",
 			"Organization": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{

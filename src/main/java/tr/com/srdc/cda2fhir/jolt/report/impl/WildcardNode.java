@@ -35,8 +35,8 @@ public class WildcardNode extends ParentNode implements IWildcardNode {
 		IParentNode parent = getParent();
 		IParentNode grandparent = parent.getParent();
 		String parentPath = parent.getPath();
-		String newPath = hasSibling() ? parentPath : parentPath + "[]";
-		MergedParentNode result = new MergedParentNode(grandparent, newPath);
+		String newPath = addSquareBrackets() ? parentPath + "[]" : parentPath;
+		ParentNode result = new ParentNode(grandparent, newPath);
 		grandparent.addChild(result);
 		parent.removeChild(this);
 		result.copyConditions(parent);

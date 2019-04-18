@@ -126,7 +126,10 @@ public class ParentNode extends Node implements IParentNode {
 	public List<IParentNode> separateChildLines(String path) {
 		List<INode> pathChildren = findChildren(path);
 		if (pathChildren.size() < 1) {
-			return Collections.<IParentNode>emptyList();
+			pathChildren = findChildren(path + "[]");
+			if (pathChildren.size() < 1) {
+				return Collections.<IParentNode>emptyList();
+			}
 		}
 		if (children.size() == pathChildren.size()) {
 			return Collections.singletonList(this);

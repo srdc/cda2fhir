@@ -1,0 +1,10 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"code": "code",
+			"#http://hl7.org/fhir/v2/0078": "system",
+			"displayName": "display"
+		}
+	}
+]

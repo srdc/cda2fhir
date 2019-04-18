@@ -1056,21 +1056,9 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 	@Override
 	public MedicationDispenseStatus tStatusCode2MedicationDispenseStatus(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
-		case "active":
-		case "in-progress":
-		case "inprogress":
-			return MedicationDispenseStatus.INPROGRESS;
-		case "on-hold":
-		case "onhold":
-		case "suspended":
-			return MedicationDispenseStatus.ONHOLD;
 		case "completed":
 			return MedicationDispenseStatus.COMPLETED;
-		case "nullified":
-		case "error":
-		case "entered-in-error":
-			return MedicationDispenseStatus.ENTEREDINERROR;
-		case "stopped":
+		case "aborted":
 			return MedicationDispenseStatus.STOPPED;
 		default:
 			return null;

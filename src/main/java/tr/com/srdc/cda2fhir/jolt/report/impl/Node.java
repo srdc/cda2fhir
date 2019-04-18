@@ -130,6 +130,13 @@ public abstract class Node implements INode {
 		return parent.getChildren().size() > 1;
 	}
 
+	public boolean addSquareBrackets() {
+		String path = parent.getPath();
+		// Hardcode entryRelationship and linked resources for now.
+		// A better condition than sibling is needed for those cases.
+		return "entryRelationship".equals(path) || Character.isUpperCase(path.charAt(0)) || !hasSibling();
+	}
+
 	@Override
 	public void copyConditions(INode source) {
 		source.getConditions().forEach(c -> {

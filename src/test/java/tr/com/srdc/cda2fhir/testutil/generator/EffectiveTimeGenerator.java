@@ -28,7 +28,7 @@ public class EffectiveTimeGenerator {
 	}
 
 	public EffectiveTimeGenerator(String lowValue, String highValue) {
-		this.lowNullFlavor = lowValue;
+		this.lowValue = lowValue;
 		this.highValue = highValue;
 	}
 
@@ -101,6 +101,16 @@ public class EffectiveTimeGenerator {
 			}
 		}
 		return ivlTs;
+	}
+
+	public void verifyLowOrValue(String fhirValue) {
+		String lowOrValue = getLowOrValue();
+		if (lowOrValue == null) {
+			Assert.assertNull("No date or time", fhirValue);
+		} else {
+			String expected = FHIRUtil.toFHIRDatetime(lowOrValue);
+			Assert.assertEquals("Effective time value", expected, fhirValue);
+		}
 	}
 
 	public void verifyValue(String fhirValue) {

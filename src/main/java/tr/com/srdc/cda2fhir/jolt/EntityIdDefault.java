@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +48,21 @@ public class EntityIdDefault implements ContextualTransform, SpecDriven {
 
 		if (content.containsKey("id")) {
 			List<Object> ids = (List<Object>) content.get("id");
-			context.put("CurrentEntityIds", ids);
-			CDAIIMap<Map<String, Object>> entityMap = (CDAIIMap<Map<String, Object>>) context.get("EntityMap");
-			if (entityMap != null && entityMap.jget(ids) != null) {
-				return null;
+			Iterator<Object> itr = ids.iterator();
+			while (itr.hasNext()) {
+				Map<String, Object> element = (Map<String, Object>) itr.next();
+				if (element.containsKey("nullFlavor")) {
+					itr.remove();
+				}
+			}
+			if (ids.size() > 0) {
+				context.put("CurrentEntityIds", ids);
+				CDAIIMap<Map<String, Object>> entityMap = (CDAIIMap<Map<String, Object>>) context.get("EntityMap");
+				if (entityMap != null && entityMap.jget(ids) != null) {
+					return null;
+				}
+			} else {
+				content.remove("id");
 			}
 		}
 

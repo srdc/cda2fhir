@@ -1,0 +1,17 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
+supply.product,Medication,MedicationInformation,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.quantity,MedicationDispense.dosageInstruction[0].doseQuantity,IVL_PQSimpleQuantity,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.effectiveTime.0.value,MedicationDispense.dosageInstruction[0].timing.event[],,,supply.effectiveTime.0.nullFlavor isnull,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.effectiveTime.1.value,MedicationDispense.dosageInstruction[0].timing.event[],,,supply.effectiveTime.1.nullFlavor isnull,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.id[],MedicationDispense.identifier[],ID,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+Medication,MedicationDispense.medicationReference.display,,"getReferenceDisplay"
+Medication,MedicationDispense.medicationReference.reference,,"getId"
+Practitioner[],MedicationDispense.performer[].actor.display,,"getReferenceDisplay"
+Practitioner[],MedicationDispense.performer[].actor.reference,,"getId"
+supply.quantity,MedicationDispense.quantity,IVL_PQSimpleQuantity,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.statusCode.code,MedicationDispense.status,,"valueSetAdapter('MedicationDispenseStatus')",supply.nullFlavor isnull,supply.statusCode.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.effectiveTime.1.value,MedicationDispense.whenHandedOver,,"datetimeAdapter",supply.effectiveTime.1.nullFlavor isnull,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.effectiveTime.0.value,MedicationDispense.whenPrepared,,"datetimeAdapter",supply.effectiveTime.0.nullFlavor isnull,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.performer[].assignedEntity,Organization[],EntityOrganization,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18
+supply.performer[].assignedEntity,Practitioner[],EntityPractitioner,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.18

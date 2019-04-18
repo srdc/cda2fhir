@@ -1,28 +1,23 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.nio.charset.Charset;
+import java.io.FileInputStream;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
+import org.eclipse.emf.common.util.EList;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
-import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
-import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
+import org.openhealthtools.mdht.uml.cda.consol.EncountersSection;
+import org.openhealthtools.mdht.uml.cda.consol.EncountersSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
@@ -48,96 +43,8 @@ public class EncounterActivityTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void compareEncounters(String caseName, Encounter encounter, Map<String, Object> joltEncounter)
+	private static void runTest(EncounterActivities ec, String caseName, EncounterActivityGenerator generator)
 			throws Exception {
-		Assert.assertNotNull("Jolt encounter exists", joltEncounter);
-		Assert.assertNotNull("Jolt encounter id exists", joltEncounter.get("id"));
-
-		String joltEncounterJsonPre = JsonUtils.toPrettyJsonString(joltEncounter);
-		File joltEncounterFilePre = new File(OUTPUT_PATH + caseName + "JoltEncounterPre.json");
-		FileUtils.writeStringToFile(joltEncounterFilePre, joltEncounterJsonPre, Charset.defaultCharset());
-
-		joltEncounter.put("id", encounter.getIdElement().getIdPart()); // ids do not have to match
-		JoltUtil.putReference(joltEncounter, "subject", encounter.getSubject()); // patient is not yet implemented
-
-		if (encounter.hasParticipant()) {
-			List<Object> joltParticipants = (List<Object>) joltEncounter.get("participant");
-			List<EncounterParticipantComponent> participants = encounter.getParticipant();
-			Assert.assertEquals("Encounter participant count", participants.size(), joltParticipants.size());
-			for (int index = 0; index < participants.size(); ++index) {
-				EncounterParticipantComponent participant = participants.get(index);
-				Map<String, Object> joltParticipant = (Map<String, Object>) joltParticipants.get(index);
-				if (participant.hasIndividual()) {
-					Map<String, Object> joltIndividual = (Map<String, Object>) joltParticipant.get("individual");
-					Assert.assertNotNull("Participant individual", joltIndividual);
-					Object reference = joltIndividual.get("reference");
-					Assert.assertNotNull("Participant individual reference", reference);
-					Assert.assertTrue("Reference is string", reference instanceof String);
-					JoltUtil.putReference(joltParticipant, "individual", participant.getIndividual());
-				} else {
-					Assert.assertNull("No performer actor", joltParticipant.get("individual"));
-				}
-			}
-		} else {
-			Assert.assertNull("No jolt procedure performer", joltEncounter.get("participant"));
-		}
-
-		if (encounter.hasDiagnosis()) {
-			List<Object> joltDiagnoses = (List<Object>) joltEncounter.get("diagnosis");
-			List<DiagnosisComponent> diagnoses = encounter.getDiagnosis();
-			Assert.assertEquals("Encounter diagnosis count", diagnoses.size(), joltDiagnoses.size());
-			for (int index = 0; index < diagnoses.size(); ++index) {
-				DiagnosisComponent diagnosis = diagnoses.get(index);
-				Map<String, Object> joltDiagnosis = (Map<String, Object>) joltDiagnoses.get(index);
-				if (diagnosis.hasCondition()) {
-					Map<String, Object> joltECondition = (Map<String, Object>) joltDiagnosis.get("condition");
-					Assert.assertNotNull("Participant condition", joltECondition);
-					Object reference = joltECondition.get("reference");
-					Assert.assertNotNull("Participant condition reference", reference);
-					Assert.assertTrue("Reference is string", reference instanceof String);
-					JoltUtil.putReference(joltDiagnosis, "condition", diagnosis.getCondition());
-				} else {
-					Assert.assertNull("No encounter diagnosis", joltDiagnosis.get("condition"));
-				}
-			}
-		} else {
-			Assert.assertNull("No jolt procedure performer", joltEncounter.get("participant"));
-		}
-
-		if (encounter.hasLocation()) {
-			List<Object> joltLocations = (List<Object>) joltEncounter.get("location");
-			List<EncounterLocationComponent> locations = encounter.getLocation();
-			Assert.assertEquals("Encounter location count", locations.size(), joltLocations.size());
-			for (int index = 0; index < locations.size(); ++index) {
-				EncounterLocationComponent location = locations.get(index);
-				Map<String, Object> joltLocation = (Map<String, Object>) joltLocations.get(index);
-				if (location.hasLocation()) {
-					Map<String, Object> joltLLocation = (Map<String, Object>) joltLocation.get("location");
-					Assert.assertNotNull("Participant location", joltLLocation);
-					Object reference = joltLLocation.get("reference");
-					Assert.assertNotNull("Participant location reference", reference);
-					Assert.assertTrue("Reference is string", reference instanceof String);
-					JoltUtil.putReference(joltLocation, "location", location.getLocation());
-				} else {
-					Assert.assertNull("No encounter diagnosis", joltLocation.get("location"));
-				}
-			}
-		} else {
-			Assert.assertNull("No jolt procedure performer", joltEncounter.get("participant"));
-		}
-
-		String joltEncounterJson = JsonUtils.toPrettyJsonString(joltEncounter);
-		File joltEncounterFile = new File(OUTPUT_PATH + caseName + "JoltEncounter.json");
-		FileUtils.writeStringToFile(joltEncounterFile, joltEncounterJson, Charset.defaultCharset());
-
-		String procedureJson = FHIRUtil.encodeToJSON(encounter);
-		JSONAssert.assertEquals("Jolt encounter", procedureJson, joltEncounterJson, true);
-	}
-
-	private static void runTest(EncounterActivityGenerator generator, String caseName) throws Exception {
-		EncounterActivities ec = generator.generate(factories);
-
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
@@ -150,28 +57,46 @@ public class EncounterActivityTest {
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIREncounter", "json");
 		FHIRUtil.printJSON(encounter, filepath);
 
-		generator.verify(bundle);
-
-		List<Practitioner> practitioners = FHIRUtil.findResources(bundle, Practitioner.class);
-		List<PractitionerRole> practitionerRoles = FHIRUtil.findResources(bundle, PractitionerRole.class);
-		List<Organization> organizations = FHIRUtil.findResources(bundle, Organization.class);
-		List<Condition> conditions = FHIRUtil.findResources(bundle, Condition.class);
+		if (generator != null) {
+			generator.verify(bundle);
+		}
 
 		File xmlFile = CDAUtilExtension.writeAsXML(ec, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "EncounterActivity", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
-		joltUtil.verifyOrganizations(organizations);
-		joltUtil.verifyPractitioners(practitioners);
-		joltUtil.verifyPractitionerRoles(practitionerRoles);
-		joltUtil.verifyConditions(conditions);
+		joltUtil.verify(encounter);
+	}
 
-		Map<String, Object> joltEncounter = TransformManager.chooseResource(joltResult, "Encounter");
-		if (encounter == null) {
-			Assert.assertNull("No encounter", joltEncounter);
+	private static void runTest(EncounterActivityGenerator generator, String caseName) throws Exception {
+		EncounterActivities ec = generator.generate(factories);
+		runTest(ec, caseName, generator);
+	}
+
+	private static void runSampleTest(String sourceName) throws Exception {
+		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+
+		EList<EncounterActivities> activities;
+		EncountersSection section = cda.getEncountersSection();
+		if (section != null) {
+			activities = section.getEncounterActivitiess();
 		} else {
-			compareEncounters(caseName, encounter, joltEncounter);
+			Optional<EncountersSectionEntriesOptional> sectionOptional = cda.getSections().stream()
+					.filter(s -> s instanceof EncountersSectionEntriesOptional)
+					.map(s -> (EncountersSectionEntriesOptional) s).findFirst();
+			if (!sectionOptional.isPresent()) {
+				return;
+			}
+			activities = sectionOptional.get().getEncounterActivitiess();
+		}
+		int index = 0;
+		for (EncounterActivities activity : activities) {
+			String caseName = sourceName.substring(0, sourceName.length() - 4) + "_" + index;
+			runTest(activity, caseName, null);
+			++index;
 		}
 	}
 
@@ -187,4 +112,126 @@ public class EncounterActivityTest {
 		runTest(generator, "fullCase");
 	}
 
+	@Test
+	public void testSample1() throws Exception {
+		runSampleTest("C-CDA_R2-1_CCD.xml");
+	}
+
+	@Test
+	public void testSample2() throws Exception {
+		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
+	}
+
+	@Test
+	public void testSample3() throws Exception {
+		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample1() throws Exception {
+		runSampleTest("Epic/DOC0001.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample2() throws Exception {
+		runSampleTest("Epic/DOC0001 2.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample3() throws Exception {
+		runSampleTest("Epic/DOC0001 3.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample4() throws Exception {
+		runSampleTest("Epic/DOC0001 4.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample5() throws Exception {
+		runSampleTest("Epic/DOC0001 5.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample6() throws Exception {
+		runSampleTest("Epic/DOC0001 6.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample7() throws Exception {
+		runSampleTest("Epic/DOC0001 7.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample8() throws Exception {
+		runSampleTest("Epic/DOC0001 8.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample9() throws Exception {
+		runSampleTest("Epic/DOC0001 9.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample10() throws Exception {
+		runSampleTest("Epic/DOC0001 10.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample11() throws Exception {
+		runSampleTest("Epic/DOC0001 11.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample12() throws Exception {
+		runSampleTest("Epic/DOC0001 12.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample13() throws Exception {
+		runSampleTest("Epic/DOC0001 13.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample14() throws Exception {
+		runSampleTest("Epic/DOC0001 14.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample15() throws Exception {
+		runSampleTest("Epic/DOC0001 15.XML");
+	}
+
+	@Ignore
+	@Test
+	public void testEpicSample16() throws Exception {
+		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample1() throws Exception {
+		runSampleTest("Cerner/Person-RAKIA_TEST_DOC00001 (1).XML");
+	}
+
+	@Ignore
+	@Test
+	public void testCernerSample2() throws Exception {
+		runSampleTest("Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
+	}
 }

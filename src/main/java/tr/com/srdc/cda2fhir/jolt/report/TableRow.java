@@ -37,6 +37,10 @@ public class TableRow implements Comparable<TableRow> {
 		return row;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
 	public String getTarget() {
 		return target;
 	}
@@ -46,10 +50,7 @@ public class TableRow implements Comparable<TableRow> {
 	}
 
 	public void promotePath(String parentPath) {
-		if (path.charAt(0) != '\'' && path.charAt(0) != '#') {
-			path = parentPath + "." + path;
-		}
-
+		path = parentPath + "." + path;
 		conditions.forEach(c -> c.prependPath(parentPath));
 	}
 

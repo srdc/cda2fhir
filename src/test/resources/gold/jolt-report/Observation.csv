@@ -1,15 +1,18 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 observation.targetSiteCode,Observation.bodySite,CD,,nullFlavor isnull
-observation.code,Observation.code,CD,,nullFlavor isnull
+observation.code,Observation.code,CD2,,nullFlavor isnull
+observation.value.nullFlavor,Observation.dataAbsentReason.coding[],,,nullFlavor isnull
 observation.effectiveTime,Observation.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull
 observation.id[],Observation.identifier[],ID,,nullFlavor isnull
-observation.interpretationCode.code,Observation.interpretation.coding[],,,nullFlavor isnull
+observation.interpretationCode.code,Observation.interpretation.coding[].code,,,nullFlavor isnull
+observation.interpretationCode.displayName,Observation.interpretation.coding[].display,,,nullFlavor isnull
+observation.interpretationCode.#http://hl7.org/fhir/v2/0078,Observation.interpretation.coding[].system,,,nullFlavor isnull
 observation.author[].time.value,Observation.issued,,"datetimeAdapter",nullFlavor isnull
 observation.methodCode[],Observation.method,CD,"lastElement",nullFlavor isnull
 Practitioner[],Observation.performer[].reference,,"getId"
-observation.referenceRange[].observationRange.value,Observation.referenceRange[&2],IVL_PQRange,,nullFlavor isnull
-observation.referenceRange[].observationRange.text,Observation.referenceRange[&2].text,,,nullFlavor isnull
-observation.referenceRange[].observationRange.interpretationCode,Observation.referenceRange[&2].type,CD,,nullFlavor isnull
+observation.referenceRange[].observationRange.value,Observation.referenceRange[],IVL_PQRange,,nullFlavor isnull
+observation.referenceRange[].observationRange.text,Observation.referenceRange[].text,,"contentOrSelf",nullFlavor isnull
+observation.referenceRange[].observationRange.interpretationCode,Observation.referenceRange[].type,CD,,nullFlavor isnull
 observation.statusCode.code,Observation.status,,"valueSetAdapter('ObservationStatus','unknown')",nullFlavor isnull,observation.statusCode.nullFlavor isnull
 observation.value.content,Observation.valueAttachment.data,,,nullFlavor isnull,observation.value.xsi:type equal ED
 observation.value.value,Observation.valueBoolean,,,nullFlavor isnull,observation.value.xsi:type equal BL

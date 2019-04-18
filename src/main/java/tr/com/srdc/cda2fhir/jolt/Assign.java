@@ -11,9 +11,13 @@ import com.bazaarvoice.jolt.SpecDriven;
 public class Assign implements ContextualTransform, SpecDriven {
 	private Shiftr shiftr;
 
+	@SuppressWarnings("unchecked")
 	@Inject
 	public Assign(Object spec) {
-		shiftr = new Shiftr(spec);
+		Map<String, Object> specAsMap = (Map<String, Object>) spec;
+		if (!specAsMap.isEmpty()) { // empty is allowed not for an issue in reporting
+			shiftr = new Shiftr(spec);
+		}
 	}
 
 	@Override
@@ -21,6 +25,9 @@ public class Assign implements ContextualTransform, SpecDriven {
 	public Object transform(Object input, Map<String, Object> context) {
 		if (input == null) {
 			return null;
+		}
+		if (shiftr == null) {
+			return input;
 		}
 		Object output = shiftr.transform(input);
 		if (output == null) {

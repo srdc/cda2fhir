@@ -26,20 +26,19 @@
 				"value": {
 					"*": "code.->CD"
 				},
-				"effectiveTime": "->IndicationEffectiveTime",
-				"statusCode": {
-					"code": "verificationStatus"
-				}
+				"effectiveTime": "->IndicationEffectiveTime"
 			}
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
-			"verificationStatus": "=valueSetAdapter('ConditionVerificationStatus','unknown',@0)",
+			"clinicalStatus": "=ConditionClinicalStatusAdapter(@0)",
 			"category": {
 				"*": "=constantValue('EncounterConditionCategoryConstant')"
 			},

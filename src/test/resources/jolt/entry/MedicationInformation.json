@@ -10,26 +10,29 @@
 		"spec": {
 			"manufacturedProduct": {
 				"manufacturedMaterial": {
-					"code": "code.->CD"
+					"code": "code.->CD2"
 				},
 				"manufacturerOrganization": "Organization.->Organization"
 			}
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Organization": "manufacturer.reference"
+			"Organization": ["manufacturer.reference", "manufacturer.display"]
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"manufacturer": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			}
 		}
 	},
@@ -42,7 +45,8 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
 		"spec": {
-			"resourceType": "Medication"
+			"resourceType": "Medication",
+			"keepNull" : true
 		}
 	}
 ]

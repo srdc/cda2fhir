@@ -57,6 +57,11 @@ public class MedicationSupplyOrderGenerator {
 	public MedicationSupplyOrder generate(CDAFactories factories) {
 		MedicationSupplyOrder mso = factories.consol.createMedicationSupplyOrder();
 
+		{
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.17");
+			mso.getTemplateIds().add(ii);
+		}
+
 		idGenerators.forEach(idGenerator -> {
 			II ii = idGenerator.generate(factories);
 			mso.getIds().add(ii);

@@ -170,6 +170,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testEncounterActivityFull() throws Exception {
+		actualTest("EncounterActivity", true);
+	}
+
+	@Test
 	public void testMedicationInformation() throws Exception {
 		actualTest("MedicationInformation");
 	}
@@ -177,6 +182,11 @@ public class MainTest {
 	@Test
 	public void testMedicationSupplyOrder() throws Exception {
 		actualTest("MedicationSupplyOrder");
+	}
+
+	@Test
+	public void testMedicationDispense() throws Exception {
+		actualTest("MedicationDispense");
 	}
 
 	@Test
@@ -202,6 +212,11 @@ public class MainTest {
 	@Test
 	public void testImmunizationMedicationInformation() throws Exception {
 		actualTest("ImmunizationMedicationInformation");
+	}
+
+	@Test
+	public void testImmunizationObservation() throws Exception {
+		actualTest("ImmunizationObservation");
 	}
 
 	@Test

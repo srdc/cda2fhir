@@ -2,7 +2,7 @@ CCDA Source,Target,Link,Format,Condition 1
 code,coding[0].code,,,nullFlavor isnull
 displayName,coding[0].display,,,nullFlavor isnull
 codeSystem,coding[0].system,,,nullFlavor isnull
-translation[].code,coding[].code,,
-translation[].displayName,coding[].display,,
-translation[].codeSystem,coding[].system,,"systemAdapter"
-originalText.reference.value,text,,"resolveText"
+translation[].code,coding[].code,,,code isnotnull or displayName isnotnull or originalText isnotnull
+translation[].displayName,coding[].display,,,code isnotnull or displayName isnotnull or originalText isnotnull
+translation[].codeSystem,coding[].system,,"systemAdapter",code isnotnull or displayName isnotnull or originalText isnotnull
+originalText,text,,"resolveText"

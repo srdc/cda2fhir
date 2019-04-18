@@ -30,11 +30,11 @@ public class NodeFactory {
 		public String link;
 
 		private ParsedTarget(String target) {
-			this.target = target.replace("[&]", "[]").replace("[&1]", "[]");
+			this.target = target.replace("[&]", "[]").replace("[&1]", "[]").replace("[&2]", "[]");
 		}
 
 		private ParsedTarget(String target, String link) {
-			this.target = target.replace("[&]", "[]").replace("[&1]", "[]");
+			this.target = target.replace("[&]", "[]").replace("[&1]", "[]").replace("[&2]", "[]");
 			this.link = link;
 		}
 
