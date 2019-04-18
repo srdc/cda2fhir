@@ -3,7 +3,8 @@
 		"operation": "cardinality",
 		"spec": {
 			"clinicalDocument": {
-				"id": "ONE"
+				"id": "ONE",
+				"author": "ONE"
 			}
 		}
 	},
@@ -16,13 +17,26 @@
 				"#constantClass": "class.coding[]",
 				"effectiveTime": "date.->NullFlavorableValue",
 				"code": "type.->CD",
-				"title": "title"
+				"title": "title",
+				"confidentialityCode": {
+					"code": "confidentiality"
+				},
+				"author": "->AuthorParticipation"
 			}
 		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
 		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": [
+				"author[0].reference",
+				"author[0].display"
+			]
 		}
 	},
 	{
@@ -33,7 +47,21 @@
 					"*": "=constantValue('CCDClassConstant')"
 				}
 			},
-			"date": "=datetimeAdapter(@0)"
+			"date": "=datetimeAdapter(@0)",
+			"author": {
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
 		}
 	},
 	{

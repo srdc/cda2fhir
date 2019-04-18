@@ -1384,8 +1384,44 @@ public class JoltUtil {
 		verify(dispense, joltDispense);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void verify(Composition composition, Map<String, Object> joltComposition) throws Exception {
-		verify(composition, joltComposition, null);
+		Map<String, Object> joltClone = joltComposition == null ? null : new LinkedHashMap<>(joltComposition);
+
+		if (composition.hasAuthor()) {
+			Assert.assertNotNull("Author exists", joltClone);
+
+			List<Reference> references = composition.getAuthor();
+			List<Object> joltReferences = (List<Object>) joltClone.get("author");
+
+			Assert.assertNotNull("Author exists", joltReferences);
+
+			Assert.assertEquals("Author count", references.size(), joltReferences.size());
+
+			joltReferences = new ArrayList<Object>(joltReferences);
+			joltClone.put("author", joltReferences);
+
+			for (int index = 0; index < references.size(); ++index) {
+				String reference = references.get(index).getReference();
+
+				Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index);
+				Assert.assertNotNull("Jolt author exists", joltReferenceObject);
+				String joltReference = (String) joltReferenceObject.get("reference");
+
+				verifyEntity(reference, joltReference);
+
+				joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+				joltReferences.set(index, joltReferenceObject);
+				joltReferenceObject.put("reference", reference);
+			}
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("author");
+				Assert.assertNull("No author", value);
+			}
+		}
+
+		verify(composition, joltClone, null);
 	}
 
 	public void verify(Composition composition) throws Exception {

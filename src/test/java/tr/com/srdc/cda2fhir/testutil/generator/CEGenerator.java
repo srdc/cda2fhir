@@ -19,11 +19,19 @@ public class CEGenerator {
 	private String codeSystemName;
 	private String displayName;
 
+	public CEGenerator(String code) {
+		this.code = code;
+	}
+
 	public CEGenerator(String code, String codeSystem, String codeSystemName, String displayName) {
 		this.code = code;
 		this.codeSystem = codeSystem;
 		this.codeSystemName = codeSystemName;
 		this.displayName = displayName;
+	}
+
+	public String getCode() {
+		return this.code;
 	}
 
 	public CE generate(CDAFactories factories) {
@@ -69,7 +77,6 @@ public class CEGenerator {
 
 		} else {
 			Assert.assertTrue("Missing coding system", !coding.hasSystem());
-
 		}
 	}
 
