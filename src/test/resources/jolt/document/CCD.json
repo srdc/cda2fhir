@@ -13,7 +13,10 @@
 			"clinicalDocument": {
 				"id": "identifier.->ID",
 				"#preliminary": "status",
-				"#constantClass": "class.coding[]"
+				"#constantClass": "class.coding[]",
+				"effectiveTime": "date.->NullFlavorableValue",
+				"code": "type.->CD",
+				"title": "title"
 			}
 		}
 	},
@@ -29,7 +32,8 @@
 				"coding": {
 					"*": "=constantValue('CCDClassConstant')"
 				}
-			}
+			},
+			"date": "=datetimeAdapter(@0)"
 		}
 	},
 	{
