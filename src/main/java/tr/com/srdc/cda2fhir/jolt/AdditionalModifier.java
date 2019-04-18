@@ -27,77 +27,79 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	private static Map<String, Object> temporaryContext; // Hack for now
 
 	@SuppressWarnings("unchecked")
-	public static String getDisplay(Map<String, Object> map) {
-		String display = null;
-
+	private static String getDisplayFromCode(Map<String, Object> map) {
 		if (map.get("code") instanceof Map) {
-
 			Map<String, Object> code = (Map<String, Object>) map.get("code");
-
 			if (code.get("text") instanceof String) {
-				display = (String) code.get("text");
+				return (String) code.get("text");
 			} else if (code.get("coding") instanceof List) {
-
 				List<Object> coding = (List<Object>) code.get("coding");
-
 				if (!coding.isEmpty() && coding.get(0) instanceof Map) {
-
 					for (Object entry : coding) {
 						Map<String, Object> currentEntry = (Map<String, Object>) entry;
-
 						if (currentEntry.get("display") instanceof String) {
-							display = (String) currentEntry.get("display");
-							break;
+							return (String) currentEntry.get("display");
 						}
-
 					}
 				}
 			}
-		} else if (map.get("name") != null) {
+		}
+		return null;
+	}
 
+	@SuppressWarnings("unchecked")
+	public static String getDisplay(Map<String, Object> map) {
+		String display = getDisplayFromCode(map);
+		if (display != null) {
+			return display;
+		}
+
+		Object medicationReference = map.get("medicationReference");
+		if (medicationReference != null) {
+			if (medicationReference instanceof Map) {
+				Object medRef = ((Map<String, Object>) medicationReference).get("reference");
+				if (medRef != null && medRef instanceof String) {
+					String mefRefString = (String) medRef;
+					Map<String, Object> resourceMap = (Map<String, Object>) temporaryContext.get("RESOURCE_MAP");
+					Map<String, Object> resource = (Map<String, Object>) resourceMap.get(mefRefString);
+					if (resource != null) {
+						display = getDisplayFromCode(resource);
+					}
+				}
+			}
+		}
+		if (display != null) {
+			return display;
+		}
+
+		if (map.get("name") != null) {
 			Object name = map.get("name");
-
 			if (name instanceof String) {
-
 				display = (String) name;
-
 			} else if (name instanceof List) {
-
 				List<Object> nameList = (List<Object>) name;
-
 				if (!nameList.isEmpty()) {
-
 					List<String> allNames = new ArrayList<String>();
 					Iterator<Object> iter = nameList.listIterator();
-
 					while (iter.hasNext()) {
-
 						Object humanNameObj = iter.next();
-
 						if (humanNameObj instanceof Map) {
-
 							Map<String, Object> humanName = (Map<String, Object>) humanNameObj;
 							ArrayList<String> currentNameList = new ArrayList<String>();
-
 							// TODO make array list
 							if (humanName.get("prefix") instanceof List)
 								currentNameList.addAll((List<String>) humanName.get("prefix"));
-
 							if (humanName.get("given") instanceof List)
 								currentNameList.addAll((List<String>) humanName.get("given"));
-
 							if (humanName.get("family") instanceof String)
 								currentNameList.add((String) humanName.get("family"));
-
 							if (humanName.get("suffix") instanceof List)
 								currentNameList.addAll((List<String>) humanName.get("suffix"));
-
 							String currentName = currentNameList.stream().collect(Collectors.joining(" "));
 							if (!currentName.contentEquals(""))
 								allNames.add(currentName);
 						}
 					}
-
 					if (allNames.size() > 0) {
 						display = allNames.stream().collect(Collectors.joining(", "));
 					}

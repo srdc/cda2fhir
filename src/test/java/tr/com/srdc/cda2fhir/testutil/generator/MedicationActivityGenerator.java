@@ -257,9 +257,7 @@ public class MedicationActivityGenerator {
 		}
 	}
 
-	public void verify(Bundle bundle) throws Exception {
-		MedicationStatement ms = BundleUtil.findOneResource(bundle, MedicationStatement.class);
-
+	public void verify(Bundle bundle, MedicationStatement ms) throws Exception {
 		verify(ms);
 
 		BundleUtil util = new BundleUtil(bundle);
@@ -317,6 +315,11 @@ public class MedicationActivityGenerator {
 			medicationDispenseGenerator.verify(medDispense);
 			medicationDispenseGenerator.verify(bundle);
 		}
+	}
+
+	public void verify(Bundle bundle) throws Exception {
+		MedicationStatement ms = BundleUtil.findOneResource(bundle, MedicationStatement.class);
+		verify(bundle, ms);
 	}
 
 	public void setMedicationInfoGenerator(MedicationInformationGenerator generator) {

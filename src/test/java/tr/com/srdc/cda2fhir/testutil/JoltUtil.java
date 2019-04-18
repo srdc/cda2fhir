@@ -1588,6 +1588,7 @@ public class JoltUtil {
 					joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
 					joltReferences.set(index2, joltReferenceObject);
 					joltReferenceObject.put("reference", reference);
+
 					if (code.equals("48765-2")) {
 						AllergyIntolerance allergy = bundleUtil.getResourceFromReference(reference,
 								AllergyIntolerance.class);
@@ -1595,6 +1596,14 @@ public class JoltUtil {
 								joltReference);
 						verify(allergy, joltAllergy);
 					}
+					if (code.equals("10160-0")) {
+						MedicationStatement medStatement = bundleUtil.getResourceFromReference(reference,
+								MedicationStatement.class);
+						Map<String, Object> joltMedStatement = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(medStatement, joltMedStatement);
+					}
+
 				}
 			}
 

@@ -64,7 +64,10 @@
 				"component": {
 					"structuredBody": {
 						"component": {
-							"*": "section[&].->AllergiesSection2" 
+							"*": [
+								"section[&].->AllergiesSection2",
+								"section[&].->MedicationsSection2"
+							]
 						}
 					}
 				}

@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -69,6 +70,13 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 
 		String reference = String.format("%s/%s", resourceType, id);
 		String display = AdditionalModifier.getDisplay(resource);
+
+		Map<String, Object> resourceMap = (Map<String, Object>) context.get("RESOURCE_MAP");
+		if (resourceMap == null) {
+			resourceMap = new HashMap<String, Object>();
+			context.put("RESOURCE_MAP", resourceMap);
+		}
+		resourceMap.put(reference, resource);
 
 		if (resourceType.equals("Composition")) {
 			return resource;
