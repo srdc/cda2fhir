@@ -4,7 +4,9 @@
 		"spec": {
 			"clinicalDocument": {
 				"id": "ONE",
-				"author": "ONE"
+				"author": "ONE",
+				"authenticator": "MANY",
+				"documentationOf": "MANY"
 			}
 		}
 	},
@@ -21,7 +23,14 @@
 				"confidentialityCode": {
 					"code": "confidentiality"
 				},
-				"author": "->AuthorParticipation"
+				"author": "->AuthorParticipation",
+				"legalAuthenticator": "attester[].->LegalAttester",
+				"authenticator": {
+					"*": "attester[].->Attester"
+				},
+				"documentationOf": {
+					"*": "event[].->ServiceEvent"
+				}
 			}
 		}
 	},

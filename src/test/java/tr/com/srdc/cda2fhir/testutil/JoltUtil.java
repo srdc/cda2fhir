@@ -1421,6 +1421,97 @@ public class JoltUtil {
 			}
 		}
 
+		if (composition.hasAttester()) {
+			Assert.assertNotNull("Composition exists", joltClone);
+
+			List<Composition.CompositionAttesterComponent> attesters = composition.getAttester();
+			List<Object> joltAttesters = (List<Object>) joltClone.get("attester");
+
+			Assert.assertNotNull("Attester exists", joltAttesters);
+			Assert.assertEquals("Attester count", joltAttesters.size(), attesters.size());
+
+			for (int index = 0; index < attesters.size(); ++index) {
+				Composition.CompositionAttesterComponent attester = attesters.get(index);
+				Map<String, Object> joltAttester = (Map<String, Object>) joltAttesters.get(index);
+
+				if (attester.hasParty()) {
+					joltAttester = new LinkedHashMap<String, Object>(joltAttester);
+					joltAttesters.set(index, joltAttester);
+
+					String reference = attester.getParty().getReference();
+					String joltReference = findPathString(joltAttester, "party.reference");
+
+					Assert.assertNotNull("Jolt party reference exists", joltReference);
+
+					verifyEntity(reference, joltReference);
+
+					Map<String, Object> joltParty = (Map<String, Object>) joltAttester.get("party");
+					joltParty = new LinkedHashMap<String, Object>(joltParty);
+					joltAttester.put("party", joltParty);
+
+					joltParty.put("reference", reference);
+				} else {
+					Assert.assertNull("No attestester", joltAttester.get("party"));
+				}
+			}
+		} else {
+			if (joltClone != null) {
+				String value = (String) joltClone.get("attester");
+				Assert.assertNull("No attester", value);
+			}
+		}
+
+		if (composition.hasEvent()) {
+			Assert.assertNotNull("Composition exists", joltClone);
+
+			List<Composition.CompositionEventComponent> events = composition.getEvent();
+			List<Object> joltEvents = (List<Object>) joltClone.get("event");
+
+			Assert.assertNotNull("Events exists", joltEvents);
+			Assert.assertEquals("Event count", joltEvents.size(), events.size());
+
+			for (int index = 0; index < events.size(); ++index) {
+				Composition.CompositionEventComponent event = events.get(index);
+				Map<String, Object> joltEvent = (Map<String, Object>) joltEvents.get(index);
+
+				if (event.hasDetail()) {
+					joltEvent = new LinkedHashMap<String, Object>(joltEvent);
+					joltEvents.set(index, joltEvent);
+
+					List<Reference> references = event.getDetail();
+					List<Object> joltReferences = (List<Object>) joltEvent.get("detail");
+
+					Assert.assertNotNull("Details exists", joltReferences);
+
+					Assert.assertEquals("Detail count", references.size(), joltReferences.size());
+
+					joltReferences = new ArrayList<Object>(joltReferences);
+					joltEvent.put("detail", joltReferences);
+
+					for (int index2 = 0; index2 < references.size(); ++index2) {
+						String reference = references.get(index2).getReference();
+
+						Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index2);
+						Assert.assertNotNull("Jolt detail exists", joltReferenceObject);
+						String joltReference = (String) joltReferenceObject.get("reference");
+
+						verifyEntity(reference, joltReference);
+
+						joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+						joltReferences.set(index2, joltReferenceObject);
+						joltReferenceObject.put("reference", reference);
+					}
+				} else {
+					Assert.assertNull("No details", joltEvent.get("detail"));
+				}
+			}
+		} else {
+			if (joltClone != null) {
+				String value = (String) joltClone.get("attester");
+				Assert.assertNull("No attester", value);
+			}
+		}
+
 		verify(composition, joltClone, null);
 	}
 
