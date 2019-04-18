@@ -23,4 +23,10 @@ public class CSCodeGenerator extends CodeGenerator<CS> {
 	protected CS create(CDAFactories factories) {
 		return factories.datatype.createCS();
 	}
+
+	public static CSCodeGenerator getInstanceWithValue(Map<String, Object> map, String value) {
+		CSCodeGenerator result = new CSCodeGenerator(map);
+		result.set(value);
+		return result;
+	}
 }

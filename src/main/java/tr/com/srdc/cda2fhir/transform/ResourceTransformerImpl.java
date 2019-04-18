@@ -135,6 +135,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.Indication;
 import org.openhealthtools.mdht.uml.cda.consol.Instructions;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationDispense;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationInformation;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationSupplyOrder;
 import org.openhealthtools.mdht.uml.cda.consol.NonMedicinalSupplyActivity;
@@ -2120,6 +2121,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(medRequestResult);
 		}
 
+		EList<MedicationDispense> dispenses = cdaMedicationActivity.getMedicationDispenses();
+		if (dispenses != null && !dispenses.isEmpty()) {
+			MedicationDispense dispense = dispenses.get(0); // Cardinality is 1 in spec
+			IEntryResult medDispenseResult = tMedicationDispense2MedicationDispense(dispense, localBundleInfo);
+			localBundleInfo.updateFrom(medDispenseResult);
+			result.updateFrom(medDispenseResult);
+		}
+
 		return result;
 	}
 
@@ -2172,13 +2181,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// code -> type
-		if (cdaMedicationDispense.getCode() != null && !cdaMedicationDispense.getCode().isSetNullFlavor()) {
-			fhirMediDisp.setType(dtt.tCD2CodeableConcept(cdaMedicationDispense.getCode()));
-		}
-
-		// product.manufacturedProduct(MedicationInformation ||
-		// ImmunizationMedicationInformation) -> medication
+		// product -> medication (reference)
 		if (cdaMedicationDispense.getProduct() != null && !cdaMedicationDispense.getProduct().isSetNullFlavor()) {
 			EntryResult fhirMedicationResult = tManufacturedProduct2Medication(cdaMedicationDispense.getProduct(),
 					localBundleInfo);
@@ -2193,7 +2196,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// performer -> dispenser
+		// performer -> performer
 		if (cdaMedicationDispense.getPerformers() != null && !cdaMedicationDispense.getPerformers().isEmpty()) {
 			for (org.openhealthtools.mdht.uml.cda.Performer2 cdaPerformer : cdaMedicationDispense.getPerformers()) {
 				if (cdaPerformer != null && !cdaPerformer.isSetNullFlavor()) {

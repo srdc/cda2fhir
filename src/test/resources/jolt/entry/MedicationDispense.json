@@ -1,0 +1,125 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"supply": {
+				"id": "MANY",
+				"performer": "MANY",
+				"effectiveTime": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
+		"spec": {
+			"supply": {
+				"nullFlavor": "*"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"supply": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
+				"performer": {
+					"*": "Performer[].->AssignedEntity"
+				},
+				"statusCode": "status.->NullFlavorableCode",
+				"product": "Medication.->MedicationInformation",
+				"quantity": [
+					"quantity.->IVL_PQSimpleQuantity",
+					"dosageInstruction[0].doseQuantity.->IVL_PQSimpleQuantity"
+				],
+				"effectiveTime": {
+					"0": [
+						"whenPrepared.->NullFlavorableValue",
+						"dosageInstruction[0].timing.event[&].->NullFlavorableValue"
+					],
+					"1": [
+						"whenHandedOver.->NullFlavorableValue",
+						"dosageInstruction[0].timing.event[&].->NullFlavorableValue"
+					]
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Medication": [
+				"medicationReference.reference",
+				"medicationReference.display"
+			],
+			"Practitioner": {
+				"*": [
+					"performer[&].actor.reference",
+					"performer[&].actor.display"
+				]
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"medicationReference": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			},
+			"performer": {
+				"*": {
+					"actor": {
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
+					}
+				}
+			},
+			"status": "=valueSetAdapter('MedicationDispenseStatus',@0)",
+			"whenPrepared": "=datetimeAdapter(@0)",
+			"whenHandedOver": "=datetimeAdapter(@0)",
+			"dosageInstruction": {
+				"*": {
+					"timing": {
+						"event": {
+							"*": "=datetimeAdapter(@0)"
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Medication": "",
+			"Practitioner": "",
+			"Organization": "",
+			"PractitionerRole": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "MedicationDispense"
+		}
+	}
+]
