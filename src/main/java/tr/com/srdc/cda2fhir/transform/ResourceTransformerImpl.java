@@ -983,7 +983,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							EntityResult entityResult = tAssignedAuthor2Device(author.getAssignedAuthor(), bundleInfo);
 							result.updateFrom(entityResult);
 							bundleInfo.updateFrom(entityResult);
-							result.addResource(entityResult.getDevice());
+							result.addResource(entityResult.getDevice()); // Device added separately because updateFrom
+																			// ignores it.
 							if (fhirComp != null && entityResult.hasDevice() && entityResult.hasOrganization()) {
 								fhirComp.getAuthor().add(new Reference(entityResult.getDeviceId()));
 							}
