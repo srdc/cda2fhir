@@ -97,7 +97,8 @@ public class ResourceTransformerTest {
 		// read the input test file
 		try {
 			fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-			fisCCD2 = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD2.xml");
+			fisCCD2 = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD2.xml"); // Original does not have authoring
+																						// device.
 			ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD);
 			ccd2 = (ContinuityOfCareDocument) CDAUtil.load(fisCCD2);
 		} catch (Exception ex) {
