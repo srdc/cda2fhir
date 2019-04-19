@@ -1,8 +1,5 @@
 [
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},
-	{
 		"operation": "cardinality",
 		"spec": {
 			"serviceEvent": {
@@ -31,9 +28,6 @@
 		"spec": {
 			"Performer": ""
 		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",

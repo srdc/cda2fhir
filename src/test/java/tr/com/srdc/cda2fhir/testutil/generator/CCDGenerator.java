@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
 import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
@@ -36,8 +37,12 @@ import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
@@ -65,6 +70,8 @@ public class CCDGenerator {
 	private List<MedicationActivityGenerator> medActivityGenerators = new ArrayList<>();
 	private List<ImmunizationActivityGenerator> immActivityGenerators = new ArrayList<>();
 	private List<ResultOrganizerGenerator> resultGenerators = new ArrayList<>();
+	private List<VitalSignsOrganizerGenerator> vitalsGenerators = new ArrayList<>();
+	private List<ProblemConcernActGenerator> problemListGenerators = new ArrayList<>();
 
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
@@ -240,6 +247,56 @@ public class CCDGenerator {
 			}
 		}
 
+		if (!vitalsGenerators.isEmpty()) {
+			VitalSignsSection section = factories.consol.createVitalSignsSection();
+			CE ce = factories.datatype.createCE("8716-3", "2.16.840.1.113883.6.1");
+			section.setCode(ce);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.2.4.1");
+			section.getTemplateIds().add(ii);
+			vitalsGenerators.forEach(vg -> {
+				VitalSignsOrganizer vso = vg.generate(factories);
+				Entry entry = factories.base.createEntry();
+				entry.setOrganizer(vso);
+				section.getEntries().add(entry);
+			});
+			Component3 component3 = factories.base.createComponent3();
+			component3.setSection(section);
+			if (ccd.getComponent() == null) {
+				Component2 component2 = factories.base.createComponent2();
+				StructuredBody structuredBody = factories.base.createStructuredBody();
+				component2.setStructuredBody(structuredBody);
+				ccd.setComponent(component2);
+				structuredBody.getComponents().add(component3);
+			} else {
+				ccd.getComponent().getStructuredBody().getComponents().add(component3);
+			}
+		}
+
+		if (!problemListGenerators.isEmpty()) {
+			ProblemSection section = factories.consol.createProblemSection();
+			CE ce = factories.datatype.createCE("11450-4", "2.16.840.1.113883.6.1");
+			section.setCode(ce);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.2.5.1");
+			section.getTemplateIds().add(ii);
+			problemListGenerators.forEach(pg -> {
+				ProblemConcernAct pca = pg.generate(factories);
+				Entry entry = factories.base.createEntry();
+				entry.setAct(pca);
+				section.getEntries().add(entry);
+			});
+			Component3 component3 = factories.base.createComponent3();
+			component3.setSection(section);
+			if (ccd.getComponent() == null) {
+				Component2 component2 = factories.base.createComponent2();
+				StructuredBody structuredBody = factories.base.createStructuredBody();
+				component2.setStructuredBody(structuredBody);
+				ccd.setComponent(component2);
+				structuredBody.getComponents().add(component3);
+			} else {
+				ccd.getComponent().getStructuredBody().getComponents().add(component3);
+			}
+		}
+
 		return ccd;
 	}
 
@@ -263,6 +320,8 @@ public class CCDGenerator {
 		generator.medActivityGenerators.add(MedicationActivityGenerator.getDefaultInstance());
 		generator.immActivityGenerators.add(ImmunizationActivityGenerator.getDefaultInstance());
 		generator.resultGenerators.add(ResultOrganizerGenerator.getDefaultInstance());
+		generator.vitalsGenerators.add(VitalSignsOrganizerGenerator.getDefaultInstance());
+		generator.problemListGenerators.add(ProblemConcernActGenerator.getDefaultInstance());
 
 		return generator;
 	}
@@ -457,5 +516,29 @@ public class CCDGenerator {
 				resultGenerators.get(index).verify(bundle, report);
 			}
 		}
+
+		Composition.SectionComponent vitalsSection = findCompositionSection(composition, "8716-3");
+		if (vitalsGenerators.isEmpty()) {
+			Assert.assertTrue("No vitals section", vitalsSection == null || !vitalsSection.hasEntry());
+		} else {
+			Assert.assertNotNull("Vitals Section section exists", vitalsSection);
+			int count = vitalsGenerators.size();
+			Assert.assertEquals("Vitals entry count", count, vitalsSection.getEntry().size());
+		}
+
+		Composition.SectionComponent problemListSection = findCompositionSection(composition, "11450-4");
+		if (problemListSection.isEmpty()) {
+			Assert.assertTrue("No problem section", problemListSection == null || !problemListSection.hasEntry());
+		} else {
+			Assert.assertNotNull("ProblemListSection section exists", problemListSection);
+			int count = problemListGenerators.size();
+			Assert.assertEquals("Problem List entry count", count, problemListSection.getEntry().size());
+			for (int index = 0; index < count; ++index) {
+				String reference = problemListSection.getEntry().get(index).getReference();
+				Condition condition = bundleUtil.getResourceFromReference(reference, Condition.class);
+				Assert.assertNotNull("Condition exists", condition);
+			}
+		}
+
 	}
 }

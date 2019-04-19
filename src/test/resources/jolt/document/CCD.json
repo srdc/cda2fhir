@@ -68,7 +68,9 @@
 								"section[&].->AllergiesSection2",
 								"section[&].->MedicationsSection2",
 								"section[&].->ImmunizationsSection2",
-								"section[&].->ResultsSection2"
+								"section[&].->ResultsSection2",
+								"section[&].->VitalSignsSection2",
+								"section[&].->ProblemSection2"
 							]
 						}
 					}
@@ -77,15 +79,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
 		"spec": {
 		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
@@ -103,9 +99,6 @@
 				"subject.display"
 			]
 		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
@@ -131,9 +124,6 @@
 				"display": "=getReferenceDisplay(@0)"
 			}
 		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "remove",

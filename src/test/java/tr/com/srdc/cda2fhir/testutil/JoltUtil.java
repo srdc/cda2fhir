@@ -1642,6 +1642,12 @@ public class JoltUtil {
 								joltReference);
 						verify(report, joltReport);
 					}
+					if (code.equals("8716-3")) {
+						Observation observation = bundleUtil.getResourceFromReference(reference, Observation.class);
+						Map<String, Object> joltObservation = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(observation, joltObservation);
+					}
 				}
 			}
 		} else {
