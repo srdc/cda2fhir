@@ -1635,6 +1635,13 @@ public class JoltUtil {
 								joltReference);
 						verify(immunization, joltImmunization);
 					}
+					if (code.equals("30954-2")) {
+						DiagnosticReport report = bundleUtil.getResourceFromReference(reference,
+								DiagnosticReport.class);
+						Map<String, Object> joltReport = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(report, joltReport);
+					}
 				}
 			}
 		} else {

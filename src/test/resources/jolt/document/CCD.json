@@ -67,7 +67,8 @@
 							"*": [
 								"section[&].->AllergiesSection2",
 								"section[&].->MedicationsSection2",
-								"section[&].->ImmunizationsSection2"
+								"section[&].->ImmunizationsSection2",
+								"section[&].->ResultsSection2"
 							]
 						}
 					}

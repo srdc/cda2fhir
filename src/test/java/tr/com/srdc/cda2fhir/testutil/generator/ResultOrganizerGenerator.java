@@ -113,8 +113,7 @@ public class ResultOrganizerGenerator {
 		}
 	}
 
-	public void verify(Bundle bundle) throws Exception {
-		DiagnosticReport diagnosticReport = BundleUtil.findOneResource(bundle, DiagnosticReport.class);
+	public void verify(Bundle bundle, DiagnosticReport diagnosticReport) throws Exception {
 		verify(diagnosticReport);
 
 		if (authorGenerators.isEmpty()) {
@@ -141,5 +140,10 @@ public class ResultOrganizerGenerator {
 				og.verify(observation);
 			}
 		}
+	}
+
+	public void verify(Bundle bundle) throws Exception {
+		DiagnosticReport diagnosticReport = BundleUtil.findOneResource(bundle, DiagnosticReport.class);
+		verify(bundle, diagnosticReport);
 	}
 }

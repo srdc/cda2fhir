@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
 import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
+import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
@@ -35,6 +36,8 @@ import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
+import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
@@ -61,6 +64,7 @@ public class CCDGenerator {
 	private List<AllergyConcernActGenerator> allergyGenerators = new ArrayList<>();
 	private List<MedicationActivityGenerator> medActivityGenerators = new ArrayList<>();
 	private List<ImmunizationActivityGenerator> immActivityGenerators = new ArrayList<>();
+	private List<ResultOrganizerGenerator> resultGenerators = new ArrayList<>();
 
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
@@ -211,6 +215,31 @@ public class CCDGenerator {
 			}
 		}
 
+		if (!resultGenerators.isEmpty()) {
+			ResultsSection section = factories.consol.createResultsSection();
+			CE ce = factories.datatype.createCE("30954-2", "2.16.840.1.113883.6.1");
+			section.setCode(ce);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.2.3.1");
+			section.getTemplateIds().add(ii);
+			resultGenerators.forEach(rg -> {
+				ResultOrganizer sa = rg.generate(factories);
+				Entry entry = factories.base.createEntry();
+				entry.setOrganizer(sa);
+				section.getEntries().add(entry);
+			});
+			Component3 component3 = factories.base.createComponent3();
+			component3.setSection(section);
+			if (ccd.getComponent() == null) {
+				Component2 component2 = factories.base.createComponent2();
+				StructuredBody structuredBody = factories.base.createStructuredBody();
+				component2.setStructuredBody(structuredBody);
+				ccd.setComponent(component2);
+				structuredBody.getComponents().add(component3);
+			} else {
+				ccd.getComponent().getStructuredBody().getComponents().add(component3);
+			}
+		}
+
 		return ccd;
 	}
 
@@ -233,6 +262,7 @@ public class CCDGenerator {
 		generator.allergyGenerators.add(AllergyConcernActGenerator.getDefaultInstance());
 		generator.medActivityGenerators.add(MedicationActivityGenerator.getDefaultInstance());
 		generator.immActivityGenerators.add(ImmunizationActivityGenerator.getDefaultInstance());
+		generator.resultGenerators.add(ResultOrganizerGenerator.getDefaultInstance());
 
 		return generator;
 	}
@@ -411,6 +441,20 @@ public class CCDGenerator {
 				String reference = immunizationsSection.getEntry().get(index).getReference();
 				Immunization immunization = bundleUtil.getResourceFromReference(reference, Immunization.class);
 				immActivityGenerators.get(index).verify(bundle, immunization);
+			}
+		}
+
+		Composition.SectionComponent resultsSection = findCompositionSection(composition, "30954-2");
+		if (resultGenerators.isEmpty()) {
+			Assert.assertTrue("No result section", resultsSection == null || !resultsSection.hasEntry());
+		} else {
+			Assert.assertNotNull("ResultsSection section exists", resultsSection);
+			int count = resultGenerators.size();
+			Assert.assertEquals("Results entry count", count, resultsSection.getEntry().size());
+			for (int index = 0; index < count; ++index) {
+				String reference = resultsSection.getEntry().get(index).getReference();
+				DiagnosticReport report = bundleUtil.getResourceFromReference(reference, DiagnosticReport.class);
+				resultGenerators.get(index).verify(bundle, report);
 			}
 		}
 	}
