@@ -1389,6 +1389,29 @@ public class JoltUtil {
 	}
 
 	@SuppressWarnings("unchecked")
+	public void sortSections(List<SectionComponent> sections, List<Object> joltSections) {
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		int index = 0;
+		for (SectionComponent section : sections) {
+			String code = section.getCode().getCoding().get(0).getCode();
+			map.put(code, index);
+			++index;
+		}
+		joltSections.sort((a, b) -> {
+			Map<String, Object> mapa = (Map<String, Object>) a;
+			Map<String, Object> mapb = (Map<String, Object>) b;
+
+			String codea = findPathString(mapa, "code.coding[].code");
+			String codeb = findPathString(mapb, "code.coding[].code");
+
+			Integer inta = map.get(codea);
+			Integer intb = map.get(codeb);
+
+			return inta.intValue() - intb.intValue();
+		});
+	}
+
+	@SuppressWarnings("unchecked")
 	public void verify(Composition composition, Map<String, Object> joltComposition) throws Exception {
 		Map<String, Object> joltClone = joltComposition == null ? null : new LinkedHashMap<>(joltComposition);
 
@@ -1562,6 +1585,9 @@ public class JoltUtil {
 			List<SectionComponent> sections = composition.getSection();
 			List<Object> joltSections = (List<Object>) joltClone.get("section");
 			Assert.assertEquals("Section count", sections.size(), joltSections.size());
+
+			sortSections(sections, joltSections);
+
 			for (int index = 0; index < sections.size(); ++index) {
 				SectionComponent section = sections.get(index);
 
@@ -1603,10 +1629,14 @@ public class JoltUtil {
 								joltReference);
 						verify(medStatement, joltMedStatement);
 					}
-
+					if (code.equals("11369-6")) {
+						Immunization immunization = bundleUtil.getResourceFromReference(reference, Immunization.class);
+						Map<String, Object> joltImmunization = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(immunization, joltImmunization);
+					}
 				}
 			}
-
 		} else {
 			if (joltClone != null) {
 				Object value = joltClone.get("section");

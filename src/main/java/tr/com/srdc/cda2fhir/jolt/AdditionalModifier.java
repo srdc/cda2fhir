@@ -27,9 +27,9 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	private static Map<String, Object> temporaryContext; // Hack for now
 
 	@SuppressWarnings("unchecked")
-	private static String getDisplayFromCode(Map<String, Object> map) {
-		if (map.get("code") instanceof Map) {
-			Map<String, Object> code = (Map<String, Object>) map.get("code");
+	private static String getDisplayFromCode(Map<String, Object> map, String property) {
+		if (map.get(property) instanceof Map) {
+			Map<String, Object> code = (Map<String, Object>) map.get(property);
 			if (code.get("text") instanceof String) {
 				return (String) code.get("text");
 			} else if (code.get("coding") instanceof List) {
@@ -45,6 +45,10 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			}
 		}
 		return null;
+	}
+
+	private static String getDisplayFromCode(Map<String, Object> map) {
+		return getDisplayFromCode(map, "code");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -68,6 +72,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				}
 			}
 		}
+		if (display != null) {
+			return display;
+		}
+
+		display = getDisplayFromCode(map, "vaccineCode");
 		if (display != null) {
 			return display;
 		}

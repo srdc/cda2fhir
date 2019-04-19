@@ -243,8 +243,7 @@ public class ImmunizationActivityGenerator {
 		}
 	}
 
-	public void verify(Bundle bundle) throws Exception {
-		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
+	public void verify(Bundle bundle, Immunization immunization) throws Exception {
 		verify(immunization);
 
 		if (medInfoGenerator == null) {
@@ -276,6 +275,10 @@ public class ImmunizationActivityGenerator {
 					org.hl7.fhir.dstu3.model.Observation.class);
 			reactionObservationGenerator.verify(observation);
 		}
+	}
 
+	public void verify(Bundle bundle) throws Exception {
+		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
+		verify(bundle, immunization);
 	}
 }

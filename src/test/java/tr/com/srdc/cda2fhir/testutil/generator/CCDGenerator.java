@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.Composition.CompositionAttestationMode;
 import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
 import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.junit.Assert;
@@ -32,6 +33,7 @@ import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -58,6 +60,7 @@ public class CCDGenerator {
 
 	private List<AllergyConcernActGenerator> allergyGenerators = new ArrayList<>();
 	private List<MedicationActivityGenerator> medActivityGenerators = new ArrayList<>();
+	private List<ImmunizationActivityGenerator> immActivityGenerators = new ArrayList<>();
 
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
@@ -183,6 +186,31 @@ public class CCDGenerator {
 			}
 		}
 
+		if (!immActivityGenerators.isEmpty()) {
+			ImmunizationsSection section = factories.consol.createImmunizationsSection();
+			CE ce = factories.datatype.createCE("11369-6", "2.16.840.1.113883.6.1");
+			section.setCode(ce);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.2.2.1");
+			section.getTemplateIds().add(ii);
+			immActivityGenerators.forEach(immg -> {
+				SubstanceAdministration sa = immg.generate(factories);
+				Entry entry = factories.base.createEntry();
+				entry.setSubstanceAdministration(sa);
+				section.getEntries().add(entry);
+			});
+			Component3 component3 = factories.base.createComponent3();
+			component3.setSection(section);
+			if (ccd.getComponent() == null) {
+				Component2 component2 = factories.base.createComponent2();
+				StructuredBody structuredBody = factories.base.createStructuredBody();
+				component2.setStructuredBody(structuredBody);
+				ccd.setComponent(component2);
+				structuredBody.getComponents().add(component3);
+			} else {
+				ccd.getComponent().getStructuredBody().getComponents().add(component3);
+			}
+		}
+
 		return ccd;
 	}
 
@@ -204,6 +232,7 @@ public class CCDGenerator {
 		generator.patientRoleGenerator = PatientRoleGenerator.getDefaultInstance();
 		generator.allergyGenerators.add(AllergyConcernActGenerator.getDefaultInstance());
 		generator.medActivityGenerators.add(MedicationActivityGenerator.getDefaultInstance());
+		generator.immActivityGenerators.add(ImmunizationActivityGenerator.getDefaultInstance());
 
 		return generator;
 	}
@@ -367,6 +396,21 @@ public class CCDGenerator {
 				MedicationStatement medStatement = bundleUtil.getResourceFromReference(reference,
 						MedicationStatement.class);
 				medActivityGenerators.get(index).verify(bundle, medStatement);
+			}
+		}
+
+		Composition.SectionComponent immunizationsSection = findCompositionSection(composition, "11369-6");
+		if (immActivityGenerators.isEmpty()) {
+			Assert.assertTrue("No immunizations section",
+					immunizationsSection == null || !immunizationsSection.hasEntry());
+		} else {
+			Assert.assertNotNull("ImmunizationsSection section exists", immunizationsSection);
+			int count = immActivityGenerators.size();
+			Assert.assertEquals("Immunization entry count", count, immunizationsSection.getEntry().size());
+			for (int index = 0; index < count; ++index) {
+				String reference = immunizationsSection.getEntry().get(index).getReference();
+				Immunization immunization = bundleUtil.getResourceFromReference(reference, Immunization.class);
+				immActivityGenerators.get(index).verify(bundle, immunization);
 			}
 		}
 	}
