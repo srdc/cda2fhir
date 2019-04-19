@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
@@ -102,6 +103,11 @@ public class EntityResult implements IEntityResult {
 	}
 
 	@Override
+	public boolean hasDevice() {
+		return info.getDevice() != null;
+	}
+
+	@Override
 	public Practitioner getPractitioner() {
 		return info.getPractitioner();
 	}
@@ -114,6 +120,11 @@ public class EntityResult implements IEntityResult {
 	@Override
 	public Organization getOrganization() {
 		return info.getOrganization();
+	}
+
+	@Override
+	public Device getDevice() {
+		return info.getDevice();
 	}
 
 	@Override
@@ -157,6 +168,15 @@ public class EntityResult implements IEntityResult {
 		Practitioner practitioner = info.getPractitioner();
 		if (practitioner != null) {
 			return practitioner.getId();
+		}
+		return null;
+	}
+
+	@Override
+	public String getDeviceId() {
+		Device device = info.getDevice();
+		if (device != null) {
+			return device.getId();
 		}
 		return null;
 	}

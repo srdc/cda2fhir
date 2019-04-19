@@ -28,6 +28,8 @@ public interface IEntityResult extends IEntityInfo {
 
 	boolean hasPractitionerRoleCode();
 
+	boolean hasDevice();
+
 	Reference getPractitionerReference();
 
 	Reference getOrganizationReference();
@@ -37,4 +39,6 @@ public interface IEntityResult extends IEntityInfo {
 	CodeableConcept getPractitionerRoleCode();
 
 	String getPractitionerId();
+
+	String getDeviceId();
 }
