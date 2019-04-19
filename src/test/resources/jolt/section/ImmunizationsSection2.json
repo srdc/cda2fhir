@@ -1,0 +1,73 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"section": {
+						"code": {
+							"code": "=a"
+						}
+					}
+				}
+			],
+			"values": {
+				"a": "11369-6"
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"section": {
+				"entry": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"section": {
+				"code": "code.->CD2",
+				"#snapshot": "mode",
+				"entry": {
+					"*": "Immunization[].->ImmunizationActivity"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Immunization": {
+				"*": [
+					"entry[&].reference",
+					"entry[&].display"
+				]
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"entry": {
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Immunization": ""
+		}
+	}
+]

@@ -1,0 +1,5 @@
+{
+	"system": "http://hl7.org/fhir/ValueSet/doc-classcodes",
+	"display": "Note",
+	"code": "LP173421-7"
+}

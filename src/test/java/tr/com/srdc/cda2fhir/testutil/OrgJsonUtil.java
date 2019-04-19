@@ -67,6 +67,8 @@ public class OrgJsonUtil {
 		renameProperty(root, "manufacturedproduct", "manufacturedProduct"); // due to an apparent bug in CDAUtil
 		renameProperty(root, "substanceadministration", "substanceAdministration"); // due to an apparent bug in CDAUtil
 		renameProperty(root, "patientrole", "patientRole");
+		renameProperty(root, "patientrole", "patientRole");
+		renameProperty(root, "clinicaldocument", "clinicalDocument");
 		return new OrgJsonUtil(root);
 	}
 

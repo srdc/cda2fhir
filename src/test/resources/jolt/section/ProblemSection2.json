@@ -1,0 +1,79 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"section": {
+						"code": {
+							"code": "=a"
+						}
+					}
+				}
+			],
+			"values": {
+				"a": "11450-4"
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"section": {
+				"entry": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"section": {
+				"code": "code.->CD2",
+				"#snapshot": "mode",
+				"entry": {
+					"*": "Condition[].->ProblemConcernAct"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Flatten",
+		"spec": {
+			"key": "Condition"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Condition": {
+				"*": [
+					"entry[&].reference",
+					"entry[&].display"
+				]
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"entry": {
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Condition": ""
+		}
+	}
+]

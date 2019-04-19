@@ -1,0 +1,32 @@
+{
+	"U": {
+		"code": "U",
+		"display": "U",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"L": {
+		"code": "L",
+		"display": "L",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"M": {
+		"code": "M",
+		"display": "M",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"N": {
+		"code": "N",
+		"display": "N",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"R": {
+		"code": "R",
+		"display": "R",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	},
+	"V": {
+		"code": "V",
+		"display": "V",
+		"system": "http://hl7.org/fhir/v3/ActCode"
+	}
+}

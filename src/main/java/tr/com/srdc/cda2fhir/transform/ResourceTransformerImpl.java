@@ -95,6 +95,7 @@ import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
+import org.hl7.fhir.dstu3.model.Quantity;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.SimpleQuantity;
@@ -165,6 +166,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PIVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
@@ -2584,6 +2586,36 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						fhirObs.setValue(dtt.tTS2DateTime((TS) value));
 					} else if (value instanceof BL) {
 						fhirObs.setValue(dtt.tBL2Boolean((BL) value));
+					} else if (value instanceof REAL) {
+
+						fhirObs.setValue(dtt.tREAL2Quantity((REAL) value));
+
+						// Epic specific: attempt to get units from custom observation.
+						String SNOMED_OID = "2.16.840.1.113883.6.96";
+						String SNOMED_VAL = "246514001";
+
+						for (EntryRelationship er : cdaObservation.getEntryRelationships()) {
+							Observation obs = er.getObservation();
+							if (obs != null) {
+								if (obs.getCode() != null) {
+									if (obs.getCode().getCodeSystem() != null && obs.getCode().getCode() != null) {
+										// Look for SNOMED unit encoding.
+										if (obs.getCode().getCodeSystem().equals(SNOMED_OID)
+												&& obs.getCode().getCode().equals(SNOMED_VAL)) {
+											for (ANY val : obs.getValues()) {
+												if (val instanceof ST) {
+													ST stVal = (ST) val;
+													String units = stVal.getText();
+													Quantity fhirVal = (Quantity) fhirObs.getValue();
+													fhirVal.setUnit(units);
+													break;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
