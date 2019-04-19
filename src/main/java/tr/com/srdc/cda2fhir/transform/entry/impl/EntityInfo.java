@@ -1,5 +1,6 @@
 package tr.com.srdc.cda2fhir.transform.entry.impl;
 
+import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
@@ -10,7 +11,9 @@ public class EntityInfo implements IEntityInfo {
 	private Practitioner practitioner;
 	private PractitionerRole role;
 	private Organization organization;
+
 	private boolean orgIsNew = false;
+	private Device device;
 
 	public void setPractitioner(Practitioner practitioner) {
 		this.practitioner = practitioner;
@@ -22,6 +25,10 @@ public class EntityInfo implements IEntityInfo {
 
 	public void setOrganization(Organization organization) {
 		this.organization = organization;
+	}
+
+	public void setDevice(Device device) {
+		this.device = device;
 	}
 
 	@Override
@@ -39,11 +46,18 @@ public class EntityInfo implements IEntityInfo {
 		return organization;
 	}
 
+	@Override
 	public boolean isOrgNew() {
 		return orgIsNew;
 	}
 
+	@Override
 	public void setOrgIsNew(boolean orgIsNew) {
 		this.orgIsNew = orgIsNew;
+	}
+
+	@Override
+	public Device getDevice() {
+		return device;
 	}
 }

@@ -95,6 +95,7 @@ import org.hl7.fhir.dstu3.model.Provenance;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceAgentComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityComponent;
 import org.hl7.fhir.dstu3.model.Provenance.ProvenanceEntityRole;
+import org.hl7.fhir.dstu3.model.Quantity;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.SimpleQuantity;
@@ -165,6 +166,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PIVL_TS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
+import org.openhealthtools.mdht.uml.hl7.datatypes.REAL;
 import org.openhealthtools.mdht.uml.hl7.datatypes.RTO;
 import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.SXCM_TS;
@@ -559,6 +561,84 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
+	public EntityResult tAssignedAuthor2Device(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo) {
+		if (cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor()) {
+			return new EntityResult();
+		}
+
+		List<II> ids = null;
+		if (cdaAssignedAuthor.getIds() != null && !cdaAssignedAuthor.getIds().isEmpty()) {
+			for (II ii : cdaAssignedAuthor.getIds()) {
+				if (ii != null && !ii.isSetNullFlavor()) {
+					if (ids == null) {
+						ids = new ArrayList<II>();
+					}
+					ids.add(ii);
+				}
+			}
+		}
+
+		if (ids != null) {
+			IEntityInfo existingInfo = bundleInfo.findEntityResult(ids);
+			if (existingInfo != null) {
+				return new EntityResult(existingInfo);
+			}
+		}
+
+		EntityInfo info = new EntityInfo();
+		Device fhirDevice = new Device();
+
+		// id -> identifier
+		if (ids != null) {
+			for (II id : ids) {
+				fhirDevice.addIdentifier(dtt.tII2Identifier(id));
+			}
+		}
+
+		// resource id
+		IdType resourceDeviceId = new IdType("Device", getUniqueId());
+		fhirDevice.setId(resourceDeviceId);
+
+		// All things with the Device.
+		if (cdaAssignedAuthor.getAssignedAuthoringDevice() != null
+				&& !cdaAssignedAuthor.getAssignedAuthoringDevice().isSetNullFlavor()) {
+			fhirDevice.setManufacturer(
+					cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getText());
+			fhirDevice.setVersion(cdaAssignedAuthor.getAssignedAuthoringDevice().getSoftwareName().getText());
+			if (cdaAssignedAuthor.getAssignedAuthoringDevice().getCode() != null) {
+				fhirDevice.setType(dtt.tCD2CodeableConcept(cdaAssignedAuthor.getAssignedAuthoringDevice().getCode()));
+			} else {
+				Coding cd1 = new Coding();
+				cd1.setCode(cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getCode());
+				if (cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName()
+						.getDisplayName() == null) {
+					cd1.setDisplay(cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getText());
+				} else {
+					cd1.setDisplay(
+							cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getDisplayName());
+				}
+				cd1.setSystem(
+						cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getCodeSystem());
+				fhirDevice.setType(new CodeableConcept().addCoding(cd1));
+			}
+
+		}
+
+		info.setDevice(fhirDevice);
+
+		Organization fhirOrganization;
+		// representedOrganization -> EntityInfo.organization
+		if (cdaAssignedAuthor.getRepresentedOrganization() != null
+				&& !cdaAssignedAuthor.getRepresentedOrganization().isSetNullFlavor()) {
+			fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
+			info.setOrganization(fhirOrganization);
+			fhirDevice.setOwner(new Reference(fhirOrganization.getId()));
+		}
+
+		return new EntityResult(info, ids);
+	}
+
+	@Override
 	public EntityResult tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo) {
 
 		if (cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor()) {
@@ -930,17 +1010,30 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				// Asserting that at most one author exists
 				if (author != null && !author.isSetNullFlavor()) {
 					if (author.getAssignedAuthor() != null && !author.getAssignedAuthor().isSetNullFlavor()) {
-						EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
-						result.updateFrom(entityResult);
-						bundleInfo.updateFrom(entityResult);
-						if (fhirComp != null && entityResult.hasPractitioner()) {
-
-							fhirComp.addAuthor().setReference(entityResult.getPractitionerId());
-							String referenceString = ReferenceInfo.getDisplay(entityResult.getPractitioner());
-							if (referenceString != null) {
-								fhirComp.getAuthor().get(0).setDisplay(referenceString);
+						if (author.getAssignedAuthor().getAssignedPerson() != null
+								&& !author.getAssignedAuthor().getAssignedPerson().isSetNullFlavor()) {
+							EntityResult entityResult = tAuthor2Practitioner(author, bundleInfo);
+							result.updateFrom(entityResult);
+							bundleInfo.updateFrom(entityResult);
+							if (fhirComp != null && entityResult.hasPractitioner()) {
+								fhirComp.addAuthor().setReference(entityResult.getPractitionerId());
+								String referenceString = ReferenceInfo.getDisplay(entityResult.getPractitioner());
+								if (referenceString != null) {
+									fhirComp.getAuthor().get(0).setDisplay(referenceString);
+								}
 							}
-
+						} else if (author.getAssignedAuthor().getAssignedAuthoringDevice() != null
+								&& author.getAssignedAuthor().getRepresentedOrganization() != null
+								&& !author.getAssignedAuthor().getRepresentedOrganization().isSetNullFlavor()
+								&& !author.getAssignedAuthor().getAssignedAuthoringDevice().isSetNullFlavor()) {
+							EntityResult entityResult = tAssignedAuthor2Device(author.getAssignedAuthor(), bundleInfo);
+							result.updateFrom(entityResult);
+							bundleInfo.updateFrom(entityResult);
+							result.addResource(entityResult.getDevice()); // Device added separately because updateFrom
+																			// ignores it.
+							if (fhirComp != null && entityResult.hasDevice() && entityResult.hasOrganization()) {
+								fhirComp.getAuthor().add(new Reference(entityResult.getDeviceId()));
+							}
 						}
 					}
 				}
@@ -2621,6 +2714,36 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						fhirObs.setValue(dtt.tTS2DateTime((TS) value));
 					} else if (value instanceof BL) {
 						fhirObs.setValue(dtt.tBL2Boolean((BL) value));
+					} else if (value instanceof REAL) {
+
+						fhirObs.setValue(dtt.tREAL2Quantity((REAL) value));
+
+						// Epic specific: attempt to get units from custom observation.
+						String SNOMED_OID = "2.16.840.1.113883.6.96";
+						String SNOMED_VAL = "246514001";
+
+						for (EntryRelationship er : cdaObservation.getEntryRelationships()) {
+							Observation obs = er.getObservation();
+							if (obs != null) {
+								if (obs.getCode() != null) {
+									if (obs.getCode().getCodeSystem() != null && obs.getCode().getCode() != null) {
+										// Look for SNOMED unit encoding.
+										if (obs.getCode().getCodeSystem().equals(SNOMED_OID)
+												&& obs.getCode().getCode().equals(SNOMED_VAL)) {
+											for (ANY val : obs.getValues()) {
+												if (val instanceof ST) {
+													ST stVal = (ST) val;
+													String units = stVal.getText();
+													Quantity fhirVal = (Quantity) fhirObs.getValue();
+													fhirVal.setUnit(units);
+													break;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}

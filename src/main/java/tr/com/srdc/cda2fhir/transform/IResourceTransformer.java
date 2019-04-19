@@ -101,6 +101,17 @@ public interface IResourceTransformer {
 	IEntityResult tAssignedAuthor2Practitioner(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo);
 
 	/**
+	 * Transforms a CDA AssignedAuthor instance to a FHIR Device resource.
+	 *
+	 * @param cdaAssignedAuthor A CDA AssignedAuthor instance
+	 * @param bundleInfo        A BundleInfo object which acts as a context for the
+	 *                          current transformation bundle.
+	 * @return A result object that might include FHIR Bundle and/or a reference to
+	 *         a Device
+	 */
+	IEntityResult tAssignedAuthor2Device(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo);
+
+	/**
 	 * Transforms a CDA AssignedEntity instance to a FHIR Practitioner resource.
 	 *
 	 * @param cdaAssignedEntity A CDA AssignedEntity instance

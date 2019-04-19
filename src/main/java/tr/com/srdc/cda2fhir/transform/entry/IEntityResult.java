@@ -29,6 +29,8 @@ public interface IEntityResult extends IEntityInfo {
 
 	boolean hasPractitionerRoleCode();
 
+	boolean hasDevice();
+
 	Reference getPractitionerReference();
 
 	Reference getOrganizationReference();
@@ -44,4 +46,6 @@ public interface IEntityResult extends IEntityInfo {
 	CDAIIResourceMaps<IBaseResource> getResourceMaps();
 
 	void put(List<II> iis, Class<? extends IBaseResource> clazz, IBaseResource resource);
+
+	String getDeviceId();
 }

@@ -76,4 +76,8 @@ public class TransformManager {
 	public static List<Object> transformSectionInFile(String cdaName, String filepath) {
 		return transformInFile("src/test/resources/jolt/section/", cdaName, filepath);
 	}
+
+	public static List<Object> transformDocumentInFile(String cdaName, String filepath) {
+		return transformInFile("src/test/resources/jolt/document/", cdaName, filepath);
+	}
 }

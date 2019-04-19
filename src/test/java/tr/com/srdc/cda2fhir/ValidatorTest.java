@@ -164,6 +164,17 @@ public class ValidatorTest {
 				generateDAFProfileMetadata, false);
 	}
 
+	// robust CCD.XML
+	@Ignore
+	public void testRobust() throws Exception {
+		String cdaResourcePath = "src/test/resources/Epic/robust CCD.XML";
+		String targetPathForFHIRResource = "src/test/resources/output/Epic/robust CCD.fhir.xml";
+		String targetPathForResultFile = "src/test/resources/output/Epic/robust CCD.validation-result.html";
+		boolean generateDAFProfileMetadata = true;
+		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
+				generateDAFProfileMetadata, false);
+	}
+
 	// Person-RAKIA_TEST_DOC0001 (1).xml
 	@Ignore
 	public void testRakia() throws Exception {
