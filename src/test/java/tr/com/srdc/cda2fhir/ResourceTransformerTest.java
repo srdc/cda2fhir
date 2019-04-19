@@ -97,7 +97,7 @@ public class ResourceTransformerTest {
 		// read the input test file
 		try {
 			fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
-			fisCCD2 = new FileInputStream("src/test/resources/Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
+			fisCCD2 = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD2.xml");
 			ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD);
 			ccd2 = (ContinuityOfCareDocument) CDAUtil.load(fisCCD2);
 		} catch (Exception ex) {
