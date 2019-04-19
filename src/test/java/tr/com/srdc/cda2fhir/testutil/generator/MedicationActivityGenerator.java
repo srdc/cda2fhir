@@ -334,4 +334,12 @@ public class MedicationActivityGenerator {
 	public MedicationSupplyOrderGenerator getMedicationSupplyOrderGenerator() {
 		return this.medicationSupplyOrderGenerator;
 	}
+
+	public MedicationDispenseGenerator getMedicationDispenseGenerator() {
+		return this.medicationDispenseGenerator;
+	}
+
+	public void setMedicationDispenseGenerator(MedicationDispenseGenerator medicationDispenseGenerator) {
+		this.medicationDispenseGenerator = medicationDispenseGenerator;
+	}
 }

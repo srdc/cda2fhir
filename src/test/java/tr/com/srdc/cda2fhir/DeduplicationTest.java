@@ -30,10 +30,12 @@ import tr.com.srdc.cda2fhir.testutil.generator.ClinicalDocumentMetadataGenerator
 import tr.com.srdc.cda2fhir.testutil.generator.ImmunizationActivityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ImmunizationMedicationInformationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationActivityGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.MedicationDispenseGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationInformationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationSupplyOrderGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.OrganizationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.PatientRoleGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.PerformerGenerator;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
@@ -49,13 +51,42 @@ public class DeduplicationTest {
 
 	}
 
+	private MedicationDispenseGenerator getMedDispenseGeneratorMedInfoSameOrg(
+			MedicationInformationGenerator medInfoGen) {
+		MedicationDispenseGenerator medDispenseGenerator = MedicationDispenseGenerator.getDefaultInstance();
+
+		OrganizationGenerator orgGen = medInfoGen.getOrganizationGenerator();
+
+		medDispenseGenerator.setMedicationInformationGenerator(medInfoGen);
+
+		AssignedEntityGenerator assignedEntityGenerator = AssignedEntityGenerator.getDefaultInstance();
+
+		PerformerGenerator performerGenerator = PerformerGenerator.getDefaultInstance();
+
+		assignedEntityGenerator.setOrganizationGenerator(orgGen);
+
+		performerGenerator.setAssignedEntityGenerator(assignedEntityGenerator);
+
+		List<PerformerGenerator> performerGenerators = new ArrayList<PerformerGenerator>();
+
+		performerGenerators.add(performerGenerator);
+
+		medDispenseGenerator.setPerformerGenerators(performerGenerators);
+
+		return medDispenseGenerator;
+	}
+
 	private MedicationActivityGenerator getMedicationActivityGeneratorOneMedInfoGenerator(
 			MedicationInformationGenerator medInfoGenerator) {
+
+		MedicationDispenseGenerator medDispenseGen = getMedDispenseGeneratorMedInfoSameOrg(medInfoGenerator);
 
 		MedicationActivityGenerator medActGenerator = MedicationActivityGenerator.getDefaultInstance();
 
 		MedicationSupplyOrderGenerator medicationSupplyOrderGenerator = MedicationSupplyOrderGenerator
 				.getDefaultInstance();
+
+		medDispenseGen.setMedicationInformationGenerator(medInfoGenerator);
 
 		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
 
@@ -67,6 +98,7 @@ public class DeduplicationTest {
 		medActGenerator.setAuthorGenerator(authorGenerator);
 		medActGenerator.setMedicationInfoGenerator(medInfoGenerator);
 		medActGenerator.setMedicationSupplyOrderGenerator(medicationSupplyOrderGenerator);
+		medActGenerator.setMedicationDispenseGenerator(medDispenseGen);
 
 		return medActGenerator;
 
@@ -254,19 +286,31 @@ public class DeduplicationTest {
 	}
 
 	@Test
-	public void testMedicationDeduplicationThreeMedicationsTwoInstances5Orgs() throws Exception {
+	public void testMedicationDeduplicationThreeMedicationsThreeInstances5Orgs() throws Exception {
 
 		List<MedicationActivity> medActs = new ArrayList<MedicationActivity>();
 
+		OrganizationGenerator orgGen = OrganizationGenerator.getDefaultInstance();
+
+		MedicationInformationGenerator medInfoGen = MedicationInformationGenerator.getDefaultInstance();
+
+		medInfoGen.setOrganizationGenerator(orgGen);
+
+		MedicationDispenseGenerator medDispenseGen = getMedDispenseGeneratorMedInfoSameOrg(medInfoGen);
+
 		MedicationActivityGenerator medActGenerator1 = MedicationActivityGenerator.getDefaultInstance();
-		MedicationActivityGenerator medActGenerator2 = getMedicationActivityGeneratorOneMedInfoGenerator(
-				MedicationInformationGenerator.getDefaultInstance());
+		MedicationActivityGenerator medActGenerator2 = getMedicationActivityGeneratorOneMedInfoGenerator(medInfoGen);
+
+		medActGenerator1.setMedicationDispenseGenerator(medDispenseGen);
+
+		medActGenerator2.setMedicationDispenseGenerator(medDispenseGen);
 
 		medActs.add(medActGenerator1.generate(factories));
 
 		medActs.add(medActGenerator2.generate(factories));
 
-		Bundle resultBundle = runMedidicationDeduplicationTest(medActs, 3, false, null);
+		Bundle resultBundle = runMedidicationDeduplicationTest(medActs, 3, true,
+				"src/test/resources/output/hello-world.json");
 
 		BundleUtil.findResources(resultBundle, Organization.class, 5);
 
@@ -312,6 +356,7 @@ public class DeduplicationTest {
 	}
 
 	private List<Component3> getSubstanceAdministrationComponentsOneOrg(OrganizationGenerator orgGenerator) {
+
 		ImmunizationMedicationInformationGenerator immunMedInfoGen = ImmunizationMedicationInformationGenerator
 				.getDefaultInstance();
 
@@ -321,12 +366,15 @@ public class DeduplicationTest {
 
 		medInfoGenerator.setOrganizationGenerator(orgGenerator);
 
+		MedicationDispenseGenerator medDispenseGen = getMedDispenseGeneratorMedInfoSameOrg(medInfoGenerator);
+
 		MedicationActivityGenerator medActGenerator = getMedicationActivityGeneratorOneMedInfoGenerator(
 				medInfoGenerator);
 
 		medActGenerator.getMedicationSupplyOrderGenerator().setAuthorGenerator(null);
 		medActGenerator.setAuthorGenerator(null);
 		medActGenerator.setMedicationInfoGenerator(medInfoGenerator);
+		medActGenerator.setMedicationDispenseGenerator(medDispenseGen);
 
 		ImmunizationActivityGenerator immunizationActivityGenerator = ImmunizationActivityGenerator
 				.getDefaultInstance();

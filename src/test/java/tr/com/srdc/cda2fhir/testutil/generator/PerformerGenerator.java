@@ -64,4 +64,5 @@ public class PerformerGenerator {
 	public void setAssignedEntityGenerator(AssignedEntityGenerator assignedEntityGenerator) {
 		this.assignedEntityGenerator = assignedEntityGenerator;
 	}
+
 }

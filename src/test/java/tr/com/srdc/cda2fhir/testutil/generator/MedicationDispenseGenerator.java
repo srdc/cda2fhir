@@ -174,4 +174,12 @@ public class MedicationDispenseGenerator {
 	public static Set<String> getAvailableStatusCodes() {
 		return Collections.unmodifiableSet(STATUS.keySet());
 	}
+
+	public void setMedicationInformationGenerator(MedicationInformationGenerator medInfoGen) {
+		this.medInfoGenerator = medInfoGen;
+	}
+
+	public void setPerformerGenerators(List<PerformerGenerator> performerGenerators) {
+		this.performerGenerators = performerGenerators;
+	}
 }
