@@ -81,8 +81,10 @@ public class ResourceTransformerTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 	private static final ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
 	private static FileInputStream fisCCD;
+	private static FileInputStream fisCCD2;
 	private static FileWriter resultFW;
 	private static ContinuityOfCareDocument ccd;
+	private static ContinuityOfCareDocument ccd2;
 	private static final String resultFilePath = "src/test/resources/output/ResourceTransformerTest.txt";
 	private static final String transformationStartMsg = "\n# TRANSFORMATION STARTING..\n";
 	private static final String transformationEndMsg = "# END OF TRANSFORMATION.\n";
@@ -95,7 +97,9 @@ public class ResourceTransformerTest {
 		// read the input test file
 		try {
 			fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+			fisCCD2 = new FileInputStream("src/test/resources/Cerner/Encounter-RAKIA_TEST_DOC00001.XML");
 			ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD);
+			ccd2 = (ContinuityOfCareDocument) CDAUtil.load(fisCCD2);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -233,6 +237,30 @@ public class ResourceTransformerTest {
 			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA, bundleInfo).getBundle();
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(allergyBundle);
+		}
+		appendToResultFile(endOfTestMsg);
+	}
+
+	@Test
+	public void testAssignedAuthor2Device() {
+		appendToResultFile("## TEST: AssignedAuthor2Device\n");
+		// null instance test
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		org.openhealthtools.mdht.uml.cda.AssignedAuthor cdaNull = null;
+		Bundle fhirNull = rt.tAssignedAuthor2Device(cdaNull, bundleInfo).getBundle();
+		Assert.assertNull(fhirNull);
+
+		// instances from file
+		if (ResourceTransformerTest.ccd2.getAuthors() != null) {
+			for (org.openhealthtools.mdht.uml.cda.Author author : ResourceTransformerTest.ccd2.getAuthors()) {
+				// traversing authors
+				if (author != null && author.getAssignedAuthor() != null) {
+					appendToResultFile(transformationStartMsg);
+					Bundle deviceBundle = rt.tAssignedAuthor2Device(author.getAssignedAuthor(), bundleInfo).getBundle();
+					appendToResultFile(transformationEndMsg);
+					appendToResultFile(deviceBundle);
+				}
+			}
 		}
 		appendToResultFile(endOfTestMsg);
 	}

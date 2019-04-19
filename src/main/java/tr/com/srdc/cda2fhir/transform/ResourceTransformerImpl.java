@@ -558,7 +558,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	@Override
 	public EntityResult tAssignedAuthor2Device(AssignedAuthor cdaAssignedAuthor, IBundleInfo bundleInfo) {
 		if (cdaAssignedAuthor == null || cdaAssignedAuthor.isSetNullFlavor()) {
-			return null;
+			return new EntityResult();
 		}
 
 		List<II> ids = null;
