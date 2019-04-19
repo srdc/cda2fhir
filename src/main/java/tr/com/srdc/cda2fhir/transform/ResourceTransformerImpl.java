@@ -594,7 +594,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				fhirDevice.addIdentifier(dtt.tII2Identifier(id));
 			}
 		}
-
+		EntityResult result = new EntityResult(info, ids);
 		// resource id
 		IdType resourceDeviceId = new IdType("Device", getUniqueId());
 		fhirDevice.setId(resourceDeviceId);
@@ -626,16 +626,30 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		info.setDevice(fhirDevice);
 
-		Organization fhirOrganization;
 		// representedOrganization -> EntityInfo.organization
 		if (cdaAssignedAuthor.getRepresentedOrganization() != null
 				&& !cdaAssignedAuthor.getRepresentedOrganization().isSetNullFlavor()) {
-			fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
-			info.setOrganization(fhirOrganization);
-			fhirDevice.setOwner(new Reference(fhirOrganization.getId()));
+			IEntryResult orgResult = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization(),
+					bundleInfo);
+
+			if (orgResult.hasResult()) {
+				info.setOrgIsNew(true);
+			}
+
+			result.updateFrom(orgResult);
+			if (orgResult.getFullBundle() != null) {
+				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
+						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
+				if (fhirOrganization != null) {
+					info.setOrganization(fhirOrganization);
+					fhirDevice.setOwner(new Reference(fhirOrganization.getId()));
+				}
+
+			}
+
 		}
 
-		return new EntityResult(info, ids);
+		return result;
 	}
 
 	@Override
@@ -1116,9 +1130,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					IEntryResult orgResult = tCustodianOrganization2Organization(cdaClinicalDocument.getCustodian()
 							.getAssignedCustodian().getRepresentedCustodianOrganization(), bundleInfo);
 					result.updateFrom(orgResult);
+					bundleInfo.updateFrom(orgResult);
+
 					if (fhirComp != null) {
-						org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil.findFirstResource(
-								orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
+						org.hl7.fhir.dstu3.model.Organization fhirOrganization = null;
+
+						if (orgResult.hasResult()) {
+							fhirOrganization = FHIRUtil.findFirstResource(orgResult.getBundle(),
+									org.hl7.fhir.dstu3.model.Organization.class);
+						} else if (orgResult.getFullBundle() != null) {
+							fhirOrganization = FHIRUtil.findFirstResource(orgResult.getFullBundle(),
+									org.hl7.fhir.dstu3.model.Organization.class);
+						}
+
 						if (fhirOrganization != null) {
 							fhirComp.setCustodian(getReference(fhirOrganization));
 						}
