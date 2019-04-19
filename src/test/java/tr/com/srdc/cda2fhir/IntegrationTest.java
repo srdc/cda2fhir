@@ -103,6 +103,6 @@ public class IntegrationTest {
 		Assert.assertEquals(1, provenanceResults.getTotal());
 		Assert.assertEquals(1, docRefresults.getTotal());
 		Assert.assertEquals(2, deviceResults.getTotal());
-		Assert.assertEquals(2, organizationResults.getTotal());
+		Assert.assertEquals(1, organizationResults.getTotal());
 	}
 }

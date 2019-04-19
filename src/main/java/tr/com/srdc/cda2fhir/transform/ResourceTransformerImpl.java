@@ -1185,7 +1185,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			} else {
 				result.putIIResource(cdaOrganization.getIds(), org.hl7.fhir.dstu3.model.Organization.class,
 						fhirOrganization);
-				result.addResource(fhirOrganization);
+
 			}
 
 			for (II ii : cdaOrganization.getIds()) {
@@ -1194,6 +1194,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
+		result.addResource(fhirOrganization);
 
 		// name.text -> name
 		if (cdaOrganization.getName() != null && !cdaOrganization.getName().isSetNullFlavor()) {

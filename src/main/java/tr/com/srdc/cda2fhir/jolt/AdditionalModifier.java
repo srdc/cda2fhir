@@ -86,6 +86,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 				if (medRef != null && medRef instanceof String) {
 					String mefRefString = (String) medRef;
 					Map<String, Object> resourceMap = (Map<String, Object>) temporaryContext.get("RESOURCE_MAP");
+
+					if (resourceMap == null) {
+						resourceMap = new HashMap<String, Object>();
+						temporaryContext.put("RESOURCE_MAP", resourceMap);
+					}
 					Map<String, Object> resource = (Map<String, Object>) resourceMap.get(mefRefString);
 					if (resource != null) {
 						display = getDisplayFromCode(resource);
