@@ -581,13 +581,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		}
 
 		EntityInfo info = new EntityInfo();
-
 		Device fhirDevice = new Device();
-		info.setDevice(fhirDevice);
-
-		// resource id
-		IdType resourceDeviceId = new IdType("Device", getUniqueId());
-		fhirDevice.setId(resourceDeviceId);
 
 		// id -> identifier
 		if (ids != null) {
@@ -596,19 +590,44 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
+		// resource id
+		IdType resourceDeviceId = new IdType("Device", getUniqueId());
+		fhirDevice.setId(resourceDeviceId);
+
 		// All things with the Device.
 		if (cdaAssignedAuthor.getAssignedAuthoringDevice() != null
 				&& !cdaAssignedAuthor.getAssignedAuthoringDevice().isSetNullFlavor()) {
 			fhirDevice.setManufacturer(
-					cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getDisplayName());
+					cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getText());
 			fhirDevice.setVersion(cdaAssignedAuthor.getAssignedAuthoringDevice().getSoftwareName().getText());
+			if (cdaAssignedAuthor.getAssignedAuthoringDevice().getCode() != null) {
+				fhirDevice.setType(dtt.tCD2CodeableConcept(cdaAssignedAuthor.getAssignedAuthoringDevice().getCode()));
+			} else {
+				Coding cd1 = new Coding();
+				cd1.setCode(cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getCode());
+				if (cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName()
+						.getDisplayName() == null) {
+					cd1.setDisplay(cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getText());
+				} else {
+					cd1.setDisplay(
+							cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getDisplayName());
+				}
+				cd1.setSystem(
+						cdaAssignedAuthor.getAssignedAuthoringDevice().getManufacturerModelName().getCodeSystem());
+				fhirDevice.setType(new CodeableConcept().addCoding(cd1));
+			}
+
 		}
 
+		info.setDevice(fhirDevice);
+
+		Organization fhirOrganization;
 		// representedOrganization -> EntityInfo.organization
 		if (cdaAssignedAuthor.getRepresentedOrganization() != null
 				&& !cdaAssignedAuthor.getRepresentedOrganization().isSetNullFlavor()) {
-			Organization fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
+			fhirOrganization = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization());
 			info.setOrganization(fhirOrganization);
+			fhirDevice.setOwner(new Reference(fhirOrganization.getId()));
 		}
 
 		return new EntityResult(info, ids);
@@ -939,7 +958,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		// author.assignedAuthor -> author JAMES
+		// author.assignedAuthor -> author
 		if (cdaClinicalDocument.getAuthors() != null && !cdaClinicalDocument.getAuthors().isEmpty()) {
 			for (Author author : cdaClinicalDocument.getAuthors()) {
 				// Asserting that at most one author exists
@@ -964,8 +983,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 							EntityResult entityResult = tAssignedAuthor2Device(author.getAssignedAuthor(), bundleInfo);
 							result.updateFrom(entityResult);
 							bundleInfo.updateFrom(entityResult);
-							if (fhirComp != null && entityResult.hasDevice()) {
-								fhirComp.addAuthor().setReference(entityResult.getPractitionerId());
+							result.addResource(entityResult.getDevice());
+							if (fhirComp != null && entityResult.hasDevice() && entityResult.hasOrganization()) {
+								fhirComp.getAuthor().add(new Reference(entityResult.getDeviceId()));
 							}
 						}
 					}
