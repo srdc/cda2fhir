@@ -261,7 +261,7 @@ public class EntryResult implements IEntryResult {
 	}
 
 	@Override
-	public void putCDValuesTo(Map<String, Map<String, IMedicationsInformation>> target) {
+	public void putCDValuesTo(Map<String, IMedicationsInformation> target) {
 		if (cdMap != null) {
 			cdMap.putCDValuesTo(target);
 		}

@@ -17,8 +17,14 @@ public class MedicationsInformation implements IMedicationsInformation {
 	private class MedicationContainer {
 		private CD code;
 
+		// Mapping of organization IDs to medication.
+		// Used to ensure medications with different organizations
+		// are not treated as duplicates.
 		CDAIIMap<Medication> orgIIMap = null;
 
+		// Medication instance set only when no organization is present.
+		// Used to determine whether a medication without an organization is a
+		// duplicate.
 		private Medication medication = null;
 
 		public MedicationContainer(Medication medication, CD code, List<II> iis) {
@@ -50,6 +56,8 @@ public class MedicationsInformation implements IMedicationsInformation {
 				return false;
 			}
 
+			// No need to check cds at this point because this is contained
+			// in a cd map
 			return checkIds(iis);
 
 		}
