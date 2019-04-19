@@ -70,7 +70,9 @@
 								"section[&].->ImmunizationsSection2",
 								"section[&].->ResultsSection2",
 								"section[&].->VitalSignsSection2",
-								"section[&].->ProblemSection2"
+								"section[&].->ProblemSection2",
+								"section[&].->ProceduresSection2",
+								"section[&].->EncountersSection2"
 							]
 						}
 					}

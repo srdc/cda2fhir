@@ -12,10 +12,12 @@ import org.hl7.fhir.dstu3.model.Composition.CompositionAttesterComponent;
 import org.hl7.fhir.dstu3.model.Composition.CompositionEventComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Procedure;
 import org.junit.Assert;
 import org.openhealthtools.mdht.uml.cda.AssignedCustodian;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
@@ -35,10 +37,14 @@ import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
+import org.openhealthtools.mdht.uml.cda.consol.EncountersSection;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
+import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
+import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
@@ -72,6 +78,8 @@ public class CCDGenerator {
 	private List<ResultOrganizerGenerator> resultGenerators = new ArrayList<>();
 	private List<VitalSignsOrganizerGenerator> vitalsGenerators = new ArrayList<>();
 	private List<ProblemConcernActGenerator> problemListGenerators = new ArrayList<>();
+	private List<ProcedureActivityProcedureGenerator> procedureGenerators = new ArrayList<>();
+	private List<EncounterActivityGenerator> encounterGenerators = new ArrayList<>();
 
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
@@ -297,6 +305,56 @@ public class CCDGenerator {
 			}
 		}
 
+		if (!procedureGenerators.isEmpty()) {
+			ProceduresSection section = factories.consol.createProceduresSection();
+			CE ce = factories.datatype.createCE("47519-4", "2.16.840.1.113883.6.1");
+			section.setCode(ce);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.2.7.1");
+			section.getTemplateIds().add(ii);
+			procedureGenerators.forEach(pg -> {
+				ProcedureActivityProcedure pa = pg.generate(factories);
+				Entry entry = factories.base.createEntry();
+				entry.setProcedure(pa);
+				section.getEntries().add(entry);
+			});
+			Component3 component3 = factories.base.createComponent3();
+			component3.setSection(section);
+			if (ccd.getComponent() == null) {
+				Component2 component2 = factories.base.createComponent2();
+				StructuredBody structuredBody = factories.base.createStructuredBody();
+				component2.setStructuredBody(structuredBody);
+				ccd.setComponent(component2);
+				structuredBody.getComponents().add(component3);
+			} else {
+				ccd.getComponent().getStructuredBody().getComponents().add(component3);
+			}
+		}
+
+		if (!encounterGenerators.isEmpty()) {
+			EncountersSection section = factories.consol.createEncountersSection();
+			CE ce = factories.datatype.createCE("46240-8", "2.16.840.1.113883.6.1");
+			section.setCode(ce);
+			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.2.22.1");
+			section.getTemplateIds().add(ii);
+			encounterGenerators.forEach(eg -> {
+				EncounterActivities ee = eg.generate(factories);
+				Entry entry = factories.base.createEntry();
+				entry.setEncounter(ee);
+				section.getEntries().add(entry);
+			});
+			Component3 component3 = factories.base.createComponent3();
+			component3.setSection(section);
+			if (ccd.getComponent() == null) {
+				Component2 component2 = factories.base.createComponent2();
+				StructuredBody structuredBody = factories.base.createStructuredBody();
+				component2.setStructuredBody(structuredBody);
+				ccd.setComponent(component2);
+				structuredBody.getComponents().add(component3);
+			} else {
+				ccd.getComponent().getStructuredBody().getComponents().add(component3);
+			}
+		}
+
 		return ccd;
 	}
 
@@ -322,6 +380,8 @@ public class CCDGenerator {
 		generator.resultGenerators.add(ResultOrganizerGenerator.getDefaultInstance());
 		generator.vitalsGenerators.add(VitalSignsOrganizerGenerator.getDefaultInstance());
 		generator.problemListGenerators.add(ProblemConcernActGenerator.getDefaultInstance());
+		generator.encounterGenerators.add(EncounterActivityGenerator.getDefaultInstance());
+		generator.procedureGenerators.add(ProcedureActivityProcedureGenerator.getDefaultInstance());
 
 		return generator;
 	}
@@ -514,6 +574,34 @@ public class CCDGenerator {
 				String reference = resultsSection.getEntry().get(index).getReference();
 				DiagnosticReport report = bundleUtil.getResourceFromReference(reference, DiagnosticReport.class);
 				resultGenerators.get(index).verify(bundle, report);
+			}
+		}
+
+		Composition.SectionComponent proceduresSection = findCompositionSection(composition, "47519-4");
+		if (procedureGenerators.isEmpty()) {
+			Assert.assertTrue("No procedure section", proceduresSection == null || !proceduresSection.hasEntry());
+		} else {
+			Assert.assertNotNull("Procedures section exists", proceduresSection);
+			int count = procedureGenerators.size();
+			Assert.assertEquals("Procedures entry count", count, proceduresSection.getEntry().size());
+			for (int index = 0; index < count; ++index) {
+				String reference = proceduresSection.getEntry().get(index).getReference();
+				Procedure procedure = bundleUtil.getResourceFromReference(reference, Procedure.class);
+				procedureGenerators.get(index).verify(bundle, procedure);
+			}
+		}
+
+		Composition.SectionComponent encountersSection = findCompositionSection(composition, "46240-8");
+		if (encounterGenerators.isEmpty()) {
+			Assert.assertTrue("No encounter section", encountersSection == null || !encountersSection.hasEntry());
+		} else {
+			Assert.assertNotNull("Encounters ection sexists", encountersSection);
+			int count = encounterGenerators.size();
+			Assert.assertEquals("Results entry count", count, encountersSection.getEntry().size());
+			for (int index = 0; index < count; ++index) {
+				String reference = encountersSection.getEntry().get(index).getReference();
+				Encounter encounter = bundleUtil.getResourceFromReference(reference, Encounter.class);
+				encounterGenerators.get(index).verify(bundle, encounter);
 			}
 		}
 

@@ -27,22 +27,43 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 	private static Map<String, Object> temporaryContext; // Hack for now
 
 	@SuppressWarnings("unchecked")
-	private static String getDisplayFromCode(Map<String, Object> map, String property) {
-		if (map.get(property) instanceof Map) {
-			Map<String, Object> code = (Map<String, Object>) map.get(property);
-			if (code.get("text") instanceof String) {
-				return (String) code.get("text");
-			} else if (code.get("coding") instanceof List) {
-				List<Object> coding = (List<Object>) code.get("coding");
-				if (!coding.isEmpty() && coding.get(0) instanceof Map) {
-					for (Object entry : coding) {
-						Map<String, Object> currentEntry = (Map<String, Object>) entry;
-						if (currentEntry.get("display") instanceof String) {
-							return (String) currentEntry.get("display");
-						}
+	private static String getDisplayFromCC(Map<String, Object> codebleConcept) {
+		if (codebleConcept.get("text") instanceof String) {
+			return (String) codebleConcept.get("text");
+		} else if (codebleConcept.get("coding") instanceof List) {
+			List<Object> coding = (List<Object>) codebleConcept.get("coding");
+			if (!coding.isEmpty() && coding.get(0) instanceof Map) {
+				for (Object entry : coding) {
+					Map<String, Object> currentEntry = (Map<String, Object>) entry;
+					if (currentEntry.get("display") instanceof String) {
+						return (String) currentEntry.get("display");
 					}
 				}
 			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static String getDisplayFromCode(Map<String, Object> map, String property) {
+		Object topValue = map.get(property);
+
+		if (topValue instanceof List) {
+			List<Object> elements = (List<Object>) topValue;
+			for (Object element : elements) {
+				if (element instanceof Map) {
+					Map<String, Object> elementMap = (Map<String, Object>) element;
+					String display = getDisplayFromCC(elementMap);
+					if (display != null) {
+						return display;
+					}
+				}
+			}
+		}
+
+		if (topValue instanceof Map) {
+			Map<String, Object> cc = (Map<String, Object>) topValue;
+			return getDisplayFromCC(cc);
 		}
 		return null;
 	}
@@ -77,6 +98,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 
 		display = getDisplayFromCode(map, "vaccineCode");
+		if (display != null) {
+			return display;
+		}
+
+		display = getDisplayFromCode(map, "type");
 		if (display != null) {
 			return display;
 		}
