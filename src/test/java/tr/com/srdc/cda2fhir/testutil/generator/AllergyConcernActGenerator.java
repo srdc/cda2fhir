@@ -137,9 +137,7 @@ public class AllergyConcernActGenerator {
 		}
 	}
 
-	public void verify(Bundle bundle) throws Exception {
-		AllergyIntolerance allergy = BundleUtil.findOneResource(bundle, AllergyIntolerance.class);
-
+	public void verify(Bundle bundle, AllergyIntolerance allergy) throws Exception {
 		verify(allergy);
 
 		if (observationGenerators.isEmpty()) {
@@ -148,6 +146,11 @@ public class AllergyConcernActGenerator {
 			AllergyObservationGenerator aog = observationGenerators.get(observationGenerators.size() - 1);
 			aog.verify(bundle);
 		}
+	}
+
+	public void verify(Bundle bundle) throws Exception {
+		AllergyIntolerance allergy = BundleUtil.findOneResource(bundle, AllergyIntolerance.class);
+		verify(bundle, allergy);
 	}
 
 	public static Set<String> getPossibleClinicalStatusCodes() {

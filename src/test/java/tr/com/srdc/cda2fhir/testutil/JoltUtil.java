@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
@@ -403,6 +405,13 @@ public class JoltUtil {
 		return joltResult;
 	}
 
+	public static List<Object> findJoltDocumentResult(File xmlFile, String templateName, String caseName)
+			throws Exception {
+		File jsonFile = toJsonFile(xmlFile, templateName, caseName);
+		List<Object> joltResult = TransformManager.transformDocumentInFile(templateName, jsonFile.toString());
+		return joltResult;
+	}
+
 	public static void putReference(Map<String, Object> joltResult, String property, Reference reference) {
 		Map<String, Object> r = new LinkedHashMap<String, Object>();
 		r.put("reference", reference.getReference());
@@ -534,9 +543,7 @@ public class JoltUtil {
 		verify(resource, joltResource, info);
 	}
 
-	public void verify(Patient patient) throws Exception {
-		Map<String, Object> joltPatient = TransformManager.chooseResource(result, "Patient");
-
+	public void verify(Patient patient, Map<String, Object> joltPatient) throws Exception {
 		if (patient.hasManagingOrganization()) {
 			String reference = findPathString(joltPatient, "managingOrganization.reference");
 			Assert.assertNotNull("Managing organization reference exists", reference);
@@ -554,7 +561,12 @@ public class JoltUtil {
 			Assert.assertNull("No managing organization", value);
 		}
 
-		verify(patient, null);
+		verify(patient, joltPatient, null);
+	}
+
+	public void verify(Patient patient) throws Exception {
+		Map<String, Object> joltPatient = TransformManager.chooseResource(result, "Patient");
+		verify(patient, joltPatient);
 	}
 
 	public Map<String, Object> findPractitionerRoleForPractitionerId(String practitionerId) {
@@ -1374,5 +1386,302 @@ public class JoltUtil {
 	public void verify(MedicationDispense dispense) throws Exception {
 		Map<String, Object> joltDispense = TransformManager.chooseResource(result, "MedicationDispense");
 		verify(dispense, joltDispense);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void sortSections(List<SectionComponent> sections, List<Object> joltSections) {
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		int index = 0;
+		for (SectionComponent section : sections) {
+			String code = section.getCode().getCoding().get(0).getCode();
+			map.put(code, index);
+			++index;
+		}
+		joltSections.sort((a, b) -> {
+			Map<String, Object> mapa = (Map<String, Object>) a;
+			Map<String, Object> mapb = (Map<String, Object>) b;
+
+			String codea = findPathString(mapa, "code.coding[].code");
+			String codeb = findPathString(mapb, "code.coding[].code");
+
+			Integer inta = map.get(codea);
+			Integer intb = map.get(codeb);
+
+			return inta.intValue() - intb.intValue();
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(Composition composition, Map<String, Object> joltComposition) throws Exception {
+		Map<String, Object> joltClone = joltComposition == null ? null : new LinkedHashMap<>(joltComposition);
+
+		if (composition.hasAuthor()) {
+			Assert.assertNotNull("Author exists", joltClone);
+
+			List<Reference> references = composition.getAuthor();
+			List<Object> joltReferences = (List<Object>) joltClone.get("author");
+
+			Assert.assertNotNull("Author exists", joltReferences);
+
+			Assert.assertEquals("Author count", references.size(), joltReferences.size());
+
+			joltReferences = new ArrayList<Object>(joltReferences);
+			joltClone.put("author", joltReferences);
+
+			for (int index = 0; index < references.size(); ++index) {
+				String reference = references.get(index).getReference();
+
+				Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index);
+				Assert.assertNotNull("Jolt author exists", joltReferenceObject);
+				String joltReference = (String) joltReferenceObject.get("reference");
+
+				verifyEntity(reference, joltReference);
+
+				joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+				joltReferences.set(index, joltReferenceObject);
+				joltReferenceObject.put("reference", reference);
+			}
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("author");
+				Assert.assertNull("No author", value);
+			}
+		}
+
+		if (composition.hasAttester()) {
+			Assert.assertNotNull("Composition exists", joltClone);
+
+			List<Composition.CompositionAttesterComponent> attesters = composition.getAttester();
+			List<Object> joltAttesters = (List<Object>) joltClone.get("attester");
+
+			Assert.assertNotNull("Attester exists", joltAttesters);
+			Assert.assertEquals("Attester count", joltAttesters.size(), attesters.size());
+
+			for (int index = 0; index < attesters.size(); ++index) {
+				Composition.CompositionAttesterComponent attester = attesters.get(index);
+				Map<String, Object> joltAttester = (Map<String, Object>) joltAttesters.get(index);
+
+				if (attester.hasParty()) {
+					joltAttester = new LinkedHashMap<String, Object>(joltAttester);
+					joltAttesters.set(index, joltAttester);
+
+					String reference = attester.getParty().getReference();
+					String joltReference = findPathString(joltAttester, "party.reference");
+
+					Assert.assertNotNull("Jolt party reference exists", joltReference);
+
+					verifyEntity(reference, joltReference);
+
+					Map<String, Object> joltParty = (Map<String, Object>) joltAttester.get("party");
+					joltParty = new LinkedHashMap<String, Object>(joltParty);
+					joltAttester.put("party", joltParty);
+
+					joltParty.put("reference", reference);
+				} else {
+					Assert.assertNull("No attestester", joltAttester.get("party"));
+				}
+			}
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("attester");
+				Assert.assertNull("No attester", value);
+			}
+		}
+
+		if (composition.hasEvent()) {
+			Assert.assertNotNull("Composition exists", joltClone);
+
+			List<Composition.CompositionEventComponent> events = composition.getEvent();
+			List<Object> joltEvents = (List<Object>) joltClone.get("event");
+
+			Assert.assertNotNull("Events exists", joltEvents);
+			Assert.assertEquals("Event count", joltEvents.size(), events.size());
+
+			for (int index = 0; index < events.size(); ++index) {
+				Composition.CompositionEventComponent event = events.get(index);
+				Map<String, Object> joltEvent = (Map<String, Object>) joltEvents.get(index);
+
+				if (event.hasDetail()) {
+					joltEvent = new LinkedHashMap<String, Object>(joltEvent);
+					joltEvents.set(index, joltEvent);
+
+					List<Reference> references = event.getDetail();
+					List<Object> joltReferences = (List<Object>) joltEvent.get("detail");
+
+					Assert.assertNotNull("Details exists", joltReferences);
+
+					Assert.assertEquals("Detail count", references.size(), joltReferences.size());
+
+					joltReferences = new ArrayList<Object>(joltReferences);
+					joltEvent.put("detail", joltReferences);
+
+					for (int index2 = 0; index2 < references.size(); ++index2) {
+						String reference = references.get(index2).getReference();
+
+						Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index2);
+						Assert.assertNotNull("Jolt detail exists", joltReferenceObject);
+						String joltReference = (String) joltReferenceObject.get("reference");
+
+						verifyEntity(reference, joltReference);
+
+						joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+						joltReferences.set(index2, joltReferenceObject);
+						joltReferenceObject.put("reference", reference);
+					}
+				} else {
+					Assert.assertNull("No details", joltEvent.get("detail"));
+				}
+			}
+		} else {
+			if (joltClone != null) {
+				String value = (String) joltClone.get("attester");
+				Assert.assertNull("No attester", value);
+			}
+		}
+
+		if (composition.hasCustodian()) {
+			String reference = composition.getCustodian().getReference();
+			Map<String, Object> joltReferenceObject = (Map<String, Object>) joltClone.get("custodian");
+			Assert.assertNotNull("Jolt custodian exists", joltReferenceObject);
+			String joltReference = (String) joltReferenceObject.get("reference");
+
+			Organization organization = bundleUtil.getResourceFromReference(reference, Organization.class);
+			Map<String, Object> joltOrganization = TransformManager.chooseResourceByReference(result, joltReference);
+
+			verify(organization, joltOrganization, null);
+
+			joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+			joltClone.put("custodian", joltReferenceObject);
+			joltReferenceObject.put("reference", reference);
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("custodian");
+				Assert.assertNull("No custodian", value);
+			}
+		}
+
+		if (composition.hasSubject()) {
+			String reference = composition.getSubject().getReference();
+			Map<String, Object> joltReferenceObject = (Map<String, Object>) joltClone.get("subject");
+			Assert.assertNotNull("Jolt subject exists", joltReferenceObject);
+			String joltReference = (String) joltReferenceObject.get("reference");
+
+			Patient patient = bundleUtil.getResourceFromReference(reference, Patient.class);
+			Map<String, Object> joltPatient = TransformManager.chooseResourceByReference(result, joltReference);
+
+			verify(patient, joltPatient);
+
+			joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+			joltClone.put("subject", joltReferenceObject);
+			joltReferenceObject.put("reference", reference);
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("subject");
+				Assert.assertNull("No subject", value);
+			}
+		}
+
+		if (composition.hasSection()) {
+			List<SectionComponent> sections = composition.getSection();
+			List<Object> joltSections = (List<Object>) joltClone.get("section");
+			Assert.assertEquals("Section count", sections.size(), joltSections.size());
+
+			sortSections(sections, joltSections);
+
+			for (int index = 0; index < sections.size(); ++index) {
+				SectionComponent section = sections.get(index);
+
+				Map<String, Object> joltSection = (Map<String, Object>) joltSections.get(index);
+				joltSection = new LinkedHashMap<String, Object>(joltSection);
+				joltSections.set(index, joltSection);
+
+				String code = section.getCode().getCoding().get(0).getCode();
+
+				List<Reference> references = section.getEntry();
+				List<Object> joltReferences = (List<Object>) joltSection.get("entry");
+				joltReferences = new ArrayList<Object>(joltReferences);
+				joltSection.put("entry", joltReferences);
+
+				Assert.assertEquals("Entry count", references.size(), joltReferences.size());
+
+				for (int index2 = 0; index2 < references.size(); ++index2) {
+					String reference = references.get(index2).getReference();
+
+					Map<String, Object> joltReferenceObject = (Map<String, Object>) joltReferences.get(index2);
+					Assert.assertNotNull("Jolt entry exists", joltReferenceObject);
+					String joltReference = (String) joltReferenceObject.get("reference");
+
+					joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
+					joltReferences.set(index2, joltReferenceObject);
+					joltReferenceObject.put("reference", reference);
+
+					if (code.equals("48765-2")) {
+						AllergyIntolerance allergy = bundleUtil.getResourceFromReference(reference,
+								AllergyIntolerance.class);
+						Map<String, Object> joltAllergy = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(allergy, joltAllergy);
+					}
+					if (code.equals("10160-0")) {
+						MedicationStatement medStatement = bundleUtil.getResourceFromReference(reference,
+								MedicationStatement.class);
+						Map<String, Object> joltMedStatement = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(medStatement, joltMedStatement);
+					}
+					if (code.equals("11369-6")) {
+						Immunization immunization = bundleUtil.getResourceFromReference(reference, Immunization.class);
+						Map<String, Object> joltImmunization = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(immunization, joltImmunization);
+					}
+					if (code.equals("30954-2")) {
+						DiagnosticReport report = bundleUtil.getResourceFromReference(reference,
+								DiagnosticReport.class);
+						Map<String, Object> joltReport = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(report, joltReport);
+					}
+					if (code.equals("8716-3")) {
+						Observation observation = bundleUtil.getResourceFromReference(reference, Observation.class);
+						Map<String, Object> joltObservation = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(observation, joltObservation);
+					}
+					if (code.equals("11450-4")) {
+						Condition condition = bundleUtil.getResourceFromReference(reference, Condition.class);
+						Map<String, Object> joltCondition = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(condition, joltCondition);
+					}
+					if (code.equals("46240-8")) {
+						Encounter encounter = bundleUtil.getResourceFromReference(reference, Encounter.class);
+						Map<String, Object> joltEncounter = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(encounter, joltEncounter);
+					}
+					if (code.equals("47519-4")) {
+						Procedure procedure = bundleUtil.getResourceFromReference(reference, Procedure.class);
+						Map<String, Object> joltProcedure = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(procedure, joltProcedure);
+					}
+
+				}
+			}
+		} else {
+			if (joltClone != null) {
+				Object value = joltClone.get("section");
+				Assert.assertNull("No section", value);
+			}
+
+		}
+
+		verify(composition, joltClone, null);
+	}
+
+	public void verify(Composition composition) throws Exception {
+		Map<String, Object> joltComposition = TransformManager.chooseResource(result, "Composition");
+		verify(composition, joltComposition);
 	}
 }

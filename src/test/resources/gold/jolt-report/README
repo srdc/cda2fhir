@@ -6,15 +6,19 @@ The following is a listing of CDA data types and the corresponding FHIR data typ
 
 AD -> Address
 CD -> CodeableConcept
+CD2 -> CodeableConcept (with text field)
 ID -> Identifier
 TEL -> ContactPoint
 PN -> HumanName
 IVL_TSPeriod -> Period
 IVL_PQRange -> Range
+IVL_PQ -> Range
 IVL_PQSimpleQuantity -> Quantity
+PQ -> Quantity
 PIVL_TSTiming -> Timing
+RTO -> Ratio
 
-Each of the CDA data types have their own report. In other reports data types are not expanded and are shown in link column.
+Each of the CDA data types have their own report. In other reports data types are not expanded and are shown in link column unless full expansion flag is provided.
 
 The following are the top level CDA templates for reports and FHIR resources they generate
 
@@ -27,8 +31,11 @@ ImmunizationActivitity: Immunization, Observation, Organization (multiple), Prac
 MedicationActivity: MedicationStatement, MedicationRequest, Medication, Condition (multiple), Practitioner, PractitionerRole, Organization
 ResultOrganizer: DiagnosticReport, Observation, Practitioner, Organization, PractitionerRole
 VitalSignsOrganizer: Observation (multiple), Practitioner, PractitionerRole, Organization
+CCD: Composition and all others.
 
 Each of the top level CDA template is primarily responsible for the first FHIR resource in the list.
+
+CCD template for the most part is equivalent to the full CDA2FHIR document transformation.
 
 Other files listed here also generate resources and listed in the link column when they are used from other files
 

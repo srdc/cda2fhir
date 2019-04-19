@@ -253,4 +253,14 @@ public class MainTest {
 	public void testPatientRoleFull() throws Exception {
 		actualTest("PatientRole", true);
 	}
+
+	@Test
+	public void testCCD() throws Exception {
+		actualTest("CCD");
+	}
+
+	@Test
+	public void testCCDFull() throws Exception {
+		actualTest("CCD", true);
+	}
 }
