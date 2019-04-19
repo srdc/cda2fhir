@@ -1648,6 +1648,25 @@ public class JoltUtil {
 								joltReference);
 						verify(observation, joltObservation);
 					}
+					if (code.equals("11450-4")) {
+						Condition condition = bundleUtil.getResourceFromReference(reference, Condition.class);
+						Map<String, Object> joltCondition = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(condition, joltCondition);
+					}
+					if (code.equals("46240-8")) {
+						Encounter encounter = bundleUtil.getResourceFromReference(reference, Encounter.class);
+						Map<String, Object> joltEncounter = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(encounter, joltEncounter);
+					}
+					if (code.equals("47519-4")) {
+						Procedure procedure = bundleUtil.getResourceFromReference(reference, Procedure.class);
+						Map<String, Object> joltProcedure = TransformManager.chooseResourceByReference(result,
+								joltReference);
+						verify(procedure, joltProcedure);
+					}
+
 				}
 			}
 		} else {
