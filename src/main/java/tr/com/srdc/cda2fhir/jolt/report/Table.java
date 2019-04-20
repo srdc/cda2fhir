@@ -111,6 +111,20 @@ public class Table {
 		});
 	}
 
+	public void flattenTarget(String flattened) {
+		rows.forEach(row -> {
+			String target = row.getTarget();
+			if (target != null && target.startsWith(flattened)) {
+				int location = target.indexOf('.') + 1;
+				if (location > 0) {
+					String newTarget = target.substring(location);
+					row.setTarget(newTarget);
+				}
+			}
+
+		});
+	}
+
 	public int rowCount() {
 		return rows.size();
 	}
