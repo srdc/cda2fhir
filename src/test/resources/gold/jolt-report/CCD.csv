@@ -22,7 +22,7 @@ Composition.Practitioner[],Composition.event[].detail[].display,,"getReferenceDi
 Composition.Practitioner[],Composition.event[].detail[].reference,,"getId"
 clinicalDocument.documentationOf[].serviceEvent.effectiveTime,Composition.event[].period,IVL_TSPeriod,
 clinicalDocument.id,Composition.identifier,ID,
-clinicalDocument.component.structuredBody.component[].section.entry[].act.statusCode.code,Composition.section[].Condition[].verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].nullFlavor isnull
+clinicalDocument.component.structuredBody.component[].section.entry[].act.statusCode.code,Composition.section[].Condition[].verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.nullFlavor isnull
 clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 48765-2
 clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0
 clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11369-6
@@ -60,7 +60,7 @@ Subject,Composition.subject.display,,"getReferenceDisplay"
 Subject,Composition.subject.reference,,"getId"
 clinicalDocument.title,Composition.title,,
 clinicalDocument.code,Composition.type,CD,
-clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].observation,Condition[],ProblemObservation,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].typeCode equal SUBJ,clinicalDocument.component.structuredBody.component[].section.entry[].nullFlavor isnull
+clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].observation,Condition[],ProblemObservation,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].typeCode equal SUBJ,clinicalDocument.component.structuredBody.component[].section.entry[].act.nullFlavor isnull
 clinicalDocument.custodian.assignedCustodian.representedCustodianOrganization,Custodian,Organization,
 clinicalDocument.component.structuredBody.component[].section.entry[],DiagnosticReport[],ResultOrganizer,,clinicalDocument.component.structuredBody.component[].section.code.code equal 30954-2
 clinicalDocument.component.structuredBody.component[].section.entry[],Encounter[],EncounterActivity,,clinicalDocument.component.structuredBody.component[].section.code.code equal 46240-8
