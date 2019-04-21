@@ -20,6 +20,7 @@ public class JoltTemplate {
 		public Map<String, Object> accumulator;
 		public List<Map<String, Object>> modifiers = new ArrayList<>();
 		public Map<String, Object> move;
+		public Map<String, Object> flatten;
 		public Map<String, Object> distributeArray;
 		public List<IRootNodeUpdater> rootNodeUpdater = new ArrayList<>();
 
@@ -68,6 +69,10 @@ public class JoltTemplate {
 					result.move = spec;
 					return;
 				}
+				if (operation.endsWith("Flatten")) {
+					result.flatten = spec;
+					return;
+				}
 				if (operation.endsWith("DistributeArray")) {
 					result.distributeArray = spec;
 					return;
@@ -90,6 +95,7 @@ public class JoltTemplate {
 	private RootNode supportRootNode;
 	private JoltFormat format;
 	private Map<String, String> moveMap;
+	private String flattened;
 
 	private boolean leafTemplate = false;
 	private String resourceType;
@@ -205,6 +211,9 @@ public class JoltTemplate {
 		if (moveMap != null) {
 			table.moveTargets(moveMap);
 		}
+		if (flattened != null) {
+			table.flattenTarget(flattened);
+		}
 
 		return table;
 	}
@@ -250,6 +259,9 @@ public class JoltTemplate {
 				String value = (String) entry.getValue();
 				result.moveMap.put(key, value);
 			});
+		}
+		if (rawTemplate.flatten != null) {
+			result.flattened = (String) rawTemplate.flatten.entrySet().iterator().next().getValue();
 		}
 		if (rawTemplate.distributeArray != null) {
 			result.distributeArrays = rawTemplate.distributeArray.keySet();

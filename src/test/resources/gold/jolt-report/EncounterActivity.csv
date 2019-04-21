@@ -1,19 +1,19 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,nullFlavor isnull
-encounter.code.translation[].code,Encounter.class,,"lastElement",nullFlavor isnull
+encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
+encounter.code.translation[].code,Encounter.class,,"lastElement",encounter.nullFlavor isnull
 Condition[],Encounter.diagnosis[].condition.display,,"getReferenceDisplay"
 Condition[],Encounter.diagnosis[].condition.reference,,"getId"
-encounter.id[],Encounter.identifier[],ID,,nullFlavor isnull
+encounter.id[],Encounter.identifier[],ID,,encounter.nullFlavor isnull
 Location[],Encounter.location[].location.display,,"getReferenceDisplay"
 Location[],Encounter.location[].location.reference,,"getId"
 Practitioner[],Encounter.participant[].individual.display,,"getReferenceDisplay"
 Practitioner[],Encounter.participant[].individual.reference,,"getId"
 Practitioner[],Encounter.participant[].type,,"constantValue('ParticipantTypeConstant')"
-encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,nullFlavor isnull
-encounter.priorityCode,Encounter.priority,CD,,nullFlavor isnull
-encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.statusCode.nullFlavor isnull,nullFlavor isnull
-encounter.code,Encounter.type[],CD2,,nullFlavor isnull
-encounter.participant[],Location[],ServiceDeliveryLocation,,nullFlavor isnull
-encounter.performer[].assignedEntity,Organization[],EntityOrganization,,nullFlavor isnull
-encounter.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
-encounter.performer[].assignedEntity,Practitioner[],EntityPractitioner,,nullFlavor isnull
+encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,encounter.nullFlavor isnull
+encounter.priorityCode,Encounter.priority,CD,,encounter.nullFlavor isnull
+encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.nullFlavor isnull,encounter.statusCode.nullFlavor isnull
+encounter.code,Encounter.type[],CD2,,encounter.nullFlavor isnull
+encounter.participant[],Location[],ServiceDeliveryLocation,,encounter.nullFlavor isnull
+encounter.performer[].assignedEntity,Organization[],EntityOrganization,,encounter.nullFlavor isnull
+encounter.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,encounter.nullFlavor isnull
+encounter.performer[].assignedEntity,Practitioner[],EntityPractitioner,,encounter.nullFlavor isnull
