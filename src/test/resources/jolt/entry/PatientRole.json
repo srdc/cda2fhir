@@ -53,7 +53,7 @@
 				"telecom": {
 					"*": "telecom[].->TEL"
 				},
-				"providerOrganization": ["managingOrganization.reference.->Organization", "managingOrganization.display.->Organization"],
+				"providerOrganization": "ManagingOrganization.->Organization",
 				"patient": {
 					"name": "name[].->PN",
 					"administrativeGenderCode": {
@@ -95,6 +95,15 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"ManagingOrganization": [
+				"managingOrganization.reference",
+				"managingOrganization.display"
+			]
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"managingOrganization": {
@@ -120,6 +129,12 @@
 					}
 				}
 			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"ManagingOrganization": ""
 		}
 	},
 	{
