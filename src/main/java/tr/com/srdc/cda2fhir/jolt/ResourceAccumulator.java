@@ -52,6 +52,13 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		String reference = String.format("%s/%s", resourceType, id);
 		String display = AdditionalModifier.getDisplay(resource);
 
+		Map<String, Object> resourceMap = (Map<String, Object>) context.get("RESOURCE_MAP");
+
+		if (resourceMap == null) {
+			resourceMap = new HashMap<String, Object>();
+			context.put("RESOURCE_MAP", resourceMap);
+		}
+
 		List<Object> identifiers;
 		if (resource.get("identifier") instanceof LinkedHashMap) {
 			identifiers = new ArrayList<Object>();
@@ -147,6 +154,8 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		resource.put("resourceType", resourceType);
 		resource.put("id", id);
 		resources.add(resource);
+
+		resourceMap.put(reference, resource);
 
 		if (identifiers == null) {
 			return resource;

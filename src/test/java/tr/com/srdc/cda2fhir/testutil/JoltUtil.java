@@ -551,8 +551,6 @@ public class JoltUtil {
 			Assert.assertNotNull("Managing organization", resource);
 
 			String cda2FhirReference = patient.getManagingOrganization().getReference();
-			Organization organization = bundleUtil.getResourceFromReference(cda2FhirReference, Organization.class);
-			verify(organization, null);
 
 			Map<String, Object> managingOrganization = findPathMap(joltPatient, "managingOrganization");
 			managingOrganization.put("reference", cda2FhirReference);
