@@ -3545,10 +3545,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	@Override
 	public Bundle tProvenance(Bundle bundle, String documentBody, Identifier assemblerDevice) {
+
 		Provenance provenance = new Provenance();
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		provenance.setId(new IdType("Provenance", getUniqueId()));
 
+		// recorded
+		Date now = new Date();
+		provenance.setRecorded(now);
+
+		// document reference
 		DocumentReference documentReference = tDocumentReference(documentBody);
 		bundle.addEntry(new BundleEntryComponent().setResource(documentReference));
 		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
@@ -3556,14 +3562,17 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		pec.setId(documentReference.getId());
 		provenance.addEntity(pec);
 
+		// device
 		Device device = tDevice(assemblerDevice);
 		bundle.addEntry(new BundleEntryComponent().setResource(device));
 
+		// agent type
 		Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(), ProvenanceAgentType.DEVICE.toCode(),
 				ProvenanceAgentType.DEVICE.getDisplay());
 		agentTypeCoding.setId(device.getId());
 		pac.setRelatedAgentType(new CodeableConcept().addCoding(agentTypeCoding));
 
+		// agent role
 		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
 				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
 		agentRoleCoding.setId(device.getId());
