@@ -2,6 +2,8 @@ package tr.com.srdc.cda2fhir.conf;
 
 import java.nio.charset.Charset;
 
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceClinicalStatus;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Composition.CompositionStatus;
 import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
@@ -43,6 +45,8 @@ public class Config {
 	// CDA document
 	public static final String DEFAULT_COMMUNICATION_LANGUAGE_CODE_SYSTEM = "urn:ietf:bcp:47";
 	public static final ConditionVerificationStatus DEFAULT_CONDITION_VERIFICATION_STATUS = ConditionVerificationStatus.CONFIRMED;
+	public static final AllergyIntoleranceVerificationStatus DEFAULT_ALLERGY_VERIFICATION_STATUS = AllergyIntoleranceVerificationStatus.UNCONFIRMED;
+	public static final AllergyIntoleranceClinicalStatus DEFAULT_ALLERGY_CLINICAL_STATUS = AllergyIntoleranceClinicalStatus.ACTIVE;
 	public static final CompositionStatus DEFAULT_COMPOSITION_STATUS = CompositionStatus.PRELIMINARY;
 	public static final IdentifierUse DEFAULT_IDENTIFIER_USE = IdentifierUse.OFFICIAL;
 	public static final ContactPointSystem DEFAULT_CONTACT_POINT_SYSTEM = ContactPointSystem.PHONE;

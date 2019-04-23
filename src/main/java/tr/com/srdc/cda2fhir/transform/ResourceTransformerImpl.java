@@ -329,8 +329,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						.tStatusCode2AllergyIntoleranceVerificationStatus(cdaAllergyProbAct.getStatusCode().getCode());
 				if (allergyIntoleranceStatusEnum != null) {
 					fhirAllergyIntolerance.setVerificationStatus(allergyIntoleranceStatusEnum);
+				} else {
+					fhirAllergyIntolerance.setVerificationStatus(Config.DEFAULT_ALLERGY_VERIFICATION_STATUS);
 				}
+			} else {
+				fhirAllergyIntolerance.setVerificationStatus(Config.DEFAULT_ALLERGY_VERIFICATION_STATUS);
 			}
+		} else {
+			fhirAllergyIntolerance.setVerificationStatus(Config.DEFAULT_ALLERGY_VERIFICATION_STATUS);
 		}
 
 		// effectiveTime -> asserted
@@ -553,6 +559,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					}
 				}
 			}
+		}
+
+		// if clinical status is unset, set it to default.
+		if (!fhirAllergyIntolerance.hasClinicalStatus()) {
+			fhirAllergyIntolerance.setClinicalStatus(Config.DEFAULT_ALLERGY_CLINICAL_STATUS);
 		}
 
 		return result;
