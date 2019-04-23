@@ -2085,6 +2085,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
+		if (!fhirMedSt.hasStatus()) {
+			fhirMedSt.setStatus(Config.DEFAULT_MEDICATION_STATEMENT_STATUS);
+		}
 
 		// author[0] -> informationSource
 		if (!cdaMedicationActivity.getAuthors().isEmpty()) {

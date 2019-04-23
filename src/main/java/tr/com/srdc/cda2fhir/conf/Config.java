@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
 import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus;
 import org.hl7.fhir.dstu3.model.Identifier.IdentifierUse;
+import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,7 @@ public class Config {
 	public static final ConditionVerificationStatus DEFAULT_CONDITION_VERIFICATION_STATUS = ConditionVerificationStatus.CONFIRMED;
 	public static final AllergyIntoleranceVerificationStatus DEFAULT_ALLERGY_VERIFICATION_STATUS = AllergyIntoleranceVerificationStatus.UNCONFIRMED;
 	public static final AllergyIntoleranceClinicalStatus DEFAULT_ALLERGY_CLINICAL_STATUS = AllergyIntoleranceClinicalStatus.ACTIVE;
+	public static final MedicationStatementStatus DEFAULT_MEDICATION_STATEMENT_STATUS = MedicationStatementStatus.ACTIVE;
 	public static final CompositionStatus DEFAULT_COMPOSITION_STATUS = CompositionStatus.PRELIMINARY;
 	public static final IdentifierUse DEFAULT_IDENTIFIER_USE = IdentifierUse.OFFICIAL;
 	public static final ContactPointSystem DEFAULT_CONTACT_POINT_SYSTEM = ContactPointSystem.PHONE;
