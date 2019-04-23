@@ -31,8 +31,8 @@ documents/entries, it has been tested as well with several older document instan
 [HAPI FHIR Validator](http://hapifhir.io/doc_validation.html) is also integrated for automated validation of the generated FHIR resources.
 
 ##Latest Updates
-The original cda2fhir library created by [srdc](https://github.com/srdc/cda2fhir) mapped C-CDA resources to FHIR DSTU2-compliant resources. Amida has created this fork of this library, incorporating the work of [CarthageKing](https://github.com/CarthageKing/cda2fhir), to instead map C-CDA resources to FHIR STU3-compliant resources. [Model Driven Health Tools (MDHT)](https://projects.eclipse.org/projects/modeling.mdht) is used for CDA manipulation and
-[HAPI](http://hapifhir.io/) is used for FHIR manipulation. This version of cda2fhir currently supports the following C-CDA resource mappings:
+The original cda2fhir library created by [SRDC](https://github.com/srdc/cda2fhir) mapped C-CDA resources to FHIR DSTU2-compliant resources. Amida has created this fork of this library, incorporating the work of [CarthageKing](https://github.com/CarthageKing/cda2fhir), to instead map C-CDA resources to FHIR STU3-compliant resources. [Model Driven Health Tools (MDHT)](https://projects.eclipse.org/projects/modeling.mdht) is used for CDA manipulation and
+[HAPI](http://hapifhir.io/) is used for FHIR manipulation. This version of cda2fhir currently supports the following C-CDA Section to Resource mappings:
 
 |C-CDA Section    | FHIR Resource(s)   |
 |------------------|-----------------|
@@ -45,23 +45,25 @@ The original cda2fhir library created by [srdc](https://github.com/srdc/cda2fhir
 |Allergies and Intolerances| AllergyIntolerance|
 |Encounters| Encounter|
 
-In addition to the section level mappings, cda2fhir also supports Patient, Practitioner, PractitionerRole, Organization, Device, DocumentReference, Composition, and Provenance objects.
+In addition to the above mappings, cda2fhir also uses and supports the Patient, Practitioner, PractitionerRole, Organization, Device, DocumentReference, Composition, and Provenance FHIR Resources.
 
-Amida has implemented a number of additional features. These include:
+**This version of the cda2fhir library implements several additional features not present in the SRDC version. These include:**
 
-* cda2fhir is now capable of generating transactional bundles.
+* cda2fhir is now capable of generating "transactional" bundles.
 * cda2fhir now supports the generation of Provenance objects, optionally taking in an Identifier resource and string representation of the source file to generate the accompanying Device and DocumentReference resources respectively.
-* Bundles now de-duplicate certain resources. Medications are deduplicated based on coding entries, and Organizations and Practitioners are deduplicated based on identifier.
-* Bundles now use the ifNoneExist parameter to prevent duplicate resources from being created on a target FHIR server. The URL parameters generated use the identifier field to ensure no duplicates exist, with the exception of the medication resource (which uses coding).
-* An integration test now uses Docker to automatically provision a HAPI FHIR server, post a transactional bundle to it, spot check for issues, and automatically de-provision the server.
-* Field-level data mappings are no longer statically maintained, and are instead generated from the source code using Jolt. These mappings are validated by testing resources against the output of the cda2fhir library against the output created using Jolt templates. For instructions on generating the documentation, look [here]().
-* cda2fhir now has a utility that enables users to generate documentation of un-mapped fields for a given document. Instructions on how to use this utility may be found [here]().
-
-Amida has also made numerous small improvements to the code, please review the changelog for complete details.
+* Bundles now de-duplicate against themselves for certain resources; this is done to prevent duplicate resources from being created in a FHIR server, and works together with the ifNoneExist parameters.
+  * Medications are de-duplicated based on their encoding.
+  * Organizations and Practitioners are deduplicated based on identifier.
+* Bundles now use the "ifNoneExist" parameter to prevent duplicate resources from being created on a target FHIR server. This parameter uses the identifier field to prevent duplicates for all resources, with the exception of:
+  * Medications which is de-duplicated based on encoding, and
+  * Provenance and DocumentReference resources, which are not de-duplicated for attribution purposes.
+* An integration test now uses Docker to automatically provision a HAPI FHIR server, post a transactional bundle to it, and.spot check for issues. Once complete this process will automatically de-provision the server.
+* Field-level data mappings are no longer statically maintained, and are instead generated from the source code using [Jolt](https://github.com/bazaarvoice/jolt). These mappings are validated by testing resources against the output of the cda2fhir library against the output created using Jolt templates. For instructions on generating the documentation, look [here]().
+* cda2fhir now has a utility that enables users to generate a record of un-mapped fields for a given input document. Instructions on how to use this utility may be found [here]().
 
 ## Installation
 
-Apache Maven is required to build cda2fhir. Please visit [Maven's website](http://maven.apache.org/) in order to install Maven on your system.
+This project is built in Java, using version 1.8, and uses Apache Maven for dependency management. Please visit [Maven's website](http://maven.apache.org/) in order to install Maven on your system. To run the project's tests, your system will require Docker; please visit [Docker's website](https://www.docker.com/) for installation instructions.
 
 Under the root directory of the cda2fhir project run the following:
 
