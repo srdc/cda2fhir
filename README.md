@@ -58,8 +58,8 @@ In addition to the above mappings, cda2fhir also uses and supports the Patient, 
   * Medications which is de-duplicated based on encoding, and
   * Provenance and DocumentReference resources, which are not de-duplicated for attribution purposes.
 * An integration test now uses Docker to automatically provision a HAPI FHIR server, post a transactional bundle to it, and.spot check for issues. Once complete this process will automatically de-provision the server.
-* Field-level data mappings are no longer statically maintained, and are instead generated from the source code using [Jolt](https://github.com/bazaarvoice/jolt). These mappings are validated by testing resources against the output of the cda2fhir library against the output created using Jolt templates. For instructions on generating the documentation, look [here]().
-* cda2fhir now has a utility that enables users to generate a record of un-mapped fields for a given input document. Instructions on how to use this utility may be found [here]().
+* Field-level data mappings are no longer statically maintained, and are instead generated from the source code using [Jolt](https://github.com/bazaarvoice/jolt). These mappings are validated by testing resources against the output of the cda2fhir library against the output created using Jolt templates.
+* cda2fhir now has a utility that enables users to generate a record of un-mapped fields for a given input document.
 
 ## Installation
 
@@ -93,7 +93,11 @@ This project incrementally builds and releases files for use in maven projects, 
 ```
 
 
-## Transforming a CDA document to a Bundle of corresponding FHIR resources
+## Transforming a CDA document to a Bundle of FHIR resources
+
+The below code is an annotated example of a basic CCD document transformation, further code examples can be found in [CCDTransformerTest.java](./src/test/java/tr/com/srdc/cda2fhir/CCDTransformerTest.java) file. You may also review all implemented interfaces in the [CCDTransformerImpl.java](./src/main/java/tr/com/srdc/cda2fhir/CCDTransformerImpl.java) file.
+
+The output of this operation will be located at: `src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json`.
 
 ```java
 // Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
@@ -119,10 +123,35 @@ Bundle bundle = ccdTransformer.transformDocument(cda);
 FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
 ```
 
-Further code examples can be found in [CCDTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/CCDTransformerTest.java) class.
-The outcome of the above transformation operation for the CCD instance available in the C-CDA 2.1 specification is available here: https://github.com/srdc/cda2fhir/blob/master/src/test/resources/C-CDA_R2-1_CCD-w-daf.json
+## Transforming a CDA document to a transactional bundle with Provenance 
+```java
+// Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
+// This has to be called before loading the document; otherwise will have no effect.
+CDAUtil.loadPackages();
 
-## Transforming a CDA document to a bundle with provenance, etc. 
+// Init an object of CCDTransformerImpl class, which implements the generic ICDATransformer interface.
+// FHIR resource id generator can be either an incremental counter, or a UUID generator.
+// The default is UUID; here it is set as COUNTER.
+ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+
+// Create an identifier for the Provenance object identifying the running system.
+Identifier id = new Identifier();
+id.setValue("Data Processing Engine");
+
+//Create an OpenHealthTools CCD document object to pass into the library by parsing an input file (or stream).
+ContinuityOfCareDocument ccd = (ContinuityOfCareDocument) CDAUtil.loadAs(<inputStream>,
+					ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+
+//Load your input file into memory as a string (logic for this is beyond the scope of this example).
+String rawDocument = <inputStream>
+
+// The CCD document instance is transformed to a FHIR Bundle, which creates the Composition, Provenance, and documentReference objects.
+Bundle bundle = ccdTransformer.transformDocument(cda, BundleType.TRANSACTION, null, rawDocument, identifier);
+
+// Through HAPI library, the Bundle can easily be printed in JSON or XML format.
+FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
+```
+
 
 ## Transforming a CDA artifact (e.g. an entry class) to the corresponding FHIR resource(s)
 
@@ -158,8 +187,8 @@ It should be noted that most of the time, IResourceTransformer methods return a 
 instead of a single FHIR resource as in the example above. For example, tProblemObservation2Condition method returns a Bundle
 that contains the corresponding Condition as the first entry, which can also include other referenced resources such as Encounter, Practitioner.
 
-Further examples can be found in [ResourceTransformerTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ResourceTransformerTest.java) class
-and [CCDTransformerImpl](https://github.com/srdc/cda2fhir/blob/master/src/main/java/tr/com/srdc/cda2fhir/transform/CCDTransformerImpl.java) class.
+Further examples can be found in [ResourceTransformerTest](./src/test/java/tr/com/srdc/cda2fhir/ResourceTransformerTest.java) class
+and [CCDTransformerImpl](./src/main/java/tr/com/srdc/cda2fhir/transform/CCDTransformerImpl.java) class.
 
 ## Validating generated FHIR resources
 
@@ -184,7 +213,7 @@ valOutcomeOs.close();
 fos.close();
 ```
 
-Further examples can be found in [ValidatorTest](https://github.com/srdc/cda2fhir/blob/master/src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class
+Further examples can be found in [ValidatorTest](./src/test/java/tr/com/srdc/cda2fhir/ValidatorTest.java) class.
 
 ## Jolt Based Tests and Automated Field Mapping
 
@@ -192,8 +221,10 @@ An extensive set of testing is provided based on [Jolt](https://github.com/bazaa
 
 Based on Jolt templates we generate reports that detail CDA field to FHIR field mapping. Currently these reports reside in [test gold files](./src/test/resources/gold/jolt-report) in which a [README](./src/test/resources/gold/jolt-report/README) is provided. A stand alone report generating [unit test](./src/test/java/tr/com/srdc/cda2fhir/jolt/report/Maintest.java) is part of our testing suite and can be used to generate all the reports to the [output directory](./src/test/resources/output/jolt-report).
 
-## Acknowledgement
+## Un-mapped Field Generation
+For a given input CCD, the [UnmappedFieldGenerator.java](./src/main/java/tr/com/srdc/cda2fhir/jolt/report/UnmappedFieldGenerator.java) utility may be used to generate an output of all un-mapped fields. The `unmappedFieldGenerator` method takes as parameters an input file, the type of CCD object the analysis should be executed for, and an XPath as to the location of that object. The utility then outputs a CCD file stripped of all fields currently mapped to FHIR resources. Examples of this tool in use may be found in the [UnmappedFieldGeneratorTest.java](./src/test/java/tr/com/srdc/cda2fhir/jolt/report/UnmappedFieldGeneratorTest.java).
 
+## Acknowledgement
 This research has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 689181,
 [C3-Cloud Project](http://www.c3-cloud.eu/) (A Federated Collaborative Care Cure Cloud Architecture for Addressing the Needs of Multi-morbidity and Managing Poly-pharmacy).
 
