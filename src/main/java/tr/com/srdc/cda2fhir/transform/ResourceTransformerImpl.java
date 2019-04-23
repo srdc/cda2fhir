@@ -483,11 +483,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 										if (cdaReactionObs.getValues() != null
 												&& !cdaReactionObs.getValues().isEmpty()) {
 											for (ANY value : cdaReactionObs.getValues()) {
-												if (value != null && !value.isSetNullFlavor()) {
-													if (value instanceof CD) {
-														fhirReaction
-																.addManifestation(dtt.tCD2CodeableConcept((CD) value));
-													}
+												if (value instanceof CD) {
+													fhirReaction.addManifestation(dtt.tCD2CodeableConcept((CD) value,
+															bundleInfo.getIdedAnnotations()));
 												}
 											}
 										}
