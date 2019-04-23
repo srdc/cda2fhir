@@ -1,0 +1,146 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"clinicalDocument": {
+				"id": "ONE",
+				"author": "ONE",
+				"authenticator": "MANY",
+				"documentationOf": "MANY",
+				"recordTarget": "MANY",
+				"component": {
+					"structuredBody": {
+						"component": "MANY"
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"clinicalDocument": {
+				"component": {
+					"structuredBody": {
+						"component": {
+							"section": {
+								"entry": "MANY"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"clinicalDocument": {
+				"id": "identifier.->ID",
+				"#preliminary": "status",
+				"#constantClass": "class.coding[]",
+				"effectiveTime": "date.->NullFlavorableValue",
+				"code": "type.->CD",
+				"title": "title",
+				"confidentialityCode": {
+					"code": "confidentiality"
+				},
+				"author": "->AuthorParticipation",
+				"legalAuthenticator": "attester[].->LegalAttester",
+				"authenticator": {
+					"*": "attester[].->Attester"
+				},
+				"documentationOf": {
+					"*": "event[].->ServiceEvent"
+				},
+				"custodian": {
+					"assignedCustodian": {
+						"representedCustodianOrganization": "Custodian.->Organization"
+					}
+				},
+				"recordTarget": {
+					"0": "Subject.->PatientRole"
+				},
+				"component": {
+					"structuredBody": {
+						"component": {
+							"*": [
+								"section[&].->AllergiesSection2",
+								"section[&].->MedicationsSection2",
+								"section[&].->ImmunizationsSection2",
+								"section[&].->ResultsSection2",
+								"section[&].->VitalSignsSection2",
+								"section[&].->ProblemSection2",
+								"section[&].->ProceduresSection2",
+								"section[&].->EncountersSection2"
+							]
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": [
+				"author[0].reference",
+				"author[0].display"
+			],
+			"Custodian": [
+				"custodian.reference",
+				"custodian.display"
+			],
+			"Subject": [
+				"subject.reference",
+				"subject.display"
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"class": {
+				"coding": {
+					"*": "=constantValue('CCDClassConstant')"
+				}
+			},
+			"date": "=datetimeAdapter(@0)",
+			"author": {
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
+				}
+			},
+			"custodian": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			},
+			"subject": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": "",
+			"Custodian": "",
+			"Subject": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Composition"
+		}
+	}
+]

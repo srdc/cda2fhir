@@ -1,0 +1,80 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
+clinicalDocument.component.structuredBody.component[].section.entry[],AllergyIntolerance[],AllergyConcernAct,,clinicalDocument.component.structuredBody.component[].section.code.code equal 48765-2
+clinicalDocument.authenticator[].assignedEntity,Attester,EntityPractitioner,
+clinicalDocument.authenticator[].assignedEntity,AttesterOrganization,EntityOrganization,
+clinicalDocument.authenticator[].assignedEntity,AttesterRole,EntityPractitionerRole,
+clinicalDocument.authenticator[].#professional,Composition.attester[].mode[],,
+clinicalDocument.legalAuthenticator.#legal,Composition.attester[].mode[],,
+Attester,Composition.attester[].party.display,,"getReferenceDisplay"
+LegalAttester,Composition.attester[].party.display,,"getReferenceDisplay"
+Attester,Composition.attester[].party.reference,,"getId"
+LegalAttester,Composition.attester[].party.reference,,"getId"
+clinicalDocument.authenticator[].time.value,Composition.attester[].time,,"datetimeAdapter"
+clinicalDocument.legalAuthenticator.time.value,Composition.attester[].time,,"datetimeAdapter"
+Practitioner,Composition.author[0].display,,
+Practitioner,Composition.author[0].reference,,
+clinicalDocument.#constantClass,Composition.class.coding[],,
+clinicalDocument.confidentialityCode.code,Composition.confidentiality,,
+Custodian,Composition.custodian.display,,"getReferenceDisplay"
+Custodian,Composition.custodian.reference,,"getId"
+clinicalDocument.effectiveTime.value,Composition.date,,"datetimeAdapter",clinicalDocument.effectiveTime.nullFlavor isnull
+Composition.Practitioner[],Composition.event[].detail[].display,,"getReferenceDisplay"
+Composition.Practitioner[],Composition.event[].detail[].reference,,"getId"
+clinicalDocument.documentationOf[].serviceEvent.effectiveTime,Composition.event[].period,IVL_TSPeriod,
+clinicalDocument.id,Composition.identifier,ID,
+clinicalDocument.component.structuredBody.component[].section.entry[].act.statusCode.code,Composition.section[].Condition[].verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.nullFlavor isnull
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 48765-2
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11369-6
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 30954-2
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 8716-3
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 47519-4
+clinicalDocument.component.structuredBody.component[].section.code,Composition.section[].code,CD2,,clinicalDocument.component.structuredBody.component[].section.code.code equal 46240-8
+AllergyIntolerance[],Composition.section[].entry[].display,,"getReferenceDisplay"
+Condition[],Composition.section[].entry[].display,,"getReferenceDisplay"
+DiagnosticReport[],Composition.section[].entry[].display,,"getReferenceDisplay"
+Encounter[],Composition.section[].entry[].display,,"getReferenceDisplay"
+Immunization[],Composition.section[].entry[].display,,"getReferenceDisplay"
+MedicationStatement[],Composition.section[].entry[].display,,"getReferenceDisplay"
+Observation[],Composition.section[].entry[].display,,"getReferenceDisplay"
+Procedure[],Composition.section[].entry[].display,,"getReferenceDisplay"
+AllergyIntolerance[],Composition.section[].entry[].reference,,"getId"
+Condition[],Composition.section[].entry[].reference,,"getId"
+DiagnosticReport[],Composition.section[].entry[].reference,,"getId"
+Encounter[],Composition.section[].entry[].reference,,"getId"
+Immunization[],Composition.section[].entry[].reference,,"getId"
+MedicationStatement[],Composition.section[].entry[].reference,,"getId"
+Observation[],Composition.section[].entry[].reference,,"getId"
+Procedure[],Composition.section[].entry[].reference,,"getId"
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 48765-2
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11369-6
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 30954-2
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 8716-3
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 47519-4
+clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 46240-8
+clinicalDocument.#preliminary,Composition.status,,
+Subject,Composition.subject.display,,"getReferenceDisplay"
+Subject,Composition.subject.reference,,"getId"
+clinicalDocument.title,Composition.title,,
+clinicalDocument.code,Composition.type,CD,
+clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].observation,Condition[],ProblemObservation,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].typeCode equal SUBJ,clinicalDocument.component.structuredBody.component[].section.entry[].act.nullFlavor isnull
+clinicalDocument.custodian.assignedCustodian.representedCustodianOrganization,Custodian,Organization,
+clinicalDocument.component.structuredBody.component[].section.entry[],DiagnosticReport[],ResultOrganizer,,clinicalDocument.component.structuredBody.component[].section.code.code equal 30954-2
+clinicalDocument.component.structuredBody.component[].section.entry[],Encounter[],EncounterActivity,,clinicalDocument.component.structuredBody.component[].section.code.code equal 46240-8
+clinicalDocument.component.structuredBody.component[].section.entry[],Immunization[],ImmunizationActivity,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11369-6
+clinicalDocument.legalAuthenticator.assignedEntity,LegalAttester,EntityPractitioner,
+clinicalDocument.legalAuthenticator.assignedEntity,LegalAttesterOrganization,EntityOrganization,
+clinicalDocument.legalAuthenticator.assignedEntity,LegalAttesterRole,EntityPractitionerRole,
+clinicalDocument.component.structuredBody.component[].section.entry[],MedicationStatement[],MedicationActivity,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0
+clinicalDocument.component.structuredBody.component[].section.entry[].organizer.component[],Observation[],Observation,,clinicalDocument.component.structuredBody.component[].section.code.code equal 8716-3
+clinicalDocument.author.assignedAuthor,Organization,EntityOrganization,
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,Organization,EntityOrganization,
+clinicalDocument.author.assignedAuthor,Practitioner,EntityPractitioner,
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,Practitioner,EntityPractitioner,
+clinicalDocument.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,PractitionerRole,EntityPractitionerRole,
+clinicalDocument.component.structuredBody.component[].section.entry[],Procedure[],ProcedureActivityProcedure,,clinicalDocument.component.structuredBody.component[].section.code.code equal 47519-4
+clinicalDocument.recordTarget.0,Subject,PatientRole,

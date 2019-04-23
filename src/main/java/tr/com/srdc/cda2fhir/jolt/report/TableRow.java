@@ -49,6 +49,10 @@ public class TableRow implements Comparable<TableRow> {
 		this.format = format;
 	}
 
+	public void setTarget(String target) {
+		this.target = target;
+	}
+
 	public void promotePath(String parentPath) {
 		path = parentPath + "." + path;
 		conditions.forEach(c -> c.prependPath(parentPath));

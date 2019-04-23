@@ -1,0 +1,65 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"assignedEntity": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdDefault",
+		"spec": {
+			"path": "assignedEntity"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"assignedEntity": [
+				"Attester.->EntityPractitioner",
+				"AttesterOrganization.->EntityOrganization",
+				"AttesterRole.->EntityPractitionerRole"
+			],
+			"#professional": "mode[]",
+			"time": {
+				"value": "time"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Attester": [
+				"party.reference",
+				"party.display"
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"party": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			},
+			"time":  "=datetimeAdapter(@0)"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdResolve"
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Attester": "",
+			"AttesterRole": "",
+			"AttesterOrganization": ""
+		}
+	}
+]

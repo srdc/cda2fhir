@@ -134,7 +134,8 @@ public abstract class Node implements INode {
 		String path = parent.getPath();
 		// Hardcode entryRelationship and linked resources for now.
 		// A better condition than sibling is needed for those cases.
-		return "entryRelationship".equals(path) || Character.isUpperCase(path.charAt(0)) || !hasSibling();
+		return "entryRelationship".equals(path) || "component".equals(path) || Character.isUpperCase(path.charAt(0))
+				|| !hasSibling();
 	}
 
 	@Override

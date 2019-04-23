@@ -728,6 +728,17 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	}
 
 	@Override
+	public Quantity tREAL2Quantity(REAL real) {
+		if (real == null || real.isSetNullFlavor() || real.getValue() == null) {
+			return null;
+		} else {
+			Quantity quantity = new Quantity();
+			quantity.setValue(real.getValue());
+			return quantity;
+		}
+	}
+
+	@Override
 	public Ratio tRTO2Ratio(RTO rto) {
 		if (rto == null || rto.isSetNullFlavor())
 			return null;

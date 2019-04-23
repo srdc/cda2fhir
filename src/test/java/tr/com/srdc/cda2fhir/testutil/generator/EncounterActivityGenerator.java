@@ -214,9 +214,7 @@ public class EncounterActivityGenerator {
 		}
 	}
 
-	public void verify(Bundle bundle) throws Exception {
-		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);
-
+	public void verify(Bundle bundle, Encounter encounter) throws Exception {
 		verify(encounter);
 
 		BundleUtil util = new BundleUtil(bundle);
@@ -278,5 +276,10 @@ public class EncounterActivityGenerator {
 				sdlg.verify(location);
 			}
 		}
+	}
+
+	public void verify(Bundle bundle) throws Exception {
+		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);
+		verify(bundle, encounter);
 	}
 }

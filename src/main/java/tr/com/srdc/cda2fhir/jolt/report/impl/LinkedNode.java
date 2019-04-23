@@ -50,17 +50,32 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		}
 	}
 
-	@Override
-	public List<TableRow> toTableRows(Templates templates) {
-		String path = getPath();
+	private String getActualTarget(Templates templates) {
 		String target = getTarget();
 
 		String rootResourceType = templates.getRootResource();
 		boolean isResourceLink = templates.doesGenerateResource(link);
 
+		if (rootResourceType != null && !isResourceLink) {
+			return rootResourceType + "." + target;
+		}
+
+		if (isResourceLink) {
+			String[] targetPieces = target.split("\\.");
+			return targetPieces[targetPieces.length - 1];
+		}
+
+		return target;
+	}
+
+	@Override
+	public List<TableRow> toTableRows(Templates templates) {
+		String path = getPath();
+		String target = getTarget();
+
 		String format = templates.getFormat(target);
 
-		String actualTarget = rootResourceType == null || isResourceLink ? target : rootResourceType + "." + target;
+		String actualTarget = getActualTarget(templates);
 
 		TableRow row = new TableRow(path, actualTarget, link);
 		row.setFormat(format);
