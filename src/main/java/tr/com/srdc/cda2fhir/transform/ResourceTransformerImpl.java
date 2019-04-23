@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -1173,6 +1174,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (vst.tStatusCode2EncounterStatusEnum(cdaEncounterActivity.getStatusCode().getCode()) != null) {
 				fhirEncounter
 						.setStatus(vst.tStatusCode2EncounterStatusEnum(cdaEncounterActivity.getStatusCode().getCode()));
+			} else {
+				fhirEncounter.setStatus(Config.DEFAULT_ENCOUNTER_STATUS);
 			}
 		} else {
 			fhirEncounter.setStatus(Config.DEFAULT_ENCOUNTER_STATUS);
@@ -3486,6 +3489,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// status -> current
 		docReference.setStatus(DocumentReferenceStatus.CURRENT);
+
+		// now -> indexed
+		Date now = new Date();
+		docReference.setIndexed(now);
 
 		// type -> 34133-9 (hard-coded from specification)
 		CodeableConcept docType = new CodeableConcept();
