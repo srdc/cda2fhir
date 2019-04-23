@@ -1715,6 +1715,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					}
 				}
 			}
+		} else {
+			// if no practitioner gets set, default to false.
+			fhirImmunization.setPrimarySource(false);
 		}
 
 		// approachSiteCode -> site
