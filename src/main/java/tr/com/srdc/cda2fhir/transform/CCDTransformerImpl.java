@@ -155,6 +155,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 */
 	public Bundle createTransactionBundle(Bundle bundle, Map<String, String> resourceProfileMap, boolean addURLs) {
 		Bundle resultBundle = new Bundle();
+		resultBundle.setType(BundleType.TRANSACTION);
 
 		for (BundleEntryComponent entry : bundle.getEntry()) {
 			// Patient resource will not be added
