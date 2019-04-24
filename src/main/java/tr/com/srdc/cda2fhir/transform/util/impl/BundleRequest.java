@@ -15,6 +15,8 @@ import org.hl7.fhir.dstu3.model.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tr.com.srdc.cda2fhir.conf.Config;
+
 public class BundleRequest {
 
 	private final static Logger logger = LoggerFactory.getLogger(BundleRequest.class);
@@ -93,7 +95,7 @@ public class BundleRequest {
 
 		// if we can't pull an identifier, try other logic.
 		if (ifNotExistString == "") {
-			// if it's a medication, check by RxNorm.
+			// if it's a medication, check by aggregate encodings.
 			if (bundleEntry.getResource().getResourceType().name() == "Medication") {
 				Property medicationCode = bundleEntry.getResource().getChildByName("code");
 				if (medicationCode != null) {
@@ -102,15 +104,30 @@ public class BundleRequest {
 						CodeableConcept currentConcept = (CodeableConcept) concept;
 						List<Coding> currentCoding = currentConcept.getCoding();
 						for (Coding coding : currentCoding) {
-							if (coding.getSystem() == "http://www.nlm.nih.gov/research/umls/rxnorm"
-									& coding.getCode() != null) {
-								// add or for multiple parameters
-								if (ifNotExistString != "") {
-									ifNotExistString = ifNotExistString + ",";
-								} else {
-									ifNotExistString = "code=" + coding.getSystem() + "|";
+
+							if (Config.MEDICATION_CODE_SYSTEM != null) {
+								if (coding.getCode() != null) {
+									if (coding.getSystem() == Config.MEDICATION_CODE_SYSTEM) {
+										// add or for multiple parameters
+										if (ifNotExistString != "") {
+											ifNotExistString = ifNotExistString + ",";
+										} else {
+											ifNotExistString = "code=";
+										}
+										ifNotExistString = ifNotExistString + coding.getSystem() + "|"
+												+ coding.getCode();
+									}
 								}
-								ifNotExistString = ifNotExistString + coding.getCode();
+							} else {
+								if (coding.getCode() != null) {
+									// add or for multiple parameters
+									if (ifNotExistString != "") {
+										ifNotExistString = ifNotExistString + ",";
+									} else {
+										ifNotExistString = "code=";
+									}
+									ifNotExistString = ifNotExistString + coding.getSystem() + "|" + coding.getCode();
+								}
 							}
 						}
 					}
@@ -128,10 +145,7 @@ public class BundleRequest {
 					ifNotExistString = ifNotExistString + "&" + "organization.identifier="
 							+ organizationIdentifier.getSystem() + "|" + organizationIdentifier.getValue();
 				}
-
 			}
-
-			// next after med here.
 
 		}
 
