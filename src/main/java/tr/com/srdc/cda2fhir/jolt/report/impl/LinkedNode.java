@@ -39,8 +39,14 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		if (template != null) {
 			RootNode rootNode = template.getRootNode();
 			IParentNode parent = getParent();
-			List<INode> newChildren = rootNode.getAsLinkReplacement(this);
+			String path = getPath();
+			String target = getTarget();
+			List<INode> newChildren = rootNode.cloneForLinkReplacement(parent);
 			newChildren.forEach(newChild -> {
+				if (target.length() > 0) {
+					newChild.promoteTargets(target);
+				}
+				newChild.setPath(path);
 				newChild.copyConditions(this);
 				parent.addChild(newChild);
 				List<ILinkedNode> linkedNodesOfLink = newChild.getLinkedNodes();

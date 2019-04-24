@@ -1,6 +1,5 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,20 +80,8 @@ public class RootNode {
 		return result;
 	}
 
-	public List<INode> getAsLinkReplacement(LinkedNode linkedNode) {
-		IParentNode parent = linkedNode.getParent();
-		String path = linkedNode.getPath();
-		String target = linkedNode.getTarget();
-		List<INode> result = new ArrayList<INode>();
-		root.children.forEach(base -> {
-			INode node = base.clone(parent);
-			if (target.length() > 0) {
-				node.promoteTargets(target);
-			}
-			node.setPath(path);
-			result.add(node);
-		});
-		return result;
+	public List<INode> cloneForLinkReplacement(IParentNode parent) {
+		return root.children.stream().map(base -> base.clone(parent)).collect(Collectors.toList());
 	}
 
 	public void updateBase(Consumer<IParentNode> consumer) {
