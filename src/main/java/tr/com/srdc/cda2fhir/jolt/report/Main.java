@@ -82,7 +82,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		String output = transformationCSV("CCDAllergiesOnly", false);
+		String output = transformationCSV("CCD", false);
 		System.out.print(output);
 	}
 }

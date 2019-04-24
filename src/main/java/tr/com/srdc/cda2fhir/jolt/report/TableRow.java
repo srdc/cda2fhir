@@ -91,6 +91,15 @@ public class TableRow implements Comparable<TableRow> {
 		}
 	}
 
+	public void renameSources(Map<String, String> alias) {
+		if (alias != null) {
+			String pathOverride = alias.get(path);
+			if (pathOverride != null) {
+				path = pathOverride;
+			}
+		}
+	}
+
 	public void correctArrayOnFormat() {
 		if (!format.isEmpty() && target.indexOf("[") >= 0) {
 			for (int index = 0; index < pluralFormatWords.length; ++index) {
@@ -114,11 +123,30 @@ public class TableRow implements Comparable<TableRow> {
 
 	@Override
 	public int compareTo(TableRow rhs) {
-		int targetResult = target.compareTo(rhs.target);
-		if (targetResult != 0) {
-			return targetResult;
+		if (path.isEmpty() && !rhs.path.isEmpty()) {
+			return 1;
 		}
-		return path.compareTo(rhs.path);
+		if (!path.isEmpty() && rhs.path.isEmpty()) {
+			return -1;
+		}
+		if (path.isEmpty() && rhs.path.isEmpty()) {
+			return target.compareTo(rhs.target);
+		}
+		char ch = path.charAt(0);
+		char rhsCh = rhs.path.charAt(0);
+
+		if (Character.isUpperCase(ch) && !Character.isUpperCase(rhsCh)) {
+			return 1;
+		}
+		if (!Character.isUpperCase(ch) && Character.isUpperCase(rhsCh)) {
+			return -1;
+		}
+
+		int pathResult = path.compareTo(rhs.path);
+		if (pathResult != 0) {
+			return pathResult;
+		}
+		return target.compareTo(rhs.target);
 	}
 
 	@Override
