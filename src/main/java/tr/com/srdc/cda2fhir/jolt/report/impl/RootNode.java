@@ -1,14 +1,11 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
-import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
@@ -52,9 +49,9 @@ public class RootNode {
 		return root.getLinkedNodes();
 	}
 
-	public void expandLinks(Map<String, JoltTemplate> templateMap) {
+	public void expandLinks(JoltTemplate ownerTemplate, Map<String, JoltTemplate> templateMap) {
 		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
-		linkedNodes.forEach(linkedNode -> linkedNode.expandLinks(templateMap));
+		linkedNodes.forEach(linkedNode -> linkedNode.expandLinks(ownerTemplate, templateMap));
 	}
 
 	public void eliminateWildcardNodes() {
@@ -81,20 +78,8 @@ public class RootNode {
 		return result;
 	}
 
-	public List<INode> getAsLinkReplacement(LinkedNode linkedNode) {
-		IParentNode parent = linkedNode.getParent();
-		String path = linkedNode.getPath();
-		String target = linkedNode.getTarget();
-		List<INode> result = new ArrayList<INode>();
-		root.children.forEach(base -> {
-			INode node = base.clone(parent);
-			if (target.length() > 0) {
-				node.promoteTargets(target);
-			}
-			node.setPath(path);
-			result.add(node);
-		});
-		return result;
+	public List<INode> cloneForLinkReplacement(IParentNode parent) {
+		return root.children.stream().map(base -> base.clone(parent)).collect(Collectors.toList());
 	}
 
 	public void updateBase(Consumer<IParentNode> consumer) {
@@ -106,27 +91,5 @@ public class RootNode {
 
 	public void addRootChild(INode node) {
 		root.addChild(node);
-	}
-
-	public void distributeArrays(Set<String> topPaths) {
-		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
-		linkedNodes.forEach(linkedNode -> {
-			String target = linkedNode.getTarget();
-			String[] targetArrayPieces = target.split("\\[");
-			if (targetArrayPieces.length < 2) {
-				return;
-			}
-			String targetArrayName = targetArrayPieces[0];
-			if (!topPaths.contains(targetArrayName)) {
-				return;
-			}
-			String[] targetPieces = target.split("\\.");
-			if (targetPieces.length != 2) {
-				return;
-			}
-			String newTarget = targetPieces[1] + "[]";
-			ILeafNode nodeAsLeaf = (ILeafNode) linkedNode;
-			nodeAsLeaf.setTarget(newTarget);
-		});
 	}
 }

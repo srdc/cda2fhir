@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt.report;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class JoltTemplate {
 		public Map<String, Object> move;
 		public Map<String, Object> flatten;
 		public Map<String, Object> distributeArray;
+		public Map<String, Object> linkSettings;
 		public List<IRootNodeUpdater> rootNodeUpdater = new ArrayList<>();
 
 		@SuppressWarnings("unchecked")
@@ -77,6 +79,10 @@ public class JoltTemplate {
 					result.distributeArray = spec;
 					return;
 				}
+				if (operation.endsWith("Substitute")) {
+					result.linkSettings = spec;
+					return;
+				}
 			});
 
 			if (result.shifts.isEmpty()) {
@@ -103,6 +109,7 @@ public class JoltTemplate {
 	private Table assignTable;
 
 	private Set<String> distributeArrays;
+	private Map<String, String> alias;
 
 	private JoltTemplate(String name) {
 		this.name = name;
@@ -118,6 +125,13 @@ public class JoltTemplate {
 
 	public boolean doesGenerateResource() {
 		return this.resourceType != null;
+	}
+
+	public Map<String, String> getAlias() {
+		if (alias == null) {
+			return alias;
+		}
+		return Collections.unmodifiableMap(alias);
 	}
 
 	private static Map<String, JoltTemplate> getLeafTemplates(Map<String, JoltTemplate> map) {
@@ -160,6 +174,9 @@ public class JoltTemplate {
 			return null;
 		}
 		Table result = assignTable.clone();
+		if (alias != null) {
+			result.renameSources(alias);
+		}
 		List<ILinkedNode> linkedNodes = rootNode.getLinkedNodes();
 		linkedNodes.forEach(linkedNode -> {
 			String link = linkedNode.getLink();
@@ -178,6 +195,16 @@ public class JoltTemplate {
 		return result;
 	}
 
+	public boolean isDistributed(String target) {
+		if (distributeArrays != null && target.length() > 0) {
+			int lastIndex = target.lastIndexOf('.');
+			String lastPathRaw = target.substring(lastIndex + 1);
+			String lastPath = lastPathRaw.split("\\[")[0];
+			return distributeArrays.contains(lastPath);
+		}
+		return false;
+	}
+
 	private Table createTable(Map<String, JoltTemplate> map, Map<String, JoltTemplate> leafTemplates) {
 		JoltFormat resolvedFormat = getResolvedFormat(leafTemplates);
 		Table assignTable = getAssignTable(leafTemplates);
@@ -185,11 +212,7 @@ public class JoltTemplate {
 			assignTable.correctArrayOnFormat();
 		}
 
-		rootNode.expandLinks(leafTemplates);
-
-		if (distributeArrays != null) {
-			rootNode.distributeArrays(distributeArrays);
-		}
+		rootNode.expandLinks(this, leafTemplates);
 
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
 		Table table = rootNode.toTable(templates);
@@ -227,6 +250,7 @@ public class JoltTemplate {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static JoltTemplate getInstance(String name, List<Object> content) {
 		JoltTemplate result = new JoltTemplate(name);
 		result.leafTemplate = name.equals(name.toUpperCase()) || name.equals("IVL_TSPeriod")
@@ -237,7 +261,9 @@ public class JoltTemplate {
 		if (rawTemplate.modifiers != null) {
 			result.format = JoltFormat.getInstance(rawTemplate.modifiers);
 		}
+
 		result.rootNode = NodeFactory.getInstance(rawTemplate.shifts.get(0));
+
 		rawTemplate.rootNodeUpdater.forEach(rnu -> {
 			rnu.update(result.rootNode);
 		});
@@ -265,6 +291,16 @@ public class JoltTemplate {
 		}
 		if (rawTemplate.distributeArray != null) {
 			result.distributeArrays = rawTemplate.distributeArray.keySet();
+		}
+		if (rawTemplate.linkSettings != null && !rawTemplate.linkSettings.isEmpty()) {
+			Map<String, Object> aliasObject = (Map<String, Object>) rawTemplate.linkSettings.get("alias");
+			if (aliasObject != null) {
+				Map<String, String> alias = new HashMap<String, String>();
+				aliasObject.entrySet().forEach(entry -> {
+					alias.put(entry.getKey(), (String) entry.getValue());
+				});
+				result.alias = alias;
+			}
 		}
 
 		return result;

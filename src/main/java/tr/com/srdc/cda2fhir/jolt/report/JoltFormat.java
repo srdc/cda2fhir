@@ -67,7 +67,14 @@ public class JoltFormat {
 				continue;
 			}
 			if (value instanceof String) {
-				String path = parentPath.length() > 0 ? String.format("%s.%s", parentPath, key) : key;
+				String path = key;
+				if (parentPath.length() > 0) {
+					if (key.equals("*")) {
+						path = parentPath + "[]";
+					} else {
+						path = String.format("%s.%s", parentPath, path);
+					}
+				}
 				String previousValue = result.map.get(path);
 				result.map.put(path, formatValue((String) value, previousValue));
 				continue;

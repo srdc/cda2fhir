@@ -83,7 +83,7 @@ public class AllergyConcernActGenerator {
 		}
 
 		if (statusCodeGenerator == null) {
-			Assert.assertTrue("No diagnostic report status", !allergy.hasVerificationStatus());
+			Assert.assertEquals("Default verification status", "unconfirmed", allergy.getVerificationStatus().toCode());
 		} else {
 			statusCodeGenerator.verify(allergy.getVerificationStatus().toCode());
 		}
@@ -104,7 +104,7 @@ public class AllergyConcernActGenerator {
 			Assert.assertTrue("No allergy code", !allergy.hasCode());
 			Assert.assertTrue("No type", !allergy.hasType());
 			Assert.assertTrue("No onset", !allergy.hasOnset());
-			Assert.assertTrue("No clinical status", !allergy.hasClinicalStatus());
+			Assert.assertEquals("Default clinical status", "active", allergy.getClinicalStatus().toCode());
 			Assert.assertTrue("No reaction", !allergy.hasReaction());
 			Assert.assertTrue("No category", !allergy.hasCategory());
 			return;

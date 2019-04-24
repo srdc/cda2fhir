@@ -116,6 +116,12 @@
 		}
 	},
 	{
+		"operation": "default",
+		"spec": {
+			"clinicalStatus": "active"
+		}
+	},	
+	{
 		"operation": "remove",
 		"spec": {
 			"Practitioner": "",

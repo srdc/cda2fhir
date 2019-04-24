@@ -1,6 +1,6 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 assigningAuthorityName,assigner.display,,,nullFlavor isnull
-root,system,,"idSystemAdapter",extension isnotnull,nullFlavor isnull
-root.#official,use,,,nullFlavor isnull
 extension,value,,"toString",extension isnotnull,nullFlavor isnull
+root,system,,"idSystemAdapter",extension isnotnull,nullFlavor isnull
 root,value,,"toString",extension isnull,nullFlavor isnull
+root.#official,use,,,nullFlavor isnull
