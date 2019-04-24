@@ -70,17 +70,10 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 
 		if (input != null && "Medication".equals(resourceType)) {
 			MedicationMap medicationMap = (MedicationMap) context.get("MEDICATION_MAP");
-			Map<String, Map<String, Object>> referenceOrgMap = (Map<String, Map<String, Object>>) context
-					.get("REF_ORG_MAP");
 
 			if (medicationMap == null) {
 				medicationMap = new MedicationMap();
 				context.put("MEDICATION_MAP", medicationMap);
-			}
-
-			if (referenceOrgMap == null) {
-				referenceOrgMap = new HashMap<String, Map<String, Object>>();
-				context.put("REF_ORG_MAP", referenceOrgMap);
 			}
 
 			Map<String, String> manufacturer = (Map<String, String>) resource.get("manufacturer");
@@ -88,7 +81,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 
 			if (manufacturer != null) {
 				String manuRef = manufacturer.get("reference");
-				Map<String, Object> organization = referenceOrgMap.get(manuRef);
+				Map<String, Object> organization = (Map<String, Object>) resourceMap.get(manuRef);
 				if (organization != null) {
 					orgIdentifiers = (List<Object>) resource.get("identifier");
 				}
@@ -107,16 +100,10 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 
 			IdentifierMap<Map<String, Object>> organizationMap = (IdentifierMap<Map<String, Object>>) context
 					.get("ORGANIZATION_MAP");
-			Map<String, Map<String, Object>> referenceOrgMap = (Map<String, Map<String, Object>>) context
-					.get("REF_ORG_MAP");
+
 			if (organizationMap == null) {
 				organizationMap = new IdentifierMap<Map<String, Object>>();
 				context.put("ORGANIZATION_MAP", organizationMap);
-			}
-
-			if (referenceOrgMap == null) {
-				referenceOrgMap = new HashMap<String, Map<String, Object>>();
-				context.put("REF_ORG_MAP", referenceOrgMap);
 			}
 
 			if (identifiers != null) {
@@ -141,11 +128,6 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 
 						}
 					}
-				}
-			}
-			if (reference != null) {
-				if (reference != null) {
-					referenceOrgMap.put(reference, resource);
 				}
 			}
 

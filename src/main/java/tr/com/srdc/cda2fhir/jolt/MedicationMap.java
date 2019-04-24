@@ -15,11 +15,11 @@ public class MedicationMap {
 
 	Map<String, MedicationContainer> ccMap = new HashMap<String, MedicationContainer>();
 
-	public class MedicationContainer {
+	private class MedicationContainer {
 
-		Map<String, Object> medicationResource = null;
+		private Map<String, Object> medicationResource = null;
 
-		IdentifierMap<Map<String, Object>> medByOrgId = null;
+		private IdentifierMap<Map<String, Object>> medByOrgId = null;
 
 		public MedicationContainer() {
 			this.medByOrgId = new IdentifierMap<Map<String, Object>>();
@@ -34,10 +34,6 @@ public class MedicationMap {
 				this.medByOrgId = new IdentifierMap<Map<String, Object>>();
 			}
 			this.medByOrgId.put("Medication", orgSystem, orgIdValue, medication);
-		}
-
-		public void putMedication(Map<String, Object> medicationResource) {
-			this.medicationResource = medicationResource;
 		}
 
 		public boolean isMedication(Map<String, Object> othercc, String orgIdSystem, String orgIdValue) {
