@@ -1,0 +1,96 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"clinicalDocument": {
+				"id": "ONE",
+				"author": "ONE",
+				"authenticator": "MANY",
+				"documentationOf": "MANY",
+				"recordTarget": "MANY",
+				"component": {
+					"structuredBody": {
+						"component": "MANY"
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"clinicalDocument": {
+				"component": {
+					"structuredBody": {
+						"component": {
+							"section": {
+								"entry": "MANY"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"clinicalDocument": {
+				"documentationOf": {
+					"*": "event[].->ServiceEvent"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"class": {
+				"coding": {
+					"*": "=constantValue('CCDClassConstant')"
+				}
+			},
+			"date": "=datetimeAdapter(@0)",
+			"author": {
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
+				}
+			},
+			"custodian": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			},
+			"subject": {
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": "",
+			"Custodian": "",
+			"Subject": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Composition"
+		}
+	}
+]

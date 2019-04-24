@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import tr.com.srdc.cda2fhir.jolt.report.Templates;
 
 public class LinkedNode extends LeafNode implements ILinkedNode {
 	private String link;
+	private Map<String, String> alias;
 
 	public LinkedNode(IParentNode parent, String path, String target, String link) {
 		super(parent, path, target);
@@ -51,10 +53,30 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 				newChild.copyConditions(this);
 				parent.addChild(newChild);
 				List<ILinkedNode> linkedNodesOfLink = newChild.getLinkedNodes();
-				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(template, templateMap));
+				linkedNodesOfLink.forEach(lnon -> {
+					if (alias != null) {
+						lnon.addAlias(alias);
+					}
+					Map<String, String> templateAlias = ownerTemplate.getAlias();
+					if (templateAlias != null) {
+						lnon.addAlias(templateAlias);
+					}
+					lnon.expandLinks(template, templateMap);
+				});
 			});
 			parent.removeChild(this);
 		}
+	}
+
+	@Override
+	public void addAlias(Map<String, String> alias) {
+		if (alias == null) {
+			return;
+		}
+		if (this.alias == null) {
+			this.alias = new HashMap<String, String>();
+		}
+		this.alias.putAll(alias);
 	}
 
 	private String getActualTarget(Templates templates) {
@@ -83,6 +105,12 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		String format = templates.getFormat(target);
 
 		String actualTarget = getActualTarget(templates);
+		if (alias != null) {
+			String targetFromAlias = alias.get(actualTarget);
+			if (targetFromAlias != null) {
+				actualTarget = targetFromAlias;
+			}
+		}
 
 		TableRow row = new TableRow(path, actualTarget, link);
 		row.setFormat(format);

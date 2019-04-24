@@ -91,6 +91,15 @@ public class TableRow implements Comparable<TableRow> {
 		}
 	}
 
+	public void renameSources(Map<String, String> alias) {
+		if (alias != null) {
+			String pathOverride = alias.get(path);
+			if (pathOverride != null) {
+				path = pathOverride;
+			}
+		}
+	}
+
 	public void correctArrayOnFormat() {
 		if (!format.isEmpty() && target.indexOf("[") >= 0) {
 			for (int index = 0; index < pluralFormatWords.length; ++index) {

@@ -394,8 +394,8 @@ clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.assig
 clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.telecom[].value,Composition.event[].Performer[].Practitioner[].telecom[].system,,,clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.telecom[].nullFlavor isnull
 clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.telecom[].use,Composition.event[].Performer[].Practitioner[].telecom[].use,,,clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.telecom[].nullFlavor isnull
 clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.telecom[].value,Composition.event[].Performer[].Practitioner[].telecom[].value,,,clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.telecom[].nullFlavor isnull
-Composition.Practitioner[],Composition.event[].detail[].display,,"getReferenceDisplay"
-Composition.Practitioner[],Composition.event[].detail[].reference,,"getId"
+Composition.EventPractitioner[],Composition.event[].detail[].display,,"getReferenceDisplay"
+Composition.EventPractitioner[],Composition.event[].detail[].reference,,"getId"
 clinicalDocument.documentationOf[].serviceEvent.effectiveTime.high.value,Composition.event[].period.end,,"datetimeAdapter",clinicalDocument.documentationOf[].serviceEvent.effectiveTime.high.nullFlavor isnull,clinicalDocument.documentationOf[].serviceEvent.effectiveTime.nullFlavor isnull
 clinicalDocument.documentationOf[].serviceEvent.effectiveTime.low.value,Composition.event[].period.start,,"datetimeAdapter",clinicalDocument.documentationOf[].serviceEvent.effectiveTime.low.nullFlavor isnull,clinicalDocument.documentationOf[].serviceEvent.effectiveTime.nullFlavor isnull
 clinicalDocument.documentationOf[].serviceEvent.effectiveTime.value,Composition.event[].period.start,,"datetimeAdapter",clinicalDocument.documentationOf[].serviceEvent.effectiveTime.high isnull,clinicalDocument.documentationOf[].serviceEvent.effectiveTime.low isnull,clinicalDocument.documentationOf[].serviceEvent.effectiveTime.nullFlavor isnull
