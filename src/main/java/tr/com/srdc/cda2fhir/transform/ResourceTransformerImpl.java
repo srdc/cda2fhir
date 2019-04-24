@@ -839,11 +839,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				org.hl7.fhir.dstu3.model.Organization fhirOrganization = tOrganization2Organization(
 						cdaAssignedEntity.getRepresentedOrganizations().get(0));
 
-				fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
-				fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-
-				info.setPractitionerRole(fhirPractitionerRole);
-				info.setOrganization(fhirOrganization);
+				// practitioner role links organizations to practitioner, if null do not link.
+				if (fhirOrganization != null) {
+					fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+					fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+					info.setPractitionerRole(fhirPractitionerRole);
+					info.setOrganization(fhirOrganization);
+				}
 			}
 		}
 
@@ -2754,6 +2756,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					fhirOrganization.addAddress(dtt.AD2Address(ad));
 				}
 			}
+		}
+
+		// organizations must have either a name or an identifier.
+		if (!fhirOrganization.hasName() && !fhirOrganization.hasIdentifier()) {
+			return null;
 		}
 
 		return fhirOrganization;
