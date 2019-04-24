@@ -90,8 +90,8 @@ public class ParentNode extends Node implements IParentNode {
 	}
 
 	@Override
-	public void promoteTargets(String parentTarget) {
-		children.forEach(child -> child.promoteTargets(parentTarget));
+	public void promoteTargets(String parentTarget, boolean isDistributed) {
+		children.forEach(child -> child.promoteTargets(parentTarget, isDistributed));
 	}
 
 	@Override

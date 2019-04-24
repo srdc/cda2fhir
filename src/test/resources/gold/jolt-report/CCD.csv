@@ -18,8 +18,8 @@ clinicalDocument.confidentialityCode.code,Composition.confidentiality,,
 Custodian,Composition.custodian.display,,"getReferenceDisplay"
 Custodian,Composition.custodian.reference,,"getId"
 clinicalDocument.effectiveTime.value,Composition.date,,"datetimeAdapter",clinicalDocument.effectiveTime.nullFlavor isnull
-Composition.Practitioner[],Composition.event[].detail[].display,,"getReferenceDisplay"
-Composition.Practitioner[],Composition.event[].detail[].reference,,"getId"
+Practitioner[],Composition.event[].detail[].display,,"getReferenceDisplay"
+Practitioner[],Composition.event[].detail[].reference,,"getId"
 clinicalDocument.documentationOf[].serviceEvent.effectiveTime,Composition.event[].period,IVL_TSPeriod,
 clinicalDocument.id,Composition.identifier,ID,
 clinicalDocument.component.structuredBody.component[].section.entry[].act.statusCode.code,Composition.section[].Condition[].verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.nullFlavor isnull
@@ -71,10 +71,10 @@ clinicalDocument.legalAuthenticator.assignedEntity,LegalAttesterRole,EntityPract
 clinicalDocument.component.structuredBody.component[].section.entry[],MedicationStatement[],MedicationActivity,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0
 clinicalDocument.component.structuredBody.component[].section.entry[].organizer.component[],Observation[],Observation,,clinicalDocument.component.structuredBody.component[].section.code.code equal 8716-3
 clinicalDocument.author.assignedAuthor,Organization,EntityOrganization,
-clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,Organization,EntityOrganization,
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,Organization[],EntityOrganization,
 clinicalDocument.author.assignedAuthor,Practitioner,EntityPractitioner,
-clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,Practitioner,EntityPractitioner,
 clinicalDocument.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,
-clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,PractitionerRole,EntityPractitionerRole,
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,Practitioner[],EntityPractitioner,
 clinicalDocument.component.structuredBody.component[].section.entry[],Procedure[],ProcedureActivityProcedure,,clinicalDocument.component.structuredBody.component[].section.code.code equal 47519-4
 clinicalDocument.recordTarget.0,Subject,PatientRole,

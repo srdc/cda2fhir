@@ -42,7 +42,7 @@ public interface INode {
 
 	void setPath(String path);
 
-	void promoteTargets(String target);
+	void promoteTargets(String target, boolean isDistributed);
 
 	void fillNodes(List<INode> result, PathPredicate pathPredicate);
 

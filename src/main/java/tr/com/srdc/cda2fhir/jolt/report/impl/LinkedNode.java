@@ -34,23 +34,24 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 	}
 
 	@Override
-	public void expandLinks(Map<String, JoltTemplate> templateMap) {
+	public void expandLinks(JoltTemplate ownerTemplate, Map<String, JoltTemplate> templateMap) {
 		JoltTemplate template = templateMap.get(link);
 		if (template != null) {
 			RootNode rootNode = template.getRootNode();
 			IParentNode parent = getParent();
 			String path = getPath();
 			String target = getTarget();
+			boolean isDistributed = ownerTemplate.isDistributed(target);
 			List<INode> newChildren = rootNode.cloneForLinkReplacement(parent);
 			newChildren.forEach(newChild -> {
 				if (target.length() > 0) {
-					newChild.promoteTargets(target);
+					newChild.promoteTargets(target, isDistributed);
 				}
 				newChild.setPath(path);
 				newChild.copyConditions(this);
 				parent.addChild(newChild);
 				List<ILinkedNode> linkedNodesOfLink = newChild.getLinkedNodes();
-				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(templateMap));
+				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(template, templateMap));
 			});
 			parent.removeChild(this);
 		}

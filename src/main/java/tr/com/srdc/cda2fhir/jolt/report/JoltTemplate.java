@@ -178,6 +178,16 @@ public class JoltTemplate {
 		return result;
 	}
 
+	public boolean isDistributed(String target) {
+		if (distributeArrays != null && target.length() > 0) {
+			int lastIndex = target.lastIndexOf('.');
+			String lastPathRaw = target.substring(lastIndex + 1);
+			String lastPath = lastPathRaw.split("\\[")[0];
+			return distributeArrays.contains(lastPath);
+		}
+		return false;
+	}
+
 	private Table createTable(Map<String, JoltTemplate> map, Map<String, JoltTemplate> leafTemplates) {
 		JoltFormat resolvedFormat = getResolvedFormat(leafTemplates);
 		Table assignTable = getAssignTable(leafTemplates);
@@ -185,11 +195,7 @@ public class JoltTemplate {
 			assignTable.correctArrayOnFormat();
 		}
 
-		rootNode.expandLinks(leafTemplates);
-
-		if (distributeArrays != null) {
-			rootNode.distributeArrays(distributeArrays);
-		}
+		rootNode.expandLinks(this, leafTemplates);
 
 		Templates templates = new Templates(resourceType, map, resolvedFormat);
 		Table table = rootNode.toTable(templates);

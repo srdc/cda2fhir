@@ -2,12 +2,10 @@ package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import tr.com.srdc.cda2fhir.jolt.report.IConditionNode;
-import tr.com.srdc.cda2fhir.jolt.report.ILeafNode;
 import tr.com.srdc.cda2fhir.jolt.report.ILinkedNode;
 import tr.com.srdc.cda2fhir.jolt.report.INode;
 import tr.com.srdc.cda2fhir.jolt.report.IParentNode;
@@ -51,9 +49,9 @@ public class RootNode {
 		return root.getLinkedNodes();
 	}
 
-	public void expandLinks(Map<String, JoltTemplate> templateMap) {
+	public void expandLinks(JoltTemplate ownerTemplate, Map<String, JoltTemplate> templateMap) {
 		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
-		linkedNodes.forEach(linkedNode -> linkedNode.expandLinks(templateMap));
+		linkedNodes.forEach(linkedNode -> linkedNode.expandLinks(ownerTemplate, templateMap));
 	}
 
 	public void eliminateWildcardNodes() {
@@ -93,27 +91,5 @@ public class RootNode {
 
 	public void addRootChild(INode node) {
 		root.addChild(node);
-	}
-
-	public void distributeArrays(Set<String> topPaths) {
-		List<ILinkedNode> linkedNodes = root.getLinkedNodes();
-		linkedNodes.forEach(linkedNode -> {
-			String target = linkedNode.getTarget();
-			String[] targetArrayPieces = target.split("\\[");
-			if (targetArrayPieces.length < 2) {
-				return;
-			}
-			String targetArrayName = targetArrayPieces[0];
-			if (!topPaths.contains(targetArrayName)) {
-				return;
-			}
-			String[] targetPieces = target.split("\\.");
-			if (targetPieces.length != 2) {
-				return;
-			}
-			String newTarget = targetPieces[1] + "[]";
-			ILeafNode nodeAsLeaf = (ILeafNode) linkedNode;
-			nodeAsLeaf.setTarget(newTarget);
-		});
 	}
 }
