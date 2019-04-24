@@ -51,6 +51,12 @@ public class Table {
 		}
 	}
 
+	public void renameSources(Map<String, String> alias) {
+		if (alias != null) {
+			rows.forEach(row -> row.renameSources(alias));
+		}
+	}
+
 	public void updateResourceType(String resourceType, Set<String> exceptions) {
 		rows.forEach(row -> row.updateResourceType(resourceType, exceptions));
 	}

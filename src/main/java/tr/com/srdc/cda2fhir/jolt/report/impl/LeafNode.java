@@ -53,10 +53,13 @@ public class LeafNode extends Node implements ILeafNode {
 	}
 
 	@Override
-	public void promoteTargets(String parentTarget) {
+	public void promoteTargets(String parentTarget, boolean isDistributed) {
 		if (target != null) {
 			if (target.length() > 0) {
 				target = parentTarget + "." + target;
+				if (isDistributed && !target.endsWith("[]")) {
+					target += "[]";
+				}
 			} else {
 				target = parentTarget;
 			}

@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format,Condition 1
 code,coding[0].code,,,nullFlavor isnull
-displayName,coding[0].display,,,nullFlavor isnull
 codeSystem,coding[0].system,,,nullFlavor isnull
+displayName,coding[0].display,,,nullFlavor isnull
 translation[].code,coding[].code,,,nullFlavor isnull
-translation[].displayName,coding[].display,,,nullFlavor isnull
 translation[].codeSystem,coding[].system,,"systemAdapter",nullFlavor isnull
+translation[].displayName,coding[].display,,,nullFlavor isnull

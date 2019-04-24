@@ -1,5 +1,5 @@
 CCDA Source,Target,Link,Format,Condition 1
 manufacturedProduct.manufacturedMaterial.code,Medication.code,CD2,,nullFlavor isnull
+manufacturedProduct.manufacturerOrganization,Organization,Organization,,nullFlavor isnull
 Organization,Medication.manufacturer.display,,"getReferenceDisplay"
 Organization,Medication.manufacturer.reference,,"getId"
-manufacturedProduct.manufacturerOrganization,Organization,Organization,,nullFlavor isnull

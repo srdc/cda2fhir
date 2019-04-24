@@ -1,17 +1,17 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-patientRole.providerOrganization,ManagingOrganization,Organization,,patientRole.nullFlavor isnull
 patientRole.addr[],Patient.address[],AD,,patientRole.nullFlavor isnull
+patientRole.id[],Patient.identifier[],ID,,patientRole.nullFlavor isnull
+patientRole.patient.administrativeGenderCode.code,Patient.gender,,"valueSetAdapter('Gender','unknown')",patientRole.nullFlavor isnull
 patientRole.patient.birthTime.value,Patient.birthDate,,"datetimeAdapter",patientRole.nullFlavor isnull,patientRole.patient.birthTime.nullFlavor isnull
+patientRole.patient.guardian[].addr,Patient.contact[].address,AD,,patientRole.nullFlavor isnull
+patientRole.patient.guardian[].code.code,Patient.contact[].relationship[].coding,,"valueSetAdapter('ContactRelationship')",patientRole.nullFlavor isnull
+patientRole.patient.guardian[].guardianPerson.name,Patient.contact[].name,PN,,patientRole.nullFlavor isnull
+patientRole.patient.guardian[].telecom[],Patient.contact[].telecom[],TEL,,patientRole.nullFlavor isnull
 patientRole.patient.languageCommunication[].languageCode,Patient.communication[].language,CD,"constantSystem('http://hl7.org/fhir/ValueSet/languages','cd')",patientRole.nullFlavor isnull
 patientRole.patient.languageCommunication[].preferenceInd.value,Patient.communication[].preferred,,,patientRole.nullFlavor isnull
-patientRole.patient.guardian[].addr,Patient.contact[].address,AD,,patientRole.nullFlavor isnull
-patientRole.patient.guardian[].guardianPerson.name,Patient.contact[].name,PN,,patientRole.nullFlavor isnull
-patientRole.patient.guardian[].code.code,Patient.contact[].relationship[].coding,,"valueSetAdapter('ContactRelationship')",patientRole.nullFlavor isnull
-patientRole.patient.guardian[].telecom[],Patient.contact[].telecom[],TEL,,patientRole.nullFlavor isnull
-patientRole.patient.administrativeGenderCode.code,Patient.gender,,"valueSetAdapter('Gender','unknown')",patientRole.nullFlavor isnull
-patientRole.id[],Patient.identifier[],ID,,patientRole.nullFlavor isnull
-ManagingOrganization,Patient.managingOrganization.display,,"getReferenceDisplay"
-ManagingOrganization,Patient.managingOrganization.reference,,"getId"
 patientRole.patient.maritalStatusCode.code,Patient.maritalStatus.coding,,"valueSetAdapter('MaritalStatus')",patientRole.nullFlavor isnull
 patientRole.patient.name,Patient.name[],PN,,patientRole.nullFlavor isnull
+patientRole.providerOrganization,ManagingOrganization,Organization,,patientRole.nullFlavor isnull
 patientRole.telecom[],Patient.telecom[],TEL,,patientRole.nullFlavor isnull
+ManagingOrganization,Patient.managingOrganization.display,,"getReferenceDisplay"
+ManagingOrganization,Patient.managingOrganization.reference,,"getId"
