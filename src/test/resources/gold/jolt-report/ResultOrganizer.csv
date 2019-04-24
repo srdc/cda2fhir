@@ -1,12 +1,13 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-organizer.code,DiagnosticReport.code,CD,,nullFlavor isnull
-organizer.effectiveTime,DiagnosticReport.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull
-organizer.id[],DiagnosticReport.identifier[],ID,,nullFlavor isnull
-Practitioner[],DiagnosticReport.performer[].actor.reference,,"getId"
+organizer.author[].assignedAuthor,Organization[],EntityOrganization,,organizer.nullFlavor isnull
+organizer.author[].assignedAuthor,PractitionerRole[],EntityPractitionerRole,,organizer.nullFlavor isnull
+organizer.author[].assignedAuthor,Practitioner[],EntityPractitioner,,organizer.nullFlavor isnull
+organizer.code,DiagnosticReport.code,CD2,,organizer.nullFlavor isnull
+organizer.component[],Observation[],Observation,,organizer.nullFlavor isnull
+organizer.effectiveTime,DiagnosticReport.effectivePeriod,IVL_TSPeriod,,organizer.nullFlavor isnull
+organizer.id[],DiagnosticReport.identifier[],ID,,organizer.nullFlavor isnull
+organizer.statusCode.code,DiagnosticReport.status,,"valueSetAdapter('DiagnosticReportStatus')",organizer.nullFlavor isnull,organizer.statusCode.nullFlavor isnull
+Observation[],DiagnosticReport.result[].display,,"getReferenceDisplay"
 Observation[],DiagnosticReport.result[].reference,,"getId"
-organizer.statusCode.code,DiagnosticReport.status,,"valueSetAdapter('DiagnosticReportStatus')",nullFlavor isnull,organizer.statusCode.nullFlavor isnull
-organizer.component[],Observation[],Observation,,nullFlavor isnull
-Practitioner[],Observation[].performer[].reference,,"getId"
-organizer.author[].assignedAuthor,Organization[],EntityOrganization,,nullFlavor isnull
-organizer.author[].assignedAuthor,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
-organizer.author[].assignedAuthor,Practitioner[],EntityPractitioner,,nullFlavor isnull
+Practitioner[],DiagnosticReport.performer[].actor.display,,"getReferenceDisplay"
+Practitioner[],DiagnosticReport.performer[].actor.reference,,"getId"

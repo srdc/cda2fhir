@@ -19,7 +19,9 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"substanceAdministration": {
+				"nullFlavor": "*"
+			}
 		}
 	},
 	{
@@ -42,35 +44,25 @@
 				"doseQuantity": "doseQuantity.->IVL_PQSimpleQuantity",
 				"statusCode": "status.->NullFlavorableCode",
 				"entryRelationship": {
-					"*": {
-						"observation": {
-							"templateId": {
-								"0": {
-									"root": {
-										"2.16.840.1.113883.10.20.22.4.53": {
-											"@4": {
-												"code": "explanation.reasonNotGiven[].->CD"
-											}
-										},
-										"2.16.840.1.113883.10.20.22.4.19": {
-											"@4": {
-												"value": "explanation.reason[].->CD"
-											}
-										},
-										"2.16.840.1.113883.10.20.22.4.9": {
-											"@5": "Observation.->Observation"
-										}
-									}
-								}
-							}
-						}
-					}
+					"*": [
+						"explanation.reasonNotGiven[].->ImmunizationRefusalReason",
+						"explanation.reason[].->ImmunizationIndication",
+						"Observation.->ImmunizationObservation"
+					]
 				}
 			}
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"Observation": "ONE"
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
@@ -84,6 +76,7 @@
 			"Practitioner": {
 				"*": [
 					"practitioner[&].actor.reference",
+					"practitioner[&].actor.display",
 					"practitioner[&1].role",
 					"primarySource"
 				]
@@ -92,7 +85,7 @@
 				"effectivePeriod": {
 					"start": "reaction[0].date"
 				},
-				"@0": "reaction[0].detail.reference"
+				"@0": ["reaction[0].detail.reference", "reaction[0].detail.display"]
 			}
 		}
 	},
@@ -103,7 +96,8 @@
 			"practitioner": {
 				"*": {
 					"actor": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					},
 					"role": "=constantValue('ImmunizationRoleConstant')"
 				}
@@ -111,7 +105,8 @@
 			"reaction": {
 				"*": {
 					"detail": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					},
 					"date": "=datetimeAdapter(@0)"
 				}
@@ -129,6 +124,12 @@
 			"PractitionerRole": "",
 			"Organization": "",
 			"Observation": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{

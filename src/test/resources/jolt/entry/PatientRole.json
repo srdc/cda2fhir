@@ -41,9 +41,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
-	},
-	{
 		"operation": "shift",
 		"spec": {
 			"patientRole": {
@@ -56,7 +53,7 @@
 				"telecom": {
 					"*": "telecom[].->TEL"
 				},
-				"providerOrganization": ["managingOrganization.reference.->Organization", "managingOrganization.display.->Organization"],
+				"providerOrganization": "ManagingOrganization.->Organization",
 				"patient": {
 					"name": "name[].->PN",
 					"administrativeGenderCode": {
@@ -93,7 +90,18 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"ManagingOrganization": [
+				"managingOrganization.reference",
+				"managingOrganization.display"
+			]
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
@@ -121,6 +129,12 @@
 					}
 				}
 			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"ManagingOrganization": ""
 		}
 	},
 	{

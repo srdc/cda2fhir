@@ -7,5 +7,7 @@ public interface ILinkedNode {
 
 	String getTarget();
 
-	void expandLinks(Map<String, JoltTemplate> templateMap);
+	void addAlias(Map<String, String> alias);
+
+	void expandLinks(JoltTemplate ownerTemplate, Map<String, JoltTemplate> templateMap);
 }

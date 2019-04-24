@@ -2,7 +2,7 @@
 	{
 		"operation": "cardinality",
 		"spec": {
-			"id": "ONE"
+			"id": "MANY"
 		}
 	},
 	{
@@ -22,23 +22,33 @@
 	{
 		"operation": "shift",
 		"spec": {
-			"id": ["practitioner.reference.->ID", "practitioner.display.->ID"],
-			"code": "code[].->CD",
+			"id": {
+				"0": [
+					"practitioner.reference.->ID",
+					"practitioner.display.->ID"
+				]
+			},
+			"code": "code[].->CD2",
 			"representedOrganization": {
 				"id": {
-					"0": ["organization.reference.->ID", "organization.display.->ID"]
+					"0": [
+						"organization.reference.->ID",
+						"organization.display.->ID"
+					]
 				}
 			}
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"practitioner": {
-				"reference": "=referenceAdapter('Practitioner',@0)", 
+				"reference": "=referenceAdapter('Practitioner',@0)",
 				"display": "=referenceDisplayAdapter('Practitioner',@0)"
 			},
 			"organization": {

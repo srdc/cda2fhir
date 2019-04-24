@@ -1,14 +1,15 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
-procedure.performer[].assignedEntity,Organization[],EntityOrganization,,nullFlavor isnull
-procedure.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,nullFlavor isnull
-procedure.performer[].assignedEntity,Practitioner[],EntityPractitioner,,nullFlavor isnull
-procedure.targetSiteCode[],Procedure.bodySite[],CD,,nullFlavor isnull
-procedure.code,Procedure.code,CD2,,nullFlavor isnull
-procedure.id[],Procedure.identifier[],ID,,nullFlavor isnull
-procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",nullFlavor isnull,procedure.entryRelationship[].typeCode equal SUBJ
-procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,nullFlavor isnull
-PractitionerRole[].code.0,Procedure.performer[&2].role,,
-Practitioner[],Procedure.performer[].actor.reference,,"getId"
+procedure.code,Procedure.code,CD2,,procedure.nullFlavor isnull
+procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,procedure.nullFlavor isnull
+procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",procedure.entryRelationship[].typeCode equal SUBJ,procedure.nullFlavor isnull
+procedure.entryRelationship[].observation.code,Procedure.reasonCode[],CD,,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
+procedure.id[],Procedure.identifier[],ID,,procedure.nullFlavor isnull
+procedure.performer[].assignedEntity,Organization[],EntityOrganization,,procedure.nullFlavor isnull
+procedure.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,procedure.nullFlavor isnull
+procedure.performer[].assignedEntity,Practitioner[],EntityPractitioner,,procedure.nullFlavor isnull
+procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",procedure.nullFlavor isnull,procedure.statusCode.nullFlavor isnull
+procedure.targetSiteCode[],Procedure.bodySite[],CD,,procedure.nullFlavor isnull
 Organization[],Procedure.performer[].onBehalfOf.reference,,"getId"
-procedure.entryRelationship[].observation.code,Procedure.reasonCode[],CD,,nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON
-procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",nullFlavor isnull,procedure.statusCode.nullFlavor isnull
+PractitionerRole[].code.0,Procedure.performer[].role,,
+Practitioner[],Procedure.performer[].actor.display,,"getReferenceDisplay"
+Practitioner[],Procedure.performer[].actor.reference,,"getId"

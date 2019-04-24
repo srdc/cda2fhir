@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <section>
+					<!-- *** Medications Section (entries required) (V2) *** -->
+      <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.2.1.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+      <code code="10160-0"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"
+            displayName="HISTORY OF MEDICATION USE"/>
+      <title>MEDICATIONS</title>
+      <text>
+         <table border="1" width="100%">
+            <thead>
+               <tr>
+                  <th>Medication</th>
+                  <th>Directions</th>
+                  <th>Start Date</th>
+                  <th>Status</th>
+                  <th>Indications</th>
+                  <th>Fill Instructions</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td>Proventil 0.09 MG/ACTUAT inhalant solution</td>
+                  <td>2 puffs q6 hours PRN wheezing</td>
+                  <td>Jan 3, 2011</td>
+                  <td>Active</td>
+                  <td>Asthma</td>
+                  <td>Generic Substitition Allowed</td>
+               </tr>
+               <tr>
+                  <td>Atenolol 25 MG Oral Tablet</td>
+                  <td>1 every 12 hours Orally</td>
+                  <td>Mar 18, 2012</td>
+                  <td>Active</td>
+                  <td>Hypertension</td>
+                  <td>-none-</td>
+               </tr>
+            </tbody>
+         </table>
+      </text>
+      <entry typeCode="DRIV">
+         <substanceAdministration classCode="SBADM" moodCode="EVN">
+							<!-- ** Medication Activity (V2) ** -->
+            <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.16"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+            <effectiveTime xsi:type="IVL_TS">
+               <high nullFlavor="UNK"/>
+            </effectiveTime>
+            <administrationUnitCode code="PUFF"
+                                    codeSystem="2.16.840.1.113883.5.85"
+                                    codeSystemName="orderableDrugForm"
+                                    displayName="Puff"/>
+            <consumable>
+               <manufacturedProduct classCode="MANU">
+									<!-- ** Medication information ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
+               </manufacturedProduct>
+            </consumable>
+            <performer>
+               <assignedEntity>
+                  <id extension="5555555555" root="2.16.840.1.113883.4.6"/>
+                  <addr nullFlavor="UNK"/>
+                  <telecom use="WP" value="tel: +1(555)555-1004"/>
+                  <representedOrganization>
+                     <id root="2.16.840.1.113883.19.5.9999.1393"/>
+                     <name>Community Health and Hospitals</name>
+                     <telecom use="WP" value="tel: +1(555)555-5000"/>
+                     <addr nullFlavor="UNK"/>
+                  </representedOrganization>
+               </assignedEntity>
+            </performer>
+            <participant typeCode="CSM">
+               <participantRole classCode="MANU">
+									<!-- ** Drug vehicle ** -->
+                  <templateId root="2.16.840.1.113883.10.20.22.4.24"/>
+                  <code code="412307009"
+                        codeSystem="2.16.840.1.113883.6.96"
+                        codeSystemName="SNOMED CT"
+                        displayName="drug vehicle"/>
+                  <playingEntity classCode="MMAT">
+                     <code code="324049"
+                           codeSystem="2.16.840.1.113883.6.88"
+                           codeSystemName="RxNorm"
+                           displayName="Aerosol"/>
+                     <name>Aerosol</name>
+                  </playingEntity>
+               </participantRole>
+            </participant>
+            <entryRelationship typeCode="RSON">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Indication (V2) ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.19"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.19"/>
+                  <code code="404684003"
+                        codeSystem="2.16.840.1.113883.6.96"
+                        codeSystemName="SNOMED-CT"
+                        displayName="Finding">
+									<!-- MAY contain
+										<translation code="75321-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Clinical finding"/>
+									-->
+									</code>
+                  <statusCode code="completed"/>
+               </observation>
+            </entryRelationship>
+            <entryRelationship typeCode="REFR">
+               <supply classCode="SPLY" moodCode="INT">
+									<!-- ** Medication supply order (V2) ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.17"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.17"/>
+                  <id nullFlavor="NI"/>
+                  <effectiveTime xsi:type="IVL_TS">
+                     <high nullFlavor="UNK"/>
+                  </effectiveTime>
+                  <product>
+                     <manufacturedProduct classCode="MANU">
+											<!-- ** Medication information (V2) ** -->
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                        <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
+                     </manufacturedProduct>
+                  </product>
+                  <author typeCode="AUT">
+                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+                     <time value="201208151235-0800"/>
+                     <assignedAuthor>
+                        <assignedPerson>
+											</assignedPerson>
+                     </assignedAuthor>
+                  </author>
+                  <entryRelationship inversionInd="true" typeCode="SUBJ">
+                     <act classCode="ACT" moodCode="INT">
+											<!-- ** Instruction (v2) ** -->
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.20"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.20"/>
+                        <code code="409073007"
+                              codeSystem="2.16.840.1.113883.6.96"
+                              codeSystemName="SNOMED CT"
+                              displayName="instruction"/>
+                        <text> label in spanish </text>
+                        <statusCode code="completed"/>
+                     </act>
+                  </entryRelationship>
+               </supply>
+            </entryRelationship>
+            <entryRelationship typeCode="REFR">
+               <supply classCode="SPLY" moodCode="EVN">
+									<!-- ** Medication dispense (v2) ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.18"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.18"/>
+                  <product>
+                     <manufacturedProduct classCode="MANU">
+											<!-- ** Medication information ** -->
+                        <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
+                        <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                        <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
+                     </manufacturedProduct>
+                  </product>
+                  <performer>
+                     <assignedEntity>
+                        <assignedPerson>
+											</assignedPerson>
+                     </assignedEntity>
+                  </performer>
+               </supply>
+            </entryRelationship>
+            <precondition typeCode="PRCN">
+               <criterion>
+									<!-- ** Precondition for substance administration (V2) ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.25"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.25"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <value code="56018004"
+                         codeSystem="2.16.840.1.113883.6.96"
+                         displayName="Wheezing"
+                         xsi:type="CD"/>
+               </criterion>
+            </precondition>
+         </substanceAdministration>
+      </entry>
+      <entry typeCode="DRIV">
+         <substanceAdministration classCode="SBADM" moodCode="EVN">
+							<!-- ** Medication activity ** -->
+            <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.16"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+            <effectiveTime xsi:type="IVL_TS">
+               <high nullFlavor="UNK"/>
+            </effectiveTime>
+            <consumable>
+               <manufacturedProduct classCode="MANU">
+									<!-- ** Medication information ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
+               </manufacturedProduct>
+            </consumable>
+            <author typeCode="AUT">
+               <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
+               <time value="201208151235-0800"/>
+               <assignedAuthor>
+                  <assignedPerson>
+									</assignedPerson>
+               </assignedAuthor>
+            </author>
+            <entryRelationship typeCode="RSON">
+               <observation classCode="OBS" moodCode="EVN">
+									<!-- ** Indication ** -->
+                  <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.19"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.19"/>
+                  <code code="404684003"
+                        codeSystem="2.16.840.1.113883.6.96"
+                        codeSystemName="SNOMED-CT"
+                        displayName="Finding">
+										<!-- MAY
+										<translation code="75321-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Clinical finding"/>
+										-->
+									</code>
+                  <statusCode code="completed"/>
+               </observation>
+            </entryRelationship>
+         </substanceAdministration>
+      </entry>
+   </section>
+</root>

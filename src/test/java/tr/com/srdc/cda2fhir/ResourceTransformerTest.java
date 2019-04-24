@@ -72,6 +72,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.model.api.IResource;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -81,8 +82,10 @@ public class ResourceTransformerTest {
 	private static final ResourceTransformerImpl rt = new ResourceTransformerImpl();
 	private static final ValueSetsTransformerImpl vsti = new ValueSetsTransformerImpl();
 	private static FileInputStream fisCCD;
+	private static FileInputStream fisCCD2;
 	private static FileWriter resultFW;
 	private static ContinuityOfCareDocument ccd;
+	private static ContinuityOfCareDocument ccd2;
 	private static final String resultFilePath = "src/test/resources/output/ResourceTransformerTest.txt";
 	private static final String transformationStartMsg = "\n# TRANSFORMATION STARTING..\n";
 	private static final String transformationEndMsg = "# END OF TRANSFORMATION.\n";
@@ -95,7 +98,10 @@ public class ResourceTransformerTest {
 		// read the input test file
 		try {
 			fisCCD = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
+			fisCCD2 = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD2.xml"); // Original does not have authoring
+																						// device.
 			ccd = (ContinuityOfCareDocument) CDAUtil.load(fisCCD);
+			ccd2 = (ContinuityOfCareDocument) CDAUtil.load(fisCCD2);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -233,6 +239,30 @@ public class ResourceTransformerTest {
 			Bundle allergyBundle = rt.tAllergyProblemAct2AllergyIntolerance(cdaAPA, bundleInfo).getBundle();
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(allergyBundle);
+		}
+		appendToResultFile(endOfTestMsg);
+	}
+
+	@Test
+	public void testAssignedAuthor2Device() {
+		appendToResultFile("## TEST: AssignedAuthor2Device\n");
+		// null instance test
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		org.openhealthtools.mdht.uml.cda.AssignedAuthor cdaNull = null;
+		Bundle fhirNull = rt.tAssignedAuthor2Device(cdaNull, bundleInfo).getBundle();
+		Assert.assertNull(fhirNull);
+
+		// instances from file
+		if (ResourceTransformerTest.ccd2.getAuthors() != null) {
+			for (org.openhealthtools.mdht.uml.cda.Author author : ResourceTransformerTest.ccd2.getAuthors()) {
+				// traversing authors
+				if (author != null && author.getAssignedAuthor() != null) {
+					appendToResultFile(transformationStartMsg);
+					Bundle deviceBundle = rt.tAssignedAuthor2Device(author.getAssignedAuthor(), bundleInfo).getBundle();
+					appendToResultFile(transformationEndMsg);
+					appendToResultFile(deviceBundle);
+				}
+			}
 		}
 		appendToResultFile(endOfTestMsg);
 	}
@@ -618,14 +648,16 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: Organization2Organization\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Organization cdaNull = null;
-		Organization fhirNull = rt.tOrganization2Organization(cdaNull);
-		Assert.assertNull(fhirNull);
+		IEntryResult result1 = rt.tOrganization2Organization(cdaNull, new BundleInfo(rt));
+		Assert.assertFalse(result1.hasResult());
 
 		// instances from file
 		for (org.openhealthtools.mdht.uml.cda.PatientRole patRole : ResourceTransformerTest.ccd.getPatientRoles()) {
 			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
 			appendToResultFile(transformationStartMsg);
-			org.hl7.fhir.dstu3.model.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
+			IEntryResult result2 = rt.tOrganization2Organization(cdaOrg, new BundleInfo(rt));
+			org.hl7.fhir.dstu3.model.Organization fhirOrg = FHIRUtil.findFirstResource(result2.getBundle(),
+					org.hl7.fhir.dstu3.model.Organization.class);
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(fhirOrg);
 		}
@@ -637,8 +669,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: PatientRole2Patient\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.PatientRole cdaNull = null;
-		Bundle fhirNull = rt.tPatientRole2Patient(cdaNull);
-		Assert.assertNull(fhirNull);
+		IEntryResult patientResult1 = rt.tPatientRole2Patient(cdaNull, new BundleInfo(rt));
+		Assert.assertFalse(patientResult1.hasResult());
 
 		// instances from file
 		for (PatientRole pr : ResourceTransformerTest.ccd.getPatientRoles()) {
@@ -648,11 +680,11 @@ public class ResourceTransformerTest {
 			Patient patient = null;
 
 			appendToResultFile(transformationStartMsg);
-			Bundle patientBundle = rt.tPatientRole2Patient(pr);
+			IEntryResult patientResult2 = rt.tPatientRole2Patient(pr, new BundleInfo(rt));
 			appendToResultFile(transformationEndMsg);
-			appendToResultFile(patientBundle);
+			appendToResultFile(patientResult2.getBundle());
 
-			for (BundleEntryComponent entry : patientBundle.getEntry()) {
+			for (BundleEntryComponent entry : patientResult2.getFullBundle().getEntry()) {
 				if (entry.getResource() instanceof Patient) {
 					patient = (Patient) entry.getResource();
 				}

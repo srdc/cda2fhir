@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.DocumentReference;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Provenance;
@@ -71,7 +72,7 @@ public class IntegrationTest {
 				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
 //		// print pre-post bundle
-		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia-4-10.json");
+		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia-4-17.json");
 
 		// Send transaction bundle to server.
 		Bundle resp = client.transaction().withBundle(transactionBundle).execute();
@@ -94,11 +95,14 @@ public class IntegrationTest {
 
 		Bundle deviceResults = (Bundle) client.search().forResource(Device.class).prettyPrint().execute();
 
+		Bundle organizationResults = (Bundle) client.search().forResource(Organization.class).prettyPrint().execute();
+
 		Assert.assertEquals(1, patientResults.getTotal());
-		Assert.assertEquals(33, practitionerResults.getTotal());
+		Assert.assertEquals(32, practitionerResults.getTotal());
 		Assert.assertEquals(13, medicationResults.getTotal());
 		Assert.assertEquals(1, provenanceResults.getTotal());
 		Assert.assertEquals(1, docRefresults.getTotal());
-		Assert.assertEquals(1, deviceResults.getTotal());
+		Assert.assertEquals(2, deviceResults.getTotal());
+		Assert.assertEquals(1, organizationResults.getTotal());
 	}
 }

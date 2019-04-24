@@ -135,8 +135,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		// streetAddressLine -> line
 		if (ad.getStreetAddressLines() != null && !ad.getStreetAddressLines().isEmpty()) {
 			for (ADXP adxp : ad.getStreetAddressLines()) {
-				if (adxp != null && !adxp.isSetNullFlavor()) {
-					address.addLine(adxp.getText());
+				if (adxp != null && !adxp.isSetNullFlavor() && adxp.getText() != null) {
+					address.addLine(adxp.getText().trim());
 				}
 			}
 		}
@@ -193,8 +193,8 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 		// postalCode -> postalCode
 		if (ad.getPostalCodes() != null && !ad.getPostalCodes().isEmpty()) {
 			for (ADXP adxp : ad.getPostalCodes()) {
-				if (adxp != null && !adxp.isSetNullFlavor()) {
-					address.setPostalCode(adxp.getText());
+				if (adxp != null && !adxp.isSetNullFlavor() && adxp.getText() != null) {
+					address.setPostalCode(adxp.getText().trim());
 				}
 			}
 		}
@@ -725,6 +725,17 @@ public class DataTypesTransformerImpl implements IDataTypesTransformer, Serializ
 	public DecimalType tREAL2DecimalType(REAL real) {
 		return (real == null || real.isSetNullFlavor() || real.getValue() == null) ? null
 				: new DecimalType(real.getValue());
+	}
+
+	@Override
+	public Quantity tREAL2Quantity(REAL real) {
+		if (real == null || real.isSetNullFlavor() || real.getValue() == null) {
+			return null;
+		} else {
+			Quantity quantity = new Quantity();
+			quantity.setValue(real.getValue());
+			return quantity;
+		}
 	}
 
 	@Override

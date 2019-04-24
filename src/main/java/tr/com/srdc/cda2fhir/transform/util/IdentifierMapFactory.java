@@ -28,11 +28,13 @@ public class IdentifierMapFactory {
 				if (!bases.isEmpty()) {
 					for (Base base : bases) {
 						try {
-							Identifier identifier = resource.castToIdentifier(base);
-							String fhirType = resource.fhirType();
-							T info = resourceInfo.get(resource);
-							if (info != null) {
-								identifierMap.put(fhirType, identifier, info);
+							if (base != null) {
+								Identifier identifier = resource.castToIdentifier(base);
+								String fhirType = resource.fhirType();
+								T info = resourceInfo.get(resource);
+								if (info != null) {
+									identifierMap.put(fhirType, identifier, info);
+								}
 							}
 						} catch (FHIRException e) {
 						}

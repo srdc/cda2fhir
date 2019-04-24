@@ -1,16 +1,19 @@
 package tr.com.srdc.cda2fhir.transform.section.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
+import tr.com.srdc.cda2fhir.transform.entry.IMedicationsInformation;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
 import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDACDMap;
@@ -22,7 +25,7 @@ public abstract class SectionResult implements ISectionResult {
 	private List<IDeferredReference> deferredReferences;
 	private CDAIIMap<IEntityInfo> entities;
 	private CDAIIResourceMaps<IBaseResource> resourceMaps;
-	private CDACDMap<IBaseResource> cdMap;
+	private CDACDMap<IMedicationsInformation> cdMap;
 
 	SectionResult() {
 		bundle = new Bundle();
@@ -69,7 +72,7 @@ public abstract class SectionResult implements ISectionResult {
 			}
 
 			if (cdMap == null) {
-				cdMap = new CDACDMap<IBaseResource>();
+				cdMap = new CDACDMap<IMedicationsInformation>();
 			}
 			entities.put(entryResult);
 			resourceMaps.put(entryResult);
@@ -78,7 +81,7 @@ public abstract class SectionResult implements ISectionResult {
 	}
 
 	@Override
-	public void putCDValuesTo(Map<String, Map<String, IBaseResource>> target) {
+	public void putCDValuesTo(Map<String, IMedicationsInformation> target) {
 		if (cdMap != null) {
 			cdMap.putCDValuesTo(target);
 		}
@@ -160,8 +163,31 @@ public abstract class SectionResult implements ISectionResult {
 	}
 
 	@Override
-	public void putCDResource(CD cd, IBaseResource resource) {
+	public void putCDResource(CD cd, IMedicationsInformation resource) {
 		cdMap.put(cd, resource);
+	}
+
+	@Override
+	public void putIIResource(II ii, Class<? extends IBaseResource> clazz, IBaseResource resource) {
+		resourceMaps.put(ii, clazz, resource);
+	}
+
+	@Override
+	public void putIIResource(List<II> iis, Class<? extends IBaseResource> clazz, IBaseResource resource) {
+		resourceMaps.put(iis, clazz, resource);
+	}
+
+	@Override
+	public CDAIIResourceMaps<IBaseResource> getResourceMaps() {
+		return resourceMaps;
+	}
+
+	@Override
+	public Collection<Class<? extends IBaseResource>> keySet() {
+		if (resourceMaps == null) {
+			resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+		}
+		return resourceMaps.keySet();
 	}
 
 }

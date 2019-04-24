@@ -12,7 +12,9 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"organizer": {
+				"nullFlavor": "*"
+			}
 		}
 	},
 	{
@@ -22,7 +24,7 @@
 				"id": {
 					"*": "identifier[].->ID"
 				},
-				"code": "code.->CD",
+				"code": "code.->CD2",
 				"statusCode": "status.->NullFlavorableCode",
 				"effectiveTime": "effectivePeriod.->IVL_TSPeriod",
 				"author": {
@@ -35,7 +37,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
@@ -47,10 +51,10 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": "performer[&].actor.reference"
+				"*": ["performer[&].actor.reference", "performer[&].actor.display"]
 			},
 			"Observation": {
-				"*": "result[&].reference"
+				"*": ["result[&].reference", "result[&].display"]
 			}
 		}
 	},
@@ -61,13 +65,15 @@
 			"performer": {
 				"*": {
 					"actor": {
-						"reference": "=getId(@0)"
+						"reference": "=getId(@0)",
+						"display": "=getReferenceDisplay(@0)"
 					}
 				}
 			},
 			"result": {
 				"*": {
-					"reference": "=getId(@0)"
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
 				}
 			}
 		}

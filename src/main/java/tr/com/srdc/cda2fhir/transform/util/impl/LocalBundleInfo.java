@@ -13,6 +13,7 @@ import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.entry.IMedicationsInformation;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.IResult;
 
@@ -20,7 +21,7 @@ public class LocalBundleInfo implements IBundleInfo {
 	private IBundleInfo bundleInfo;
 	private CDAIIMap<IEntityInfo> entities = new CDAIIMap<IEntityInfo>();
 	private CDAIIResourceMaps<IBaseResource> resourceMaps = new CDAIIResourceMaps<IBaseResource>();
-	private CDACDMap<IBaseResource> cdMap = new CDACDMap<IBaseResource>();
+	private CDACDMap<IMedicationsInformation> cdMap = new CDACDMap<IMedicationsInformation>();
 
 	public LocalBundleInfo(IBundleInfo bundleInfo) {
 		this.bundleInfo = bundleInfo;
@@ -64,6 +65,14 @@ public class LocalBundleInfo implements IBundleInfo {
 		if (iis != null) {
 			entities.put(iis, entityResult.getInfo());
 		}
+
+		if (entityResult.hasIIResourceMaps()) {
+			if (resourceMaps == null) {
+				resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+			}
+			resourceMaps.put(entityResult.getResourceMaps());
+		}
+
 	}
 
 	@Override
@@ -72,6 +81,7 @@ public class LocalBundleInfo implements IBundleInfo {
 		if (result == null) {
 			return entities.get(ii);
 		}
+
 		return result;
 	}
 
@@ -103,7 +113,7 @@ public class LocalBundleInfo implements IBundleInfo {
 	}
 
 	@Override
-	public IBaseResource findResourceResult(CD cd) {
+	public IMedicationsInformation findResourceResult(CD cd) {
 		return cdMap.get(cd);
 	}
 
@@ -118,7 +128,7 @@ public class LocalBundleInfo implements IBundleInfo {
 	}
 
 	@Override
-	public CDACDMap<IBaseResource> getCDMap() {
+	public CDACDMap<IMedicationsInformation> getCDMap() {
 		return cdMap;
 	}
 

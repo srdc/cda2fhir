@@ -10,7 +10,8 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class CEGenerator {
-	private static final String[] SYSTEMS = { "2.16.840.1.113883.6.96", "4.5.2.4", "4.1.12.67", "43.45.78.12" };
+	private static final String[] SYSTEMS = { "2.16.840.1.113883.6.96", "4.5.2.4", "4.1.12.67", "43.45.78.12",
+			"3.5.6.8", "12.12.12.1", "9.0.3.6", "12.34.56.78", "3.4.5.2", "9.98.0.9", "12.11.45.33" };
 
 	private static int NEXT_INDEX = 100;
 
@@ -19,11 +20,19 @@ public class CEGenerator {
 	private String codeSystemName;
 	private String displayName;
 
+	public CEGenerator(String code) {
+		this.code = code;
+	}
+
 	public CEGenerator(String code, String codeSystem, String codeSystemName, String displayName) {
 		this.code = code;
 		this.codeSystem = codeSystem;
 		this.codeSystemName = codeSystemName;
 		this.displayName = displayName;
+	}
+
+	public String getCode() {
+		return this.code;
 	}
 
 	public CE generate(CDAFactories factories) {
@@ -69,7 +78,6 @@ public class CEGenerator {
 
 		} else {
 			Assert.assertTrue("Missing coding system", !coding.hasSystem());
-
 		}
 	}
 

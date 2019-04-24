@@ -45,28 +45,36 @@ public class JoltFormat {
 			}
 			if (value instanceof Map) {
 				Map<String, Object> valueAsMap = (Map<String, Object>) value;
-				Map.Entry<String, Object> valueEntry = valueAsMap.entrySet().stream().findFirst().get();
-				String newPath = key;
-				String valueKey = valueEntry.getKey();
-				if (valueKey.equals("*")) {
-					newPath += "[]";
-				} else {
-					newPath += "." + valueKey;
+				for (Map.Entry<String, Object> valueEntry : valueAsMap.entrySet()) {
+					String newPath = key;
+					String valueKey = valueEntry.getKey();
+					if (valueKey.equals("*")) {
+						newPath += "[]";
+					} else {
+						newPath += "." + valueKey;
+					}
+					if (parentPath.length() > 0) {
+						newPath = parentPath + "." + newPath;
+					}
+					Object valueEntryValue = valueEntry.getValue();
+					if (valueEntryValue instanceof String) {
+						String previousValue = result.map.get(newPath);
+						result.map.put(newPath, formatValue((String) valueEntryValue, previousValue));
+						continue;
+					}
+					fillResult(result, (Map<String, Object>) valueEntryValue, newPath);
 				}
-				if (parentPath.length() > 0) {
-					newPath = parentPath + "." + newPath;
-				}
-				Object valueEntryValue = valueEntry.getValue();
-				if (valueEntryValue instanceof String) {
-					String previousValue = result.map.get(newPath);
-					result.map.put(newPath, formatValue((String) valueEntryValue, previousValue));
-					continue;
-				}
-				fillResult(result, (Map<String, Object>) valueEntryValue, newPath);
 				continue;
 			}
 			if (value instanceof String) {
-				String path = parentPath.length() > 0 ? String.format("%s.%s", parentPath, key) : key;
+				String path = key;
+				if (parentPath.length() > 0) {
+					if (key.equals("*")) {
+						path = parentPath + "[]";
+					} else {
+						path = String.format("%s.%s", parentPath, path);
+					}
+				}
 				String previousValue = result.map.get(path);
 				result.map.put(path, formatValue((String) value, previousValue));
 				continue;

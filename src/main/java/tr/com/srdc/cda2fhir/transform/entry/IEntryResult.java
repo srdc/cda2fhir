@@ -7,6 +7,8 @@ import tr.com.srdc.cda2fhir.transform.util.IResult;
 public interface IEntryResult extends IResult {
 	Bundle getBundle();
 
+	Bundle getFullBundle();
+
 	void copyTo(Bundle bundle);
 
 	boolean hasResult();

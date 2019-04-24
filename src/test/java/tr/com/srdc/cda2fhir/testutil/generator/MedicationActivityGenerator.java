@@ -7,6 +7,7 @@ import java.util.Map;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Medication;
+import org.hl7.fhir.dstu3.model.MedicationDispense;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -66,6 +67,12 @@ public class MedicationActivityGenerator {
 	private List<IndicationGenerator> indicationGenerators = new ArrayList<>();
 
 	private MedicationSupplyOrderGenerator medicationSupplyOrderGenerator;
+
+	private MedicationDispenseGenerator medicationDispenseGenerator;
+
+	public void setIDGenerator(IDGenerator idGenerator) {
+		idGenerators.add(idGenerator);
+	}
 
 	public MedicationActivity generate(CDAFactories factories) {
 		MedicationActivity ma = factories.consol.createMedicationActivity();
@@ -145,9 +152,16 @@ public class MedicationActivityGenerator {
 			EntryRelationship er = factories.base.createEntryRelationship();
 			ma.getEntryRelationships().add(er);
 			er.setTypeCode(x_ActRelationshipEntryRelationship.REFR);
-			II ii = factories.datatype.createII("2.16.840.1.113883.10.20.22.4.17");
-			mso.getTemplateIds().add(ii);
 			er.setSupply(mso);
+		}
+
+		if (medicationDispenseGenerator != null) {
+			org.openhealthtools.mdht.uml.cda.consol.MedicationDispense md = medicationDispenseGenerator
+					.generate(factories);
+			EntryRelationship er = factories.base.createEntryRelationship();
+			ma.getEntryRelationships().add(er);
+			er.setTypeCode(x_ActRelationshipEntryRelationship.REFR);
+			er.setSupply(md);
 		}
 
 		return ma;
@@ -173,6 +187,7 @@ public class MedicationActivityGenerator {
 		ma.rateQuantityGenerator = IVL_PQRangeGenerator.getDefaultInstance();
 		ma.indicationGenerators.add(IndicationGenerator.getDefaultInstance());
 		ma.medicationSupplyOrderGenerator = MedicationSupplyOrderGenerator.getDefaultInstance();
+		ma.medicationDispenseGenerator = MedicationDispenseGenerator.getDefaultInstance();
 
 		ma.updateIndicationGenerators();
 
@@ -242,15 +257,13 @@ public class MedicationActivityGenerator {
 		}
 	}
 
-	public void verify(Bundle bundle) throws Exception {
-		MedicationStatement ms = BundleUtil.findOneResource(bundle, MedicationStatement.class);
-
+	public void verify(Bundle bundle, MedicationStatement ms) throws Exception {
 		verify(ms);
 
 		BundleUtil util = new BundleUtil(bundle);
 
 		if (authorGenerator == null) {
-			Assert.assertTrue("No med statetement information source", ms.hasInformationSource());
+			Assert.assertTrue("No med statetement information source", !ms.hasInformationSource());
 		} else {
 			String practitionerId = ms.getInformationSource().getReference();
 			Practitioner practitioner = util.getResourceFromReference(practitionerId, Practitioner.class);
@@ -267,7 +280,7 @@ public class MedicationActivityGenerator {
 		}
 
 		if (medInfoGenerator == null) {
-			Assert.assertTrue("No med statetement medication", ms.hasMedication());
+			Assert.assertTrue("No med statetement medication", !ms.hasMedication());
 		} else {
 			String medId = ms.getMedicationReference().getReference();
 			Medication medication = util.getResourceFromReference(medId, Medication.class);
@@ -294,6 +307,19 @@ public class MedicationActivityGenerator {
 			medicationSupplyOrderGenerator.verify(medRequest);
 			medicationSupplyOrderGenerator.verify(bundle);
 		}
+
+		MedicationDispense medDispense = FHIRUtil.findFirstResource(bundle, MedicationDispense.class);
+		if (medicationDispenseGenerator == null) {
+			Assert.assertNull("No medication dispense", medDispense);
+		} else {
+			medicationDispenseGenerator.verify(medDispense);
+			medicationDispenseGenerator.verify(bundle);
+		}
+	}
+
+	public void verify(Bundle bundle) throws Exception {
+		MedicationStatement ms = BundleUtil.findOneResource(bundle, MedicationStatement.class);
+		verify(bundle, ms);
 	}
 
 	public void setMedicationInfoGenerator(MedicationInformationGenerator generator) {
@@ -302,5 +328,21 @@ public class MedicationActivityGenerator {
 
 	public void setMedicationSupplyOrderGenerator(MedicationSupplyOrderGenerator medicationSupplyOrderGenerator) {
 		this.medicationSupplyOrderGenerator = medicationSupplyOrderGenerator;
+	}
+
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		this.authorGenerator = authorGenerator;
+	}
+
+	public MedicationSupplyOrderGenerator getMedicationSupplyOrderGenerator() {
+		return this.medicationSupplyOrderGenerator;
+	}
+
+	public MedicationDispenseGenerator getMedicationDispenseGenerator() {
+		return this.medicationDispenseGenerator;
+	}
+
+	public void setMedicationDispenseGenerator(MedicationDispenseGenerator medicationDispenseGenerator) {
+		this.medicationDispenseGenerator = medicationDispenseGenerator;
 	}
 }

@@ -11,6 +11,15 @@ public class LeafWildcardNode extends LeafNode implements IWildcardNode {
 	}
 
 	@Override
+	public LeafWildcardNode clone(IParentNode parent) {
+		String path = getPath();
+		String target = getTarget();
+		LeafWildcardNode result = new LeafWildcardNode(parent, path, target);
+		result.addConditions(getConditions());
+		return result;
+	}
+
+	@Override
 	public void fillWildcardNodes(List<IWildcardNode> result) {
 		result.add(this);
 	}
@@ -20,8 +29,8 @@ public class LeafWildcardNode extends LeafNode implements IWildcardNode {
 		IParentNode parent = getParent();
 		IParentNode grandparent = parent.getParent();
 		String parentPath = parent.getPath();
-		String newPath = hasSibling() ? parentPath : parentPath + "[]";
-		MergedLeafNode result = new MergedLeafNode(grandparent, newPath, this.getTarget());
+		String newPath = addSquareBrackets() ? parentPath + "[]" : parentPath;
+		LeafNode result = new LeafNode(grandparent, newPath, this.getTarget());
 		grandparent.addChild(result);
 		parent.removeChild(this);
 		result.copyConditions(parent);

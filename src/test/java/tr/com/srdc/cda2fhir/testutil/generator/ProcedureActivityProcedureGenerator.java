@@ -175,9 +175,7 @@ public class ProcedureActivityProcedureGenerator {
 		}
 	}
 
-	public void verify(Bundle bundle) throws Exception {
-		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
-
+	public void verify(Bundle bundle, Procedure procedure) throws Exception {
 		verify(procedure);
 
 		if (performerGenerators.isEmpty()) {
@@ -215,5 +213,10 @@ public class ProcedureActivityProcedureGenerator {
 
 			}
 		}
+	}
+
+	public void verify(Bundle bundle) throws Exception {
+		Procedure procedure = BundleUtil.findOneResource(bundle, Procedure.class);
+		verify(bundle, procedure);
 	}
 }

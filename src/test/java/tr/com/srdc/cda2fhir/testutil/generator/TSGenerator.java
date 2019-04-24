@@ -22,9 +22,11 @@ public class TSGenerator {
 		this.nullFlavor = nullFlavor;
 	}
 
-	public TS generate(CDAFactories factories) {
-		TS ts = factories.datatype.createTS();
+	protected TS create(CDAFactories factories) {
+		return factories.datatype.createTS();
+	}
 
+	protected void fill(TS ts) {
 		if (value != null) {
 			ts.setValue(value);
 		}
@@ -33,7 +35,11 @@ public class TSGenerator {
 			NullFlavor nf = CDAUtilExtension.toNullFlavor(nullFlavor);
 			ts.setNullFlavor(nf);
 		}
+	}
 
+	public TS generate(CDAFactories factories) {
+		TS ts = create(factories);
+		fill(ts);
 		return ts;
 	}
 

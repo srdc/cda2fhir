@@ -1,0 +1,28 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"section": {
+				"entry": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SectionText"
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"section": {
+				"entry": {
+					"*": "VitalSigns[].->VitalSignsOrganizer"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	}
+]

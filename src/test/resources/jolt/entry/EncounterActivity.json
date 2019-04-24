@@ -10,9 +10,21 @@
 		}
 	},
 	{
+		"operation": "default",
+		"spec": {
+			"encounter": {
+				"statusCode": {
+					"code": "finished"
+				}
+			}
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"encounter": {
+				"nullFlavor": "*"
+			}
 		}
 	},
 	{
@@ -23,7 +35,10 @@
 					"*": "identifier[].->ID"
 				},
 				"statusCode": "status.->NullFlavorableCode",
-				"code": "type[].->CD",
+				"code": [
+					"type[].->CD2",
+					"class.->EncounterClassHelper"
+				],
 				"priorityCode": "priority.->CD",
 				"effectiveTime": "period.->IVL_TSPeriod",
 				"performer": {
@@ -45,7 +60,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
@@ -57,13 +74,39 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": ["participant[&].individual.reference", "participant[&].individual.display", "participant[&].type"]
+				"*": [
+					"participant[&].individual.reference",
+					"participant[&].individual.display",
+					"participant[&].type"
+				]
 			},
 			"Condition": {
-				"*": ["diagnosis[&].condition.reference", "diagnosis[&].condition.display"]
+				"*": [
+					"diagnosis[&].condition.reference",
+					"diagnosis[&].condition.display"
+				]
 			},
 			"Location": {
-				"*": ["location[&].location.reference", "location[&].location.display"]
+				"*": [
+					"location[&].location.reference",
+					"location[&].location.display"
+				]
+			}
+		}
+	},
+	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"class": {
+				"*": "=toLower(@0)"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"class": {
+				"*": "=valueSetAdapter('EncounterClass',@0)"
 			}
 		}
 	},
@@ -71,6 +114,7 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"status": "=valueSetAdapter('EncounterStatus',@0)",
+			"class": "=lastElement(@0)",
 			"participant": {
 				"*": {
 					"individual": {
@@ -95,13 +139,7 @@
 						"display": "=getReferenceDisplay(@0)"
 					}
 				}
-			}			
-		}
-	},
-	{
-		"operation": "default",
-		"spec": {
-			"status": "finished"
+			}
 		}
 	},
 	{
@@ -112,6 +150,12 @@
 			"Organization": "",
 			"Condition": "",
 			"Location": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <section>
+					<!-- Procedures Section (entries required) (V2) -->
+      <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.2.7.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.7.1"/>
+      <code code="47519-4"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"
+            displayName="HISTORY OF PROCEDURES"/>
+      <title>PROCEDURES</title>
+      <text>
+         <table border="1" width="100%">
+            <thead>
+               <tr>
+                  <th>Procedure</th>
+                  <th>Date</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td ID="Proc1">Colonic polypectomy</td>
+                  <td>1998</td>
+               </tr>
+            </tbody>
+         </table>
+      </text>
+      <!-- Examples of the same procedure are shown in different procedure entries -->
+      <entry typeCode="DRIV">
+         <procedure classCode="PROC" moodCode="EVN">
+							<!-- ** Procedure activity procedure ** -->
+            <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.14"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.14"/>
+            <methodCode nullFlavor="UNK"/>
+            <specimen typeCode="SPC">
+               <specimenRole classCode="SPEC">
+                  <id root="c2ee9ee9-ae31-4628-a919-fec1cbb58683"/>
+                  <specimenPlayingEntity>
+                     <code code="309226005"
+                           codeSystem="2.16.840.1.113883.6.96"
+                           codeSystemName="SNOMED CT"
+                           displayName="colonic polyp sample"/>
+                  </specimenPlayingEntity>
+               </specimenRole>
+            </specimen>
+            <performer>
+							</performer>
+            <participant typeCode="DEV">
+               <participantRole classCode="MANU">
+									<!-- ** Product instance ** -->
+                  <templateId root="2.16.840.1.113883.10.20.22.4.37"/>
+                  <id root="742aee30-21c5-11e1-bfc2-0800200c9a66"/>
+                  <playingDevice>
+                     <code code="90412006"
+                           codeSystem="2.16.840.1.113883.6.96"
+                           codeSystemName="SNOMED CT"
+                           displayName="Colonoscope"/>
+                  </playingDevice>
+                  <scopingEntity>
+                     <id root="eb936010-7b17-11db-9fe1-0800200c9b65"/>
+                  </scopingEntity>
+               </participantRole>
+            </participant>
+            <entryRelationship inversionInd="true" typeCode="COMP">
+               <encounter classCode="ENC" moodCode="EVN">
+                  <id root="2a620155-9d11-439e-92b3-5d9815ff4de8"/>
+               </encounter>
+            </entryRelationship>
+         </procedure>
+      </entry>
+      <entry>
+         <observation classCode="OBS" moodCode="EVN">
+							<!-- ** Procedure activity observation (V2) ** -->
+            <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.13"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.13"/>
+            <id extension="123456789" root="2.16.840.1.113883.19"/>
+            <code code="274025005"
+                  codeSystem="2.16.840.1.113883.6.96"
+                  codeSystemName="SNOMED CT"
+                  displayName="Colonic polypectomy">
+               <originalText>
+                  <reference value="#Proc1"/>
+               </originalText>
+            </code>
+            <statusCode code="aborted"/>
+            <effectiveTime value="20110203"/>
+            <priorityCode code="CR"
+                          codeSystem="2.16.840.1.113883.5.7"
+                          codeSystemName="ActPriority"
+                          displayName="Callback results"/>
+            <value xsi:type="CD"/>
+            <methodCode nullFlavor="UNK"/>
+            <targetSiteCode code="416949008"
+                            codeSystem="2.16.840.1.113883.6.96"
+                            codeSystemName="SNOMED CT"
+                            displayName="Abdomen and pelvis"/>
+            <performer>
+               <assignedEntity>
+                  <id extension="1234" root="2.16.840.1.113883.19.5"/>
+                  <addr>
+                     <streetAddressLine>1001 Village Avenue</streetAddressLine>
+                     <city>Portland</city>
+                     <state>OR</state>
+                     <postalCode>99123</postalCode>
+                     <country>US</country>
+                  </addr>
+                  <telecom use="WP" value="tel: +1(555)555-5000"/>
+                  <representedOrganization>
+                     <id root="2.16.840.1.113883.19.5"/>
+                     <name>Community Health and Hospitals</name>
+                     <telecom use="WP" value="tel: +1(555)555-5000"/>
+                     <addr>
+                        <streetAddressLine>1001 Village Avenue</streetAddressLine>
+                        <city>Portland</city>
+                        <state>OR</state>
+                        <postalCode>99123</postalCode>
+                        <country>US</country>
+                     </addr>
+                  </representedOrganization>
+               </assignedEntity>
+            </performer>
+            <participant typeCode="LOC">
+               <participantRole classCode="SDLOC">
+									<!-- ** Service delivery location ** -->
+                  <templateId root="2.16.840.1.113883.10.20.22.4.32"/>
+                  <code code="1118-9"
+                        codeSystem="2.16.840.1.113883.6.259"
+                        codeSystemName="HL7 HealthcareServiceLocation"
+                        displayName="Gastroenterology Clinic"/>
+                  <addr>
+                     <streetAddressLine>1009 Health Drive</streetAddressLine>
+                     <city>Portland</city>
+                     <state>OR</state>
+                     <postalCode>99123</postalCode>
+                     <country>US</country>
+                  </addr>
+                  <telecom use="WP" value="tel: +1(555)555-5009"/>
+                  <playingEntity classCode="PLC">
+                     <name>Community Gastroenterology Clinic</name>
+                  </playingEntity>
+               </participantRole>
+            </participant>
+         </observation>
+      </entry>
+      <entry>
+         <act classCode="ACT" moodCode="EVN">
+							<!-- Procedure activity act (V2) -->
+            <templateId extension="2014-06-09" root="2.16.840.1.113883.10.20.22.4.12"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.12"/>
+            <id extension="1234567" root="1.2.3.4.5.6.7.8"/>
+            <code code="274025005"
+                  codeSystem="2.16.840.1.113883.6.96"
+                  codeSystemName="SNOMED CT"
+                  displayName="Colonic polypectomy">
+               <originalText>
+                  <reference value="#Proc1"/>
+               </originalText>
+            </code>
+            <statusCode code="completed"/>
+            <effectiveTime value="20110203"/>
+            <priorityCode code="CR"
+                          codeSystem="2.16.840.1.113883.5.7"
+                          codeSystemName="ActPriority"
+                          displayName="Callback results"/>
+            <performer>
+               <assignedEntity>
+                  <id extension="1234" root="2.16.840.1.113883.19"/>
+                  <addr>
+                     <streetAddressLine>1001 Village Avenue</streetAddressLine>
+                     <city>Portland</city>
+                     <state>OR</state>
+                     <postalCode>99123</postalCode>
+                     <country>US</country>
+                  </addr>
+                  <telecom use="WP" value="tel: +1(555)555-5000"/>
+                  <representedOrganization>
+                     <id root="2.16.840.1.113883.19.5"/>
+                     <name>Community Health and Hospitals</name>
+                     <telecom use="WP" value="tel: +1(555)555-5000"/>
+                     <addr>
+                        <streetAddressLine>1001 Village Avenue</streetAddressLine>
+                        <city>Portland</city>
+                        <state>OR</state>
+                        <postalCode>99123</postalCode>
+                        <country>US</country>
+                     </addr>
+                  </representedOrganization>
+               </assignedEntity>
+            </performer>
+            <participant typeCode="LOC">
+               <participantRole classCode="SDLOC">
+									<!-- ** Service delivery location ** -->
+                  <templateId root="2.16.840.1.113883.10.20.22.4.32"/>
+                  <code code="1118-9"
+                        codeSystem="2.16.840.1.113883.6.259"
+                        codeSystemName="HL7 HealthcareServiceLocation"
+                        displayName="Gastroenterology Clinic"/>
+                  <addr>
+                     <streetAddressLine>1009 Health Drive</streetAddressLine>
+                     <city>Portland</city>
+                     <state>OR</state>
+                     <postalCode>99123</postalCode>
+                     <country>US</country>
+                  </addr>
+                  <telecom use="WP" value="tel: +1(555)-555-5009"/>
+                  <playingEntity classCode="PLC">
+                     <name>Community Gastroenterology Clinic</name>
+                  </playingEntity>
+               </participantRole>
+            </participant>
+         </act>
+      </entry>
+   </section>
+</root>

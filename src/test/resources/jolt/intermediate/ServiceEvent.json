@@ -1,0 +1,67 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"serviceEvent": {
+				"performer": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"serviceEvent": {
+				"performer": {
+					"*": "Performer[].->AssignedEntity"
+				},
+				"effectiveTime": "period.->IVL_TSPeriod"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+			"alias": {
+				"Practitioner[]": "EventPractitioner[]",
+				"PractitionerRole[]": "EventPractitionerRole[]",
+				"Organization[]": "EventOrganization[]"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.DistributeArray",
+		"spec": {
+			"Performer": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Practitioner": {
+				"*": [
+					"detail[&].reference",
+					"detail[&].display"
+				]
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"detail": {
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
+				}
+			}
+		}
+	},
+	{
+		"operation": "remove",
+		"spec": {
+			"Practitioner": "",
+			"PractitionerRole": "",
+			"Organization": ""
+		}
+	}
+]

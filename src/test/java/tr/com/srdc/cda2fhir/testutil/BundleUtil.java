@@ -204,9 +204,6 @@ public class BundleUtil {
 	static public <T extends Resource> List<T> findResources(Bundle bundle, Class<T> type, int count) throws Exception {
 		List<T> resources = FHIRUtil.findResources(bundle, type);
 
-		for (Resource resource : resources) {
-			System.out.println(resource.fhirType());
-		}
 		String msg = String.format("Expect %d %s resources in the bundle", count, type.getSimpleName());
 		Assert.assertEquals(msg, count, resources.size());
 		return resources;

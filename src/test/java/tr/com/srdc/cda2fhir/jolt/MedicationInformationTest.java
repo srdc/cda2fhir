@@ -1,22 +1,15 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Medication;
-import org.hl7.fhir.dstu3.model.Organization;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.ManufacturedProduct;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
@@ -42,23 +35,6 @@ public class MedicationInformationTest {
 		rt = new ResourceTransformerImpl();
 	}
 
-	private static void compareMedication(String caseName, Medication med, Map<String, Object> joltMed)
-			throws Exception {
-		Assert.assertNotNull("Jolt medication", joltMed);
-		Assert.assertNotNull("Jolt medication id", joltMed.get("id"));
-
-		joltMed.put("id", med.getIdElement().getIdPart()); // ids do not have to match
-
-		JoltUtil.verifyUpdateReference(med.hasManufacturer(), med.getManufacturer(), joltMed, "manufacturer");
-
-		String joltMedJson = JsonUtils.toPrettyJsonString(joltMed);
-		File joltMedFile = new File(OUTPUT_PATH + caseName + "JoltMedication.json");
-		FileUtils.writeStringToFile(joltMedFile, joltMedJson, Charset.defaultCharset());
-
-		String medJson = FHIRUtil.encodeToJSON(med);
-		JSONAssert.assertEquals("Jolt medication", medJson, joltMedJson, true);
-	}
-
 	private static void runTest(MedicationInformationGenerator generator, String caseName) throws Exception {
 		ManufacturedProduct mf = generator.generate(factories);
 
@@ -78,13 +54,9 @@ public class MedicationInformationTest {
 		File xmlFile = CDAUtilExtension.writeAsXML(mf, OUTPUT_PATH, caseName);
 
 		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationInformation", caseName);
+		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
-		Map<String, Object> joltMed = TransformManager.chooseResource(joltResult, "Medication");
-		compareMedication(caseName, med, joltMed);
-
-		Organization organization = BundleUtil.findOneResource(bundle, Organization.class);
-		Map<String, Object> joltOrg = TransformManager.chooseResource(joltResult, "Organization");
-		JoltUtil.compareOrganization(organization, joltOrg);
+		joltUtil.verify(med);
 	}
 
 	@Test

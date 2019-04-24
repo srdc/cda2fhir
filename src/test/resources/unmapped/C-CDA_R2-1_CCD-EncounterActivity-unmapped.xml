@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:sdtc="urn:hl7-org:sdtc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <section>
+					<!-- *** Encounters section (entries required) (V3) *** -->
+      <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.2.22.1"/>
+      <templateId root="2.16.840.1.113883.10.20.22.2.22.1"/>
+      <code code="46240-8"
+            codeSystem="2.16.840.1.113883.6.1"
+            codeSystemName="LOINC"
+            displayName="History of encounters"/>
+      <title>ENCOUNTERS</title>
+      <text>
+         <table border="1" width="100%">
+            <thead>
+               <tr>
+                  <th>Encounter</th>
+                  <th>Performer</th>
+                  <th>Location</th>
+                  <th>Date</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td ID="Encounter1"> Checkup Examination </td>
+                  <td>Performer Name</td>
+                  <td>Community Urgent Care Center</td>
+                  <td>September 27, 2012 at 1:00pm</td>
+               </tr>
+            </tbody>
+         </table>
+      </text>
+      <entry typeCode="DRIV">
+         <encounter classCode="ENC" moodCode="EVN">
+							<!-- ** Encounter Activity (V3) ** -->
+            <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
+            <templateId root="2.16.840.1.113883.10.20.22.4.49"/>
+         </encounter>
+      </entry>
+   </section>
+</root>

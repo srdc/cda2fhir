@@ -5,6 +5,7 @@ import java.util.List;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
 public interface IEntityResult extends IEntityInfo {
@@ -28,6 +29,8 @@ public interface IEntityResult extends IEntityInfo {
 
 	boolean hasPractitionerRoleCode();
 
+	boolean hasDevice();
+
 	Reference getPractitionerReference();
 
 	Reference getOrganizationReference();
@@ -37,4 +40,12 @@ public interface IEntityResult extends IEntityInfo {
 	CodeableConcept getPractitionerRoleCode();
 
 	String getPractitionerId();
+
+	boolean hasIIResourceMaps();
+
+	CDAIIResourceMaps<IBaseResource> getResourceMaps();
+
+	void put(List<II> iis, Class<? extends IBaseResource> clazz, IBaseResource resource);
+
+	String getDeviceId();
 }

@@ -1,0 +1,27 @@
+CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
+observation.author.assignedAuthor,Organization[],EntityOrganization,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.author.assignedAuthor,PractitionerRole[],EntityPractitionerRole,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.author.assignedAuthor,Practitioner[],EntityPractitioner,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.author[].time.value,Observation.issued,,"datetimeAdapter",observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.code,Observation.code,CD2,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.effectiveTime,Observation.effectivePeriod,IVL_TSPeriod,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.id[],Observation.identifier[],ID,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.interpretationCode.#http://hl7.org/fhir/v2/0078,Observation.interpretation.coding[].system,,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.interpretationCode.code,Observation.interpretation.coding[].code,,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.interpretationCode.displayName,Observation.interpretation.coding[].display,,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.methodCode[],Observation.method,CD,"lastElement",observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.referenceRange[].observationRange.interpretationCode,Observation.referenceRange[].type,CD,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.referenceRange[].observationRange.text,Observation.referenceRange[].text,,"contentOrSelf",observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.referenceRange[].observationRange.value,Observation.referenceRange[],IVL_PQRange,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.statusCode.code,Observation.status,,"valueSetAdapter('ObservationStatus','unknown')",observation.nullFlavor isnull,observation.statusCode.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.targetSiteCode,Observation.bodySite,CD,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.value,Observation.valueCodeableConcept,CD,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal CD
+observation.value,Observation.valueQuantity,PQ,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal PQ
+observation.value,Observation.valueRange,IVL_PQ,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal IVL_PQ
+observation.value,Observation.valueRatio,RTO,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal RTO
+observation.value.content,Observation.valueAttachment.data,,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal ED
+observation.value.content,Observation.valueString,,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal ST
+observation.value.nullFlavor,Observation.dataAbsentReason.coding[],,"valueSetAdapter('ObservationDataAbsentReason')",observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.value.value,Observation.valueBoolean,,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal BL
+observation.value.value,Observation.valueDateTime,,"datetimeAdapter",observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9,observation.value.xsi:type equal TS
+Practitioner[],Observation.performer[].reference,,"getId"

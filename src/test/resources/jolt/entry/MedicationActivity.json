@@ -12,7 +12,9 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
-			"nullFlavor": "*"
+			"substanceAdministration": {
+				"nullFlavor": "*"
+			}
 		}
 	},
 	{
@@ -38,59 +40,65 @@
 					}
 				},
 				"doseQuantity": "dosage[0].doseQuantity.->IVL_PQSimpleQuantity",
-				"routeCode": "dosage[0].route.->CD",
+				"routeCode": "dosage[0].route.->CD2",
 				"rateQuantity": "dosage[0].rateRange.->IVL_PQRange",
 				"#unk": "taken",
 				"entryRelationship": {
-					"*": {
-						"typeCode": {
-							"RSON": {
-								"@2": "Condition[].->MedIndication"
-							},
-							"REFR": {
-								"@2": "MedicationRequest.->MedicationSupplyOrder"
-							}
-						}
-						
-					}
-					
+					"*": [
+						"MedicationRequest.->MedicationSupplyOrder",
+						"MedicationDispense.->MedicationDispense",
+						"Condition[].->MedIndication",
+						"dosage[0].timing.->MedActivityCustomFrequency"
+					]
 				}
 			}
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
-			"Practitioner": "informationSource.reference",
-			"Medication": "medicationReference.reference",
+			"Practitioner": [
+				"informationSource.reference",
+				"informationSource.display"
+			],
+			"Medication": [
+				"medicationReference.reference",
+				"medicationReference.display"
+			],
 			"Condition": {
-				"*": "reasonReference[&].reference"
+				"*": [
+					"reasonReference[&].reference",
+					"reasonReference[&].display"
+				]
 			}
 		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"status": "=valueSetAdapter('MedicationStatementStatus',@0)",
 			"informationSource": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"medicationReference": {
-				"reference": "=getId(@0)"
+				"reference": "=getId(@0)",
+				"display": "=getReferenceDisplay(@0)"
 			},
 			"reasonReference": {
-				"*": {			
-					"reference": "=getId(@0)"
+				"*": {
+					"reference": "=getId(@0)",
+					"display": "=getReferenceDisplay(@0)"
 				}
 			},
 			"dosage": {
 				"*": {
+					"timing": "=lastElement(@0)",
 					"doseQuantity": "=constantSystem('http://unitsofmeasure.org/ucum.html','pq',@0)"
 				}
 			}
@@ -105,6 +113,7 @@
 			"Medication": "",
 			"Condition": "",
 			"MedicationRequest": "",
+			"MedicationDispense": "",
 			"dosage": {
 				"0": {
 					"rateRange": {
@@ -117,6 +126,12 @@
 					}
 				}
 			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{

@@ -57,7 +57,6 @@ public class CDAIIResourceMaps<T> implements ICDAIIResourceMaps<T>, ICDAIIResour
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void putRootValuesTo(Class<? extends T> clazz, Map<String, T> target) {
 		if (iiMaps.containsKey(clazz)) {
@@ -88,20 +87,47 @@ public class CDAIIResourceMaps<T> implements ICDAIIResourceMaps<T>, ICDAIIResour
 
 	@Override
 	public void put(ICDAIIResourceMapsSource<T> sourceMaps) {
-		for (Class<? extends T> clazz : iiMaps.keySet()) {
+
+		for (Class<? extends T> clazz : sourceMaps.keySet()) {
+
 			CDAIIMap<T> iiMap = this.getMap(clazz);
 			CDAIIMap<T> iiMapSource = sourceMaps.getMap(clazz);
-			if (iiMap != null) {
-				if (iiMapSource != null) {
-					iiMapSource.put(iiMap);
+
+			if (iiMapSource != null) {
+				if (iiMap != null) {
+
+					iiMap.put(iiMapSource);
+
 				} else {
-					CDAIIMap<T> iiMapSourceNew = new CDAIIMap<T>();
-					sourceMaps.putMap(clazz, iiMapSourceNew);
-					iiMapSourceNew.put(iiMap);
+					iiMap = new CDAIIMap<T>();
+					iiMaps.put(clazz, iiMap);
+					iiMap.put(iiMapSource);
 				}
-
 			}
+		}
+	}
 
+	@Override
+	public void put(List<II> iis, Class<? extends T> clazz, T t) {
+		CDAIIMap<T> iiMap = iiMaps.get(clazz);
+		if (iiMap != null) {
+			iiMap.put(iis, t);
+		} else {
+			iiMap = new CDAIIMap<T>();
+			iiMap.put(iis, t);
+			iiMaps.put(clazz, iiMap);
+		}
+	}
+
+	@Override
+	public void put(II ii, Class<? extends T> clazz, T t) {
+		CDAIIMap<T> iiMap = iiMaps.get(clazz);
+		if (iiMap != null) {
+			iiMap.put(ii, t);
+		} else {
+			iiMap = new CDAIIMap<T>();
+			iiMap.put(ii, t);
+			iiMaps.put(clazz, iiMap);
 		}
 	}
 

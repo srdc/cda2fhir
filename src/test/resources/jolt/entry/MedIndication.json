@@ -1,5 +1,26 @@
 [
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"observation": {
+						"nullFlavor": "n",
+						"templateId": {
+							"0": {
+								"root": "=a"
+							}
+						}
+					}
+				}
+			],
+			"values": {
+				"a": "2.16.840.1.113883.10.20.22.4.19"
+			}
+		}
+	},
+	{
 		"operation": "cardinality",
 		"spec": {
 			"observation": {
@@ -7,12 +28,6 @@
 				"code": "ONE",
 				"value": "MANY"
 			}
-		}
-	},
-	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
-		"spec": {
-			"nullFlavor": "*"
 		}
 	},
 	{
@@ -31,7 +46,9 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute"
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",

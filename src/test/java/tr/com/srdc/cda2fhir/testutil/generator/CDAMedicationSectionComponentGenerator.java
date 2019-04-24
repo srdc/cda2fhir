@@ -17,6 +17,7 @@ public class CDAMedicationSectionComponentGenerator {
 
 	private List<SubstanceAdministration> substanceAdministrations;
 	static final public String DEFAULT_TEMPLATE_ID = "2.16.840.1.113883.10.20.22.2.1";
+	static final public String DEFAULT_TEMPLATE_ID_EXT = "2019-01-01";
 	static final public String DEFAULT_CODE = "10160-0";
 	static final public String DEFAULT_CODE_SYSTEM = "2.16.840.1.113883.6.1";
 	static final public String DEFAULT_DISPLAY_NAME = "History of Medication Use";
@@ -29,7 +30,7 @@ public class CDAMedicationSectionComponentGenerator {
 		MedicationsSection section = factories.consol.createMedicationsSection();
 		CE code = factories.datatype.createCE(DEFAULT_CODE, DEFAULT_CODE_SYSTEM, DEFAULT_CODE_SYSTEM_NAME,
 				DEFAULT_DISPLAY_NAME);
-		II templateId = factories.datatype.createII(DEFAULT_TEMPLATE_ID);
+		II templateId = factories.datatype.createII(DEFAULT_TEMPLATE_ID, DEFAULT_TEMPLATE_ID_EXT);
 		section.setClassCode(ActClass.DOCSECT);
 		section.setMoodCode(ActMood.EVN);
 		section.setCode(code);

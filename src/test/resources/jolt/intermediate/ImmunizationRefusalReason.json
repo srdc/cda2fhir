@@ -1,0 +1,36 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"observation": {
+						"nullFlavor": "n",
+						"templateId": {
+							"0": {
+								"root": "=a"
+							}
+						}
+					}
+				}
+			],
+			"values": {
+				"a": "2.16.840.1.113883.10.20.22.4.53"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"observation": {
+				"code": "->CD"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	}
+]

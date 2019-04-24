@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.jolt.report.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import tr.com.srdc.cda2fhir.jolt.report.Templates;
 
 public class LinkedNode extends LeafNode implements ILinkedNode {
 	private String link;
+	private Map<String, String> alias;
 
 	public LinkedNode(IParentNode parent, String path, String target, String link) {
 		super(parent, path, target);
@@ -34,20 +36,65 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 	}
 
 	@Override
-	public void expandLinks(Map<String, JoltTemplate> templateMap) {
+	public void expandLinks(JoltTemplate ownerTemplate, Map<String, JoltTemplate> templateMap) {
 		JoltTemplate template = templateMap.get(link);
 		if (template != null) {
 			RootNode rootNode = template.getRootNode();
 			IParentNode parent = getParent();
-			List<INode> newChildren = rootNode.getAsLinkReplacement(this);
+			String path = getPath();
+			String target = getTarget();
+			boolean isDistributed = ownerTemplate.isDistributed(target);
+			List<INode> newChildren = rootNode.cloneForLinkReplacement(parent);
 			newChildren.forEach(newChild -> {
+				if (target.length() > 0) {
+					newChild.promoteTargets(target, isDistributed);
+				}
+				newChild.setPath(path);
 				newChild.copyConditions(this);
 				parent.addChild(newChild);
 				List<ILinkedNode> linkedNodesOfLink = newChild.getLinkedNodes();
-				linkedNodesOfLink.forEach(lnon -> lnon.expandLinks(templateMap));
+				linkedNodesOfLink.forEach(lnon -> {
+					if (alias != null) {
+						lnon.addAlias(alias);
+					}
+					Map<String, String> templateAlias = ownerTemplate.getAlias();
+					if (templateAlias != null) {
+						lnon.addAlias(templateAlias);
+					}
+					lnon.expandLinks(template, templateMap);
+				});
 			});
 			parent.removeChild(this);
 		}
+	}
+
+	@Override
+	public void addAlias(Map<String, String> alias) {
+		if (alias == null) {
+			return;
+		}
+		if (this.alias == null) {
+			this.alias = new HashMap<String, String>();
+		}
+		this.alias.putAll(alias);
+	}
+
+	private String getActualTarget(Templates templates) {
+		String target = getTarget();
+
+		String rootResourceType = templates.getRootResource();
+		boolean isResourceLink = templates.doesGenerateResource(link);
+
+		if (rootResourceType != null && !isResourceLink) {
+			return rootResourceType + "." + target;
+		}
+
+		if (isResourceLink) {
+			String[] targetPieces = target.split("\\.");
+			return targetPieces[targetPieces.length - 1];
+		}
+
+		return target;
 	}
 
 	@Override
@@ -55,12 +102,15 @@ public class LinkedNode extends LeafNode implements ILinkedNode {
 		String path = getPath();
 		String target = getTarget();
 
-		String rootResourceType = templates.getRootResource();
-		boolean isResourceLink = templates.doesGenerateResource(link);
-
 		String format = templates.getFormat(target);
 
-		String actualTarget = rootResourceType == null || isResourceLink ? target : rootResourceType + "." + target;
+		String actualTarget = getActualTarget(templates);
+		if (alias != null) {
+			String targetFromAlias = alias.get(actualTarget);
+			if (targetFromAlias != null) {
+				actualTarget = targetFromAlias;
+			}
+		}
 
 		TableRow row = new TableRow(path, actualTarget, link);
 		row.setFormat(format);
