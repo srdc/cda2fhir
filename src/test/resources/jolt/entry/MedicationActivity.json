@@ -105,6 +105,15 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "default",
+		"spec": {
+			"status": "active"
+		}
+	},
+	{
 		"operation": "remove",
 		"spec": {
 			"Practitioner": "",
