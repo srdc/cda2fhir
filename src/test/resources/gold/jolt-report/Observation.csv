@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2
 observation.targetSiteCode,Observation.bodySite,CD,,nullFlavor isnull
 observation.code,Observation.code,CD2,,nullFlavor isnull
-observation.value.nullFlavor,Observation.dataAbsentReason.coding[],,,nullFlavor isnull
+observation.value.nullFlavor,Observation.dataAbsentReason.coding[],,"valueSetAdapter('ObservationDataAbsentReason')",nullFlavor isnull
 observation.effectiveTime,Observation.effectivePeriod,IVL_TSPeriod,,nullFlavor isnull
 observation.id[],Observation.identifier[],ID,,nullFlavor isnull
 observation.interpretationCode.code,Observation.interpretation.coding[].code,,,nullFlavor isnull

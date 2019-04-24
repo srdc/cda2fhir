@@ -1,7 +1,7 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
 observation.targetSiteCode,Observation.bodySite,CD,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 observation.code,Observation.code,CD2,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
-observation.value.nullFlavor,Observation.dataAbsentReason.coding[],,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
+observation.value.nullFlavor,Observation.dataAbsentReason.coding[],,"valueSetAdapter('ObservationDataAbsentReason')",observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 observation.effectiveTime,Observation.effectivePeriod,IVL_TSPeriod,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 observation.id[],Observation.identifier[],ID,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9
 observation.interpretationCode.code,Observation.interpretation.coding[].code,,,observation.nullFlavor isnull,observation.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.9

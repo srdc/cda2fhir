@@ -13,7 +13,7 @@ clinicalDocument.authenticator[].time.value,Composition.attester[].time,,"dateti
 clinicalDocument.legalAuthenticator.time.value,Composition.attester[].time,,"datetimeAdapter"
 Practitioner,Composition.author[0].display,,
 Practitioner,Composition.author[0].reference,,
-clinicalDocument.#constantClass,Composition.class.coding[],,
+clinicalDocument.#constantClass,Composition.class.coding[],,"constantValue('CCDClassConstant')"
 clinicalDocument.confidentialityCode.code,Composition.confidentiality,,
 Custodian,Composition.custodian.display,,"getReferenceDisplay"
 Custodian,Composition.custodian.reference,,"getId"
