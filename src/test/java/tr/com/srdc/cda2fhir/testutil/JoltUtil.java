@@ -530,38 +530,30 @@ public class JoltUtil {
 		}
 	}
 
-	private void verify(Resource resource, ResourceInfo info) throws Exception {
-		String resourceType = resource.getResourceType().name();
-
-		Map<String, Object> joltResource = TransformManager.chooseResource(result, resourceType);
-
-		if (caseName.equals("empty")) {
-			Assert.assertNull("No jolt resource", joltResource);
-			return;
-		}
-
-		verify(resource, joltResource, info);
-	}
-
+	@SuppressWarnings("unchecked")
 	public void verify(Patient patient, Map<String, Object> joltPatient) throws Exception {
+		Map<String, Object> joltClone = joltPatient == null ? null : new LinkedHashMap<>(joltPatient);
+
 		if (patient.hasManagingOrganization()) {
 			String reference = findPathString(joltPatient, "managingOrganization.reference");
 			Assert.assertNotNull("Managing organization reference exists", reference);
-			Map<String, Object> resource = TransformManager.chooseResourceByReference(result, reference);
-			Assert.assertNotNull("Managing organization", resource);
+			Map<String, Object> joltOrganization = TransformManager.chooseResourceByReference(result, reference);
+			Assert.assertNotNull("Managing organization", joltOrganization);
 
 			String cda2FhirReference = patient.getManagingOrganization().getReference();
 			Organization organization = bundleUtil.getResourceFromReference(cda2FhirReference, Organization.class);
-			verify(organization, null);
+			verify(organization, joltOrganization, null);
 
-			Map<String, Object> managingOrganization = findPathMap(joltPatient, "managingOrganization");
-			managingOrganization.put("reference", cda2FhirReference);
+			Map<String, Object> joltManagingOrg = (Map<String, Object>) joltClone.get("managingOrganization");
+			joltManagingOrg = new LinkedHashMap<>(joltManagingOrg); // clone
+			joltClone.put("managingOrganization", joltManagingOrg);
+			joltManagingOrg.put("reference", cda2FhirReference);
 		} else {
 			String value = findPathString(joltPatient, "managingOrganization.reference");
 			Assert.assertNull("No managing organization", value);
 		}
 
-		verify(patient, joltPatient, null);
+		verify(patient, joltClone, null);
 	}
 
 	public void verify(Patient patient) throws Exception {

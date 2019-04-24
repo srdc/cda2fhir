@@ -9,14 +9,18 @@ import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 
+import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 
 public class EntityResult implements IEntityResult {
 	private IEntityInfo info;
 	private List<II> ids;
+	private CDAIIResourceMaps<IBaseResource> resourceMaps;
 	private boolean fromExisting;
 
 	public EntityResult() {
@@ -60,8 +64,9 @@ public class EntityResult implements IEntityResult {
 		if (role != null) {
 			bundle.addEntry().setResource(role);
 		}
+
 		Organization organization = info.getOrganization();
-		if (organization != null) {
+		if (organization != null && info.isOrgNew()) {
 			bundle.addEntry().setResource(organization);
 		}
 	}
@@ -170,6 +175,42 @@ public class EntityResult implements IEntityResult {
 			return practitioner.getId();
 		}
 		return null;
+	}
+
+	@Override
+	public boolean hasIIResourceMaps() {
+		return resourceMaps != null;
+	}
+
+	@Override
+	public CDAIIResourceMaps<IBaseResource> getResourceMaps() {
+		return resourceMaps;
+	}
+
+	@Override
+	public void put(List<II> iis, Class<? extends IBaseResource> clazz, IBaseResource resource) {
+		if (iis != null && clazz != null && resource != null) {
+			this.resourceMaps.put(iis, clazz, resource);
+		}
+	}
+
+	public void updateFrom(IEntryResult result) {
+		if (resourceMaps == null) {
+			resourceMaps = new CDAIIResourceMaps<IBaseResource>();
+		}
+		if (result.hasIIResourceMaps()) {
+			resourceMaps.put(result.getResourceMaps());
+		}
+	}
+
+	@Override
+	public boolean isOrgNew() {
+		return info.isOrgNew();
+	}
+
+	@Override
+	public void setOrgIsNew(boolean orgIsNew) {
+		info.setOrgIsNew(orgIsNew);
 	}
 
 	@Override

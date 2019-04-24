@@ -60,4 +60,9 @@ public class PerformerGenerator {
 	public void verifyFromPractionerId(Bundle bundle, String practitionerId) {
 		assignedEntityGenerator.verifyFromPractionerId(bundle, practitionerId);
 	}
+
+	public void setAssignedEntityGenerator(AssignedEntityGenerator assignedEntityGenerator) {
+		this.assignedEntityGenerator = assignedEntityGenerator;
+	}
+
 }

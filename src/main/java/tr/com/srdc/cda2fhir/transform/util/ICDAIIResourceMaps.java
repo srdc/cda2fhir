@@ -23,4 +23,8 @@ public interface ICDAIIResourceMaps<T> {
 
 	boolean hasMap(Class<? extends T> clazz);
 
+	void put(II ii, Class<? extends T> clazz, T t);
+
+	void put(List<II> iis, Class<? extends T> clazz, T t);
+
 }

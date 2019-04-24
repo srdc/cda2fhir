@@ -218,7 +218,7 @@ public class CCDTransformerTest {
 		verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
 		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
 		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 78, 4);
+		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 82, 4);
 
 		// Spot checks
 		BundleUtil util = new BundleUtil(bundle);
