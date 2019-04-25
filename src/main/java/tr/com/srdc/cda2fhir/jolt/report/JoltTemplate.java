@@ -67,7 +67,8 @@ public class JoltTemplate {
 					result.rootNodeUpdater.add(rootNodeUpdater);
 					return;
 				}
-				if (operation.endsWith("KeepWhen")) {
+				// only report on pre shift KeepWhens for now
+				if (operation.endsWith("KeepWhen") && (result.shifts.size() == 0)) {
 					IRootNodeUpdater rootNodeUpdater = new KeepWhen(spec);
 					result.rootNodeUpdater.add(rootNodeUpdater);
 					return;

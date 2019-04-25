@@ -13,6 +13,7 @@ import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -23,6 +24,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.OrgJsonUtil;
+import tr.com.srdc.cda2fhir.testutil.generator.ADGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AuthorGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.OrganizationGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -189,5 +191,17 @@ public class AuthorParticipationTest {
 		og.setNullFlavor();
 
 		runTest(authorGenerator, "orgNullFlavorCase");
+	}
+
+	@Ignore // until code is fixed to handle null organizations
+	@Test
+	public void testNoNameIdentifierOrganization() throws Exception {
+		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
+
+		OrganizationGenerator og = new OrganizationGenerator();
+		og.setADGenerator(ADGenerator.getDefaultInstance()); // something that is not name/identifier
+		authorGenerator.setOrganizationGenerator(og);
+
+		runTest(authorGenerator, "orgNoNameIdentifier");
 	}
 }

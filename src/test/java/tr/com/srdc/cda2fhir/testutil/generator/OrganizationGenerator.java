@@ -48,6 +48,10 @@ public class OrganizationGenerator {
 		return nullFlavor != null;
 	}
 
+	public boolean shouldExists() {
+		return nullFlavor == null && (name != null || !idGenerators.isEmpty());
+	}
+
 	public Organization generate(CDAFactories factories) {
 		Organization organization = factories.base.createOrganization();
 

@@ -650,6 +650,38 @@ public class JoltUtil {
 		}
 	}
 
+	public void verifyEntity(Practitioner practitioner, PractitionerRole role, Organization org) throws Exception {
+		Map<String, Object> joltPractitioner = TransformManager.chooseResource(result, "Practitioner");
+		Map<String, Object> joltRole = TransformManager.chooseResource(result, "PractitionerRole");
+		Map<String, Object> joltOrganization = TransformManager.chooseResource(result, "Organization");
+
+		if (practitioner == null) {
+			Assert.assertNull("No practitioner", joltPractitioner);
+		} else {
+			verify(practitioner, joltPractitioner, null);
+		}
+
+		if (org == null) {
+			Assert.assertNull("No organization", joltOrganization);
+		} else {
+			verify(org, joltOrganization, null);
+		}
+
+		if (role == null) {
+			Assert.assertNull("No role", joltRole);
+		} else {
+			verify(role, joltRole);
+
+			String joltPractRef = findPathString(joltRole, "practitioner.reference");
+			Map<String, Object> joltPract2 = TransformManager.chooseResourceByReference(result, joltPractRef);
+			Assert.assertTrue("Same practitioner", joltPractitioner == joltPract2);
+
+			String joltOrgRef = findPathString(joltRole, "organization.reference");
+			Map<String, Object> joltOrg2 = TransformManager.chooseResourceByReference(result, joltOrgRef);
+			Assert.assertTrue("Same organization", joltOrganization == joltOrg2);
+		}
+	}
+
 	public void verify(AllergyIntolerance allergy, Map<String, Object> joltAllergy) throws Exception {
 		AllergyIntoleranceInfo info = new AllergyIntoleranceInfo(allergy);
 
