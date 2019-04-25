@@ -28,6 +28,7 @@ import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Provenance;
 import org.joda.time.Duration;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -59,7 +60,6 @@ public class IntegrationTest {
 		CDAUtil.loadPackages();
 		ctx = FhirContext.forDstu3();
 		client = ctx.newRestfulGenericClient(serverBase);
-		ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 		logger = LoggerFactory.getLogger(ValidatorImpl.class);
 	}
 
@@ -69,13 +69,18 @@ public class IntegrationTest {
 					HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat(hapiURL)), Duration.standardMinutes(2))
 			.build();
 
+	@Before
+	public void setup() {
+		ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
+	}
+
 	@Test
 	public void CCDIntegration() throws Exception {
 
 		String sourceName = "170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
-		String documentBody = "<ClinicalDoc>\n</ClinicalDoc>";
+		String documentBody = "<ClinicalDoc><span>document</span></ClinicalDoc>";
 		Identifier assemblerDevice = new Identifier();
-		assemblerDevice.setValue("Data Transformer");
+		assemblerDevice.setValue("Data Transformer Two");
 		assemblerDevice.setSystem("http://www.amida.com");
 
 		// create transaction bundle from ccda bundle
