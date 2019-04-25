@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -22,6 +23,7 @@ import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.IndicationGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
@@ -59,9 +61,26 @@ public class IndicationTest {
 
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
+		
+		Condition condition = null;
+		
+		IEntryResult condResult = rt.tIndication2ConditionEncounter(indication, new BundleInfo(rt));
+				
 
-		Condition condition = rt.tIndication2ConditionEncounter(indication, new BundleInfo(rt));
+		if(condResult.hasResult()) {
+			Bundle bundle = condResult.getBundle();
+			if(bundle != null) {
+				condition = FHIRUtil.findFirstResource(bundle, Condition.class);		
+			}
 
+		} else {
+			Bundle fullBundle = condResult.getFullBundle();
+			
+			if(fullBundle != null) {
+				condition = FHIRUtil.findFirstResource(fullBundle, Condition.class);
+			}
+		}
+				
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIRCondition", "json");
 		FHIRUtil.printJSON(condition, filepath);
 

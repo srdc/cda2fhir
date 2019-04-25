@@ -1321,12 +1321,33 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// indication -> diagnosis.condition
 		for (Indication cdaIndication : cdaEncounterActivity.getIndications()) {
 			if (!cdaIndication.isSetNullFlavor()) {
-				Condition fhirIndication = tIndication2ConditionEncounter(cdaIndication, bundleInfo);
-				result.addResource(fhirIndication);
-				// TODO: check if this is correct mapping
-				// Reference indicationRef = fhirEncounter.addIndication();
-				// indicationRef.setReference(fhirIndication.getId());
-				fhirEncounter.addDiagnosis().setCondition(getReference(fhirIndication));
+				IEntryResult condResult = tIndication2ConditionEncounter(cdaIndication, bundleInfo);
+				
+				result.updateFrom(condResult);
+				
+				Condition fhirCondition = null;
+
+				if(condResult.hasResult()) {
+					Bundle bundle = condResult.getBundle();
+					if(bundle != null) {
+						fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);		
+					}
+
+				} else {
+					Bundle fullBundle = condResult.getFullBundle();
+					
+					if(fullBundle != null) {
+						fhirCondition = FHIRUtil.findFirstResource(fullBundle, Condition.class);
+					}
+				}
+				
+				if(fhirCondition != null) {
+					// TODO: check if this is correct mapping
+					// Reference indicationRef = fhirEncounter.addIndication();
+					// indicationRef.setReference(fhirIndication.getId());
+					fhirEncounter.addDiagnosis().setCondition(getReference(fhirCondition));	
+				}
+				
 			}
 		}
 
@@ -1923,46 +1944,79 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 	}
 
 	@Override
-	public Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
-		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
+	public IEntryResult tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
+		IEntryResult result =  tIndication2Condition(cdaIndication, bundleInfo);
+		Condition cond = null;
+		
+		if(result != null && result.hasResult()) {
+			Bundle bundle = result.getBundle();
+			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
+		} else {
+			Bundle bundle = result.getFullBundle();
+			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
+		}
 		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("encounter-diagnosis");
 		conditionCategory.setDisplay("Encounter Diagnosis");
 		cond.addCategory().addCoding(conditionCategory);
-		return cond;
+		return result;
 	}
 
 	@Override
-	public Condition tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
-		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
+	public IEntryResult tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
+		IEntryResult result =  tIndication2Condition(cdaIndication, bundleInfo);
+		Condition cond = null;
+		
+		if(result != null && result.hasResult()) {
+			Bundle bundle = result.getBundle();
+			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
+		} else {
+			Bundle bundle = result.getFullBundle();
+			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
+		}
 		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("problem-list-item");
 		conditionCategory.setDisplay("Problem List Item");
 		cond.addCategory().addCoding(conditionCategory);
-		return cond;
+		return result;
 
 	}
 
-	private Condition tIndication2Condition(Indication cdaIndication, IBundleInfo bundleInfo) {
+	private IEntryResult tIndication2Condition(Indication cdaIndication, IBundleInfo bundleInfo) {
+		EntryResult result = new EntryResult();
+		
 		if (cdaIndication == null || cdaIndication.isSetNullFlavor())
-			return null;
+			return result;
 
 		Condition fhirCond = new Condition();
-
+		
 		// resource id
 		IdType resourceId = new IdType("Condition", getUniqueId());
 		fhirCond.setId(resourceId);
-
+		
 		// patient
 		fhirCond.setSubject(getPatientRef());
 
 		// meta.profile
 		if (Config.isGenerateDafProfileMetadata())
 			fhirCond.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
-
+		
+		List<II> ids = cdaIndication.getIds();
+		
+		if(ids != null) {
+			Condition previous = (Condition)bundleInfo.findResourceResult(ids, Condition.class);
+			if(previous != null) {
+				result.addExistingResource(previous);
+				return result;
+			} else {
+				result.putIIResource(ids, Condition.class, fhirCond);
+				result.addResource(fhirCond);
+			}
+			
+		}
 		// id -> identifier
-		if (cdaIndication.getIds() != null && !cdaIndication.getIds().isEmpty()) {
-			for (II ii : cdaIndication.getIds()) {
+		if (ids != null && !cdaIndication.getIds().isEmpty()) {
+			for (II ii : ids) {
 				fhirCond.addIdentifier(dtt.tII2Identifier(ii));
 			}
 		}
@@ -2018,7 +2072,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		return fhirCond;
+		return result;
 	}
 
 	@Override
@@ -2347,10 +2401,29 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// indication -> reason
 		for (Indication indication : cdaMedicationActivity.getIndications()) {
-			Condition cond = tIndication2ConditionProblemListItem(indication, bundleInfo);
+			IEntryResult condResult = tIndication2ConditionEncounter(indication, bundleInfo);
+			
+			result.updateFrom(condResult);
+			
+			Condition fhirCondition = null;
 
-			result.addResource(cond);
-			fhirMedSt.addReasonReference(getReference(cond));
+			if(condResult.hasResult()) {
+				Bundle bundle = condResult.getBundle();
+				if(bundle != null) {
+					fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);		
+				}
+
+			} else {
+				Bundle fullBundle = condResult.getFullBundle();
+				
+				if(fullBundle != null) {
+					fhirCondition = FHIRUtil.findFirstResource(fullBundle, Condition.class);
+				}
+			}
+
+			if(fhirCondition != null) {
+				fhirMedSt.addReasonReference(getReference(fhirCondition));
+			}
 		}
 
 		if (cdaMedicationActivity.getMedicationSupplyOrder() != null) {

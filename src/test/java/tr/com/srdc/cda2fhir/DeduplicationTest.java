@@ -29,6 +29,7 @@ import tr.com.srdc.cda2fhir.testutil.generator.CEGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ClinicalDocumentMetadataGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ImmunizationActivityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ImmunizationMedicationInformationGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.IndicationGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationActivityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationDispenseGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.MedicationInformationGenerator;
@@ -740,6 +741,22 @@ public class DeduplicationTest {
 		Bundle resultBundle = ccdTransformer.transformDocument(document);
 
 		BundleUtil.findResources(resultBundle, Organization.class, 5);
+
+	}
+	
+	@Test
+	public void conditionTest() {
+		ccdTransformer = new CCDTransformerImpl();
+		
+		IndicationGenerator indGenerator = IndicationGenerator.getDefaultInstance();
+		
+		ClinicalDocumentMetadataGenerator docGenerator = new ClinicalDocumentMetadataGenerator();
+		
+		ContinuityOfCareDocument document = docGenerator.generateClinicalDoc(factories);
+		
+		List<Component3> componenents = getSubstanceAdministrationComponentsOneOrg(orgGenerator4);
+
+		ClinicalDocumentMetadataGenerator.setStructuredBody(factories, document, components);
 
 	}
 
