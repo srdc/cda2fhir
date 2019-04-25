@@ -1,23 +1,23 @@
-CCDA Source,Target,Link,Format,Condition 1,Condition 2
-substanceAdministration.#unk,MedicationStatement.taken,,,substanceAdministration.nullFlavor isnull
-substanceAdministration.author.assignedAuthor,Organization,EntityOrganization,,substanceAdministration.nullFlavor isnull
-substanceAdministration.author.assignedAuthor,Practitioner,EntityPractitioner,,substanceAdministration.nullFlavor isnull
-substanceAdministration.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,substanceAdministration.nullFlavor isnull
-substanceAdministration.consumable,Medication,MedicationInformation,,substanceAdministration.nullFlavor isnull
-substanceAdministration.doseQuantity,MedicationStatement.dosage[0].doseQuantity,IVL_PQSimpleQuantity,"constantSystem('http://unitsofmeasure.org/ucum.html','pq')",substanceAdministration.nullFlavor isnull
-substanceAdministration.effectiveTime[],MedicationStatement.dosage[0].timing,PIVL_TSTiming,"lastElement",substanceAdministration.effectiveTime[].xsi:type equal PIVL_TS,substanceAdministration.nullFlavor isnull
-substanceAdministration.effectiveTime[],MedicationStatement.effectivePeriod,IVL_TSPeriod,,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS,substanceAdministration.nullFlavor isnull
-substanceAdministration.entryRelationship[],Condition[],MedIndication,,substanceAdministration.nullFlavor isnull
-substanceAdministration.entryRelationship[],MedicationDispense,MedicationDispense,,substanceAdministration.nullFlavor isnull
-substanceAdministration.entryRelationship[],MedicationRequest,MedicationSupplyOrder,,substanceAdministration.nullFlavor isnull
-substanceAdministration.entryRelationship[].observation.value.content,MedicationStatement.dosage[0].timing.code.text,,,substanceAdministration.entryRelationship[].observation.code.code equal FREQUENCY,substanceAdministration.nullFlavor isnull
-substanceAdministration.id[],MedicationStatement.identifier[],ID,,substanceAdministration.nullFlavor isnull
-substanceAdministration.rateQuantity,MedicationStatement.dosage[0].rateRange,IVL_PQRange,,substanceAdministration.nullFlavor isnull
-substanceAdministration.routeCode,MedicationStatement.dosage[0].route,CD2,,substanceAdministration.nullFlavor isnull
-substanceAdministration.statusCode.code,MedicationStatement.status,,"valueSetAdapter('MedicationStatementStatus')",substanceAdministration.nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
-Condition[],MedicationStatement.reasonReference[].display,,"getReferenceDisplay"
-Condition[],MedicationStatement.reasonReference[].reference,,"getId"
-Medication,MedicationStatement.medicationReference.display,,"getReferenceDisplay"
-Medication,MedicationStatement.medicationReference.reference,,"getId"
-Practitioner,MedicationStatement.informationSource.display,,"getReferenceDisplay"
-Practitioner,MedicationStatement.informationSource.reference,,"getId"
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2
+substanceAdministration.#unk,MedicationStatement.taken,,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.author.assignedAuthor,Organization,EntityOrganization,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.author.assignedAuthor,Practitioner,EntityPractitioner,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.consumable,Medication,MedicationInformation,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.doseQuantity,MedicationStatement.dosage[0].doseQuantity,IVL_PQSimpleQuantity,"constantSystem('http://unitsofmeasure.org/ucum.html','pq')",,substanceAdministration.nullFlavor isnull
+substanceAdministration.effectiveTime[],MedicationStatement.dosage[0].timing,PIVL_TSTiming,"lastElement",,substanceAdministration.effectiveTime[].xsi:type equal PIVL_TS,substanceAdministration.nullFlavor isnull
+substanceAdministration.effectiveTime[],MedicationStatement.effectivePeriod,IVL_TSPeriod,,,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[],Condition[],MedIndication,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[],MedicationDispense,MedicationDispense,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[],MedicationRequest,MedicationSupplyOrder,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[].observation.value.content,MedicationStatement.dosage[0].timing.code.text,,,,substanceAdministration.entryRelationship[].observation.code.code equal FREQUENCY,substanceAdministration.nullFlavor isnull
+substanceAdministration.id[],MedicationStatement.identifier[],ID,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.rateQuantity,MedicationStatement.dosage[0].rateRange,IVL_PQRange,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.routeCode,MedicationStatement.dosage[0].route,CD2,,,substanceAdministration.nullFlavor isnull
+substanceAdministration.statusCode.code,MedicationStatement.status,,"valueSetAdapter('MedicationStatementStatus')",,substanceAdministration.nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
+Condition[],MedicationStatement.reasonReference[].display,,"getReferenceDisplay",
+Condition[],MedicationStatement.reasonReference[].reference,,"getId",
+Medication,MedicationStatement.medicationReference.display,,"getReferenceDisplay",
+Medication,MedicationStatement.medicationReference.reference,,"getId",
+Practitioner,MedicationStatement.informationSource.display,,"getReferenceDisplay",
+Practitioner,MedicationStatement.informationSource.reference,,"getId",
