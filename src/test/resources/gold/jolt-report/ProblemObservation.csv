@@ -5,7 +5,7 @@ author.assignedAuthor,Practitioner,EntityPractitioner,,,nullFlavor isnull
 author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,,nullFlavor isnull
 author.time.value,Condition.assertedDate,,"datetimeAdapter",,nullFlavor isnull
 effectiveTime.high.value,Condition.abatementDateTime,,"datetimeAdapter",,nullFlavor isnull
-effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')",,nullFlavor isnull
+effectiveTime.high.value,Condition.clinicalStatus,,"selectOnNull('active','inactive')",active,nullFlavor isnull
 effectiveTime.low.value,Condition.onsetDateTime,,"datetimeAdapter",,effectiveTime.low.nullFlavor isnull,effectiveTime.low.value isnotnull,nullFlavor isnull
 effectiveTime.value,Condition.onsetDateTime,,"datetimeAdapter",,effectiveTime.low.value isnull,effectiveTime.nullFlavor isnull,nullFlavor isnull
 id[],Condition.identifier[],ID,,,nullFlavor isnull

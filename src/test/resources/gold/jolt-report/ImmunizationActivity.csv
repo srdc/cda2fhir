@@ -23,4 +23,4 @@ Organization,Immunization.manufacturer.reference,,"getId",
 Practitioner[],Immunization.practitioner[].actor.display,,"getReferenceDisplay",
 Practitioner[],Immunization.practitioner[].actor.reference,,"getId",
 Practitioner[],Immunization.practitioner[].role,,"constantValue('ImmunizationRoleConstant')",
-Practitioner[],Immunization.primarySource,,"true",
+Practitioner[],Immunization.primarySource,,"true",false

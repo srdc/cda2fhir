@@ -131,6 +131,12 @@ public class Table {
 		});
 	}
 
+	public void addDefaultValues(Map<String, String> values) {
+		if (values != null) {
+			rows.forEach(row -> row.setDefaultValue(values));
+		}
+	}
+
 	public int rowCount() {
 		return rows.size();
 	}

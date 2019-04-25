@@ -61,12 +61,7 @@
 	{
 		"operation": "default",
 		"spec": {
-			"verificationStatus": "unconfirmed"
-		}
-	},	
-	{
-		"operation": "default",
-		"spec": {
+			"verificationStatus": "unconfirmed",
 			"clinicalStatus": "active"
 		}
 	},	

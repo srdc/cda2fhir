@@ -191,7 +191,13 @@ public class TableRow implements Comparable<TableRow> {
 		return result;
 	}
 
-	public void setDefaultValue(String defaultValue) {
-		this.defaultValue = defaultValue;
+	public void setDefaultValue(Map<String, String> values) {
+		if (values == null) {
+			return;
+		}
+		String value = values.get(target);
+		if (value != null) {
+			defaultValue = value;
+		}
 	}
 }

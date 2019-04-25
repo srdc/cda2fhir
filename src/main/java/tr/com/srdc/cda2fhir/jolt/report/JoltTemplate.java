@@ -25,6 +25,7 @@ public class JoltTemplate {
 		public Map<String, Object> distributeArray;
 		public Map<String, Object> linkSettings;
 		public List<IRootNodeUpdater> rootNodeUpdater = new ArrayList<>();
+		public Map<String, Object> defaults;
 
 		@SuppressWarnings("unchecked")
 		public static RawTemplate getInstance(List<Object> content) {
@@ -38,6 +39,10 @@ public class JoltTemplate {
 
 				if (operation.equals("shift")) {
 					result.shifts.add(spec);
+					return;
+				}
+				if (operation.equals("default") && (result.shifts.size() > 0)) {
+					result.defaults = spec;
 					return;
 				}
 				if (operation.endsWith("Assign")) {
@@ -96,6 +101,18 @@ public class JoltTemplate {
 		}
 	}
 
+	private static Map<String, String> convertRawDefaults(String resourceType, Map<String, Object> input) {
+		if (input == null) {
+			return null;
+		}
+		Map<String, String> result = new HashMap<String, String>();
+		input.entrySet().forEach(entry -> {
+			String key = resourceType + "." + entry.getKey();
+			result.put(key, entry.getValue().toString());
+		});
+		return result;
+	}
+
 	private String name;
 	private RootNode rootNode;
 	private RootNode supportRootNode;
@@ -110,6 +127,7 @@ public class JoltTemplate {
 
 	private Set<String> distributeArrays;
 	private Map<String, String> alias;
+	private Map<String, String> defaults;
 
 	private JoltTemplate(String name) {
 		this.name = name;
@@ -231,11 +249,17 @@ public class JoltTemplate {
 			}
 			table.addTable(assignTable);
 		}
+
 		if (moveMap != null) {
 			table.moveTargets(moveMap);
 		}
+
 		if (flattened != null) {
 			table.flattenTarget(flattened);
+		}
+
+		if (defaults != null) { // assume top level status fields
+			table.addDefaultValues(defaults);
 		}
 
 		return table;
@@ -267,17 +291,21 @@ public class JoltTemplate {
 		rawTemplate.rootNodeUpdater.forEach(rnu -> {
 			rnu.update(result.rootNode);
 		});
+
 		if (rawTemplate.shifts.size() > 1) {
 			result.supportRootNode = NodeFactory.getInstance(rawTemplate.shifts.get(1));
 		}
+
 		if (rawTemplate.accumulator != null) {
 			result.resourceType = (String) rawTemplate.accumulator.get("resourceType");
 		}
+
 		if (rawTemplate.assign != null) {
 			RootNode assignRootNode = NodeFactory.getInstance(rawTemplate.assign);
 			Templates templates = new Templates(result.format);
 			result.assignTable = assignRootNode.toTable(templates);
 		}
+
 		if (rawTemplate.move != null) {
 			result.moveMap = new HashMap<String, String>();
 			rawTemplate.move.entrySet().forEach(entry -> {
@@ -286,12 +314,15 @@ public class JoltTemplate {
 				result.moveMap.put(key, value);
 			});
 		}
+
 		if (rawTemplate.flatten != null) {
 			result.flattened = (String) rawTemplate.flatten.entrySet().iterator().next().getValue();
 		}
+
 		if (rawTemplate.distributeArray != null) {
 			result.distributeArrays = rawTemplate.distributeArray.keySet();
 		}
+
 		if (rawTemplate.linkSettings != null && !rawTemplate.linkSettings.isEmpty()) {
 			Map<String, Object> aliasObject = (Map<String, Object>) rawTemplate.linkSettings.get("alias");
 			if (aliasObject != null) {
@@ -301,6 +332,10 @@ public class JoltTemplate {
 				});
 				result.alias = alias;
 			}
+		}
+
+		if (result.resourceType != null) {
+			result.defaults = convertRawDefaults(result.resourceType, rawTemplate.defaults);
 		}
 
 		return result;

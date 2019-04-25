@@ -272,4 +272,4 @@ Immunization.Practitioner[],Immunization.Observation.performer[].reference,,"get
 Immunization.Practitioner[],Immunization.practitioner[].actor.display,,"getReferenceDisplay",
 Immunization.Practitioner[],Immunization.practitioner[].actor.reference,,"getId",
 Immunization.Practitioner[],Immunization.practitioner[].role,,"constantValue('ImmunizationRoleConstant')",
-Immunization.Practitioner[],Immunization.primarySource,,"true",
+Immunization.Practitioner[],Immunization.primarySource,,"true",false
