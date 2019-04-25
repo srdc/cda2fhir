@@ -62,13 +62,11 @@ public class BundleRequest {
 				for (Base identifier : identifiers) {
 
 					Identifier currentId = (Identifier) identifier;
-					if (currentId.getSystem() != null & currentId.getValue() != null) {
 
+					if (currentId.getValue() != null) {
 						if (subsetOIDArray != null) {
-
 							// override OID selection(s).
 							for (String OID : subsetOIDArray) {
-								System.out.println(currentId.getSystem());
 								if (currentId.getSystem().equals(OID)) {
 									if (ifNotExistString != "") {
 										ifNotExistString = ifNotExistString + ",";
@@ -80,13 +78,17 @@ public class BundleRequest {
 								}
 							}
 						} else {
-							// add or for multiple parameters
 							if (ifNotExistString != "") {
 								ifNotExistString = ifNotExistString + ",";
 							} else {
 								ifNotExistString = "identifier=";
 							}
-							ifNotExistString = ifNotExistString + currentId.getSystem() + "|" + currentId.getValue();
+							if (currentId.getSystem() != null) {
+								ifNotExistString = ifNotExistString + currentId.getSystem() + "|"
+										+ currentId.getValue();
+							} else {
+								ifNotExistString = ifNotExistString + currentId.getValue();
+							}
 						}
 					}
 				}
