@@ -53,7 +53,7 @@ In addition to the above mappings, cda2fhir also uses and supports the Patient, 
 * cda2fhir now supports the generation of Provenance objects, optionally taking in an Identifier resource and string representation of the source file to generate the accompanying Device and DocumentReference resources respectively.
 * Bundles now de-duplicate against themselves for certain resources; this is done to prevent duplicate resources from being created in a FHIR server, and works together with the ifNoneExist parameters.
   * Medications are de-duplicated based on their encoding, and their manufacturing organization.
-  * Organizations and Practitioners are deduplicated based on identifier.
+  * Organizations and Practitioners are de-duplicated based on identifier.
 * Bundles now use the "ifNoneExist" parameter to prevent duplicate resources from being created on a target FHIR server. This parameter uses the identifier field to prevent duplicates for all resources, with the exception of:
   * Medications are de-duplicated based on their encoding.
   * Provenance and Composition resources, which are not de-duplicated for attribution purposes.
