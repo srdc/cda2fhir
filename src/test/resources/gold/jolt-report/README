@@ -60,7 +60,7 @@ This column shows the FHIR target of the CCDA Source column. This is a FHIR path
 
 4. Format
 
-The first three columns show the mapping between the fields. The fourh column includes functions that format the data after the mapping. These can be transforms such as CDA DateTime format to FHIR DateTime format (datetimeAdapter), select an element from the list (maxDateTime) or other custom functions.
+The first three columns show the mapping between the fields. The fourth column includes functions that format the data after the mapping. These can be transforms such as CDA DateTime format to FHIR DateTime format (datetimeAdapter), select an element from the list (maxDateTime) or other custom functions.
 
 datetimeAdapter: Converts CDA datetime to FHIR datetime
 valueSetAdapter: Converts a value in CDA value set to a value in FHIR value sets. This function accepts a json file parameter which provides the actual mapping. A default can also be specified as a parameter. All the value set maps are in the value-maps directory.
@@ -73,8 +73,6 @@ lastElement: Returns the last element of an array.
 lastPiece: Returns the last piece of a delimited string.
 selectOnNull: Returns the first entry if the source is null or the latter if it is not.
 referenceAdapter: This accepts an identifier and converts it to a resource id to be used in a reference.
-
-valueSetAdapter uses a number of mappings and are included
 
 5. Default
 
