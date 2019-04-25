@@ -1,5 +1,5 @@
 <!--
-Copyright (C) 2019 Amida Technoloy Solutions, Inc.
+Copyright (C) 2019 Amida Technology Solutions, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,14 +45,14 @@ The original cda2fhir library created by [SRDC](https://github.com/srdc/cda2fhir
 |Allergies and Intolerances| AllergyIntolerance|
 |Encounters| Encounter|
 
-In addition to the above mappings, cda2fhir also uses and supports the Patient, Practitioner, PractitionerRole, Organization, Device, DocumentReference, Composition, and Provenance FHIR Resources.
+In addition to the above mappings, cda2fhir also uses and supports the Patient, Practitioner, PractitionerRole, Organization, Location, Device, DocumentReference, Composition, and Provenance FHIR Resources.
 
 **This version of the cda2fhir library implements several additional features not present in the SRDC version. These include:**
 
 * cda2fhir is now capable of generating "transactional" bundles.
 * cda2fhir now supports the generation of Provenance objects, optionally taking in an Identifier resource and string representation of the source file to generate the accompanying Device and DocumentReference resources respectively.
 * Bundles now de-duplicate against themselves for certain resources; this is done to prevent duplicate resources from being created in a FHIR server, and works together with the ifNoneExist parameters.
-  * Medications are de-duplicated based on their encoding.
+  * Medications are de-duplicated based on their encoding, and their manufacturing organization.
   * Organizations and Practitioners are deduplicated based on identifier.
 * Bundles now use the "ifNoneExist" parameter to prevent duplicate resources from being created on a target FHIR server. This parameter uses the identifier field to prevent duplicates for all resources, with the exception of:
   * Medications which is de-duplicated based on encoding, and
@@ -97,7 +97,7 @@ This project incrementally builds and releases files for use in maven projects, 
 
 The below code is an annotated example of a basic CCD document transformation, further code examples can be found in [CCDTransformerTest.java](./src/test/java/tr/com/srdc/cda2fhir/CCDTransformerTest.java) file. You may also review all implemented interfaces in the [CCDTransformerImpl.java](./src/main/java/tr/com/srdc/cda2fhir/CCDTransformerImpl.java) file.
 
-The output of this operation will be located at: `src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json`.
+The output of this operation will be located at: `src/test/resources/output/C-CDA_R2-1_CCD.json`.
 
 ```java
 // Load MDHT CDA packages. Otherwise ContinuityOfCareDocument and similar documents will not be recognised.
@@ -120,7 +120,7 @@ ICDATransformer ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER)
 Bundle bundle = ccdTransformer.transformDocument(cda);
 
 // Through HAPI library, the Bundle can easily be printed in JSON or XML format.
-FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
+FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
 ```
 
 ## Transforming a CDA document to a transactional bundle with Provenance 
@@ -149,7 +149,7 @@ String rawDocument = <inputStream>
 Bundle bundle = ccdTransformer.transformDocument(cda, BundleType.TRANSACTION, null, rawDocument, identifier);
 
 // Through HAPI library, the Bundle can easily be printed in JSON or XML format.
-FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD-w-daf.json");
+FHIRUtil.printJSON(bundle, "src/test/resources/output/C-CDA_R2-1_CCD.json");
 ```
 
 
@@ -173,7 +173,7 @@ for(Section cdaSec: ccd.getSections()) {
         FamilyHistorySection famSec = (FamilyHistorySection) cdaSec;
         // traverse the Family History Organizers within the Family History Section
         for(FamilyHistoryOrganizer fhOrganizer : famSec.getFamilyHistories()) {
-            // Transform each C-CDA FamilyHistoryOrganizer instance to FHIR (DAF) FamilyMemberHistory instance
+            // Transform each C-CDA FamilyHistoryOrganizer instance to FHIR FamilyMemberHistory instance
             FamilyMemberHistory fmh = resTransformer.tFamilyHistoryOrganizer2FamilyMemberHistory(fhOrganizer);
         }
     }
@@ -193,8 +193,7 @@ and [CCDTransformerImpl](./src/main/java/tr/com/srdc/cda2fhir/transform/CCDTrans
 ## Validating generated FHIR resources
 
 We have also integrated the [HAPI FHIR Validator](http://hapifhir.io/doc_validation.html) and have implemented a wrapper interface and a class on top of this validator: IValidator and ValidatorImpl. A resource can be validated individually, or a Bundle
-containing several resources as in the case of CDA transformation outcome can be validated at once. When (DAF) profile metadata is provided within the resources' meta.profile
-attribute, validation takes into account this profile as well. Validation outcome is provided as HTML within an OutputStream.
+containing several resources as in the case of CDA transformation outcome can be validated at once. Validation outcome is provided as HTML within an OutputStream.
 
 ```java
 // Init an object of ValidatorImpl class, which implements the IValidator interface.
