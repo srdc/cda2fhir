@@ -9,7 +9,7 @@ encounter.performer[].assignedEntity,Organization[],EntityOrganization,,,encount
 encounter.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,,encounter.nullFlavor isnull
 encounter.performer[].assignedEntity,Practitioner[],EntityPractitioner,,,encounter.nullFlavor isnull
 encounter.priorityCode,Encounter.priority,CD,,,encounter.nullFlavor isnull
-encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",,encounter.nullFlavor isnull,encounter.statusCode.nullFlavor isnull
+encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",finished,encounter.nullFlavor isnull,encounter.statusCode.nullFlavor isnull
 Condition[],Encounter.diagnosis[].condition.display,,"getReferenceDisplay",
 Condition[],Encounter.diagnosis[].condition.reference,,"getId",
 Location[],Encounter.location[].location.display,,"getReferenceDisplay",

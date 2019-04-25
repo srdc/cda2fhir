@@ -123,7 +123,7 @@ encounter.priorityCode.displayName,Encounter.priority.coding[0].display,,,,encou
 encounter.priorityCode.translation[].code,Encounter.priority.coding[].code,,,,encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
 encounter.priorityCode.translation[].codeSystem,Encounter.priority.coding[].system,,"systemAdapter",,encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
 encounter.priorityCode.translation[].displayName,Encounter.priority.coding[].display,,,,encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
-encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",,encounter.nullFlavor isnull,encounter.statusCode.nullFlavor isnull
+encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",finished,encounter.nullFlavor isnull,encounter.statusCode.nullFlavor isnull
 Encounter.Condition[],Encounter.diagnosis[].condition.display,,"getReferenceDisplay",
 Encounter.Condition[],Encounter.diagnosis[].condition.reference,,"getId",
 Encounter.Location[],Encounter.location[].location.display,,"getReferenceDisplay",

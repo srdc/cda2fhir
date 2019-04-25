@@ -59,6 +59,11 @@ public class EncounterActivityGenerator {
 
 	private List<ServiceDeliveryLocationGenerator> serviceDeliveryLocationGenerators = new ArrayList<>();
 
+	public void setIDGenerator(IDGenerator idGenerator) {
+		this.idGenerators.clear();
+		this.idGenerators.add(idGenerator);
+	}
+
 	public EncounterActivities generate(CDAFactories factories) {
 		EncounterActivities ec = factories.consol.createEncounterActivities();
 
@@ -177,7 +182,9 @@ public class EncounterActivityGenerator {
 		}
 
 		if (statusCode == null || statusNullFlavor != null) {
-			Assert.assertTrue("Missing encounter status", !encounter.hasStatus());
+			Assert.assertTrue("Default encounter status exists", encounter.hasStatus());
+			String expected = Config.DEFAULT_ENCOUNTER_STATUS.toCode();
+			Assert.assertEquals("Default encounter status", expected, encounter.getStatus().toCode());
 		} else {
 			String expected = (String) ENCOUNTER_STATUS.get(statusCode);
 			if (expected == null) {
