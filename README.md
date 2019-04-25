@@ -19,7 +19,7 @@ cda2fhir
 [![License Info](http://img.shields.io/badge/license-Apache%202.0-brightgreen.svg)](https://github.com/srdc/cda2fhir/blob/master/LICENSE.txt)
 [![Jenkins CI](https://jenkins.amida.com/buildStatus/icon?job=CDA2FHIR%20Tests/)](https://jenkins.amida.com/job/CDA2FHIR%20Tests/)
 
-##Overview
+## Overview
 cda2fhir is a Java library to transform HL7 [CDA R2](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=7) instances to HL7 [FHIR](https://www.hl7.org/fhir/) resources. More specifically, cda2fhir enables automatic transformation of
 Consolidated CDA (C-CDA) Release 2.1 compliant documents to corresponding FHIR STU3 resources. For this purpose, cda2fhir provides extensible
 document transformers, resource transformers, data type transformers and value set transformers.
@@ -30,7 +30,7 @@ can be easily introduced by reusing the already existing section and entry trans
 documents/entries, it has been tested as well with several older document instances compliant with earlier releases of C-CDA. The 
 [HAPI FHIR Validator](http://hapifhir.io/doc_validation.html) is also integrated for automated validation of the generated FHIR resources.
 
-##Latest Updates
+## Latest Updates
 The original cda2fhir library created by [SRDC](https://github.com/srdc/cda2fhir) mapped C-CDA resources to FHIR DSTU2-compliant resources. Amida has created this fork of this library, incorporating the work of [CarthageKing](https://github.com/CarthageKing/cda2fhir), to instead map C-CDA resources to FHIR STU3-compliant resources. [Model Driven Health Tools (MDHT)](https://projects.eclipse.org/projects/modeling.mdht) is used for CDA manipulation and
 [HAPI](http://hapifhir.io/) is used for FHIR manipulation. This version of cda2fhir currently supports the following C-CDA Section to Resource mappings:
 
