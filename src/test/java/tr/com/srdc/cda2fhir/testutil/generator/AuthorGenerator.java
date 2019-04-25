@@ -13,6 +13,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class AuthorGenerator extends EntityGenerator {
+
 	private static class CDAEntity implements ICDAEntity {
 		private AssignedAuthor assignedAuthor;
 

@@ -92,4 +92,8 @@ public class ImmunizationMedicationInformationGenerator {
 			orgGenerator.verify(org);
 		}
 	}
+
+	public void setOrganizationGenerator(OrganizationGenerator orgGenerator) {
+		this.orgGenerator = orgGenerator;
+	}
 }

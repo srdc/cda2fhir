@@ -3,11 +3,15 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.List;
 
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
+import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Component2;
 import org.openhealthtools.mdht.uml.cda.Component3;
+import org.openhealthtools.mdht.uml.cda.Custodian;
 import org.openhealthtools.mdht.uml.cda.DocumentationOf;
+import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.Performer1;
+import org.openhealthtools.mdht.uml.cda.RecordTarget;
 import org.openhealthtools.mdht.uml.cda.ServiceEvent;
 import org.openhealthtools.mdht.uml.cda.StructuredBody;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
@@ -26,7 +30,7 @@ public class ClinicalDocumentMetadataGenerator {
 	ContinuityOfCareDocument doc;
 	CDAFactories factories;
 
-	private static AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
+	private AssignedEntityGenerator assignedEntityGenerator = new AssignedEntityGenerator();
 
 	static final public String DEFAULT_REALM_CODE = "US";
 	static final public String DEFAULT_ID_ROOT = "1.2.345.678901.7.89.10.1.2.3.123456.12345678";
@@ -68,8 +72,11 @@ public class ClinicalDocumentMetadataGenerator {
 		INT version = genVersion(factories, DEFAULT_VERSION_NUMBER);
 
 		IVL_TS eventEffTime = genTime(factories, DEFAULT_EVENT_TIME_LOW, DEFAULT_EVENT_TIME_HIGH);
-		DocumentationOf docOf = genDocumentationOf(eventEffTime, assignedEntityGenerator.generate(factories));
-		doc.getDocumentationOfs().add(docOf);
+		if (assignedEntityGenerator != null) {
+			DocumentationOf docOf = genDocumentationOf(eventEffTime, assignedEntityGenerator.generate(factories));
+			doc.getDocumentationOfs().add(docOf);
+
+		}
 		doc.setId(id);
 		doc.setCode(code);
 		doc.setTitle(title);
@@ -150,6 +157,7 @@ public class ClinicalDocumentMetadataGenerator {
 		return version;
 	}
 
+	// TODO: Refactor these last three static methods into generators.
 	public static void setStructuredBody(CDAFactories factories, ClinicalDocument document,
 			List<Component3> components) {
 		Component2 component2 = factories.base.createComponent2();
@@ -157,6 +165,24 @@ public class ClinicalDocumentMetadataGenerator {
 		structuredBody.getComponents().addAll(components);
 		component2.setStructuredBody(structuredBody);
 		document.setComponent(component2);
+	}
+
+	public static void setRecordTarget(CDAFactories factories, ClinicalDocument document, PatientRole patientRole) {
+		RecordTarget recordTarget = factories.base.createRecordTarget();
+		recordTarget.setPatientRole(patientRole);
+		document.getRecordTargets().add(recordTarget);
+	}
+
+	public static void setAuthor(CDAFactories factories, ClinicalDocument document, Author author) {
+		document.getAuthors().add(author);
+	}
+
+	public static void setCustodian(CDAFactories factories, ClinicalDocument document, Custodian custodian) {
+		document.setCustodian(custodian);
+	}
+
+	public void setAssignedEntityGenerator(AssignedEntityGenerator assignedEntityGenerator) {
+		this.assignedEntityGenerator = assignedEntityGenerator;
 	}
 
 }

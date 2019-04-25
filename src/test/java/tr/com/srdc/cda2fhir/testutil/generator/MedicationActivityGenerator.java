@@ -329,4 +329,20 @@ public class MedicationActivityGenerator {
 	public void setMedicationSupplyOrderGenerator(MedicationSupplyOrderGenerator medicationSupplyOrderGenerator) {
 		this.medicationSupplyOrderGenerator = medicationSupplyOrderGenerator;
 	}
+
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		this.authorGenerator = authorGenerator;
+	}
+
+	public MedicationSupplyOrderGenerator getMedicationSupplyOrderGenerator() {
+		return this.medicationSupplyOrderGenerator;
+	}
+
+	public MedicationDispenseGenerator getMedicationDispenseGenerator() {
+		return this.medicationDispenseGenerator;
+	}
+
+	public void setMedicationDispenseGenerator(MedicationDispenseGenerator medicationDispenseGenerator) {
+		this.medicationDispenseGenerator = medicationDispenseGenerator;
+	}
 }

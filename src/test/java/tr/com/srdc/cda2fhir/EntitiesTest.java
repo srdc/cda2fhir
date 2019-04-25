@@ -41,10 +41,12 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ON;
 import org.openhealthtools.mdht.uml.hl7.datatypes.PN;
 import org.openhealthtools.mdht.uml.hl7.datatypes.impl.DatatypesFactoryImpl;
 
+import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 
 public class EntitiesTest {
@@ -82,7 +84,10 @@ public class EntitiesTest {
 		org.getNames().add(orgNameTwo);
 
 		// Transform from CDA to FHIR.
-		org.hl7.fhir.dstu3.model.Organization fhirOrganization = rt.tOrganization2Organization(org);
+		IEntryResult result = rt.tOrganization2Organization(org, new BundleInfo(rt));
+
+		org.hl7.fhir.dstu3.model.Organization fhirOrganization = BundleUtil.findOneResource(result.getBundle(),
+				org.hl7.fhir.dstu3.model.Organization.class);
 
 		// Make assertions.
 		Assert.assertEquals("Organization name was set", orgStringOne, fhirOrganization.getName());

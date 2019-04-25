@@ -13,6 +13,7 @@ import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.entry.CDAIIResourceMaps;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityInfo;
 import tr.com.srdc.cda2fhir.transform.entry.IEntityResult;
+import tr.com.srdc.cda2fhir.transform.entry.IMedicationsInformation;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDACDMap;
 import tr.com.srdc.cda2fhir.transform.util.impl.CDAIIMap;
 
@@ -31,7 +32,7 @@ public interface IBundleInfo {
 
 	IBaseResource findResourceResult(List<II> iis, Class<? extends IBaseResource> clazz);
 
-	public IBaseResource findResourceResult(CD cd);
+	public IMedicationsInformation findResourceResult(CD cd);
 
 	public void updateFrom(IResult source);
 
@@ -41,5 +42,5 @@ public interface IBundleInfo {
 
 	public CDAIIResourceMaps<IBaseResource> getResourceMaps();
 
-	public CDACDMap<IBaseResource> getCDMap();
+	public CDACDMap<IMedicationsInformation> getCDMap();
 }

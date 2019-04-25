@@ -36,25 +36,77 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			return null;
 		}
 		Map<String, Object> resource = (Map<String, Object>) input;
+
 		if (resource == null) {
 			resource = new LinkedHashMap<String, Object>();
 		}
+
+		List<Object> resources = (List<Object>) context.get("Resources");
+		if (resources == null) {
+			resources = new ArrayList<Object>();
+			context.put("Resources", resources);
+		}
+
+		int id = resources.size() + 1;
+
+		String reference = String.format("%s/%s", resourceType, id);
+		String display = AdditionalModifier.getDisplay(resource);
+
+		Map<String, Object> resourceMap = (Map<String, Object>) context.get("RESOURCE_MAP");
+
+		if (resourceMap == null) {
+			resourceMap = new HashMap<String, Object>();
+			context.put("RESOURCE_MAP", resourceMap);
+		}
+
+		List<Object> identifiers;
+		if (resource.get("identifier") instanceof LinkedHashMap) {
+			identifiers = new ArrayList<Object>();
+			identifiers.add(resource.get("identifier"));
+		} else {
+			identifiers = (List<Object>) resource.get("identifier");
+
+		}
+
 		if (input != null && "Medication".equals(resourceType)) {
-			CodeableConceptMap medicationMap = (CodeableConceptMap) context.get("MEDICATION_MAP");
-			if (medicationMap != null) {
-				Map<String, Object> existing = medicationMap.get(resource.get("code"));
-				if (existing != null) {
-					return existing;
+			MedicationMap medicationMap = (MedicationMap) context.get("MEDICATION_MAP");
+
+			if (medicationMap == null) {
+				medicationMap = new MedicationMap();
+				context.put("MEDICATION_MAP", medicationMap);
+			}
+
+			Map<String, String> manufacturer = (Map<String, String>) resource.get("manufacturer");
+			List<Object> orgIdentifiers = null;
+
+			if (manufacturer != null) {
+				String manuRef = manufacturer.get("reference");
+				Map<String, Object> organization = (Map<String, Object>) resourceMap.get(manuRef);
+				if (organization != null) {
+					orgIdentifiers = (List<Object>) resource.get("identifier");
 				}
+			}
+			Map<String, Object> existing = medicationMap.get(resource, orgIdentifiers);
+			if (existing != null) {
+				return existing;
+			} else {
+				medicationMap.put(resource, orgIdentifiers);
 			}
 		}
 
-		if (input != null && "Organization".equals(resourceType)) {
+		if (input != null && "Organization".equals(resourceType))
+
+		{
+
 			IdentifierMap<Map<String, Object>> organizationMap = (IdentifierMap<Map<String, Object>>) context
 					.get("ORGANIZATION_MAP");
 
-			if (resource.get("identifier") != null) {
-				List<Map<String, String>> identifiers = (List<Map<String, String>>) resource.get("identifier");
+			if (organizationMap == null) {
+				organizationMap = new IdentifierMap<Map<String, Object>>();
+				context.put("ORGANIZATION_MAP", organizationMap);
+			}
+
+			if (identifiers != null) {
 
 				if (organizationMap != null && identifiers != null) {
 
@@ -70,65 +122,23 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 
 							if (existing != null) {
 								return existing;
+							} else {
+								organizationMap.put(resourceType, system, value, resource);
 							}
-						}
 
+						}
 					}
 				}
 			}
+
 		}
 
-		List<Object> resources = (List<Object>) context.get("Resources");
-		if (resources == null) {
-			resources = new ArrayList<Object>();
-			context.put("Resources", resources);
-		}
-		int id = resources.size() + 1;
 		resource.put("resourceType", resourceType);
 		resource.put("id", id);
 		resources.add(resource);
 
-		if ("Medication".equals(resourceType)) {
-			CodeableConceptMap medicationMap = (CodeableConceptMap) context.get("MEDICATION_MAP");
-			if (medicationMap == null) {
-				medicationMap = new CodeableConceptMap();
-				context.put("MEDICATION_MAP", medicationMap);
-			}
-			medicationMap.put(resource.get("code"), resource);
-		}
-		if ("Organization".equals(resourceType)) {
-			IdentifierMap<Map<String, Object>> organizationMap = (IdentifierMap<Map<String, Object>>) context
-					.get("ORGANIZATION_MAP");
-			if (organizationMap == null) {
-				organizationMap = new IdentifierMap<Map<String, Object>>();
-				context.put("ORGANIZATION_MAP", organizationMap);
-			}
-			List<Map<String, String>> identifiers = (List<Map<String, String>>) resource.get("identifier");
-			if (identifiers != null) {
-				for (Map<String, String> identifier : identifiers) {
-					String system = identifier.get("system");
-					String value = identifier.get("value");
-					organizationMap.put(resourceType, system, value, resource);
-				}
-			}
-
-		}
-
-		String reference = String.format("%s/%s", resourceType, id);
-		String display = AdditionalModifier.getDisplay(resource);
-
-		Map<String, Object> resourceMap = (Map<String, Object>) context.get("RESOURCE_MAP");
-		if (resourceMap == null) {
-			resourceMap = new HashMap<String, Object>();
-			context.put("RESOURCE_MAP", resourceMap);
-		}
 		resourceMap.put(reference, resource);
 
-		if (resourceType.equals("Composition")) {
-			return resource;
-		}
-
-		List<Object> identifiers = (List<Object>) resource.get("identifier");
 		if (identifiers == null) {
 			return resource;
 		}
