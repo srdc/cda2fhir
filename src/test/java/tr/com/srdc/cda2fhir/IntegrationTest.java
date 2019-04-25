@@ -74,13 +74,13 @@ public class IntegrationTest {
 		ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 	}
 
-	@Test
+	@Ignore
 	public void CCDIntegration() throws Exception {
 
 		String sourceName = "170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
 		String documentBody = "<ClinicalDoc><span>document</span></ClinicalDoc>";
 		Identifier assemblerDevice = new Identifier();
-		assemblerDevice.setValue("Data Transformer Two");
+		assemblerDevice.setValue("Data Transformer One");
 		assemblerDevice.setSystem("http://www.amida.com");
 
 		// create transaction bundle from ccda bundle
@@ -163,9 +163,9 @@ public class IntegrationTest {
 	public void hannahIntegration() throws Exception {
 
 		String sourceName = "Epic/HannahBanana_EpicCCD-pretty.xml";
-		String documentBody = "<ClinicalDoc>\n</ClinicalDoc>";
+		String documentBody = "<ClinicalDoc><span>Hannah</span></ClinicalDoc>";
 		Identifier assemblerDevice = new Identifier();
-		assemblerDevice.setValue("Data Transformer");
+		assemblerDevice.setValue("Data Transformer Two");
 		assemblerDevice.setSystem("http://www.amida.com");
 		// create transaction bundle from ccda bundle
 
@@ -263,9 +263,9 @@ public class IntegrationTest {
 	@Ignore
 	public void rakiaIntegration() throws Exception {
 		String sourceName = "Cerner/Person-RAKIA_TEST_DOC00001 (1).XML";
-		String documentBody = "<ClinicalDoc>\n</ClinicalDoc>";
+		String documentBody = "<ClinicalDoc><span>RAKIA</span></ClinicalDoc>";
 		Identifier assemblerDevice = new Identifier();
-		assemblerDevice.setValue("Higgs");
+		assemblerDevice.setValue("Data Transformer Three");
 		assemblerDevice.setSystem("http://www.amida.com");
 
 		// create transaction bundle from ccda bundle
