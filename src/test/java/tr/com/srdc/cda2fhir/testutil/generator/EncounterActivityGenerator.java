@@ -1,8 +1,10 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -62,6 +64,10 @@ public class EncounterActivityGenerator {
 	public void setIDGenerator(IDGenerator idGenerator) {
 		this.idGenerators.clear();
 		this.idGenerators.add(idGenerator);
+	}
+
+	public void setStatusCode(String statusCode) {
+		this.statusCode = statusCode;
 	}
 
 	public EncounterActivities generate(CDAFactories factories) {
@@ -288,5 +294,9 @@ public class EncounterActivityGenerator {
 	public void verify(Bundle bundle) throws Exception {
 		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);
 		verify(bundle, encounter);
+	}
+
+	public static Set<String> getAvailableStatusCodes() {
+		return Collections.unmodifiableSet(ENCOUNTER_STATUS.keySet());
 	}
 }

@@ -121,6 +121,18 @@ public class EncounterActivityTest {
 	}
 
 	@Test
+	public void testStatusCodes() throws Exception {
+		EncounterActivityGenerator generator = new EncounterActivityGenerator();
+		for (String code : EncounterActivityGenerator.getAvailableStatusCodes()) {
+			generator.setStatusCode(code);
+			runTest(generator, "testStatusCode" + code);
+		}
+
+		generator.setIDGenerator(IDGenerator.getNextInstance());
+		runTest(generator, "testIdentifierOnly");
+	}
+
+	@Test
 	public void testSample1() throws Exception {
 		runSampleTest("C-CDA_R2-1_CCD.xml");
 	}
