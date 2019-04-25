@@ -74,7 +74,7 @@ public class IntegrationTest {
 		ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
 	}
 
-	@Ignore
+	@Test
 	public void CCDIntegration() throws Exception {
 
 		String sourceName = "170.315_b1_toc_inp_ccd_r21_sample1_v5.xml";
@@ -159,7 +159,7 @@ public class IntegrationTest {
 
 	}
 
-	@Test
+	@Ignore
 	public void hannahIntegration() throws Exception {
 
 		String sourceName = "Epic/HannahBanana_EpicCCD-pretty.xml";
