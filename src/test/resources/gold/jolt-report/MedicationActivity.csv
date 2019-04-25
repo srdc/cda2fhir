@@ -4,8 +4,8 @@ substanceAdministration.author.assignedAuthor,Organization,EntityOrganization,,s
 substanceAdministration.author.assignedAuthor,Practitioner,EntityPractitioner,,substanceAdministration.nullFlavor isnull
 substanceAdministration.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,substanceAdministration.nullFlavor isnull
 substanceAdministration.consumable,Medication,MedicationInformation,,substanceAdministration.nullFlavor isnull
-substanceAdministration.doseQuantity,MedicationStatement.dosage[0].doseQuantity,IVL_PQSimpleQuantity,,substanceAdministration.nullFlavor isnull
-substanceAdministration.effectiveTime[],MedicationStatement.dosage[0].timing,PIVL_TSTiming,,substanceAdministration.effectiveTime[].xsi:type equal PIVL_TS,substanceAdministration.nullFlavor isnull
+substanceAdministration.doseQuantity,MedicationStatement.dosage[0].doseQuantity,IVL_PQSimpleQuantity,"constantSystem('http://unitsofmeasure.org/ucum.html','pq')",substanceAdministration.nullFlavor isnull
+substanceAdministration.effectiveTime[],MedicationStatement.dosage[0].timing,PIVL_TSTiming,"lastElement",substanceAdministration.effectiveTime[].xsi:type equal PIVL_TS,substanceAdministration.nullFlavor isnull
 substanceAdministration.effectiveTime[],MedicationStatement.effectivePeriod,IVL_TSPeriod,,substanceAdministration.effectiveTime[].xsi:type equal IVL_TS,substanceAdministration.nullFlavor isnull
 substanceAdministration.entryRelationship[],Condition[],MedIndication,,substanceAdministration.nullFlavor isnull
 substanceAdministration.entryRelationship[],MedicationDispense,MedicationDispense,,substanceAdministration.nullFlavor isnull

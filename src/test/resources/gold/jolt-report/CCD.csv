@@ -72,8 +72,8 @@ MedicationStatement[],Composition.section[].entry[].display,,"getReferenceDispla
 MedicationStatement[],Composition.section[].entry[].reference,,"getId"
 Observation[],Composition.section[].entry[].display,,"getReferenceDisplay"
 Observation[],Composition.section[].entry[].reference,,"getId"
-Practitioner,Composition.author[0].display,,
-Practitioner,Composition.author[0].reference,,
+Practitioner,Composition.author[0].display,,"getReferenceDisplay"
+Practitioner,Composition.author[0].reference,,"getId"
 Procedure[],Composition.section[].entry[].display,,"getReferenceDisplay"
 Procedure[],Composition.section[].entry[].reference,,"getId"
 Subject,Composition.subject.display,,"getReferenceDisplay"

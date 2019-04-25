@@ -1,6 +1,6 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3,Condition 4,Condition 5
 encounter.code.code,Encounter.type[].coding[0].code,,,encounter.code.nullFlavor isnull,encounter.nullFlavor isnull
-encounter.code.codeSystem,Encounter.type[].coding[0].system,,,encounter.code.nullFlavor isnull,encounter.nullFlavor isnull
+encounter.code.codeSystem,Encounter.type[].coding[0].system,,"systemAdapter",encounter.code.nullFlavor isnull,encounter.nullFlavor isnull
 encounter.code.displayName,Encounter.type[].coding[0].display,,,encounter.code.nullFlavor isnull,encounter.nullFlavor isnull
 encounter.code.originalText,Encounter.type[].text,,"resolveText",encounter.nullFlavor isnull
 encounter.code.translation[].code,Encounter.class,,"lastElement",encounter.nullFlavor isnull
@@ -23,7 +23,7 @@ encounter.entryRelationship[].observation.id[].root,Encounter.Condition[].identi
 encounter.entryRelationship[].observation.id[].root,Encounter.Condition[].identifier[].value,,"toString",encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.id[].extension isnull,encounter.entryRelationship[].observation.id[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
 encounter.entryRelationship[].observation.id[].root.#official,Encounter.Condition[].identifier[].use,,,encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.id[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
 encounter.entryRelationship[].observation.value[].code,Encounter.Condition[].code.coding[0].code,,,encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.value[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
-encounter.entryRelationship[].observation.value[].codeSystem,Encounter.Condition[].code.coding[0].system,,,encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.value[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
+encounter.entryRelationship[].observation.value[].codeSystem,Encounter.Condition[].code.coding[0].system,,"systemAdapter",encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.value[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
 encounter.entryRelationship[].observation.value[].displayName,Encounter.Condition[].code.coding[0].display,,,encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.value[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
 encounter.entryRelationship[].observation.value[].translation[].code,Encounter.Condition[].code.coding[].code,,,encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.value[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
 encounter.entryRelationship[].observation.value[].translation[].codeSystem,Encounter.Condition[].code.coding[].system,,"systemAdapter",encounter.entryRelationship[].nullFlavor isnull,encounter.entryRelationship[].observation.value[].nullFlavor isnull,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
@@ -118,7 +118,7 @@ encounter.performer[].assignedEntity.telecom[].use,Encounter.Performer[].Practit
 encounter.performer[].assignedEntity.telecom[].value,Encounter.Performer[].Practitioner[].telecom[].system,,,encounter.nullFlavor isnull,encounter.performer[].assignedEntity.telecom[].nullFlavor isnull
 encounter.performer[].assignedEntity.telecom[].value,Encounter.Performer[].Practitioner[].telecom[].value,,,encounter.nullFlavor isnull,encounter.performer[].assignedEntity.telecom[].nullFlavor isnull
 encounter.priorityCode.code,Encounter.priority.coding[0].code,,,encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
-encounter.priorityCode.codeSystem,Encounter.priority.coding[0].system,,,encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
+encounter.priorityCode.codeSystem,Encounter.priority.coding[0].system,,"systemAdapter",encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
 encounter.priorityCode.displayName,Encounter.priority.coding[0].display,,,encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
 encounter.priorityCode.translation[].code,Encounter.priority.coding[].code,,,encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull
 encounter.priorityCode.translation[].codeSystem,Encounter.priority.coding[].system,,"systemAdapter",encounter.nullFlavor isnull,encounter.priorityCode.nullFlavor isnull

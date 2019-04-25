@@ -15,9 +15,9 @@ substanceAdministration.performer[].assignedEntity,PractitionerRole[],EntityPrac
 substanceAdministration.performer[].assignedEntity,Practitioner[],EntityPractitioner,,substanceAdministration.nullFlavor isnull
 substanceAdministration.routeCode,Immunization.route,CD,,substanceAdministration.nullFlavor isnull
 substanceAdministration.statusCode.code,Immunization.status,,"valueSetAdapter('ImmunizationStatus')",substanceAdministration.nullFlavor isnull,substanceAdministration.statusCode.nullFlavor isnull
-Observation,Immunization.reaction[0].detail.display,,
-Observation,Immunization.reaction[0].detail.reference,,
-Observation.effectivePeriod.start,Immunization.reaction[0].date,,
+Observation,Immunization.reaction[0].detail.display,,"getReferenceDisplay"
+Observation,Immunization.reaction[0].detail.reference,,"getId"
+Observation.effectivePeriod.start,Immunization.reaction[0].date,,"datetimeAdapter"
 Organization,Immunization.manufacturer.display,,"getReferenceDisplay"
 Organization,Immunization.manufacturer.reference,,"getId"
 Practitioner[],Immunization.practitioner[].actor.display,,"getReferenceDisplay"

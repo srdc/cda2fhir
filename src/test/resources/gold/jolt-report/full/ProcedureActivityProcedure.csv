@@ -1,6 +1,6 @@
 CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3,Condition 4,Condition 5
 procedure.code.code,Procedure.code.coding[0].code,,,procedure.code.nullFlavor isnull,procedure.nullFlavor isnull
-procedure.code.codeSystem,Procedure.code.coding[0].system,,,procedure.code.nullFlavor isnull,procedure.nullFlavor isnull
+procedure.code.codeSystem,Procedure.code.coding[0].system,,"systemAdapter",procedure.code.nullFlavor isnull,procedure.nullFlavor isnull
 procedure.code.displayName,Procedure.code.coding[0].display,,,procedure.code.nullFlavor isnull,procedure.nullFlavor isnull
 procedure.code.originalText,Procedure.code.text,,"resolveText",procedure.nullFlavor isnull
 procedure.code.translation[].code,Procedure.code.coding[].code,,,procedure.code.code isnotnull or procedure.code.displayName isnotnull or procedure.code.originalText isnotnull,procedure.nullFlavor isnull
@@ -11,7 +11,7 @@ procedure.effectiveTime.low.value,Procedure.performedPeriod.start,,"datetimeAdap
 procedure.effectiveTime.value,Procedure.performedPeriod.start,,"datetimeAdapter",procedure.effectiveTime.high isnull,procedure.effectiveTime.low isnull,procedure.effectiveTime.nullFlavor isnull,procedure.nullFlavor isnull
 procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",procedure.entryRelationship[].typeCode equal SUBJ,procedure.nullFlavor isnull
 procedure.entryRelationship[].observation.code.code,Procedure.reasonCode[].coding[0].code,,,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
-procedure.entryRelationship[].observation.code.codeSystem,Procedure.reasonCode[].coding[0].system,,,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
+procedure.entryRelationship[].observation.code.codeSystem,Procedure.reasonCode[].coding[0].system,,"systemAdapter",procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
 procedure.entryRelationship[].observation.code.displayName,Procedure.reasonCode[].coding[0].display,,,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
 procedure.entryRelationship[].observation.code.translation[].code,Procedure.reasonCode[].coding[].code,,,procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
 procedure.entryRelationship[].observation.code.translation[].codeSystem,Procedure.reasonCode[].coding[].system,,"systemAdapter",procedure.entryRelationship[].observation.code.nullFlavor isnull,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
@@ -94,7 +94,7 @@ procedure.performer[].assignedEntity.telecom[].value,Procedure.Performer[].Pract
 procedure.performer[].assignedEntity.telecom[].value,Procedure.Performer[].Practitioner[].telecom[].value,,,procedure.nullFlavor isnull,procedure.performer[].assignedEntity.telecom[].nullFlavor isnull
 procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",procedure.nullFlavor isnull,procedure.statusCode.nullFlavor isnull
 procedure.targetSiteCode[].code,Procedure.bodySite[].coding[0].code,,,procedure.nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
-procedure.targetSiteCode[].codeSystem,Procedure.bodySite[].coding[0].system,,,procedure.nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
+procedure.targetSiteCode[].codeSystem,Procedure.bodySite[].coding[0].system,,"systemAdapter",procedure.nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
 procedure.targetSiteCode[].displayName,Procedure.bodySite[].coding[0].display,,,procedure.nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
 procedure.targetSiteCode[].translation[].code,Procedure.bodySite[].coding[].code,,,procedure.nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
 procedure.targetSiteCode[].translation[].codeSystem,Procedure.bodySite[].coding[].system,,"systemAdapter",procedure.nullFlavor isnull,procedure.targetSiteCode[].nullFlavor isnull
