@@ -12,5 +12,9 @@ public interface IEntityInfo {
 
 	Organization getOrganization();
 
+	boolean isOrgNew();
+
+	void setOrgIsNew(boolean orgIsNew);
+
 	Device getDevice();
 }

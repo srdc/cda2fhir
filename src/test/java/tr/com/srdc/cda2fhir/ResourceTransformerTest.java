@@ -72,6 +72,7 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import ca.uhn.fhir.model.api.IResource;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.ValueSetsTransformerImpl;
+import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -647,14 +648,16 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: Organization2Organization\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.Organization cdaNull = null;
-		Organization fhirNull = rt.tOrganization2Organization(cdaNull);
-		Assert.assertNull(fhirNull);
+		IEntryResult result1 = rt.tOrganization2Organization(cdaNull, new BundleInfo(rt));
+		Assert.assertFalse(result1.hasResult());
 
 		// instances from file
 		for (org.openhealthtools.mdht.uml.cda.PatientRole patRole : ResourceTransformerTest.ccd.getPatientRoles()) {
 			org.openhealthtools.mdht.uml.cda.Organization cdaOrg = patRole.getProviderOrganization();
 			appendToResultFile(transformationStartMsg);
-			org.hl7.fhir.dstu3.model.Organization fhirOrg = rt.tOrganization2Organization(cdaOrg);
+			IEntryResult result2 = rt.tOrganization2Organization(cdaOrg, new BundleInfo(rt));
+			org.hl7.fhir.dstu3.model.Organization fhirOrg = FHIRUtil.findFirstResource(result2.getBundle(),
+					org.hl7.fhir.dstu3.model.Organization.class);
 			appendToResultFile(transformationEndMsg);
 			appendToResultFile(fhirOrg);
 		}
@@ -666,8 +669,8 @@ public class ResourceTransformerTest {
 		appendToResultFile("## TEST: PatientRole2Patient\n");
 		// null instance test
 		org.openhealthtools.mdht.uml.cda.PatientRole cdaNull = null;
-		Bundle fhirNull = rt.tPatientRole2Patient(cdaNull);
-		Assert.assertNull(fhirNull);
+		IEntryResult patientResult1 = rt.tPatientRole2Patient(cdaNull, new BundleInfo(rt));
+		Assert.assertFalse(patientResult1.hasResult());
 
 		// instances from file
 		for (PatientRole pr : ResourceTransformerTest.ccd.getPatientRoles()) {
@@ -677,11 +680,11 @@ public class ResourceTransformerTest {
 			Patient patient = null;
 
 			appendToResultFile(transformationStartMsg);
-			Bundle patientBundle = rt.tPatientRole2Patient(pr);
+			IEntryResult patientResult2 = rt.tPatientRole2Patient(pr, new BundleInfo(rt));
 			appendToResultFile(transformationEndMsg);
-			appendToResultFile(patientBundle);
+			appendToResultFile(patientResult2.getBundle());
 
-			for (BundleEntryComponent entry : patientBundle.getEntry()) {
+			for (BundleEntryComponent entry : patientResult2.getFullBundle().getEntry()) {
 				if (entry.getResource() instanceof Patient) {
 					patient = (Patient) entry.getResource();
 				}

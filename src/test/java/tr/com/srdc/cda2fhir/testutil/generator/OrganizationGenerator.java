@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
+import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
 import org.openhealthtools.mdht.uml.cda.Organization;
 import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -52,6 +53,39 @@ public class OrganizationGenerator {
 		return nullFlavor == null && (name != null || !idGenerators.isEmpty());
 	}
 
+	public CustodianOrganization generateCustodianOrg(CDAFactories factories) {
+		CustodianOrganization custodianOrg = factories.base.createCustodianOrganization();
+		Organization org = generate(factories);
+		if (org.getNames() != null) {
+
+			for (int i = 0; i < org.getNames().size(); i++) {
+				custodianOrg.setName(org.getNames().get(i));
+			}
+		}
+
+		if (org.getIds() != null) {
+			custodianOrg.getIds().addAll(org.getIds());
+		}
+
+		if (org.getAddrs() != null) {
+			for (int i = 0; i < org.getAddrs().size(); i++) {
+				custodianOrg.setAddr(org.getAddrs().get(i));
+			}
+		}
+
+		if (org.getTelecoms() != null) {
+			for (int i = 0; i < org.getTelecoms().size(); i++) {
+				custodianOrg.setTelecom(org.getTelecoms().get(i));
+			}
+		}
+
+		if (org.getNullFlavor() != null) {
+			custodianOrg.setNullFlavor(org.getNullFlavor());
+		}
+
+		return custodianOrg;
+	}
+
 	public Organization generate(CDAFactories factories) {
 		Organization organization = factories.base.createOrganization();
 
@@ -91,6 +125,8 @@ public class OrganizationGenerator {
 		OrganizationGenerator og = new OrganizationGenerator();
 
 		og.name = NAME;
+
+		og.idGenerators.add(IDGenerator.getNextInstance());
 
 		ADGenerator adGenerator = ADGenerator.getDefaultInstance();
 		TELGenerator telGenerator = TELGenerator.getDefaultInstance();

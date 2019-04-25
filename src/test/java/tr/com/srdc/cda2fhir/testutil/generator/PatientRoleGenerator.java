@@ -111,4 +111,8 @@ public class PatientRoleGenerator {
 			providerOrgGenerator.verify(organization);
 		}
 	}
+
+	public void setProviderOrgGenerator(OrganizationGenerator orgGenerator) {
+		this.providerOrgGenerator = orgGenerator;
+	}
 }

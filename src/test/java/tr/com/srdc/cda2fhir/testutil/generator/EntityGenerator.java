@@ -188,4 +188,5 @@ public class EntityGenerator {
 			verify(organization);
 		}
 	}
+
 }

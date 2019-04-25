@@ -236,4 +236,9 @@ public class MedicationSupplyOrderGenerator {
 	public void setMedicationInfoGenerator(MedicationInformationGenerator generator) {
 		this.medInfoGenerator = generator;
 	}
+
+	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
+		this.authorGenerator = authorGenerator;
+	}
+
 }

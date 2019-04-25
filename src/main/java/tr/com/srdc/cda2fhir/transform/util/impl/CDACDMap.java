@@ -1,9 +1,10 @@
 package tr.com.srdc.cda2fhir.transform.util.impl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
@@ -13,57 +14,83 @@ import tr.com.srdc.cda2fhir.transform.util.ICDACDMapSource;
 
 public class CDACDMap<T> implements ICDACDMap<T>, ICDACDMapSource<T> {
 
-	Map<String, Map<String, T>> cdMap;
+	Map<String, T> cdMap;
 
 	@Override
 	public void put(CD cd, T value) {
 		if (cdMap == null) {
-			cdMap = new HashMap<String, Map<String, T>>();
+			cdMap = new HashMap<String, T>();
 		}
-		List<CD> cds = new ArrayList<CD>();
-		put(cd.getCodeSystem(), cd.getCode(), value);
+
+		String codeSetKey = getKeyString(cd);
+
+		if (!codeSetKey.contentEquals("")) {
+			put(codeSetKey, value);
+		}
+	}
+
+	private String getKeyString(CD cd) {
+		ArrayList<String> codeSetKeyArr = new ArrayList<String>();
+
+		String codeSystem = cd.getCodeSystem();
+		String code = cd.getCode();
+
+		if (codeSystem != null && code != null) {
+			checkSystemFlagAndAdd(codeSetKeyArr, codeSystem, code);
+		}
+
 		if (cd.getTranslations() != null && !cd.getTranslations().isEmpty()) {
 			for (CD currCD : cd.getTranslations()) {
-				put(currCD.getCodeSystem(), currCD.getCode(), value);
+				if (currCD.getCodeSystem() != null && currCD.getCode() != null) {
+					checkSystemFlagAndAdd(codeSetKeyArr, currCD.getCodeSystem(), currCD.getCode());
+				}
 			}
 		}
 
+		codeSetKeyArr.sort(Comparator.comparing(String::toString));
+
+		String codeSetKey = codeSetKeyArr.parallelStream().collect(Collectors.joining());
+
+		return codeSetKey;
 	}
 
-	private void put(String system, String code, T value) {
-		if (system == null || code == null || value == null) {
-			return;
+	private void checkSystemFlagAndAdd(ArrayList<String> arr, String system, String value) {
+		if (Config.MEDICATION_CODE_SYSTEM != null && Config.MEDICATION_CODE_SYSTEM.contentEquals(system.trim())) {
+			arr.add(system.trim());
+			arr.add(value.trim());
+		} else if (Config.MEDICATION_CODE_SYSTEM == null) {
+			arr.add(system.trim());
+			arr.add(value.trim());
 		}
-		if (Config.MEDICATION_CODE_SYSTEM != null && !Config.MEDICATION_CODE_SYSTEM.contentEquals(system)) {
+	}
+
+	private void put(String key, T value) {
+		if (key == null || value == null) {
 			return;
-		}
-		if (cdMap.get(system) == null) {
-			cdMap.put(system, new HashMap<String, T>());
 		}
 
-		cdMap.get(system).put(code, value);
+		if (cdMap == null) {
+			cdMap = new HashMap<String, T>();
+		}
+
+		cdMap.put(key, value);
 	}
 
 	public void put(ICDACDMapSource<T> source) {
 		if (source == null)
 			return;
+
 		if (cdMap == null) {
-			cdMap = new HashMap<String, Map<String, T>>();
+			cdMap = new HashMap<String, T>();
 		}
 
 		source.putCDValuesTo(cdMap);
 	}
 
 	@Override
-	public void putCDValuesTo(Map<String, Map<String, T>> target) {
+	public void putCDValuesTo(Map<String, T> target) {
 		if (cdMap != null) {
-			for (String system : cdMap.keySet()) {
-				if (target.get(system) == null) {
-					target.put(system, new HashMap<String, T>());
-				}
-				target.get(system).putAll(cdMap.get(system));
-			}
-
+			target.putAll(cdMap);
 		}
 	}
 
@@ -75,25 +102,17 @@ public class CDACDMap<T> implements ICDACDMap<T>, ICDACDMapSource<T> {
 	@Override
 	public T get(CD cd) {
 		if (cdMap != null) {
+			String keyStr = getKeyString(cd);
 
-			Map<String, T> codeMap = cdMap.get(cd.getCodeSystem());
-			if (codeMap != null && codeMap.get(cd.getCode()) != null) {
-				return codeMap.get(cd.getCode());
-			}
-			if (cd.getTranslations() != null && !cd.getTranslations().isEmpty()) {
-				for (CD currCD : cd.getTranslations()) {
-					codeMap = cdMap.get(currCD.getCodeSystem());
-					if (codeMap != null && codeMap.get(currCD.getCode()) != null) {
-						return codeMap.get(currCD.getCode());
-					}
-				}
+			if (!keyStr.contentEquals("")) {
+				return cdMap.get(keyStr);
 			}
 
 		}
 		return null;
 	}
 
-	public Map<String, Map<String, T>> getCDMap() {
+	public Map<String, T> getCDMap() {
 		return cdMap;
 	}
 

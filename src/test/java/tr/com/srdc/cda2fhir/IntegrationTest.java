@@ -72,7 +72,7 @@ public class IntegrationTest {
 				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
 //		// print pre-post bundle
-		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia-4-10.json");
+		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia-4-17.json");
 
 		// Send transaction bundle to server.
 		Bundle resp = client.transaction().withBundle(transactionBundle).execute();
@@ -103,6 +103,6 @@ public class IntegrationTest {
 		Assert.assertEquals(1, provenanceResults.getTotal());
 		Assert.assertEquals(1, docRefresults.getTotal());
 		Assert.assertEquals(2, deviceResults.getTotal());
-		Assert.assertEquals(2, organizationResults.getTotal());
+		Assert.assertEquals(1, organizationResults.getTotal());
 	}
 }

@@ -67,4 +67,5 @@ public class AssignedEntityGenerator extends EntityGenerator {
 		fillFullInstance(aeg);
 		return aeg;
 	}
+
 }
