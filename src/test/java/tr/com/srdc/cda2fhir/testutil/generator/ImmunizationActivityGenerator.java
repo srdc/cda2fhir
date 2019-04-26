@@ -23,12 +23,15 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_PQ;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ImmunizationActivityGenerator {
 	private static final Map<String, Object> IMMUNIZATION_STATUS = JsonUtils
@@ -57,6 +60,12 @@ public class ImmunizationActivityGenerator {
 	private CDGenerator indicationGenerator;
 
 	private ReactionObservationGenerator reactionObservationGenerator;
+
+	private String nullFlavor;
+
+	public void setNullFlavor() {
+		this.nullFlavor = "UNK";
+	}
 
 	public void convertToRefused() {
 		negationInd = true;
@@ -155,6 +164,11 @@ public class ImmunizationActivityGenerator {
 			er.setObservation(obs);
 		}
 
+		if (nullFlavor != null) {
+			NullFlavor nf = CDAUtilExtension.toNullFlavor(nullFlavor);
+			ia.setNullFlavor(nf);
+		}
+
 		return ia;
 	}
 
@@ -178,6 +192,11 @@ public class ImmunizationActivityGenerator {
 	}
 
 	public void verify(Immunization immunization) {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", immunization);
+			return;
+		}
+
 		if (idGenerators.isEmpty()) {
 			Assert.assertTrue("No immunization identifier", !immunization.hasIdentifier());
 		} else {
@@ -244,6 +263,11 @@ public class ImmunizationActivityGenerator {
 	}
 
 	public void verify(Bundle bundle, Immunization immunization) throws Exception {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", immunization);
+			return;
+		}
+
 		verify(immunization);
 
 		if (medInfoGenerator == null) {
@@ -278,6 +302,12 @@ public class ImmunizationActivityGenerator {
 	}
 
 	public void verify(Bundle bundle) throws Exception {
+		if (nullFlavor != null) {
+			Immunization immunization = FHIRUtil.findFirstResource(bundle, Immunization.class);
+			verify(bundle, immunization);
+			return;
+		}
+
 		Immunization immunization = BundleUtil.findOneResource(bundle, Immunization.class);
 		verify(bundle, immunization);
 	}

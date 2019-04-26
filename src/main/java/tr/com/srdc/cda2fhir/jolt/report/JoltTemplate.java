@@ -37,11 +37,11 @@ public class JoltTemplate {
 				String operation = (String) transform.get("operation");
 				Map<String, Object> spec = (Map<String, Object>) transform.get("spec");
 
-				if (operation.equals("shift")) {
+				if (operation.equals("shift") || operation.endsWith("Shift")) {
 					result.shifts.add(spec);
 					return;
 				}
-				if (operation.equals("default") && (result.shifts.size() > 0)) {
+				if (operation.endsWith("Default") && (result.shifts.size() > 0)) {
 					result.defaults = spec;
 					return;
 				}

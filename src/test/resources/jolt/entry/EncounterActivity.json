@@ -18,7 +18,7 @@
 		}
 	},
 	{
-		"operation": "shift",
+		"operation": "tr.com.srdc.cda2fhir.jolt.Shift",
 		"spec": {
 			"encounter": {
 				"id": {
@@ -52,6 +52,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
 		"spec": {
+			"allowEmpty": true
 		}
 	},
 	{
@@ -143,7 +144,7 @@
 		}
 	},
 	{
-		"operation": "default",
+		"operation": "tr.com.srdc.cda2fhir.jolt.Default",
 		"spec": {
 			"status": "finished"
 		}

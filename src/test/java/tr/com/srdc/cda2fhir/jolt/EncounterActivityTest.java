@@ -46,13 +46,19 @@ public class EncounterActivityTest {
 
 	private static void runTest(EncounterActivities ec, String caseName, EncounterActivityGenerator generator)
 			throws Exception {
+		File xmlFile = CDAUtilExtension.writeAsXML(ec, OUTPUT_PATH, caseName);
+
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
 		IEntryResult cda2FhirResult = rt.tEncounterActivity2Encounter(ec, new BundleInfo(rt));
+		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "EncounterActivity", caseName);
 
 		Bundle bundle = cda2FhirResult.getBundle();
-		Assert.assertNotNull("Encounter bundle", bundle);
+		if (bundle == null) {
+			Assert.assertTrue("No encounter", joltResult == null || joltResult.size() == 0);
+			return;
+		}
 
 		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIREncounter", "json");
@@ -62,9 +68,6 @@ public class EncounterActivityTest {
 			generator.verify(bundle);
 		}
 
-		File xmlFile = CDAUtilExtension.writeAsXML(ec, OUTPUT_PATH, caseName);
-
-		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "EncounterActivity", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 
 		joltUtil.verify(encounter);
@@ -102,6 +105,12 @@ public class EncounterActivityTest {
 	}
 
 	@Test
+	public void testEmpty() throws Exception {
+		EncounterActivityGenerator generator = new EncounterActivityGenerator();
+		runTest(generator, "emptyDefaults");
+	}
+
+	@Test
 	public void testDefault() throws Exception {
 		EncounterActivityGenerator generator = EncounterActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
@@ -111,6 +120,13 @@ public class EncounterActivityTest {
 	public void testFull() throws Exception {
 		EncounterActivityGenerator generator = EncounterActivityGenerator.getFullInstance();
 		runTest(generator, "fullCase");
+	}
+
+	@Test
+	public void testNullFlavor() throws Exception {
+		EncounterActivityGenerator generator = EncounterActivityGenerator.getDefaultInstance();
+		generator.setNullFlavor();
+		runTest(generator, "nullFlavor");
 	}
 
 	@Test

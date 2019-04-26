@@ -56,9 +56,13 @@ public class AllergyConcernActTest {
 		Config.setGenerateDafProfileMetadata(false);
 
 		IEntryResult cda2FhirResult = rt.tAllergyProblemAct2AllergyIntolerance(act, new BundleInfo(rt));
+		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "AllergyConcernAct", caseName);
 
 		Bundle bundle = cda2FhirResult.getBundle();
-		Assert.assertNotNull("Allergy bundle", bundle);
+		if (bundle == null) {
+			Assert.assertTrue("No allergy", joltResult == null || joltResult.size() == 0);
+			return;
+		}
 
 		AllergyIntolerance allergy = BundleUtil.findOneResource(bundle, AllergyIntolerance.class);
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIRAllergyIntolerance", "json");
@@ -67,8 +71,6 @@ public class AllergyConcernActTest {
 		if (generator != null) {
 			generator.verify(bundle);
 		}
-
-		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "AllergyConcernAct", caseName);
 
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 		joltUtil.verify(allergy);
@@ -97,13 +99,20 @@ public class AllergyConcernActTest {
 	@Test
 	public void testEmpty() throws Exception {
 		AllergyConcernActGenerator generator = new AllergyConcernActGenerator();
-		runTest(generator, "emptyButStatus");
+		runTest(generator, "emptyDefaults");
 	}
 
 	@Test
 	public void testDefault() throws Exception {
 		AllergyConcernActGenerator generator = AllergyConcernActGenerator.getDefaultInstance();
 		runTest(generator, "default");
+	}
+
+	@Test
+	public void testNullFlavor() throws Exception {
+		AllergyConcernActGenerator generator = AllergyConcernActGenerator.getDefaultInstance();
+		generator.setNullFlavor();
+		runTest(generator, "nullFlavor");
 	}
 
 	@Test

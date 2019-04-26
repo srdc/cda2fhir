@@ -39,7 +39,9 @@ import com.bazaarvoice.jolt.JsonUtils;
 import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
+import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class EncounterActivityGenerator {
 	private static final Map<String, Object> ENCOUNTER_STATUS = JsonUtils
@@ -60,6 +62,12 @@ public class EncounterActivityGenerator {
 	private List<IndicationGenerator> indicationGenerators = new ArrayList<>();
 
 	private List<ServiceDeliveryLocationGenerator> serviceDeliveryLocationGenerators = new ArrayList<>();
+
+	private String nullFlavor;
+
+	public void setNullFlavor() {
+		this.nullFlavor = "UNK";
+	}
 
 	public void setIDGenerator(IDGenerator idGenerator) {
 		this.idGenerators.clear();
@@ -132,6 +140,11 @@ public class EncounterActivityGenerator {
 			ec.getParticipants().add(p2);
 		});
 
+		if (nullFlavor != null) {
+			NullFlavor nf = CDAUtilExtension.toNullFlavor(nullFlavor);
+			ec.setNullFlavor(nf);
+		}
+
 		return ec;
 	}
 
@@ -179,6 +192,11 @@ public class EncounterActivityGenerator {
 	}
 
 	public void verify(Encounter encounter) {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", encounter);
+			return;
+		}
+
 		if (!idGenerators.isEmpty()) {
 			for (int index = 0; index < idGenerators.size(); ++index) {
 				idGenerators.get(index).verify(encounter.getIdentifier().get(index));
@@ -228,6 +246,11 @@ public class EncounterActivityGenerator {
 	}
 
 	public void verify(Bundle bundle, Encounter encounter) throws Exception {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", encounter);
+			return;
+		}
+
 		verify(encounter);
 
 		BundleUtil util = new BundleUtil(bundle);
@@ -292,6 +315,12 @@ public class EncounterActivityGenerator {
 	}
 
 	public void verify(Bundle bundle) throws Exception {
+		if (nullFlavor != null) {
+			Encounter encounter = FHIRUtil.findFirstResource(bundle, Encounter.class);
+			verify(bundle, encounter);
+			return;
+		}
+
 		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);
 		verify(bundle, encounter);
 	}
