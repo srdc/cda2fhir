@@ -1,9 +1,11 @@
 package tr.com.srdc.cda2fhir.testutil;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openhealthtools.mdht.uml.cda.Entry;
+import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
@@ -12,12 +14,25 @@ import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
+import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
 import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 
 public class LocalResourceTransformer extends ResourceTransformerImpl {
+	private static class ProblemInfo {
+		public ProblemConcernAct act;
+		public List<ProblemObservation> observations = new ArrayList<>();
+
+		public ProblemInfo(ProblemConcernAct act) {
+			this.act = act;
+		}
+	};
+
 	private static final long serialVersionUID = 1L;
 
 	private CDAFactories factories;
@@ -26,6 +41,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 	private List<EncounterActivities> encounterActivities = new ArrayList<>();
 	private List<ImmunizationActivity> immunizationActivities = new ArrayList<>();
 	private List<MedicationActivity> medActivities = new ArrayList<>();
+	private List<ProblemInfo> problemInfos = new ArrayList<>();
 
 	public LocalResourceTransformer(CDAFactories factories) {
 		this.factories = factories;
@@ -36,6 +52,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		encounterActivities.clear();
 		immunizationActivities.clear();
 		medActivities.clear();
+		problemInfos.clear();
 	}
 
 	@Override
@@ -62,6 +79,20 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 	public EntryResult tMedicationActivity2MedicationStatement(MedicationActivity medActivity, IBundleInfo bundleInfo) {
 		medActivities.add(medActivity);
 		return super.tMedicationActivity2MedicationStatement(medActivity, bundleInfo);
+	}
+
+	@Override
+	public EntryResult tProblemConcernAct2Condition(ProblemConcernAct cdaProblemConcernAct, IBundleInfo bundleInfo) {
+		ProblemInfo info = new ProblemInfo(cdaProblemConcernAct);
+		problemInfos.add(info);
+		return super.tProblemConcernAct2Condition(cdaProblemConcernAct, bundleInfo);
+	}
+
+	@Override
+	public EntryResult tProblemObservation2Condition(ProblemObservation cdaProbObs, IBundleInfo bundleInfo) {
+		ProblemInfo info = problemInfos.get(problemInfos.size() - 1);
+		info.observations.add(cdaProbObs);
+		return super.tProblemObservation2Condition(cdaProbObs, bundleInfo);
 	}
 
 	public void reorderSection(AllergiesSection section) {
@@ -96,6 +127,31 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		medActivities.forEach(ma -> {
 			Entry entry = factories.base.createEntry();
 			entry.setSubstanceAdministration(ma);
+			section.getEntries().add(entry);
+		});
+	}
+
+	public void reorderSection(ProblemSection section) {
+		section.getEntries().clear();
+		problemInfos.forEach(info -> {
+			ProblemConcernAct act = info.act;
+
+			Iterator<EntryRelationship> it = act.getEntryRelationships().iterator();
+			while (it.hasNext()) {
+				EntryRelationship er = it.next();
+				if (er.getObservation() instanceof ProblemObservation) {
+					it.remove();
+				}
+			}
+			info.observations.forEach(po -> {
+				EntryRelationship er = factories.base.createEntryRelationship();
+				act.getEntryRelationships().add(er);
+				er.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ);
+				er.setObservation(po);
+			});
+
+			Entry entry = factories.base.createEntry();
+			entry.setAct(act);
 			section.getEntries().add(entry);
 		});
 	}
