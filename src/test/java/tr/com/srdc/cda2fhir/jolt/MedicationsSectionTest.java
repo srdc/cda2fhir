@@ -2,22 +2,21 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Dosage;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
@@ -25,57 +24,27 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
+import tr.com.srdc.cda2fhir.testutil.LocalResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
-import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class MedicationsSectionTest {
-	private static class LocalResourceTransformer extends ResourceTransformerImpl {
-		private static final long serialVersionUID = 1L;
-
-		private List<MedicationActivity> medActivities = new ArrayList<>();
-
-		public void clearEntries() {
-			medActivities.clear();
-		}
-
-		public List<MedicationActivity> getEntries() {
-			return Collections.unmodifiableList(medActivities);
-		}
-
-		@Override
-		public EntryResult tMedicationActivity2MedicationStatement(MedicationActivity medActivity,
-				IBundleInfo bundleInfo) {
-			medActivities.add(medActivity);
-			return super.tMedicationActivity2MedicationStatement(medActivity, bundleInfo);
-		}
-	}
-
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/MedicationsSection/";
 
 	private static CDAFactories factories;
 	private static LocalResourceTransformer rt;
 
+	private static BiConsumer<Map<String, Object>, MedicationStatement> customJoltUpdate2; // Hack for now
+
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-		rt = new LocalResourceTransformer();
 		factories = CDAFactories.init();
-	}
-
-	private static void reorderSection(MedicationsSection section) {
-		section.getEntries().clear();
-		rt.getEntries().forEach(ma -> {
-			Entry entry = factories.base.createEntry();
-			entry.setSubstanceAdministration(ma);
-			section.getEntries().add(entry);
-		});
+		rt = new LocalResourceTransformer(factories);
 	}
 
 	private static void runSampleTest(String sourceName) throws Exception {
@@ -103,7 +72,7 @@ public class MedicationsSectionTest {
 		List<MedicationRequest> medRequests = FHIRUtil.findResources(bundle, MedicationRequest.class);
 
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		reorderSection(section);
+		rt.reorderSection(section);
 
 		String caseName = sourceName.substring(0, sourceName.length() - 4);
 		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);
@@ -119,6 +88,9 @@ public class MedicationsSectionTest {
 		for (int index = 0; index < count; ++index) {
 			MedicationStatement medStatement = medStatements.get(index);
 			Map<String, Object> joltMedStatement = joltMedStatements.get(index);
+			if (customJoltUpdate2 != null) {
+				customJoltUpdate2.accept(joltMedStatement, medStatement);
+			}
 			joltUtil.verify(medStatement, joltMedStatement);
 		}
 
@@ -236,7 +208,20 @@ public class MedicationsSectionTest {
 	@Ignore
 	@Test
 	public void testEpicSample15() throws Exception {
+		customJoltUpdate2 = (r, resource) -> {
+			if (resource.hasDosage()) {
+				Dosage dosage = resource.getDosage().get(0);
+				if (dosage.hasTiming()) {
+					CodeableConcept cc = dosage.getTiming().getCode();
+					String text = cc.getText();
+					if (text != null && !text.equals(text.trim())) {
+						cc.setText(text.trim());
+					}
+				}
+			}
+		};
 		runSampleTest("Epic/DOC0001 15.XML");
+		customJoltUpdate2 = null;
 	}
 
 	@Ignore

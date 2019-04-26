@@ -48,7 +48,9 @@
 						"MedicationRequest.->MedicationSupplyOrder",
 						"MedicationDispense.->MedicationDispense",
 						"Condition[].->MedIndication",
-						"dosage[0].timing.->MedActivityCustomFrequency"
+						"dosage[0].timing.->MedActivityCustomFrequency",
+						"dosage[0].text.->MedActivityCustomComment",
+						"dosage[0].patientInstruction.->MedActivityCustomComment"
 					]
 				}
 			}
@@ -58,6 +60,20 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
 		"spec": {
 		}
+	},
+	{
+		"operation": "cardinality",
+		"spec": {
+			"dosage": {
+				"*": {
+					"text": "ONE",
+					"patientInstruction": "ONE"
+				}
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
@@ -99,7 +115,9 @@
 			"dosage": {
 				"*": {
 					"timing": "=lastElement(@0)",
-					"doseQuantity": "=constantSystem('http://unitsofmeasure.org/ucum.html','pq',@0)"
+					"doseQuantity": "=constantSystem('http://unitsofmeasure.org/ucum.html','pq',@0)",
+					"text": "=resolveText(@0)",
+					"patientInstruction": "=resolveText(@0)"
 				}
 			}
 		}

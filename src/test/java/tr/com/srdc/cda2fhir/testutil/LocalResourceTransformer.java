@@ -10,6 +10,8 @@ import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.cda.consol.EncountersSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
@@ -23,6 +25,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 	private List<AllergyProblemAct> allergyProblemActs = new ArrayList<>();
 	private List<EncounterActivities> encounterActivities = new ArrayList<>();
 	private List<ImmunizationActivity> immunizationActivities = new ArrayList<>();
+	private List<MedicationActivity> medActivities = new ArrayList<>();
 
 	public LocalResourceTransformer(CDAFactories factories) {
 		this.factories = factories;
@@ -32,6 +35,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		allergyProblemActs.clear();
 		encounterActivities.clear();
 		immunizationActivities.clear();
+		medActivities.clear();
 	}
 
 	@Override
@@ -52,6 +56,12 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 			IBundleInfo bundleInfo) {
 		immunizationActivities.add(cdaImmunizationActivity);
 		return super.tImmunizationActivity2Immunization(cdaImmunizationActivity, bundleInfo);
+	}
+
+	@Override
+	public EntryResult tMedicationActivity2MedicationStatement(MedicationActivity medActivity, IBundleInfo bundleInfo) {
+		medActivities.add(medActivity);
+		return super.tMedicationActivity2MedicationStatement(medActivity, bundleInfo);
 	}
 
 	public void reorderSection(AllergiesSection section) {
@@ -77,6 +87,15 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		immunizationActivities.forEach(activity -> {
 			Entry entry = factories.base.createEntry();
 			entry.setSubstanceAdministration(activity);
+			section.getEntries().add(entry);
+		});
+	}
+
+	public void reorderSection(MedicationsSection section) {
+		section.getEntries().clear();
+		medActivities.forEach(ma -> {
+			Entry entry = factories.base.createEntry();
+			entry.setSubstanceAdministration(ma);
 			section.getEntries().add(entry);
 		});
 	}

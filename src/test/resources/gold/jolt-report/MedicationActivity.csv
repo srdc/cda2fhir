@@ -1,4 +1,4 @@
-CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2,Condition 3,Condition 4
 substanceAdministration.#unk,MedicationStatement.taken,,,,substanceAdministration.nullFlavor isnull
 substanceAdministration.author.assignedAuthor,Organization,EntityOrganization,,,substanceAdministration.nullFlavor isnull
 substanceAdministration.author.assignedAuthor,Practitioner,EntityPractitioner,,,substanceAdministration.nullFlavor isnull
@@ -11,6 +11,8 @@ substanceAdministration.entryRelationship[],Condition[],MedIndication,,,substanc
 substanceAdministration.entryRelationship[],MedicationDispense,MedicationDispense,,,substanceAdministration.nullFlavor isnull
 substanceAdministration.entryRelationship[],MedicationRequest,MedicationSupplyOrder,,,substanceAdministration.nullFlavor isnull
 substanceAdministration.entryRelationship[].observation.value.content,MedicationStatement.dosage[0].timing.code.text,,,,substanceAdministration.entryRelationship[].observation.code.code equal FREQUENCY,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[].substanceAdministration.text,MedicationStatement.dosage[0].patientInstruction,,"resolveText",,substanceAdministration.entryRelationship[].substanceAdministration.classCode equal SBADM,substanceAdministration.entryRelationship[].substanceAdministration.nullFlavor isnull,substanceAdministration.entryRelationship[].typeCode equal COMP,substanceAdministration.nullFlavor isnull
+substanceAdministration.entryRelationship[].substanceAdministration.text,MedicationStatement.dosage[0].text,,"resolveText",,substanceAdministration.entryRelationship[].substanceAdministration.classCode equal SBADM,substanceAdministration.entryRelationship[].substanceAdministration.nullFlavor isnull,substanceAdministration.entryRelationship[].typeCode equal COMP,substanceAdministration.nullFlavor isnull
 substanceAdministration.id[],MedicationStatement.identifier[],ID,,,substanceAdministration.nullFlavor isnull
 substanceAdministration.rateQuantity,MedicationStatement.dosage[0].rateRange,IVL_PQRange,,,substanceAdministration.nullFlavor isnull
 substanceAdministration.routeCode,MedicationStatement.dosage[0].route,CD2,,,substanceAdministration.nullFlavor isnull

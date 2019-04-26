@@ -1,0 +1,29 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"substanceAdministration": {
+						"nullFlavor": "n",
+						"classCode": "=cls"
+					},
+					"typeCode": "=type"
+				}
+			],
+			"values": {
+				"cls": "SBADM",
+				"type": "COMP"
+			}
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"substanceAdministration": {
+				"text": ""
+			}
+		}
+	}
+]

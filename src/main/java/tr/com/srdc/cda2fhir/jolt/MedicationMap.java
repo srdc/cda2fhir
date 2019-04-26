@@ -36,14 +36,6 @@ public class MedicationMap {
 			this.medByOrgId.put("Medication", orgSystem, orgIdValue, medication);
 		}
 
-		public boolean isMedication(Map<String, Object> othercc, String orgIdSystem, String orgIdValue) {
-			if (orgIdSystem == null && orgIdValue == null && this.medicationResource != null) {
-				return true;
-			} else {
-				return this.medByOrgId.get("Medication", orgIdSystem, orgIdValue) != null;
-			}
-		}
-
 		public Map<String, Object> getMedication(String orgIdSystem, String orgIdValue) {
 			if (orgIdSystem == null && orgIdValue == null && this.medicationResource != null) {
 				return this.medicationResource;
@@ -62,6 +54,7 @@ public class MedicationMap {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public void put(Map<String, Object> medResource, List<Object> orgIdentifiers) {
 		Map<String, Object> cc = (Map<String, Object>) medResource.get("code");
 
@@ -142,6 +135,7 @@ public class MedicationMap {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(Map<String, Object> medReasource, List<Object> orgIdentifiers) {
 		if (medReasource == null || ccMap == null) {
 			return null;
@@ -152,8 +146,11 @@ public class MedicationMap {
 			return null;
 		}
 		String keyString = getKeyString(cc);
+		if (keyString == null) {
+			return null;
+		}
 
-		if (!keyString.contentEquals("")) {
+		if (!keyString.isEmpty()) {
 			MedicationContainer medContainer = ccMap.get(keyString);
 			if (medContainer != null) {
 				if (orgIdentifiers == null) {
