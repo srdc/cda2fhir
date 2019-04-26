@@ -896,9 +896,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 				}
 
-				fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-				info.setPractitionerRole(fhirPractitionerRole);
-
 			}
 		}
 
