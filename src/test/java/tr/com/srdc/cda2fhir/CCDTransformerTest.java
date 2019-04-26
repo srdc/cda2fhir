@@ -208,7 +208,7 @@ public class CCDTransformerTest {
 		Bundle bundle = readVerifyFile("C-CDA_R2-1_CCD.xml", addlSections);
 
 		verifySection(bundle, "ALLERGIES AND ADVERSE REACTIONS", AllergyIntolerance.class, 2);
-		verifySection(bundle, "PROBLEMS", Condition.class, 7, 4);
+		verifySection(bundle, "PROBLEMS", Condition.class, 6, 4);
 		verifySection(bundle, "MEDICATIONS", MedicationStatement.class, 2);
 		verifySection(bundle, "IMMUNIZATIONS", Immunization.class, 5);
 		verifySection(bundle, "PROCEDURES", Procedure.class, 2, 1);
@@ -218,7 +218,7 @@ public class CCDTransformerTest {
 		verifySection(bundle, "RESULTS", DiagnosticReport.class, 2, 2);
 		verifySection(bundle, "FUNCTIONAL STATUS", Observation.class, 20, 2);
 		verifySection(bundle, "FAMILY HISTORY", FamilyMemberHistory.class, 1, 1);
-		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 82, 4);
+		verifySection(bundle, "MEDICAL EQUIPMENT", Resource.class, 81, 4);
 
 		// Spot checks
 		BundleUtil util = new BundleUtil(bundle);

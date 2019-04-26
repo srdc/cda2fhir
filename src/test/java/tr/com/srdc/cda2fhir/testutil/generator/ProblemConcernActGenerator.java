@@ -148,4 +148,8 @@ public class ProblemConcernActGenerator {
 			er.setObservation(po);
 		});
 	}
+	
+	public void setProblemObservationGenerators(List<ProblemObservationGenerator> problemObservationGenerators) {
+		this.problemObservationGenerators = problemObservationGenerators;
+	}
 }
