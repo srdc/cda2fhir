@@ -1,5 +1,5 @@
-CCDA Source,Target,Link,Format
-addr[],Practitioner.address[],AD,
-assignedPerson.name[],Practitioner.name[],PN,
-id[],Practitioner.identifier[],ID,
-telecom[],Practitioner.telecom[],TEL,
+CCDA Source,Target,Link,Format,Default
+addr[],Practitioner.address[],AD,,
+assignedPerson.name[],Practitioner.name[],PN,,
+id[],Practitioner.identifier[],ID,,
+telecom[],Practitioner.telecom[],TEL,,

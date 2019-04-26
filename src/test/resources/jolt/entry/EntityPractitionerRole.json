@@ -64,6 +64,22 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"practitioner": {
+						"reference": "yp"
+					},
+					"organization": {
+						"reference": "yo"
+					}
+				}
+			]
+		}
+	},	
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
 		"spec": {
 			"resourceType": "PractitionerRole"

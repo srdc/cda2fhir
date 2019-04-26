@@ -16,7 +16,7 @@
 			"value": {
 				"*": {
 					"nullFlavor": null,
-					"@0": "manifestation[].->CD"
+					"@0": "manifestation[].->CD2"
 				}
 			},
 			"entryRelationship": {

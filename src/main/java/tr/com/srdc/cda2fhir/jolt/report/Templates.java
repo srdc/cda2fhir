@@ -45,7 +45,16 @@ public class Templates {
 		if (target.indexOf('[') >= 0) {
 			String singular = target.split("\\[")[0];
 			result = formatMap.get(singular);
-			return result == null ? "" : result;
+			if (result != null) {
+				return result;
+			}
+			if (target.indexOf("[0]") >= 0) {
+				String cleanTarget = target.replace("[0]", "[]");
+				result = formatMap.get(cleanTarget);
+				if (result != null) {
+					return result;
+				}
+			}
 		}
 		return "";
 	}
