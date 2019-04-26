@@ -1,7 +1,19 @@
 # Changelog
 Initial Changelog added (changes made by Amida).
 
-## [0.0.13] - 2019-05-01
+## [0.0.15] - 2019-04-26
+### Added
+- In bundle de-duplication for certain resources.
+- ifNoneExists parameter support.
+- Assorted FHIR Validation fixes.
+- Documentation updates.
+
+## [0.0.14] - 2019-04/24
+### Added
+- Various small fixes.
+- Version primarily incremented to run for FHIR validation errors.
+
+## [0.0.13] - 2019-04-15
 ### Added
 - Added improved logging to flag unmapped OIDs and Sections.
 - Added tests for each adjustment from DSTU2 to STU3.
