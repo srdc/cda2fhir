@@ -17,15 +17,19 @@ import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.AuthorGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.CDAEncouncersSectionComponentGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.CDAImmunizationSectionComponentGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.CDAMedicationSectionComponentGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.CDAProblemsListSectionComponentGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.CEGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.ClinicalDocumentMetadataGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.EncounterActivityGenerator;
@@ -747,61 +751,103 @@ public class DeduplicationTest {
 		BundleUtil.findResources(resultBundle, Organization.class, 5);
 
 	}
-	
+
 	private List<Component3> create2ProblemConcernActGenerators1Observation() {
+		List<Component3> components = new ArrayList<Component3>();
+
 		ProblemObservationGenerator probObsGen = ProblemObservationGenerator.getDefaultInstance();
-		
+
 		List<ProblemObservationGenerator> probsObsGenList = new ArrayList<ProblemObservationGenerator>();
-		
+
 		probsObsGenList.add(probObsGen);
-		
+
 		ProblemConcernActGenerator probConcernActGen1 = ProblemConcernActGenerator.getDefaultInstance();
-		
+
 		ProblemConcernActGenerator probConcernActGen2 = ProblemConcernActGenerator.getDefaultInstance();
 
 		probConcernActGen1.setProblemObservationGenerators(probsObsGenList);
-		
+
 		probConcernActGen2.setProblemObservationGenerators(probsObsGenList);
-		
-		
+
+		CDAProblemsListSectionComponentGenerator probListSectionGen = new CDAProblemsListSectionComponentGenerator();
+
+		List<ProblemConcernAct> problemConcernActs = new ArrayList<ProblemConcernAct>();
+
+		problemConcernActs.add(probConcernActGen1.generate(factories));
+
+		problemConcernActs.add(probConcernActGen2.generate(factories));
+
+		probListSectionGen.setProblemConcernActs(problemConcernActs);
+
+		components.add(probListSectionGen.generate(factories));
+
+		return components;
 
 	}
-		
+
 	private List<Component3> createActComponentsSameIndication(IndicationGenerator indGen) {
-		List<Component3> componenents = new ArrayList<Component3>();
-		
+		List<Component3> components = new ArrayList<Component3>();
+
+		CDAEncouncersSectionComponentGenerator encounterSectionGen = new CDAEncouncersSectionComponentGenerator();
+
+		CDAMedicationSectionComponentGenerator medSectionCompGen = new CDAMedicationSectionComponentGenerator();
+
 		List<IndicationGenerator> indicationGenerators = new ArrayList<IndicationGenerator>();
-		
+
 		indicationGenerators.add(indGen);
-		
+
 		EncounterActivityGenerator encounterActivityGen = EncounterActivityGenerator.getDefaultInstance();
-		
+
 		encounterActivityGen.setIndicationGenerator(indicationGenerators);
-		
+
 		MedicationActivityGenerator medActGen = MedicationActivityGenerator.getDefaultInstance();
-		
+
 		medActGen.setIndicationGenerators(indicationGenerators);
-		
-		return null;
-		
+
+		List<EncounterActivities> encounters = new ArrayList<EncounterActivities>();
+
+		List<SubstanceAdministration> medActs = new ArrayList<SubstanceAdministration>();
+
+		encounters.add(encounterActivityGen.generate(factories));
+
+		medActs.add(medActGen.generate(factories));
+
+		encounterSectionGen.setEncounterActivities(encounters);
+
+		medSectionCompGen.setSubstanceAdministrations(medActs);
+
+		components.add(encounterSectionGen.generate(factories));
+
+		components.add(medSectionCompGen.generate(factories));
+
+		return components;
+
 	}
+
 	@Test
 	public void conditionTest() throws Exception {
 		ccdTransformer = new CCDTransformerImpl();
-		
-		IndicationGenerator indGenerator = IndicationGenerator.getDefaultInstance();
-		
-		ClinicalDocumentMetadataGenerator docGenerator = new ClinicalDocumentMetadataGenerator();
-		
-		ContinuityOfCareDocument document = docGenerator.generateClinicalDoc(factories);
-		
-		List<Component3> components = createConditionComponenetsSameIndication(indGenerator);
 
+		IndicationGenerator indGenerator = IndicationGenerator.getDefaultInstance();
+
+		ClinicalDocumentMetadataGenerator docGenerator = new ClinicalDocumentMetadataGenerator();
+
+		ContinuityOfCareDocument document = docGenerator.generateClinicalDoc(factories);
+
+		List<Component3> actComponents = createActComponentsSameIndication(indGenerator);
+
+		List<Component3> problemObsComponents = create2ProblemConcernActGenerators1Observation();
+
+		List<Component3> components = new ArrayList<Component3>();
+
+		components.addAll(actComponents);
+
+		components.addAll(problemObsComponents);
 		ClinicalDocumentMetadataGenerator.setStructuredBody(factories, document, components);
-		
+
 		Bundle resultBundle = ccdTransformer.transformDocument(document);
 
-		BundleUtil.findResources(resultBundle, Condition.class, 1);
+		BundleUtil.findResources(resultBundle, Condition.class, 2);
 	}
 
 }

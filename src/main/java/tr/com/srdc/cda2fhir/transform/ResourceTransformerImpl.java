@@ -1322,32 +1322,32 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		for (Indication cdaIndication : cdaEncounterActivity.getIndications()) {
 			if (!cdaIndication.isSetNullFlavor()) {
 				IEntryResult condResult = tIndication2ConditionEncounter(cdaIndication, bundleInfo);
-				
+
 				result.updateFrom(condResult);
-				
+
 				Condition fhirCondition = null;
 
-				if(condResult.hasResult()) {
+				if (condResult.hasResult()) {
 					Bundle bundle = condResult.getBundle();
-					if(bundle != null) {
-						fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);		
+					if (bundle != null) {
+						fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
 					}
 
 				} else {
 					Bundle fullBundle = condResult.getFullBundle();
-					
-					if(fullBundle != null) {
+
+					if (fullBundle != null) {
 						fhirCondition = FHIRUtil.findFirstResource(fullBundle, Condition.class);
 					}
 				}
-				
-				if(fhirCondition != null) {
+
+				if (fhirCondition != null) {
 					// TODO: check if this is correct mapping
 					// Reference indicationRef = fhirEncounter.addIndication();
 					// indicationRef.setReference(fhirIndication.getId());
-					fhirEncounter.addDiagnosis().setCondition(getReference(fhirCondition));	
+					fhirEncounter.addDiagnosis().setCondition(getReference(fhirCondition));
 				}
-				
+
 			}
 		}
 
@@ -1945,10 +1945,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	@Override
 	public IEntryResult tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
-		IEntryResult result =  tIndication2Condition(cdaIndication, bundleInfo);
+		IEntryResult result = tIndication2Condition(cdaIndication, bundleInfo);
 		Condition cond = null;
-		
-		if(result != null && result.hasResult()) {
+
+		if (result != null && result.hasResult()) {
 			Bundle bundle = result.getBundle();
 			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
 		} else {
@@ -1964,10 +1964,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	@Override
 	public IEntryResult tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
-		IEntryResult result =  tIndication2Condition(cdaIndication, bundleInfo);
+		IEntryResult result = tIndication2Condition(cdaIndication, bundleInfo);
 		Condition cond = null;
-		
-		if(result != null && result.hasResult()) {
+
+		if (result != null && result.hasResult()) {
 			Bundle bundle = result.getBundle();
 			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
 		} else {
@@ -1984,28 +1984,28 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	private IEntryResult tIndication2Condition(Indication cdaIndication, IBundleInfo bundleInfo) {
 		EntryResult result = new EntryResult();
-		
+
 		if (cdaIndication == null || cdaIndication.isSetNullFlavor())
 			return result;
 
 		Condition fhirCond = new Condition();
-		
+
 		// resource id
 		IdType resourceId = new IdType("Condition", getUniqueId());
 		fhirCond.setId(resourceId);
-		
+
 		// patient
 		fhirCond.setSubject(getPatientRef());
 
 		// meta.profile
 		if (Config.isGenerateDafProfileMetadata())
 			fhirCond.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
-		
+
 		List<II> ids = cdaIndication.getIds();
-		
-		if(ids != null) {
-			Condition previous = (Condition)bundleInfo.findResourceResult(ids, Condition.class);
-			if(previous != null) {
+
+		if (ids != null) {
+			Condition previous = (Condition) bundleInfo.findResourceResult(ids, Condition.class);
+			if (previous != null) {
 				result.addExistingResource(previous);
 				return result;
 			} else {
@@ -2401,27 +2401,27 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// indication -> reason
 		for (Indication indication : cdaMedicationActivity.getIndications()) {
-			IEntryResult condResult = tIndication2ConditionEncounter(indication, bundleInfo);
-			
+			IEntryResult condResult = tIndication2ConditionEncounter(indication, localBundleInfo);
+
 			result.updateFrom(condResult);
-			
+
 			Condition fhirCondition = null;
 
-			if(condResult.hasResult()) {
+			if (condResult.hasResult()) {
 				Bundle bundle = condResult.getBundle();
-				if(bundle != null) {
-					fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);		
+				if (bundle != null) {
+					fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
 				}
 
 			} else {
 				Bundle fullBundle = condResult.getFullBundle();
-				
-				if(fullBundle != null) {
+
+				if (fullBundle != null) {
 					fhirCondition = FHIRUtil.findFirstResource(fullBundle, Condition.class);
 				}
 			}
 
-			if(fhirCondition != null) {
+			if (fhirCondition != null) {
 				fhirMedSt.addReasonReference(getReference(fhirCondition));
 			}
 		}
@@ -3196,8 +3196,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// each problem observation instance -> FHIR Condition instance
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
-		
-		
+
 		for (ProblemObservation cdaProbObs : cdaProblemConcernAct.getProblemObservations()) {
 			EntryResult er = tProblemObservation2Condition(cdaProbObs, localBundleInfo);
 			localBundleInfo.updateFrom(er);
@@ -3208,7 +3207,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (fhirProbObsBundle == null)
 				continue;
 
-			if(er.hasResult()) {
+			if (er.hasResult()) {
 				Condition cond = FHIRUtil.findFirstResource(er.getBundle(), Condition.class);
 				CS statusCode = cdaProblemConcernAct.getStatusCode();
 				String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
@@ -3225,7 +3224,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				// statusCode -> verificationStatus
 				cond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
 			}
-			
+
 		}
 
 		return result;
@@ -3245,7 +3244,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// status data is not retrieved from this template.
 
 		Condition fhirCondition = new Condition();
-		result.addResource(fhirCondition);
 
 		// resource id
 		IdType resourceId = new IdType("Condition", getUniqueId());
@@ -3257,15 +3255,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// patient
 		fhirCondition.setSubject(getPatientRef());
-		
+
 		List<II> ids = cdaProbObs.getIds();
-		
-		if(ids != null) {
+
+		if (ids != null) {
 			Condition previousFhirCond = (Condition) bundleInfo.findResourceResult(ids, Condition.class);
-			if(previousFhirCond != null) {
+			if (previousFhirCond != null) {
 				result.addExistingResource(previousFhirCond);
 				return result;
-			} else{
+			} else {
 				result.putIIResource(ids, Condition.class, fhirCondition);
 			}
 		}
