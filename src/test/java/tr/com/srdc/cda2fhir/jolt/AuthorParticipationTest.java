@@ -10,7 +10,6 @@ import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.Author;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -113,7 +112,6 @@ public class AuthorParticipationTest {
 		runTest(authorGenerator, "orgNullFlavorCase");
 	}
 
-	@Ignore // until code is fixed to handle null organizations
 	@Test
 	public void testNoNameIdentifierOrganization() throws Exception {
 		AuthorGenerator authorGenerator = AuthorGenerator.getDefaultInstance();
