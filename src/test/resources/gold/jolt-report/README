@@ -48,7 +48,7 @@ ServiceDeliveryLocation: Location
 MedicationInformation: Medication, Organization
 Observation: Observation, Practitioner, PractitionerRole, Organization
  
-All files are csv files with 5 types of columns
+All files are csv files with 6 types of columns
 
 1. CCDA Source
 
@@ -56,11 +56,11 @@ This columns shows the CCDA Source path. This can be either a direct CCDA path (
 
 2/3. Target & Link
 
-This column shows the FHIR target of the CCDA Source colunmn. This is a FHIR path that starts with a Resource Type (AllergyIntolerance.code, AllergyIntolerance.code). Path can be either to a leaf field (AllergyIntolerance.assertedDate), to a data type like Codeable Concept (AllergyIntolerance.code), or a standalone Resource (Organization). In the latter two cases an entry in the link column show how further mapping is to be accomplished. Each link corresponds to a report file in this directory.
+This column shows the FHIR target of the CCDA Source column. This is a FHIR path that starts with a Resource Type (AllergyIntolerance.code, AllergyIntolerance.code). Path can be either to a leaf field (AllergyIntolerance.assertedDate), to a data type like Codeable Concept (AllergyIntolerance.code), or a standalone Resource (Organization). In the latter two cases an entry in the link column show how further mapping is to be accomplished. Each link corresponds to a report file in this directory.
 
 4. Format
 
-The first three columns show the mapping between the fields. The fourh column includes functions that format the data after the mapping. These can be transforms such as CDA DateTime format to FHIR DateTime format (datetimeAdapter), select an element from the list (maxDateTime) or other custom functions.
+The first three columns show the mapping between the fields. The fourth column includes functions that format the data after the mapping. These can be transforms such as CDA DateTime format to FHIR DateTime format (datetimeAdapter), select an element from the list (maxDateTime) or other custom functions.
 
 datetimeAdapter: Converts CDA datetime to FHIR datetime
 valueSetAdapter: Converts a value in CDA value set to a value in FHIR value sets. This function accepts a json file parameter which provides the actual mapping. A default can also be specified as a parameter. All the value set maps are in the value-maps directory.
@@ -74,9 +74,11 @@ lastPiece: Returns the last piece of a delimited string.
 selectOnNull: Returns the first entry if the source is null or the latter if it is not.
 referenceAdapter: This accepts an identifier and converts it to a resource id to be used in a reference.
 
-valueSetAdapter uses a number of mappings and are included
+5. Default
 
-5. Conditions
+This column shows the default value for the FHIR Resource field in the Target column when CCDA source does not populate it. The default column is necessary for required fields in FHIR Resources. 
+
+6. Conditions
 
 This lists the conditions under which the mapping is done. There might be multiple conditions.  
  

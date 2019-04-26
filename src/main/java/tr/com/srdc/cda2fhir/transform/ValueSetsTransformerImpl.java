@@ -1000,13 +1000,13 @@ public class ValueSetsTransformerImpl implements IValueSetsTransformer, Serializ
 	public AllergyIntoleranceVerificationStatus tStatusCode2AllergyIntoleranceVerificationStatus(String cdaStatusCode) {
 		switch (cdaStatusCode.toLowerCase()) {
 		case "completed":
-			return AllergyIntoleranceVerificationStatus.REFUTED;
+			return AllergyIntoleranceVerificationStatus.CONFIRMED;
 		case "active":
 			return AllergyIntoleranceVerificationStatus.CONFIRMED;
 		case "suspended":
 			return AllergyIntoleranceVerificationStatus.UNCONFIRMED;
 		case "aborted":
-			return AllergyIntoleranceVerificationStatus.ENTEREDINERROR;
+			return AllergyIntoleranceVerificationStatus.UNCONFIRMED;
 		default:
 			return null;
 		}

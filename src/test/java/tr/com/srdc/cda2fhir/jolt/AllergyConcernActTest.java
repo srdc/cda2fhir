@@ -97,7 +97,7 @@ public class AllergyConcernActTest {
 	@Test
 	public void testEmpty() throws Exception {
 		AllergyConcernActGenerator generator = new AllergyConcernActGenerator();
-		runTest(generator, "empty");
+		runTest(generator, "emptyButStatus");
 	}
 
 	@Test

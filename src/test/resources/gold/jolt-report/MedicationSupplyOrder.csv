@@ -1,15 +1,15 @@
-CCDA Source,Target,Link,Format,Condition 1,Condition 2,Condition 3
-supply.#instance-order,MedicationRequest.intent,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.author.assignedAuthor,Organization,EntityOrganization,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.author.assignedAuthor,Practitioner,EntityPractitioner,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.effectiveTime,MedicationRequest.dispenseRequest.validityPeriod,IVL_TSPeriod,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.id[],MedicationRequest.identifier[],ID,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.product,Medication,MedicationInformation,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.quantity,MedicationRequest.dispenseRequest.quantity,IVL_PQSimpleQuantity,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.repeatNumber.value,MedicationRequest.dispenseRequest.numberOfRepeatsAllowed,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-supply.statusCode.code,MedicationRequest.status,,"valueSetAdapter('MedicationRequestStatus','unknown')",supply.nullFlavor isnull,supply.statusCode.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
-Medication,MedicationRequest.medicationReference.display,,"getReferenceDisplay"
-Medication,MedicationRequest.medicationReference.reference,,"getId"
-Practitioner,MedicationRequest.requester.agent.display,,"getReferenceDisplay"
-Practitioner,MedicationRequest.requester.agent.reference,,"getId"
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2,Condition 3
+supply.#instance-order,MedicationRequest.intent,,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.author.assignedAuthor,Organization,EntityOrganization,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.author.assignedAuthor,Practitioner,EntityPractitioner,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.effectiveTime,MedicationRequest.dispenseRequest.validityPeriod,IVL_TSPeriod,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.id[],MedicationRequest.identifier[],ID,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.product,Medication,MedicationInformation,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.quantity,MedicationRequest.dispenseRequest.quantity,IVL_PQSimpleQuantity,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.repeatNumber.value,MedicationRequest.dispenseRequest.numberOfRepeatsAllowed,,,,supply.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+supply.statusCode.code,MedicationRequest.status,,"valueSetAdapter('MedicationRequestStatus','unknown')",,supply.nullFlavor isnull,supply.statusCode.nullFlavor isnull,supply.templateId.0.root equal 2.16.840.1.113883.10.20.22.4.17
+Medication,MedicationRequest.medicationReference.display,,"getReferenceDisplay",
+Medication,MedicationRequest.medicationReference.reference,,"getId",
+Practitioner,MedicationRequest.requester.agent.display,,"getReferenceDisplay",
+Practitioner,MedicationRequest.requester.agent.reference,,"getId",

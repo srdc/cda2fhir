@@ -1,19 +1,19 @@
-CCDA Source,Target,Link,Format,Condition 1,Condition 2
-encounter.code,Encounter.type[],CD2,,encounter.nullFlavor isnull
-encounter.code.translation[].code,Encounter.class,,"lastElement",encounter.nullFlavor isnull
-encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,encounter.nullFlavor isnull
-encounter.entryRelationship[],Condition[],Indication,,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
-encounter.id[],Encounter.identifier[],ID,,encounter.nullFlavor isnull
-encounter.participant[],Location[],ServiceDeliveryLocation,,encounter.nullFlavor isnull
-encounter.performer[].assignedEntity,Organization[],EntityOrganization,,encounter.nullFlavor isnull
-encounter.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,encounter.nullFlavor isnull
-encounter.performer[].assignedEntity,Practitioner[],EntityPractitioner,,encounter.nullFlavor isnull
-encounter.priorityCode,Encounter.priority,CD,,encounter.nullFlavor isnull
-encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",encounter.nullFlavor isnull,encounter.statusCode.nullFlavor isnull
-Condition[],Encounter.diagnosis[].condition.display,,"getReferenceDisplay"
-Condition[],Encounter.diagnosis[].condition.reference,,"getId"
-Location[],Encounter.location[].location.display,,"getReferenceDisplay"
-Location[],Encounter.location[].location.reference,,"getId"
-Practitioner[],Encounter.participant[].individual.display,,"getReferenceDisplay"
-Practitioner[],Encounter.participant[].individual.reference,,"getId"
-Practitioner[],Encounter.participant[].type,,"constantValue('ParticipantTypeConstant')"
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2
+encounter.code,Encounter.type[],CD2,,,encounter.nullFlavor isnull
+encounter.code.translation[].code,Encounter.class,,"lastElement",,encounter.nullFlavor isnull
+encounter.effectiveTime,Encounter.period,IVL_TSPeriod,,,encounter.nullFlavor isnull
+encounter.entryRelationship[],Condition[],Indication,,,encounter.entryRelationship[].typeCode equal RSON,encounter.nullFlavor isnull
+encounter.id[],Encounter.identifier[],ID,,,encounter.nullFlavor isnull
+encounter.participant[],Location[],ServiceDeliveryLocation,,,encounter.nullFlavor isnull
+encounter.performer[].assignedEntity,Organization[],EntityOrganization,,,encounter.nullFlavor isnull
+encounter.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,,encounter.nullFlavor isnull
+encounter.performer[].assignedEntity,Practitioner[],EntityPractitioner,,,encounter.nullFlavor isnull
+encounter.priorityCode,Encounter.priority,CD,,,encounter.nullFlavor isnull
+encounter.statusCode.code,Encounter.status,,"valueSetAdapter('EncounterStatus')",finished,encounter.nullFlavor isnull,encounter.statusCode.nullFlavor isnull
+Condition[],Encounter.diagnosis[].condition.display,,"getReferenceDisplay",
+Condition[],Encounter.diagnosis[].condition.reference,,"getId",
+Location[],Encounter.location[].location.display,,"getReferenceDisplay",
+Location[],Encounter.location[].location.reference,,"getId",
+Practitioner[],Encounter.participant[].individual.display,,"getReferenceDisplay",
+Practitioner[],Encounter.participant[].individual.reference,,"getId",
+Practitioner[],Encounter.participant[].type,,"constantValue('ParticipantTypeConstant')",

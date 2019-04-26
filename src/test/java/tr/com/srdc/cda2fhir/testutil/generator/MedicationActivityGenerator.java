@@ -204,7 +204,7 @@ public class MedicationActivityGenerator {
 		}
 
 		if (statusCode == null || statusCodeNullFlavor != null) {
-			Assert.assertTrue("Missing med statement status", !medStatement.hasStatus());
+			Assert.assertEquals("Default med statement status", "active", medStatement.getStatus().toCode());
 		} else {
 			String expected = (String) MED_STATEMENT_STATUS.get(statusCode);
 			if (expected == null) {

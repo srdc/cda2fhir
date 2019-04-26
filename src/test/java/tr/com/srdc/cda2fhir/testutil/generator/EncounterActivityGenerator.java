@@ -1,8 +1,10 @@
 package tr.com.srdc.cda2fhir.testutil.generator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -58,6 +60,15 @@ public class EncounterActivityGenerator {
 	private List<IndicationGenerator> indicationGenerators = new ArrayList<>();
 
 	private List<ServiceDeliveryLocationGenerator> serviceDeliveryLocationGenerators = new ArrayList<>();
+
+	public void setIDGenerator(IDGenerator idGenerator) {
+		this.idGenerators.clear();
+		this.idGenerators.add(idGenerator);
+	}
+
+	public void setStatusCode(String statusCode) {
+		this.statusCode = statusCode;
+	}
 
 	public EncounterActivities generate(CDAFactories factories) {
 		EncounterActivities ec = factories.consol.createEncounterActivities();
@@ -177,7 +188,9 @@ public class EncounterActivityGenerator {
 		}
 
 		if (statusCode == null || statusNullFlavor != null) {
-			Assert.assertTrue("Missing encounter status", !encounter.hasStatus());
+			Assert.assertTrue("Default encounter status exists", encounter.hasStatus());
+			String expected = Config.DEFAULT_ENCOUNTER_STATUS.toCode();
+			Assert.assertEquals("Default encounter status", expected, encounter.getStatus().toCode());
 		} else {
 			String expected = (String) ENCOUNTER_STATUS.get(statusCode);
 			if (expected == null) {
@@ -285,5 +298,9 @@ public class EncounterActivityGenerator {
 
 	public void setIndicationGenerator(List<IndicationGenerator> indGenerators) {
 		this.indicationGenerators = indGenerators;
+	}
+
+	public static Set<String> getAvailableStatusCodes() {
+		return Collections.unmodifiableSet(ENCOUNTER_STATUS.keySet());
 	}
 }

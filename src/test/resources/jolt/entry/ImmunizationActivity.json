@@ -118,6 +118,12 @@
 		}
 	},
 	{
+		"operation": "default",
+		"spec": {
+			"primarySource": false
+		}
+	},
+	{
 		"operation": "remove",
 		"spec": {
 			"Practitioner": "",

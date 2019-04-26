@@ -49,6 +49,10 @@ public class OrganizationGenerator {
 		return nullFlavor != null;
 	}
 
+	public boolean shouldExists() {
+		return nullFlavor == null && (name != null || !idGenerators.isEmpty());
+	}
+
 	public CustodianOrganization generateCustodianOrg(CDAFactories factories) {
 		CustodianOrganization custodianOrg = factories.base.createCustodianOrganization();
 		Organization org = generate(factories);
