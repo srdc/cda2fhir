@@ -10,16 +10,6 @@
 		}
 	},
 	{
-		"operation": "default",
-		"spec": {
-			"encounter": {
-				"statusCode": {
-					"code": "finished"
-				}
-			}
-		}
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
 			"encounter": {
@@ -150,6 +140,12 @@
 			"Organization": "",
 			"Condition": "",
 			"Location": ""
+		}
+	},
+	{
+		"operation": "default",
+		"spec": {
+			"status": "finished"
 		}
 	},
 	{

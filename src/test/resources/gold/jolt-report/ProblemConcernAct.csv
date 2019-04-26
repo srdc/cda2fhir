@@ -1,3 +1,3 @@
-CCDA Source,Target,Link,Format,Condition 1,Condition 2
-act.entryRelationship[].observation,Condition[],ProblemObservation,,act.entryRelationship[].typeCode equal SUBJ,act.nullFlavor isnull
-act.statusCode.code,Condition[].verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",act.nullFlavor isnull
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2
+act.entryRelationship[].observation,Condition[],ProblemObservation,,,act.entryRelationship[].typeCode equal SUBJ,act.nullFlavor isnull
+act.statusCode.code,Condition[].verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",,act.nullFlavor isnull

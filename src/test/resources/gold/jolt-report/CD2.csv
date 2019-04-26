@@ -1,8 +1,8 @@
-CCDA Source,Target,Link,Format,Condition 1
-code,coding[0].code,,,nullFlavor isnull
-codeSystem,coding[0].system,,,nullFlavor isnull
-displayName,coding[0].display,,,nullFlavor isnull
-originalText,text,,"resolveText"
-translation[].code,coding[].code,,,code isnotnull or displayName isnotnull or originalText isnotnull
-translation[].codeSystem,coding[].system,,"systemAdapter",code isnotnull or displayName isnotnull or originalText isnotnull
-translation[].displayName,coding[].display,,,code isnotnull or displayName isnotnull or originalText isnotnull
+CCDA Source,Target,Link,Format,Default,Condition 1
+code,coding[0].code,,,,nullFlavor isnull
+codeSystem,coding[0].system,,"systemAdapter",,nullFlavor isnull
+displayName,coding[0].display,,,,nullFlavor isnull
+originalText,text,,"resolveText",
+translation[].code,coding[].code,,,,code isnotnull or displayName isnotnull or originalText isnotnull
+translation[].codeSystem,coding[].system,,"systemAdapter",,code isnotnull or displayName isnotnull or originalText isnotnull
+translation[].displayName,coding[].display,,,,code isnotnull or displayName isnotnull or originalText isnotnull

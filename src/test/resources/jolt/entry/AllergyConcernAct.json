@@ -59,6 +59,13 @@
 		}
 	},
 	{
+		"operation": "default",
+		"spec": {
+			"verificationStatus": "unconfirmed",
+			"clinicalStatus": "active"
+		}
+	},	
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
 		"spec": {
 		}

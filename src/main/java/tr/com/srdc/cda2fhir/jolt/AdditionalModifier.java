@@ -265,23 +265,23 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		@Override
 		protected Optional<Object> applyList(List<Object> argList) {
 			if (argList == null || argList.size() != 2) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			String fhirType = (String) argList.get(0);
 			Object arg = argList.get(1);
 			if (!(arg instanceof Map)) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			Map<String, Object> identifier = (Map<String, Object>) arg;
 			String system = (String) identifier.get("system");
 			String value = (String) identifier.get("value");
 			IdentifierMap<String> map = (IdentifierMap<String>) temporaryContext.get("RefsByIdentifier");
 			if (map == null) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			String reference = map.get(fhirType, system, value);
 			if (reference == null) {
-				return Optional.empty();
+				return Optional.of(null);
 			}
 			return Optional.of(reference);
 		}

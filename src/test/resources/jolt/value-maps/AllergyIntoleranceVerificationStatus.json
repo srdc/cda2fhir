@@ -1,6 +1,6 @@
 {
-	"completed": "refuted",
+	"completed": "confirmed",
 	"active": "confirmed",
-	"aborted": "entered-in-error",
+	"aborted": "unconfirmed",
 	"suspended": "unconfirmed"
 }
