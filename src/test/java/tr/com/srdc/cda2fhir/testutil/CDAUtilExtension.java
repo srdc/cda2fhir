@@ -2,8 +2,12 @@ package tr.com.srdc.cda2fhir.testutil;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
+import org.openhealthtools.mdht.uml.cda.Entry;
+import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.rim.InfrastructureRoot;
@@ -45,6 +49,15 @@ public class CDAUtilExtension {
 			Integer index = orderMap.get(fhirType, system, value);
 			return index.intValue();
 		}
+	}
 
+	public static void reorderSectionActs(CDAFactories factories, AllergiesSection section,
+			List<AllergyProblemAct> acts) {
+		section.getEntries().clear();
+		acts.forEach(act -> {
+			Entry entry = factories.base.createEntry();
+			entry.setAct(act);
+			section.getEntries().add(entry);
+		});
 	}
 }
