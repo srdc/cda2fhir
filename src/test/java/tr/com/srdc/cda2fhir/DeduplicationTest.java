@@ -17,9 +17,7 @@ import org.openhealthtools.mdht.uml.cda.CustodianOrganization;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.SubstanceAdministration;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
@@ -771,13 +769,13 @@ public class DeduplicationTest {
 
 		CDAProblemsListSectionComponentGenerator probListSectionGen = new CDAProblemsListSectionComponentGenerator();
 
-		List<ProblemConcernAct> problemConcernActs = new ArrayList<ProblemConcernAct>();
+		List<ProblemConcernActGenerator> problemConcernActGens = new ArrayList<ProblemConcernActGenerator>();
 
-		problemConcernActs.add(probConcernActGen1.generate(factories));
+		problemConcernActGens.add(probConcernActGen1);
 
-		problemConcernActs.add(probConcernActGen2.generate(factories));
+		problemConcernActGens.add(probConcernActGen2);
 
-		probListSectionGen.setProblemConcernActs(problemConcernActs);
+		probListSectionGen.setProblemConcernActsGenerators(problemConcernActGens);
 
 		components.add(probListSectionGen.generate(factories));
 
@@ -804,11 +802,11 @@ public class DeduplicationTest {
 
 		medActGen.setIndicationGenerators(indicationGenerators);
 
-		List<EncounterActivities> encounters = new ArrayList<EncounterActivities>();
+		List<EncounterActivityGenerator> encounters = new ArrayList<EncounterActivityGenerator>();
 
 		List<SubstanceAdministration> medActs = new ArrayList<SubstanceAdministration>();
 
-		encounters.add(encounterActivityGen.generate(factories));
+		encounters.add(encounterActivityGen);
 
 		medActs.add(medActGen.generate(factories));
 

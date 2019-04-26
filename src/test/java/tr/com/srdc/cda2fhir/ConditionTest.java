@@ -26,7 +26,7 @@ public class ConditionTest {
 	public static void init() {
 		CDAUtil.loadPackages();
 		factories = CDAFactories.init();
-		indicationGenerator = new IndicationGenerator();
+		indicationGenerator = IndicationGenerator.getDefaultInstance();
 	}
 
 	@Test
@@ -76,11 +76,14 @@ public class ConditionTest {
 	@Test
 	public void testRepeatConditionCategory() {
 		BundleInfo bundleInfo = new BundleInfo(rt);
+
 		Indication indication = indicationGenerator.generate(factories);
 
-		rt.tIndication2ConditionEncounter(indication, bundleInfo);
+		IEntryResult encounterCondResult = rt.tIndication2ConditionEncounter(indication, bundleInfo);
 
-		IEntryResult problemListItemResult = rt.tIndication2ConditionProblemListItem(indication, new BundleInfo(rt));
+		bundleInfo.updateFrom(encounterCondResult);
+
+		IEntryResult problemListItemResult = rt.tIndication2ConditionProblemListItem(indication, bundleInfo);
 		Condition problemListItemCondition = null;
 
 		if (problemListItemResult.hasResult()) {
@@ -90,10 +93,11 @@ public class ConditionTest {
 			Bundle bundle = problemListItemResult.getFullBundle();
 			problemListItemCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
 		}
-		CodeableConcept categories = problemListItemCondition.getCategoryFirstRep();
+		CodeableConcept categoryEncounter = problemListItemCondition.getCategoryFirstRep();
+		CodeableConcept categoryProblemListItem = problemListItemCondition.getCategory().get(1);
 
-		Assert.assertEquals(categories.getCodingFirstRep().getCode(), "encounter-diagnosis");
-		Assert.assertEquals(categories.getCoding().get(1).getCode(), "problem-list-item");
+		Assert.assertEquals(categoryEncounter.getCodingFirstRep().getCode(), "encounter-diagnosis");
+		Assert.assertEquals(categoryProblemListItem.getCodingFirstRep().getCode(), "problem-list-item");
 
 	}
 

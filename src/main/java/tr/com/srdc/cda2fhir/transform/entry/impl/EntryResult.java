@@ -48,6 +48,31 @@ public class EntryResult implements IEntryResult {
 		}
 	}
 
+	@Override
+	public IBaseResource findResourceResult(Class<? extends Resource> clazz) {
+		if (this.hasResult() && !FHIRUtil.findResources(this.newResourceBundle, clazz).isEmpty()) {
+			return findNewResource(clazz);
+		} else {
+			return findExistingResource(clazz);
+		}
+	}
+
+	private IBaseResource findNewResource(Class<? extends Resource> clazz) {
+		if (newResourceBundle == null || newResourceBundle.isEmpty()) {
+			return null;
+		} else {
+			return FHIRUtil.findFirstResource(this.newResourceBundle, clazz);
+		}
+	}
+
+	private IBaseResource findExistingResource(Class<? extends Resource> clazz) {
+		if (fullBundle == null || fullBundle.isEmpty()) {
+			return null;
+		} else {
+			return FHIRUtil.findFirstResource(fullBundle, clazz);
+		}
+	}
+
 	public void addResource(Resource resource) {
 		if (newResourceBundle == null) {
 			newResourceBundle = new Bundle();
@@ -231,7 +256,7 @@ public class EntryResult implements IEntryResult {
 
 	@Override
 	public boolean hasResult() {
-		return this.newResourceBundle != null && this.newResourceBundle.hasEntry();
+		return this.newResourceBundle != null && !this.newResourceBundle.isEmpty();
 	}
 
 	@Override

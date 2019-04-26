@@ -3,7 +3,6 @@ package tr.com.srdc.cda2fhir.testutil.generator;
 import java.util.List;
 
 import org.openhealthtools.mdht.uml.cda.Component3;
-import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CE;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
@@ -14,7 +13,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.ActRelationshipHasComponent;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 
 public class CDAEncouncersSectionComponentGenerator {
-	private List<EncounterActivities> encounters;
+	private List<EncounterActivityGenerator> encounterGenerators;
 	static final public String DEFAULT_TEMPLATE_ID = "2.16.840.1.113883.10.20.22.2.22.1";
 	static final public String DEFAULT_TEMPLATE_ID_EXT = "2019-01-01";
 	static final public String DEFAULT_CODE = "46240-8";
@@ -35,9 +34,9 @@ public class CDAEncouncersSectionComponentGenerator {
 		section.setCode(code);
 		section.getTemplateIds().add(templateId);
 
-		if (encounters != null && !encounters.isEmpty()) {
-			for (EncounterActivities encounter : encounters) {
-				section.addEncounter(encounter);
+		if (encounterGenerators != null && !encounterGenerators.isEmpty()) {
+			for (EncounterActivityGenerator encounterGen : encounterGenerators) {
+				section.addEncounter(encounterGen.generate(factories));
 			}
 		}
 
@@ -45,8 +44,8 @@ public class CDAEncouncersSectionComponentGenerator {
 		return component;
 	}
 
-	public void setEncounterActivities(List<EncounterActivities> encounters) {
-		this.encounters = encounters;
+	public void setEncounterActivities(List<EncounterActivityGenerator> encounterGens) {
+		this.encounterGenerators = encounterGens;
 	}
 
 }

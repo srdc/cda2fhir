@@ -642,19 +642,18 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			IEntryResult orgResult = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization(),
 					bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization org = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 			if (orgResult.hasResult()) {
 				info.setOrgIsNew(true);
 			}
 
 			result.updateFrom(orgResult);
-			if (orgResult.getFullBundle() != null) {
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-				if (fhirOrganization != null) {
-					info.setOrganization(fhirOrganization);
-					fhirDevice.setOwner(new Reference(fhirOrganization.getId()));
-				}
 
+			if (org != null) {
+				info.setOrganization(org);
+				fhirDevice.setOwner(new Reference(org.getId()));
 			}
 
 		}
@@ -759,20 +758,21 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			IEntryResult orgResult = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization(),
 					bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 			if (orgResult.hasResult()) {
 				info.setOrgIsNew(true);
 			}
 			result.updateFrom(orgResult);
 
-			if (orgResult.getFullBundle() != null) {
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-				if (fhirOrganization != null) {
-					fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
-					info.setOrganization(fhirOrganization);
-					fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-					info.setPractitionerRole(fhirPractitionerRole);
-				}
+			if (fhirOrganization != null) {
+
+				fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+				info.setOrganization(fhirOrganization);
+				fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+				info.setPractitionerRole(fhirPractitionerRole);
+
 			}
 
 		}
@@ -875,22 +875,21 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				IEntryResult orgResult = tOrganization2Organization(
 						cdaAssignedEntity.getRepresentedOrganizations().get(0), bundleInfo);
 
+				org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+						.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 				if (orgResult.hasResult()) {
 					info.setOrgIsNew(true);
 				}
+
 				result.updateFrom(orgResult);
 
-				if (orgResult.getFullBundle() != null) {
-					org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-							.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
+				if (fhirOrganization != null) {
 
-					// practitioner role links organizations to practitioner, if null do not link.
-					if (fhirOrganization != null) {
-						fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
-						fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-						info.setPractitionerRole(fhirPractitionerRole);
-						info.setOrganization(fhirOrganization);
-					}
+					fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+					fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+					info.setPractitionerRole(fhirPractitionerRole);
+					info.setOrganization(fhirOrganization);
 
 				}
 
@@ -1017,11 +1016,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(patientResult);
 			bundleInfo.updateFrom(patientResult);
 
-			if (patientResult.getBundle() != null) {
-				Patient fhirPatient = FHIRUtil.findFirstResource(patientResult.getBundle(), Patient.class);
-				if (fhirPatient != null) {
-					fhirComp.setSubject(getReference(fhirPatient));
-				}
+			Patient fhirPatient = (Patient) patientResult.findResourceResult(Patient.class);
+
+			if (fhirPatient != null) {
+				fhirComp.setSubject(getReference(fhirPatient));
 			}
 
 		}
@@ -1141,15 +1139,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					bundleInfo.updateFrom(orgResult);
 
 					if (fhirComp != null) {
-						org.hl7.fhir.dstu3.model.Organization fhirOrganization = null;
-
-						if (orgResult.hasResult()) {
-							fhirOrganization = FHIRUtil.findFirstResource(orgResult.getBundle(),
-									org.hl7.fhir.dstu3.model.Organization.class);
-						} else if (orgResult.getFullBundle() != null) {
-							fhirOrganization = FHIRUtil.findFirstResource(orgResult.getFullBundle(),
-									org.hl7.fhir.dstu3.model.Organization.class);
-						}
+						org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+								.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
 
 						if (fhirOrganization != null) {
 							fhirComp.setCustodian(getReference(fhirOrganization));
@@ -1335,21 +1326,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 				result.updateFrom(condResult);
 
-				Condition fhirCondition = null;
-
-				if (condResult.hasResult()) {
-					Bundle bundle = condResult.getBundle();
-					if (bundle != null) {
-						fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
-					}
-
-				} else {
-					Bundle fullBundle = condResult.getFullBundle();
-
-					if (fullBundle != null) {
-						fhirCondition = FHIRUtil.findFirstResource(fullBundle, Condition.class);
-					}
-				}
+				Condition fhirCondition = (Condition) condResult.findResourceResult(Condition.class);
 
 				if (fhirCondition != null) {
 					// TODO: check if this is correct mapping
@@ -1956,50 +1933,54 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	}
 
-//	private boolean conditionHasCategory(Condition condition, CodeableConcept conditionCategory) {
-//		if(condition == null || conditionCategory == null)
-//			return false;
-//
-//		for(Coding coding : condition.getCategoryFirstRep().getCoding()) {
-//
-//		}
-//	}
+	private boolean conditionHasCategory(Condition condition, Coding otherCategoryCoding) {
+		if (condition == null || otherCategoryCoding == null)
+			return false;
+
+		for (CodeableConcept category : condition.getCategory()) {
+			if (category.hasCoding()) {
+
+				Coding currentCategoryCoding = category.getCodingFirstRep();
+
+				String system = currentCategoryCoding.getSystem();
+				String display = currentCategoryCoding.getDisplay();
+				String code = currentCategoryCoding.getCode();
+
+				if (system != null && display != null && code != null) {
+					if (code.equals(otherCategoryCoding.getCode()) && system.equals(otherCategoryCoding.getSystem())
+							&& display.equals(otherCategoryCoding.getDisplay())) {
+						return true;
+					}
+				}
+
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public IEntryResult tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
 		IEntryResult result = tIndication2Condition(cdaIndication, bundleInfo);
-		Condition cond = null;
+		Condition cond = (Condition) result.findResourceResult(Condition.class);
 
-		if (result != null && result.hasResult()) {
-			Bundle bundle = result.getBundle();
-			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
-		} else {
-			Bundle bundle = result.getFullBundle();
-			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
-		}
 		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("encounter-diagnosis");
 		conditionCategory.setDisplay("Encounter Diagnosis");
-		cond.addCategory().addCoding(conditionCategory);
+		if (!conditionHasCategory(cond, conditionCategory))
+			cond.addCategory().addCoding(conditionCategory);
 		return result;
 	}
 
 	@Override
 	public IEntryResult tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
 		IEntryResult result = tIndication2Condition(cdaIndication, bundleInfo);
-		Condition cond = null;
+		Condition cond = (Condition) result.findResourceResult(Condition.class);
 
-		if (result != null && result.hasResult()) {
-			Bundle bundle = result.getBundle();
-			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
-		} else {
-			Bundle bundle = result.getFullBundle();
-			cond = FHIRUtil.findFirstResource(bundle, Condition.class);
-		}
 		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("problem-list-item");
 		conditionCategory.setDisplay("Problem List Item");
-		cond.addCategory().addCoding(conditionCategory);
+		if (!conditionHasCategory(cond, conditionCategory))
+			cond.addCategory().addCoding(conditionCategory);
 		return result;
 
 	}
@@ -2171,27 +2152,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			IEntryResult orgResult = tOrganization2Organization(cdaManufacturedProduct.getManufacturerOrganization(),
 					bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 			result.updateFrom(orgResult);
 
-			if (orgResult.getBundle() != null && !orgResult.getBundle().isEmpty()) {
-
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					fhirMedication.setManufacturer(getReference(fhirOrganization));
-
-				}
-
-			} else if (orgResult.getFullBundle() != null) {
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					fhirMedication.setManufacturer(getReference(fhirOrganization));
-				}
+			if (fhirOrganization != null) {
+				fhirMedication.setManufacturer(getReference(fhirOrganization));
 
 			}
+
 		}
 
 		if (medsInfo != null && medsInfo.containsMedication(cd, orgIds)) {
@@ -2306,14 +2276,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(fhirMedicationResult);
 			localBundleInfo.updateFrom(fhirMedicationResult);
 
-			Medication medication = null;
-			if (fhirMedicationResult.getBundle() != null && !fhirMedicationResult.getBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getBundle(), Medication.class);
-			} else if (fhirMedicationResult.getFullBundle() != null
-					&& !fhirMedicationResult.getFullBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getFullBundle(), Medication.class);
+			Medication medication = (Medication) fhirMedicationResult.findResourceResult(Medication.class);
 
-			}
 			if (medication != null) {
 				fhirMedSt.setMedication(getReference(medication));
 			}
@@ -2430,21 +2394,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 			result.updateFrom(condResult);
 
-			Condition fhirCondition = null;
-
-			if (condResult.hasResult()) {
-				Bundle bundle = condResult.getBundle();
-				if (bundle != null) {
-					fhirCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
-				}
-
-			} else {
-				Bundle fullBundle = condResult.getFullBundle();
-
-				if (fullBundle != null) {
-					fhirCondition = FHIRUtil.findFirstResource(fullBundle, Condition.class);
-				}
-			}
+			Condition fhirCondition = (Condition) condResult.findResourceResult(Condition.class);
 
 			if (fhirCondition != null) {
 				fhirMedSt.addReasonReference(getReference(fhirCondition));
@@ -2525,13 +2475,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(fhirMedicationResult);
 			localBundleInfo.updateFrom(fhirMedicationResult);
 
-			Medication medication = null;
-			if (fhirMedicationResult.getBundle() != null && !fhirMedicationResult.getBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getBundle(), Medication.class);
-			} else if (fhirMedicationResult.getFullBundle() != null
-					&& !fhirMedicationResult.getFullBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getFullBundle(), Medication.class);
-			}
+			Medication medication = (Medication) fhirMedicationResult.findResourceResult(Medication.class);
+
 			if (medication != null) {
 				fhirMediDisp.setMedication(getReference(medication));
 			}
@@ -2661,13 +2606,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(fhirMedicationResult);
 			localBundleInfo.updateFrom(fhirMedicationResult);
 
-			Medication medication = null;
-			if (fhirMedicationResult.getBundle() != null && !fhirMedicationResult.getBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getBundle(), Medication.class);
-			} else if (fhirMedicationResult.getFullBundle() != null
-					&& !fhirMedicationResult.getFullBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getFullBundle(), Medication.class);
-			}
+			Medication medication = (Medication) fhirMedicationResult.findResourceResult(Medication.class);
+
 			if (medication != null) {
 				medRequest.setMedication(getReference(medication));
 
@@ -3120,29 +3060,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 			IEntryResult orgResult = tOrganization2Organization(cdaPatientRole.getProviderOrganization(), bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
 			result.updateFrom(orgResult);
 
-			// The case of a new organization
-			if (orgResult.getBundle() != null) {
-
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					// We need to add organization to the previous patient in the event
-					// that a new organization is found.
-
-					fhirPatient.setManagingOrganization(getReference(fhirOrganization));
-
-				}
-			} else if (orgResult.getFullBundle() != null) {
-
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					fhirPatient.setManagingOrganization(getReference(fhirOrganization));
-				}
+			if (fhirOrganization != null) {
+				fhirPatient.setManagingOrganization(getReference(fhirOrganization));
 			}
 
 		}
@@ -3238,16 +3161,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (fhirProbObsBundle == null)
 				continue;
 
-			if (er.hasResult()) {
-				Condition cond = FHIRUtil.findFirstResource(er.getBundle(), Condition.class);
-				CS statusCode = cdaProblemConcernAct.getStatusCode();
-				String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
-						: statusCode.getCode();
+			Condition cond = (Condition) er.findResourceResult(Condition.class);
 
-				// statusCode -> verificationStatus
-				cond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
-			} else {
-				Condition cond = FHIRUtil.findFirstResource(er.getFullBundle(), Condition.class);
+			if (cond != null) {
 				CS statusCode = cdaProblemConcernAct.getStatusCode();
 				String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
 						: statusCode.getCode();
@@ -3310,7 +3226,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		Coding conditionCategory = new Coding().setSystem("http://hl7.org/fhir/condition-category");
 		conditionCategory.setCode("problem-list-item");
 		conditionCategory.setDisplay("Problem List Item");
-		fhirCondition.addCategory().addCoding(conditionCategory);
+		if (!conditionHasCategory(fhirCondition, conditionCategory))
+			fhirCondition.addCategory().addCoding(conditionCategory);
 
 		// value -> code
 		if (cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
