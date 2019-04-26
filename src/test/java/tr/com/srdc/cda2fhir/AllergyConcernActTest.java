@@ -299,7 +299,7 @@ public class AllergyConcernActTest {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0)
 				.getObservation();
-		verifyAllergyIntoleranceVerificationStatus(act, null);
+		verifyAllergyIntoleranceVerificationStatus(act, "unconfirmed");
 
 		for (Map.Entry<String, Object> entry : categoryMap.entrySet()) {
 			String cdaType = entry.getKey();
@@ -324,7 +324,7 @@ public class AllergyConcernActTest {
 		AllergyProblemActImpl act = createAllergyConcernAct();
 		AllergyObservationImpl observationTop = (AllergyObservationImpl) act.getEntryRelationships().get(0)
 				.getObservation();
-		verifyAllergyIntoleranceVerificationStatus(act, null);
+		verifyAllergyIntoleranceVerificationStatus(act, "unconfirmed");
 
 		for (Map.Entry<String, Object> entry : typeMap.entrySet()) {
 			String cdaType = entry.getKey();
@@ -451,10 +451,10 @@ public class AllergyConcernActTest {
 	@Test
 	public void testAllergyIntoleranceStatusCode() throws Exception {
 		AllergyProblemActImpl act = (AllergyProblemActImpl) cdaObjFactory.createAllergyProblemAct();
-		verifyAllergyIntoleranceVerificationStatus(act, null);
+		verifyAllergyIntoleranceVerificationStatus(act, "unconfirmed");
 
 		act.setStatusCode(null);
-		verifyAllergyIntoleranceVerificationStatus(act, null);
+		verifyAllergyIntoleranceVerificationStatus(act, "unconfirmed");
 
 		act.setStatusCode(cdaTypeFactory.createCS("invalid"));
 		Assert.assertFalse("Unexpected Valid Allergy Problem Act in Test",

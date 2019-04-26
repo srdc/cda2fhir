@@ -13,6 +13,7 @@ public class TableRow implements Comparable<TableRow> {
 	private String target = "";
 	private String link;
 	private String format = "";
+	private String defaultValue = "";
 
 	private List<ICondition> conditions = new ArrayList<ICondition>();
 
@@ -68,10 +69,11 @@ public class TableRow implements Comparable<TableRow> {
 
 	public String toCsvRow() {
 		String csvLink = link == null ? "" : link;
-		String result = String.format("%s,%s,%s,", path, target, csvLink, format);
+		String result = String.format("%s,%s,%s,", path, target, csvLink);
 		if (!format.isEmpty()) {
 			result += String.format("\"%s\"", format);
 		}
+		result += "," + defaultValue;
 		if (conditions.size() > 0) {
 			String conditionInfo = conditions.stream().map(r -> r.toString()).collect(Collectors.joining(","));
 			result += "," + conditionInfo;
@@ -162,6 +164,9 @@ public class TableRow implements Comparable<TableRow> {
 		if (!format.isEmpty()) {
 			result += "\n" + space + "*format " + format;
 		}
+		if (!defaultValue.isEmpty()) {
+			result += "\n" + space + "*default " + defaultValue;
+		}
 		result += "\n" + space + targetDisplay;
 		return result;
 	}
@@ -184,5 +189,15 @@ public class TableRow implements Comparable<TableRow> {
 		TableRow result = clone();
 		result.target = mapped.target;
 		return result;
+	}
+
+	public void setDefaultValue(Map<String, String> values) {
+		if (values == null) {
+			return;
+		}
+		String value = values.get(target);
+		if (value != null) {
+			defaultValue = value;
+		}
 	}
 }

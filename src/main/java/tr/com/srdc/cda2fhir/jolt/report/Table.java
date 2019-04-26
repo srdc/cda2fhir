@@ -75,7 +75,7 @@ public class Table {
 
 	public String toCsv() {
 		int conditionCount = rows.stream().map(r -> r.conditionCount()).mapToInt(Integer::intValue).max().getAsInt();
-		String header = String.format("%s,%s,%s,%s", "CCDA Source", "Target", "Link", "Format");
+		String header = String.format("%s,%s,%s,%s,%s", "CCDA Source", "Target", "Link", "Format", "Default");
 		for (int index = 0; index < conditionCount; ++index) {
 			header += "," + "Condition " + (index + 1);
 		}
@@ -129,6 +129,12 @@ public class Table {
 			}
 
 		});
+	}
+
+	public void addDefaultValues(Map<String, String> values) {
+		if (values != null) {
+			rows.forEach(row -> row.setDefaultValue(values));
+		}
 	}
 
 	public int rowCount() {

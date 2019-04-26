@@ -97,7 +97,8 @@ public class ProvenanceTest {
 
 		Assert.assertEquals(provenance.getAgentFirstRep().getWhoReference().getReference().substring(0, 6), "Device");
 
-		Assert.assertEquals(provenance.getEntityFirstRep().getId().substring(0, 17), "DocumentReference");
+		Assert.assertEquals(provenance.getEntityFirstRep().getWhatReference().getReference().substring(0, 17),
+				"DocumentReference");
 		Assert.assertEquals(provenance.getEntityFirstRep().getRole(), ProvenanceEntityRole.SOURCE);
 	}
 }

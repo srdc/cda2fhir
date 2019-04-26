@@ -154,7 +154,7 @@ public class EntityGenerator {
 	}
 
 	public void verify(PractitionerRole role) {
-		if (organizationGenerator == null || organizationGenerator.isNullFlavor()) {
+		if (organizationGenerator == null || !organizationGenerator.shouldExists()) {
 			Assert.assertNull("Role when null flavored or no org", role);
 		} else {
 			Coding code = role.getCode().get(0).getCoding().get(0);
@@ -164,7 +164,7 @@ public class EntityGenerator {
 	}
 
 	public void verify(org.hl7.fhir.dstu3.model.Organization organization) {
-		if (organizationGenerator == null || organizationGenerator.isNullFlavor()) {
+		if (organizationGenerator == null || !organizationGenerator.shouldExists()) {
 			Assert.assertNull("Author organization", organization);
 			return;
 		}

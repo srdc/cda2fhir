@@ -25,6 +25,7 @@ import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
 import tr.com.srdc.cda2fhir.testutil.generator.EncounterActivityGenerator;
+import tr.com.srdc.cda2fhir.testutil.generator.IDGenerator;
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
 import tr.com.srdc.cda2fhir.transform.entry.IEntryResult;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
@@ -110,6 +111,25 @@ public class EncounterActivityTest {
 	public void testFull() throws Exception {
 		EncounterActivityGenerator generator = EncounterActivityGenerator.getFullInstance();
 		runTest(generator, "fullCase");
+	}
+
+	@Test
+	public void testIdentifierOnly() throws Exception {
+		EncounterActivityGenerator generator = new EncounterActivityGenerator();
+		generator.setIDGenerator(IDGenerator.getNextInstance());
+		runTest(generator, "testIdentifierOnly");
+	}
+
+	@Test
+	public void testStatusCodes() throws Exception {
+		EncounterActivityGenerator generator = new EncounterActivityGenerator();
+		for (String code : EncounterActivityGenerator.getAvailableStatusCodes()) {
+			generator.setStatusCode(code);
+			runTest(generator, "testStatusCode" + code);
+		}
+
+		generator.setIDGenerator(IDGenerator.getNextInstance());
+		runTest(generator, "testIdentifierOnly");
 	}
 
 	@Test

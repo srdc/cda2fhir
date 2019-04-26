@@ -69,6 +69,7 @@ public class OrgJsonUtil {
 		renameProperty(root, "patientrole", "patientRole");
 		renameProperty(root, "patientrole", "patientRole");
 		renameProperty(root, "clinicaldocument", "clinicalDocument");
+		renameProperty(root, "assignedentity", "assignedEntity");
 		return new OrgJsonUtil(root);
 	}
 
