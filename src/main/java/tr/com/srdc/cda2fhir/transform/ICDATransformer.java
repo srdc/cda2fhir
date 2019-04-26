@@ -73,10 +73,15 @@ public interface ICDATransformer {
 	 * Transforms a Clinical Document Architecture (CDA) instance to a Bundle of
 	 * corresponding FHIR resources
 	 *
-	 * @param cda             A ContinuityOfCareDocument (CDA) instance to be
-	 *                        transformed
-	 * @param documentBody    The base64 decoded body from the original document
-	 * @param assemblerDevice An identifier with the name of the device doing the
+	 * @param cda                A ContinuityOfCareDocument (CDA) instance to be
+	 *                           transformed
+	 * @param bundleType         The type of bundle being transformed, currently
+	 *                           only supports transactional bundles
+	 * @param resourceProfileMap Map of resources used in DAF assignment, no longer
+	 *                           actively supported but left in API.
+	 * @param documentBody       The String body from the original document.
+	 * @param assemblerDevice    An identifier object for the Device responsible for
+	 *                           the transformation.
 	 *
 	 * @return A FHIR Bundle that contains a Composition corresponding to the CDA
 	 *         document and all other resources that are referenced within the
