@@ -87,7 +87,7 @@ public class IntegrationTest {
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
 				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
-		// print pre-post bundle
+		// print pre-post bundle.
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/170.315_b1_toc_inp_ccd_r21_sample1_v5.json");
 
 		// Send transaction bundle to server.
