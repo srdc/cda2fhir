@@ -1,7 +1,6 @@
 package tr.com.srdc.cda2fhir.testutil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.openhealthtools.mdht.uml.cda.Entry;
@@ -33,14 +32,6 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		allergyProblemActs.clear();
 		encounterActivities.clear();
 		immunizationActivities.clear();
-	}
-
-	public List<EncounterActivities> getEncounterActivities() {
-		return Collections.unmodifiableList(encounterActivities);
-	}
-
-	public List<AllergyProblemAct> getAllergyProblemActs() {
-		return Collections.unmodifiableList(allergyProblemActs);
 	}
 
 	@Override
@@ -81,7 +72,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		});
 	}
 
-	public void reorderSection(ImmunizationsSection section, List<Object> activities) {
+	public void reorderSection(ImmunizationsSection section) {
 		section.getEntries().clear();
 		immunizationActivities.forEach(activity -> {
 			Entry entry = factories.base.createEntry();
