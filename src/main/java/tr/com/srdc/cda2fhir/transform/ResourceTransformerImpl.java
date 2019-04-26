@@ -1942,13 +1942,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 				Coding currentCategoryCoding = category.getCodingFirstRep();
 
-				String system = currentCategoryCoding.getSystem();
-				String display = currentCategoryCoding.getDisplay();
 				String code = currentCategoryCoding.getCode();
 
-				if (system != null && display != null && code != null) {
-					if (code.equals(otherCategoryCoding.getCode()) && system.equals(otherCategoryCoding.getSystem())
-							&& display.equals(otherCategoryCoding.getDisplay())) {
+				if (code != null) {
+					if (code.equals(otherCategoryCoding.getCode())) {
 						return true;
 					}
 				}
