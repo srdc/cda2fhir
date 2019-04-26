@@ -112,7 +112,7 @@ public class BundleRequest {
 									if (coding.getSystem() == Config.MEDICATION_CODE_SYSTEM) {
 										// add or for multiple parameters
 										if (ifNotExistString != "") {
-											ifNotExistString = ifNotExistString + ",";
+											ifNotExistString = ifNotExistString + "&";
 										} else {
 											ifNotExistString = "code=";
 										}
@@ -124,7 +124,7 @@ public class BundleRequest {
 								if (coding.getCode() != null) {
 									// add or for multiple parameters
 									if (ifNotExistString != "") {
-										ifNotExistString = ifNotExistString + ",";
+										ifNotExistString = ifNotExistString + "&";
 									} else {
 										ifNotExistString = "code=";
 									}
