@@ -56,38 +56,41 @@ public class BundleRequest {
 		// find any overriding OIDs.
 		String[] subsetOIDArray = getDefinedOIDs(bundleEntry.getResource().getResourceType().name());
 
-		if (identifierObject != null) {
-			List<Base> identifiers = identifierObject.getValues();
-			if (identifiers != null) {
-				for (Base identifier : identifiers) {
+		if (bundleEntry.getResource().getResourceType().name() != "Medication"
+				&& bundleEntry.getResource().getResourceType().name() != "PractitionerRole") {
+			if (identifierObject != null) {
+				List<Base> identifiers = identifierObject.getValues();
+				if (identifiers != null) {
+					for (Base identifier : identifiers) {
 
-					Identifier currentId = (Identifier) identifier;
+						Identifier currentId = (Identifier) identifier;
 
-					if (currentId.getValue() != null) {
-						if (subsetOIDArray != null) {
-							// override OID selection(s).
-							for (String OID : subsetOIDArray) {
-								if (currentId.getSystem().equals(OID)) {
-									if (ifNotExistString != "") {
-										ifNotExistString = ifNotExistString + ",";
-									} else {
-										ifNotExistString = "identifier=";
+						if (currentId.getValue() != null) {
+							if (subsetOIDArray != null) {
+								// override OID selection(s).
+								for (String OID : subsetOIDArray) {
+									if (currentId.getSystem().equals(OID)) {
+										if (ifNotExistString != "") {
+											ifNotExistString = ifNotExistString + ",";
+										} else {
+											ifNotExistString = "identifier=";
+										}
+										ifNotExistString = ifNotExistString + currentId.getSystem() + "|"
+												+ currentId.getValue();
 									}
+								}
+							} else {
+								if (ifNotExistString != "") {
+									ifNotExistString = ifNotExistString + ",";
+								} else {
+									ifNotExistString = "identifier=";
+								}
+								if (currentId.getSystem() != null) {
 									ifNotExistString = ifNotExistString + currentId.getSystem() + "|"
 											+ currentId.getValue();
+								} else {
+									ifNotExistString = ifNotExistString + currentId.getValue();
 								}
-							}
-						} else {
-							if (ifNotExistString != "") {
-								ifNotExistString = ifNotExistString + ",";
-							} else {
-								ifNotExistString = "identifier=";
-							}
-							if (currentId.getSystem() != null) {
-								ifNotExistString = ifNotExistString + currentId.getSystem() + "|"
-										+ currentId.getValue();
-							} else {
-								ifNotExistString = ifNotExistString + currentId.getValue();
 							}
 						}
 					}
