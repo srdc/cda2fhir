@@ -766,17 +766,13 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 			result.updateFrom(orgResult);
 
-			if (orgResult.getFullBundle() != null) {
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-				if (fhirOrganization != null) {
-					fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
-					// allows us to resolve the identifiers when making the ifNoneExist parameters.
-					fhirPractitionerRole.setOrganizationTarget(fhirOrganization);
-					info.setOrganization(fhirOrganization);
-					fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-					info.setPractitionerRole(fhirPractitionerRole);
-				}
+			if (fhirOrganization != null) {
+				fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+				// allows us to resolve the identifiers when making the ifNoneExist parameters.
+				fhirPractitionerRole.setOrganizationTarget(fhirOrganization);
+				info.setOrganization(fhirOrganization);
+				fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+				info.setPractitionerRole(fhirPractitionerRole);
 			}
 
 		}
