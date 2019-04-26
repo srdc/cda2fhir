@@ -132,7 +132,10 @@ public class MedicationActivityTest {
 	public void testDefault() throws Exception {
 		customJoltUpdate = (r) -> {
 			Map<String, Object> map = JoltUtil.findPathMap(r, "dosageInstruction[].doseQuantity");
-			map.remove("xsi:type");
+			if (map != null) {
+				map.remove("xsi:type");
+			}
+
 		};
 		MedicationActivityGenerator generator = MedicationActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
