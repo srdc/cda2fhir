@@ -63,7 +63,7 @@ public class LocationTest {
 		// Transform from CDA to FHIR.
 		org.hl7.fhir.dstu3.model.Location fhirLocation = rt.tParticipantRole2Location(pr);
 
-		Assert.assertEquals("No identifier on FHIR object.", 0, fhirLocation.getIdentifier().size());
+		Assert.assertEquals("Identifier on FHIR Object", 1, fhirLocation.getIdentifier().size());
 
 	}
 
