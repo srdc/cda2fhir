@@ -282,4 +282,8 @@ public class EncounterActivityGenerator {
 		Encounter encounter = BundleUtil.findOneResource(bundle, Encounter.class);
 		verify(bundle, encounter);
 	}
+	
+	public void setIndicationGenerator(List<IndicationGenerator> indGenerators) {
+		this.indicationGenerators = indGenerators;
+	}
 }

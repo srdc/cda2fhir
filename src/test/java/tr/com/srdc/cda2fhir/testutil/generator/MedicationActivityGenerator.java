@@ -345,4 +345,8 @@ public class MedicationActivityGenerator {
 	public void setMedicationDispenseGenerator(MedicationDispenseGenerator medicationDispenseGenerator) {
 		this.medicationDispenseGenerator = medicationDispenseGenerator;
 	}
+	
+	public void setIndicationGenerators(List<IndicationGenerator> indGenerator) {
+		this.indicationGenerators = indGenerator;
+	}
 }

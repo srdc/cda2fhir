@@ -2010,10 +2010,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				return result;
 			} else {
 				result.putIIResource(ids, Condition.class, fhirCond);
-				result.addResource(fhirCond);
 			}
-			
 		}
+		result.addResource(fhirCond);
+
 		// id -> identifier
 		if (ids != null && !cdaIndication.getIds().isEmpty()) {
 			for (II ii : ids) {
@@ -3196,27 +3196,36 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// each problem observation instance -> FHIR Condition instance
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
+		
+		
 		for (ProblemObservation cdaProbObs : cdaProblemConcernAct.getProblemObservations()) {
 			EntryResult er = tProblemObservation2Condition(cdaProbObs, localBundleInfo);
 			localBundleInfo.updateFrom(er);
 			result.updateEntitiesFrom(er);
+			result.updateFrom(er);
+
 			Bundle fhirProbObsBundle = er.getBundle();
 			if (fhirProbObsBundle == null)
 				continue;
 
-			for (BundleEntryComponent entry : fhirProbObsBundle.getEntry()) {
-				result.addResource(entry.getResource());
-				if (entry.getResource() instanceof Condition) {
-					Condition fhirCond = (Condition) entry.getResource();
+			if(er.hasResult()) {
+				Condition cond = FHIRUtil.findFirstResource(er.getBundle(), Condition.class);
+				CS statusCode = cdaProblemConcernAct.getStatusCode();
+				String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
+						: statusCode.getCode();
 
-					CS statusCode = cdaProblemConcernAct.getStatusCode();
-					String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
-							: statusCode.getCode();
+				// statusCode -> verificationStatus
+				cond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
+			} else {
+				Condition cond = FHIRUtil.findFirstResource(er.getFullBundle(), Condition.class);
+				CS statusCode = cdaProblemConcernAct.getStatusCode();
+				String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
+						: statusCode.getCode();
 
-					// statusCode -> verificationStatus
-					fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
-				}
+				// statusCode -> verificationStatus
+				cond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
 			}
+			
 		}
 
 		return result;
@@ -3248,9 +3257,21 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// patient
 		fhirCondition.setSubject(getPatientRef());
-
+		
+		List<II> ids = cdaProbObs.getIds();
+		
+		if(ids != null) {
+			Condition previousFhirCond = (Condition) bundleInfo.findResourceResult(ids, Condition.class);
+			if(previousFhirCond != null) {
+				result.addExistingResource(previousFhirCond);
+				return result;
+			} else{
+				result.putIIResource(ids, Condition.class, fhirCondition);
+			}
+		}
+		result.addResource(fhirCondition);
 		// id -> identifier
-		for (II id : cdaProbObs.getIds()) {
+		for (II id : ids) {
 			if (!id.isSetNullFlavor()) {
 				fhirCondition.addIdentifier(dtt.tII2Identifier(id));
 			}
