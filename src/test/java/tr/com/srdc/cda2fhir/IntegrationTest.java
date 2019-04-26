@@ -59,6 +59,7 @@ public class IntegrationTest {
 	public static void init() throws IOException {
 		CDAUtil.loadPackages();
 		ctx = FhirContext.forDstu3();
+		ctx.getRestfulClientFactory().setConnectTimeout(20 * 1000);
 		client = ctx.newRestfulGenericClient(serverBase);
 		logger = LoggerFactory.getLogger(ValidatorImpl.class);
 	}
