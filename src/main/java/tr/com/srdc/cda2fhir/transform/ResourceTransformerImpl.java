@@ -767,12 +767,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(orgResult);
 
 			if (fhirOrganization != null) {
-
 				fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+				// allows us to resolve the identifiers when making the ifNoneExist parameters.
+				fhirPractitionerRole.setOrganizationTarget(fhirOrganization);
 				info.setOrganization(fhirOrganization);
 				fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
 				info.setPractitionerRole(fhirPractitionerRole);
-
 			}
 
 		}
@@ -1942,13 +1942,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 				Coding currentCategoryCoding = category.getCodingFirstRep();
 
-				String system = currentCategoryCoding.getSystem();
-				String display = currentCategoryCoding.getDisplay();
 				String code = currentCategoryCoding.getCode();
 
-				if (system != null && display != null && code != null) {
-					if (code.equals(otherCategoryCoding.getCode()) && system.equals(otherCategoryCoding.getSystem())
-							&& display.equals(otherCategoryCoding.getDisplay())) {
+				if (code != null) {
+					if (code.equals(otherCategoryCoding.getCode())) {
 						return true;
 					}
 				}
@@ -2959,6 +2956,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			return null;
 
 		org.hl7.fhir.dstu3.model.Location fhirLocation = new org.hl7.fhir.dstu3.model.Location();
+
+		// id -> identifier
+		if (cdaParticipantRole.getIds() != null && !cdaParticipantRole.getIds().isEmpty()) {
+			for (II ii : cdaParticipantRole.getIds()) {
+				if (ii != null && !ii.isSetNullFlavor()) {
+					fhirLocation.addIdentifier(dtt.tII2Identifier(ii));
+				}
+			}
+		}
 
 		// resource id
 		IdType resourceId = new IdType("Location", getUniqueId());

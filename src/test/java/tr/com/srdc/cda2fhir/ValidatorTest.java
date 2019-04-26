@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -62,7 +63,7 @@ public class ValidatorTest {
 		String targetPathForResultFile = "src/test/resources/output/validation-result-wo-profile-for-170.315_b1_toc_gold_sample2_v1.html";
 		boolean generateDAFProfileMetadata = false;
 		transformAndValidate(cdaResourcePath, targetPathForFHIRResource, targetPathForResultFile,
-				generateDAFProfileMetadata, false);
+				generateDAFProfileMetadata, true);
 	}
 
 	// 170.315_b1_toc_gold_sample2_v1.xml with profile
@@ -234,16 +235,13 @@ public class ValidatorTest {
 
 			String content = sb.toString();
 
-			Identifier id = new Identifier();
-
-			id.setValue("Data Transformer");
-
-			bundle = ccdTransformer.transformDocument(cda, content, id);
+			Identifier assemblerDevice = new Identifier();
+			assemblerDevice.setValue("Higgs");
+			assemblerDevice.setSystem("http://www.amida.com");
+			bundle = ccdTransformer.transformDocument(cda, BundleType.TRANSACTION, null, content, assemblerDevice);
 		} else {
 			bundle = ccdTransformer.transformDocument(cda, null, null);
 		}
-
-		// make the transformation
 
 		Assert.assertNotNull(bundle);
 

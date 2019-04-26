@@ -29,8 +29,8 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		}
 	}
 
-	private Map<String, String> getEncounterDiagnosisConditionCategory() {
-		Map<String, String> conditionCoding = new HashMap<String, String>();
+	private Map<String, Object> getEncounterDiagnosisConditionCategory() {
+		Map<String, Object> conditionCoding = new LinkedHashMap<String, Object>();
 
 		conditionCoding.put("system", "http://hl7.org/fhir/condition-category");
 		conditionCoding.put("code", "encounter-diagnosis");
@@ -39,8 +39,8 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		return conditionCoding;
 	}
 
-	private Map<String, String> getProblemListConditionCategory() {
-		Map<String, String> conditionCoding = new HashMap<String, String>();
+	private Map<String, Object> getProblemListConditionCategory() {
+		Map<String, Object> conditionCoding = new LinkedHashMap<String, Object>();
 
 		conditionCoding.put("system", "http://hl7.org/fhir/condition-category");
 		conditionCoding.put("code", "problem-list-item");
@@ -50,7 +50,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Boolean conditionhasCategory(Map<String, Object> resource, Map<String, String> otherConditionCoding) {
+	private Boolean conditionhasCategory(Map<String, Object> resource, Map<String, Object> otherConditionCoding) {
 		if (resource == null || otherConditionCoding == null) {
 			return false;
 		} else {
@@ -63,15 +63,11 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 				if (categoryCodings != null) {
 					for (Map<String, String> coding : categoryCodings) {
 						if (coding != null) {
-							String system = coding.get("system");
-							String display = coding.get("display");
 							String code = coding.get("code");
 
-							if (system != null && display != null && code != null) {
+							if (code != null) {
 
-								if (system.equals(otherConditionCoding.get("system"))
-										&& display.equals(otherConditionCoding.get("display"))
-										&& code.equals(otherConditionCoding.get("code"))) {
+								if (code.equals(otherConditionCoding.get("code"))) {
 									return true;
 								}
 							}
@@ -83,7 +79,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		return false;
 	}
 
-	private void addConditionCoding(Map<String, Object> resource, Map<String, String> conditionCoding) {
+	private void addConditionCoding(Map<String, Object> resource, Map<String, Object> conditionCoding) {
 		List<Map<String, Object>> category = (List<Map<String, Object>>) resource.get("category");
 
 		if (category == null) {
@@ -91,9 +87,9 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			resource.put("category", category);
 		}
 
-		Map<String, Object> newCategory = new HashMap<String, Object>();
+		Map<String, Object> newCategory = new LinkedHashMap<String, Object>();
 
-		List<Map<String, String>> coding = new ArrayList<Map<String, String>>();
+		List<Map<String, Object>> coding = new ArrayList<Map<String, Object>>();
 
 		coding.add(conditionCoding);
 
@@ -164,8 +160,8 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 							Map<String, Object> existing = conditionMap.get(system, value);
 
 							if (existing != null) {
-								Map<String, String> problemListItemCoding = getProblemListConditionCategory();
-								Map<String, String> encounterDiagnosisCoding = getEncounterDiagnosisConditionCategory();
+								Map<String, Object> problemListItemCoding = getProblemListConditionCategory();
+								Map<String, Object> encounterDiagnosisCoding = getEncounterDiagnosisConditionCategory();
 								if (conditionhasCategory(resource, problemListItemCoding)) {
 									if (!conditionhasCategory(existing, problemListItemCoding)) {
 										addConditionCoding(existing, problemListItemCoding);
