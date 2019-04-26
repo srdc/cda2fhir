@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -331,8 +332,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 						.tStatusCode2AllergyIntoleranceVerificationStatus(cdaAllergyProbAct.getStatusCode().getCode());
 				if (allergyIntoleranceStatusEnum != null) {
 					fhirAllergyIntolerance.setVerificationStatus(allergyIntoleranceStatusEnum);
+				} else {
+					fhirAllergyIntolerance.setVerificationStatus(Config.DEFAULT_ALLERGY_VERIFICATION_STATUS);
 				}
+			} else {
+				fhirAllergyIntolerance.setVerificationStatus(Config.DEFAULT_ALLERGY_VERIFICATION_STATUS);
 			}
+		} else {
+			fhirAllergyIntolerance.setVerificationStatus(Config.DEFAULT_ALLERGY_VERIFICATION_STATUS);
 		}
 
 		// effectiveTime -> asserted
@@ -479,11 +486,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 										if (cdaReactionObs.getValues() != null
 												&& !cdaReactionObs.getValues().isEmpty()) {
 											for (ANY value : cdaReactionObs.getValues()) {
-												if (value != null && !value.isSetNullFlavor()) {
-													if (value instanceof CD) {
-														fhirReaction
-																.addManifestation(dtt.tCD2CodeableConcept((CD) value));
-													}
+												if (value instanceof CD) {
+													fhirReaction.addManifestation(dtt.tCD2CodeableConcept((CD) value,
+															bundleInfo.getIdedAnnotations()));
 												}
 											}
 										}
@@ -555,6 +560,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					}
 				}
 			}
+		}
+
+		// if clinical status is unset, set it to default.
+		if (!fhirAllergyIntolerance.hasClinicalStatus()) {
+			fhirAllergyIntolerance.setClinicalStatus(Config.DEFAULT_ALLERGY_CLINICAL_STATUS);
 		}
 
 		return result;
@@ -753,6 +763,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				info.setOrgIsNew(true);
 			}
 			result.updateFrom(orgResult);
+
 			if (orgResult.getFullBundle() != null) {
 				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
 						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
@@ -761,15 +772,11 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					// allows us to resolve the identifiers when making the ifNoneExist parameters.
 					fhirPractitionerRole.setOrganizationTarget(fhirOrganization);
 					info.setOrganization(fhirOrganization);
+					fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+					info.setPractitionerRole(fhirPractitionerRole);
 				}
-
 			}
 
-			result.updateFrom(orgResult);
-			fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-			// allows us to resolve the identifiers when making the ifNoneExist parameters.
-			fhirPractitionerRole.setPractitionerTarget(fhirPractitioner);
-			info.setPractitionerRole(fhirPractitionerRole);
 		}
 
 		return result;
@@ -879,15 +886,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
 							.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
 
+					// practitioner role links organizations to practitioner, if null do not link.
 					if (fhirOrganization != null) {
 						fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+						fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+						info.setPractitionerRole(fhirPractitionerRole);
 						info.setOrganization(fhirOrganization);
 					}
 
 				}
-
-				fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-				info.setPractitionerRole(fhirPractitionerRole);
 
 			}
 		}
@@ -1264,6 +1271,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			if (vst.tStatusCode2EncounterStatusEnum(cdaEncounterActivity.getStatusCode().getCode()) != null) {
 				fhirEncounter
 						.setStatus(vst.tStatusCode2EncounterStatusEnum(cdaEncounterActivity.getStatusCode().getCode()));
+			} else {
+				fhirEncounter.setStatus(Config.DEFAULT_ENCOUNTER_STATUS);
 			}
 		} else {
 			fhirEncounter.setStatus(Config.DEFAULT_ENCOUNTER_STATUS);
@@ -1817,6 +1826,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					}
 				}
 			}
+		} else {
+			// if no practitioner gets set, default to false.
+			fhirImmunization.setPrimarySource(false);
 		}
 
 		// approachSiteCode -> site
@@ -2209,6 +2221,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					fhirMedSt.setStatus(statusCode);
 				}
 			}
+		}
+		if (!fhirMedSt.hasStatus()) {
+			fhirMedSt.setStatus(Config.DEFAULT_MEDICATION_STATEMENT_STATUS);
 		}
 
 		// author[0] -> informationSource
@@ -2838,8 +2853,9 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			IBundleInfo bundleInfo) {
 		EntryResult result = new EntryResult();
 
-		if (cdaOrganization == null || cdaOrganization.isSetNullFlavor())
+		if (cdaOrganization == null || cdaOrganization.isSetNullFlavor()) {
 			return result;
+		}
 
 		org.hl7.fhir.dstu3.model.Organization fhirOrganization = new org.hl7.fhir.dstu3.model.Organization();
 
@@ -2870,8 +2886,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				}
 			}
 		}
-
-		result.addResource(fhirOrganization);
 
 		// name -> name
 		if (cdaOrganization.getNames() != null && !cdaOrganization.isSetNullFlavor()) {
@@ -2909,7 +2923,14 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
+		// organizations must have either a name or an identifier.
+		if (!fhirOrganization.hasName() && !fhirOrganization.hasIdentifier()) {
+			return result;
+		}
+
+		result.addResource(fhirOrganization);
 		return result;
+
 	}
 
 	@Override
@@ -3688,6 +3709,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// status -> current
 		docReference.setStatus(DocumentReferenceStatus.CURRENT);
 
+		// now -> indexed
+		Date now = new Date();
+		docReference.setIndexed(now);
+
 		// type -> 34133-9 (hard-coded from specification)
 		CodeableConcept docType = new CodeableConcept();
 		Coding docTypeCoding = new Coding();
@@ -3739,25 +3764,35 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	@Override
 	public Bundle tProvenance(Bundle bundle, String documentBody, Identifier assemblerDevice) {
+
 		Provenance provenance = new Provenance();
 		ProvenanceAgentComponent pac = new ProvenanceAgentComponent();
 		provenance.setId(new IdType("Provenance", getUniqueId()));
 
+		// recorded
+		Date now = new Date();
+		provenance.setRecorded(now);
+
+		// document reference
 		DocumentReference documentReference = tDocumentReference(documentBody);
 		bundle.addEntry(new BundleEntryComponent().setResource(documentReference));
+
 		ProvenanceEntityComponent pec = new ProvenanceEntityComponent();
 		pec.setRole(ProvenanceEntityRole.SOURCE);
-		pec.setId(documentReference.getId());
+		pec.setWhat(getReference(documentReference));
 		provenance.addEntity(pec);
 
+		// device
 		Device device = tDevice(assemblerDevice);
 		bundle.addEntry(new BundleEntryComponent().setResource(device));
 
+		// agent type
 		Coding agentTypeCoding = new Coding(ProvenanceAgentType.DEVICE.getSystem(), ProvenanceAgentType.DEVICE.toCode(),
 				ProvenanceAgentType.DEVICE.getDisplay());
 		agentTypeCoding.setId(device.getId());
 		pac.setRelatedAgentType(new CodeableConcept().addCoding(agentTypeCoding));
 
+		// agent role
 		Coding agentRoleCoding = new Coding(ProvenanceAgentRole.ASSEMBLER.getSystem(),
 				ProvenanceAgentRole.ASSEMBLER.toCode(), ProvenanceAgentRole.ASSEMBLER.getDisplay());
 		agentRoleCoding.setId(device.getId());
