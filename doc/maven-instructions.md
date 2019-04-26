@@ -8,7 +8,7 @@ Essentially, you make a new version of the CDA2FHIR repository, and build to it 
 
 `git checkout fhir-stu3`
 
-`<version>X.Y.Z-SNAPSHOT</version>` should be updated to reflect the intended version number of the release.
+`<version>X.Y.Z-SNAPSHOT</version>` should be updated to reflect the intended version number of the release. Update CHANGELOG.md to reflect any changes made between this and the prior version.
 
 #2 - Commit changes directly to `fhir-stu3` branch.
 
