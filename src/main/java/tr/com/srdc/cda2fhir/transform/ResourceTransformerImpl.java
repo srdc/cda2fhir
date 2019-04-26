@@ -1956,6 +1956,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	}
 
+//	private boolean conditionHasCategory(Condition condition, CodeableConcept conditionCategory) {
+//		if(condition == null || conditionCategory == null)
+//			return false;
+//
+//		for(Coding coding : condition.getCategoryFirstRep().getCoding()) {
+//
+//		}
+//	}
+
 	@Override
 	public IEntryResult tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
 		IEntryResult result = tIndication2Condition(cdaIndication, bundleInfo);
@@ -2417,7 +2426,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// indication -> reason
 		for (Indication indication : cdaMedicationActivity.getIndications()) {
-			IEntryResult condResult = tIndication2ConditionEncounter(indication, localBundleInfo);
+			IEntryResult condResult = tIndication2ConditionProblemListItem(indication, localBundleInfo);
 
 			result.updateFrom(condResult);
 

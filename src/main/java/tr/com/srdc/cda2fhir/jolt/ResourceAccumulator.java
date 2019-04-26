@@ -67,7 +67,41 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			identifiers = (List<Object>) resource.get("identifier");
 
 		}
+		if (input != null && "Condition".equals(resourceType)) {
+			IdentifierMap<Map<String, Object>> conditionMap = (IdentifierMap<Map<String, Object>>) context
+					.get("CONDITION_MAP");
 
+			if (conditionMap == null) {
+				conditionMap = new IdentifierMap<Map<String, Object>>();
+				context.put("CONDITION_MAP", conditionMap);
+			}
+
+			if (identifiers != null) {
+
+				if (conditionMap != null && identifiers != null) {
+
+					for (Object identifierObj : identifiers) {
+
+						if (identifierObj != null) {
+
+							Map<String, String> identifier = (Map<String, String>) identifierObj;
+							String system = identifier.get("system");
+							String value = identifier.get("value");
+
+							Map<String, Object> existing = conditionMap.get(system, value);
+
+							if (existing != null) {
+								return existing;
+							} else {
+								conditionMap.put(resourceType, system, value, resource);
+							}
+
+						}
+					}
+				}
+			}
+
+		}
 		if (input != null && "Medication".equals(resourceType)) {
 			MedicationMap medicationMap = (MedicationMap) context.get("MEDICATION_MAP");
 

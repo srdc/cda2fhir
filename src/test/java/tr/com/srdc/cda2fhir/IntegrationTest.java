@@ -71,7 +71,7 @@ public class IntegrationTest {
 		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
 				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
 
-//		// print pre-post bundle
+		// print pre-post bundle
 		FHIRUtil.printJSON(transactionBundle, "src/test/resources/output/rakia-4-17.json");
 
 		// Send transaction bundle to server.

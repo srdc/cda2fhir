@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,21 +33,19 @@ public class ConditionTest {
 	public void tIndication2ConditionCategoryTest() {
 		Indication indication = indicationGenerator.generate(factories);
 
-		BundleInfo bundleInfo = new BundleInfo(rt);
-		
-		IEntryResult encounterCondResult = rt.tIndication2ConditionEncounter(indication, bundleInfo);
+		IEntryResult encounterCondResult = rt.tIndication2ConditionEncounter(indication, new BundleInfo(rt));
 		Condition encounterCondition = null;
-		if(encounterCondResult.hasResult() ) {
+		if (encounterCondResult.hasResult()) {
 			Bundle bundle = encounterCondResult.getBundle();
 			encounterCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
 		} else {
 			Bundle bundle = encounterCondResult.getFullBundle();
 			encounterCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
 		}
-		
-		IEntryResult problemListItemResult = rt.tIndication2ConditionEncounter(indication, bundleInfo);
+
+		IEntryResult problemListItemResult = rt.tIndication2ConditionProblemListItem(indication, new BundleInfo(rt));
 		Condition problemListItemCondition = null;
-		if(encounterCondResult.hasResult() ) {
+		if (problemListItemResult.hasResult()) {
 			Bundle bundle = problemListItemResult.getBundle();
 			problemListItemCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
 		} else {
@@ -71,6 +70,30 @@ public class ConditionTest {
 				"http://hl7.org/fhir/condition-category");
 		Assert.assertEquals("category code is problem-list-item", categoryCode, "problem-list-item");
 		Assert.assertEquals("category displauy is Problem List Item", categoryDisplay, "Problem List Item");
+
+	}
+
+	@Test
+	public void testRepeatConditionCategory() {
+		BundleInfo bundleInfo = new BundleInfo(rt);
+		Indication indication = indicationGenerator.generate(factories);
+
+		rt.tIndication2ConditionEncounter(indication, bundleInfo);
+
+		IEntryResult problemListItemResult = rt.tIndication2ConditionProblemListItem(indication, new BundleInfo(rt));
+		Condition problemListItemCondition = null;
+
+		if (problemListItemResult.hasResult()) {
+			Bundle bundle = problemListItemResult.getBundle();
+			problemListItemCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
+		} else {
+			Bundle bundle = problemListItemResult.getFullBundle();
+			problemListItemCondition = FHIRUtil.findFirstResource(bundle, Condition.class);
+		}
+		CodeableConcept categories = problemListItemCondition.getCategoryFirstRep();
+
+		Assert.assertEquals(categories.getCodingFirstRep().getCode(), "encounter-diagnosis");
+		Assert.assertEquals(categories.getCoding().get(1).getCode(), "problem-list-item");
 
 	}
 
