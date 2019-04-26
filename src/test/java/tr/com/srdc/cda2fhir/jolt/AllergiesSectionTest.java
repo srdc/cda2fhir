@@ -37,8 +37,8 @@ public class AllergiesSectionTest {
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-		rt = new LocalResourceTransformer();
 		factories = CDAFactories.init();
+		rt = new LocalResourceTransformer(factories);
 	}
 
 	private static void runSampleTest(String sourceName) throws Exception {
@@ -63,7 +63,7 @@ public class AllergiesSectionTest {
 		List<AllergyIntolerance> allergyIntolerances = FHIRUtil.findResources(bundle, AllergyIntolerance.class);
 
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		CDAUtilExtension.reorderSectionActs(factories, section, rt.getAllergyProblemActs());
+		rt.reorderSection(section);
 
 		String caseName = sourceName.substring(0, sourceName.length() - 4);
 		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);

@@ -2,8 +2,6 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,10 +12,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
 import org.openhealthtools.mdht.uml.cda.consol.EncountersSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
@@ -25,37 +21,15 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
+import tr.com.srdc.cda2fhir.testutil.LocalResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
-import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class EncountersSectionTest {
-	private static class LocalResourceTransformer extends ResourceTransformerImpl {
-		private static final long serialVersionUID = 1L;
-
-		private List<EncounterActivities> encounterActivities = new ArrayList<>();
-
-		public void clearEntries() {
-			encounterActivities.clear();
-		}
-
-		public List<EncounterActivities> getEntries() {
-			return Collections.unmodifiableList(encounterActivities);
-		}
-
-		@Override
-		public EntryResult tEncounterActivity2Encounter(EncounterActivities encounterActivity, IBundleInfo bundleInfo) {
-			encounterActivities.add(encounterActivity);
-			return super.tEncounterActivity2Encounter(encounterActivity, bundleInfo);
-		}
-	}
-
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/EcnountersSection/";
 
 	private static CDAFactories factories;
@@ -64,17 +38,8 @@ public class EncountersSectionTest {
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-		rt = new LocalResourceTransformer();
 		factories = CDAFactories.init();
-	}
-
-	private static void reorderSection(EncountersSectionEntriesOptional section) {
-		section.getEntries().clear();
-		rt.getEntries().forEach(ea -> {
-			Entry entry = factories.base.createEntry();
-			entry.setEncounter(ea);
-			section.getEntries().add(entry);
-		});
+		rt = new LocalResourceTransformer(factories);
 	}
 
 	private static void runSampleTest(String sourceName) throws Exception {
@@ -113,7 +78,7 @@ public class EncountersSectionTest {
 		List<Encounter> encounters = FHIRUtil.findResources(bundle, Encounter.class);
 
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		reorderSection(section);
+		rt.reorderSection(section);
 
 		String caseName = sourceName.substring(0, sourceName.length() - 4);
 		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);
