@@ -642,19 +642,18 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			IEntryResult orgResult = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization(),
 					bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization org = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 			if (orgResult.hasResult()) {
 				info.setOrgIsNew(true);
 			}
 
 			result.updateFrom(orgResult);
-			if (orgResult.getFullBundle() != null) {
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-				if (fhirOrganization != null) {
-					info.setOrganization(fhirOrganization);
-					fhirDevice.setOwner(new Reference(fhirOrganization.getId()));
-				}
 
+			if (org != null) {
+				info.setOrganization(org);
+				fhirDevice.setOwner(new Reference(org.getId()));
 			}
 
 		}
@@ -759,22 +758,23 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			IEntryResult orgResult = tOrganization2Organization(cdaAssignedAuthor.getRepresentedOrganization(),
 					bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 			if (orgResult.hasResult()) {
 				info.setOrgIsNew(true);
 			}
 			result.updateFrom(orgResult);
 
-			if (orgResult.getFullBundle() != null) {
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-				if (fhirOrganization != null) {
-					fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
-					// allows us to resolve the identifiers when making the ifNoneExist parameters.
-					fhirPractitionerRole.setOrganizationTarget(fhirOrganization);
-					info.setOrganization(fhirOrganization);
-					fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-					info.setPractitionerRole(fhirPractitionerRole);
-				}
+			if (fhirOrganization != null) {
+
+				fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+				// allows us to resolve the identifiers when making the ifNoneExist parameters.
+				fhirPractitionerRole.setOrganizationTarget(fhirOrganization);
+				info.setOrganization(fhirOrganization);
+				fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+				info.setPractitionerRole(fhirPractitionerRole);
+
 			}
 
 		}
@@ -877,22 +877,21 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 				IEntryResult orgResult = tOrganization2Organization(
 						cdaAssignedEntity.getRepresentedOrganizations().get(0), bundleInfo);
 
+				org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+						.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 				if (orgResult.hasResult()) {
 					info.setOrgIsNew(true);
 				}
+
 				result.updateFrom(orgResult);
 
-				if (orgResult.getFullBundle() != null) {
-					org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-							.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
+				if (fhirOrganization != null) {
 
-					// practitioner role links organizations to practitioner, if null do not link.
-					if (fhirOrganization != null) {
-						fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
-						fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
-						info.setPractitionerRole(fhirPractitionerRole);
-						info.setOrganization(fhirOrganization);
-					}
+					fhirPractitionerRole.setOrganization(getReference(fhirOrganization));
+					fhirPractitionerRole.setPractitioner(getReference(fhirPractitioner));
+					info.setPractitionerRole(fhirPractitionerRole);
+					info.setOrganization(fhirOrganization);
 
 				}
 
@@ -1019,11 +1018,10 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(patientResult);
 			bundleInfo.updateFrom(patientResult);
 
-			if (patientResult.getBundle() != null) {
-				Patient fhirPatient = FHIRUtil.findFirstResource(patientResult.getBundle(), Patient.class);
-				if (fhirPatient != null) {
-					fhirComp.setSubject(getReference(fhirPatient));
-				}
+			Patient fhirPatient = (Patient) patientResult.findResourceResult(Patient.class);
+
+			if (fhirPatient != null) {
+				fhirComp.setSubject(getReference(fhirPatient));
 			}
 
 		}
@@ -1143,15 +1141,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 					bundleInfo.updateFrom(orgResult);
 
 					if (fhirComp != null) {
-						org.hl7.fhir.dstu3.model.Organization fhirOrganization = null;
-
-						if (orgResult.hasResult()) {
-							fhirOrganization = FHIRUtil.findFirstResource(orgResult.getBundle(),
-									org.hl7.fhir.dstu3.model.Organization.class);
-						} else if (orgResult.getFullBundle() != null) {
-							fhirOrganization = FHIRUtil.findFirstResource(orgResult.getFullBundle(),
-									org.hl7.fhir.dstu3.model.Organization.class);
-						}
+						org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+								.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
 
 						if (fhirOrganization != null) {
 							fhirComp.setCustodian(getReference(fhirOrganization));
@@ -1333,12 +1324,19 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// indication -> diagnosis.condition
 		for (Indication cdaIndication : cdaEncounterActivity.getIndications()) {
 			if (!cdaIndication.isSetNullFlavor()) {
-				Condition fhirIndication = tIndication2ConditionEncounter(cdaIndication, bundleInfo);
-				result.addResource(fhirIndication);
-				// TODO: check if this is correct mapping
-				// Reference indicationRef = fhirEncounter.addIndication();
-				// indicationRef.setReference(fhirIndication.getId());
-				fhirEncounter.addDiagnosis().setCondition(getReference(fhirIndication));
+				IEntryResult condResult = tIndication2ConditionEncounter(cdaIndication, bundleInfo);
+
+				result.updateFrom(condResult);
+
+				Condition fhirCondition = (Condition) condResult.findResourceResult(Condition.class);
+
+				if (fhirCondition != null) {
+					// TODO: check if this is correct mapping
+					// Reference indicationRef = fhirEncounter.addIndication();
+					// indicationRef.setReference(fhirIndication.getId());
+					fhirEncounter.addDiagnosis().setCondition(getReference(fhirCondition));
+				}
+
 			}
 		}
 
@@ -1937,30 +1935,63 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 	}
 
+	private boolean conditionHasCategory(Condition condition, Coding otherCategoryCoding) {
+		if (condition == null || otherCategoryCoding == null)
+			return false;
+
+		for (CodeableConcept category : condition.getCategory()) {
+			if (category.hasCoding()) {
+
+				Coding currentCategoryCoding = category.getCodingFirstRep();
+
+				String system = currentCategoryCoding.getSystem();
+				String display = currentCategoryCoding.getDisplay();
+				String code = currentCategoryCoding.getCode();
+
+				if (system != null && display != null && code != null) {
+					if (code.equals(otherCategoryCoding.getCode()) && system.equals(otherCategoryCoding.getSystem())
+							&& display.equals(otherCategoryCoding.getDisplay())) {
+						return true;
+					}
+				}
+
+			}
+		}
+		return false;
+	}
+
 	@Override
-	public Condition tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
-		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
+	public IEntryResult tIndication2ConditionEncounter(Indication cdaIndication, IBundleInfo bundleInfo) {
+		IEntryResult result = tIndication2Condition(cdaIndication, bundleInfo);
+		Condition cond = (Condition) result.findResourceResult(Condition.class);
+
 		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("encounter-diagnosis");
 		conditionCategory.setDisplay("Encounter Diagnosis");
-		cond.addCategory().addCoding(conditionCategory);
-		return cond;
+		if (!conditionHasCategory(cond, conditionCategory))
+			cond.addCategory().addCoding(conditionCategory);
+		return result;
 	}
 
 	@Override
-	public Condition tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
-		Condition cond = tIndication2Condition(cdaIndication, bundleInfo);
+	public IEntryResult tIndication2ConditionProblemListItem(Indication cdaIndication, IBundleInfo bundleInfo) {
+		IEntryResult result = tIndication2Condition(cdaIndication, bundleInfo);
+		Condition cond = (Condition) result.findResourceResult(Condition.class);
+
 		Coding conditionCategory = new Coding().setSystem(vst.tOid2Url("2.16.840.1.113883.4.642.3.153"));
 		conditionCategory.setCode("problem-list-item");
 		conditionCategory.setDisplay("Problem List Item");
-		cond.addCategory().addCoding(conditionCategory);
-		return cond;
+		if (!conditionHasCategory(cond, conditionCategory))
+			cond.addCategory().addCoding(conditionCategory);
+		return result;
 
 	}
 
-	private Condition tIndication2Condition(Indication cdaIndication, IBundleInfo bundleInfo) {
+	private IEntryResult tIndication2Condition(Indication cdaIndication, IBundleInfo bundleInfo) {
+		EntryResult result = new EntryResult();
+
 		if (cdaIndication == null || cdaIndication.isSetNullFlavor())
-			return null;
+			return result;
 
 		Condition fhirCond = new Condition();
 
@@ -1975,9 +2006,22 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		if (Config.isGenerateDafProfileMetadata())
 			fhirCond.getMeta().addProfile(Constants.PROFILE_DAF_CONDITION);
 
+		List<II> ids = cdaIndication.getIds();
+
+		if (ids != null) {
+			Condition previous = (Condition) bundleInfo.findResourceResult(ids, Condition.class);
+			if (previous != null) {
+				result.addExistingResource(previous);
+				return result;
+			} else {
+				result.putIIResource(ids, Condition.class, fhirCond);
+			}
+		}
+		result.addResource(fhirCond);
+
 		// id -> identifier
-		if (cdaIndication.getIds() != null && !cdaIndication.getIds().isEmpty()) {
-			for (II ii : cdaIndication.getIds()) {
+		if (ids != null && !cdaIndication.getIds().isEmpty()) {
+			for (II ii : ids) {
 				fhirCond.addIdentifier(dtt.tII2Identifier(ii));
 			}
 		}
@@ -2033,7 +2077,7 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			}
 		}
 
-		return fhirCond;
+		return result;
 	}
 
 	@Override
@@ -2110,27 +2154,16 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			IEntryResult orgResult = tOrganization2Organization(cdaManufacturedProduct.getManufacturerOrganization(),
 					bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
+
 			result.updateFrom(orgResult);
 
-			if (orgResult.getBundle() != null && !orgResult.getBundle().isEmpty()) {
-
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					fhirMedication.setManufacturer(getReference(fhirOrganization));
-
-				}
-
-			} else if (orgResult.getFullBundle() != null) {
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					fhirMedication.setManufacturer(getReference(fhirOrganization));
-				}
+			if (fhirOrganization != null) {
+				fhirMedication.setManufacturer(getReference(fhirOrganization));
 
 			}
+
 		}
 
 		if (medsInfo != null && medsInfo.containsMedication(cd, orgIds)) {
@@ -2245,14 +2278,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(fhirMedicationResult);
 			localBundleInfo.updateFrom(fhirMedicationResult);
 
-			Medication medication = null;
-			if (fhirMedicationResult.getBundle() != null && !fhirMedicationResult.getBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getBundle(), Medication.class);
-			} else if (fhirMedicationResult.getFullBundle() != null
-					&& !fhirMedicationResult.getFullBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getFullBundle(), Medication.class);
+			Medication medication = (Medication) fhirMedicationResult.findResourceResult(Medication.class);
 
-			}
 			if (medication != null) {
 				fhirMedSt.setMedication(getReference(medication));
 			}
@@ -2365,10 +2392,15 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// indication -> reason
 		for (Indication indication : cdaMedicationActivity.getIndications()) {
-			Condition cond = tIndication2ConditionProblemListItem(indication, bundleInfo);
+			IEntryResult condResult = tIndication2ConditionProblemListItem(indication, localBundleInfo);
 
-			result.addResource(cond);
-			fhirMedSt.addReasonReference(getReference(cond));
+			result.updateFrom(condResult);
+
+			Condition fhirCondition = (Condition) condResult.findResourceResult(Condition.class);
+
+			if (fhirCondition != null) {
+				fhirMedSt.addReasonReference(getReference(fhirCondition));
+			}
 		}
 
 		if (cdaMedicationActivity.getMedicationSupplyOrder() != null) {
@@ -2445,13 +2477,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(fhirMedicationResult);
 			localBundleInfo.updateFrom(fhirMedicationResult);
 
-			Medication medication = null;
-			if (fhirMedicationResult.getBundle() != null && !fhirMedicationResult.getBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getBundle(), Medication.class);
-			} else if (fhirMedicationResult.getFullBundle() != null
-					&& !fhirMedicationResult.getFullBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getFullBundle(), Medication.class);
-			}
+			Medication medication = (Medication) fhirMedicationResult.findResourceResult(Medication.class);
+
 			if (medication != null) {
 				fhirMediDisp.setMedication(getReference(medication));
 			}
@@ -2581,13 +2608,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 			result.updateFrom(fhirMedicationResult);
 			localBundleInfo.updateFrom(fhirMedicationResult);
 
-			Medication medication = null;
-			if (fhirMedicationResult.getBundle() != null && !fhirMedicationResult.getBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getBundle(), Medication.class);
-			} else if (fhirMedicationResult.getFullBundle() != null
-					&& !fhirMedicationResult.getFullBundle().isEmpty()) {
-				medication = FHIRUtil.findFirstResource(fhirMedicationResult.getFullBundle(), Medication.class);
-			}
+			Medication medication = (Medication) fhirMedicationResult.findResourceResult(Medication.class);
+
 			if (medication != null) {
 				medRequest.setMedication(getReference(medication));
 
@@ -3049,29 +3071,12 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 			IEntryResult orgResult = tOrganization2Organization(cdaPatientRole.getProviderOrganization(), bundleInfo);
 
+			org.hl7.fhir.dstu3.model.Organization fhirOrganization = (Organization) orgResult
+					.findResourceResult(org.hl7.fhir.dstu3.model.Organization.class);
 			result.updateFrom(orgResult);
 
-			// The case of a new organization
-			if (orgResult.getBundle() != null) {
-
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					// We need to add organization to the previous patient in the event
-					// that a new organization is found.
-
-					fhirPatient.setManagingOrganization(getReference(fhirOrganization));
-
-				}
-			} else if (orgResult.getFullBundle() != null) {
-
-				org.hl7.fhir.dstu3.model.Organization fhirOrganization = FHIRUtil
-						.findFirstResource(orgResult.getFullBundle(), org.hl7.fhir.dstu3.model.Organization.class);
-
-				if (fhirOrganization != null) {
-					fhirPatient.setManagingOrganization(getReference(fhirOrganization));
-				}
+			if (fhirOrganization != null) {
+				fhirPatient.setManagingOrganization(getReference(fhirOrganization));
 			}
 
 		}
@@ -3156,27 +3161,28 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 
 		// each problem observation instance -> FHIR Condition instance
 		LocalBundleInfo localBundleInfo = new LocalBundleInfo(bundleInfo);
+
 		for (ProblemObservation cdaProbObs : cdaProblemConcernAct.getProblemObservations()) {
 			EntryResult er = tProblemObservation2Condition(cdaProbObs, localBundleInfo);
 			localBundleInfo.updateFrom(er);
 			result.updateEntitiesFrom(er);
+			result.updateFrom(er);
+
 			Bundle fhirProbObsBundle = er.getBundle();
 			if (fhirProbObsBundle == null)
 				continue;
 
-			for (BundleEntryComponent entry : fhirProbObsBundle.getEntry()) {
-				result.addResource(entry.getResource());
-				if (entry.getResource() instanceof Condition) {
-					Condition fhirCond = (Condition) entry.getResource();
+			Condition cond = (Condition) er.findResourceResult(Condition.class);
 
-					CS statusCode = cdaProblemConcernAct.getStatusCode();
-					String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
-							: statusCode.getCode();
+			if (cond != null) {
+				CS statusCode = cdaProblemConcernAct.getStatusCode();
+				String statusCodeValue = statusCode == null || statusCode.isSetNullFlavor() ? null
+						: statusCode.getCode();
 
-					// statusCode -> verificationStatus
-					fhirCond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
-				}
+				// statusCode -> verificationStatus
+				cond.setVerificationStatus(vst.tStatusCode2ConditionVerificationStatus(statusCodeValue));
 			}
+
 		}
 
 		return result;
@@ -3196,7 +3202,6 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// status data is not retrieved from this template.
 
 		Condition fhirCondition = new Condition();
-		result.addResource(fhirCondition);
 
 		// resource id
 		IdType resourceId = new IdType("Condition", getUniqueId());
@@ -3209,8 +3214,20 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		// patient
 		fhirCondition.setSubject(getPatientRef());
 
+		List<II> ids = cdaProbObs.getIds();
+
+		if (ids != null) {
+			Condition previousFhirCond = (Condition) bundleInfo.findResourceResult(ids, Condition.class);
+			if (previousFhirCond != null) {
+				result.addExistingResource(previousFhirCond);
+				return result;
+			} else {
+				result.putIIResource(ids, Condition.class, fhirCondition);
+			}
+		}
+		result.addResource(fhirCondition);
 		// id -> identifier
-		for (II id : cdaProbObs.getIds()) {
+		for (II id : ids) {
 			if (!id.isSetNullFlavor()) {
 				fhirCondition.addIdentifier(dtt.tII2Identifier(id));
 			}
@@ -3220,7 +3237,8 @@ public class ResourceTransformerImpl implements IResourceTransformer, Serializab
 		Coding conditionCategory = new Coding().setSystem("http://hl7.org/fhir/condition-category");
 		conditionCategory.setCode("problem-list-item");
 		conditionCategory.setDisplay("Problem List Item");
-		fhirCondition.addCategory().addCoding(conditionCategory);
+		if (!conditionHasCategory(fhirCondition, conditionCategory))
+			fhirCondition.addCategory().addCoding(conditionCategory);
 
 		// value -> code
 		if (cdaProbObs.getValues() != null && !cdaProbObs.getValues().isEmpty()) {
