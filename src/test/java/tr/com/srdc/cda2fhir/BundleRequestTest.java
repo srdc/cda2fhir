@@ -483,23 +483,4 @@ public class BundleRequestTest {
 				bec.getRequest().getIfNoneExist().equals("code=" + sys + "|" + val1 + "&" + sys + "|" + val2));
 	}
 
-	@Test
-	public void testIntegration() throws Exception {
-
-		CCDTransformerImpl ccdTransformer = new CCDTransformerImpl(IdGeneratorEnum.COUNTER);
-
-		String sourceName = "Epic/robust CCD.XML";
-		String documentBody = "<ClinicalDoc>\n</ClinicalDoc>";
-		Identifier assemblerDevice = new Identifier();
-		assemblerDevice.setValue("Higgs");
-		assemblerDevice.setSystem("http://www.amida.com");
-		// create transaction bundle from ccda bundle
-
-		Bundle transactionBundle = ccdTransformer.transformDocument("src/test/resources/" + sourceName,
-				BundleType.TRANSACTION, null, documentBody, assemblerDevice);
-
-		FHIRUtil.printXML(transactionBundle, "src/test/resources/output/robust CCD.bundle.xml");
-
-	}
-
 }
