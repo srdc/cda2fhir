@@ -325,6 +325,10 @@ public class EncounterActivityGenerator {
 		verify(bundle, encounter);
 	}
 
+	public void setIndicationGenerator(List<IndicationGenerator> indGenerators) {
+		this.indicationGenerators = indGenerators;
+	}
+
 	public static Set<String> getAvailableStatusCodes() {
 		return Collections.unmodifiableSet(ENCOUNTER_STATUS.keySet());
 	}

@@ -31,9 +31,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
-import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Identifier;
@@ -55,6 +53,7 @@ import tr.com.srdc.cda2fhir.transform.util.IDeferredReference;
 import tr.com.srdc.cda2fhir.transform.util.IIdentifierMap;
 import tr.com.srdc.cda2fhir.transform.util.IdentifierMapFactory;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
+import tr.com.srdc.cda2fhir.transform.util.impl.BundleRequest;
 import tr.com.srdc.cda2fhir.transform.util.impl.ReferenceInfo;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -161,7 +160,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 			// Patient resource will not be added
 			if (entry != null) {
 				// Add request and fullUrl fields to entries
-				addRequestToEntry(entry);
+				BundleRequest.addRequestToEntry(entry);
 				if (addURLs) {
 					addFullUrlToEntry(entry);
 				}
@@ -266,6 +265,7 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	 * @throws Exception
 	 */
 
+	@Override
 	public Bundle transformDocument(ContinuityOfCareDocument cda, BundleType bundleType,
 			Map<String, String> resourceProfileMap, String documentBody, Identifier assemblerDevice) throws Exception {
 		Bundle bundle = transformDocument(cda, true);
@@ -432,19 +432,6 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 	private void addFullUrlToEntry(BundleEntryComponent entry) {
 		// entry.setFullUrl("urn:uuid:" + entry.getResource().getId().getIdPart());
 		entry.setFullUrl("urn:uuid:" + entry.getResource().getIdElement().getIdPart());
-	}
-
-	/**
-	 * Adds request field to the entry, method is POST, url is resource type.
-	 *
-	 * @param entry Entry which request field to be added.
-	 */
-	private void addRequestToEntry(BundleEntryComponent entry) {
-		BundleEntryRequestComponent request = new BundleEntryRequestComponent();
-		request.setMethod(HTTPVerb.POST);
-		// request.setUrl(entry.getResource().getResourceName());
-		request.setUrl(entry.getResource().getResourceType().name());
-		entry.setRequest(request);
 	}
 
 	private ContinuityOfCareDocument getClinicalDocument(String filePath) throws Exception {

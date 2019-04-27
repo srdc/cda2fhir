@@ -29,6 +29,75 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	private Map<String, Object> getEncounterDiagnosisConditionCategory() {
+		Map<String, Object> conditionCoding = new LinkedHashMap<String, Object>();
+
+		conditionCoding.put("system", "http://hl7.org/fhir/condition-category");
+		conditionCoding.put("code", "encounter-diagnosis");
+		conditionCoding.put("display", "Encounter Diagnosis");
+
+		return conditionCoding;
+	}
+
+	private Map<String, Object> getProblemListConditionCategory() {
+		Map<String, Object> conditionCoding = new LinkedHashMap<String, Object>();
+
+		conditionCoding.put("system", "http://hl7.org/fhir/condition-category");
+		conditionCoding.put("code", "problem-list-item");
+		conditionCoding.put("display", "Problem List Item");
+
+		return conditionCoding;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Boolean conditionhasCategory(Map<String, Object> resource, Map<String, Object> otherConditionCoding) {
+		if (resource == null || otherConditionCoding == null) {
+			return false;
+		} else {
+			Map<String, Object> categoryCodeableConcept = (Map<String, Object>) resource.get("category");
+
+			if (categoryCodeableConcept != null) {
+				List<Map<String, String>> categoryCodings = (List<Map<String, String>>) categoryCodeableConcept
+						.get("coding");
+
+				if (categoryCodings != null) {
+					for (Map<String, String> coding : categoryCodings) {
+						if (coding != null) {
+							String code = coding.get("code");
+
+							if (code != null) {
+
+								if (code.equals(otherConditionCoding.get("code"))) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private void addConditionCoding(Map<String, Object> resource, Map<String, Object> conditionCoding) {
+		List<Map<String, Object>> category = (List<Map<String, Object>>) resource.get("category");
+
+		if (category == null) {
+			category = new ArrayList<Map<String, Object>>();
+			resource.put("category", category);
+		}
+
+		Map<String, Object> newCategory = new LinkedHashMap<String, Object>();
+
+		List<Map<String, Object>> coding = new ArrayList<Map<String, Object>>();
+
+		coding.add(conditionCoding);
+
+		newCategory.put("coding", coding);
+
+		category.add(newCategory);
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object transform(Object input, Map<String, Object> context) {
@@ -67,7 +136,54 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			identifiers = (List<Object>) resource.get("identifier");
 
 		}
+		if (input != null && "Condition".equals(resourceType)) {
+			IdentifierMap<Map<String, Object>> conditionMap = (IdentifierMap<Map<String, Object>>) context
+					.get("CONDITION_MAP");
 
+			if (conditionMap == null) {
+				conditionMap = new IdentifierMap<Map<String, Object>>();
+				context.put("CONDITION_MAP", conditionMap);
+			}
+
+			if (identifiers != null) {
+
+				if (conditionMap != null && identifiers != null) {
+
+					for (Object identifierObj : identifiers) {
+
+						if (identifierObj != null) {
+
+							Map<String, String> identifier = (Map<String, String>) identifierObj;
+							String system = identifier.get("system");
+							String value = identifier.get("value");
+
+							Map<String, Object> existing = conditionMap.get(system, value);
+
+							if (existing != null) {
+								Map<String, Object> problemListItemCoding = getProblemListConditionCategory();
+								Map<String, Object> encounterDiagnosisCoding = getEncounterDiagnosisConditionCategory();
+								if (conditionhasCategory(resource, problemListItemCoding)) {
+									if (!conditionhasCategory(existing, problemListItemCoding)) {
+										addConditionCoding(existing, problemListItemCoding);
+									}
+								}
+
+								if (conditionhasCategory(resource, encounterDiagnosisCoding)) {
+									if (!conditionhasCategory(existing, encounterDiagnosisCoding)) {
+										addConditionCoding(existing, encounterDiagnosisCoding);
+									}
+								}
+								return existing;
+							} else {
+								conditionMap.put(resourceType, system, value, resource);
+							}
+
+						}
+					}
+				}
+			}
+
+		}
 		if (input != null && "Medication".equals(resourceType)) {
 			MedicationMap medicationMap = (MedicationMap) context.get("MEDICATION_MAP");
 

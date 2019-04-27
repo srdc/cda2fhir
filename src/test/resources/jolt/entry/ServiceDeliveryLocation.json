@@ -3,6 +3,7 @@
 		"operation": "cardinality",
 		"spec": {
 			"participantRole": {
+				"id": "MANY",
 				"playingEntity": {
 					"name": "MANY"
 				},
@@ -21,6 +22,9 @@
 		"operation": "shift",
 		"spec": {
 			"participantRole": {
+				"id": {
+					"*": "identifier[].->ID"
+				},
 				"playingEntity": {
 					"name": {
 						"*": "name"

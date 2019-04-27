@@ -6,7 +6,7 @@
 
 	<groupId>tr.com.srdc</groupId>
 	<artifactId>cda2fhir</artifactId>
-	<version>0.0.14-SNAPSHOT</version>
+	<version>0.0.15-SNAPSHOT</version>
 	<build>
 		<plugins>
 			<plugin>
