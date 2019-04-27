@@ -1,8 +1,10 @@
 package tr.com.srdc.cda2fhir.testutil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.openhealthtools.mdht.uml.cda.Component4;
 import org.openhealthtools.mdht.uml.cda.Entry;
@@ -24,6 +26,9 @@ import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -60,6 +65,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 	private List<ProblemInfo> problemInfos = new ArrayList<>();
 	private List<ProcedureActivityProcedure> procActivityProcs = new ArrayList<>();
 	private List<ResultInfo> resultInfos = new ArrayList<>();
+	private List<VitalSignObservation> observations = new ArrayList<>();
 
 	public LocalResourceTransformer(CDAFactories factories) {
 		this.factories = factories;
@@ -73,6 +79,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		problemInfos.clear();
 		procActivityProcs.clear();
 		resultInfos.clear();
+		observations.clear();
 	}
 
 	@Override
@@ -133,6 +140,13 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		ResultInfo info = new ResultInfo(cdaResultOrganizer);
 		resultInfos.add(info);
 		return super.tResultOrganizer2DiagnosticReport(cdaResultOrganizer, bundleInfo);
+	}
+
+	@Override
+	public EntryResult tVitalSignObservation2Observation(VitalSignObservation vitalSignObservation,
+			IBundleInfo bundleInfo) {
+		observations.add(vitalSignObservation);
+		return super.tVitalSignObservation2Observation(vitalSignObservation, bundleInfo);
 	}
 
 	public void reorderSection(AllergiesSection section) {
@@ -223,4 +237,44 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		});
 	}
 
+	public void reorderSection(VitalSignsSectionEntriesOptional section) {
+		Map<VitalSignObservation, Integer> map = new HashMap<>();
+		for (int index = 0; index < observations.size(); ++index) {
+			VitalSignObservation observation = observations.get(index);
+			map.put(observation, index);
+		}
+
+		List<VitalSignsOrganizer> organizers = new ArrayList<>(section.getVitalSignsOrganizers());
+		organizers.sort((a, b) -> {
+			VitalSignObservation obsa = a.getVitalSignObservations().get(0);
+			VitalSignObservation obsb = b.getVitalSignObservations().get(0);
+
+			int aval = map.get(obsa).intValue();
+			int bval = map.get(obsb).intValue();
+
+			return aval - bval;
+		});
+
+		final Map<VitalSignObservation, VitalSignsOrganizer> map2 = new HashMap<>();
+		organizers.forEach(organizer -> {
+			organizer.getVitalSignObservations().forEach(observation -> {
+				map2.put(observation, organizer);
+			});
+		});
+
+		section.getEntries().clear();
+		organizers.forEach(organizer -> {
+			organizer.getComponents().clear();
+			Entry entry = factories.base.createEntry();
+			entry.setOrganizer(organizer);
+			section.getEntries().add(entry);
+		});
+
+		observations.forEach(observation -> {
+			Component4 component = factories.base.createComponent4();
+			component.setObservation(observation);
+			VitalSignsOrganizer organizer = map2.get(observation);
+			organizer.getComponents().add(component);
+		});
+	}
 }
