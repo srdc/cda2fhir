@@ -51,10 +51,16 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": ["performer[&].actor.reference", "performer[&].actor.display"]
+				"*": [
+					"performer[&].actor.reference",
+					"performer[&].actor.display"
+				]
 			},
 			"Observation": {
-				"*": ["result[&].reference", "result[&].display"]
+				"*": [
+					"result[&].reference",
+					"result[&].display"
+				]
 			}
 		}
 	},
@@ -85,6 +91,12 @@
 			"PractitionerRole": "",
 			"Organization": "",
 			"Observation": ""
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {
+			"recursive": true
 		}
 	},
 	{

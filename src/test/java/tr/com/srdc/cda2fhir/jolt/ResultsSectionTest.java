@@ -2,8 +2,6 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -17,12 +15,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.Component4;
-import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
@@ -30,57 +24,15 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
+import tr.com.srdc.cda2fhir.testutil.LocalResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
-import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class ResultsSectionTest {
-	public static class CDAInput {
-		public ResultOrganizer resultOrganizer;
-
-		public List<ResultObservation> resultObservations = new ArrayList<>();
-
-		public CDAInput(ResultOrganizer resultOrganizer) {
-			this.resultOrganizer = resultOrganizer;
-		}
-	};
-
-	private static class LocalResourceTransformer extends ResourceTransformerImpl {
-		private static final long serialVersionUID = 1L;
-
-		private List<CDAInput> cdaInputs = new ArrayList<>();
-
-		public void clearObservations() {
-			cdaInputs.clear();
-		}
-
-		public List<CDAInput> getEntries() {
-			return Collections.unmodifiableList(cdaInputs);
-		}
-
-		@Override
-		public EntryResult tResultObservation2Observation(ResultObservation cdaResultObservation,
-				IBundleInfo bundleInfo) {
-			CDAInput cdaInput = cdaInputs.get(cdaInputs.size() - 1);
-			cdaInput.resultObservations.add(cdaResultObservation);
-			return super.tResultObservation2Observation(cdaResultObservation, bundleInfo);
-		}
-
-		@Override
-		public EntryResult tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer,
-				IBundleInfo bundleInfo) {
-			CDAInput cdaInput = new CDAInput(cdaResultOrganizer);
-			cdaInputs.add(cdaInput);
-			return super.tResultOrganizer2DiagnosticReport(cdaResultOrganizer, bundleInfo);
-		}
-	}
-
 	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
 	private static BiConsumer<Map<String, Object>, Resource> customJoltUpdate2; // Hack for now
 
@@ -92,26 +44,8 @@ public class ResultsSectionTest {
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-		rt = new LocalResourceTransformer();
 		factories = CDAFactories.init();
-	}
-
-	private static void reorderSection(ResultsSection section) {
-		section.getEntries().clear();
-		rt.getEntries().forEach(cdaInput -> {
-			ResultOrganizer ro = cdaInput.resultOrganizer;
-
-			ro.getComponents().clear();
-			cdaInput.resultObservations.forEach(observation -> {
-				Component4 component = factories.base.createComponent4();
-				component.setObservation(observation);
-				ro.getComponents().add(component);
-			});
-
-			Entry entry = factories.base.createEntry();
-			entry.setOrganizer(ro);
-			section.getEntries().add(entry);
-		});
+		rt = new LocalResourceTransformer(factories);
 	}
 
 	private static void runSampleTest(String sourceName) throws Exception {
@@ -134,7 +68,7 @@ public class ResultsSectionTest {
 		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
 		bundleInfo.mergeIdedAnnotations(idedAnnotations);
 
-		rt.clearObservations();
+		rt.clearEntries();
 		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
 
 		Bundle bundle = sectionResult.getBundle();
@@ -142,7 +76,7 @@ public class ResultsSectionTest {
 		List<DiagnosticReport> reports = FHIRUtil.findResources(bundle, DiagnosticReport.class);
 
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		reorderSection(section);
+		rt.reorderSection(section);
 
 		String caseName = sourceName.substring(0, sourceName.length() - 4);
 		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);

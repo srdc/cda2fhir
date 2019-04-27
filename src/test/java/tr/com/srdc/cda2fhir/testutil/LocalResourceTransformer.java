@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openhealthtools.mdht.uml.cda.Component4;
 import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
 import org.openhealthtools.mdht.uml.cda.Procedure;
@@ -20,6 +21,9 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
 import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
 import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection;
+import org.openhealthtools.mdht.uml.cda.consol.ResultObservation;
+import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.ResultsSection;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -36,6 +40,15 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		}
 	};
 
+	public static class ResultInfo {
+		public ResultOrganizer organizer;
+		public List<ResultObservation> observations = new ArrayList<>();
+
+		public ResultInfo(ResultOrganizer organizer) {
+			this.organizer = organizer;
+		}
+	};
+
 	private static final long serialVersionUID = 1L;
 
 	private CDAFactories factories;
@@ -46,6 +59,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 	private List<MedicationActivity> medActivities = new ArrayList<>();
 	private List<ProblemInfo> problemInfos = new ArrayList<>();
 	private List<ProcedureActivityProcedure> procActivityProcs = new ArrayList<>();
+	private List<ResultInfo> resultInfos = new ArrayList<>();
 
 	public LocalResourceTransformer(CDAFactories factories) {
 		this.factories = factories;
@@ -58,6 +72,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		medActivities.clear();
 		problemInfos.clear();
 		procActivityProcs.clear();
+		resultInfos.clear();
 	}
 
 	@Override
@@ -104,6 +119,20 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 	public EntryResult tProcedure2Procedure(Procedure cdaProcedure, IBundleInfo bundleInfo) {
 		procActivityProcs.add((ProcedureActivityProcedure) cdaProcedure);
 		return super.tProcedure2Procedure(cdaProcedure, bundleInfo);
+	}
+
+	@Override
+	public EntryResult tResultObservation2Observation(ResultObservation cdaResultObservation, IBundleInfo bundleInfo) {
+		ResultInfo info = resultInfos.get(resultInfos.size() - 1);
+		info.observations.add(cdaResultObservation);
+		return super.tResultObservation2Observation(cdaResultObservation, bundleInfo);
+	}
+
+	@Override
+	public EntryResult tResultOrganizer2DiagnosticReport(ResultOrganizer cdaResultOrganizer, IBundleInfo bundleInfo) {
+		ResultInfo info = new ResultInfo(cdaResultOrganizer);
+		resultInfos.add(info);
+		return super.tResultOrganizer2DiagnosticReport(cdaResultOrganizer, bundleInfo);
 	}
 
 	public void reorderSection(AllergiesSection section) {
@@ -175,4 +204,23 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 			section.getEntries().add(entry);
 		});
 	}
+
+	public void reorderSection(ResultsSection section) {
+		section.getEntries().clear();
+		resultInfos.forEach(info -> {
+			ResultOrganizer ro = info.organizer;
+
+			ro.getComponents().clear();
+			info.observations.forEach(observation -> {
+				Component4 component = factories.base.createComponent4();
+				component.setObservation(observation);
+				ro.getComponents().add(component);
+			});
+
+			Entry entry = factories.base.createEntry();
+			entry.setOrganizer(ro);
+			section.getEntries().add(entry);
+		});
+	}
+
 }
