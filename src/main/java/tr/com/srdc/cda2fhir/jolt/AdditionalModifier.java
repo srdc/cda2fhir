@@ -520,17 +520,28 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 
 	@SuppressWarnings("unchecked")
 	public static final class ResolveText extends Function.SingleFunction<Object> {
+		private static Optional<Object> getTextValue(String rawValue) {
+			if (rawValue.isEmpty()) {
+				return Optional.of(null);
+			}
+			if (rawValue.charAt(0) != '#') {
+				return Optional.of(rawValue);
+			}
+			Map<String, Object> map = (Map<String, Object>) temporaryContext.get("Annotations");
+			if (map == null) {
+				return Optional.of(null);
+			}
+			String value = (String) map.get(rawValue.substring(1));
+			return Optional.of(value);
+		}
+
 		@Override
 		protected Optional<Object> applySingle(final Object arg) {
 			if (arg == null) {
 				return Optional.of(null);
 			}
 			if (arg instanceof String) {
-				String text = (String) arg;
-				if (text.isEmpty()) {
-					return Optional.of(null);
-				}
-				return Optional.of(text);
+				return getTextValue((String) arg);
 			}
 			if (!(arg instanceof Map)) {
 				return Optional.of(null);
@@ -545,19 +556,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			if (valueObject == null || !(valueObject instanceof String)) {
 				return Optional.of(null);
 			}
-			String currentValue = (String) valueObject;
-			if (currentValue.isEmpty()) {
-				return Optional.of(null);
-			}
-			if (currentValue.charAt(0) != '#') {
-				return Optional.of(currentValue);
-			}
-			Map<String, Object> map = (Map<String, Object>) temporaryContext.get("Annotations");
-			if (map == null) {
-				return Optional.of(null);
-			}
-			String value = (String) map.get(currentValue.substring(1));
-			return Optional.of(value);
+			return getTextValue((String) valueObject);
 		}
 	}
 

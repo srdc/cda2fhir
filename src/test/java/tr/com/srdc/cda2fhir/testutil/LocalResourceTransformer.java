@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.EntryRelationship;
+import org.openhealthtools.mdht.uml.cda.Procedure;
 import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection;
 import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.cda.consol.EncounterActivities;
@@ -17,6 +18,8 @@ import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection;
+import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure;
+import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 
 import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
@@ -42,6 +45,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 	private List<ImmunizationActivity> immunizationActivities = new ArrayList<>();
 	private List<MedicationActivity> medActivities = new ArrayList<>();
 	private List<ProblemInfo> problemInfos = new ArrayList<>();
+	private List<ProcedureActivityProcedure> procActivityProcs = new ArrayList<>();
 
 	public LocalResourceTransformer(CDAFactories factories) {
 		this.factories = factories;
@@ -53,6 +57,7 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		immunizationActivities.clear();
 		medActivities.clear();
 		problemInfos.clear();
+		procActivityProcs.clear();
 	}
 
 	@Override
@@ -93,6 +98,12 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 		ProblemInfo info = problemInfos.get(problemInfos.size() - 1);
 		info.observations.add(cdaProbObs);
 		return super.tProblemObservation2Condition(cdaProbObs, bundleInfo);
+	}
+
+	@Override
+	public EntryResult tProcedure2Procedure(Procedure cdaProcedure, IBundleInfo bundleInfo) {
+		procActivityProcs.add((ProcedureActivityProcedure) cdaProcedure);
+		return super.tProcedure2Procedure(cdaProcedure, bundleInfo);
 	}
 
 	public void reorderSection(AllergiesSection section) {
@@ -152,6 +163,15 @@ public class LocalResourceTransformer extends ResourceTransformerImpl {
 
 			Entry entry = factories.base.createEntry();
 			entry.setAct(act);
+			section.getEntries().add(entry);
+		});
+	}
+
+	public void reorderSection(ProceduresSection section) {
+		section.getEntries().clear();
+		procActivityProcs.forEach(act -> {
+			Entry entry = factories.base.createEntry();
+			entry.setProcedure(act);
 			section.getEntries().add(entry);
 		});
 	}
