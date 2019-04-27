@@ -28,8 +28,16 @@ public class Substitute implements SpecDriven, ContextualTransform {
 		});
 	}
 
+	private boolean allowEmpty = false;
+
 	@Inject
+	@SuppressWarnings("unchecked")
 	public Substitute(Object spec) {
+		Map<String, Object> settings = (Map<String, Object>) spec;
+		Object allowEmptyObject = settings.get("allowEmpty");
+		if (allowEmptyObject != null && allowEmptyObject instanceof Boolean) {
+			allowEmpty = ((Boolean) allowEmptyObject).booleanValue();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -144,7 +152,7 @@ public class Substitute implements SpecDriven, ContextualTransform {
 			object.remove(key);
 		}
 
-		if (object.isEmpty()) {
+		if (object.isEmpty() && !allowEmpty) {
 			return null;
 		}
 

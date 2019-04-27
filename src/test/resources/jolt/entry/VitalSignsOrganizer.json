@@ -8,14 +8,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
-		"spec": {
-			"organizer": {
-				"nullFlavor": "*"
-			}
-		}
-	},
-	{
 		"operation": "shift",
 		"spec": {
 			"organizer": {

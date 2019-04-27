@@ -2,9 +2,6 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,12 +12,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.Component4;
-import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignObservation;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection;
 import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSectionEntriesOptional;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
@@ -29,38 +22,15 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
-import tr.com.srdc.cda2fhir.transform.entry.impl.EntryResult;
+import tr.com.srdc.cda2fhir.testutil.LocalResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
-import tr.com.srdc.cda2fhir.transform.util.IBundleInfo;
 import tr.com.srdc.cda2fhir.transform.util.impl.BundleInfo;
 import tr.com.srdc.cda2fhir.util.EMFUtil;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class VitalsSignsSectionTest {
-	private static class LocalResourceTransformer extends ResourceTransformerImpl {
-		private static final long serialVersionUID = 1L;
-
-		private List<VitalSignObservation> observations = new ArrayList<>();
-
-		public void clearObservations() {
-			observations.clear();
-		}
-
-		public List<VitalSignObservation> getObservations() {
-			return Collections.unmodifiableList(observations);
-		}
-
-		@Override
-		public EntryResult tVitalSignObservation2Observation(VitalSignObservation vitalSignObservation,
-				IBundleInfo bundleInfo) {
-			observations.add(vitalSignObservation);
-			return super.tVitalSignObservation2Observation(vitalSignObservation, bundleInfo);
-		}
-	}
-
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/VitalSignsSection/";
 
 	private static CDAFactories factories;
@@ -69,50 +39,8 @@ public class VitalsSignsSectionTest {
 	@BeforeClass
 	public static void init() {
 		CDAUtil.loadPackages();
-		rt = new LocalResourceTransformer();
 		factories = CDAFactories.init();
-	}
-
-	private static void reorderSection(VitalSignsSectionEntriesOptional section) {
-		Map<VitalSignObservation, Integer> map = new HashMap<>();
-		List<VitalSignObservation> list = rt.getObservations();
-		for (int index = 0; index < list.size(); ++index) {
-			VitalSignObservation observation = list.get(index);
-			map.put(observation, index);
-		}
-
-		List<VitalSignsOrganizer> organizers = new ArrayList<>(section.getVitalSignsOrganizers());
-		organizers.sort((a, b) -> {
-			VitalSignObservation obsa = a.getVitalSignObservations().get(0);
-			VitalSignObservation obsb = b.getVitalSignObservations().get(0);
-
-			int aval = map.get(obsa).intValue();
-			int bval = map.get(obsb).intValue();
-
-			return aval - bval;
-		});
-
-		final Map<VitalSignObservation, VitalSignsOrganizer> map2 = new HashMap<>();
-		organizers.forEach(organizer -> {
-			organizer.getVitalSignObservations().forEach(observation -> {
-				map2.put(observation, organizer);
-			});
-		});
-
-		section.getEntries().clear();
-		organizers.forEach(organizer -> {
-			organizer.getComponents().clear();
-			Entry entry = factories.base.createEntry();
-			entry.setOrganizer(organizer);
-			section.getEntries().add(entry);
-		});
-
-		rt.getObservations().forEach(observation -> {
-			Component4 component = factories.base.createComponent4();
-			component.setObservation(observation);
-			VitalSignsOrganizer organizer = map2.get(observation);
-			organizer.getComponents().add(component);
-		});
+		rt = new LocalResourceTransformer(factories);
 	}
 
 	private static void runSampleTest(String sourceName) throws Exception {
@@ -142,7 +70,7 @@ public class VitalsSignsSectionTest {
 		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
 		bundleInfo.mergeIdedAnnotations(idedAnnotations);
 
-		rt.clearObservations();
+		rt.clearEntries();
 		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
 
 		Bundle bundle = sectionResult.getBundle();
@@ -150,7 +78,7 @@ public class VitalsSignsSectionTest {
 		List<Observation> observations = FHIRUtil.findResources(bundle, Observation.class);
 
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		reorderSection(section);
+		rt.reorderSection(section);
 
 		String caseName = sourceName.substring(0, sourceName.length() - 4);
 		File xmlFile = CDAUtilExtension.writeAsXML(section, OUTPUT_PATH, caseName);

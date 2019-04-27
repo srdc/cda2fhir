@@ -25,7 +25,7 @@
 		}
 	},
 	{
-		"operation": "shift",
+		"operation": "tr.com.srdc.cda2fhir.jolt.Shift",
 		"spec": {
 			"substanceAdministration": {
 				"id": {
@@ -56,6 +56,7 @@
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
 		"spec": {
+			"allowEmpty": true
 		}
 	},
 	{
@@ -118,7 +119,7 @@
 		}
 	},
 	{
-		"operation": "default",
+		"operation": "tr.com.srdc.cda2fhir.jolt.Default",
 		"spec": {
 			"primarySource": false
 		}

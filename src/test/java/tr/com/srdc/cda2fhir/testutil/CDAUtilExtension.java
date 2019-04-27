@@ -45,6 +45,5 @@ public class CDAUtilExtension {
 			Integer index = orderMap.get(fhirType, system, value);
 			return index.intValue();
 		}
-
 	}
 }

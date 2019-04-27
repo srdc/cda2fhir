@@ -12,11 +12,13 @@ import org.openhealthtools.mdht.uml.cda.consol.AllergyProblemAct;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
 import org.openhealthtools.mdht.uml.hl7.datatypes.II;
 import org.openhealthtools.mdht.uml.hl7.datatypes.IVL_TS;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
 public class AllergyConcernActGenerator {
@@ -27,6 +29,12 @@ public class AllergyConcernActGenerator {
 	private CSCodeGenerator statusCodeGenerator;
 	private EffectiveTimeGenerator effectiveTimeGenerator;
 	private List<AllergyObservationGenerator> observationGenerators = new ArrayList<>();
+
+	private String nullFlavor;
+
+	public void setNullFlavor() {
+		this.nullFlavor = "UNK";
+	}
 
 	public void setAuthorGenerator(AuthorGenerator authorGenerator) {
 		if (observationGenerators.isEmpty()) {
@@ -55,6 +63,11 @@ public class AllergyConcernActGenerator {
 
 		observationGenerators.forEach(g -> apa.addObservation(g.generate(factories)));
 
+		if (nullFlavor != null) {
+			NullFlavor nf = CDAUtilExtension.toNullFlavor(nullFlavor);
+			apa.setNullFlavor(nf);
+		}
+
 		return apa;
 	}
 
@@ -76,6 +89,11 @@ public class AllergyConcernActGenerator {
 	}
 
 	public void verify(AllergyIntolerance allergy) {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", allergy);
+			return;
+		}
+
 		if (idGenerators.isEmpty()) {
 			Assert.assertTrue("No patient identifier", !allergy.hasIdentifier());
 		} else {
@@ -138,6 +156,11 @@ public class AllergyConcernActGenerator {
 	}
 
 	public void verify(Bundle bundle, AllergyIntolerance allergy) throws Exception {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", allergy);
+			return;
+		}
+
 		verify(allergy);
 
 		if (observationGenerators.isEmpty()) {
@@ -149,6 +172,12 @@ public class AllergyConcernActGenerator {
 	}
 
 	public void verify(Bundle bundle) throws Exception {
+		if (nullFlavor != null) {
+			AllergyIntolerance allergy = FHIRUtil.findFirstResource(bundle, AllergyIntolerance.class);
+			verify(bundle, allergy);
+			return;
+		}
+
 		AllergyIntolerance allergy = BundleUtil.findOneResource(bundle, AllergyIntolerance.class);
 		verify(bundle, allergy);
 	}

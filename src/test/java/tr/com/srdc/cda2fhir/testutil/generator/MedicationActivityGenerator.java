@@ -38,6 +38,7 @@ import com.bazaarvoice.jolt.JsonUtils;
 
 import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
+import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.TestSetupException;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
 
@@ -69,6 +70,12 @@ public class MedicationActivityGenerator {
 	private MedicationSupplyOrderGenerator medicationSupplyOrderGenerator;
 
 	private MedicationDispenseGenerator medicationDispenseGenerator;
+
+	private String nullFlavor;
+
+	public void setNullFlavor() {
+		this.nullFlavor = "UNK";
+	}
 
 	public void setIDGenerator(IDGenerator idGenerator) {
 		idGenerators.add(idGenerator);
@@ -164,6 +171,11 @@ public class MedicationActivityGenerator {
 			er.setSupply(md);
 		}
 
+		if (nullFlavor != null) {
+			NullFlavor nf = CDAUtilExtension.toNullFlavor(nullFlavor);
+			ma.setNullFlavor(nf);
+		}
+
 		return ma;
 	}
 
@@ -195,6 +207,11 @@ public class MedicationActivityGenerator {
 	}
 
 	public void verify(MedicationStatement medStatement) {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", medStatement);
+			return;
+		}
+
 		if (!idGenerators.isEmpty()) {
 			for (int index = 0; index < idGenerators.size(); ++index) {
 				idGenerators.get(index).verify(medStatement.getIdentifier().get(index));
@@ -258,6 +275,11 @@ public class MedicationActivityGenerator {
 	}
 
 	public void verify(Bundle bundle, MedicationStatement ms) throws Exception {
+		if (nullFlavor != null) {
+			Assert.assertNull("Null flavor", ms);
+			return;
+		}
+
 		verify(ms);
 
 		BundleUtil util = new BundleUtil(bundle);
@@ -318,6 +340,12 @@ public class MedicationActivityGenerator {
 	}
 
 	public void verify(Bundle bundle) throws Exception {
+		if (nullFlavor != null) {
+			MedicationStatement ms = FHIRUtil.findFirstResource(bundle, MedicationStatement.class);
+			verify(bundle, ms);
+			return;
+		}
+
 		MedicationStatement ms = BundleUtil.findOneResource(bundle, MedicationStatement.class);
 		verify(bundle, ms);
 	}

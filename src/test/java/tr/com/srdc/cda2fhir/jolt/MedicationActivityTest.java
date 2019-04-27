@@ -49,13 +49,19 @@ public class MedicationActivityTest {
 
 	private static void runTest(MedicationActivity ma, String caseName, MedicationActivityGenerator generator)
 			throws Exception {
+		File xmlFile = CDAUtilExtension.writeAsXML(ma, OUTPUT_PATH, caseName);
+
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
 		IEntryResult cda2FhirResult = rt.tMedicationActivity2MedicationStatement(ma, new BundleInfo(rt));
+		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationActivity", caseName);
 
 		Bundle bundle = cda2FhirResult.getBundle();
-		Assert.assertNotNull("Medication bundle", bundle);
+		if (bundle == null) {
+			Assert.assertTrue("No med statement", joltResult == null || joltResult.size() == 0);
+			return;
+		}
 
 		MedicationStatement medicationStatement = BundleUtil.findOneResource(bundle, MedicationStatement.class);
 		String filepath = String.format("%s%s%s.%s", OUTPUT_PATH, caseName, "CDA2FHIRMedicationStatement", "json");
@@ -65,9 +71,6 @@ public class MedicationActivityTest {
 			generator.verify(bundle);
 		}
 
-		File xmlFile = CDAUtilExtension.writeAsXML(ma, OUTPUT_PATH, caseName);
-
-		List<Object> joltResult = JoltUtil.findJoltResult(xmlFile, "MedicationActivity", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 		if (customJoltUpdate != null) {
 			Map<String, Object> joltDispense = TransformManager.chooseResource(joltResult, "MedicationDispense");
@@ -121,6 +124,12 @@ public class MedicationActivityTest {
 	}
 
 	@Test
+	public void testEmpty() throws Exception {
+		MedicationActivityGenerator generator = new MedicationActivityGenerator();
+		runTest(generator, "emptyDefaults");
+	}
+
+	@Test
 	public void testidentifierOnly() throws Exception {
 		MedicationActivityGenerator generator = new MedicationActivityGenerator();
 		generator.setIDGenerator(IDGenerator.getNextInstance());
@@ -140,6 +149,13 @@ public class MedicationActivityTest {
 		MedicationActivityGenerator generator = MedicationActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
 		customJoltUpdate = null;
+	}
+
+	@Test
+	public void testNullFlavor() throws Exception {
+		MedicationActivityGenerator generator = MedicationActivityGenerator.getDefaultInstance();
+		generator.setNullFlavor();
+		runTest(generator, "nullFlavor");
 	}
 
 	@Test

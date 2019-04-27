@@ -17,7 +17,7 @@
 		}
 	},
 	{
-		"operation": "shift",
+		"operation": "tr.com.srdc.cda2fhir.jolt.Shift",
 		"spec": {
 			"act": {
 				"id": {
@@ -36,14 +36,9 @@
 		}
 	},
 	{
-		"operation": "cardinality",
-		"spec": {
-			"identifier": "MANY"
-		}
-	},
-	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
 		"spec": {
+			"allowEmpty": true
 		}
 	},
 	{
@@ -59,12 +54,12 @@
 		}
 	},
 	{
-		"operation": "default",
+		"operation": "tr.com.srdc.cda2fhir.jolt.Default",
 		"spec": {
 			"verificationStatus": "unconfirmed",
 			"clinicalStatus": "active"
 		}
-	},	
+	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.SquashEmpty",
 		"spec": {

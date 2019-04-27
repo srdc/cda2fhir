@@ -2,7 +2,6 @@ package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,10 +14,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openhealthtools.mdht.uml.cda.Entry;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
@@ -26,9 +23,7 @@ import tr.com.srdc.cda2fhir.conf.Config;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
-import tr.com.srdc.cda2fhir.testutil.RTInvocationHandler;
-import tr.com.srdc.cda2fhir.transform.IResourceTransformer;
-import tr.com.srdc.cda2fhir.transform.ResourceTransformerImpl;
+import tr.com.srdc.cda2fhir.testutil.LocalResourceTransformer;
 import tr.com.srdc.cda2fhir.transform.section.CDASectionTypeEnum;
 import tr.com.srdc.cda2fhir.transform.section.ICDASection;
 import tr.com.srdc.cda2fhir.transform.section.ISectionResult;
@@ -40,9 +35,7 @@ public class ImmunizationsSectionTest {
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/ImmunizationsSection/";
 
 	private static CDAFactories factories;
-	private static IResourceTransformer rt;
-
-	private static RTInvocationHandler handler;
+	private static LocalResourceTransformer rt;
 
 	private static BiConsumer<Map<String, Object>, Resource> customJoltUpdate2; // Hack for now
 
@@ -50,21 +43,9 @@ public class ImmunizationsSectionTest {
 	public static void init() {
 		CDAUtil.loadPackages();
 
-		handler = new RTInvocationHandler(new ResourceTransformerImpl());
-		handler.addMethod("tImmunizationActivity2Immunization");
-		rt = (IResourceTransformer) Proxy.newProxyInstance(IResourceTransformer.class.getClassLoader(),
-				new Class[] { IResourceTransformer.class }, handler);
-
 		factories = CDAFactories.init();
-	}
+		rt = new LocalResourceTransformer(factories);
 
-	private static void reorderSection(ImmunizationsSection section, List<Object> activities) {
-		section.getEntries().clear();
-		activities.forEach(activity -> {
-			Entry entry = factories.base.createEntry();
-			entry.setSubstanceAdministration((ImmunizationActivity) activity);
-			section.getEntries().add(entry);
-		});
 	}
 
 	private static void runSampleTest(String sourceName) throws Exception {
@@ -90,10 +71,11 @@ public class ImmunizationsSectionTest {
 		Map<String, String> idedAnnotations = EMFUtil.findReferences(section.getText());
 		bundleInfo.mergeIdedAnnotations(idedAnnotations);
 
-		handler.resetObjects();
+		rt.clearEntries();
 		ISectionResult sectionResult = cdaSection.transform(bundleInfo);
+
 		// CDAUtil reorders randomly, follow its order for easy comparison
-		reorderSection(section, handler.getObjects("tImmunizationActivity2Immunization"));
+		rt.reorderSection(section);
 
 		Bundle bundle = sectionResult.getBundle();
 		List<Immunization> immunizations = FHIRUtil.findResources(bundle, Immunization.class);

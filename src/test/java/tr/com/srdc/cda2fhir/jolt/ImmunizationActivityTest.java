@@ -114,9 +114,22 @@ public class ImmunizationActivityTest {
 	}
 
 	@Test
+	public void testEmpty() throws Exception {
+		ImmunizationActivityGenerator generator = new ImmunizationActivityGenerator();
+		runTest(generator, "emptyDefaults");
+	}
+
+	@Test
 	public void testDefault() throws Exception {
 		ImmunizationActivityGenerator generator = ImmunizationActivityGenerator.getDefaultInstance();
 		runTest(generator, "defaultCase");
+	}
+
+	@Test
+	public void testNullFlavor() throws Exception {
+		ImmunizationActivityGenerator generator = ImmunizationActivityGenerator.getDefaultInstance();
+		generator.setNullFlavor();
+		runTest(generator, "nullFlavor");
 	}
 
 	@Test
