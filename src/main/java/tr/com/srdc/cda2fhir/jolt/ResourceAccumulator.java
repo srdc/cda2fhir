@@ -79,6 +79,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void addConditionCoding(Map<String, Object> resource, Map<String, Object> conditionCoding) {
 		List<Map<String, Object>> category = (List<Map<String, Object>>) resource.get("category");
 

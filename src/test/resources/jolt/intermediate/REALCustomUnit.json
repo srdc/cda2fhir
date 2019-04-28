@@ -1,0 +1,54 @@
+[
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"entryRelationship": {
+						"*": {
+							"observation": {
+								"code": {
+									"codeSystem": "=system",
+									"code": "=code"
+								},
+								"value": {
+									"xsi:type": "=type"
+								}
+							}
+						}
+					},
+					"value": {
+						"xsi:type": "=vtype"
+					}
+				}
+			],
+			"values": {
+				"system": "2.16.840.1.113883.6.96",
+				"code": "246514001",
+				"type": "ST",
+				"vtype": "REAL"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"entryRelationship": {
+				"*": {
+					"observation": {
+						"value": {
+							"content": ""
+						}
+					}
+				}
+			}
+		}
+	}
+]

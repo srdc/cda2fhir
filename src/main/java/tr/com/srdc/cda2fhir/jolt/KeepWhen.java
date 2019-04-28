@@ -122,7 +122,7 @@ public class KeepWhen implements ContextualTransform, SpecDriven, IRootNodeUpdat
 			}
 			String key = variable.substring(1);
 			String expectedValue = (String) values.get(key);
-			if (!expectedValue.equals(value)) {
+			if (!expectedValue.equals(value.toString())) {
 				return false;
 			}
 		}

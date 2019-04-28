@@ -64,6 +64,9 @@
 							"@2": {
 								"value": "valueBoolean"
 							}
+						},
+						"REAL": {
+							"@2": "valueQuantity.->REAL"
 						}
 					}
 				},
@@ -85,7 +88,8 @@
 							"text": "referenceRange[&2].text"
 						}
 					}
-				}
+				},
+				"@0": "valueQuantity.unit.->REALCustomUnit"
 			}
 		}
 	},
