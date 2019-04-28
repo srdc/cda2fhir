@@ -1,13 +1,16 @@
 package tr.com.srdc.cda2fhir.jolt;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
@@ -64,9 +67,23 @@ public class CCDTest {
 		runTest(ccd, caseName, generator);
 	}
 
+	private static void runSampleTest(String sourceName) throws Exception {
+		FileInputStream fis = new FileInputStream("src/test/resources/" + sourceName);
+		ContinuityOfCareDocument cda = (ContinuityOfCareDocument) CDAUtil.loadAs(fis,
+				ConsolPackage.eINSTANCE.getContinuityOfCareDocument());
+		String caseName = sourceName.substring(0, sourceName.length() - 4);
+		runTest(cda, caseName, null);
+	}
+
 	@Test
 	public void testDefault() throws Exception {
 		CCDGenerator generator = CCDGenerator.getDefaultInstance();
 		runTest(generator, "default");
+	}
+
+	@Ignore
+	@Test
+	public void testSample1() throws Exception {
+		runSampleTest("C-CDA_R2-1_CCD.xml");
 	}
 }
