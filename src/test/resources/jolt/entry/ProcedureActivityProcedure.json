@@ -50,6 +50,13 @@
 										}
 									}
 								}
+							},
+							"COMP": {
+								"@2": {
+									"encounter": {
+										"id": "context.->ID"
+									}
+								}
 							}
 						}
 					}
@@ -75,7 +82,10 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": {
-				"*": ["performer[&].actor.reference", "performer[&].actor.display"]
+				"*": [
+					"performer[&].actor.reference",
+					"performer[&].actor.display"
+				]
 			},
 			"Organization": {
 				"*": "performer[&].onBehalfOf.reference"
@@ -108,7 +118,8 @@
 				"*": {
 					"text": "=resolveText(@0)"
 				}
-			}
+			},
+			"context": "=deferredUpdate(@0)"
 		}
 	},
 	{
@@ -118,6 +129,9 @@
 			"PractitionerRole": "",
 			"Organization": ""
 		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.PutDeferred"
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",

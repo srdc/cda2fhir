@@ -75,6 +75,14 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 	}
 
 	@Override
+	public T getFromJSONArray(String fhirType, Map<String, Object> identifier) {
+		String system = (String) identifier.get("system");
+		String value = (String) identifier.get("value");
+
+		return get(fhirType, system, value);
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public T getFromJSONArray(String fhirType, List<Object> identifiers) {
 		for (Object identifier : identifiers) {
@@ -82,7 +90,10 @@ public class IdentifierMap<T> implements IIdentifierMap<T> {
 			String system = (String) idAsMap.get("system");
 			String value = (String) idAsMap.get("value");
 
-			return get(fhirType, system, value);
+			T result = get(fhirType, system, value);
+			if (result != null) {
+				return result;
+			}
 		}
 		return null;
 	}

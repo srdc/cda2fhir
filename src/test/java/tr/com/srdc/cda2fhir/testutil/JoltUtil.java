@@ -1024,9 +1024,32 @@ public class JoltUtil {
 					Assert.assertNull("No performer on behalf", joltPerformer.get("onBehalf"));
 				}
 			}
-		} else {
+		} else if (joltProcedure != null) {
 			String value = findPathString(joltProcedure, "recorder.reference");
 			Assert.assertNull("No recorder", value);
+		}
+
+		if (procedure.hasContext()) {
+			Assert.assertNotNull("Jolt procedure exists", joltClone);
+
+			String reference = procedure.getContext().getReference();
+
+			Map<String, Object> joltContext = (Map<String, Object>) joltClone.get("context");
+			Assert.assertNotNull("Jolt procedure context exists", joltContext);
+			joltContext = new LinkedHashMap<String, Object>(joltContext);
+			joltClone.put("context", joltContext);
+
+			String joltReference = (String) joltContext.get("reference");
+			Assert.assertNotNull("Jolt procedure context reference exists", joltReference);
+
+			Encounter enc = bundleUtil.getResourceFromReference(reference, Encounter.class);
+			Map<String, Object> joltEnc = TransformManager.chooseResourceByReference(result, joltReference);
+			verify(enc, joltEnc);
+
+			joltContext.put("reference", reference);
+		} else if (joltProcedure != null) {
+			String value = findPathString(joltProcedure, "context.reference");
+			Assert.assertNull("No context reference", value);
 		}
 
 		verify(procedure, joltClone, info);
@@ -1046,6 +1069,8 @@ public class JoltUtil {
 		if (encounter.hasParticipant()) {
 			List<EncounterParticipantComponent> participants = encounter.getParticipant();
 			List<Object> joltParticipants = (List<Object>) joltClone.get("participant");
+			joltParticipants = new ArrayList<Object>(joltParticipants);
+			joltClone.put("participant", joltParticipants);
 
 			Assert.assertEquals("Participant count", joltParticipants.size(), participants.size());
 
@@ -1081,6 +1106,8 @@ public class JoltUtil {
 		if (encounter.hasDiagnosis()) {
 			List<DiagnosisComponent> diagnoses = encounter.getDiagnosis();
 			List<Object> joltDiagnoses = (List<Object>) joltClone.get("diagnosis");
+			joltDiagnoses = new ArrayList<Object>(joltDiagnoses);
+			joltClone.put("diagnosis", joltDiagnoses);
 
 			Assert.assertEquals("Diagnosis count", joltDiagnoses.size(), diagnoses.size());
 
@@ -1119,6 +1146,8 @@ public class JoltUtil {
 		if (encounter.hasLocation()) {
 			List<EncounterLocationComponent> locations = encounter.getLocation();
 			List<Object> joltLocations = (List<Object>) joltClone.get("location");
+			joltLocations = new ArrayList<Object>(joltLocations);
+			joltClone.put("location", joltLocations);
 
 			Assert.assertEquals("Location count", joltLocations.size(), locations.size());
 

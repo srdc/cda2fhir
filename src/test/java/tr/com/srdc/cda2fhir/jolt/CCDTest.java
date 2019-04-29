@@ -8,7 +8,6 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
@@ -100,7 +99,6 @@ public class CCDTest {
 		runTest(generator, "sameLegalAuthenticatorAuthor");
 	}
 
-	@Ignore
 	@Test
 	public void testSample1() throws Exception {
 		runSampleTest("C-CDA_R2-1_CCD.xml");

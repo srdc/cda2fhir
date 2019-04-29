@@ -622,6 +622,13 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		}
 	}
 
+	public static final class NoOpSingle extends Function.SingleFunction<Object> {
+		@Override
+		protected Optional<Object> applySingle(final Object arg) {
+			return Optional.of(arg);
+		}
+	}
+
 	private static final Map<String, Function> AMIDA_FUNCTIONS = new HashMap<>();
 	static {
 		AMIDA_FUNCTIONS.put("defaultid", new DefaultId());
@@ -647,6 +654,7 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 		AMIDA_FUNCTIONS.put("nullIfMap", new NullIfMap());
 		AMIDA_FUNCTIONS.put("resolveText", new ResolveText());
 		AMIDA_FUNCTIONS.put("toString", new ToString());
+		AMIDA_FUNCTIONS.put("deferredUpdate", new NoOpSingle());
 	}
 
 	private Modifier.Overwritr modifier;

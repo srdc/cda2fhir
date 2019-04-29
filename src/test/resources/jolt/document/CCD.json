@@ -138,6 +138,9 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResolveDeferred"
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
 		"spec": {
 			"resourceType": "Composition"

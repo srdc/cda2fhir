@@ -35,6 +35,14 @@ clinicalDocument.component.structuredBody.component[].section.entry[],Procedure[
 clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].observation,Condition[],ProblemObservation,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.entryRelationship[].typeCode equal SUBJ,clinicalDocument.component.structuredBody.component[].section.entry[].act.nullFlavor isnull
 clinicalDocument.component.structuredBody.component[].section.entry[].act.statusCode.code,Composition.section[].Condition[].verificationStatus,,"valueSetAdapter('ConditionVerificationStatus','unknown')",,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4,clinicalDocument.component.structuredBody.component[].section.entry[].act.nullFlavor isnull
 clinicalDocument.component.structuredBody.component[].section.entry[].organizer.component[],Observation[],Observation,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 8716-3
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 48765-2
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11369-6
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 30954-2
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 8716-3
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 11450-4
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 47519-4
+clinicalDocument.component.structuredBody.component[].section.title,Composition.section[].title,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 46240-8
 clinicalDocument.confidentialityCode.code,Composition.confidentiality,,,
 clinicalDocument.custodian.assignedCustodian.representedCustodianOrganization,Custodian,Organization,,
 clinicalDocument.documentationOf[].serviceEvent.effectiveTime,Composition.event[].period,IVL_TSPeriod,,

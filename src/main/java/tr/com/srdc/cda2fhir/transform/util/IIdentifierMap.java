@@ -1,6 +1,7 @@
 package tr.com.srdc.cda2fhir.transform.util;
 
 import java.util.List;
+import java.util.Map;
 
 import org.hl7.fhir.dstu3.model.Identifier;
 
@@ -18,4 +19,6 @@ public interface IIdentifierMap<T> {
 	T get(String fhirType, String system, String value);
 
 	T getFromJSONArray(String fhirType, List<Object> identifiers);
+
+	T getFromJSONArray(String fhirType, Map<String, Object> identifier);
 }
