@@ -1639,52 +1639,52 @@ public class JoltUtil {
 					joltReferences.set(index2, joltReferenceObject);
 					joltReferenceObject.put("reference", reference);
 
-					if (code.equals("48765-2")) {
+					if (code.equals(CDAUtilExtension.ALLERGIES_CODE)) {
 						AllergyIntolerance allergy = bundleUtil.getResourceFromReference(reference,
 								AllergyIntolerance.class);
 						Map<String, Object> joltAllergy = TransformManager.chooseResourceByReference(result,
 								joltReference);
 						verify(allergy, joltAllergy);
 					}
-					if (code.equals("10160-0")) {
+					if (code.equals(CDAUtilExtension.MEDICATIONS_CODE)) {
 						MedicationStatement medStatement = bundleUtil.getResourceFromReference(reference,
 								MedicationStatement.class);
 						Map<String, Object> joltMedStatement = TransformManager.chooseResourceByReference(result,
 								joltReference);
 						verify(medStatement, joltMedStatement);
 					}
-					if (code.equals("11369-6")) {
+					if (code.equals(CDAUtilExtension.IMMUNIZATIONS_CODE)) {
 						Immunization immunization = bundleUtil.getResourceFromReference(reference, Immunization.class);
 						Map<String, Object> joltImmunization = TransformManager.chooseResourceByReference(result,
 								joltReference);
 						verify(immunization, joltImmunization);
 					}
-					if (code.equals("30954-2")) {
+					if (code.equals(CDAUtilExtension.RESULTS_CODE)) {
 						DiagnosticReport report = bundleUtil.getResourceFromReference(reference,
 								DiagnosticReport.class);
 						Map<String, Object> joltReport = TransformManager.chooseResourceByReference(result,
 								joltReference);
 						verify(report, joltReport);
 					}
-					if (code.equals("8716-3")) {
+					if (code.equals(CDAUtilExtension.VITALS_CODE)) {
 						Observation observation = bundleUtil.getResourceFromReference(reference, Observation.class);
 						Map<String, Object> joltObservation = TransformManager.chooseResourceByReference(result,
 								joltReference);
 						verify(observation, joltObservation);
 					}
-					if (code.equals("11450-4")) {
+					if (code.equals(CDAUtilExtension.CONDITIONS_CODE)) {
 						Condition condition = bundleUtil.getResourceFromReference(reference, Condition.class);
 						Map<String, Object> joltCondition = TransformManager.chooseResourceByReference(result,
 								joltReference);
 						verify(condition, joltCondition);
 					}
-					if (code.equals("46240-8")) {
+					if (code.equals(CDAUtilExtension.ENCOUNTERS_CODE)) {
 						Encounter encounter = bundleUtil.getResourceFromReference(reference, Encounter.class);
 						Map<String, Object> joltEncounter = TransformManager.chooseResourceByReference(result,
 								joltReference);
 						verify(encounter, joltEncounter);
 					}
-					if (code.equals("47519-4")) {
+					if (code.equals(CDAUtilExtension.PROCEDURES_CODE)) {
 						Procedure procedure = bundleUtil.getResourceFromReference(reference, Procedure.class);
 						Map<String, Object> joltProcedure = TransformManager.chooseResourceByReference(result,
 								joltReference);

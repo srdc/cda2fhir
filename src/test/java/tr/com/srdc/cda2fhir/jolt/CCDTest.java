@@ -19,6 +19,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.LocalResourceTransformer;
 import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.CCDGenerator;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
@@ -37,12 +38,16 @@ public class CCDTest {
 
 	private static void runTest(ContinuityOfCareDocument ccd, String caseName, CCDGenerator generator)
 			throws Exception {
-		File xmlFile = CDAUtilExtension.writeAsXML(ccd, OUTPUT_PATH, caseName);
-
 		Config.setGenerateNarrative(false);
 		Config.setGenerateDafProfileMetadata(false);
 
 		CCDTransformerImpl ccdTransform = new CCDTransformerImpl();
+
+		LocalResourceTransformer rt = null;
+		if (generator == null) {
+			rt = new LocalResourceTransformer(factories);
+			ccdTransform.setResourceTransformer(rt);
+		}
 
 		Bundle bundle = ccdTransform.transformDocument(ccd);
 
@@ -57,6 +62,11 @@ public class CCDTest {
 			generator.verify(bundle);
 		}
 
+		if (rt != null) {
+			rt.reorder(ccd);
+		}
+
+		File xmlFile = CDAUtilExtension.writeAsXML(ccd, OUTPUT_PATH, caseName);
 		List<Object> joltResult = JoltUtil.findJoltDocumentResult(xmlFile, "CCD", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 

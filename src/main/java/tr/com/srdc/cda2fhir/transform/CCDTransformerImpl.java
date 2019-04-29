@@ -113,6 +113,10 @@ public class CCDTransformerImpl implements ICDATransformer, Serializable {
 		this.patientRef = patientRef;
 	}
 
+	public void setResourceTransformer(IResourceTransformer resTransformer) {
+		this.resTransformer = resTransformer;
+	}
+
 	@Override
 	public synchronized String getUniqueId() {
 		switch (this.idGenerator) {
