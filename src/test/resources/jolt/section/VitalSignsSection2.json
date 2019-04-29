@@ -40,6 +40,9 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SectionText"
+	},
+	{
 		"operation": "shift",
 		"spec": {
 			"section": {
