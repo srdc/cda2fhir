@@ -54,21 +54,20 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 		if (resource == null || otherConditionCoding == null) {
 			return false;
 		} else {
-			Map<String, Object> categoryCodeableConcept = (Map<String, Object>) resource.get("category");
+			List<Object> categories = (List<Object>) resource.get("category");
+			for (Object category : categories) {
+				if (category != null && (category instanceof Map)) {
+					Map<String, Object> categoryCC = (Map<String, Object>) category;
 
-			if (categoryCodeableConcept != null) {
-				List<Map<String, String>> categoryCodings = (List<Map<String, String>>) categoryCodeableConcept
-						.get("coding");
+					List<Map<String, Object>> categoryCodings = (List<Map<String, Object>>) categoryCC.get("coding");
 
-				if (categoryCodings != null) {
-					for (Map<String, String> coding : categoryCodings) {
-						if (coding != null) {
-							String code = coding.get("code");
-
-							if (code != null) {
-
-								if (code.equals(otherConditionCoding.get("code"))) {
-									return true;
+					if (categoryCodings != null) {
+						for (Map<String, Object> coding : categoryCodings) {
+							if (coding != null && (coding instanceof Map)) {
+								Map<String, Object> codingAsMap = coding;
+								String code = (String) codingAsMap.get("code");
+								if (code != null) {
+									return code.equals(otherConditionCoding.get("code"));
 								}
 							}
 						}
@@ -158,7 +157,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 							String system = identifier.get("system");
 							String value = identifier.get("value");
 
-							Map<String, Object> existing = conditionMap.get(system, value);
+							Map<String, Object> existing = conditionMap.get(resourceType, system, value);
 
 							if (existing != null) {
 								Map<String, Object> problemListItemCoding = getProblemListConditionCategory();
