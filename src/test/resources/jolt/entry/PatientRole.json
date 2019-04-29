@@ -104,6 +104,12 @@
 		}
 	},
 	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"gender": "=toLower(@0)"
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
 		"spec": {
 			"managingOrganization": {
