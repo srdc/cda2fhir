@@ -11,8 +11,6 @@ import javax.inject.Inject;
 import com.bazaarvoice.jolt.ContextualTransform;
 import com.bazaarvoice.jolt.SpecDriven;
 
-import tr.com.srdc.cda2fhir.transform.util.impl.CDAIIMap;
-
 public class EntityIdDefault implements ContextualTransform, SpecDriven {
 	private static int counter = 0;
 
@@ -55,13 +53,7 @@ public class EntityIdDefault implements ContextualTransform, SpecDriven {
 					itr.remove();
 				}
 			}
-			if (ids.size() > 0) {
-				context.put("CurrentEntityIds", ids);
-				CDAIIMap<Map<String, Object>> entityMap = (CDAIIMap<Map<String, Object>>) context.get("EntityMap");
-				if (entityMap != null && entityMap.jget(ids) != null) {
-					return null;
-				}
-			} else {
+			if (ids.size() == 0) {
 				content.remove("id");
 			}
 		}

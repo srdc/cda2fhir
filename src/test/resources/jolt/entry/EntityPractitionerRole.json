@@ -6,6 +6,12 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdPut",
+		"spec": {
+			"resourceType": "PractitionerRole"
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.RemoveWhen",
 		"spec": {
 			"representedOrganization": {
@@ -78,9 +84,15 @@
 				}
 			]
 		}
-	},	
+	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "PractitionerRole"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdResolve",
 		"spec": {
 			"resourceType": "PractitionerRole"
 		}

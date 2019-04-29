@@ -50,6 +50,13 @@ public class AssignedEntityGenerator extends EntityGenerator {
 		}
 	}
 
+	public AssignedEntityGenerator() {
+	}
+
+	public AssignedEntityGenerator(EntityGenerator generator) {
+		super(generator);
+	}
+
 	public AssignedEntity generate(CDAFactories factories) {
 		AssignedEntity entity = factories.base.createAssignedEntity();
 		fillEntity(factories, new CDAEntity(entity));

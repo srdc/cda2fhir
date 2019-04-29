@@ -35,6 +35,19 @@ public class EntityGenerator {
 	private PNGenerator pnGenerator;
 	private OrganizationGenerator organizationGenerator;
 
+	public EntityGenerator() {
+	}
+
+	public EntityGenerator(EntityGenerator generator) {
+		this.idGenerators = generator.idGenerators;
+		this.codeCode = generator.codeCode;
+		this.codePrintName = generator.codePrintName;
+		this.adGenerators = generator.adGenerators;
+		this.telGenerators = generator.telGenerators;
+		this.pnGenerator = generator.pnGenerator;
+		this.organizationGenerator = generator.organizationGenerator;
+	}
+
 	protected void fillEntity(CDAFactories factories, ICDAEntity entity) {
 		idGenerators.forEach(idGenerator -> {
 			II ii = idGenerator.generate(factories);

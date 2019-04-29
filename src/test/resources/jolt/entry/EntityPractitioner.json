@@ -11,6 +11,12 @@
 		}
 	},
 	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdPut",
+		"spec": {
+			"resourceType": "Practitioner"
+		}
+	},
+	{
 		"operation": "shift",
 		"spec": {
 			"id": {
@@ -42,6 +48,12 @@
 	},
 	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Practitioner"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdResolve",
 		"spec": {
 			"resourceType": "Practitioner"
 		}

@@ -19,6 +19,7 @@ import tr.com.srdc.cda2fhir.testutil.BundleUtil;
 import tr.com.srdc.cda2fhir.testutil.CDAFactories;
 import tr.com.srdc.cda2fhir.testutil.CDAUtilExtension;
 import tr.com.srdc.cda2fhir.testutil.JoltUtil;
+import tr.com.srdc.cda2fhir.testutil.generator.AssignedEntityGenerator;
 import tr.com.srdc.cda2fhir.testutil.generator.CCDGenerator;
 import tr.com.srdc.cda2fhir.transform.CCDTransformerImpl;
 import tr.com.srdc.cda2fhir.util.FHIRUtil;
@@ -79,6 +80,14 @@ public class CCDTest {
 	public void testDefault() throws Exception {
 		CCDGenerator generator = CCDGenerator.getDefaultInstance();
 		runTest(generator, "default");
+	}
+
+	@Test
+	public void testSameLegalAuthenticatorAuthor() throws Exception {
+		CCDGenerator generator = CCDGenerator.getDefaultInstance();
+		AssignedEntityGenerator aeg = new AssignedEntityGenerator(generator.getAuthorGenerator());
+		generator.setLegalAuthenticatorGenerator(aeg);
+		runTest(generator, "sameLegalAuthenticatorAuthor");
 	}
 
 	@Ignore

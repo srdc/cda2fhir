@@ -52,9 +52,6 @@
 		}
 	},
 	{
-		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdResolve"
-	},
-	{
 		"operation": "remove",
 		"spec": {
 			"Attester": "",

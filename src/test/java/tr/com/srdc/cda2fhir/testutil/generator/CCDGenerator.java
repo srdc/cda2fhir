@@ -81,6 +81,14 @@ public class CCDGenerator {
 	private List<ProcedureActivityProcedureGenerator> procedureGenerators = new ArrayList<>();
 	private List<EncounterActivityGenerator> encounterGenerators = new ArrayList<>();
 
+	public AuthorGenerator getAuthorGenerator() {
+		return authorGenerator;
+	}
+
+	public void setLegalAuthenticatorGenerator(AssignedEntityGenerator generator) {
+		this.legalAuthenticatorGenerator = generator;
+	}
+
 	public ContinuityOfCareDocument generate(CDAFactories factories) {
 		ContinuityOfCareDocument ccd = factories.consol.createContinuityOfCareDocument();
 
