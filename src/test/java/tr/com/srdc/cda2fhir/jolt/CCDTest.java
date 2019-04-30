@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Dosage;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Observation;
@@ -329,6 +330,49 @@ public class CCDTest {
 	@Test
 	public void testEpicSample16() throws Exception {
 		runSampleTest("Epic/HannahBanana_EpicCCD.xml");
+	}
+
+	@Ignore
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testEpicSample17() throws Exception {
+		customJoltUpdate2 = (r, resource) -> {
+			if (resource instanceof Observation) {
+				Observation observation = (Observation) resource;
+				if (!observation.hasCode()) {
+					r.remove("code");
+				}
+				if (observation.hasIdentifier()) {
+					int count = observation.getIdentifier().size();
+					List<Object> joltIdentifiers = (List<Object>) r.get("identifier");
+					for (int index = 0; index < count; ++index) {
+						Map<String, Object> joltIdentifier = (Map<String, Object>) joltIdentifiers.get(index);
+						String value = (String) joltIdentifier.get("value");
+						if (value.startsWith("3.78")) {
+							String actualValue = observation.getIdentifier().get(index).getValue();
+							joltIdentifier.put("value", actualValue);
+						}
+					}
+				}
+			}
+			if (resource instanceof Condition) {
+				Condition condition = (Condition) resource;
+				if (condition.hasIdentifier()) {
+					int count = condition.getIdentifier().size();
+					List<Object> joltIdentifiers = (List<Object>) r.get("identifier");
+					for (int index = 0; index < count; ++index) {
+						Map<String, Object> joltIdentifier = (Map<String, Object>) joltIdentifiers.get(index);
+						String value = (String) joltIdentifier.get("value");
+						if (value.startsWith("3.78")) {
+							String actualValue = condition.getIdentifier().get(index).getValue();
+							joltIdentifier.put("value", actualValue);
+						}
+					}
+				}
+			}
+		};
+		runSampleTest("Epic/robust CCD.XML");
+		customJoltUpdate2 = null;
 	}
 
 	@Ignore

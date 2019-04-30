@@ -26,6 +26,12 @@
 		}
 	},
 	{
+		"operation": "modify-overwrite-beta",
+		"spec": {
+			"unit": "=toString(@0)"
+		}
+	},
+	{
 		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
 		"spec": {
 		}
