@@ -48,7 +48,7 @@
 				"recordTarget": {
 					"0": "Subject.->PatientRole"
 				},
-				"author": "->CompositionAuthorParticipation",
+				"author": ["->CompositionAuthorParticipation", "->CompositionDeviceParticipation"],
 				"legalAuthenticator": "attester[].->LegalAttester",
 				"authenticator": {
 					"*": "attester[].->Attester"
@@ -89,6 +89,10 @@
 		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
 		"spec": {
 			"Practitioner": [
+				"author[0].reference",
+				"author[0].display"
+			],
+			"Device": [
 				"author[0].reference",
 				"author[0].display"
 			],
@@ -134,7 +138,8 @@
 			"PractitionerRole": "",
 			"Organization": "",
 			"Custodian": "",
-			"Subject": ""
+			"Subject": "",
+			"Device": ""
 		}
 	},
 	{

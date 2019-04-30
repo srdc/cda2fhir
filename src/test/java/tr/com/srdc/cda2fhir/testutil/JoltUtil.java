@@ -21,6 +21,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Composition.SectionComponent;
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.Device;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
@@ -641,6 +642,48 @@ public class JoltUtil {
 
 			verify(role, joltRole);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void verify(Device device, Map<String, Object> joltDevice) throws Exception {
+		Map<String, Object> joltClone = joltDevice == null ? null : new LinkedHashMap<>(joltDevice);
+
+		if (device.hasOwner()) {
+			Assert.assertNotNull("Jolt device exists", joltClone);
+
+			String reference = device.getOwner().getReference();
+
+			Map<String, Object> joltOwner = (Map<String, Object>) joltClone.get("owner");
+			Assert.assertNotNull("Jolt device owner exists", joltOwner);
+			joltOwner = new LinkedHashMap<String, Object>(joltOwner);
+			joltClone.put("owner", joltOwner);
+
+			String joltReference = (String) joltOwner.get("reference");
+			Assert.assertNotNull("Joltdevice owner reference exists", joltReference);
+
+			Organization org = bundleUtil.getResourceFromReference(reference, Organization.class);
+			Map<String, Object> joltOrg = TransformManager.chooseResourceByReference(result, joltReference);
+			verify(org, joltOrg, null);
+
+			joltOwner.put("reference", reference);
+		} else if (joltDevice != null) {
+			Object owner = joltDevice.get("owner");
+			Assert.assertNull("No devioce owner", owner);
+		}
+
+		verify(device, joltClone, null);
+	}
+
+	public void verifyDeviceEntity(String reference, String joltReference) throws Exception {
+		Assert.assertNotNull("Entity reference exists", joltReference);
+
+		Device device = bundleUtil.getResourceFromReference(reference, Device.class);
+		Assert.assertNotNull("Device", device);
+
+		Map<String, Object> joltDevice = TransformManager.chooseResourceByReference(result, joltReference);
+		Assert.assertNotNull("Jolt device", joltDevice);
+
+		verify(device, joltDevice);
 	}
 
 	public void verifyEntity(Practitioner practitioner, PractitionerRole role, Organization org) throws Exception {
@@ -1489,7 +1532,16 @@ public class JoltUtil {
 				Assert.assertNotNull("Jolt author exists", joltReferenceObject);
 				String joltReference = (String) joltReferenceObject.get("reference");
 
-				verifyEntity(reference, joltReference);
+				Resource resource = bundleUtil.getResourceFromReference(reference, Resource.class);
+				Assert.assertNotNull("Author resource exists", resource);
+
+				if (resource instanceof Practitioner) {
+					verifyEntity(reference, joltReference);
+				} else if (resource instanceof Device) {
+					verifyDeviceEntity(reference, joltReference);
+				} else {
+					Assert.assertTrue("Author device or practitioner", false);
+				}
 
 				joltReferenceObject = new LinkedHashMap<String, Object>(joltReferenceObject);
 				joltReferences.set(index, joltReferenceObject);

@@ -35,7 +35,27 @@ public class Assign implements ContextualTransform, SpecDriven {
 		}
 		Map<String, Object> inputAsMap = (Map<String, Object>) input;
 		Map<String, Object> outputAsMap = (Map<String, Object>) output;
-		outputAsMap.putAll(inputAsMap);
-		return outputAsMap;
+		outputAsMap.entrySet().forEach(entry -> { // only top level merge
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			if (!inputAsMap.containsKey(key)) {
+				inputAsMap.put(key, value);
+				return;
+			}
+			if (!(value instanceof Map)) {
+				inputAsMap.put(key, value);
+				return;
+			}
+			Object currentValue = inputAsMap.get(key);
+			if (currentValue == null || !(currentValue instanceof Map)) {
+				inputAsMap.put(key, value);
+				return;
+			}
+			Map<String, Object> currentValueAsMap = (Map<String, Object>) currentValue;
+			Map<String, Object> valueAsMap = (Map<String, Object>) value;
+			currentValueAsMap.putAll(valueAsMap);
+		});
+
+		return inputAsMap;
 	}
 }

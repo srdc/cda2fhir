@@ -1,0 +1,80 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"assignedAuthor": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"nullFlavor": "n",
+					"assignedAuthor": {
+						"nullFlavor": "n",
+						"assignedAuthoringDevice": {
+							"nullFlavor": "n"
+						},
+						"representedOrganization": {
+							"nullFlavor": "n"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"assignedAuthor": {
+						"assignedPerson": {
+							"nullFlavor": "y"
+						}
+					}
+				},
+				{
+					"assignedAuthor": {
+						"assignedPerson": "n"
+					}
+				}
+			]
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"assignedAuthor": ["Device.->EntityDevice", "Organization.->EntityOrganization"]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Identity"
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Assign",
+		"spec": {
+			"Organization": "Device.owner.reference"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.AdditionalModifier",
+		"spec": {
+			"Device": {
+				"owner": {
+					"reference": "=getId(@0)"
+				}
+			}
+		}
+	}
+]

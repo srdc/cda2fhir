@@ -1,0 +1,48 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"id": "MANY"
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"assignedAuthoringDevice": {
+						"nullFlavor": "n"
+					}
+				}
+			]
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"id": {
+				"*": "identifier[].->ID"
+			},
+			"assignedAuthoringDevice": {
+				"manufacturerModelName": ["manufacturer", "type.coding[0].display"],
+				"softwareName": "version"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.SquashNulls",
+		"spec": {}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.ResourceAccumulator",
+		"spec": {
+			"resourceType": "Device"
+		}
+	}
+]

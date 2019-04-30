@@ -140,6 +140,11 @@ public class MainTest {
 	}
 
 	@Test
+	public void testEntityDevice() throws Exception {
+		actualTest("EntityDevice");
+	}
+
+	@Test
 	public void testProcedureActivityProcedure() throws Exception {
 		actualTest("ProcedureActivityProcedure");
 	}

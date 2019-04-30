@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Observation;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -33,6 +36,7 @@ public class CCDTest {
 	private static CDAFactories factories;
 
 	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
+	private static BiConsumer<Map<String, Object>, Resource> customJoltUpdate2; // Hack for now
 
 	@BeforeClass
 	public static void init() {
@@ -75,6 +79,10 @@ public class CCDTest {
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
 		if (customJoltUpdate != null) {
 			joltUtil.setValueChanger(customJoltUpdate);
+		}
+		if (customJoltUpdate2 != null) {
+			joltUtil.setValueChanger(customJoltUpdate2);
+
 		}
 
 		joltUtil.verify(composition);
@@ -145,9 +153,39 @@ public class CCDTest {
 	}
 
 	@Ignore
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testEpicSample1() throws Exception {
+		customJoltUpdate = resource -> {
+			if (resource.get("resourceType").equals("Condition")) {
+				JoltUtil.getFloatUpdate("346.8", "346.80").accept(resource);
+				JoltUtil.getFloatUpdate("300", "300.00").accept(resource);
+				JoltUtil.getFloatUpdate("845", "845.00").accept(resource);
+			}
+		};
+		customJoltUpdate2 = (r, resource) -> {
+			if (resource instanceof Observation) {
+				Observation observation = (Observation) resource;
+				if (!observation.hasCode()) {
+					r.remove("code");
+				}
+				if (observation.hasIdentifier()) {
+					int count = observation.getIdentifier().size();
+					List<Object> joltIdentifiers = (List<Object>) r.get("identifier");
+					for (int index = 0; index < count; ++index) {
+						Map<String, Object> joltIdentifier = (Map<String, Object>) joltIdentifiers.get(index);
+						String value = (String) joltIdentifier.get("value");
+						if (value.startsWith("3.78")) {
+							String actualValue = observation.getIdentifier().get(index).getValue();
+							joltIdentifier.put("value", actualValue);
+						}
+					}
+				}
+			}
+		};
 		runSampleTest("Epic/DOC0001.XML");
+		customJoltUpdate = null;
+		customJoltUpdate2 = null;
 	}
 
 	@Ignore

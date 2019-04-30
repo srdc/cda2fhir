@@ -106,9 +106,11 @@ public class AdditionalModifier implements SpecDriven, ContextualTransform {
 			return display;
 		}
 
-		display = getDisplayFromCode(map, "type");
-		if (display != null) {
-			return display;
+		if (!"Device".equals(map.get("resourceType"))) {
+			display = getDisplayFromCode(map, "type");
+			if (display != null) {
+				return display;
+			}
 		}
 
 		if (map.get("name") != null) {
