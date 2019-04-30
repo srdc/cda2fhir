@@ -3,6 +3,8 @@ package tr.com.srdc.cda2fhir.jolt;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Composition;
@@ -28,6 +30,8 @@ public class CCDTest {
 	private static final String OUTPUT_PATH = "src/test/resources/output/jolt/CCD/";
 
 	private static CDAFactories factories;
+
+	private static Consumer<Map<String, Object>> customJoltUpdate; // Hack for now
 
 	@BeforeClass
 	public static void init() {
@@ -68,6 +72,9 @@ public class CCDTest {
 		File xmlFile = CDAUtilExtension.writeAsXML(ccd, OUTPUT_PATH, caseName);
 		List<Object> joltResult = JoltUtil.findJoltDocumentResult(xmlFile, "CCD", caseName);
 		JoltUtil joltUtil = new JoltUtil(joltResult, bundle, caseName, OUTPUT_PATH);
+		if (customJoltUpdate != null) {
+			joltUtil.setValueChanger(customJoltUpdate);
+		}
 
 		joltUtil.verify(composition);
 	}
@@ -102,5 +109,19 @@ public class CCDTest {
 	@Test
 	public void testSample1() throws Exception {
 		runSampleTest("C-CDA_R2-1_CCD.xml");
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSample2() throws Exception {
+		customJoltUpdate = resource -> {
+			if (resource.get("resourceType").equals("Composition")) {
+				List<Object> values = JoltUtil.findPathValue(resource, "event[].period");
+				Map<String, Object> period = (Map<String, Object>) values.get(0);
+				period.put("end", "2015-07-22T23:00:00+00:00"); // invalid time in file
+			}
+		};
+		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
+		customJoltUpdate = null;
 	}
 }

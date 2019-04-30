@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -1637,6 +1638,17 @@ public class JoltUtil {
 		if (composition.hasSection()) {
 			List<SectionComponent> sections = composition.getSection();
 			List<Object> joltSections = (List<Object>) joltClone.get("section");
+			joltSections = new ArrayList<Object>(joltSections);
+			joltClone.put("section", joltSections);
+			Iterator<Object> itr = joltSections.iterator();
+			while (itr.hasNext()) {
+				Map<String, Object> sect = (Map<String, Object>) itr.next();
+				List<Object> entries = (List<Object>) sect.get("entry");
+				if (entries == null || entries.size() == 0) {
+					itr.remove();
+				}
+			}
+
 			Assert.assertEquals("Section count", sections.size(), joltSections.size());
 
 			sortSections(sections, joltSections);
