@@ -3,6 +3,7 @@ package tr.com.srdc.cda2fhir.jolt;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -111,6 +112,7 @@ public class Substitute implements SpecDriven, ContextualTransform {
 			return null;
 		}
 
+		Map<String, Object> topObject = new LinkedHashMap<>();
 		Iterator<Map.Entry<String, Object>> itr = object.entrySet().iterator();
 
 		List<String> topSubstitutes = new ArrayList<String>();
@@ -121,6 +123,10 @@ public class Substitute implements SpecDriven, ContextualTransform {
 			Chainr chainr = templates.get(key);
 			if (chainr != null) {
 				topSubstitutes.add(key);
+				Map<String, Object> additionalKeys = (Map<String, Object>) chainr.transform(value, context);
+				if (additionalKeys != null && !additionalKeys.isEmpty()) {
+					topObject.putAll(additionalKeys);
+				}
 				continue;
 			}
 			if (value instanceof List) {
@@ -143,14 +149,9 @@ public class Substitute implements SpecDriven, ContextualTransform {
 		}
 
 		for (String key : topSubstitutes) {
-			Object value = object.get(key);
-			Chainr chainr = templates.get(key);
-			Map<String, Object> additionalKeys = (Map<String, Object>) chainr.transform(value, context);
-			if (additionalKeys != null && !additionalKeys.isEmpty()) {
-				object.putAll(additionalKeys);
-			}
 			object.remove(key);
 		}
+		object.putAll(topObject);
 
 		if (object.isEmpty() && !allowEmpty) {
 			return null;

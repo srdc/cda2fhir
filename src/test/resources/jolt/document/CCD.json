@@ -45,6 +45,9 @@
 				"confidentialityCode": {
 					"code": "confidentiality"
 				},
+				"recordTarget": {
+					"0": "Subject.->PatientRole"
+				},
 				"author": "->AuthorParticipation",
 				"legalAuthenticator": "attester[].->LegalAttester",
 				"authenticator": {
@@ -57,9 +60,6 @@
 					"assignedCustodian": {
 						"representedCustodianOrganization": "Custodian.->Organization"
 					}
-				},
-				"recordTarget": {
-					"0": "Subject.->PatientRole"
 				},
 				"component": {
 					"structuredBody": {
@@ -127,7 +127,7 @@
 			}
 		}
 	},
-	{
+	{ 
 		"operation": "remove",
 		"spec": {
 			"Practitioner": "",

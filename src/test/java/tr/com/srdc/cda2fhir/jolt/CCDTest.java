@@ -124,4 +124,22 @@ public class CCDTest {
 		runSampleTest("170.315_b1_toc_gold_sample2_v1.xml");
 		customJoltUpdate = null;
 	}
+
+	@Test
+	public void testSample3() throws Exception {
+		Consumer<Map<String, Object>> conditionJoltUpdate = JoltUtil.getFloatUpdate("346.1", "346.10");
+		customJoltUpdate = resource -> {
+			if (resource.get("resourceType").equals("Condition")) {
+				conditionJoltUpdate.accept(resource);
+			}
+			if (resource.get("resourceType").equals("Immunization")) {
+				String date = (String) resource.get("date");
+				if ("2006-06-28T14:24:00".equals(date)) {
+					resource.put("date", "2006-06-28T14:24:00-05:00");
+				}
+			}
+		};
+		runSampleTest("Vitera_CCDA_SMART_Sample.xml");
+		customJoltUpdate = null;
+	}
 }

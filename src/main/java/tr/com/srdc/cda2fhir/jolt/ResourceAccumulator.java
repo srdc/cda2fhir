@@ -210,10 +210,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 			}
 		}
 
-		if (input != null && "Organization".equals(resourceType))
-
-		{
-
+		if (input != null && "Organization".equals(resourceType)) {
 			IdentifierMap<Map<String, Object>> organizationMap = (IdentifierMap<Map<String, Object>>) context
 					.get("ORGANIZATION_MAP");
 
@@ -234,7 +231,7 @@ public class ResourceAccumulator implements SpecDriven, ContextualTransform {
 							String system = identifier.get("system");
 							String value = identifier.get("value");
 
-							Map<String, Object> existing = organizationMap.get(system, value);
+							Map<String, Object> existing = organizationMap.get(resourceType, system, value);
 
 							if (existing != null) {
 								return existing;
