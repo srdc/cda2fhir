@@ -48,9 +48,9 @@ clinicalDocument.component.structuredBody.component[].section.title,Composition.
 clinicalDocument.confidentialityCode.code,Composition.confidentiality,,,
 clinicalDocument.custodian.assignedCustodian.representedCustodianOrganization,Custodian,Organization,,
 clinicalDocument.documentationOf[].serviceEvent.effectiveTime,Composition.event[].period,IVL_TSPeriod,,
-clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,EventOrganization[],EntityOrganization,,
-clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,EventPractitionerRole[],EntityPractitionerRole,,
-clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,EventPractitioner[],EntityPractitioner,,
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,EventOrganization[],EntityOrganization,,,clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.nullFlavor isnull,clinicalDocument.documentationOf[].serviceEvent.performer[].nullFlavor isnull
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,EventPractitionerRole[],EntityPractitionerRole,,,clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.nullFlavor isnull,clinicalDocument.documentationOf[].serviceEvent.performer[].nullFlavor isnull
+clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity,EventPractitioner[],EntityPractitioner,,,clinicalDocument.documentationOf[].serviceEvent.performer[].assignedEntity.nullFlavor isnull,clinicalDocument.documentationOf[].serviceEvent.performer[].nullFlavor isnull
 clinicalDocument.effectiveTime.value,Composition.date,,"datetimeAdapter",,clinicalDocument.effectiveTime.nullFlavor isnull
 clinicalDocument.id,Composition.identifier,ID,,
 clinicalDocument.legalAuthenticator.#legal,Composition.attester[].mode[],,,

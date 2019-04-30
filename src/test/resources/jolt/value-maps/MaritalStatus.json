@@ -57,7 +57,7 @@
 	],
 	"W": [
 		{
-			"code": "U",
+			"code": "W",
 			"display": "Widowed",
 			"system": "http://hl7.org/fhir/v3/MaritalStatus"
 		}

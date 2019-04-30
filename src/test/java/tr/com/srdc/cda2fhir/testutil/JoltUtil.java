@@ -1687,12 +1687,9 @@ public class JoltUtil {
 			}
 		}
 
-		if (composition.hasSection()) {
-			List<SectionComponent> sections = composition.getSection();
-			List<Object> joltSections = (List<Object>) joltClone.get("section");
-			joltSections = new ArrayList<Object>(joltSections);
-			joltClone.put("section", joltSections);
-			Iterator<Object> itr = joltSections.iterator();
+		List<Object> joltSectionsTop = (List<Object>) joltClone.get("section");
+		if (joltSectionsTop != null) {
+			Iterator<Object> itr = joltSectionsTop.iterator();
 			while (itr.hasNext()) {
 				Map<String, Object> sect = (Map<String, Object>) itr.next();
 				List<Object> entries = (List<Object>) sect.get("entry");
@@ -1700,6 +1697,16 @@ public class JoltUtil {
 					itr.remove();
 				}
 			}
+			if (joltSectionsTop.size() == 0) {
+				joltClone.remove("section");
+			}
+		}
+
+		if (composition.hasSection()) {
+			List<SectionComponent> sections = composition.getSection();
+			List<Object> joltSections = (List<Object>) joltClone.get("section");
+			joltSections = new ArrayList<Object>(joltSections);
+			joltClone.put("section", joltSections);
 
 			Assert.assertEquals("Section count", sections.size(), joltSections.size());
 

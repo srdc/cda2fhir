@@ -1,13 +1,13 @@
-CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2,Condition 3
 procedure.code,Procedure.code,CD2,,,procedure.nullFlavor isnull
 procedure.effectiveTime,Procedure.performedPeriod,IVL_TSPeriod,,,procedure.nullFlavor isnull
 procedure.entryRelationship[].act.text.reference.value,Procedure.note[].text,,"resolveText",,procedure.entryRelationship[].typeCode equal SUBJ,procedure.nullFlavor isnull
 procedure.entryRelationship[].encounter.id,Procedure.context,ID,"deferredUpdate",,procedure.entryRelationship[].typeCode equal COMP,procedure.nullFlavor isnull
 procedure.entryRelationship[].observation.code,Procedure.reasonCode[],CD,,,procedure.entryRelationship[].typeCode equal RSON,procedure.nullFlavor isnull
 procedure.id[],Procedure.identifier[],ID,,,procedure.nullFlavor isnull
-procedure.performer[].assignedEntity,Organization[],EntityOrganization,,,procedure.nullFlavor isnull
-procedure.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,,procedure.nullFlavor isnull
-procedure.performer[].assignedEntity,Practitioner[],EntityPractitioner,,,procedure.nullFlavor isnull
+procedure.performer[].assignedEntity,Organization[],EntityOrganization,,,procedure.nullFlavor isnull,procedure.performer[].assignedEntity.nullFlavor isnull,procedure.performer[].nullFlavor isnull
+procedure.performer[].assignedEntity,PractitionerRole[],EntityPractitionerRole,,,procedure.nullFlavor isnull,procedure.performer[].assignedEntity.nullFlavor isnull,procedure.performer[].nullFlavor isnull
+procedure.performer[].assignedEntity,Practitioner[],EntityPractitioner,,,procedure.nullFlavor isnull,procedure.performer[].assignedEntity.nullFlavor isnull,procedure.performer[].nullFlavor isnull
 procedure.statusCode.code,Procedure.status,,"valueSetAdapter('ProcedureStatus','unknown')",,procedure.nullFlavor isnull,procedure.statusCode.nullFlavor isnull
 procedure.targetSiteCode[],Procedure.bodySite[],CD,,,procedure.nullFlavor isnull
 Organization[],Procedure.performer[].onBehalfOf.reference,,"getId",
