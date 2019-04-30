@@ -1,4 +1,4 @@
-CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2,Condition 3
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2,Condition 3,Condition 4
 clinicalDocument.#constantClass,Composition.class.coding[],,"constantValue('CCDClassConstant')",
 clinicalDocument.#preliminary,Composition.status,,,
 clinicalDocument.authenticator[].#professional,Composition.attester[].mode[],,,
@@ -6,9 +6,9 @@ clinicalDocument.authenticator[].assignedEntity,Attester,EntityPractitioner,,
 clinicalDocument.authenticator[].assignedEntity,AttesterOrganization,EntityOrganization,,
 clinicalDocument.authenticator[].assignedEntity,AttesterRole,EntityPractitionerRole,,
 clinicalDocument.authenticator[].time.value,Composition.attester[].time,,"datetimeAdapter",
-clinicalDocument.author.assignedAuthor,Organization,EntityOrganization,,,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
-clinicalDocument.author.assignedAuthor,Practitioner,EntityPractitioner,,,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
-clinicalDocument.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
+clinicalDocument.author.assignedAuthor,Organization,EntityOrganization,,,clinicalDocument.author.assignedAuthor.assignedPerson isnotnull,clinicalDocument.author.assignedAuthor.assignedPerson.nullFlavor isnull,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
+clinicalDocument.author.assignedAuthor,Practitioner,EntityPractitioner,,,clinicalDocument.author.assignedAuthor.assignedPerson isnotnull,clinicalDocument.author.assignedAuthor.assignedPerson.nullFlavor isnull,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
+clinicalDocument.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,,clinicalDocument.author.assignedAuthor.assignedPerson isnotnull,clinicalDocument.author.assignedAuthor.assignedPerson.nullFlavor isnull,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
 clinicalDocument.code,Composition.type,CD,,
 clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 48765-2
 clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0

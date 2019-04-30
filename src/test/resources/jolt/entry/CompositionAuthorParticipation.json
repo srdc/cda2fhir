@@ -1,0 +1,61 @@
+[
+	{
+		"operation": "cardinality",
+		"spec": {
+			"assignedAuthor": {
+				"id": "MANY"
+			}
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"nullFlavor": "n",
+					"assignedAuthor": {
+						"nullFlavor": "n",
+						"assignedPerson": "y"
+					}
+				}
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.KeepWhen",
+		"spec": {
+			"target": "*",
+			"conditions": [
+				{
+					"assignedAuthor": {
+						"assignedPerson": {
+							"nullFlavor": "n"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.EntityIdDefault",
+		"spec": {
+			"path": "assignedAuthor"
+		}
+	},
+	{
+		"operation": "shift",
+		"spec": {
+			"assignedAuthor": [
+				"Practitioner.->EntityPractitioner",
+				"Organization.->EntityOrganization",
+				"PractitionerRole.->EntityPractitionerRole"
+			]
+		}
+	},
+	{
+		"operation": "tr.com.srdc.cda2fhir.jolt.Substitute",
+		"spec": {
+		}
+	}
+]

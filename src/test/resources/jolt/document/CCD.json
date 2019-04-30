@@ -48,7 +48,7 @@
 				"recordTarget": {
 					"0": "Subject.->PatientRole"
 				},
-				"author": "->AuthorParticipation",
+				"author": "->CompositionAuthorParticipation",
 				"legalAuthenticator": "attester[].->LegalAttester",
 				"authenticator": {
 					"*": "attester[].->Attester"
