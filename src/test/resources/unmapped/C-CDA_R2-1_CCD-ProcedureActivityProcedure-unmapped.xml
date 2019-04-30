@@ -63,10 +63,7 @@
                </participantRole>
             </participant>
             <entryRelationship inversionInd="true" typeCode="COMP">
-               <encounter classCode="ENC" moodCode="EVN">
-                  <id root="2a620155-9d11-439e-92b3-5d9815ff4de8"/>
-               </encounter>
-            </entryRelationship>
+							</entryRelationship>
          </procedure>
       </entry>
       <entry>

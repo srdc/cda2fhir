@@ -1,7 +1,7 @@
-CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2
-organizer.author[].assignedAuthor,Organization[],EntityOrganization,,,organizer.nullFlavor isnull
-organizer.author[].assignedAuthor,PractitionerRole[],EntityPractitionerRole,,,organizer.nullFlavor isnull
-organizer.author[].assignedAuthor,Practitioner[],EntityPractitioner,,,organizer.nullFlavor isnull
+CCDA Source,Target,Link,Format,Default,Condition 1,Condition 2,Condition 3
+organizer.author[].assignedAuthor,Organization[],EntityOrganization,,,organizer.author[].assignedAuthor.nullFlavor isnull,organizer.author[].nullFlavor isnull,organizer.nullFlavor isnull
+organizer.author[].assignedAuthor,PractitionerRole[],EntityPractitionerRole,,,organizer.author[].assignedAuthor.nullFlavor isnull,organizer.author[].nullFlavor isnull,organizer.nullFlavor isnull
+organizer.author[].assignedAuthor,Practitioner[],EntityPractitioner,,,organizer.author[].assignedAuthor.nullFlavor isnull,organizer.author[].nullFlavor isnull,organizer.nullFlavor isnull
 organizer.code,DiagnosticReport.code,CD2,,,organizer.nullFlavor isnull
 organizer.component[],Observation[],Observation,,,organizer.nullFlavor isnull
 organizer.effectiveTime,DiagnosticReport.effectivePeriod,IVL_TSPeriod,,,organizer.nullFlavor isnull

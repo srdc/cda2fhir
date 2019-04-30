@@ -6,9 +6,9 @@ clinicalDocument.authenticator[].assignedEntity,Attester,EntityPractitioner,,
 clinicalDocument.authenticator[].assignedEntity,AttesterOrganization,EntityOrganization,,
 clinicalDocument.authenticator[].assignedEntity,AttesterRole,EntityPractitionerRole,,
 clinicalDocument.authenticator[].time.value,Composition.attester[].time,,"datetimeAdapter",
-clinicalDocument.author.assignedAuthor,Organization,EntityOrganization,,
-clinicalDocument.author.assignedAuthor,Practitioner,EntityPractitioner,,
-clinicalDocument.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,
+clinicalDocument.author.assignedAuthor,Organization,EntityOrganization,,,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
+clinicalDocument.author.assignedAuthor,Practitioner,EntityPractitioner,,,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
+clinicalDocument.author.assignedAuthor,PractitionerRole,EntityPractitionerRole,,,clinicalDocument.author.assignedAuthor.nullFlavor isnull,clinicalDocument.author.nullFlavor isnull
 clinicalDocument.code,Composition.type,CD,,
 clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 48765-2
 clinicalDocument.component.structuredBody.component[].section.#snapshot,Composition.section[].mode,,,,clinicalDocument.component.structuredBody.component[].section.code.code equal 10160-0

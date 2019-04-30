@@ -75,7 +75,11 @@ public class KeepWhen implements ContextualTransform, SpecDriven, IRootNodeUpdat
 				}
 				throw new ReportException("KeepWhen can only have 'n', 'y*', or '=*' as targets.");
 			}).collect(Collectors.toList());
-			orConditionVariables.add(conditionVariables);
+			if (conditionVariables.size() > 0) {
+				orConditionVariables.add(conditionVariables);
+			} else {
+				orConditionVariables.add(null);
+			}
 			if (conditions.size() == 1) {
 				return conditions.get(0);
 			}
